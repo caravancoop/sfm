@@ -1,0 +1,223 @@
+{% extends "base_sidebar.html"  %}
+{% load i18n %}
+{% load tablesort %}
+{% block content %}
+ <!-- /.row -->
+  <div id="page-wrapper">
+    <div class="col-lg-12">
+                    <h1 class="page-header">{% blocktrans %}Projects{% endblocktrans %}</h1>
+                </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading ">
+                            <div class="row">
+                            <form id="searchform" class="searchform">
+                                <div class="form-group col-md-12">
+                                    <div class="form-group col-md-4">
+                                        <label for="Artist">{% blocktrans %}Artist{% endblocktrans %}</label>
+                                        <select name="artist" id="artist" class="artists searchfield form-control">
+                                            <option></option>
+                                            {% for thename,thelist in artists%}
+                                                <optgroup label="{{ thename}}">
+                                                    
+                                                {% for theid, artist in thelist %}
+                                                    {% ifequal theid artist_id %}
+                                                        <option value="{{theid}}" selected="selected">{{artist}}</option>
+                                                    {% else %}
+                                                        <option value="{{theid}}">{{artist}}</option>
+                                                    {% endifequal %}
+                                                {% endfor %}
+                                                </optgroup>
+                                            {% endfor %}
+                                        </select>
+                                        
+                                    </div>
+                                </div>
+                                
+                            </form>
+                            
+                            </div>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div class="dataTable_wrapper">
+                                <table class="table table-striped table-bordered table-hover dataTable" id="dataTables-example">
+                                    <thead>
+                                        <tr>
+                                        {% with orderby|add:","|add:direction as orderbydirection %}
+                                            <th class="col-md-5 sorting{{ "name"|is_in:orderbydirection  }}" id="name">{% blocktrans %}Name{% endblocktrans %} </th>
+                                            <th class="col-md-6" id="artist_name">{% blocktrans %}Artist{% endblocktrans %}</th>
+                                            <th class="col-md-1" id=""></th>
+                                            
+                                        {% endwith %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                      {% if project %}
+                                        {% for key, e in project%}
+                                        <tr class="odd">
+                                            <td><a class="linkrow" href="{% url 'edit_project' pk=e.project_id%}">{{ e.name }}</a></td>
+                                            <td>{{ e.artist_name }}</td>
+                                            <td class="center">
+                                              <a class="btn btn-danger btn-xs btn-block" href="{% url 'delete_project' pk=e.project_id %}"><i class="fa fa-trash-o"></i></a>
+                                            </td>
+                                        </tr>
+                                      {% endfor %}
+                                      {% else %}
+                                        <tr>
+                                            <td colspan="3">{% blocktrans %}No results found{% endblocktrans %}</td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                                
+                                
+                                {% with '&orderby='|add:orderby|add:'&direction='|add:direction as urlparam %}
+                                <ul class="pagination">
+                                  {% if project.has_previous %}
+                                    <li><a href="?page={{ project.previous_page_number }}{{ urlparam }}">&laquo;</a></li>
+                                  {% else %}
+                                    <li class="disabled"><a href="#">&laquo;</a></li>
+                                  {% endif %}
+                              
+                                  {% for num in project.paginator.page_range %}
+                                    {% ifequal num project.number %}
+                                      <li class="active"><a href="#">{{ num }}<span class="sr-only">(current)</span></a></li>
+                                    {% else %}
+                                      <li><a href="?page={{ num }}{{ urlparam }}">{{ num }}</a></li>
+                                    {% endifequal %}
+                                  {% endfor %}
+                              
+                                  {% if project.has_next %}
+                                    <li><a href="?page={{ project.next_page_number }}{{ urlparam }}">&raquo;</a></li>
+                                  {% else %}
+                                    <li class="disabled"><a href="#">&raquo;</a></li>
+                                  {% endif %}
+                                <ul>
+                              {% endwith %}                                    
+                            </div>
+                            <!-- /.table-responsive -->
+                 
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+             </div>
+        <!-- /#page-wrapper -->
+        
+                            <!-- Modal -->
+                            <div class="modal fade" id="publishModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                            <h4 class="modal-title" id="myModalLabel">{% blocktrans%}Publish{% endblocktrans%}</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>
+                                                <label>{% blocktrans%}Public french link{% endblocktrans%}</label><br />
+                                                <span id="url_fr"></span>
+                                            </p>
+                                            <p>
+                                                <label>{% blocktrans%}Public english link{% endblocktrans%}</label><br />
+                                                <span id="url_en"></span>
+                                            </p>
+                                            <p>
+                                                <label>{% blocktrans%}Admin link{% endblocktrans%}</label><br />
+                                                <span id="url_admin"></span>
+                                            </p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                    <!-- /.modal-content -->
+                                </div>
+                                <!-- /.modal-dialog -->
+                            </div>
+                            <!-- /.modal -->
+        
+{% endblock %}
+{% block javascript %}
+    <script src="{{ STATIC_URL }}bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="{{ STATIC_URL }}bower_components/jquery-ui/ui/datepicker.js"></script>
+        <script src="{{ STATIC_URL }}bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
+        <script src="{{ STATIC_URL }}js/fields.js"></script>
+        <script>
+            $(document).ready(function() {
+                
+                $(".sorting").on("click", function(){
+                var params = jQuery.param( {'page': '{{project.number}}','orderby':this.id ,direction:'DESC'} );
+                window.location.href = '//' + location.host + location.pathname+'?'+params +'&'+ $('.searchform').serialize();
+                });
+                $(".sorting_desc").on("click", function(){
+                var params = jQuery.param( {'page': '{{project.number}}','orderby':this.id ,direction:'ASC'} );
+                window.location.href = '//' + location.host + location.pathname+'?'+params +'&'+ $('.searchform').serialize();
+                });
+                $(".sorting_asc").on("click", function(){
+                var params = jQuery.param( {'page': '{{project.number}}','orderby':'' ,direction:'' });
+                window.location.href = '//' + location.host + location.pathname+'?'+params +'&'+ $('.searchform').serialize();
+                });
+                
+                
+                $('.searchfield').change(function(){
+                        var params = jQuery.param( {'page': '{{project.number}}','orderby':'{{ orberby }}' ,direction:'{{ direction }}' });
+                        window.location.href = '//' + location.host + location.pathname+'?'+params+'&'+$('.searchform').serialize();
+                });
+                
+                $(function() {
+                    var fromDate = $("#from").datepicker({
+                        defaultDate: "+1w",
+                        numberOfMonths: 2,
+                        dateFormat: 'yy-mm-dd',
+                        onSelect: function(selectedDate) {
+                            var instance = $(this).data("datepicker");
+                            var date = $.datepicker.parseDate(instance.settings.dateFormat || $.datepicker._defaults.dateFormat, selectedDate, instance.settings);
+                            date.setDate(date.getDate()+30);
+                            toDate.datepicker("option", "minDate", date);
+                            $('#to').trigger("change");
+                        }
+                    });
+                    
+                    var toDate = $("#to").datepicker({
+                        defaultDate: "+1w",
+                        dateFormat: 'yy-mm-dd',
+                        numberOfMonths: 2
+                    });
+                });
+                $(".datepicker").keypress(function(project) {project.prprojectDefault();});
+                
+                $('#btnPublishModal').on('click', function (e) {
+                    
+                    $.getJSON("/ajax/publish/" + '?' +$('.searchform').serialize(), function(jsonData){
+                        if (jsonData['code'] == '200') {
+                            data = jsonData['result']
+                        
+                            $("#url_fr").html(location.protocol + '//' + location.host+'/fr'+data['url']);
+                            $("#url_en").html(location.protocol + '//' + location.host+'/en'+data['url']);
+                            $("#url_admin").html(location.protocol + '//' + location.host + location.pathname+'?&'+$('.searchform').serialize());
+
+                        }
+                        $(".releases").html(cb);
+                    });
+                    
+                 
+                });
+                $(".linkrow").each(function(){
+                    var link = $(this).attr('href');
+                    $(this).parent().parent().find("td").click(function(){
+                        
+                        window.location.href=link;
+                        });
+                    });
+            });
+    </script>
+{% endblock %}
+
+
+    

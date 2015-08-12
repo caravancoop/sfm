@@ -1,0 +1,6 @@
+<script>
+    $("#myModal").modal("hide");
+    if($("[name={{model}}]").closest("form").find("#id_artist").val() == "{{artist}}"){
+    $("[name={{model}}]").append('<option value="{{pk}}" selected="selected">{{name}}</option>');
+    }
+</script>

@@ -1,0 +1,125 @@
+{% extends "base_sidebar.html"  %}
+{% load i18n %}
+{% block content %}
+<div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">Dashboard</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-archive fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">{{ pressclipping_count }}</div>
+                                    <div>{% blocktrans %}Press clippings{% endblocktrans %}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{% url "pressclipping" %}">
+                            <div class="panel-footer">
+                                <span class="pull-left">{% blocktrans %}View details{% endblocktrans %}</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-yellow">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-ticket fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">{{ event_count }}</div>
+                                    <div>{% blocktrans %}Clients{% endblocktrans %}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{% url "event" %}">
+                            <div class="panel-footer">
+                                <span class="pull-left">{% blocktrans %}View details{% endblocktrans %}</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-folder fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">{{ project_count }}</div>
+                                    <div>{% blocktrans %}Projects{% endblocktrans %}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{% url "project" %}">
+                            <div class="panel-footer">
+                                <span class="pull-left">{% blocktrans %}View details{% endblocktrans %}</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-9">
+                    
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bar-chart-o fa-fw"></i> {% blocktrans %}Progression of data last 5 years{% endblocktrans %}
+                            
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="morris-area-chart">
+                      
+                            </div>
+                                    <div class="progress progress-striped active morris-loading">
+                                        <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
+                                            <span class="sr-only">40% Complete (success)</span>
+                                        </div>
+                                    </div>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                </div>
+                <!-- /.col-lg-4 -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /#page-wrapper -->
+{% endblock %}
+{% block javascript %}
+<script>
+$(function() {
+            
+        function fetchData(){
+            $.getJSON("/ajax/dashboard/stats/", function(result){
+            $(".morris-loading").hide();         
+            Morris.Area(result['result']); 
+            });
+        }
+        fetchData();
+
+});
+
+</script>
+{% endblock %}
