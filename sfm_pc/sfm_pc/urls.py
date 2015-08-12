@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import admin
 from .views import *
-from pressclipping.views import *
+from person.views import *
 
 
 urlpatterns = patterns('',
