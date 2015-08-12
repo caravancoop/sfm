@@ -9,7 +9,6 @@ from django.shortcuts import render, render_to_response
 from django.template import RequestContext, loader
 from .models import Person
 from .forms import PersonForm
-from libs.bonsoundapi.client import ApiBonsoundClient
 
 def ajax_request(function):
     def wrapper(request, *args, **kwargs):
@@ -26,9 +25,7 @@ class PersonView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(PersonView, self).get_context_data(**kwargs)
-        api_request = ApiBonsoundClient()
-        artists = api_request.get_artists()['result']
-        artists_list = api_request.get_artists_by_group()
+
         order_by = self.request.GET.get('orderby')
         if not order_by:
             order_by = 'name'
@@ -43,17 +40,6 @@ class PersonView(TemplateView):
 
         person_query = Person.objects.order_by(dirsym + order_by)
 
-        sf_artist_id = self.request.GET.get('artist')
-        if sf_artist_id:
-            person_query = person_query .filter(
-                artist=sf_artist_id)
-
-
-        artists_with_key = {}
-        for artist in artists:
-            artist_id = int(artist['id'])
-            artists_with_key[artist_id] = artist
-
         currlist = {}
         i = 0
 
@@ -61,10 +47,6 @@ class PersonView(TemplateView):
 
             artist_name = ''
             artist_id = None
-            if p.artist:
-                artist_id = int(p.artist)
-                if artists_with_key.has_key(artist_id):
-                    artist_name = artists_with_key[artist_id]['name']
 
             currlist[i] = {
                 'person_id':    p.id,
@@ -94,7 +76,7 @@ class PersonView(TemplateView):
 
         # Search values
         context['artist_id'] = sf_artist_id or ''
-        context['artists'] = artists_list
+        context['artists'] = artists_list or ''
         
         return context
 

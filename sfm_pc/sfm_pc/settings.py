@@ -60,7 +60,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'sfm_pc.utils.RequireLoginMiddleware',
+#    'sfm_pc.utils.RequireLoginMiddleware',
 )
 
 ROOT_URLCONF = 'sfm_pc.urls'
@@ -122,16 +122,42 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = ''
 
+# Additional locations of static files
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+
+# List of finder classes that know how to find static files in
+# various locations.
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+)
 LOGIN_REQUIRED_URLS = (
     r'/(.*)$',
 )
 LOGIN_REQUIRED_URLS_EXCEPTIONS = (
     r'/([a-z]{2})/login(.*)$',
     r'/([a-z]{2})/logout(.*)$',
-    r'/([a-z]{2})/public(.*)$',
+    r'/([a-z]{2})/admin(.*)$',
 )
 
+LOGIN_URL = reverse_lazy('auth_login')
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.core.context_processors.request",
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages"
+)
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
