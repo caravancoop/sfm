@@ -9,7 +9,6 @@ from person.views import *
 
 
 urlpatterns = patterns('',
-                       (r'^localeurl/', include('localeurl.urls')),
                        url(r'^person/', include('person.urls')),
                        # Authentification & account settings
                        url(r'^login/$', 'django.contrib.auth.views.login', {'template_name'\

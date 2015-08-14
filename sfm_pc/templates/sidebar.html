@@ -10,44 +10,19 @@
                             
                         </li>
                         <li class="{% active 'pressclipping' %}">
-                            <a class="{% active 'pressclipping' %}" href="{% url "pressclipping" %}"><i class="fa fa-archive fa-fw"></i> {% blocktrans %}Press clippings{% endblocktrans %}<span class="fa arrow"></span></a>
+                            <a class="{% active 'person' %}" href="{% url "person" %}"><i class="fa fa-archive fa-fw"></i> {% blocktrans %}Person{% endblocktrans %}<span class="fa arrow"></span></a>
                             
                             <ul class="nav nav-second-level collapse" aria-expanded="false">
                                 <li>
-                                    <a class="{% active '/pressclipping/$' %}" href="{% url "pressclipping" %}"> {% blocktrans %}Press clippings{% endblocktrans %}</a>
+                                    <a class="{% active '/person/$' %}" href="{% url "person" %}"> {% blocktrans %}Press clippings{% endblocktrans %}</a>
                                 </li>
                                 <li>
-                                    <a class="{% active 'add_pressclipping' %}" href="{% url "add_pressclipping" %}"><i class="fa fa-plus fa-fw"></i> {% blocktrans %}New{% endblocktrans %}</a>
+                                    <a class="{% active 'add_person' %}" href="{% url "add_person" %}"><i class="fa fa-plus fa-fw"></i> {% blocktrans %}New{% endblocktrans %}</a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
-                        <li class="{% active 'event' %}">
-                            <a class="{% active 'event' %}" href="{% url "event" %}"><i class="fa fa-ticket fa-fw"></i> {% blocktrans %}Clients{% endblocktrans %}<span class="fa arrow"></span></a>
-                            
-                            <ul class="nav nav-second-level collapse" aria-expanded="false">
-                                <li>
-                                    <a class="{% active '/event/$' %}" href="{% url "event" %}"> {% blocktrans %}Clients{% endblocktrans %}</a>
-                                </li>
-                                <li>
-                                    <a class="{% active 'add_event' %}" href="{% url "add_event" %}"><i class="fa fa-plus fa-fw"></i> {% blocktrans %}New{% endblocktrans %}</a>
-                                </li>
-                            </ul>
-                            <!-- /.nav-second-level -->
-                        </li>
-                        <li class="{% active 'project' %}">
-                            <a class="{% active 'project' %}" href="{% url "project" %}"><i class="fa fa-folder fa-fw"></i> {% blocktrans %}Projects{% endblocktrans %}<span class="fa arrow"></span></a>
-                            
-                            <ul class="nav nav-second-level collapse" aria-expanded="false">
-                                <li>
-                                    <a class="{% active '/project/$' %}" href="{% url "project" %}"> {% blocktrans %}Projects{% endblocktrans %}</a>
-                                </li>
-                                <li>
-                                    <a class="{% active 'add_project' %}" href="{% url "add_project" %}"><i class="fa fa-plus fa-fw"></i> {% blocktrans %}New{% endblocktrans %}</a>
-                                </li>
-                            </ul>
-                            <!-- /.nav-second-level -->
-                        </li> 
+                        
                     </ul>
                     
                     

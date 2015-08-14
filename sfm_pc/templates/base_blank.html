@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load localeurl_tags %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,7 +10,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Bonsound</title>
+    <title>SFM</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="/static/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -39,7 +38,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 text-right">
-                {% block lang_link %}{% if LANGUAGE_CODE == 'fr' %}<a href="{% if request.path %}{{ request.path|chlocale:'en' }}{% else %}'/'{% endif %}">EN</a>{% else %}<a href="{% if request.path %}{{ request.path|chlocale:'fr' }}{% else %}/{% endif %}">FR</a>{% endif %}{% endblock %}
+               
             </div>
             {% block content %}{% endblock %}
         </div>
