@@ -1,3 +1,4 @@
 Django==1.8.3
+django-jsonview==0.5.0
 django-localeurl==2.0.2
 django-reversion==1.9.3
