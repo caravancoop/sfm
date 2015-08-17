@@ -28,7 +28,7 @@ class PersonView(TemplateView):
 
         order_by = self.request.GET.get('orderby')
         if not order_by:
-            order_by = 'name'
+            order_by = 'personname__value'
 
         direction = self.request.GET.get('direction')
         if not direction:
@@ -68,16 +68,12 @@ class PersonView(TemplateView):
         except EmptyPage:
             person = paginator.page(paginator.num_pages)
 
-
         context['person'] = person
         context['orderby'] = order_by
         context['direction'] = direction
 
-
         # Search values
-        context['artist_id'] = sf_artist_id or ''
-        context['artists'] = artists_list or ''
-        
+
         return context
 
 
