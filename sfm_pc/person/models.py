@@ -24,6 +24,9 @@ class PersonName(models.Model):
     lang = models.CharField(max_length=5, null=False)
     value = models.TextField()
 
+    class Meta:
+        unique_together = ('person', 'lang')
+
 reversion.register(PersonName)
 
 class PersonAlias(models.Model):
@@ -31,11 +34,17 @@ class PersonAlias(models.Model):
     lang = models.CharField(max_length=5, null=False)
     value = models.TextField()
 
+    class Meta:
+        unique_together = ('person', 'lang')
+
 reversion.register(PersonAlias)
 
 class PersonNotes(models.Model):
     person = models.ForeignKey('Person')
     lang = models.CharField(max_length=5, null=False)
     value = models.TextField()
+
+    class Meta:
+        unique_together = ('person', 'lang')
 
 reversion.register(PersonNotes)
