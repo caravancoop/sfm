@@ -40,25 +40,17 @@ class PersonView(TemplateView):
 
         person_query = Person.objects.order_by(dirsym + order_by)
 
-        currlist = {}
-        i = 0
-
-        for p in person_query:
-
-            artist_name = ''
-            artist_id = None
-
-            currlist[i] = {
-                'person_id':    p.id,
-                'name': p.name or '',
-                'artist_id':    artist_id,
-                'artist_name': artist_name,
+        currlist = [
+            {
+                'person_id': p.id,
+                'name': p.get_name() or '',
+                'alias': p.get_alias(),
+                'notes': p.get_notes()
             }
-            i = i + 1
+            for p in person_query
+        ]
 
-
-
-        paginator = Paginator(currlist.items(), 200)
+        paginator = Paginator(currlist, 200)
 
         page = self.request.GET.get('page')
         try:
