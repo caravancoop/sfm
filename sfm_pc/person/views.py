@@ -7,6 +7,7 @@ from django.views.generic.base import TemplateView
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext, loader
+from django.db.models import Max
 from .models import Person
 from .forms import PersonForm
 
@@ -38,7 +39,9 @@ class PersonView(TemplateView):
         if direction == 'DESC':
             dirsym = '-'
 
-        person_query = Person.objects.order_by(dirsym + order_by)
+        person_query = (Person.objects
+                        .annotate(Max(order_by))
+                        .order_by(dirsym + order_by + "__max"))
 
         currlist = [
             {
