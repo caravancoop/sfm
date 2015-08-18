@@ -80,16 +80,6 @@ class PersonCreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('person')
 
-
-class PersonUpdate(UpdateView):
-    template_name = 'person/form.html'
-    form_class = PersonForm
-    model = Person
-
-    def get_success_url(self):
-        return reverse_lazy('person')
-
-
 class PersonDelete(DeleteView):
     form_class = PersonForm
     model = Person
@@ -117,8 +107,8 @@ class PpPersonCreate(AjaxGeneral):
         return reverse_lazy('Pp_close_person', args=(self.object.id,))
 
 
-class PpPersonUpdate(UpdateView):
-    template_name = 'person/popup/form.html'
+class PersonUpdate(UpdateView):
+    template_name = 'person/edit.html'
     form_class = PersonForm
     model = Person
 

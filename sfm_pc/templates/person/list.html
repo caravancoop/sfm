@@ -7,63 +7,48 @@
  <!-- /.row -->
   <div id="page-wrapper">
     <div class="col-lg-12">
-                    <h1 class="page-header">{% blocktrans %}Projects{% endblocktrans %}</h1>
+                    <h1 class="page-header">{% blocktrans %}Persons{% endblocktrans %}</h1>
                 </div>
             <div class="row">
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading ">
                             <div class="row">
-                            <form id="searchform" class="searchform">
-                                <div class="form-group col-md-12">
-                                    <div class="form-group col-md-4">
-                                        <label for="Artist">{% blocktrans %}Artist{% endblocktrans %}</label>
-                                        <select name="artist" id="artist" class="artists searchfield form-control">
-                                            <option></option>
-                                            {% for thename,thelist in artists%}
-                                                <optgroup label="{{ thename}}">
-                                                    
-                                                {% for theid, artist in thelist %}
-                                                      {% ifequal theid artist_id %}
-                                                        <option value="{{theid}}" selected="selected">{{artist}}</option>
-                                                      {% else %}
-                                                        <option value="{{theid}}">{{artist}}</option>
-                                                    {% endifequal %}
-                                                {% endfor %}
-                                                </optgroup>
-                                            {% endfor %}
-                                        </select>
-                                        
+                                <form id="searchform" class="searchform">
+                                    <div class="form-group col-md-12">
+                                        <div class="form-group col-md-4">
+                                            <label for="Person">{% blocktrans %}Person{% endblocktrans %}</label>
+                                            <input type="text" name="person" id="person" class="searchfield form-control"/>
+                                        </div>
                                     </div>
-                                </div>
-                                
-                            </form>
-                            
+                                </form>
                             </div>
                         </div>
                         <!-- /.panel-heading -->
-                        <!-- /.panel-heading -->
+
                         <div class="panel-body">
                             <div class="dataTable_wrapper">
                                 <table class="table table-striped table-bordered table-hover dataTable" id="dataTables-example">
                                     <thead>
                                         <tr>
                                         {% with orderby|add:","|add:direction as orderbydirection %}
-                                            <th class="col-md-5 sorting{{ "name"|is_in:orderbydirection  }}" id="name">{% blocktrans %}Name{% endblocktrans %} </th>
-                                            <th class="col-md-6" id="artist_name">{% blocktrans %}Artist{% endblocktrans %}</th>
+                                            <th class="col-md-3 sorting{{ "name"|is_in:orderbydirection  }}" id="personname__value">{% blocktrans %}Name{% endblocktrans %} </th>
+                                            <th class="col-md-4" id="personalias_alias">{% blocktrans %}Alias{% endblocktrans %}</th>
+                                            <th class="col-md-4" id="personnotes_notes">{% blocktrans %}Notes{% endblocktrans %}</th>
                                             <th class="col-md-1" id=""></th>
                                             
                                         {% endwith %}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                      {% if project %}
-                                        {% for key, e in project%}
+                                      {% if person %}
+                                        {% for p in person%}
                                         <tr class="odd">
-                                            <td><a class="linkrow" href="{% url 'edit_project' pk=e.project_id%}">{{ e.name }}</a></td>
-                                            <td>{{ e.artist_name }}</td>
+                                            <td><a class="linkrow" href="{% url 'edit_person' pk=p.person_id%}">{{ p.name }}</a></td>
+                                            <td>{{ p.alias }}</td>
+                                            <td>{{ p.notes }}</td>
                                             <td class="center">
-                                              <a class="btn btn-danger btn-xs btn-block" href="{% url 'delete_project' pk=e.project_id %}"><i class="fa fa-trash-o"></i></a>
+                                              <a class="btn btn-danger btn-xs btn-block" href=""><i class="fa fa-trash-o"></i></a>
                                             </td>
                                         </tr>
                                       {% endfor %}
