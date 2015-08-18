@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load tablesort %}
 {% block content %}
+{% load staticfiles %}
+
  <!-- /.row -->
   <div id="page-wrapper">
     <div class="col-lg-12">
@@ -22,9 +24,9 @@
                                                 <optgroup label="{{ thename}}">
                                                     
                                                 {% for theid, artist in thelist %}
-                                                    {% ifequal theid artist_id %}
+                                                      {% ifequal theid artist_id %}
                                                         <option value="{{theid}}" selected="selected">{{artist}}</option>
-                                                    {% else %}
+                                                      {% else %}
                                                         <option value="{{theid}}">{{artist}}</option>
                                                     {% endifequal %}
                                                 {% endfor %}
@@ -144,10 +146,10 @@
         
 {% endblock %}
 {% block javascript %}
-    <script src="{{ STATIC_URL }}bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
-    <script src="{{ STATIC_URL }}bower_components/jquery-ui/ui/datepicker.js"></script>
-        <script src="{{ STATIC_URL }}bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
-        <script src="{{ STATIC_URL }}js/fields.js"></script>
+    <script src="{% static "bower_components/datatables/media/js/jquery.dataTables.min.js" %}"></script>
+    <script src="{% static "bower_components/jquery-ui/ui/datepicker.js" %}"></script>
+        <script src="{% static "bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js" %}"></script>
+        <script src="{% static "js/fields.js" %}"></script>
         <script>
             $(document).ready(function() {
                 
