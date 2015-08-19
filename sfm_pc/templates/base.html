@@ -53,6 +53,11 @@
 
     <!-- jQuery -->
     <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
+    <script src="{% static "bower_components/jquery-ui/ui/core.js" %}"></script>
+    <script src="{% static "bower_components/jquery-ui/ui/widget.js" %}"></script>
+    <script src="{% static "bower_components/jquery-ui/ui/button.js" %}"></script>
+    <script src="{% static "bower_components/jquery-ui/ui/position.js" %}"></script>
+    <script src="{% static "bower_components/jquery-ui/ui/dialog.js" %}"></script>
     <script src="{% static "bower_components/flot/jquery.flot.js" %}"></script>
     <!-- Bootstrap Core JavaScript -->
     <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
@@ -66,8 +71,9 @@
     
 
     <!-- Custom Theme JavaScript -->
-    <script src="{% static "dist/js/sb-admin-2.js"></script>
-    <script src="{% static "js/main.js"></script>
+    <script src="{% static "dist/js/sb-admin-2.js" %}"></script>
+    <script src="{% static "js/main.js" %}"></script>
+    <script src="{% static "js/fields.js" %}"></script>
     {% block javascript %}{% endblock %}
 </body>
 
