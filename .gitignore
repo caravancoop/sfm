@@ -2,3 +2,7 @@ db.sqlite3
 *.pyc
 *.swp
 env/*
+
+# Local configs
+sfm_pc/sfm_pc/settings.py
+
