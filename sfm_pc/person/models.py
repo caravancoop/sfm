@@ -26,8 +26,8 @@ class Person(models.Model):
 
     def set_attribute(self, object_type, value, lang='en'):
         queryset = object_type.objects.filter(person=self, lang=lang)
-        persons = list(queryset[:1])
-        if persons:
+        values = list(queryset[:1])
+        if values:
             values[0].value = value
 
     def get_attribute_object(self, object_type, lang='en'):
