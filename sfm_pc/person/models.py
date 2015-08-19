@@ -2,6 +2,7 @@ import reversion
 
 from django.db import models
 from utils import class_for_name
+from source.models import Source
 
 class Person(models.Model):
     def get_name(self, lang='en'):
@@ -51,6 +52,7 @@ class PersonName(models.Model):
     person = models.ForeignKey('Person')
     lang = models.CharField(max_length=5, null=False)
     value = models.TextField()
+    source = models.ManyToManyField(Source)
 
     class Meta:
         unique_together = ('person', 'lang')
@@ -61,6 +63,7 @@ class PersonAlias(models.Model):
     person = models.ForeignKey('Person')
     lang = models.CharField(max_length=5, null=False)
     value = models.TextField()
+    source = models.ManyToManyField(Source)
 
     class Meta:
         unique_together = ('person', 'lang')

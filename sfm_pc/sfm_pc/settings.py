@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'reversion',
     'sfm_pc',
     'person',
+    'source',
 )
 
 MIDDLEWARE_CLASSES = (
