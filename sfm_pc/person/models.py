@@ -1,6 +1,7 @@
 import reversion
 
 from django.db import models
+from utils import class_for_name
 
 class Person(models.Model):
     def get_name(self, lang='en'):
@@ -8,6 +9,9 @@ class Person(models.Model):
 
     def get_alias(self, lang='en'):
         return self.get_attribute(PersonAlias, lang)
+
+    def set_alias(self, value, lang='en'):
+        self.set_attribute(PersonAlias, value, lang)
 
     def get_notes(self, lang='en'):
         return self.get_attribute(PersonNotes, lang)
@@ -18,6 +22,30 @@ class Person(models.Model):
         if values:
             return values[0].value
         return None
+
+    def set_attribute(self, object_type, value, lang='en'):
+        queryset = object_type.objects.filter(person=self, lang=lang)
+        persons = list(queryset[:1])
+        if persons:
+            values[0].value = value
+
+    def get_attribute_object(self, object_type, lang='en'):
+        if isinstance(object_type, str):
+            object_type = class_for_name(object_type)
+        queryset = object_type.objects.filter(person=self, lang=lang)
+        values = list(queryset[:1])
+        if values:
+            return values[0]
+        return None
+
+    @classmethod
+    def from_id(cls, id_):
+        queryset = cls.objects.filter(id=id_)
+        persons = list(queryset[:1])
+        if persons:
+            return persons[0]
+        return None
+
 
 class PersonName(models.Model):
     person = models.ForeignKey('Person')
