@@ -71,6 +71,22 @@ class PersonView(TemplateView):
 
         return context
 
+class PersonUpdate(UpdateView):
+    template_name = 'person/edit.html'
+
+    form_class = PersonForm
+    model = Person
+
+class FieldUpdate(TemplateView):
+    template_name = 'field/popup/edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(FieldUpdate, self).get_context_data(**kwargs)
+        person = Person.from_id(context.get('person_id'))
+        field = person.get_attribute_object(
+            "Person"+context.get('field_type').capitalize()
+        )
+        context['field'] = field
 
 class PersonCreate(CreateView):
     template_name = 'person/form.html'
@@ -80,21 +96,21 @@ class PersonCreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('person')
 
+"""
 class PersonDelete(DeleteView):
     form_class = PersonForm
     model = Person
     success_url = reverse_lazy('person')
-
 
 class AjaxGeneral(CreateView):
 
     @method_decorator(ajax_request)
     def dispatch(self, *args, **kwargs):
         return super(AjaxGeneral, self).dispatch(*args, **kwargs)
+"""
 
-
-class PpPersonCreate(AjaxGeneral):
-    template_name = 'person/popup/form.html'
+"""class PpPersonCreate(AjaxGeneral):
+    template_name = 'person/popup/form2.html'
     form_class = PersonForm
     model = Person
     
@@ -105,15 +121,10 @@ class PpPersonCreate(AjaxGeneral):
     
     def get_success_url(self):
         return reverse_lazy('Pp_close_person', args=(self.object.id,))
+"""
 
 
-class PersonUpdate(UpdateView):
-    template_name = 'person/edit.html'
-    form_class = PersonForm
-    model = Person
-
-
-class PpPersonCloseView(TemplateView):
+"""class PpPersonCloseView(TemplateView):
     template_name = 'person/popup/close.html'
 
     def get_context_data(self, **kwargs):
@@ -126,3 +137,4 @@ class PpPersonCloseView(TemplateView):
         context['artist'] = person[0].artist or ''
         context['model'] = 'person'
         return context
+"""

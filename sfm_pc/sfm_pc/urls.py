@@ -6,9 +6,11 @@ from django.core.urlresolvers import reverse_lazy
 from django.contrib import admin
 from .views import *
 from person.views import *
+# from field.views import *
 
 
 urlpatterns = patterns('',
+                       # url(r'^field/', include('field.urls')),
                        url(r'^person/', include('person.urls')),
                        # Authentification & account settings
                        url(r'^login/$', 'django.contrib.auth.views.login', {'template_name'\
