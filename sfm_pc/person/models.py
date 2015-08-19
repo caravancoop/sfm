@@ -4,6 +4,8 @@ from django.db import models
 from utils import class_for_name
 from source.models import Source
 
+from complex_fields.model_decorators import versionable
+
 class Person(models.Model):
     def get_name(self, lang='en'):
         return self.get_attribute(PersonName, lang)
@@ -47,7 +49,7 @@ class Person(models.Model):
             return persons[0]
         return None
 
-
+@versionable
 class PersonName(models.Model):
     person = models.ForeignKey('Person')
     lang = models.CharField(max_length=5, null=False)
@@ -57,7 +59,7 @@ class PersonName(models.Model):
     class Meta:
         unique_together = ('person', 'lang')
 
-reversion.register(PersonName)
+# reversion.register(PersonName)
 
 class PersonAlias(models.Model):
     person = models.ForeignKey('Person')

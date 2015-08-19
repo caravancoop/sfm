@@ -17,7 +17,7 @@ class PersonNotesAdmin(reversion.VersionAdmin):
 
 
 admin.site.register(Person, PersonAdmin)
-admin.site.register(PersonName, PersonNameAdmin)
+# admin.site.register(PersonName, PersonNameAdmin)
 admin.site.register(PersonAlias, PersonAliasAdmin)
 admin.site.register(PersonNotes, PersonNotesAdmin)
 
