@@ -6,7 +6,7 @@ from .models import Person, PersonName, PersonAlias, PersonNotes
 class PersonAdmin(admin.ModelAdmin):
     pass
 
-class PersonNameAdmin(reversion.VersionAdmin):
+class PersonNameAdmin(admin.ModelAdmin):
     pass
 
 class PersonAliasAdmin(reversion.VersionAdmin):
