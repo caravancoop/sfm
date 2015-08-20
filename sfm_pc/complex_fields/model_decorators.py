@@ -1,14 +1,13 @@
 from reversion import register
 
 
-def versionable(*method_names):
-    def save_overrider(cls):
+def translatable(orig_cls):
+    orig_save = orig_cls.save
+    def save(self, *args, **kwargs):
+        print("Apply magic translation sauce")
+        orig_save()
 
-        @register
-        class VersionableClass(cls):
-            def save(self):
-                print("VERSION HOOK YO")
-                return super(cls, self).save()
 
-        return VersionableClass
-    return save_overrider
+def versioned(orig_cls):
+    register(orig_cls)
+    return orig_cls
