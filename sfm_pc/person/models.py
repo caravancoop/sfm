@@ -4,7 +4,7 @@ from django.db import models
 from utils import class_for_name
 from source.models import Source
 
-from complex_fields.model_decorators import translatable, versioned
+from complex_fields.model_decorators import versioned, translatable, sourced
 
 
 class Person(models.Model):
@@ -52,8 +52,10 @@ class Person(models.Model):
 
 @translatable
 @versioned
+@sourced
 class PersonName(models.Model):
     object = models.ForeignKey('Person')
+    lang = models.CharField(max_length=5, null=False)
     value = models.TextField()
     source = models.ManyToManyField(Source)
 
