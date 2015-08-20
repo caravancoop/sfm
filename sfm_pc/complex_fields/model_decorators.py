@@ -7,7 +7,7 @@ from reversion import register
 def translatable(orig_cls):
     orig_save = orig_cls.save
 
-
+    # Find a way to set the lang field and the constraint here sometime
     # orig_cls.lang = models.CharField(max_length=5, null=False)
     # orig_cls._meta.unique_together = (('object', 'lang'), )
 
