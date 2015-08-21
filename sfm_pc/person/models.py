@@ -50,14 +50,22 @@ class Person(models.Model):
             return persons[0]
         return None
 
+class TranslatedField(models.Model):
+    lang = models.CharField(max_length=5, null=False)
+
+    class Meta:
+        abstract = True
+        unique_together = ('object', 'lang')
+
+class SourcedField(models.Model):
+    sources = models.ManyToManyField(Source, related_name="field_sources")
+
 @translatable
 @versioned
 @sourced
-class PersonName(models.Model):
+class PersonName(models.Model, TranslatedField, SourcedField):
     object = models.ForeignKey('Person')
-    lang = models.CharField(max_length=5, null=False)
     value = models.TextField()
-    source = models.ManyToManyField(Source)
 
 
 class PersonAlias(models.Model):

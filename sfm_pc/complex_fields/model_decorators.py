@@ -15,12 +15,40 @@ def translatable(orig_cls):
 
     @classmethod
     def translate(cls, object_id, value, lang):
-        translations = cls.objects.filter(object_id=object_id, lang=lang)
-        translation = list(translations[:1])
+        translations = cls.objects.filter(object=object_id)
+        if not translations.exists:
+            raise FieldDoesNotExist("Can't translate a field that doesn't exist")
+
+        translation = translations.filter(lang=lang).list(translations[:1])
         if not translation:
             translation = cls()
-            translation.object_id = object_id
+            translation.object = object_id
             translation.lang = lang
+
+        if hasattr(translation[0], 'sources'):
+            sources = translations[0].sources
+
+        translation.value = value
+
+    @classmethod
+    def update(cls, object_id, value, lang, sources):
+        translations = cls.objects.filter(object=object_id)
+        if not translations.exists:
+            raise FieldDoesNotExist("Can't update a field that doesn't exist")
+
+        for trans in translations:
+            trans.val = None
+            if hasattr(trans, 'sources'):
+                trans.sources = None
+
+        translation = translations.filter(lang=lang).list(translations[:1])
+        if not translation:
+            translation = cls()
+            translation.object = object_id
+            translation.lang = lang
+
+        if hasattr(translation, 'sources'):
+            translation.sources = sources
 
         translation.value = value
 
@@ -32,7 +60,6 @@ def translatable(orig_cls):
     @classmethod
     def from_object_ids(cls, id_):
         queryset = cls.objects.filter(id=id_)
-        
 
     orig_cls.save = save
     orig_cls._save = orig_save
