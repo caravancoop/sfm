@@ -1,10 +1,9 @@
-import reversion
-
 from django.db import models
 from utils import class_for_name
 from source.models import Source
 
-from complex_fields.model_decorators import versioned, translatable, sourced
+from complex_fields.model_decorators import versioned, translated, sourced
+from complex_fields.models import ComplexField
 
 
 class Person(models.Model):
@@ -50,41 +49,22 @@ class Person(models.Model):
             return persons[0]
         return None
 
-class TranslatedField(models.Model):
-    lang = models.CharField(max_length=5, null=False)
 
-    class Meta:
-        abstract = True
-        unique_together = ('object', 'lang')
-
-class SourcedField(models.Model):
-    sources = models.ManyToManyField(Source, related_name="field_sources")
-
-@translatable
+@translated
 @versioned
 @sourced
-class PersonName(models.Model, TranslatedField, SourcedField):
+class PersonName(ComplexField):
     object = models.ForeignKey('Person')
     value = models.TextField()
 
-
-class PersonAlias(models.Model):
-    person = models.ForeignKey('Person')
-    lang = models.CharField(max_length=5, null=False)
-    value = models.TextField()
-    source = models.ManyToManyField(Source)
-
-    class Meta:
-        unique_together = ('person', 'lang')
-
-# reversion.register(PersonAlias)
-
-class PersonNotes(models.Model):
-    person = models.ForeignKey('Person')
-    lang = models.CharField(max_length=5, null=False)
+@translated
+@versioned
+@sourced
+class PersonAlias(ComplexField):
+    object = models.ForeignKey('Person')
     value = models.TextField()
 
-    class Meta:
-        unique_together = ('person', 'lang')
-
-# reversion.register(PersonNotes)
+@versioned
+class PersonNotes(ComplexField):
+    object = models.ForeignKey('Person')
+    value = models.TextField()
