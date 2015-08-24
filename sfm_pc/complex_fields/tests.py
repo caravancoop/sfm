@@ -51,3 +51,57 @@ class ComplexFieldTestCase(TestCase):
         with self.assertRaises(FieldDoesNotExist):
             PersonName.translate(other_person, 'Ayer', 'ES')
 
+    def test_update_alone_field(self):
+        PersonName.update(self.person, 'Demain', 'FR', [self.source])
+
+        translations = PersonName.objects.filter(object=self.person)
+        self.assertEqual(len(translations), 1)
+
+        language = translations[0].lang
+        self.assertEqual('FR', language)
+
+    def test_update_multiple_field(self):
+        PersonName.translate(self.person, 'Tomorrow', 'EN')
+        PersonName.translate(self.person, 'Mañana', 'ES')
+        PersonName.update(self.person, 'Ayer', 'ES', [self.source])
+
+        translations = PersonName.objects.filter(object=self.person)
+        self.assertEqual(len(translations), 3)
+
+        values = [
+            (None, 0),
+            (None, 0),
+            ("Ayer", 1)
+        ]
+        vals = [
+            (trans.value, len(trans.sources.all()))
+            for trans in translations
+        ]
+
+        self.assertCountEqual(values, vals)
+        language = translations[0].lang
+
+    def test_update_new_lang(self):
+        PersonName.translate(self.person, 'Tomorrow', 'EN')
+        PersonName.update(self.person, 'Ayer', 'ES', [self.source])
+
+        translations = PersonName.objects.filter(object=self.person)
+        self.assertEqual(len(translations), 3)
+
+        values = [
+            (None, 0),
+            (None, 0),
+            ("Ayer", 1)
+        ]
+        vals = [
+            (trans.value, len(trans.sources.all()))
+            for trans in translations
+        ]
+
+        self.assertCountEqual(values, vals)
+        language = translations[0].lang
+
+    def test_update_inexisting_field_fail(self):
+        other_person = Person.objects.create()
+        with self.assertRaises(FieldDoesNotExist):
+            PersonName.update(other_person, 'Ayer', 'ES', [self.source])
