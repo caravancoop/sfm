@@ -12,7 +12,7 @@ class ComplexField(models.Model):
     @classmethod
     def translate(cls, object, value, lang):
         translations = cls.objects.filter(object=object)
-        if not translations.exists:
+        if not translations.exists():
             raise FieldDoesNotExist("Can't translate a field that doesn't exist")
 
         translation = translations.filter(lang=lang)
@@ -30,11 +30,11 @@ class ComplexField(models.Model):
     @classmethod
     def update(cls, object, value, lang, sources):
         translations = cls.objects.filter(object=object)
-        if not translations.exists:
+        if not translations.exists():
             raise FieldDoesNotExist("Can't update a field that doesn't exist")
 
         for trans in translations:
-            trans.val = None
+            trans.value = None
             if hasattr(trans, 'sourced'):
                 trans.sources = None
 
