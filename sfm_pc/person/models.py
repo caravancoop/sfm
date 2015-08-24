@@ -55,16 +55,17 @@ class Person(models.Model):
 @sourced
 class PersonName(ComplexField):
     object = models.ForeignKey('Person')
-    value = models.TextField()
+    value = models.TextField(default=None, blank=True, null=True)
 
 @translated
 @versioned
 @sourced
 class PersonAlias(ComplexField):
     object = models.ForeignKey('Person')
-    value = models.TextField()
+    value = models.TextField(default=None, blank=True, null=True)
 
 @versioned
 class PersonNotes(ComplexField):
     object = models.ForeignKey('Person')
-    value = models.TextField()
+    value = models.TextField(default=None, blank=True, null=True)
+
