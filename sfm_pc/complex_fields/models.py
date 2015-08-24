@@ -15,7 +15,8 @@ class ComplexField(models.Model):
         if not translations.exists:
             raise FieldDoesNotExist("Can't translate a field that doesn't exist")
 
-        translation = translations.filter(lang=lang).list(translations[:1])
+        translation = translations.filter(lang=lang)
+        translation = list(translation[:1])
         if not translation:
             translation = cls()
             translation.object = object
@@ -37,7 +38,8 @@ class ComplexField(models.Model):
             if hasattr(trans, 'sourced'):
                 trans.sources = None
 
-        translation = translations.filter(lang=lang).list(translations[:1])
+        translation = translations.filter(lang=lang)
+        translation = list(translation[:1])
         if not translation:
             translation = cls()
             translation.object = object
