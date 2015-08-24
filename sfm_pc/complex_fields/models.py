@@ -10,15 +10,15 @@ class ComplexField(models.Model):
         unique_together = ('object', 'lang')
 
     @classmethod
-    def translate(cls, object_id, value, lang):
-        translations = cls.objects.filter(object=object_id)
+    def translate(cls, object, value, lang):
+        translations = cls.objects.filter(object=object)
         if not translations.exists:
             raise FieldDoesNotExist("Can't translate a field that doesn't exist")
 
         translation = translations.filter(lang=lang).list(translations[:1])
         if not translation:
             translation = cls()
-            translation.object = object_id
+            translation.object = object
             translation.lang = lang
 
         if hasattr(translation[0], 'sourced'):
@@ -27,8 +27,8 @@ class ComplexField(models.Model):
         translation.value = value
 
     @classmethod
-    def update(cls, object_id, value, lang, sources):
-        translations = cls.objects.filter(object=object_id)
+    def update(cls, object, value, lang, sources):
+        translations = cls.objects.filter(object=object)
         if not translations.exists:
             raise FieldDoesNotExist("Can't update a field that doesn't exist")
 
@@ -40,7 +40,7 @@ class ComplexField(models.Model):
         translation = translations.filter(lang=lang).list(translations[:1])
         if not translation:
             translation = cls()
-            translation.object = object_id
+            translation.object = object
             translation.lang = lang
 
         if hasattr(translation, 'sources'):
