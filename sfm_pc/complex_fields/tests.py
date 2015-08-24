@@ -105,3 +105,33 @@ class ComplexFieldTestCase(TestCase):
         other_person = Person.objects.create()
         with self.assertRaises(FieldDoesNotExist):
             PersonName.update(other_person, 'Ayer', 'ES', [self.source])
+
+    def test_history_get(self):
+        with reversion.create_revision():
+            PersonName.update(self.person, 'Now', 'EN', [self.source])
+        with reversion.create_revision():
+            PersonName.translate(self.person, 'Maintenant', 'FR')
+        with reversion.create_revision():
+            PersonName.translate(self.person, 'Ahora', 'ES')
+        with reversion.create_revision():
+            PersonName.update(self.person, 'Demain', 'FR', [self.source])
+        with reversion.create_revision():
+            PersonName.update(self.person, 'YYYY', 'IT', [self.source])
+        with reversion.create_revision():
+            PersonName.translate(self.person, 'Hier', 'FR')
+        fr_trans = PersonName.objects.get(object=self.person, lang='FR')
+        fr_version_list = reversion.get_for_object(fr_trans)
+        results = [
+            json.loads(fr_version.serialized_data)[0]['fields']
+            for fr_version in fr_version_list
+        ]
+        expected_results = [
+            {'lang': 'FR', 'object': 1, 'sources': [1], 'value': "Hier"},
+            {'lang': 'FR', 'object': 1, 'sources': [], 'value': None},
+            {'lang': 'FR', 'object': 1, 'sources': [1], 'value': "Demain"},
+            {'lang': 'FR', 'object': 1, 'sources': [1], 'value': "Maintenant"},
+            {'lang': 'FR', 'object': 1, 'sources': [], 'value': None},
+            {'lang': 'FR', 'object': 1, 'sources': [1], 'value': "Aujourd'hui"},
+        ]
+        self.maxDiff = None
+        self.assertCountEqual(expected_results, results)
