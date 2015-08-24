@@ -20,14 +20,14 @@ class Person(models.Model):
         return self.get_attribute(PersonNotes, lang)
 
     def get_attribute(self, object_type, lang='en'):
-        queryset = object_type.objects.filter(person=self, lang=lang)
+        queryset = object_type.objects.filter(object=self, lang=lang)
         values = list(queryset[:1])
         if values:
             return values[0].value
         return None
 
     def set_attribute(self, object_type, value, lang='en'):
-        queryset = object_type.objects.filter(person=self, lang=lang)
+        queryset = object_type.objects.filter(object=self, lang=lang)
         values = list(queryset[:1])
         if values:
             values[0].value = value
@@ -35,7 +35,7 @@ class Person(models.Model):
     def get_attribute_object(self, object_type, lang='en'):
         if isinstance(object_type, str):
             object_type = class_for_name(object_type)
-        queryset = object_type.objects.filter(person=self, lang=lang)
+        queryset = object_type.objects.filter(object=self, lang=lang)
         values = list(queryset[:1])
         if values:
             return values[0]
