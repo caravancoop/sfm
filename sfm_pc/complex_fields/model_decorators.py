@@ -7,7 +7,7 @@ from source.models import Source
 
 
 def translated(orig_cls):
-    translated = True
+    orig_cls.translated = True
     """
     orig_save = orig_cls.save
 
@@ -29,13 +29,13 @@ def translated(orig_cls):
     return orig_cls
 
 def versioned(orig_cls):
-    versioned = True
+    orig_cls.versioned = True
     register(orig_cls)
     return orig_cls
 
 
 def sourced(orig_cls):
-    sourced = True
+    orig_cls.sourced = True
     """
     orig_save = orig_cls.save
 
