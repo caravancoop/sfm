@@ -21,11 +21,21 @@ class ComplexField(models.Model):
             translation = cls()
             translation.object = object
             translation.lang = lang
-
-        if hasattr(translation[0], 'sourced'):
-            sources = translations[0].sources
+        else:
+            translation = translation[0]
+            if translation.value != None:
+                raise ValidationError("Can't translate an already translated field")
 
         translation.value = value
+        translation.save()
+
+        if hasattr(translation, 'sourced'):
+            with_sources = cls.objects.exclude(sources=None)
+            sources = with_sources[0].sources.all()
+            for src in sources:
+                translation.sources.add(src)
+
+        translation.save()
 
     @classmethod
     def update(cls, object, value, lang, sources):
@@ -36,16 +46,21 @@ class ComplexField(models.Model):
         for trans in translations:
             trans.value = None
             if hasattr(trans, 'sourced'):
-                trans.sources = None
-
+                for source in sources:
+                    trans.sources.clear()
+            trans.save()
         translation = translations.filter(lang=lang)
         translation = list(translation[:1])
         if not translation:
             translation = cls()
             translation.object = object
             translation.lang = lang
-
-        if hasattr(translation, 'sources'):
-            translation.sources = sources
+        else:
+            translation = translation[0]
 
         translation.value = value
+        translation.save()
+
+        if hasattr(translation, 'sourced'):
+            for src in sources:
+                translation.sources.add(src)
