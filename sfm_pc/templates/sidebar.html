@@ -1,18 +1,19 @@
+{% load menu %}
 <aside>
     <h1>SFM</h1>
     <nav>
         <ul>
-            <li class="active">People <i class="fa fa-caret-right"></i></li>
-            <li>Membership <i class="fa fa-caret-right"></i></li>
-            <li>Relationship <i class="fa fa-caret-right"></i></li>
-            <li>Post</li>
-            <li>Organization</li>
-            <li>Composition</li>
-            <li>Association</li>
-            <li>Area</li>
-            <li>Emplacement</li>
-            <li>Site</li>
-            <li>Violation</li>
+            <li class="{% active "/person" %}">People <i class="fa fa-caret-right"></i></li>
+            <li class="{% active "/membership" %}">Membership <i class="fa fa-caret-right"></i></li>
+            <li class="{% active "/relationship" %}">Relationship <i class="fa fa-caret-right"></i></li>
+            <li class="{% active "/post" %}">Post</li>
+            <li class="{% active "/organization" %}">Organization</li>
+            <li class="{% active "/composition" %}">Composition</li>
+            <li class="{% active "/association" %}">Association</li>
+            <li class="{% active "/area" %}">Area</li>
+            <li class="{% active "/emplacemnt" %}">Emplacement</li>
+            <li class="{% active "/site" %}">Site</li>
+            <li class="{% active "/violation" %}">Violation</li>
         </ul>
     </nav>
     <ul class="bottom-list">
