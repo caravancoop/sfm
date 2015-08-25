@@ -77,6 +77,12 @@ class PersonUpdate(UpdateView):
     form_class = PersonForm
     model = Person
 
+    def get_context_data(self, **kwargs):
+        context = super(PersonUpdate, self).get_context_data(**kwargs)
+        context['title'] = "Person"
+
+        return context
+
 class FieldUpdate(TemplateView):
     template_name = 'field/popup/edit.html'
 
