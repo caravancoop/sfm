@@ -1,0 +1,63 @@
+$pri-bg-clr: $sfm-brown-D;
+$sec-bg-clr: $sfm-grey-D;
+$ter-bg-clr: $sfm-orange;
+
+$default-font-clr: $sfm-brown-D;
+
+
+//*GLOBLAL DEFAULTS
+$sidebar-width:15em;
+
+
+//*END-GLOBLAL DEFAULTS
+
+
+
+
+//*HEADER
+$header-height:7.5em;
+$header-width:100%;
+$header-mg-L:$sidebar-width;
+// $header-
+
+// $header-
+//*END-HEADER
+
+
+//*SIDEBAR
+$sidebar-height:100%;
+$sidebar-bg-clr: $pri-bg-clr;
+$sidebar-ul-height:30em;
+$sidebar-li-height:($sidebar-ul-height/11); //11 = number of li elements
+$sidebar-ul-width:100%;
+$sidebar-font-clr:$white;
+$sidebar-title-height:2.5em;
+$sidebar-ul-clr: $sec-bg-clr;
+$sidebar-li-hvr-bg-clr:$sfm-grey-D2;
+$sidebar-li-active-clr:$ter-bg-clr;
+// $sidebar-
+
+//*END-SIDEBAR
+
+//*FONT-WEIGHT
+$ft-light:300;
+$ft-normal:400;
+$ft-semi-bold:600;
+$ft-bold:700;
+$ft-extra-bold:800;
+//*END-FONT-WEIGHT
+
+
+//*THEMES
+
+
+//*BUTTONS
+
+//*SFM ACTION
+$sfm-btn-action-color:$white;
+$sfm-btn-action-bg:$ter-bg-clr;
+$sfm-btn-action-border:$ter-bg-clr;
+
+//*END-BUTTONS
+
+//*END-THEMES

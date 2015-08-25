@@ -1,0 +1,20 @@
+header{
+	margin-left:$header-mg-L;
+	height:$header-height;
+	.inner-title-wrapper{
+		@include mg('lr', 3em);
+		height:100%;
+		border-bottom: solid thin $pri-bg-clr;
+		h1.page-title{
+		float:left;
+		height:$sidebar-title-height;
+		line-height:$sidebar-title-height;
+
+		}
+		button{
+			float:right;
+			margin-top:3em;
+		}
+
+	}//.inner-title-wrapper
+}//header

@@ -1,0 +1,70 @@
+
+
+@import "../bootstrap/_bootstrap.scss";
+
+@import "../sass-core/_core-functions.scss";
+@import "../sass-core/_core-colors.scss";
+@import "../sass-core/_core-queries.scss";
+@import "../sass-core/_core-defaults.scss";
+@import "../ui/_ui-elements.scss";
+
+
+@import "../bootstrap/bootstrap/_theme.scss";
+@import "../bootstrap/bootstrap/mixins/_buttons.scss";
+@import "../css/bootstrap-select.min.css";
+
+body, html ,*, li, ul{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+
+body, html{
+  @include hw();
+}
+
+body{
+  font-family: 'Open Sans', sans-serif;
+  font-weight:100;
+  font-size: 16px;
+  background-color: white;
+  color: $default-font-clr;
+  transition:all 1.5s ease;
+}
+h1,h2,h3,h4,h5{
+  padding:0;
+  margin:0;
+}
+ h1{
+  font-size:3em;
+ }
+ h2{
+  font-size:2.5em;
+ }
+ h3{
+  font-size:2em;
+ }
+ h4{
+  font-size:1.5em;
+ }
+ h5{
+  font-size:1em;
+ }
+ // { @include btn-styles($sfm-orange);}
+object{
+  width:100%;
+  height:100%;
+}
+.sfm-btn-action {
+  @include button-variant($sfm-btn-action-color, $sfm-btn-action-bg, $sfm-btn-action-border);
+}
+
+ @import "../snippets/_sidebar.scss";
+ @import "../snippets/_header.scss";
+ @import "../snippets/_content.scss";
+
+
+
+
+

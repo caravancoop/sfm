@@ -1,0 +1,54 @@
+section{
+	&.content{
+		h3{
+			margin-top:1em;
+		}
+		max-width:100%;
+		@include pd("lr", 4em);
+		margin-top:1em;
+		margin-left:$header-mg-L;
+		.row{
+			padding:0;
+			@include mg('lr', -2em);
+		}
+
+
+		.form-group {
+			label {
+				width: 100%;
+				.actions {
+					float: right;
+				}
+			}
+		}
+
+		.form-group {
+				label {
+					width: 100%;
+					.actions {
+						float: right;
+					}
+				}
+			}
+		.actions{
+		    float:right;
+		    a{
+		      color:$sfm-grey-D2;
+		      &:hover{
+		      	color:$ter-bg-clr
+		      }
+		    }
+		}
+		.dropdown {
+			p {font-weight: $ft-normal;}
+				.btn {
+					width: 100%;
+					text-align: left;
+			}
+		}
+		 //* VIEWS
+ 		@import "views/_people.scss";
+ 		@import "views/_membership.scss";
+
+	}
+}
