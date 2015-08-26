@@ -8,37 +8,37 @@ from complex_fields.models import (ComplexField, ComplexModel,
 
 
 class Person(models.Model):
-    def get_name(self, lang='en'):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
         self.alias = ComplexFieldContainer(self, PersonAlias)
         self.notes = ComplexFieldContainer(self, PersonNotes)
+    def get_name(self, lang='EN'):
         return self.get_attribute(PersonName, lang)
 
-    def get_alias(self, lang='en'):
+    def get_alias(self, lang='EN'):
         return self.get_attribute(PersonAlias, lang)
 
-    def set_alias(self, value, lang='en'):
+    def set_alias(self, value, lang='EN'):
         self.set_attribute(PersonAlias, value, lang)
 
-    def get_notes(self, lang='en'):
+    def get_notes(self, lang='EN'):
         return self.get_attribute(PersonNotes, lang)
 
-    def get_attribute(self, object_type, lang='en'):
+    def get_attribute(self, object_type, lang='EN'):
         queryset = object_type.objects.filter(object=self, lang=lang)
         values = list(queryset[:1])
         if values:
             return values[0].value
         return None
 
-    def set_attribute(self, object_type, value, lang='en'):
+    def set_attribute(self, object_type, value, lang='EN'):
         queryset = object_type.objects.filter(object=self, lang=lang)
         values = list(queryset[:1])
         if values:
             values[0].value = value
 
-    def get_attribute_object(self, object_type, lang='en'):
+    def get_attribute_object(self, object_type, lang='EN'):
         if isinstance(object_type, str):
             object_type = class_for_name(object_type)
         queryset = object_type.objects.filter(object=self, lang=lang)
