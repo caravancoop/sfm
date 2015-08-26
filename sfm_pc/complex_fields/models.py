@@ -39,6 +39,11 @@ class ComplexFieldContainer(object):
             ]
         return history
 
+    def revert_field(self, lang_ids):
+        c_fields = self.field_model.objects.filter(object=self.table_model)
+        for field in c_fields:
+            if field.lang in lang_ids:
+                field.revert(lang_ids[field.lang])
 
     def update(self, value, lang, sources=[]):
         c_fields = self.field_model.objects.filter(object=self.table_model)
