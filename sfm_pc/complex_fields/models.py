@@ -14,6 +14,10 @@ class ComplexField(models.Model):
         abstract = True
         unique_together = ('object', 'lang')
 
+    def revert(self, id):
+        if hasattr(self, 'versioned'):
+            version = reversion.get_for_object(self).get(id=id)
+            version.revert()
 
 class ComplexFieldContainer(object):
     def __init__(self, table_model, field_model):
