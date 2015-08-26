@@ -18,12 +18,11 @@ class ComplexField(models.Model):
     def translate(self_cls, value, lang, object=None):
         if inspect.isclass(self_cls):
             cls = self_cls
-            translations = cls.objects.filter(object=object)
         else:
             cls = self_cls.__class__
-            translations = self_cls.__class__.objects.filter(object=object)
 
         translations = cls.objects.filter(object=object)
+
         if not translations.exists():
             raise FieldDoesNotExist("Can't translate a field that doesn't exist")
 
@@ -53,10 +52,10 @@ class ComplexField(models.Model):
     def update(self_cls, value, lang, sources=[], object=None):
         if inspect.isclass(self_cls):
             cls = self_cls
-            translations = cls.objects.filter(object=object)
         else:
             cls = self_cls.__class__
-            translations = self_cls.__class__.objects.filter(object=object)
+
+        translations = cls.objects.filter(object=object)
 
         for trans in translations:
             trans.value = None
