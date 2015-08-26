@@ -42,8 +42,6 @@ class ComplexField(models.Model):
     @classmethod
     def update(cls, object, value, lang, sources):
         translations = cls.objects.filter(object=object)
-        if not translations.exists():
-            raise FieldDoesNotExist("Can't update a field that doesn't exist")
 
         for trans in translations:
             trans.value = None

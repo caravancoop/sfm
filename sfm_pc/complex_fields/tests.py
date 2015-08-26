@@ -101,11 +101,6 @@ class ComplexFieldTestCase(TestCase):
         self.assertCountEqual(values, vals)
         language = translations[0].lang
 
-    def test_update_inexisting_field_fail(self):
-        other_person = Person.objects.create()
-        with self.assertRaises(FieldDoesNotExist):
-            PersonName.update(other_person, 'Ayer', 'ES', [self.source])
-
     def test_history_get(self):
         with reversion.create_revision():
             PersonName.update(self.person, 'Now', 'EN', [self.source])
