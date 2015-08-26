@@ -27,7 +27,7 @@ class ComplexFieldTestCase(TestCase):
             self.person_name.save()
 
     def test_translate_new(self):
-        PersonName.translate('Today', 'EN', self.person)
+        self.person.name.translate('Today', 'EN')
 
         translations = PersonName.objects.filter(object=self.person)
         self.assertEqual(len(translations), 2)
@@ -44,15 +44,15 @@ class ComplexFieldTestCase(TestCase):
 
     def test_translate_existing_fail(self):
         with self.assertRaises(ValidationError):
-            PersonName.translate('Today', 'FR', self.person)
+            self.person.name.translate('Today', 'FR')
 
     def test_translate_inexisting_field_fail(self):
         other_person = Person.objects.create()
         with self.assertRaises(FieldDoesNotExist):
-            PersonName.translate('Ayer', 'ES', other_person)
+            other_person.name.translate('Ayer', 'ES')
 
     def test_update_alone_field(self):
-        PersonName.update('Demain', 'FR', [self.source], self.person)
+        self.person.name.update('Demain', 'FR', [self.source])
 
         translations = PersonName.objects.filter(object=self.person)
         self.assertEqual(len(translations), 1)
@@ -61,9 +61,9 @@ class ComplexFieldTestCase(TestCase):
         self.assertEqual('FR', language)
 
     def test_update_multiple_field(self):
-        PersonName.translate('Tomorrow', 'EN', self.person)
-        PersonName.translate('Mañana', 'ES', self.person)
-        PersonName.update('Ayer', 'ES', [self.source], self.person)
+        self.person.name.translate('Tomorrow', 'EN')
+        self.person.name.translate('Mañana', 'ES')
+        self.person.name.update('Ayer', 'ES', [self.source])
 
         translations = PersonName.objects.filter(object=self.person)
         self.assertEqual(len(translations), 3)
@@ -82,8 +82,8 @@ class ComplexFieldTestCase(TestCase):
         language = translations[0].lang
 
     def test_update_new_lang(self):
-        PersonName.translate('Tomorrow', 'EN', self.person)
-        PersonName.update('Ayer', 'ES', [self.source], self.person)
+        self.person.name.translate('Tomorrow', 'EN')
+        self.person.name.update('Ayer', 'ES', [self.source])
 
         translations = PersonName.objects.filter(object=self.person)
         self.assertEqual(len(translations), 3)
@@ -103,17 +103,18 @@ class ComplexFieldTestCase(TestCase):
 
     def test_history_get(self):
         with reversion.create_revision():
-            PersonName.update('Now', 'EN', [self.source], self.person)
+            self.person.name.update('Now', 'EN', [self.source])
         with reversion.create_revision():
-            PersonName.translate('Maintenant', 'FR', self.person)
+            self.person.name.translate('Maintenant', 'FR')
         with reversion.create_revision():
-            PersonName.translate('Ahora', 'ES', self.person)
+            self.person.name.translate('Ahora', 'ES')
         with reversion.create_revision():
-            PersonName.update('Demain', 'FR', [self.source], self.person)
+            self.person.name.update('Demain', 'FR', [self.source])
         with reversion.create_revision():
-            PersonName.update('YYYY', 'IT', [self.source], self.person)
+            self.person.name.update('YYYY', 'IT', [self.source])
         with reversion.create_revision():
-            PersonName.translate('Hier', 'FR', self.person)
+            self.person.name.translate('Hier', 'FR')
+
         fr_trans = PersonName.objects.get(object=self.person, lang='FR')
         fr_version_list = reversion.get_for_object(fr_trans)
         results = [
