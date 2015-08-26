@@ -3,11 +3,17 @@ from utils import class_for_name
 from source.models import Source
 
 from complex_fields.model_decorators import versioned, translated, sourced
-from complex_fields.models import ComplexField
+from complex_fields.models import (ComplexField, ComplexModel,
+                                   ComplexFieldContainer)
 
 
 class Person(models.Model):
     def get_name(self, lang='en'):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = ComplexFieldContainer(self, PersonName)
+        self.alias = ComplexFieldContainer(self, PersonAlias)
+        self.notes = ComplexFieldContainer(self, PersonNotes)
         return self.get_attribute(PersonName, lang)
 
     def get_alias(self, lang='en'):
