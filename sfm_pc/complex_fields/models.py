@@ -1,4 +1,5 @@
 import inspect
+import reversion
 
 from django.db import models
 from django.core.exceptions import ValidationError, FieldDoesNotExist
