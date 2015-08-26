@@ -23,14 +23,18 @@ class ComplexFieldContainer(object):
     def get_history(self):
         c_fields = self.field_model.objects.filter(object=self.table_model)
         history = {}
-
         for c_field in c_fields:
             field_history = reversion.get_for_object(c_field)
             history[c_field.lang] = [
-                {'value': fh.field_dict['value'], 'sources': fh.field_dict['sources'] }
+                {
+                    'value': fh.field_dict['value'],
+                    'sources': fh.field_dict['sources'],
+                    'id': fh.id
+                }
                 for fh in field_history
             ]
         return history
+
 
     def update(self, value, lang, sources=[]):
         c_fields = self.field_model.objects.filter(object=self.table_model)
