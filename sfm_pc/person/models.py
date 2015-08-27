@@ -8,7 +8,7 @@ from complex_fields.models import (ComplexField, ComplexModel,
                                    ComplexFieldContainer)
 
 
-class Person(models.Model):
+class Person(ComplexModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
