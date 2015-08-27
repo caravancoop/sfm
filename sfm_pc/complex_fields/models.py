@@ -3,6 +3,7 @@ import reversion
 
 from django.db import models
 from django.core.exceptions import ValidationError, FieldDoesNotExist
+from django.utils.translation import get_language
 from source.models import Source
 
 
@@ -23,6 +24,28 @@ class ComplexFieldContainer(object):
     def __init__(self, table_model, field_model):
         self.table_model = table_model
         self.field_model = field_model
+
+    def __repr__(self):
+        value = self.get_value(get_language())
+        if value is None:
+            value = ""
+        return value
+
+    def get_value(self, lang=get_language()):
+        c_fields = self.field_model.objects.filter(object=self.table_model)
+        if hasattr(self.field_model, 'translated'):
+            c_fields_lang = c_fields.filter(lang=lang)
+            c_field = list(c_fields_lang[:1])
+
+            if not c_field:
+                c_fields = c_fields.filter(lang='en')
+                c_field = list(c_fields[:1])
+        else:
+            c_field = list(c_fields[:1])
+
+        if c_field:
+            return c_field[0].value
+        return None
 
     def get_history(self):
         c_fields = self.field_model.objects.filter(object=self.table_model)
