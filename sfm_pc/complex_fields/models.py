@@ -47,6 +47,21 @@ class ComplexFieldContainer(object):
             return c_field[0].value
         return None
 
+    def set_value(self, value, lang=get_language()):
+        c_fields = self.field_model.objects.filter(object=self.table_model)
+        if hasattr(self.field_model, 'translated'):
+            c_fields = c_fields.filter(lang=lang)
+        field = list(c_fields[:1])
+        if field:
+            field[0].value = value
+            field[0].save()
+        else:
+            new_field = self.field_model()
+            if hasattr(self.field_model, 'translated'):
+                new_field.lang = lang
+            new_field.value = value
+            new_field.save()
+
     def get_history(self):
         c_fields = self.field_model.objects.filter(object=self.table_model)
         history = {}
