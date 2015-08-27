@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <section class="content">
     <!-- <object name="add-edit-people" type="text/html" data="/views/add-edit-people.html"></object> -->
@@ -18,7 +19,7 @@
                         <a href="" title="Translation"><i class="fa fa-flag fa-lg"></i></a>
                     </div>
                 </label>
-                <input type="text" class="form-control" id="people_ae_name" placeholder="Enter Name">
+                <input type="text" class="form-control" id="people_ae_name" value="{{person.name}}" placeholder="{% trans "Enter Name" %}">
             </div>
             <div class="form-group col-sm-4">
                 <label for="people_ae_alias">Aliases/alt spellings
@@ -28,11 +29,11 @@
                         <a href="" title="Translation"><i class="fa fa-flag fa-lg"></i></a>
                     </div>
                 </label>
-                <input type="text" class="form-control" id="people_ae_alias" placeholder="Enter Alias">
+                <input type="text" class="form-control" id="people_ae_alias" value="{{person.alias}}" placeholder="{% trans "Enter Alias"%}">
             </div>
             <div class="form-group col-sm-4">
-                <label for="people_ae_death">Death Date</label>
-                <input type="date" class="form-control" id="people_ae_death" placeholder="dd-mm-yy">
+                <label for="people_ae_death">Notes</label>
+                <input type="date" class="form-control" id="people_ae_notes" value="{{ person.notes }}" placeholder="{% trans "Enter Notes"%}">
             </div>
         </form>
     </div><!-- /.row-->
