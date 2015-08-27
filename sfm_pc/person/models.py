@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.translation import get_language
-from utils import class_for_name
 from source.models import Source
 
 from complex_fields.model_decorators import versioned, translated, sourced
