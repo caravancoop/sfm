@@ -25,7 +25,7 @@ class ComplexFieldContainer(object):
         self.table_model = table_model
         self.field_model = field_model
 
-    def __repr__(self):
+    def __str__(self):
         value = self.get_value(get_language())
         if value is None:
             value = ""
