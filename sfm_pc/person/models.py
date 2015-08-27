@@ -14,6 +14,7 @@ class Person(ComplexModel):
         self.name = ComplexFieldContainer(self, PersonName)
         self.alias = ComplexFieldContainer(self, PersonAlias)
         self.notes = ComplexFieldContainer(self, PersonNotes)
+        self.complex_fields = ['name', 'alias', 'notes']
 
     @classmethod
     def from_id(cls, id_):
@@ -22,6 +23,23 @@ class Person(ComplexModel):
         if persons:
             return persons[0]
         return None
+
+    def update(self, dict_values, dict_sources, lang=get_language()):
+        for c_field in self.complex_fields:
+            field = getattr(self, c_field)
+
+            if 'sources' in dict_values[c_field]:
+                sources = Source.create_sources(dict_values[c_field]['sources'])
+                field.update(dict_values[c_field]['value'], lang=lang, sources=sources)
+            else:
+                field.update(dict_values[c_field]['value'], lang=lang)
+
+    @classmethod
+    def create(cls, dict_values, dict_sources, lang=get_language()):
+        person = cls()
+        person.save()
+        person.update(dict_values, dict_sources, lang)
+        return person
 
 
 @translated
