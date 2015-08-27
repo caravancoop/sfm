@@ -15,40 +15,6 @@ class Person(models.Model):
         self.alias = ComplexFieldContainer(self, PersonAlias)
         self.notes = ComplexFieldContainer(self, PersonNotes)
 
-    def get_name(self, lang=get_language()):
-        return self.get_attribute(PersonName, lang)
-
-    def get_alias(self, lang=get_language()):
-        return self.get_attribute(PersonAlias, lang)
-
-    def set_alias(self, value, lang=get_language()):
-        self.set_attribute(PersonAlias, value, lang)
-
-    def get_notes(self, lang=get_language()):
-        return self.get_attribute(PersonNotes, lang)
-
-    def get_attribute(self, object_type, lang=get_language()):
-        queryset = object_type.objects.filter(object=self, lang=lang)
-        values = list(queryset[:1])
-        if values:
-            return values[0].value
-        return None
-
-    def set_attribute(self, object_type, value, lang=get_language):
-        queryset = object_type.objects.filter(object=self, lang=lang)
-        values = list(queryset[:1])
-        if values:
-            values[0].value = value
-
-    def get_attribute_object(self, object_type, lang=get_language):
-        if isinstance(object_type, str):
-            object_type = class_for_name(object_type)
-        queryset = object_type.objects.filter(object=self, lang=lang)
-        values = list(queryset[:1])
-        if values:
-            return values[0]
-        return None
-
     @classmethod
     def from_id(cls, id_):
         queryset = cls.objects.filter(id=id_)
