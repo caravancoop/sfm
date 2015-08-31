@@ -3,11 +3,10 @@ from django.utils.translation import get_language
 from source.models import Source
 
 from complex_fields.model_decorators import versioned, translated, sourced
-from complex_fields.models import (ComplexField, ComplexModel,
-                                   ComplexFieldContainer)
+from complex_fields.models import (ComplexField, ComplexFieldContainer)
 
 
-class Person(ComplexModel):
+class Person(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
