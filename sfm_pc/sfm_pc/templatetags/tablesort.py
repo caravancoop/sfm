@@ -3,6 +3,7 @@ from django.template import Library
 register = Library()
 
 
+@register.filter
 def is_in(var, args):
     if args is None:
         return False
@@ -15,5 +16,3 @@ def is_in(var, args):
         addthisclass = '_asc'
 
     return addthisclass
-
-register.filter(is_in)
