@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 from source.models import Source
 
@@ -46,6 +47,7 @@ class Person(models.Model):
 class PersonName(ComplexField):
     object = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Name")
 
 @translated
 @versioned
@@ -53,9 +55,11 @@ class PersonName(ComplexField):
 class PersonAlias(ComplexField):
     object = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Aliases")
 
 @versioned
 class PersonNotes(ComplexField):
     object = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Notes")
 
