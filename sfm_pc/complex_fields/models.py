@@ -24,6 +24,11 @@ class ComplexFieldContainer(object):
     def __init__(self, table_object, field_model):
         self.table_object = table_object
         self.field_model = field_model
+        if hasattr(field_model(), 'field_name'):
+            self.field_name = field_model().field_name
+        self.sourced = hasattr(field_model(), 'sourced')
+        self.translated = hasattr(field_model(), 'translated')
+        self.versioned = hasattr(field_model(), 'versioned')
 
     def __str__(self):
         value = self.get_value(get_language())
