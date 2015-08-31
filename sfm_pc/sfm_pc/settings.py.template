@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'reversion',
     'sfm_pc',
     'person',
@@ -108,7 +109,7 @@ LOCALE_PATHS = (
     BASE_DIR + '/locale',
 )
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 
 TIME_ZONE = 'UTC'
