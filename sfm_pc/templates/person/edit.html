@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load viewcomplexfield %}
 {% load i18n %}
 {% block content %}
 <section class="content">
@@ -12,28 +13,13 @@
     <div class="row">
         <form>
             <div class="form-group col-sm-4">
-                <label for="people_ae_name">Name
-                    <div class="actions">
-                        <a href="" title="Source"><i class="fa fa-link fa-lg"></i></a>
-                        <a href="" title="Versions"><i class="fa fa-undo fa-lg"></i></a>
-                        <a href="" title="Translation"><i class="fa fa-flag fa-lg"></i></a>
-                    </div>
-                </label>
-                <input type="text" class="form-control" id="people_ae_name" value="{{person.name}}" placeholder="{% trans "Enter Name" %}">
+                {% view_complex_field person.name %}
             </div>
             <div class="form-group col-sm-4">
-                <label for="people_ae_alias">Aliases/alt spellings
-                    <div class="actions">
-                        <a href="" title="Source"><i class="fa fa-link fa-lg"></i></a>
-                        <a href="" title="Versions"><i class="fa fa-undo fa-lg"></i></a>
-                        <a href="" title="Translation"><i class="fa fa-flag fa-lg"></i></a>
-                    </div>
-                </label>
-                <input type="text" class="form-control" id="people_ae_alias" value="{{person.alias}}" placeholder="{% trans "Enter Alias"%}">
+                {% view_complex_field person.alias %}
             </div>
             <div class="form-group col-sm-4">
-                <label for="people_ae_death">Notes</label>
-                <input type="date" class="form-control" id="people_ae_notes" value="{{ person.notes }}" placeholder="{% trans "Enter Notes"%}">
+                {% view_complex_field person.notes %}
             </div>
         </form>
     </div><!-- /.row-->
