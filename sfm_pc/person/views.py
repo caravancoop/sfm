@@ -94,6 +94,8 @@ class FieldUpdate(TemplateView):
         )
         context['field'] = field
 
+        return context
+
 class PersonCreate(CreateView):
     template_name = 'person/form.html'
     form_class = PersonForm
