@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+	<section class="content">
+			<form>
+				<div class="row">
+				<div class="form-group col-sm-6">
+					<label for="exampleInputEmail1">Name</label>
+					<input type="text" class="form-control" id="name" placeholder="Enter Name">
+				</div>
+				<div class="form-group col-sm-6">
+					<label for="exampleInputEmail1">Aliases or alternative spellings</label>
+					<input type="text" class="form-control" id="alias" placeholder="Enter Alias">
+				</div>
+			</div>
+
+				<div class="row">
+					<div class="dropdown form-group col-sm-6">
+						<label>Membership</label>
+						<select id="people_srch_membership">
+		          <option>Choode or create...</option>
+		          <option value="">Create new</option>
+		          <option value="">Commander</option>
+		          <option value="">Sergent</option>
+		        </select>
+					</div>
+				</div>
+
+
+				<div class="row">
+					<div class="dropdown form-group col-sm-6">
+						<label>Radius</label>
+						<select id="people_srch_radius">
+		          <option>Choode or create...</option>
+		          <option value="">Create new</option>
+		          <option value="">Commander</option>
+		          <option value="">Sergent</option>
+		        </select>
+					</div>
+
+					<div class="form-group col-sm-2">
+						<label for="exampleInputEmail1">Latitude</label>
+						<input type="text" class="form-control" id="name" placeholder="Enter Name">
+					</div>
+
+					<div class="form-group col-sm-2">
+						<label for="exampleInputEmail1">Longitude</label>
+						<input type="text" class="form-control" id="name" placeholder="Enter Name">
+					</div>
+
+					<div class="form-group location col-sm-2">
+						<!-- <i class="fa fa-map-marker fa-2x"></i> -->
+					</div>
+
+				</div>
+			</form>
+
+		<div>
+
+			<div class="row table-top col-sm-12">
+				<h4 class="col-sm-6">3 results</h4>
+				<div class="col-sm-6">
+				<button class="btn btn-default col-sm-3 pull-right" type="submit"><i class="fa fa-share-square-o fa-lg"></i> Export</button>
+			</div>
+			</div>
+
+			<div class="table-responsive col-sm-12">
+				<table class="table table-bordered table-striped">
+					<thead>
+						<tr>
+							<th class="col-sm-2"><span class="caret"></span> Name</th>
+							<th class="col-sm-4"><span class="caret"></span> Alias</th>
+							<th class="col-sm-2"><span class="caret"></span> Death date</th>
+							<th class="col-sm-4"><span class="caret"></span> Memberships</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1,001</td>
+							<td>Lorem</td>
+							<td>Lorem</td>
+							<td>ipsum
+								<i class="fa fa-times-circle fa-lg"></i>
+							</td>
+						</tr>
+						<tr>
+							<td>1,001</td>
+							<td>Lorem</td>
+							<td>Lorem</td>
+							<td>ipsum
+								<i class="fa fa-times-circle fa-lg"></i>
+							</td>
+						</tr>
+						<tr>
+							<td>1,001</td>
+							<td>Lorem</td>
+							<td>Lorem</td>
+							<td>ipsum
+								<i class="fa fa-times-circle fa-lg"></i>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+		</section>
+{% endblock %}

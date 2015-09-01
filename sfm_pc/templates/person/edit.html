@@ -5,7 +5,7 @@
   <!-- <object name="add-edit-people" type="text/html" data="/views/add-edit-people.html"></object> -->
   <div class="row">
     <div class="col-sm-12">
-      <h3>Properties</h3>
+      <h4>Properties</h4>
     </div>
   </div>
 
@@ -14,9 +14,9 @@
       <div class="form-group col-sm-4">
         <label for="people_ae_name">Name
           <div class="actions">
-            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal"><i class="fa fa-link fa-lg"></i></a>
-            <a href="" title="Versions" data-toggle="modal" data-target=".versionModal"><i class="fa fa-undo fa-lg"></i></a>
-            <a href="" title="Translation" data-toggle="modal" data-target=".translateModal"><i class="fa fa-flag fa-lg"></i></a>
+            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal"><i class="fa fa-link"></i></a>
+            <a href="" title="Versions" data-toggle="modal" data-target=".versionModal"><i class="fa fa-undo"></i></a>
+            <a href="" title="Translation" data-toggle="modal" data-target=".translateModal"><i class="fa fa-flag"></i></a>
           </div>
         </label>
         <input type="text" class="form-control" id="people_ae_name" value="{{person.name}}" placeholder="{% trans "Enter Name" %}">
@@ -24,9 +24,9 @@
       <div class="form-group col-sm-4">
         <label for="people_ae_alias">Aliases/alt spellings
           <div class="actions">
-            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal"><i class="fa fa-link fa-lg"></i></a>
-            <a href="" title="Versions" data-toggle="modal" data-target=".versionModal"><i class="fa fa-undo fa-lg"></i></a>
-            <a href="" title="Translation" data-toggle="modal" data-target=".translateModal"><i class="fa fa-flag fa-lg"></i></a>
+            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal"><i class="fa fa-link"></i></a>
+            <a href="" title="Versions" data-toggle="modal" data-target=".versionModal"><i class="fa fa-undo"></i></a>
+            <a href="" title="Translation" data-toggle="modal" data-target=".translateModal"><i class="fa fa-flag"></i></a>
           </div>
         </label>
         <input type="text" class="form-control" id="people_ae_alias" value="{{person.alias}}" placeholder="{% trans "Enter Alias"%}">
@@ -40,12 +40,12 @@
 
   <div class="row">
     <div class="col-sm-12">
-      <h3>Relations</h3>
+      <h4>Relations</h4>
     </div>
   </div>
   <div class="row">
     <form>
-      <div class="form-group dropdown col-sm-4">
+      <!-- <div class="form-group dropdown col-sm-4">
         <label for="">Membership</label>
         <button class="btn btn-default dropdown-toggle" type="button" id="people_ae_membership" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
           Choose or create
@@ -57,12 +57,21 @@
           <li><a href="#">Sergent</a></li>
           <li><a href="#">Separated link</a></li>
         </ul>
-      </div>
+      </div> -->
       <div class="form-group dropdown col-sm-4">
+        <label for="people_edit_membership">Membership</label>
+        <select id="people_edit_membership">
+          <option>Choode or create...</option>
+          <option value="">Create new</option>
+          <option value="">Commander</option>
+          <option value="">Sergent</option>
+        </select>
+      </div>
+      <div class="form-group col-sm-4">
         <label>Add</label>
-        <button class="btn btn-default" type="submit">
+        <button class="btn btn-default col-sm-12" type="submit">
           Add to this list
-          <span class="caret"></span>
+          <!-- <span class="caret"></span> -->
         </button>
       </div>
     </form>
@@ -70,7 +79,7 @@
   <div class="row">
     <div class="col-sm-12">
       <div class="table-responsive">
-        <table class="table table-bordered table-striped">
+        <table class="table table-bordered table-striped table-hover">
           <thead>
             <tr>
               <th class="col-sm-4">Memberships</th>
@@ -96,8 +105,8 @@
   </div>
   <div class="row">
     <div class="col-sm-12 col-md-12">
-      <button class="btn btn-default col-sm-2" type="submit">Cancel</button>
-      <button class="btn btn-default right col-sm-2 pull-right" type="submit">Save</button>
+      <button class="btn sfm-cancel-btn col-sm-2" type="submit">Cancel</button>
+      <button class="btn right col-sm-2 pull-right sfm-btn-action " type="submit">Save</button>
     </div>
   </div>
 
