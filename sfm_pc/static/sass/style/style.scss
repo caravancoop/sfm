@@ -1,11 +1,11 @@
-
+@import "../sass-core/_core-colors.scss";
+@import "../sass-core/_core-defaults.scss";
 
 @import "../bootstrap/_bootstrap.scss";
 
 @import "../sass-core/_core-functions.scss";
-@import "../sass-core/_core-colors.scss";
-@import "../sass-core/_core-queries.scss";
-@import "../sass-core/_core-defaults.scss";
+
+
 @import "../ui/_ui-elements.scss";
 
 
@@ -63,8 +63,4 @@ object{
  @import "../snippets/_sidebar.scss";
  @import "../snippets/_header.scss";
  @import "../snippets/_content.scss";
-
-
-
-
-
+ @import "../snippets/_modal.scss";

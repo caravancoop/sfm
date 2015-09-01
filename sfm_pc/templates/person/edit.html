@@ -2,103 +2,105 @@
 {% load i18n %}
 {% block content %}
 <section class="content">
-    <!-- <object name="add-edit-people" type="text/html" data="/views/add-edit-people.html"></object> -->
-    <div class="row">
-        <div class="col-sm-12">
-            <h3>Properties</h3>
-        </div>
+  <!-- <object name="add-edit-people" type="text/html" data="/views/add-edit-people.html"></object> -->
+  <div class="row">
+    <div class="col-sm-12">
+      <h3>Properties</h3>
     </div>
+  </div>
 
-    <div class="row">
-        <form>
-            <div class="form-group col-sm-4">
-                <label for="people_ae_name">Name
-                    <div class="actions">
-                        <a href="" title="Source"><i class="fa fa-link fa-lg"></i></a>
-                        <a href="" title="Versions"><i class="fa fa-undo fa-lg"></i></a>
-                        <a href="" title="Translation"><i class="fa fa-flag fa-lg"></i></a>
-                    </div>
-                </label>
-                <input type="text" class="form-control" id="people_ae_name" value="{{person.name}}" placeholder="{% trans "Enter Name" %}">
-            </div>
-            <div class="form-group col-sm-4">
-                <label for="people_ae_alias">Aliases/alt spellings
-                    <div class="actions">
-                        <a href="" title="Source"><i class="fa fa-link fa-lg"></i></a>
-                        <a href="" title="Versions"><i class="fa fa-undo fa-lg"></i></a>
-                        <a href="" title="Translation"><i class="fa fa-flag fa-lg"></i></a>
-                    </div>
-                </label>
-                <input type="text" class="form-control" id="people_ae_alias" value="{{person.alias}}" placeholder="{% trans "Enter Alias"%}">
-            </div>
-            <div class="form-group col-sm-4">
-                <label for="people_ae_death">Notes</label>
-                <input type="date" class="form-control" id="people_ae_notes" value="{{ person.notes }}" placeholder="{% trans "Enter Notes"%}">
-            </div>
-        </form>
-    </div><!-- /.row-->
-    
-    <div class="row">
-        <div class="col-sm-12">
-            <h3>Relations</h3>
-        </div>
+  <div class="row">
+    <form>
+      <div class="form-group col-sm-4">
+        <label for="people_ae_name">Name
+          <div class="actions">
+            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal"><i class="fa fa-link fa-lg"></i></a>
+            <a href="" title="Versions" data-toggle="modal" data-target=".versionModal"><i class="fa fa-undo fa-lg"></i></a>
+            <a href="" title="Translation" data-toggle="modal" data-target=".translateModal"><i class="fa fa-flag fa-lg"></i></a>
+          </div>
+        </label>
+        <input type="text" class="form-control" id="people_ae_name" value="{{person.name}}" placeholder="{% trans "Enter Name" %}">
+      </div>
+      <div class="form-group col-sm-4">
+        <label for="people_ae_alias">Aliases/alt spellings
+          <div class="actions">
+            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal"><i class="fa fa-link fa-lg"></i></a>
+            <a href="" title="Versions" data-toggle="modal" data-target=".versionModal"><i class="fa fa-undo fa-lg"></i></a>
+            <a href="" title="Translation" data-toggle="modal" data-target=".translateModal"><i class="fa fa-flag fa-lg"></i></a>
+          </div>
+        </label>
+        <input type="text" class="form-control" id="people_ae_alias" value="{{person.alias}}" placeholder="{% trans "Enter Alias"%}">
+      </div>
+      <div class="form-group col-sm-4">
+        <label for="people_ae_death">Notes</label>
+        <input type="date" class="form-control" id="people_ae_notes" value="{{ person.notes }}" placeholder="{% trans "Enter Notes"%}">
+      </div>
+    </form>
+  </div><!-- /.row-->
+
+  <div class="row">
+    <div class="col-sm-12">
+      <h3>Relations</h3>
     </div>
-    <div class="row">
-        <form>
-            <div class="form-group dropdown col-sm-4">
-                <label for="">Membership</label>
-                <button class="btn btn-default dropdown-toggle" type="button" id="people_ae_membership" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    Choose or create
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="people_ae_membership">
-                    <li><a href="createNew.html">Create New</a></li>
-                    <li><a href="#">Commander</a></li>
-                    <li><a href="#">Sergent</a></li>
-                    <li><a href="#">Separated link</a></li>
-                </ul>
-            </div>
-            <div class="form-group dropdown col-sm-4">
-                <label>Add</label>
-                <button class="btn btn-default" type="submit">
-                    Add to this list
-                    <span class="caret"></span>
-                </button>
-            </div>
-        </form>
+  </div>
+  <div class="row">
+    <form>
+      <div class="form-group dropdown col-sm-4">
+        <label for="">Membership</label>
+        <button class="btn btn-default dropdown-toggle" type="button" id="people_ae_membership" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+          Choose or create
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="people_ae_membership">
+          <li><a href="createNew.html">Create New</a></li>
+          <li><a href="#">Commander</a></li>
+          <li><a href="#">Sergent</a></li>
+          <li><a href="#">Separated link</a></li>
+        </ul>
+      </div>
+      <div class="form-group dropdown col-sm-4">
+        <label>Add</label>
+        <button class="btn btn-default" type="submit">
+          Add to this list
+          <span class="caret"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th class="col-sm-4">Memberships</th>
+              <th class="col-sm-4">Start date</th>
+              <th class="col-sm-4">End date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1,001</td>
+              <td>Lorem</td>
+              <td>ipsum</td>
+            </tr>
+            <tr>
+              <td>1,001</td>
+              <td>Lorem</td>
+              <td>ipsum</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th class="col-sm-4">Memberships</th>
-                            <th class="col-sm-4">Start date</th>
-                            <th class="col-sm-4">End date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1,001</td>
-                            <td>Lorem</td>
-                            <td>ipsum</td>
-                        </tr>
-                        <tr>
-                            <td>1,001</td>
-                            <td>Lorem</td>
-                            <td>ipsum</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 col-md-12">
+      <button class="btn btn-default col-sm-2" type="submit">Cancel</button>
+      <button class="btn btn-default right col-sm-2 pull-right" type="submit">Save</button>
     </div>
-    <div class="row">
-        <div class="col-sm-12 col-md-12">
-            <button class="btn btn-default col-sm-2" type="submit">Cancel</button>
-            <button class="btn btn-default right col-sm-2 pull-right" type="submit">Save</button>
-        </div>
-    </div>
+  </div>
+
 </section>
+
 {% endblock %}
