@@ -12,18 +12,18 @@ class Source(models.Model):
     confidence = models.CharField(max_length=1, choices=CONFIDENCE_LEVELS)
 
     @classmethod
-    def create_sources(cls, sources):
+    def create_sources(cls, sources_dict):
         sources = []
-        for source in sources:
+        for src in sources_dict:
             possible_source = Source.objects.filter(
-                source=source['source'],
-                confidence=source['confidence']
+                source=src['source'],
+                confidence=src['confidence']
             )
             possible_source = list(possible_source[:1])
             if possible_source:
-                sources.append(possible_source)
+                sources.append(possible_source[0])
             else:
-                new_source = cls(source['source'], source['confidence'])
+                new_source = cls(source=src['source'], confidence=src['confidence'])
                 new_source.save()
                 sources.append(new_source)
 
