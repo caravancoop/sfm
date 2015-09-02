@@ -27,11 +27,8 @@ class Person(models.Model):
         for field in self.complex_fields:
             field_name = field.get_field_str_id()
 
-            if 'sources' in dict_values[c_field]:
-                sources = Source.create_sources(dict_values[c_field]['sources'])
-                field.update(dict_values[c_field]['value'], lang=lang, sources=sources)
-            else:
-                field.update(dict_values[c_field]['value'], lang=lang)
+            sources = Source.create_sources(dict_values[field_name].get('sources', []))
+            field.update(dict_values[field_name]['value'], lang, sources)
 
     @classmethod
     def create(cls, dict_values, dict_sources, lang=get_language()):
