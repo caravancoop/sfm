@@ -3,7 +3,10 @@
 {% load i18n %}
 {% block content %}
 <section class="content">
-  <!-- <object name="add-edit-people" type="text/html" data="/views/add-edit-people.html"></object> -->
+  <div class="inner-title-wrapper">
+    <h3 class="page-title">{% trans Person %}</h3>
+    <a href="/person/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
+  </div>
   <div class="row">
     <div class="col-sm-12">
       <h4>Properties</h4>
