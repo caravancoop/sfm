@@ -36,6 +36,11 @@ class ComplexFieldContainer(object):
             value = ""
         return value
 
+    def get_field_str_id(self):
+        table_name = self.table_object.__class__.__name__
+        field_name = self.field_model.__name__
+        return table_name + "_" + field_name
+
     def get_value(self, lang=get_language()):
         c_fields = self.field_model.objects.filter(object=self.table_object)
         if hasattr(self.field_model, 'translated'):
