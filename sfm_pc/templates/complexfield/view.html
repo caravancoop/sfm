@@ -5,11 +5,13 @@
         {% if sourced %}
             <a href="" title="{% trans Source %}"><i class="fa fa-link fa-lg"></i></a>
         {% endif %}
-        {% if versioned %}
-            <a href="" title="{% trans Versioned %}"><i class="fa fa-undo fa-lg"></i></a>
-        {% endif %}
-        {% if translated %}
-            <a href="" title="{% trans Translated %}"><i class="fa fa-flag fa-lg"></i></a>
+        {% if "add" not in path %}
+            {% if versioned %}
+                <a href="" title="{% trans Versioned %}"><i class="fa fa-undo fa-lg"></i></a>
+            {% endif %}
+            {% if translated %}
+                <a href="" title="{% trans Translated %}"><i class="fa fa-flag fa-lg"></i></a>
+            {% endif %}
         {% endif %}
     </div>
 </label>

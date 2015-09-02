@@ -3,7 +3,7 @@ from django.template import Library
 register = Library()
 
 @register.inclusion_tag('complexfield/view.html')
-def view_complex_field(field):
+def view_complex_field(field, path):
     field_id = field.table_object.__class__.__name__ + "_" + field.field_model.__name__
 
     return {
@@ -13,5 +13,6 @@ def view_complex_field(field):
         'sourced': field.sourced,
         'translated': field.translated,
         'versioned': field.versioned,
+        'path': path,
     }
 
