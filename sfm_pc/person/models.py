@@ -23,7 +23,7 @@ class Person(models.Model):
             return persons[0]
         return None
 
-    def update(self, dict_values, dict_sources, lang=get_language()):
+    def update(self, dict_values, lang=get_language()):
         for field in self.complex_fields:
             field_name = field.get_field_str_id()
 
@@ -31,10 +31,10 @@ class Person(models.Model):
             field.update(dict_values[field_name]['value'], lang, sources)
 
     @classmethod
-    def create(cls, dict_values, dict_sources, lang=get_language()):
+    def create(cls, dict_values, lang=get_language()):
         person = cls()
         person.save()
-        person.update(dict_values, dict_sources, lang)
+        person.update(dict_values, lang)
         return person
 
 
