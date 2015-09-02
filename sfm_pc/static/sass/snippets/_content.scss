@@ -1,8 +1,7 @@
 section{
 	&.content{
-		h4{
+		h3{
 			// margin-top:1em;
-			color: $sfm-grey-D2;
 		}
 		max-width:100%;
 		@include pd("lr", 4em);
@@ -24,43 +23,42 @@ section{
 			}
 		}
 
-		.form-group {
-				label {
-					width: 100%;
-					.actions {
-						float: right;
-					}
+		.location {
+			margin: 0;
+			padding: 0;
+		}
+
+		.actions{
+			float:right;
+			a{
+				color:$sfm-grey-D2;
+				&:hover{
+					color:$ter-bg-clr
 				}
 			}
-		.actions{
-		    float:right;
-		    a{
-		      color:$sfm-grey-D2;
-		      &:hover{
-		      	color:$ter-bg-clr
-		      }
-		    }
 		}
 		.dropdown {
 			p {font-weight: $ft-normal;}
-				.btn {
-					width: 100%;
-					text-align: left;
+			.btn {
+				width: 100%;
+				text-align: left;
 			}
 		}
-
-		.sfm-cancel-btn {
-			background-color: $sfm-grey-D2;
-			color: white;
-			// $bd();
-		}
-
-		.sfm-cancel-btn:hover {
-			background-color: $sfm-grey-D;
-		}
-		 //* VIEWS
- 		@import "views/_people.scss";
- 		@import "views/_membership.scss";
+		//* VIEWS
+		@import "views/_people.scss";
+		@import "views/_membership.scss";
 
 	}
 }
+
+.table-responsive {
+	table {
+		tbody {
+			tr{
+				td {
+					@include text-overflow();
+				} // td
+			} //tr
+		} //tbody
+	} //table
+} //table-responsive

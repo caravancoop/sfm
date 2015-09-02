@@ -1,69 +1,117 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-	<section class="content">
-			<form>
-				<div class="row">
+<section class="content">
+		<form>
+			<div class="row">
 				<div class="form-group col-sm-6">
-					<label for="exampleInputEmail1">Name</label>
+					<label for="name">Name</label>
 					<input type="text" class="form-control" id="name" placeholder="Enter Name">
 				</div>
 				<div class="form-group col-sm-6">
-					<label for="exampleInputEmail1">Aliases or alternative spellings</label>
+					<label for="alias">Aliases or alternative spellings</label>
 					<input type="text" class="form-control" id="alias" placeholder="Enter Alias">
 				</div>
 			</div>
 
-				<div class="row">
-					<div class="dropdown form-group col-sm-6">
-						<label>Membership</label>
-						<select id="people_srch_membership">
-		          <option>Choode or create...</option>
-		          <option value="">Create new</option>
-		          <option value="">Commander</option>
-		          <option value="">Sergent</option>
-		        </select>
-					</div>
+			<div class="row">
+				<div class="dropdown form-group col-sm-6">
+					<label>Membership</label>
+					<select id="people_srch_membership">
+						<option>Choode or create...</option>
+						<!-- <option value="">Create new</option> -->
+						<option value="">Commander</option>
+						<option value="">Sergent</option>
+					</select>
 				</div>
 
-
-				<div class="row">
-					<div class="dropdown form-group col-sm-6">
-						<label>Radius</label>
-						<select id="people_srch_radius">
-		          <option>Choode or create...</option>
-		          <option value="">Create new</option>
-		          <option value="">Commander</option>
-		          <option value="">Sergent</option>
-		        </select>
-					</div>
-
-					<div class="form-group col-sm-2">
-						<label for="exampleInputEmail1">Latitude</label>
-						<input type="text" class="form-control" id="name" placeholder="Enter Name">
-					</div>
-
-					<div class="form-group col-sm-2">
-						<label for="exampleInputEmail1">Longitude</label>
-						<input type="text" class="form-control" id="name" placeholder="Enter Name">
-					</div>
-
-					<div class="form-group location col-sm-2">
-						<!-- <i class="fa fa-map-marker fa-2x"></i> -->
-					</div>
-
+				<div class="dropdown form-group col-sm-2">
+					<label>Death date</label>
+					<select id="people_srch_deathdate">
+						<option>dd</option>
+						<!-- <option value="">Create new</option> -->
+						<option value="">01</option>
+						<option value="">02</option>
+					</select>
 				</div>
-			</form>
 
-		<div>
+				<div class="dropdown form-group col-sm-2">
+					<label>Month</label>
+					<select id="people_srch_deathdate">
+						<option>mm</option>
+						<!-- <option value="">Create new</option> -->
+						<option value="">January</option>
+						<option value="">February</option>
+						<option value="">March</option>
+						<option value="">April</option>
+						<option value="">May</option>
+						<option value="">June</option>
+						<option value="">July</option>
+						<option value="">August</option>
+						<option value="">September</option>
+						<option value="">October</option>
+						<option value="">November</option>
+						<option value="">December</option>
+					</select>
+				</div>
 
-			<div class="row table-top col-sm-12">
-				<h4 class="col-sm-6">3 results</h4>
-				<div class="col-sm-6">
-				<button class="btn btn-default col-sm-3 pull-right" type="submit"><i class="fa fa-share-square-o fa-lg"></i> Export</button>
+				<div class="dropdown form-group col-sm-2">
+					<label>Year</label>
+					<select id="people_srch_deathdate">
+						<option>yyyy</option>
+						<!-- <option value="">Create new</option> -->
+						<option value="">2015</option>
+						<option value="">2014</option>
+					</select>
+				</div>
 			</div>
-			</div>
 
+
+			<div class="row">
+				<div class="dropdown form-group col-sm-6">
+					<label>Radius</label>
+					<select id="people_srch_radius">
+						<option>1 - 25km</option>
+						<option value="1">1 km</option>
+						<option value="2">2 km</option>
+						<option value="3">3 km</option>
+						<option value="4">4 km</option>
+						<option value="5">5 km</option>
+						<option value="6">6 km</option>
+					</select>
+				</div>
+
+				<div class="form-group col-sm-2">
+					<label for="latitude">Longitude</label>
+					<input type="text" class="form-control" id="latitude" placeholder="12.73">
+				</div>
+
+				<div class="form-group col-sm-2">
+					<label for="longitude">Latitude</label>
+					<input type="text" class="form-control" id="longitude" placeholder="81.45">
+				</div>
+
+				<div class="location col-sm-2">
+					<!-- <i class="fa fa-map-marker fa-2x"></i> -->
+				</div>
+
+			</div>
+		</form>
+
+		<div class="row">
+			<div class="col-sm-12 form-group">
+				<label for="people_srch_post">234 Results
+					<div class="actions">
+						<!-- <a href="" title="Source"><i class="fa fa-link fa-lg"></i></a>
+						<a href="" title="Versions"><i class="fa fa-undo fa-lg"></i></a>
+						<a href="" title="Translation"><i class="fa fa-flag fa-lg"></i></a> -->
+						<button type="button" class="btn sfm-btn-action">Export <i class="fa fa-share-square-o"></i></button>
+					</div>
+				</label>
+			</div>
+		</div>
+
+		<div class="row">
 			<div class="table-responsive col-sm-12">
 				<table class="table table-bordered table-striped">
 					<thead>
@@ -71,32 +119,32 @@
 							<th class="col-sm-2"><span class="caret"></span> Name</th>
 							<th class="col-sm-4"><span class="caret"></span> Alias</th>
 							<th class="col-sm-2"><span class="caret"></span> Death date</th>
-							<th class="col-sm-4"><span class="caret"></span> Memberships</th>
+							<th class="col-sm-4"><span class="caret"></span> Membership</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td>1,001</td>
-							<td>Lorem</td>
-							<td>Lorem</td>
-							<td>ipsum
-								<i class="fa fa-times-circle fa-lg"></i>
+							<td>Afolabi Taofeek</td>
+							<td>Chief Superintendent of Police</td>
+							<td>02-04-2015</td>
+							<td>Kano State Police Command
+								<i class="fa fa-times-circle fa-lg actions"></i>
 							</td>
 						</tr>
 						<tr>
-							<td>1,001</td>
-							<td>Lorem</td>
-							<td>Lorem</td>
+							<td>Afolabi Taofeek</td>
+							<td>Assistant Superintendent of Police</td>
+							<td>02-04-2015</td>
 							<td>ipsum
-								<i class="fa fa-times-circle fa-lg"></i>
+								<i class="fa fa-times-circle fa-lg actions"></i>
 							</td>
 						</tr>
 						<tr>
-							<td>1,001</td>
-							<td>Lorem</td>
-							<td>Lorem</td>
+							<td>Afolabi Taofeek</td>
+							<td>Deputy Superintendent of Police</td>
+							<td>02-04-2015</td>
 							<td>ipsum
-								<i class="fa fa-times-circle fa-lg"></i>
+								<i class="fa fa-times-circle fa-lg actions"></i>
 							</td>
 						</tr>
 					</table>
@@ -104,4 +152,4 @@
 			</div>
 
 		</section>
-{% endblock %}
+	{% endblock %}

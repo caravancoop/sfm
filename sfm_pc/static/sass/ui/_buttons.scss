@@ -1,0 +1,7 @@
+.sfm-btn-action {
+  @include button-variant($sfm-btn-action-color, $sfm-btn-action-bg, $sfm-btn-action-border);
+}
+
+.sfm-btn-cancel{
+   @include button-variant($white, $sfm-grey-D2,  $sfm-grey-D2);
+}
