@@ -13,7 +13,7 @@ class Person(models.Model):
         self.name = ComplexFieldContainer(self, PersonName)
         self.alias = ComplexFieldContainer(self, PersonAlias)
         self.notes = ComplexFieldContainer(self, PersonNotes)
-        self.complex_fields = ['name', 'alias', 'notes']
+        self.complex_fields = [self.name, self.alias, self.notes]
 
     @classmethod
     def from_id(cls, id_):
@@ -24,8 +24,8 @@ class Person(models.Model):
         return None
 
     def update(self, dict_values, dict_sources, lang=get_language()):
-        for c_field in self.complex_fields:
-            field = getattr(self, c_field)
+        for field in self.complex_fields:
+            field_name = field.get_field_str_id()
 
             if 'sources' in dict_values[c_field]:
                 sources = Source.create_sources(dict_values[c_field]['sources'])
