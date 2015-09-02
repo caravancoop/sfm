@@ -1,14 +1,14 @@
 section{
 	&.content{
 		h3{
-			margin-top:1em;
+			// margin-top:1em;
 		}
 		max-width:100%;
 		@include pd("lr", 4em);
 		margin-top:1em;
 		margin-left:$header-mg-L;
 		.row{
-			padding:0;
+			padding:0.5em 0em;
 			@include mg('lr', -2em);
 		}
 
@@ -16,39 +16,49 @@ section{
 		.form-group {
 			label {
 				width: 100%;
+				font-weight: $ft-normal;
 				.actions {
 					float: right;
 				}
 			}
 		}
 
-		.form-group {
-				label {
-					width: 100%;
-					.actions {
-						float: right;
-					}
+		.location {
+			margin: 0;
+			padding: 0;
+		}
+
+		.actions{
+			float:right;
+			a{
+				color:$sfm-grey-D2;
+				&:hover{
+					color:$ter-bg-clr
 				}
 			}
-		.actions{
-		    float:right;
-		    a{
-		      color:$sfm-grey-D2;
-		      &:hover{
-		      	color:$ter-bg-clr
-		      }
-		    }
 		}
 		.dropdown {
 			p {font-weight: $ft-normal;}
-				.btn {
-					width: 100%;
-					text-align: left;
+			.btn {
+				width: 100%;
+				text-align: left;
 			}
 		}
-		 //* VIEWS
- 		@import "views/_people.scss";
- 		@import "views/_membership.scss";
+		//* VIEWS
+		@import "views/_people.scss";
+		@import "views/_membership.scss";
 
 	}
 }
+
+.table-responsive {
+	table {
+		tbody {
+			tr{
+				td {
+					@include text-overflow();
+				} // td
+			} //tr
+		} //tbody
+	} //table
+} //table-responsive

@@ -5,7 +5,7 @@ header{
 		@include mg('lr', 3em);
 		height:100%;
 		border-bottom: solid thin $pri-bg-clr;
-		h1.page-title{
+		h3.page-title{
 		float:left;
 		height:$sidebar-title-height;
 		line-height:$sidebar-title-height;
@@ -13,7 +13,7 @@ header{
 		}
 		button{
 			float:right;
-			margin-top:3em;
+			margin-top:1.5em;
 		}
 
 	}//.inner-title-wrapper

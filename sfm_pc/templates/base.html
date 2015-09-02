@@ -13,12 +13,21 @@
 <body>
     {% include "header.html" %}
     {% include "sidebar.html" %}
+    {% include "source.html" %}
+    {% include "version.html" %}
+    {% include "translate.html" %}
 
     {% block content %}{% endblock %}
     <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
     <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
     <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
     <script src="{% static "js/script.js" %}"></script>
+
+    <script>
+    $(document).ready(function(){
+      $('select').selectpicker('show');
+    });
+    </script>
 
 </body>
 
