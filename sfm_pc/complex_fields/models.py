@@ -105,7 +105,10 @@ class ComplexFieldContainer(object):
         c_field = c_fields.filter(lang=lang)
         c_field = list(c_field[:1])
         if not c_field:
-            c_field = self.field_model(object=self.table_object, lang=lang)
+            if self.translated:
+                c_field = self.field_model(object=self.table_object, lang=lang)
+            else:
+                c_field = self.field_model(object=self.table_object)
         else:
             c_field = c_field[0]
 
