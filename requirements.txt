@@ -3,3 +3,4 @@ django-jsonview==0.5.0
 django-localeurl==2.0.2
 django-reversion==1.9.3
 psycopg2==2.6.1
+django-toolbelt==0.0.1
