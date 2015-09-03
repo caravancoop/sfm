@@ -1,56 +1,56 @@
 <!-- Modal -->
 <div class="modal fade sourceModal" role="dialog">
-  <div class="modal-dialog modal-lg">
+	<div class="modal-dialog modal-lg">
 
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Source</h4>
-      </div>
-      <div class="modal-body">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Source</h4>
+			</div>
+			<div class="modal-body">
 
-        <div class="row">
-          <div class="people_src_info col-sm-6">
-            <div class="row">
-              <p class="col-sm-4">Source 1:</p>
-              <div class="form-group dropdown col-sm-8">
-                <!-- <label for="people_src_confidence">Confidence Level</label> -->
-                <select id="people_src_confidence">
-                  <option>Level of Confidence</option>
-                  <option value="">low</option>
-                  <option value="">medium</option>
-                  <option value="">high</option>
-                </select>
-              </div>
-            </div>
-          </div>
+				<div class="row">
+					<div class="people_src_info col-sm-6">
+						<div class="row">
+							<p class="col-sm-4">Source 1:</p>
+							<div class="form-group dropdown col-sm-8">
+								<select id="people_src_confidence_data">
+									<option>Level of Confidence</option>
+									<option value="">low</option>
+									<option value="">medium</option>
+									<option value="">high</option>
+								</select>
+							</div>
+						</div>
+					</div>
 
-          <div class="people_src_add col-sm-6">
-            <p>Add</p>
-            <div class="row">
-              <div class="col-sm-4">
-            <input type="text" class="form-control" id="people_src_title" placeholder="Enter Title">
-          </div>
-            <div class="form-group dropdown col-sm-8">
-              <!-- <label for="people_src_confidence">Rank</label> -->
-              <select id="people_src_confidence">
-                <option>Level of confidence</option>
-                <option value="">low</option>
-                <option value="">medium</option>
-                <option value="">high</option>
-              </select>
-            </div>
-          </div>
-            <button type="button" class="btn btn-default center-block">Add</btn>
-          </div>
-        </div>
+					<form id="addSource">
+						<div class="people_src_add col-sm-6">
+							<p>Add</p>
+							<div class="row">
+								<div class="col-sm-4">
+									<input type="text" class="form-control" id="people_src_title" placeholder="Enter Title">
+								</div>
+								<div class="form-group dropdown col-sm-8">
+									<select id="people_src_confidence">
+										<option disabled selected="selected">Level of confidence</option>
+										<option value="1">Low</option>
+										<option value="2">Medium</option>
+										<option value="3">High</option>
+									</select>
+								</div>
+							</div>
+							<button type="button" class="btn btn-default center-block" onclick="grabData()">Add</btn>
+							</div>
+						</form>
+					</div>
 
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
 
-  </div>
-</div>
+		</div>
+	</div>

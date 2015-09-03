@@ -2,7 +2,6 @@
 {% load i18n %}
 {% block content %}
 <section class="content">
-  <!-- <object name="add-edit-people" type="text/html" data="/views/add-edit-people.html"></object> -->
   <div class="row">
     <div class="col-sm-12">
       <h4>Properties</h4>
@@ -11,20 +10,20 @@
 
   <div class="row">
     <form>
-      <div class="form-group col-sm-4">
+      <div class="form-group col-sm-4 options">
         <label for="people_ae_name">Name
           <div class="actions">
-            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal"><i class="fa fa-link"></i></a>
+            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal" name="people_ae_name"><i class="fa fa-link"></i></a>
             <a href="" title="Versions" data-toggle="modal" data-target=".versionModal"><i class="fa fa-undo"></i></a>
             <a href="" title="Translation" data-toggle="modal" data-target=".translateModal"><i class="fa fa-flag"></i></a>
           </div>
         </label>
         <input type="text" class="form-control" id="people_ae_name" value="{{person.name}}" placeholder="{% trans "Enter Name" %}">
       </div>
-      <div class="form-group col-sm-4">
+      <div class="form-group col-sm-4 options">
         <label for="people_ae_alias">Aliases/alt spellings
           <div class="actions">
-            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal"><i class="fa fa-link"></i></a>
+            <a href="" title="Source" data-toggle="modal" data-target=".sourceModal" name="people_ae_alias"><i class="fa fa-link"></i></a>
             <a href="" title="Versions" data-toggle="modal" data-target=".versionModal"><i class="fa fa-undo"></i></a>
             <a href="" title="Translation" data-toggle="modal" data-target=".translateModal"><i class="fa fa-flag"></i></a>
           </div>
@@ -33,7 +32,7 @@
       </div>
       <div class="form-group col-sm-4">
         <label for="people_ae_death">Notes</label>
-        <input type="date" class="form-control" id="people_ae_notes" value="{{ person.notes }}" placeholder="{% trans "Enter Notes"%}">
+        <input type="text" class="form-control" id="people_ae_notes" value="{{ person.notes }}" placeholder="{% trans "Enter Notes"%}">
       </div>
     </form>
   </div><!-- /.row-->
@@ -45,23 +44,10 @@
   </div>
   <div class="row">
     <form>
-      <!-- <div class="form-group dropdown col-sm-4">
-        <label for="">Membership</label>
-        <button class="btn btn-default dropdown-toggle" type="button" id="people_ae_membership" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-          Choose or create
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="people_ae_membership">
-          <li><a href="createNew.html">Create New</a></li>
-          <li><a href="#">Commander</a></li>
-          <li><a href="#">Sergent</a></li>
-          <li><a href="#">Separated link</a></li>
-        </ul>
-      </div> -->
       <div class="form-group dropdown col-sm-4">
         <label for="people_edit_membership">Membership</label>
         <select id="people_edit_membership">
-          <option>Choode or create...</option>
+          <option>Choose or create...</option>
           <option value="">Create new</option>
           <option value="">Commander</option>
           <option value="">Sergent</option>
@@ -71,7 +57,6 @@
         <label>Add</label>
         <button class="btn btn-default col-sm-12" type="submit">
           Add to this list
-          <!-- <span class="caret"></span> -->
         </button>
       </div>
     </form>
