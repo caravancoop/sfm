@@ -1,1 +1,1 @@
-web: gunicorn sfm_pc/wsgi.py --log-file -
+web: gunicorn sfm_pc:wsgi.application --log-file -
