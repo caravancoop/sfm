@@ -1,4 +1,6 @@
 from __future__ import unicode_literals
+import json
+
 from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -6,6 +8,7 @@ from django.views.generic.base import TemplateView
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext, loader
+from django.http import HttpResponse
 from django.db.models import Max
 from .models import Person
 from .forms import PersonForm
@@ -95,13 +98,23 @@ class FieldUpdate(TemplateView):
 
         return context
 
-class PersonCreate(CreateView):
-    template_name = 'person/form.html'
-    form_class = PersonForm
-    model = Person
+class PersonCreate(TemplateView):
+    template_name = 'person/edit.html'
 
-    def get_success_url(self):
-        return reverse_lazy('person')
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        data = json.loads(request.POST.dict()['person'])
+        person = Person.create(data)
+
+        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+
+    def get_context_data(self, **kwargs):
+        context = super(PersonCreate, self).get_context_data(**kwargs)
+        context['person'] = Person()
+
+        return context
+
+
 
 """
 class PersonDelete(DeleteView):
