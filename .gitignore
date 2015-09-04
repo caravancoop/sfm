@@ -7,3 +7,7 @@ env/*
 # Local configs
 sfm_pc/sfm_pc/settings.py
 
+env/
+bin/
+lib/
+.DS_Store
