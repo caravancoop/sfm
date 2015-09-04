@@ -1,56 +1,52 @@
 <!-- Modal -->
-<div class="modal fade versionModal" role="dialog">
-  <div class="modal-dialog modal-lg">
+	<div class="modal fade versionModal" role="dialog">
+		<div class="modal-dialog modal-lg">
 
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Version</h4>
-      </div>
-      <div class="modal-body">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Version</h4>
+				</div>
+				<div class="modal-body">
 
-        <div class="row">
-          <div class="people_vr_info col-sm-6">
-            <div class="row">
-              <p class="col-sm-4">Source 1:</p>
-              <div class="form-group dropdown col-sm-8">
-                <!-- <label for="people_vr_confidence">Confidence Level</label> -->
-                <select id="people_vr_confidence">
-                  <option>Level of Confidence</option>
-                  <option value="">low</option>
-                  <option value="">medium</option>
-                  <option value="">high</option>
-                </select>
-              </div>
-            </div>
-          </div>
+					<div class="row">
+						<div class="people_vr_info col-sm-8">
+							<div class="row">
+								<p class="col-sm-4">Version No.:</p>
+								<p class="col-sm-6">Sources</p>
+								<button type="button" class="btn sfm-btn-action">Revert</button>
+								<!-- <div class="form-group dropdown col-sm-8">
+								<select id="people_vr_confidence">
+								<option>Level of Confidence</option>
+								<option value="">low</option>
+								<option value="">medium</option>
+								<option value="">high</option>
+							</select>
+						</div> -->
+					</div>
+				</div>
 
-          <div class="people_vr_add col-sm-6">
-            <p>Add</p>
-            <div class="row">
-              <div class="col-sm-4">
-            <input type="text" class="form-control" id="people_vr_title" placeholder="Add Source">
-          </div>
-            <div class="form-group dropdown col-sm-8">
-              <!-- <label for="people_src_confidence">Rank</label> -->
-              <select id="people_vr_confidence">
-                <option>Level of confidence</option>
-                <option value="">low</option>
-                <option value="">medium</option>
-                <option value="">high</option>
-              </select>
-            </div>
-          </div>
-            <button type="button" class="btn btn-default center-block">Add</btn>
-          </div>
-        </div>
+				<div class="people_vr_add col-sm-4">
+					<p>Choose Language</p>
+					<div class="row">
+						<div class="form-group dropdown col-sm-12">
+							<select id="people_vr_language">
+								<option>Language</option>
+								<option value="EN">English</option>
+								<option value="FR">French</option>
+								<option value="ES">Spanish</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
 
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">Close</button>
+		</div>
+	</div>
 
-  </div>
+</div>
 </div>

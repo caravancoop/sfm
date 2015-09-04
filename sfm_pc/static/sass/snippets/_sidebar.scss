@@ -15,15 +15,18 @@ aside {
   }//h1
   nav{
     ul {
-      background-color: $sidebar-ul-clr;
+      // background-color: $sidebar-ul-clr;
       @include hw($sidebar-ul-height, $sidebar-ul-width);
       li {
+        a {
+          display: block;
+        }
         i{
           display:none !important;
           float:right;
           font-size:1.5em !important;
-
         }
+
         cursor:pointer;
         list-style: none;
         @include hw($sidebar-li-height, $sidebar-ul-width);
@@ -54,9 +57,9 @@ aside {
       a{
         text-decoration:none;
         color: $sfm-orange;
-        padding: 0.5em 1em;
+        padding: 1rem;
         border: solid thin $sfm-orange;
-        border-radius:0.25em;
+        border-radius:0.5rem;
       }
     }
   }//ul

@@ -1,3 +1,9 @@
-.people_src_add, .people_vr_add, .people_tr_add {
+.people_src_add, .people_vr_add, .modal_tr_add {
   border-left: 1px solid $sfm-grey-D2;
+}
+
+.modal_tr_add {
+	input {
+		margin-bottom: 1rem;
+	}
 }
