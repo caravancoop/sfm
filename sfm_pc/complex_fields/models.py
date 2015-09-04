@@ -1,5 +1,6 @@
 import inspect
 import reversion
+import re
 
 from django.db import models
 from django.core.exceptions import ValidationError, FieldDoesNotExist
@@ -35,6 +36,13 @@ class ComplexFieldContainer(object):
         if value is None:
             value = ""
         return value
+
+    def get_attr_name(self):
+        table_name = self.table_object.__class__.__name__
+        return re.sub(table_name, '', self.field_model.__name__).lower()
+
+    def get_object_name(self):
+        return self.table_object.__class__.__name__.lower()
 
     def get_field_str_id(self):
         table_name = self.table_object.__class__.__name__
@@ -92,6 +100,18 @@ class ComplexFieldContainer(object):
         for field in c_fields:
             if field.lang in lang_ids:
                 field.revert(lang_ids[field.lang])
+
+    def get_sources(self):
+        sources = []
+        if not hasattr(self.field_model, 'sourced'):
+            return sources
+
+        c_fields = self.field_model.objects.filter(object=self.table_object)
+        field = list(c_fields[:1])
+        if field:
+            sources = field[0].sources.all()
+
+        return sources
 
     def update(self, value, lang, sources=[]):
         c_fields = self.field_model.objects.filter(object=self.table_object)
