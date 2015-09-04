@@ -1,4 +1,5 @@
 import re
+import importlib
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -51,3 +52,8 @@ class RequireLoginMiddleware(object):
 
         # Explicitly return None for all non-matching requests
         return None
+
+def class_for_name(class_name, module_name="person.models"):
+    module = importlib.import_module(module_name)
+    class_ = getattr(module, class_name)
+    return class_
