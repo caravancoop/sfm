@@ -18,15 +18,15 @@ var SRC_ALL_SCSS = 'static/sass/**/*.scss';
 // distribution
 var SRC_DIST_CSS = 'static/css';
 // var SRC_DIST_JS = 'static/dist/js';
-var SRC_DIST = 'static/dist/';
+// var SRC_DIST = 'static/dist/';
 
 
 gulp.task('serve', ['watch'], function(){
 	browserSync.init(null, {
-		proxy: "http://localhost:8000/en/person/1/",
+		proxy: "http://localhost:8000",
         files: [SRC_FILES],
         browser: "google chrome",
-        port: 7000,
+        port: 7000
 	});
 	gulp.watch(SRC_ALL_SCSS, ['scss']);
 	// gulp.watch('/templates/*').on('change', reload);

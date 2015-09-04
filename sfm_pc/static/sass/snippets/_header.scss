@@ -1,7 +1,6 @@
-header{
-	margin-left:$header-mg-L;
+.header{
 	height:$header-height;
-	.inner-title-wrapper{
+	&.inner-title-wrapper{
 		@include mg('lr', 3em);
 		height:100%;
 		border-bottom: solid thin $pri-bg-clr;
@@ -11,9 +10,9 @@ header{
 		line-height:$sidebar-title-height;
 
 		}
-		button{
+		a{
 			float:right;
-			margin-top:1.5em;
+			margin-top:2.25rem;
 		}
 
 	}//.inner-title-wrapper

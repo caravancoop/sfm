@@ -1,16 +1,15 @@
-@import "../sass-core/_core-colors.scss";
-@import "../sass-core/_core-defaults.scss";
+
 
 @import "../bootstrap/_bootstrap.scss";
 
 @import "../sass-core/_core-functions.scss";
+@import "../sass-core/_core-colors.scss";
+@import "../sass-core/_core-queries.scss";
+@import "../sass-core/_core-defaults.scss";
 
 
-// @import "../ui/_ui-elements.scss";
-@import "../ui/_buttons.scss";
-
-// @import "../bootstrap/bootstrap/_theme.scss";
-// @import "../bootstrap/bootstrap/mixins/_buttons.scss";
+@import "../bootstrap/bootstrap/_theme.scss";
+@import "../bootstrap/bootstrap/mixins/_buttons.scss";
 @import "../css/bootstrap-select.min.css";
 
 body, html ,*, li, ul{
@@ -60,5 +59,6 @@ object{
  @import "../snippets/_sidebar.scss";
  @import "../snippets/_header.scss";
  @import "../snippets/_content.scss";
- @import "../snippets/_modal.scss";
  @import "../snippets/_login.scss";
+ @import "../snippets/_modal.scss";
+ @import "../ui/_buttons.scss";
