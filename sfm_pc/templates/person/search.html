@@ -3,14 +3,14 @@
 {% block content %}
 <section class="content">
     <div class="inner-title-wrapper">
-         <h3 class="page-title">{% trans Person %}</h3>
+         <h3 class="page-title">{% trans "Search a person" %}</h3>
          <a href="/person/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
     </div>
 		<form>
 			<div class="row">
 				<div class="form-group col-sm-6">
 					<label for="name">Name</label>
-					<input type="text" class="form-control" id="name" placeholder="Enter Name">
+                    <input type="text" class="form-control" id="name" placeholder="Enter Name">
 				</div>
 				<div class="form-group col-sm-6">
 					<label for="alias">Aliases or alternative spellings</label>
@@ -104,7 +104,7 @@
 
 		<div class="row">
 			<div class="col-sm-12 form-group">
-				<label for="people_srch_post">234 Results
+				<label for="people_srch_post">{{ persons|length }} Results
 					<div class="actions">
 						<!-- <a href="" title="Source"><i class="fa fa-link fa-lg"></i></a>
 						<a href="" title="Versions"><i class="fa fa-undo fa-lg"></i></a>
@@ -120,38 +120,21 @@
 				<table class="table table-bordered table-striped">
 					<thead>
 						<tr>
-							<th class="col-sm-2"><span class="caret"></span> Name</th>
+							<th class="col-sm-3"><span class="caret"></span> Name</th>
 							<th class="col-sm-4"><span class="caret"></span> Alias</th>
-							<th class="col-sm-2"><span class="caret"></span> Death date</th>
-							<th class="col-sm-4"><span class="caret"></span> Membership</th>
+							<th class="col-sm-5"><span class="caret"></span> Notes</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<td>Afolabi Taofeek</td>
-							<td>Chief Superintendent of Police</td>
-							<td>02-04-2015</td>
-							<td>Kano State Police Command
+                        {% for person in persons %}
+						<tr data-person-id="{{ person.id }}">
+							<td>{{ person.name }}</td>
+							<td>{{ person.alias }}</td>
+							<td>{{ person.notes }}
 								<i class="fa fa-times-circle fa-lg actions"></i>
 							</td>
 						</tr>
-						<tr>
-							<td>Afolabi Taofeek</td>
-							<td>Assistant Superintendent of Police</td>
-							<td>02-04-2015</td>
-							<td>ipsum
-								<i class="fa fa-times-circle fa-lg actions"></i>
-							</td>
-						</tr>
-						<tr>
-							<td>Afolabi Taofeek</td>
-							<td>Deputy Superintendent of Police</td>
-							<td>02-04-2015</td>
-							<td>ipsum
-								<i class="fa fa-times-circle fa-lg actions"></i>
-							</td>
-						</tr>
-					</table>
+                        {% endfor %}
 				</div>
 			</div>
 

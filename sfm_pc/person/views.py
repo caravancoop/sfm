@@ -22,12 +22,14 @@ def ajax_request(function):
             return function(request, *args, **kwargs)
     return wrapper
 
-
 class PersonView(TemplateView):
-    template_name = 'person/list.html'
+    template_name = 'person/search.html'
 
     def get_context_data(self, **kwargs):
         context = super(PersonView, self).get_context_data(**kwargs)
+
+        persons = Person.objects.all()
+        context['persons'] = persons
 
         order_by = self.request.GET.get('orderby')
         if not order_by:
@@ -44,7 +46,7 @@ class PersonView(TemplateView):
         person_query = (Person.objects
                         .annotate(Max(order_by))
                         .order_by(dirsym + order_by + "__max"))
-
+        """
         currlist = [
             {
                 'person_id': p.id,
@@ -66,10 +68,9 @@ class PersonView(TemplateView):
             person = paginator.page(paginator.num_pages)
 
         context['person'] = person
+        """
         context['orderby'] = order_by
         context['direction'] = direction
-
-        # Search values
 
         return context
 
