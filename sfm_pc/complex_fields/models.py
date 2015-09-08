@@ -5,7 +5,9 @@ import re
 from django.db import models
 from django.core.exceptions import ValidationError, FieldDoesNotExist
 from django.utils.translation import get_language
+
 from source.models import Source
+from sfm_pc.utils import class_for_name
 
 
 class ComplexField(models.Model):
@@ -181,3 +183,14 @@ class ComplexFieldContainer(object):
                 c_field.sources.add(src)
 
         c_field.save()
+
+    @classmethod
+    def field_from_str_and_id(cls, object_name, id_, field_name):
+        object_class = class_for_name(
+            object_name.capitalize(),
+            object_name + ".models"
+        )
+        object_ = object_class.from_id(id_)
+        field = getattr(object_, field_name)
+
+        return field
