@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 
+from complex_fields.models import ComplexFieldContainer
 from sfm_pc.utils import class_for_name
 
 class SourceView(TemplateView):
@@ -9,10 +10,11 @@ class SourceView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SourceView, self).get_context_data(**kwargs)
 
-        object_name = context.get('object_type')
-        object_class = class_for_name(object_name.capitalize(), object_name + ".models")
-        object_ = object_class.from_id(context.get('object_id'))
-        field = getattr(object_, context.get('field_name'))
+        field = ComplexFieldContainer.field_from_str_and_id(
+            context.get('object_type'),
+            context.get('object_id'),
+            context.get('field_name'),
+        )
         context['field'] = field
 
         return context
@@ -23,10 +25,11 @@ class TranslationView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(TranslationView, self).get_context_data(**kwargs)
 
-        object_name = context.get('object_type')
-        object_class = class_for_name(object_name.capitalize(), object_name + ".models")
-        object_ = object_class.from_id(context.get('object_id'))
-        field = getattr(object_, context.get('field_name'))
+        field = ComplexFieldContainer.field_from_str_and_id(
+            context.get('object_type'),
+            context.get('object_id'),
+            context.get('field_name'),
+        )
 
         context['field'] = field
 
