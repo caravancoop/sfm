@@ -12,34 +12,37 @@
 
         <div class="row">
           <div class="people_src_info col-sm-6">
-            <div class="row">
-              <p class="col-sm-4">Source 1:</p>
-              <div class="form-group dropdown col-sm-8">
-                <!-- <label for="people_src_confidence">Confidence Level</label> -->
-                <select id="people_src_confidence">
-                  <option>Level of Confidence</option>
-                  <option value="">low</option>
-                  <option value="">medium</option>
-                  <option value="">high</option>
-                </select>
+            {% for source in field.get_sources %}
+              <div class="row">
+                <p class="col-sm-4">{{ source.source }}:</p>
+                <div class="form-group dropdown col-sm-8">
+                  <!-- <label for="people_src_confidence">Confidence Level</label> -->
+                  <select id="people_src_confidence">
+                    <option>Level of Confidence</option>
+                    <option value="1" {% if source.confidence = "1" %}selected{% endif %}>Low</option>
+                    <option value="2" {% if source.confidence = "1" %}selected{% endif %}>Medium</option>
+                    <option value="3" {% if source.confidence = "1" %}selected{% endif %}>High</option>
+                  </select>
+                </div>
               </div>
-            </div>
+            {% endfor %}
           </div>
 
           <div class="people_src_add col-sm-6">
             <p>Add</p>
             <div class="row">
               <div class="col-sm-4">
-            <input type="text" class="form-control" id="people_src_title" placeholder="Enter Title">
-          </div>
-            <div class="form-group dropdown col-sm-8">
-              <!-- <label for="people_src_confidence">Rank</label> -->
-              <select id="people_src_confidence">
-                <option>Level of confidence</option>
-                <option value="">low</option>
-                <option value="">medium</option>
-                <option value="">high</option>
-              </select>
+                <input type="text" class="form-control" id="people_src_title" placeholder="Enter Title">
+              </div>
+              <div class="form-group dropdown col-sm-8">
+                <!-- <label for="people_src_confidence">Rank</label> -->
+                <select id="people_src_confidence">
+                  <option>Level of confidence</option>
+                  <option value="">Low</option>
+                  <option value="">Medium</option>
+                  <option value="">High</option>
+                </select>
+              </div>
             </div>
           </div>
             <button type="button" class="btn btn-default center-block">Add</btn>
