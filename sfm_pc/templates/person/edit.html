@@ -16,13 +16,13 @@
     <div class="row">
         <form>
             <div class="form-group col-sm-4">
-                {% view_complex_field person.name request.path %}
+                {% view_complex_field person.name person.id request.path %}
             </div>
             <div class="form-group col-sm-4">
-                {% view_complex_field person.alias request.path %}
+                {% view_complex_field person.alias person.id request.path %}
             </div>
             <div class="form-group col-sm-4">
-                {% view_complex_field person.notes request.path %}
+                {% view_complex_field person.notes person.id request.path %}
             </div>
         </form>
     </div><!-- /.row-->
