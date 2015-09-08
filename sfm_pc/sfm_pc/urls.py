@@ -13,6 +13,7 @@ from person.views import *
 urlpatterns = i18n_patterns(
     '',
     url(r'^person/', include('person.urls')),
+    url(r'^modal/', include('modal.urls')),
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),

@@ -3,7 +3,7 @@
 <label for="{{ field_id}}">{{field_name}}
     <div class="actions">
         {% if sourced %}
-            <a href="" title="{% trans Source %}" data-toggle="modal" data-target=".sourceModal"><i class="fa fa-link"></i></a>
+            <a href="" title="{% trans Source %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/source/{{object_name}}/{{object_id}}/{{attr_name}}/"><i class="fa fa-link"></i></a>
         {% endif %}
         {% if "add" not in path %}
             {% if versioned %}
