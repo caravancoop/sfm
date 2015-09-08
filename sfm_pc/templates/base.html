@@ -13,7 +13,6 @@
 <body>
     {% include "sidebar.html" %}
     {% include "modals/version.html" %}
-    {% include "modals/translate.html" %}
 
     {% block content %}{% endblock %}
     <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>

@@ -95,6 +95,23 @@ class ComplexFieldContainer(object):
             ]
         return history
 
+    def get_translations(self):
+        translations = []
+        if not hasattr(self.field_model, 'translated'):
+            return translations
+
+        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = c_fields.exclude(value__isnull=True).exclude(value__exact='')
+
+        for field in c_fields:
+            trans = {
+                'lang': field.lang,
+                'value': field.value
+            }
+            translations.append(trans)
+
+        return translations
+
     def revert_field(self, lang_ids):
         c_fields = self.field_model.objects.filter(object=self.table_object)
         for field in c_fields:
