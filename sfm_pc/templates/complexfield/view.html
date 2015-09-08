@@ -10,7 +10,7 @@
                 <a href="" title="{% trans Versioned %}" data-toggle="modal" data-target=".versionModal"><i class="fa fa-undo fa-lg"></i></a>
             {% endif %}
             {% if translated %}
-                <a href="" title="{% trans Translated %}" data-toggle="modal" data-target=".translateModal"><i class="fa fa-flag fa-lg"></i></a>
+                <a href="" title="{% trans Translated %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/translate/{{object_name}}/{{object_id}}/{{attr_name}}/"><i class="fa fa-flag fa-lg"></i></a>
             {% endif %}
         {% endif %}
     </div>
