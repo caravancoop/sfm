@@ -1,38 +1,45 @@
-        <div class="row">
-          <div class="people_src_info col-sm-6">
-            {% for source in field.get_sources %}
-              <div class="row">
-                <p class="col-sm-4">{{ source.source }}:</p>
-                <div class="form-group dropdown col-sm-8">
-                  <!-- <label for="people_src_confidence">Confidence Level</label> -->
-                  <select id="people_src_confidence">
-                    <option>Level of Confidence</option>
-                    <option value="1" {% if source.confidence = "1" %}selected{% endif %}>Low</option>
-                    <option value="2" {% if source.confidence = "1" %}selected{% endif %}>Medium</option>
-                    <option value="3" {% if source.confidence = "1" %}selected{% endif %}>High</option>
-                  </select>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-
-          <div class="people_src_add col-sm-6">
-            <p>Add</p>
-            <div class="row">
-              <div class="col-sm-4">
-                <input type="text" class="form-control" id="people_src_title" placeholder="Enter Title">
-              </div>
-              <div class="form-group dropdown col-sm-8">
-                <!-- <label for="people_src_confidence">Rank</label> -->
-                <select id="people_src_confidence">
-                  <option>Level of confidence</option>
-                  <option value="">Low</option>
-                  <option value="">Medium</option>
-                  <option value="">High</option>
-                </select>
-              </div>
-            </div>
-          </div>
-            <button type="button" class="btn btn-default center-block">Add</btn>
-          </div>
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+</div>
+   
+<div class="row">
+  <div class="people_src_info col-sm-6">
+    {% for source in field.get_sources %}
+      <div class="row">
+        <p class="col-sm-4">{{ source.source }}:</p>
+        <div class="form-group dropdown col-sm-8">
+          <select id="people_src_confidence">
+            <option>Level of Confidence</option>
+            <option value="1" {% if source.confidence = "1" %}selected{% endif %}>Low</option>
+            <option value="2" {% if source.confidence = "1" %}selected{% endif %}>Medium</option>
+            <option value="3" {% if source.confidence = "1" %}selected{% endif %}>High</option>
+          </select>
         </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="people_src_add col-sm-6">
+    <p>Add</p>
+    <div class="row">
+      <div class="col-sm-4">
+        <input type="text" class="form-control" id="people_src_title" placeholder="Enter Title">
+      </div>
+      <div class="form-group dropdown col-sm-8">
+        <select id="people_src_confidence">
+          <option>Level of confidence</option>
+          <option value="">Low</option>
+          <option value="">Medium</option>
+          <option value="">High</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <button type="button" class="btn btn-default center-block">Add</btn>
+</div>
+        
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+  <button type="button" class="btn btn-primary">Save changes</button>
+</div>
