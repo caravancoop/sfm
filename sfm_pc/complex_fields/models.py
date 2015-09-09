@@ -92,10 +92,38 @@ class ComplexFieldContainer(object):
                     'value': fh.field_dict['value'],
                     'sources': fh.field_dict['sources'],
                     'id': fh.id
+
+    def get_history_for_lang(self, lang=get_language()):
+        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = c_fields.filter(lang=lang)
+        history = []
+        field = list(c_fields[:1])
+        if field:
+            field_history = reversion.get_for_object(field[0])
+            history = [
+                {
+                    "value": fh.field_dict['value'],
+                    "sources": [
+                        {"source": src.source, "confidence": src.confidence}
+                        for src in Source.get_sources(fh.field_dict['sources'])
+                    ],
+                    "id": fh.id
                 }
                 for fh in field_history
             ]
+
         return history
+
+    def get_langs_in_history(self):
+        c_fields = self.field_model.objects.filter(object=self.table_object)
+        langs = []
+        if c_fields:
+            langs = [
+                field.lang
+                for field in c_fields
+            ]
+
+        return langs
 
     def get_translations(self):
         translations = []

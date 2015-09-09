@@ -2,6 +2,4 @@ Django==1.8.3
 django-jsonview==0.5.0
 django-localeurl==2.0.2
 django-reversion==1.9.3
-django-international==0.0.6
 psycopg2==2.6.1
-Babel==2.0

@@ -50,7 +50,8 @@ class VersionView(TemplateView):
         )
 
         context['field'] = field
-        context['version_json'] = json.dumps(field.get_history())
+        context['history'] = field.get_history_for_lang()
+        context['langs'] = field.get_langs_in_history()
 
         return context
 
