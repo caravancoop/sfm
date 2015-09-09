@@ -14,3 +14,12 @@ def get_versions(request, object_type, object_id, field_name,
 
     return HttpResponse(json.dumps(versions))
 
+def revert_field(request, object_type, object_id, field_name):
+    field = ComplexFieldContainer.field_from_str_and_id(
+        object_type, object_id, field_name
+    )
+
+    data = json.loads(request.POST.dict()['revert'])
+    field.revert_field(data['lang'], data['id'])
+
+    return HttpResponse(status=200)
