@@ -1,12 +1,8 @@
-
-
-@import "../bootstrap/_bootstrap.scss";
-
 @import "../sass-core/_core-functions.scss";
 @import "../sass-core/_core-colors.scss";
 @import "../sass-core/_core-queries.scss";
 @import "../sass-core/_core-defaults.scss";
-
+@import "../bootstrap/_bootstrap.scss";
 
 @import "../bootstrap/bootstrap/_theme.scss";
 @import "../bootstrap/bootstrap/mixins/_buttons.scss";

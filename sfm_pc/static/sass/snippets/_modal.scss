@@ -1,9 +1,24 @@
+.modal-content {
+  margin: 0;
+  padding: 1em 1em;
+  list-style: none;
+  .modal-body.row {
+    margin: inherit;
+  }
+  .modal_src_add {
+    .row {
+      padding: 0;
+      margin: 0;
+    }
+  }
+}
+
 .modal_src_add, .modal_vr_add, .modal_tr_add {
   border-left: 1px solid $sfm-grey-D2;
 }
 
 .modal_tr_add {
-	input {
-		margin-bottom: 1rem;
-	}
+  input {
+    margin-bottom: 1rem;
+  }
 }
