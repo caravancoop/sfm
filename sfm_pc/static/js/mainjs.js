@@ -22,6 +22,9 @@ $('.modalBox').on('click', function () {
 
 function grabData() {
 
+	var field_str = $('.modalBox').data('field-str');
+	var model_id = $('.modalBox').data('model-id');
+
 	var source = $(".modal-body").find("." + model_id + "_src_addSource").val();
 	var confidence = $(".modal-body").find("." + model_id + "_src_addConfidence").val();
 	console.log(field_str + " " + source + " " + confidence);
@@ -40,10 +43,10 @@ function grabData() {
 }
 
 
-	function createList (personObject) {
+function createList (personObject) {
 
-		for(var i = 0; i < personObject.Person_PersonName.sources.length; i++) {
-			console.log(personObject.Person_PersonName.sources[i]);
+	for(var i = 0; i < personObject.Person_PersonName.sources.length; i++) {
+		console.log(personObject.Person_PersonName.sources[i]);
 
 		var sourceInfo = '<div class="row clickableRow"><li><p class="col-sm-4">' + personObject.Person_PersonName.sources[i].sources[0] + '</p>' +
 		'<p class="col-sm-6">' + personObject.Person_PersonName.sources[i].sources[1] + '</p>' +
