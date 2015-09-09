@@ -6475,7 +6475,7 @@ body {
 .modal-content {
   margin: 0;
   padding: 1em 1em;
-  list-style: none; }
+  list-style-type: none; }
   .modal-content .modal-body.row {
     margin: inherit; }
   .modal-content .modal_src_add .row {
