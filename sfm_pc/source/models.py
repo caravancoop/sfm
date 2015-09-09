@@ -29,3 +29,7 @@ class Source(models.Model):
 
         return sources
 
+    @classmethod
+    def get_sources(cls, source_ids):
+        sources = cls.objects.filter(id__in = source_ids)
+        return sources

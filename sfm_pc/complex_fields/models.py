@@ -22,6 +22,25 @@ class ComplexField(models.Model):
         if hasattr(self, 'versioned'):
             version = reversion.get_for_object(self).get(id=id)
             version.revert()
+            return version.field_dict['sources']
+
+    def revert_to_source(self, source_ids):
+        if hasattr(self, 'versioned'):
+            versions = reversion.get_for_object(self)
+            version = None
+            max_id = 0
+            for vers in versions:
+                if vers.field_dict['sources'] == source_ids and vers.id > max_id:
+                    version = vers
+                    max_id = vers.id
+
+            if version is None:
+                for vers in versions:
+                    if vers.field_dict['sources'] == [] and vers.id > max_id:
+                        version = vers
+
+            if version is not None:
+                version.revert()
 
 class ComplexFieldContainer(object):
     def __init__(self, table_object, field_model):
@@ -89,13 +108,45 @@ class ComplexFieldContainer(object):
             field_history = reversion.get_for_object(c_field)
             history[c_field.lang] = [
                 {
-                    'value': fh.field_dict['value'],
-                    'sources': fh.field_dict['sources'],
-                    'id': fh.id
+                    "value": fh.field_dict['value'],
+                    "sources": fh.field_dict['sources'],
+                    "id": fh.id
                 }
                 for fh in field_history
             ]
         return history
+
+    def get_history_for_lang(self, lang=get_language()):
+        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = c_fields.filter(lang=lang)
+        history = []
+        field = list(c_fields[:1])
+        if field:
+            field_history = reversion.get_for_object(field[0])
+            history = [
+                {
+                    "value": fh.field_dict['value'],
+                    "sources": [
+                        {"source": src.source, "confidence": src.confidence}
+                        for src in Source.get_sources(fh.field_dict['sources'])
+                    ],
+                    "id": fh.id
+                }
+                for fh in field_history
+            ]
+
+        return history
+
+    def get_langs_in_history(self):
+        c_fields = self.field_model.objects.filter(object=self.table_object)
+        langs = []
+        if c_fields:
+            langs = [
+                field.lang
+                for field in c_fields
+            ]
+
+        return langs
 
     def get_translations(self):
         translations = []
@@ -114,11 +165,17 @@ class ComplexFieldContainer(object):
 
         return translations
 
-    def revert_field(self, lang_ids):
+    def revert_field(self, lang, id_):
         c_fields = self.field_model.objects.filter(object=self.table_object)
-        for field in c_fields:
-            if field.lang in lang_ids:
-                field.revert(lang_ids[field.lang])
+        c_fields = c_fields.filter(lang=lang)
+        field = list(c_fields[:1])
+        if field:
+            sources = field.revert(id_)
+
+            fields = self.field_model.objects.filter(object=self.table_object)
+            fields = fields.exclude(lang == lang)
+            for field in fields:
+                field.revert_to_source(sources)
 
     def get_sources(self):
         sources = []
