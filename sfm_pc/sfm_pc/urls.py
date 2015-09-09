@@ -15,6 +15,7 @@ urlpatterns = i18n_patterns(
     url(r'^person/', include('person.urls')),
     url(r'^modal/', include('modal.urls')),
     url(r'^translate/', include('translation.urls')),
+    url(r'^version/', include('version.urls')),
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
