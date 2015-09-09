@@ -1,4 +1,5 @@
-var personObject = [];
+var personObject = [],
+personN = [];
 
 $('.modalBox').on('click', function () {
 	var person = $('.modalBox').data('field-object-name');
@@ -8,18 +9,21 @@ $('.modalBox').on('click', function () {
 	console.log(person + " " + person_id + " " + name);
 
 	$.ajax({
-	type: "GET",
-	url: "/source/" + person + "/" + person_id + "/" + name,
-	contentType: "application/json; charset=utf-8",
-	dataType: "json",
-	crossdomain: true,
-	success: OnGetSourcesSuccess,
-	error: OnGetSourcesError
+		type: "GET",
+		url: "/source/" + person + "/" + person_id + "/" + name,
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		crossdomain: true,
+		success: OnGetSourcesSuccess,
+		error: OnGetSourcesError
 	});
 
 });
 
 function grabData() {
+
+	var field_str = $('.modalBox').data('field-str');
+	var model_id = $('.modalBox').data('model-id');
 
 	var source = $(".modal-body").find("." + model_id + "_src_addSource").val();
 	var confidence = $(".modal-body").find("." + model_id + "_src_addConfidence").val();
@@ -39,10 +43,10 @@ function grabData() {
 }
 
 
-	function createList (personObject) {
+function createList (personObject) {
 
-		for(var i = 0; i < personObject.Person_PersonName.sources.length; i++) {
-			console.log(personObject.Person_PersonName.sources[i]);
+	for(var i = 0; i < personObject.Person_PersonName.sources.length; i++) {
+		console.log(personObject.Person_PersonName.sources[i]);
 
 		var sourceInfo = '<div class="row clickableRow"><li><p class="col-sm-4">' + personObject.Person_PersonName.sources[i].sources[0] + '</p>' +
 		'<p class="col-sm-6">' + personObject.Person_PersonName.sources[i].sources[1] + '</p>' +
