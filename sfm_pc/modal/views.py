@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 
@@ -32,6 +34,23 @@ class TranslationView(TemplateView):
         )
 
         context['field'] = field
+
+        return context
+
+class VersionView(TemplateView):
+    template_name = 'modals/version.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(VersionView, self).get_context_data(**kwargs)
+
+        field = ComplexFieldContainer.field_from_str_and_id(
+            context.get('object_type'),
+            context.get('object_id'),
+            context.get('field_name'),
+        )
+
+        context['field'] = field
+        context['version_json'] = json.dumps(field.get_history())
 
         return context
 
