@@ -12,51 +12,13 @@
 </head>
 <body>
     {% include "sidebar.html" %}
+    {% include "modals/version.html" %}
 
     {% block content %}{% endblock %}
     <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
     <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
     <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
     <script src="{% static "js/script.js" %}"></script>
-<script type="text/javascript">
-$('button[role="save_person"]').on('click', function(e){
-    /*data = {
-        "Person_PersonName": {
-            "value": "Bob",
-            "sources": [
-                {"source": "cccccc", "confidence": "1"},
-                {"source": "dddddd", "confidence": "2"}
-            ]
-        },
-        "Person_PersonAlias": {
-            "value": "Charles Alias",
-            "sources": [
-                {"source": "aaaaaa", "confidence": "1"},
-                {"source": "bbbbbb", "confidence": "3"}
-            ]
-        },
-        "Person_PersonNotes": {
-            "value": "Notes for bob no matter the language."
-        }
-    }*/
-    data = {
-        "value": "TEST TRANS", "lang":"es"
-    }
-
-
-    $.ajax({
-        type: "POST",
-        url: "/en/translate/person/1/name/",
-        data: {
-            translation: JSON.stringify(data),
-            csrfmiddlewaretoken: window.CSRF_TOKEN
-        },
-        success: function(data){
-            console.log("BOBY!");
-        }
-    });
-});
-</script>
 
     <script>
     $(document).ready(function(){
