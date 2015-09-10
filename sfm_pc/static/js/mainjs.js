@@ -2,6 +2,7 @@ var personObject = [],
 personN = [];
 
 $('.modalBox').on('click', function () {
+
 	var person = $('.modalBox').data('field-object-name');
 	var person_id = $('.modalBox').data('field-object-id');
 	var name = $('.modalBox').data('field-attr-name');
