@@ -1,12 +1,12 @@
+{% load i18n %}
 <div class="modal-header">
-  <button type="button" class="close" data-dismiss="modal">&times;</button>
-  <h4 class="modal-title">Version</h4>
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <h4 class="modal-title">{% trans "Version" %}</h4>
 </div>
 
-<div class="modal-body">
-  <div class="row">
-    <div class="people_vr_info col-sm-8">
-      {% for version in history %}
+<div class="modal-body row">
+  <div class="people_vr_info col-sm-8">
+    {% for version in history %}
       <div class="row">
         <p class="col-sm-4">{{version.value}}</p>
         <p class="col-sm-6">Sources</p>
@@ -15,23 +15,17 @@
         {% endfor %}
         <button type="button" data-version-id="{{version.id}}" class="btn sfm-btn-action">Revert</button>
       </div>
-      {% endfor %}
-    </div>
-    <script type="text/javascript">
-      //bob = {{version_json}};
-    </script>
-    <div class="modal_vr_add col-sm-4">
-      <p>Choose Language</p>
-      <div class="row">
-        <select id="people_vr_language">
-          <option>Language</option>
-          {% for lang in langs %}
+    {% endfor %}
+  </div>
+  <div class="modal_vr_add col-sm-4">
+    <p>Choose Language</p>
+    <div class="row">
+      <select id="people_vr_language">
+        <option>Language</option>
+        {% for lang in langs %}
           <option value="{{lang}}">{{lang}}</option>
-          {% endfor %}
-          <option value="FR">French</option>
-          <option value="ES">Spanish</option>
-        </select>
-      </div>
+        {% endfor %}
+      </select>
     </div>
   </div>
 </div>
