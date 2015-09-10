@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="modal-header">
+<div class="modal-header" data-field-object-name="{{field.get_object_name}}" data-field-object-id="{{object_id}}" data-field-attr-name="{{field.get_attr_name}}">
   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
   <h4 class="modal-title" id="myModalLabel">{% trans "View/Edit sources" %}</h4>
 </div>
@@ -7,7 +7,7 @@
 <div class="modal-body row">
   <div class="people_src_info col-sm-6">
     <ul id="sources_list" data-role="listview">
-    {% for source in field.get_sources %}
+    <!-- {% for source in field.get_sources %}
     <div class="row">
       <p class="src_name col-sm-4">{{ source.source }}:</p>
       <div class="form-group dropdown col-sm-6">
@@ -21,7 +21,7 @@
       <div class="col-sm-2"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></div>
       <input name="people_src_source" type="hidden" value="{{ source.source }}">
     </div>
-    {% endfor %}
+    {% endfor %} -->
   </ul>
   </div>
 
@@ -34,9 +34,9 @@
       <div class="form-group dropdown col-sm-8">
         <select class="person_src_addConfidence">
           <option>Level of confidence</option>
-          <option value="1">Low</option>
-          <option value="2">Medium</option>
-          <option value="3">High</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
         </select>
       </div>
     </div>
