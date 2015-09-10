@@ -17,7 +17,6 @@ $('.modalBox').on('click', function () {
 		success: OnGetSourcesSuccess,
 		error: OnGetSourcesError
 	});
-
 });
 
 function grabData() {
@@ -42,7 +41,6 @@ function grabData() {
 	createList(personObject);
 }
 
-
 function createList (personObject) {
 
 	for(var i = 0; i < personObject.Person_PersonName.sources.length; i++) {
@@ -54,10 +52,8 @@ function createList (personObject) {
 		'</li></div>';
 
 		$('#sources_list').append(sourceInfo);
-
 	}
 }
-
 
 $(document).on("click", ".sources_list_remove", function (event) {
 
