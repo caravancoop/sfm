@@ -23,14 +23,14 @@ var SRC_DIST_CSS = 'static/css';
 
 gulp.task('serve', ['watch'], function(){
 	browserSync.init(null, {
-		proxy: "http://localhost:8000",
+		proxy: "http://localhost:8000/en/person/1/",
         files: [SRC_FILES],
         browser: "google chrome",
         port: 7000
 	});
 	gulp.watch(SRC_ALL_SCSS, ['scss']);
-	// gulp.watch('/templates/*').on('change', reload);
-	// gulp.watch('views/*.html').on('change', reload);
+	gulp.watch('/templates/*').on('change', reload);
+	gulp.watch('views/*.html').on('change', reload);
 	gulp.watch(SRC_DIST_CSS).on('change', reload);		//when there is a change to the css file, reload the page
 });
 
