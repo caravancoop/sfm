@@ -7,23 +7,23 @@
 <div class="modal-body row">
   <div class="people_src_info col-sm-6">
     <ul id="sources_list" data-role="listview">
-    {% for source in field.get_sources %}
-    <div class="row">
-      <p class="source_name col-sm-4">{{ source.source }}:</p>
-      <div class="form-group dropdown col-sm-6">
-        <select name="people_src_confidence" class="source_confidence">
-          <option>Level of Confidence</option>
-          <option value="1" {% if source.confidence = "1" %}selected{% endif %}>Low</option>
-          <option value="2" {% if source.confidence = "2" %}selected{% endif %}>Medium</option>
-          <option value="3" {% if source.confidence = "3" %}selected{% endif %}>High</option>
-        </select>
-      </div>
-      <div class="col-sm-2"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></div>
-      <input name="people_src_source" type="hidden" value="{{ source.source }}">
-    </div>
-    {% endfor %}
-  </ul>
-  </div>
+      {% for source in field.get_sources %}
+        <div class="row">
+          <p class="source_name col-sm-4">{{ source.source }}:</p>
+          <div class="form-group dropdown col-sm-6">
+            <select name="people_src_confidence" class="source_confidence">
+              <option>Level of Confidence</option>
+              <option value="1" {% if source.confidence = "1" %}selected{% endif %}>Low</option>
+              <option value="2" {% if source.confidence = "2" %}selected{% endif %}>Medium</option>
+              <option value="3" {% if source.confidence = "3" %}selected{% endif %}>High</option>
+            </select>
+          </div>
+          <div class="col-sm-2"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></div>
+          <input name="people_src_source" type="hidden" value="{{ source.source }}">
+        </div>
+      {% endfor %}
+    </ul>
+ </div>
 
   <div class="modal_src_add col-sm-6">
     <p>Add</p>
@@ -42,9 +42,9 @@
     </div>
     <button type="button" class="btn center-block sfm-btn-action" onclick="grabData()">Add</btn>
   </div>
-  </div>
+</div>
 
-  <div class="modal-footer">
-    <button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">Close</button>
-    <button type="button" class="btn sfm-btn-action">Save changes</button>
-  </div>
+<div class="modal-footer">
+  <button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">Close</button>
+  <button type="button" class="btn sfm-btn-action">Save changes</button>
+</div>
