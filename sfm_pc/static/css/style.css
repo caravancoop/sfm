@@ -6474,10 +6474,11 @@ body {
 
 .modal-content {
   margin: 0;
-  padding: 1em 1em;
-  list-style-type: none; }
+  padding: 1em 1em; }
   .modal-content .modal-body.row {
     margin: inherit; }
+    .modal-content .modal-body.row ul {
+      list-style-type: none; }
   .modal-content .modal_src_add .row {
     padding: 0;
     margin: 0; }

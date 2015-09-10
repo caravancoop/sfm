@@ -3,27 +3,31 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>SFM Dashboard</title>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="{% static "css/style.css" %}">
+  <meta charset="UTF-8">
+  <title>SFM Dashboard</title>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="{% static "css/style.css" %}">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 </head>
 <body>
-    {% include "sidebar.html" %}
+  {% include "sidebar.html" %}
 
-    {% block content %}{% endblock %}
-    <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
-    <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
-    <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
-    <script src="{% static "js/script.js" %}"></script>
-    <script src="{% static "js/mainjs.js" %}"></script>
-    <script>
-    $(document).ready(function(){
-      $('select').selectpicker('show');
-    });
-    </script>
+  {% block content %}{% endblock %}
+  <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+  <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
+  <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+  <script src="{% static "js/script.js" %}"></script>
+  <script src="{% static "js/mainjs.js" %}"></script>
+  <script>
+  $(document).ready(function(){
+    $('select').selectpicker('show');
+  });
+
+  $('body').on('hidden.bs.modal', '.modal', function () {
+    $(this).removeData('bs.modal');
+  });
+  </script>
 
 </body>
 

@@ -1,9 +1,13 @@
 .modal-content {
   margin: 0;
   padding: 1em 1em;
-  list-style-type: none;
+
   .modal-body.row {
     margin: inherit;
+
+    ul {
+      list-style-type: none;
+    }
   }
   .modal_src_add {
     .row {
