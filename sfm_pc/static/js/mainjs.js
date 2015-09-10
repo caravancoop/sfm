@@ -1,82 +1,80 @@
 var personObject = [];
 
 $('.modalBox').on('click', function () {
-	var field_str = $(this).data('field-str');
-	var model_id = $(this).data('model-id');
-	console.log(field_str + " " + model_id);
+
+	var person = $('.modalBox').data('field-object-name');
+	var person_id = $('.modalBox').data('field-object-id');
+	var name = $('.modalBox').data('field-attr-name');
+
+	console.log(person + " " + person_id + " " + name);
+
+	$.ajax({
+	type: "GET",
+	url: "/source/" + person + "/" + person_id + "/" + name,
+	contentType: "application/json; charset=utf-8",
+	dataType: "json",
+	crossdomain: true,
+	success: OnGetSourcesSuccess,
+	error: OnGetSourcesError
+	});
 });
 
 function grabData() {
 
-	var source = $(".modal").find("src_confidence").val();
-	var confidence = $("#people_src_confidence").val();
-	personName.push({source, confidence});
+	var field_str = $('.modalBox').data('field-str');
+	var model_id = $('.modalBox').data('model-id');
 
-	createObject();
-}
 
-function createObject() {
+	var source = $(".modal-body").find("." + model_id + "_src_addSource").val();
+	var confidence = $(".modal-body").find("." + model_id + "_src_addConfidence").val();
+	console.log(field_str + " " + source + " " + confidence);
 
-	var name = $("a").closest("div.options").find("input[id='people_ae_name']").val();
-	var alias = $("a").closest("div.options").find("input[id='people_ae_alias']").val();
-	var notes = $("input[id='people_ae_notes']").val();
+	personN.push({"sources": [source, confidence]});
 
-	var formId = "person";
-
-	if(personObject != undefined) {
-		personObject = {
-			Person_PersonName : {
-				values :  name,
-				sources : personName
-			},
-			Person_PersonAlias : {
-				values : alias,
-				sources : personAlias},
-				Person_PersonNotes : {values : notes}
-
-			};
+	if(personObject !== undefined) {
+		personObject[field_str] = {
+			values : name,
+			sources : personN
 		}
-
-		console.log(personObject);
-		createList(personObject);
 	}
+
+	console.log(personObject);
+	createList(personObject);
+}
 
 	function createList (personObject) {
 
 		for(var i = 0; i < personObject.Person_PersonName.sources.length; i++) {
 			console.log(personObject.Person_PersonName.sources[i]);
 
-			var sourceInfo = '<div class="row clickableRow"><li><p class="col-sm-4">' + personObject.Person_PersonName.sources[i].source + '</p>' +
-			'<div class="form-group dropdown col-sm-6">' +
-			'<select id="people_src_confidence_data">' +
-			'<option>Level of Confidence</option>' +
-			'<option value="">low</option>' +
-			'<option value="">medium</option>' +
-			'<option value="">high</option>' +
-			'</select></div>' +
-			'<div class="col-sm-2 sources_list_remove" id="' + personObject.Person_PersonName.sources[i].source + '"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></div>' +
-			'</li></div>';
+		var sourceInfo = '<div class="row clickableRow"><li><p class="col-sm-4">' + personObject.Person_PersonName.sources[i].sources[0] + '</p>' +
+		'<p class="col-sm-6">' + personObject.Person_PersonName.sources[i].sources[1] + '</p>' +
+		'<div class="col-sm-2 sources_list_remove" id="' + personObject.Person_PersonName.sources[i].sources[0] + '"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></div>' +
+		'</li></div>';
 
-			$('#sources_list').append(sourceInfo);
+		$('#sources_list').append(sourceInfo);
+	}
+}
+
+$(document).on("click", ".sources_list_remove", function (event) {
+
+	for(var i = 0; i < personObject.Person_PersonName.sources.length; i++) {
+		var id = personObject.Person_PersonName.sources[i].sources[0];
+		if(personObject.Person_PersonName.sources[i].sources[0] === id) {
+			console.log(id);
+			delete personObject.Person_PersonName.sources[i].sources;
+			console.log(personObject);
 		}
 	}
+});
 
-	$(document).on("click", ".sources_list_remove", function (event) {
-		var id = $(this).attr('id');
+function OnGetSourcesSuccess(response, status) {
+	var data = response;
+	console.log(response);
+	// release lock
+}
 
-		console.log(id);
-		delete personObject.Person_PersonName.sources[id];
-		console.log(personObject);
-
-		for(var i = 0; i < personObject.Person_PersonName.sources.length; i++) {
-
-			console.log(personObject.Person_PersonName.sources[i]);
-			console.log(personObject.Person_PersonName.sources[i].source);
-
-			if(personObject.Person_PersonName.sources[i].source === id) {
-				delete personObject.Person_PersonName.sources[i];
-			}
-		}
-
-		console.log(personObject);
-	});
+function OnGetSourcesError(request, status, error) {
+	console.log("error:" + error);
+	// release lock
+}
