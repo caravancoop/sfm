@@ -62,6 +62,12 @@ class ComplexFieldContainer(object):
         table_name = self.table_object.__class__.__name__
         return re.sub(table_name, '', self.field_model.__name__).lower()
 
+    def get_object_id(self):
+        if self.table_object.id:
+            return self.table_object.id
+        else:
+            return None
+
     def get_object_name(self):
         return self.table_object.__class__.__name__.lower()
 
