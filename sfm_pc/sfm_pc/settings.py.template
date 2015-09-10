@@ -144,9 +144,9 @@ LOGIN_REQUIRED_URLS = (
     r'/(.*)$',
 )
 LOGIN_REQUIRED_URLS_EXCEPTIONS = (
-    r'/login(.*)$',
-    r'/logout(.*)$',
-    r'/admin(.*)$',
+    r'.*/login(.*)$',
+    r'.*/logout(.*)$',
+    r'.*/admin(.*)$',
 )
 
 LOGIN_URL = reverse_lazy('auth_login')
