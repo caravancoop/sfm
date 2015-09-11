@@ -9,20 +9,21 @@
       list-style-type: none;
     }
   }
-  .modal_src_add {
+
+  .modal_src_add, .modal_vr_add, .modal_tr_add {
+    border-left: 1px solid $sfm-grey-D2;
     .row {
       padding: 0;
       margin: 0;
+
+      .form-group {
+        padding: inherit;
+      }
+
+      input {
+        margin-bottom: 1rem;
+      }
     }
   }
-}
 
-.modal_src_add, .modal_vr_add, .modal_tr_add {
-  border-left: 1px solid $sfm-grey-D2;
-}
-
-.modal_tr_add {
-  input {
-    margin-bottom: 1rem;
-  }
 }
