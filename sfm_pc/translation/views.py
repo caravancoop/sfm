@@ -10,18 +10,24 @@ from languages_plus.models import Language
 from complex_fields.models import ComplexFieldContainer
 
 def translate(request, object_type, object_id, field_name):
-    data = json.loads(request.POST.dict()['translation'])
 
     field = ComplexFieldContainer.field_from_str_and_id(
         object_type, object_id, field_name
     )
+    
+    if request.method == 'POST':
+        data = json.loads(request.POST.dict()['translation'])
+        try:
+            field.translate(data['value'], data['lang'])
+            return HttpResponse(status=200)
+        except ValidationError as error:
+            return HttpResponseServerError(str(error))
 
-    try:
-        field.translate(data['value'], data['lang'])
-    except ValidationError as error:
-        return HttpResponseServerError(str(error))
+    elif request.method == 'GET':
+        translations = field.get_translations()
+        return HttpResponse(json.dumps(translations))
 
-    return HttpResponse(status=200)
+    return HttpResponse
 
 def autocomplete_language(request):
     data = request.GET.dict()['term']
@@ -32,7 +38,6 @@ def autocomplete_language(request):
         Q(name_other__icontains=data) |
         Q(iso_639_1__icontains=data)
     )
-    import ipdb; ipdb.set_trace()
     languages = [
         lang.name_native
         for lang in langs.all()
