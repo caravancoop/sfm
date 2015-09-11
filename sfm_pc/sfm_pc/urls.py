@@ -26,8 +26,7 @@ urlpatterns = i18n_patterns(
 
     # Ajax calls
     url(r'^ajax/', include('ajax.urls')),
-    url(r'^login/$', 'django.contrib.auth.views.login', {'template_name'\
-        : 'account/login.html'}, name='auth_login'),
+    url(r'^accounts/', include('allauth.urls')),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url'\
         : '/login'}),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

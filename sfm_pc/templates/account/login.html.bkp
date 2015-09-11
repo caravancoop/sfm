@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="../../favicon.ico">
+
+  <!-- Bootstrap core CSS -->
+  <link href="/dist/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <div class="signin">
+
+    <h2 class="form-signin-heading text-center">Security Force Monitor</h2>
+    <form class="form-signin" method="post">
+
+      {% csrf_token %}
+      <label for="inputEmail" class="sr-only">Email address</label>
+      <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+      <div class="checkbox">
+        <a href="#"> Forgot Password? </a>
+      </div>
+      <button class="btn btn-lg sfm-btn-action" type="submit">Sign in</button>
+    </form>
+
+  </div> <!-- /container -->
+
+</body>
+</html>

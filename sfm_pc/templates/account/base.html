@@ -1,0 +1,43 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SFM Dashboard</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+<body>
+    {% block content %}{% endblock %}
+    <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+    <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
+    <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "js/script.js" %}"></script>
+    <script src="{% static "js/mainjs.js" %}"></script>
+    <script>
+    $(document).ready(function(){
+      $('select').selectpicker('show');
+    });
+    
+    $('.sfm-btn-action').on('click', function(){
+    $.ajax({
+        type: "GET",
+        url: "/translate/languages/autocomplete/?term=eng",
+        data: {
+            csrfmiddlewaretoken: window.CSRF_TOKEN,
+        },
+        success: function(data){
+            console.log("BOBY!");
+        }
+    });
+    });
+    </script>
+
+</body>
+
+</html>
+
+
