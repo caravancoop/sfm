@@ -22,6 +22,14 @@
       <input name="people_src_source" type="hidden" value="{{ source.source }}">
     </div>
     {% endfor %} -->
+
+    <template id="source-template">
+      <li>
+        <p class="col-sm-4 src_name"></p>
+        <p class="col-sm-6 src_confidence"></p>
+        <p class="col-sm-2 sources_list_remove"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></p>
+      </li>
+    </template>
   </ul>
   </div>
 

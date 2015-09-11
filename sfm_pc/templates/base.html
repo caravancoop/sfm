@@ -14,13 +14,13 @@
   {% include "sidebar.html" %}
 
   {% block content %}{% endblock %}
-  <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+  <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; window.LANG = "en" </script>
   <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
   <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
   <script src="{% static "js/script.js" %}"></script>
   <script src="{% static "js/mainjs.js" %}"></script>
   <script>
-  $(document).ready(function(){
+  $(document).ready(function() {
     $('select').selectpicker('show');
   });
 
