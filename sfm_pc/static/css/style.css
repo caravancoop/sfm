@@ -6479,15 +6479,15 @@ body {
     margin: inherit; }
     .modal-content .modal-body.row ul {
       list-style-type: none; }
-  .modal-content .modal_src_add .row {
-    padding: 0;
-    margin: 0; }
-
-.modal_src_add, .modal_vr_add, .modal_tr_add {
-  border-left: 1px solid #666666; }
-
-.modal_tr_add input {
-  margin-bottom: 1rem; }
+  .modal-content .modal_src_add, .modal-content .modal_vr_add, .modal-content .modal_tr_add {
+    border-left: 1px solid #666666; }
+    .modal-content .modal_src_add .row, .modal-content .modal_vr_add .row, .modal-content .modal_tr_add .row {
+      padding: 0;
+      margin: 0; }
+      .modal-content .modal_src_add .row .form-group, .modal-content .modal_vr_add .row .form-group, .modal-content .modal_tr_add .row .form-group {
+        padding: inherit; }
+      .modal-content .modal_src_add .row input, .modal-content .modal_vr_add .row input, .modal-content .modal_tr_add .row input {
+        margin-bottom: 1rem; }
 
 .sfm-btn-action {
   color: #FFFFFF;

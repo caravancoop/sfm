@@ -35,6 +35,8 @@ function createList (genericObject) {
 
 $('#complexFieldModal').on('shown.bs.modal', function () {
 
+	$('select').selectpicker('refresh');
+
 	var object_name = $('.modal-header').data('field-object-name');
 	var object_id = $('.modal-header').data('field-object-id');
 	var field_name = $('.modal-header').data('field-attr-name');
