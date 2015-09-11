@@ -12,29 +12,57 @@ function grabData() {
 	//genericObject.push({source, confidence});
 
 	console.log(genericObject);
+	removeListElements();
 	createList(genericObject);
+}
+
+function removeListElements () {
+	$('#sources_list > li').remove();
 }
 
 
 function createList (genericObject) {
 
+	// Get a reference to the comments list in the main DOM.
+	var sourcesList = document.getElementById('sources_list');
+
 	for(var i = 0; i < genericObject.length; i++) {
-		console.log(genericObject[i]);
-		console.log(genericObject[i].source);
-		console.log(genericObject[i].confidence);
 
-		var sourceInfo = '<div class="row clickableRow"><li><p class="col-sm-4">' + genericObject[i].source + '</p>' +
-		'<p class="col-sm-6">' + genericObject[i].confidence + '</p>' +
-		'<div class="col-sm-2 sources_list_remove" id="' + genericObject[i].source + '"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></div>' +
-		'</li></div>';
+		var sourceInfo = genericObject[i];
 
-		$('#sources_list').prepend(sourceInfo);
+		var confidenceString;
+		// console.log(typeof(sourceInfo.confidence));
+		// console.log(sourceInfo.confidence);
+		switch(sourceInfo.confidence) {
 
+			case 1:
+			confidenceString = "Low";
+			break;
+
+			case 2:
+			confidenceString = "Medium";
+			break;
+
+			case 3:
+			confidenceString = "High";
+			break;
+
+			default:
+			confidenceString = "Def";
+
+			var tmpl = document.getElementById('source-template').content.cloneNode(true);
+			tmpl.querySelector('.src_name').innerText = sourceInfo.source;
+			tmpl.querySelector('.src_confidence').innerText = confidenceString;
+			// tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
+
+			sourcesList.appendChild(tmpl);
+		}
 	}
 }
 
 $('#complexFieldModal').on('shown.bs.modal', function () {
 
+	$('select').selectpicker('show');
 	$('select').selectpicker('refresh');
 
 	var object_name = $('.modal-header').data('field-object-name');
@@ -69,6 +97,24 @@ $(document).on("click", ".sources_list_remove", function (event) {
 	createList(genericObject);
 });
 
+// var data = [
+//   "Apple",
+//   "Orange",
+//   "Pineapple",
+//   "Strawberry",
+//   "Mango"
+//   	];
+//
+//
+//
+// function autoFill () {
+//
+// 	$( "#modal_tr_language" ).autocomplete({
+// 		source : data
+// 	});
+//
+// }
+
 function separateObjects(response) {
 
 	for (var i in response) {
@@ -77,6 +123,35 @@ function separateObjects(response) {
 	}
 
 	createList(genericObject);
+}
+
+function addTranslation () {
+	var object_name = $('.modal-header').data('field-object-name');
+	var object_id = $('.modal-header').data('field-object-id');
+	var field_name = $('.modal-header').data('field-attr-name');
+
+	var field_language_value = document.getElementById('modal_tr_language').value;
+	var field_language_translation = document.getElementById('modal_tr_value').value;
+	console.log(field_language_value);
+
+	console.log(object_name + " " + object_id + " " + field_name);
+
+	$.ajax({
+		type: "POST",
+		url: "/" + window.LANG + "/translate/" + object_name + "/" + object_id + "/" + field_name + "/",
+		contentType: "application/json; charset=utf-8",
+		data: {
+			csrfmiddlewaretoken: window.CSRF_TOKEN,
+			"translate": {
+				"value" : field_language_value,
+				"lang" : field_language_translation
+			}
+		},
+		dataType: "json",
+		// crossdomain: true,
+		success: OnSendTranslationSuccess,
+		error: OnSendTranslationError
+	});
 }
 
 
@@ -92,3 +167,29 @@ function OnGetSourcesError(request, status, error) {
 	// release lock
 }
 //Response after GetSources request
+
+//Response after AutoFill request
+function OnAutoFillSuccess(response, status) {
+	console.log(response);
+	separateObjects(response);
+	// release lock
+}
+
+function OnAutoFillError(request, status, error) {
+	console.log("error:" + error);
+	// release lock
+}
+//Response after AutoFill request
+
+//Response after SendTranslation request
+function OnSendTranslationSuccess(response, status) {
+	console.log(response);
+	separateObjects(response);
+	// release lock
+}
+
+function OnSendTranslationError(request, status, error) {
+	console.log("error:" + error);
+	// release lock
+}
+//Response after Sendtranslation request

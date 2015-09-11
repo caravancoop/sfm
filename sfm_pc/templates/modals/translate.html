@@ -28,10 +28,10 @@
     <div class="modal_tr_add col-sm-4">
       <p>Add a Language:</p>
       <div class="row">
-        <input type="text" class="form-control col-sm-12" id="modal_tr_language" placeholder="Start typing...">
+        <input type="text" class="form-control col-sm-12" id="modal_tr_language" placeholder="Start typing..." onchange="autoFill()" oninput="autoFill()">
         <input type="text" class="form-control col-sm-12" id="modal_tr_value" placeholder="Enter Translation">
       </div>
-      <button type="button" class="btn sfm-btn-action center-block">Add</btn>
+      <button type="button" class="btn sfm-btn-action center-block addTranslation" onclick="addTranslation()">Add</btn>
       </div>
     </div>
   </div>
