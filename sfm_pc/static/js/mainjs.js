@@ -9,7 +9,7 @@ function grabData() {
 	var confidence = $(".modal-body").find("." + model_id + "_src_addConfidence").val();
 	console.log(field_str + " " + source + " " + confidence);
 
-	genericObject.push({source, confidence});
+	//genericObject.push({source, confidence});
 
 	console.log(genericObject);
 	createList(genericObject);

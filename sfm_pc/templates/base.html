@@ -27,6 +27,23 @@
   $('body').on('hidden.bs.modal', '.modal', function () {
     $(this).removeData('bs.modal');
   });
+    
+  $(document).ready(function(){
+    $('select').selectpicker('show');
+  });
+    
+  $('.sfm-btn-action').on('click', function(){
+    $.ajax({
+      type: "GET",
+      url: "/translate/person/1/name/?term=eng",
+      data: {
+          csrfmiddlewaretoken: window.CSRF_TOKEN,
+      },
+      success: function(data){
+          console.log("BOBY!");
+      }
+    });
+  });
   </script>
 
 </body>
