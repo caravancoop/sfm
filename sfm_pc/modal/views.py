@@ -54,4 +54,3 @@ class VersionView(TemplateView):
         context['langs'] = field.get_langs_in_history()
 
         return context
-
