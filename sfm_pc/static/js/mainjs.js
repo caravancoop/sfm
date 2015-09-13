@@ -23,7 +23,7 @@ function removeListElements () {
 
 function createList (genericObject) {
 
-	// Get a reference to the comments list in the main DOM.
+	// Get a reference to the sources list in the main DOM.
 	var sourcesList = document.getElementById('sources_list');
 
 	for(var i = 0; i < genericObject.length; i++) {
@@ -53,7 +53,7 @@ function createList (genericObject) {
 			var tmpl = document.getElementById('source-template').content.cloneNode(true);
 			tmpl.querySelector('.src_name').innerText = sourceInfo.source;
 			tmpl.querySelector('.src_confidence').innerText = confidenceString;
-			// tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
+			tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
 
 			sourcesList.appendChild(tmpl);
 		}
@@ -62,7 +62,6 @@ function createList (genericObject) {
 
 $('#complexFieldModal').on('shown.bs.modal', function () {
 
-	$('select').selectpicker('show');
 	$('select').selectpicker('refresh');
 
 	var object_name = $('.modal-header').data('field-object-name');
@@ -84,16 +83,20 @@ $('#complexFieldModal').on('shown.bs.modal', function () {
 });
 
 $(document).on("click", ".sources_list_remove", function (event) {
+	var id = $(this).attr('id');
+	console.log(id);
 
 	for(var i = 0; i < genericObject.length; i++) {
-		var id = genericObject[i].source;
+
 		if(genericObject[i].source === id) {
 			console.log(id);
-			delete genericObject[i];
+			// delete genericObject[i];
+			genericObject.splice(i, 1);
 			console.log(genericObject);
 		}
 	}
 
+	removeListElements();
 	createList(genericObject);
 });
 
@@ -116,6 +119,8 @@ $(document).on("click", ".sources_list_remove", function (event) {
 // }
 
 function separateObjects(response) {
+
+	genericObject = [];
 
 	for (var i in response) {
 		console.log(response[i]);
