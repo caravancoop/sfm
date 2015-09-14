@@ -80,6 +80,17 @@ class PersonUpdate(UpdateView):
     form_class = PersonForm
     model = Person
 
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.POST.dict()['person'])
+        try:
+            person = Person.objects.get(pk=kwargs.get('pk'))
+        except Person.DoesNotExist:
+            return HttpResponse(status=418)
+
+        person.update(data)
+
+        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+
     def get_context_data(self, **kwargs):
         context = super(PersonUpdate, self).get_context_data(**kwargs)
         context['title'] = "Person"
