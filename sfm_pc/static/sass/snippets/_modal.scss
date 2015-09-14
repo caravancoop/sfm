@@ -33,3 +33,20 @@
   }
 
 }
+
+.ui-autocomplete {
+  z-index: 1060;
+  background-color: #eee;
+  border-radius: 4px;
+  max-height: 10em;
+  max-width: 15em;
+  overflow-y: scroll;
+  list-style-type: none;
+
+  li {
+    padding-left: 1em;
+    &:hover {
+      background-color: #ccc;
+    }
+  }
+}

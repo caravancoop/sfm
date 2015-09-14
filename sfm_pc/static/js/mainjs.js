@@ -1,4 +1,5 @@
 var genericObject = [];
+var sourceObject = [];
 var object_name, object_id, field_name;
 
 function grabData() {
@@ -8,22 +9,128 @@ function grabData() {
 
 	var source = $(".modal-body").find("." + model_id + "_src_addSource").val();
 	var confidence = $(".modal-body").find("." + model_id + "_src_addConfidence").val();
-	console.log(field_str + " " + source + " " + confidence);
 
-	//genericObject.push({source, confidence});
+	genericObject.push({source, confidence});
 
-	console.log(genericObject);
 	removeListElements();
-	createList(genericObject);
+	createSourcesList(genericObject);
+}
+
+$('.addPerson').on('click', function() {
+
+	console.log(sourceObject);
+
+	var name = document.getElementById('Person_PersonName').value;
+	var alias = document.getElementById('Person_PersonAlias').value;
+	var notes = document.getElementById('Person_PersonNotes').value;
+
+	var data = {
+		Person_PersonName : {
+			"value" : name,
+			"sources" : genericObject
+		},
+		Person_PersonAlias : {
+			"value" : alias
+		},
+		Person_PersonNotes : {
+			"value" : notes
+		},
+	};
+	$.ajax({
+		type: "POST",
+		url: "/" + window.LANG + "/person/add/",
+		data: {
+			csrfmiddlewaretoken: window.CSRF_TOKEN,
+			person: JSON.stringify(data)
+		},
+		success: function(response, status){
+			console.log(response);
+		}
+	});
+});
+
+function autoFill () {
+	$("#modal_tr_language").autocomplete({
+		// request.term needs to be passed up to the server.
+
+		source: "/translate/languages/autocomplete",
+		success: function (response, status) {
+			console.log(response);
+		},
+		error: function (request, status, error) {
+			console.log(error);
+		}
+	});
 }
 
 function removeListElements () {
 	$('#sources_list > li').remove();
-	$('#translate_table > tbody > tr').remove();
+}
+
+function genericGetFunction (object_name, object_id, field_name, modal_type, getURL) {
+
+	if (modal_type === "version") {
+		var language = document.getElementById('people_vr_language').value;
+
+		getURL = getURL + "/" + language;
+	}
+	else if (modal_type === "source" || modal_type === "translate"){
+		getURL = getURL;
+	}
+
+	$.ajax({
+		type: "GET",
+		url: getURL,
+		dataType: "json",
+		success: function (response, status) {
+			console.log(response);
+			separateObjects(response, modal_type);
+		},
+		error: function (request, status, error) {
+			console.log(error);
+		}
+	});
 }
 
 
+$(document).on("click", ".sources_list_remove", function (event) {
+	var id = $(this).attr('id');
+
+	for(var i = 0; i < genericObject.length; i++) {
+
+		if(genericObject[i].source === id) {
+			genericObject.splice(i, 1);
+		}
+	}
+
+	removeListElements();
+	createSourcesList(genericObject);
+});
+
+function separateObjects(response, modal_type) {
+
+	genericObject = [];
+
+	for (var i in response) {
+		console.log(response[i]);
+		genericObject.push(response[i]);
+	}
+
+	if (modal_type === "source" ) {
+		createSourcesList(genericObject);
+	}
+	else if (modal_type === "version") {
+		createVersionsList(genericObject);
+	}
+	else if (modal_type === "translate"){
+		createTranslationsList(genericObject);
+	}
+
+}
+
 function createSourcesList (genericObject) {
+	sourceObject = genericObject;
+	console.log(sourceObject);
 
 	// Get a reference to the sources list in the main DOM.
 	var sourcesList = document.getElementById('sources_list');
@@ -64,6 +171,8 @@ function createSourcesList (genericObject) {
 }
 
 function createVersionsList (genericObject) {
+
+	$('#versions_list').find("tr:not(:has(th))").remove();
 
 	// Get a reference to the sources list in the main DOM.
 	var versionsList = document.getElementById('versions_list');
@@ -148,68 +257,6 @@ $('#complexFieldModal').on('shown.bs.modal', function () {
 
 });
 
-function genericGetFunction (object_name, object_id, field_name, modal_type, getURL) {
-
-	if (modal_type === "version") {
-		var language = document.getElementById('people_vr_language').value;
-
-		getURL = getURL + "/" + language;
-	}
-	else if (modal_type === "source" || modal_type === "translate"){
-		getURL = getURL;
-	}
-
-	$.ajax({
-		type: "GET",
-		url: getURL,
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-		success: function (response, status) {
-			console.log(response);
-			separateObjects(response, modal_type);
-		},
-		error: function (request, status, error) {
-			console.log(error);
-		}
-	});
-}
-
-
-$(document).on("click", ".sources_list_remove", function (event) {
-	var id = $(this).attr('id');
-
-	for(var i = 0; i < genericObject.length; i++) {
-
-		if(genericObject[i].source === id) {
-			genericObject.splice(i, 1);
-		}
-	}
-
-	removeListElements();
-	createList(genericObject);
-});
-
-function separateObjects(response, modal_type) {
-
-	genericObject = [];
-
-	for (var i in response) {
-		console.log(response[i]);
-		genericObject.push(response[i]);
-	}
-
-	if (modal_type === "source" ) {
-		createSourcesList(genericObject);
-	}
-	else if (modal_type === "version") {
-		createVersionsList(genericObject);
-	}
-	else if (modal_type === "translate"){
-		createTranslationsList(genericObject);
-	}
-
-}
-
 function changeLanguage () {
 
 	console.log("Change Language");
@@ -240,43 +287,18 @@ function revertVersion () {
 	$.ajax({
 		type: "POST",
 		url: "/" + window.LANG + "/version/revert/" + object_name + "/" + object_id + "/" + field_name + "/",
-		dataType: 'json',
+		// dataType: 'json',
 		data: {
 			csrfmiddlewaretoken: window.CSRF_TOKEN,
 			revert: JSON.stringify(data)
 		},
 		success: function (response, status) {
 			console.log(response);
+			var language = document.getElementById('people_vr_language').value;
+			getURL = "/version/" + object_name + "/" + object_id + "/" + field_name + "/" + language;
+			genericGetFunction(object_name, object_id, field_name, "version", getURL);
 		},
 		error: function (request, status, error) {
-			console.log(error);
-		}
-	});
-}
-
-function addTranslation () {
-
-	var field_language_value = document.getElementById('modal_tr_value').value;
-	var field_language_translation = document.getElementById('modal_tr_language').value;
-	var data = {
-		"value" : field_language_value,
-		"lang" : field_language_translation
-	};
-
-	$.ajax({
-		type: "POST",
-		url: "/" + window.LANG + "/translate/" + object_name + "/" + object_id + "/" + field_name + "/",
-		// dataType: 'json',
-		data: {
-			csrfmiddlewaretoken: window.CSRF_TOKEN,
-		  translation: JSON.stringify(data)
-		},
-		success: function (response, status) {
-			console.log(response);
-			getTranslation();
-		},
-		error: function (request, status, error) {
-			console.log(status);
 			console.log(error);
 		}
 	});
@@ -299,14 +321,30 @@ function getTranslation () {
 	});
 }
 
-//Response after AutoFill request
-function OnAutoFillSuccess(response, status) {
-	console.log(response);
-	// release lock
-}
+function addTranslation () {
 
-function OnAutoFillError(request, status, error) {
-	console.log("error:" + error);
-	// release lock
+	var field_language_value = document.getElementById('modal_tr_value').value;
+	var field_language_translation = document.getElementById('modal_tr_language').value;
+	var data = {
+		"value" : field_language_value,
+		"lang" : field_language_translation
+	};
+
+	$.ajax({
+		type: "POST",
+		url: "/" + window.LANG + "/translate/" + object_name + "/" + object_id + "/" + field_name + "/",
+		// dataType: 'json',
+		data: {
+			csrfmiddlewaretoken: window.CSRF_TOKEN,
+			translation: JSON.stringify(data)
+		},
+		success: function (response, status) {
+			console.log(response);
+			getTranslation();
+		},
+		error: function (request, status, error) {
+			console.log(status);
+			console.log(error);
+		}
+	});
 }
-//Response after AutoFill request

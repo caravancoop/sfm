@@ -6492,6 +6492,19 @@ body {
       .modal-content .modal_src_add .row input, .modal-content .modal_vr_add .row input, .modal-content .modal_tr_add .row input {
         margin-bottom: 1rem; }
 
+.ui-autocomplete {
+  z-index: 1060;
+  background-color: #eee;
+  border-radius: 4px;
+  max-height: 10em;
+  max-width: 15em;
+  overflow-y: scroll;
+  list-style-type: none; }
+  .ui-autocomplete li {
+    padding-left: 1em; }
+    .ui-autocomplete li:hover {
+      background-color: #ccc; }
+
 .sfm-btn-action {
   color: #FFFFFF;
   background-color: #F1655A;
