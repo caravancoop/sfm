@@ -3,6 +3,7 @@ import reversion
 import re
 
 from django.db import models
+from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, FieldDoesNotExist
 from django.utils.translation import get_language
 
@@ -40,7 +41,12 @@ class ComplexField(models.Model):
                         version = vers
 
             if version is not None:
-                version.revert()
+                try:
+                    version.revert()
+                except IntegrityError:
+                    # The original object of this version has been deleted,
+                    # we ignore it.
+                    pass
 
 class ComplexFieldContainer(object):
     def __init__(self, table_object, field_model):
@@ -176,10 +182,11 @@ class ComplexFieldContainer(object):
         c_fields = c_fields.filter(lang=lang)
         field = list(c_fields[:1])
         if field:
-            sources = field.revert(id_)
+            sources = field[0].sources.all()
+            field[0].revert(id_)
 
             fields = self.field_model.objects.filter(object=self.table_object)
-            fields = fields.exclude(lang == lang)
+            fields = fields.exclude(lang = lang)
             for field in fields:
                 field.revert_to_source(sources)
 
