@@ -12,7 +12,3 @@ urlpatterns = patterns(
     url(r'^$', PersonView.as_view(), name='person'),
     url(r'(?P<pk>\d+)/$', PersonUpdate.as_view(), name='edit_person'),
 )
-    #url(r'(?P<pk>\d+)/delete/$', PersonDelete.as_view(), name='delete_person'),
-    #url(r'popup/add/$', PpPersonCreate.as_view(), name='Pp_add_person'),
-    #url(r'popup/(?P<pk>\d+)/close/$', PpPersonCloseView.as_view(),
-    #    name='Pp_close_person'),
