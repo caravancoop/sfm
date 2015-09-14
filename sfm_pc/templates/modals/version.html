@@ -11,64 +11,40 @@
 			<h5 class="col-sm-7"> Source & Confidence</h5>
 			<h5 class="col-sm-2">Revert</h5>
 		</div>
-		<!-- {% for version in history %}
-		<div class="row versionRow">
-		<p class="col-sm-3">{{version.value}}</p>
-		<div class="col-sm-7">
-		<ul id="versions_list" data-role="listview">
-		{% for src in version.sources %}
-		<li>
-		<p class="col-sm-6 vr_confidence">{{src.source}}</p>
-		<p class="col-sm-6 vr_source">{{src.confidence}}</p>
-	</li>
-	{% endfor %}
-</ul>
-</div>
-<button type="button col-sm-2" data-version-id="{{ version.id }}" class="btn sfm-btn-action revertButton" onclick="revertVersion()">Revert</button>
-</div>
-{% endfor %} -->
 
-<div class="row versionRow">
-	<ul id="versions_list">
-		<template id="version_template">
-			<!-- <li>
-				<p class="col-sm-3 version"></p>
-				<div class="col-sm-7">
-					<ul id="versions_sub_list" data-role="listview">
-					</ul>
-				</div>
-				<button type="button col-sm-2" data-version-id="{{ version.id }}" class="btn sfm-btn-action revertButton" onclick="revertVersion()">Revert</button>
-			</li> -->
-			<table>
-				<tr>
-					<td class="col-sm-3">
-						<p class="version"></p>
-					</td>
-					<td class="col-sm-7">
-						<div>
-							<ul id="versions_sub_list" data-role="listview">
-							</ul>
-						</div>
-					</td>
-					<td class="col-sm-2">
-						<button type="button" class="btn sfm-btn-action revertButton" onclick="revertVersion()">Revert</button>
-					</td>
-				</tr>
-			</table>
-		</template>
-	</ul>
-</div>
-</div>
-<div class="modal_vr_add col-sm-4">
-	<p>Choose Language</p>
-	<div class="row">
-		<select id="people_vr_language" onchange="changeLanguage()">
-			{% for lang in langs %}
-			<option value="{{lang}}">{{lang}}</option>
-			{% endfor %}
-		</select>
+		<div class="row versionRow">
+			<ul id="versions_list">
+				<template id="version_template">
+					<table>
+						<tr>
+							<td class="col-sm-3">
+								<p class="version"></p>
+							</td>
+							<td class="col-sm-7">
+								<div>
+									<ul id="versions_sub_list" data-role="listview">
+									</ul>
+								</div>
+							</td>
+							<td class="col-sm-2">
+								<button type="button" class="btn sfm-btn-action revertButton" onclick="revertVersion()">Revert</button>
+							</td>
+						</tr>
+					</table>
+				</template>
+			</ul>
+		</div>
 	</div>
-</div>
+	<div class="modal_vr_add col-sm-4">
+		<p>Choose Language</p>
+		<div class="row">
+			<select id="people_vr_language" onchange="changeLanguage()">
+				{% for lang in langs %}
+				<option value="{{lang}}">{{lang}}</option>
+				{% endfor %}
+			</select>
+		</div>
+	</div>
 </div>
 
 <div class="modal-footer">

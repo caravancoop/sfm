@@ -9,13 +9,15 @@
   <link rel="stylesheet" href="{% static "css/style.css" %}">
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 </head>
 <body>
   {% include "sidebar.html" %}
 
   {% block content %}{% endblock %}
   <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; window.LANG = "en" </script>
-  <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
+  <!-- <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script> -->
   <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
   <script src="{% static "js/script.js" %}"></script>
   <script src="{% static "js/mainjs.js" %}"></script>
@@ -28,18 +30,6 @@
     $(this).removeData('bs.modal');
   });
 
-  $('.sfm-btn-action').on('click', function(){
-    $.ajax({
-      type: "GET",
-      url: "/translate/person/1/name/?term=eng",
-      data: {
-          csrfmiddlewaretoken: window.CSRF_TOKEN,
-      },
-      success: function(data){
-          console.log("BOBY!");
-      }
-    });
-  });
   </script>
 
 </body>
