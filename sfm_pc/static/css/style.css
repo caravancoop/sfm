@@ -6479,6 +6479,9 @@ body {
     margin: inherit; }
     .modal-content .modal-body.row ul {
       list-style-type: none; }
+      .modal-content .modal-body.row ul h5 {
+        padding-left: 0;
+        padding-bottom: 0.5em; }
   .modal-content .modal_src_add, .modal-content .modal_vr_add, .modal-content .modal_tr_add {
     border-left: 1px solid #666666; }
     .modal-content .modal_src_add .row, .modal-content .modal_vr_add .row, .modal-content .modal_tr_add .row {

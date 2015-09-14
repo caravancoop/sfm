@@ -1,4 +1,5 @@
 var genericObject = [];
+var object_name, object_id, field_name;
 
 function grabData() {
 
@@ -18,10 +19,11 @@ function grabData() {
 
 function removeListElements () {
 	$('#sources_list > li').remove();
+	$('#translate_table > tbody > tr').remove();
 }
 
 
-function createList (genericObject) {
+function createSourcesList (genericObject) {
 
 	// Get a reference to the sources list in the main DOM.
 	var sourcesList = document.getElementById('sources_list');
@@ -31,32 +33,101 @@ function createList (genericObject) {
 		var sourceInfo = genericObject[i];
 
 		var confidenceString;
-		// console.log(typeof(sourceInfo.confidence));
-		// console.log(sourceInfo.confidence);
+
 		switch(sourceInfo.confidence) {
 
-			case 1:
+			case "1":
 			confidenceString = "Low";
 			break;
 
-			case 2:
+			case "2":
 			confidenceString = "Medium";
 			break;
 
-			case 3:
+			case "3":
 			confidenceString = "High";
 			break;
 
 			default:
 			confidenceString = "Def";
 
-			var tmpl = document.getElementById('source-template').content.cloneNode(true);
-			tmpl.querySelector('.src_name').innerText = sourceInfo.source;
-			tmpl.querySelector('.src_confidence').innerText = confidenceString;
-			tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
-
-			sourcesList.appendChild(tmpl);
 		}
+
+		var tmpl = document.getElementById('source-template').content.cloneNode(true);
+
+		tmpl.querySelector('.src_name').textContent = sourceInfo.source;
+		tmpl.querySelector('.src_confidence').textContent = confidenceString;
+		tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
+
+		sourcesList.appendChild(tmpl);
+	}
+}
+
+function createVersionsList (genericObject) {
+
+	// Get a reference to the sources list in the main DOM.
+	var versionsList = document.getElementById('versions_list');
+
+	for(var i = 0; i < genericObject.length; i++) {
+
+		var versionSources;
+		var versionInfo = genericObject[i];
+		var versiontempl = document.getElementById('version_template').content.cloneNode(true);
+
+		versiontempl.querySelector('.version').textContent = versionInfo.value;
+		console.log(genericObject[i]);
+		for (var j = 0; j < genericObject[i].sources.length; j++) {
+
+			var confidenceString;
+			// console.log(genericObject[i].sources[j].confidence);
+
+			switch(genericObject[i].sources[j].confidence) {
+
+				case "1":
+				confidenceString = "Low";
+				break;
+
+				case "2":
+				confidenceString = "Medium";
+				break;
+
+				case "3":
+				confidenceString = "High";
+				break;
+
+				default:
+				confidenceString = "Def";
+
+			}
+
+			versionSources += genericObject[i].sources[j].source + " " + confidenceString + '\n';
+			versiontempl.querySelector('#versions_sub_list').textContent = versionSources;
+
+			console.log(versionSources);
+		}
+		versionSources = null;
+		versiontempl.querySelector('.revertButton').value = versionInfo.id;
+		versionsList.appendChild(versiontempl);
+	}
+}
+
+function createTranslationsList (genericObject) {
+
+	$('#translate_table').find("tr:not(:has(th))").remove();
+
+	// Get a reference to the sources list in the main DOM.
+	var translateList = document.getElementById('translate_table');
+
+	for(var i = 0; i < genericObject.length; i++) {
+
+		var translateInfo = genericObject[i];
+
+		var tmpl = document.getElementById('translate_template').content.cloneNode(true);
+
+		tmpl.querySelector('.tr_language').textContent = translateInfo.lang;
+		tmpl.querySelector('.tr_value').textContent = translateInfo.value;
+
+		translateList.appendChild(tmpl);
 	}
 }
 
@@ -64,35 +135,53 @@ $('#complexFieldModal').on('shown.bs.modal', function () {
 
 	$('select').selectpicker('refresh');
 
-	var object_name = $('.modal-header').data('field-object-name');
-	var object_id = $('.modal-header').data('field-object-id');
-	var field_name = $('.modal-header').data('field-attr-name');
+	object_name = $('.modal-header').data('field-object-name');
+	object_id = $('.modal-header').data('field-object-id');
+	field_name = $('.modal-header').data('field-attr-name');
+	modal_type = $('.modal-header').data('modal-type');
+	var getURL = "/" + modal_type + "/" + object_name + "/" + object_id + "/" + field_name;
 
+	console.log(modal_type);
 	console.log(object_name + " " + object_id + " " + field_name);
 
-	$.ajax({
-		type: "GET",
-		url: "/source/" + object_name + "/" + object_id + "/" + field_name,
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-		crossdomain: true,
-		success: OnGetSourcesSuccess,
-		error: OnGetSourcesError
-	});
+	genericGetFunction(object_name, object_id, field_name, modal_type, getURL);
 
 });
 
+function genericGetFunction (object_name, object_id, field_name, modal_type, getURL) {
+
+	if (modal_type === "version") {
+		var language = document.getElementById('people_vr_language').value;
+
+		getURL = getURL + "/" + language;
+	}
+	else if (modal_type === "source" || modal_type === "translate"){
+		getURL = getURL;
+	}
+
+	$.ajax({
+		type: "GET",
+		url: getURL,
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		success: function (response, status) {
+			console.log(response);
+			separateObjects(response, modal_type);
+		},
+		error: function (request, status, error) {
+			console.log(error);
+		}
+	});
+}
+
+
 $(document).on("click", ".sources_list_remove", function (event) {
 	var id = $(this).attr('id');
-	console.log(id);
 
 	for(var i = 0; i < genericObject.length; i++) {
 
 		if(genericObject[i].source === id) {
-			console.log(id);
-			// delete genericObject[i];
 			genericObject.splice(i, 1);
-			console.log(genericObject);
 		}
 	}
 
@@ -100,25 +189,7 @@ $(document).on("click", ".sources_list_remove", function (event) {
 	createList(genericObject);
 });
 
-// var data = [
-//   "Apple",
-//   "Orange",
-//   "Pineapple",
-//   "Strawberry",
-//   "Mango"
-//   	];
-//
-//
-//
-// function autoFill () {
-//
-// 	$( "#modal_tr_language" ).autocomplete({
-// 		source : data
-// 	});
-//
-// }
-
-function separateObjects(response) {
+function separateObjects(response, modal_type) {
 
 	genericObject = [];
 
@@ -127,56 +198,110 @@ function separateObjects(response) {
 		genericObject.push(response[i]);
 	}
 
-	createList(genericObject);
+	if (modal_type === "source" ) {
+		createSourcesList(genericObject);
+	}
+	else if (modal_type === "version") {
+		createVersionsList(genericObject);
+	}
+	else if (modal_type === "translate"){
+		createTranslationsList(genericObject);
+	}
+
+}
+
+function changeLanguage () {
+
+	console.log("Change Language");
+	var language = document.getElementById('people_vr_language').value;
+
+	$.ajax({
+		type: "GET",
+		url: "/version/" + object_name + "/" + object_id + "/" + field_name + "/" + language,
+		dataType: "json",
+		success: function (response, status) {
+			console.log(response);
+			separateObjects(response, "version");
+		},
+		error: function (request, status, error) {
+			console.log(error);
+		}
+	});
+}
+
+function revertVersion () {
+
+	version_id = $('.revertButton').attr('value');
+	var data = {
+		"lang" : "en",
+		"id" : version_id
+	};
+
+	$.ajax({
+		type: "POST",
+		url: "/" + window.LANG + "/version/revert/" + object_name + "/" + object_id + "/" + field_name + "/",
+		dataType: 'json',
+		data: {
+			csrfmiddlewaretoken: window.CSRF_TOKEN,
+			revert: JSON.stringify(data)
+		},
+		success: function (response, status) {
+			console.log(response);
+		},
+		error: function (request, status, error) {
+			console.log(error);
+		}
+	});
 }
 
 function addTranslation () {
-	var object_name = $('.modal-header').data('field-object-name');
-	var object_id = $('.modal-header').data('field-object-id');
-	var field_name = $('.modal-header').data('field-attr-name');
 
-	var field_language_value = document.getElementById('modal_tr_language').value;
-	var field_language_translation = document.getElementById('modal_tr_value').value;
-	console.log(field_language_value);
-
-	console.log(object_name + " " + object_id + " " + field_name);
+	var field_language_value = document.getElementById('modal_tr_value').value;
+	var field_language_translation = document.getElementById('modal_tr_language').value;
+	var data = {
+		"value" : field_language_value,
+		"lang" : field_language_translation
+	};
 
 	$.ajax({
 		type: "POST",
 		url: "/" + window.LANG + "/translate/" + object_name + "/" + object_id + "/" + field_name + "/",
-		contentType: "application/json; charset=utf-8",
+		// dataType: 'json',
 		data: {
 			csrfmiddlewaretoken: window.CSRF_TOKEN,
-			"translate": {
-				"value" : field_language_value,
-				"lang" : field_language_translation
-			}
+		  translation: JSON.stringify(data)
 		},
-		dataType: "json",
-		// crossdomain: true,
-		success: OnSendTranslationSuccess,
-		error: OnSendTranslationError
+		success: function (response, status) {
+			console.log(response);
+			getTranslation();
+		},
+		error: function (request, status, error) {
+			console.log(status);
+			console.log(error);
+		}
 	});
 }
 
+function getTranslation () {
 
-//Response after GetSources request
-function OnGetSourcesSuccess(response, status) {
-	console.log(response);
-	separateObjects(response);
-	// release lock
+	$.ajax({
+		type: "GET",
+		url: "/translate/" + object_name + "/" + object_id + "/" + field_name,
+		dataType: "json",
+		crossdomain: true,
+		success: function (response, status) {
+			console.log(response + "getTranslation");
+			separateObjects(response, "translate");
+		},
+		error: function (request, status, error) {
+			console.log(error + "error in Translation");
+		}
+	});
 }
-
-function OnGetSourcesError(request, status, error) {
-	console.log("error:" + error);
-	// release lock
-}
-//Response after GetSources request
 
 //Response after AutoFill request
 function OnAutoFillSuccess(response, status) {
 	console.log(response);
-	separateObjects(response);
 	// release lock
 }
 
@@ -185,16 +310,3 @@ function OnAutoFillError(request, status, error) {
 	// release lock
 }
 //Response after AutoFill request
-
-//Response after SendTranslation request
-function OnSendTranslationSuccess(response, status) {
-	console.log(response);
-	separateObjects(response);
-	// release lock
-}
-
-function OnSendTranslationError(request, status, error) {
-	console.log("error:" + error);
-	// release lock
-}
-//Response after Sendtranslation request

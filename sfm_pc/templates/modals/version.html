@@ -1,45 +1,76 @@
 {% load i18n %}
-<div class="modal-header" data-field-object-name="{{field.get_object_name}}" data-field-attr-name="{{field.get_attr_name}}" data-field-object-id="{{object_id}}">
+<div class="modal-header" data-modal-type="version" data-field-object-name="{{field.get_object_name}}" data-field-attr-name="{{field.get_attr_name}}" data-field-object-id="{{object_id}}">
 	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 	<h4 class="modal-title">{% trans "Version" %}</h4>
 </div>
 
 <div class="modal-body row">
 	<div class="people_vr_info col-sm-8">
-		{% for version in history %}
 		<div class="row">
-			<p class="col-sm-4">{{version.value}}</p>
-			<p class="col-sm-6">Sources</p>
-			{% for src in version.sources %}
-			<p>{{src.source}} | {{src.confidence}}</p>
-			{% endfor %}
-			<button type="button" data-version-id="{{version.id}}" class="btn sfm-btn-action">Revert</button>
+			<h5 class="col-sm-3">Versions</h5>
+			<h5 class="col-sm-7"> Source & Confidence</h5>
+			<h5 class="col-sm-2">Revert</h5>
 		</div>
-		{% endfor %}
-
-		<!-- <template id="source-template">
-		<p class="col-sm-4 vr_number"></p>
+		<!-- {% for version in history %}
+		<div class="row versionRow">
+		<p class="col-sm-3">{{version.value}}</p>
+		<div class="col-sm-7">
 		<ul id="versions_list" data-role="listview">
+		{% for src in version.sources %}
 		<li>
-		<p class="col-sm-6 vr_confidence"></p>
-		<p class="col-sm-6 vr_source"></p>
+		<p class="col-sm-6 vr_confidence">{{src.source}}</p>
+		<p class="col-sm-6 vr_source">{{src.confidence}}</p>
 	</li>
-	<p class="col-sm-2 sources_list_remove"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></p>
-</template> -->
-			</div>
-			<div class="modal_vr_add col-sm-4">
-				<p>Choose Language</p>
-				<div class="row">
-					<select id="people_vr_language">
-						<option>Language</option>
-						{% for lang in langs %}
-						<option value="{{lang}}">{{lang}}</option>
-						{% endfor %}
-					</select>
-				</div>
-			</div>
-		</div>
+	{% endfor %}
+</ul>
+</div>
+<button type="button col-sm-2" data-version-id="{{ version.id }}" class="btn sfm-btn-action revertButton" onclick="revertVersion()">Revert</button>
+</div>
+{% endfor %} -->
 
-		<div class="modal-footer">
-			<button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">Close</button>
-		</div>
+<div class="row versionRow">
+	<ul id="versions_list">
+		<template id="version_template">
+			<!-- <li>
+				<p class="col-sm-3 version"></p>
+				<div class="col-sm-7">
+					<ul id="versions_sub_list" data-role="listview">
+					</ul>
+				</div>
+				<button type="button col-sm-2" data-version-id="{{ version.id }}" class="btn sfm-btn-action revertButton" onclick="revertVersion()">Revert</button>
+			</li> -->
+			<table>
+				<tr>
+					<td class="col-sm-3">
+						<p class="version"></p>
+					</td>
+					<td class="col-sm-7">
+						<div>
+							<ul id="versions_sub_list" data-role="listview">
+							</ul>
+						</div>
+					</td>
+					<td class="col-sm-2">
+						<button type="button" class="btn sfm-btn-action revertButton" onclick="revertVersion()">Revert</button>
+					</td>
+				</tr>
+			</table>
+		</template>
+	</ul>
+</div>
+</div>
+<div class="modal_vr_add col-sm-4">
+	<p>Choose Language</p>
+	<div class="row">
+		<select id="people_vr_language" onchange="changeLanguage()">
+			{% for lang in langs %}
+			<option value="{{lang}}">{{lang}}</option>
+			{% endfor %}
+		</select>
+	</div>
+</div>
+</div>
+
+<div class="modal-footer">
+	<button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">Close</button>
+</div>
