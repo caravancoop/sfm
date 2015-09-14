@@ -13,9 +13,9 @@
 <form class="from-signin login" method="POST" action="{% url 'account_login' %}">
   {% csrf_token %}
   <label for="id_login">{% trans "E-mail" %}:</label>
-  <input name="email" type="email" id="id-login" class="form-control" name="email" class="form-control" placeholder="{% trans "E-mail address" %}" required autofocus>
+  <input name="login" type="email" id="id-login" class="form-control" class="form-control" placeholder="{% trans "E-mail address" %}" required autofocus>
   <label for="id_password">{% trans "Password" %}</label>
-  <input class="form-control" id="id_password" type="password" name="login" placeholder="{% trans "Password" %}" autofocus required>
+  <input class="form-control" id="id_password" type="password" name="password" placeholder="{% trans "Password" %}" autofocus required>
   <div class="checkbox">
     <a href="{% url 'account_reset_password' %}">{% trans "Forgot password?" %}</a>
   </div>
