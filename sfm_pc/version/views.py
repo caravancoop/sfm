@@ -10,7 +10,10 @@ def get_versions(request, object_type, object_id, field_name,
     field = ComplexFieldContainer.field_from_str_and_id(
         object_type, object_id, field_name
     )
-    versions = field.get_history_for_lang(lang)
+    if field.translated:
+        versions = field.get_history_for_lang(lang)
+    else:
+        versions = field.get_history()
 
     return HttpResponse(json.dumps(versions))
 
