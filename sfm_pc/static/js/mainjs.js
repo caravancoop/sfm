@@ -129,13 +129,13 @@ $(document).on("click", ".sources_list_remove", function (event) {
 		}
 	}
 
-//Remove all elements from the existing list and create a new one.
+	//Remove all elements from the existing list and create a new one.
 	removeListElements();
 	createSourcesList(genericObject);
 });
 
 function separateObjects(response, modal_type) {
-//Setting the content of genericObject to an empty object
+	//Setting the content of genericObject to an empty object
 	genericObject = [];
 
 	for (var i in response) {
@@ -210,38 +210,40 @@ function createVersionsList (genericObject) {
 		var versiontempl = document.getElementById('version_template').content.cloneNode(true);
 
 		versiontempl.querySelector('.version').textContent = versionInfo.value;
-		// console.log(genericObject[i]);
-		for (var j = 0; j < genericObject[i].sources.length; j++) {
+		console.log(genericObject[i]);
+		if(genericObject[i].sources != undefined) {
+			for (var j = 0; j < genericObject[i].sources.length; j++) {
 
-			var confidenceString;
+				var confidenceString;
 
-			switch(genericObject[i].sources[j].confidence) {
+				switch(genericObject[i].sources[j].confidence) {
 
-				case "1":
-				confidenceString = "Low";
-				break;
+					case "1":
+					confidenceString = "Low";
+					break;
 
-				case "2":
-				confidenceString = "Medium";
-				break;
+					case "2":
+					confidenceString = "Medium";
+					break;
 
-				case "3":
-				confidenceString = "High";
-				break;
+					case "3":
+					confidenceString = "High";
+					break;
 
-				default:
-				confidenceString = "Def";
+					default:
+					confidenceString = "Def";
 
+				}
+
+				versionSources += genericObject[i].sources[j].source + " - " + confidenceString + String.fromCharCode(10);
+				versiontempl.querySelector('#versions_sub_list').textContent = versionSources;
+
+				// console.log(versionSources);
 			}
-
-			versionSources += genericObject[i].sources[j].source + " - " + confidenceString + String.fromCharCode(10);
-			versiontempl.querySelector('#versions_sub_list').textContent = versionSources;
-
-			// console.log(versionSources);
-		}
 		versionSources = null;
 		versiontempl.querySelector('.revertButton').value = versionInfo.id;
 		versionsList.appendChild(versiontempl);
+	}
 	}
 }
 
