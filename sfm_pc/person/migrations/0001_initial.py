@@ -14,15 +14,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Person',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
             ],
         ),
         migrations.CreateModel(
             name='PersonAlias',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
-                ('lang', models.CharField(max_length=5)),
-                ('value', models.TextField(default=None, blank=True, null=True)),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
+                ('lang', models.CharField(null=True, max_length=5)),
+                ('value', models.TextField(null=True, default=None, blank=True)),
                 ('object', models.ForeignKey(to='person.Person')),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='person_personalias_related')),
             ],
@@ -33,9 +33,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PersonName',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
-                ('lang', models.CharField(max_length=5)),
-                ('value', models.TextField(default=None, blank=True, null=True)),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
+                ('lang', models.CharField(null=True, max_length=5)),
+                ('value', models.TextField(null=True, default=None, blank=True)),
                 ('object', models.ForeignKey(to='person.Person')),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='person_personname_related')),
             ],
@@ -46,9 +46,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PersonNotes',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
-                ('lang', models.CharField(max_length=5)),
-                ('value', models.TextField(default=None, blank=True, null=True)),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
+                ('lang', models.CharField(null=True, max_length=5)),
+                ('value', models.TextField(null=True, default=None, blank=True)),
                 ('object', models.ForeignKey(to='person.Person')),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='person_personnotes_related')),
             ],
