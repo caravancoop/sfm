@@ -10,7 +10,7 @@ function grabData() {
 	var source = $(".modal-body").find("." + model_id + "_src_addSource").val();
 	var confidence = $(".modal-body").find("." + model_id + "_src_addConfidence").val();
 
-	genericObject.push({source, confidence});
+	genericObject.push({source: source, confidence: confidence});
 
 	removeListElements();
 	createSourcesList(genericObject);
