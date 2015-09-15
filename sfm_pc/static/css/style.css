@@ -6492,6 +6492,9 @@ body {
       .modal-content .modal_src_add .row input, .modal-content .modal_vr_add .row input, .modal-content .modal_tr_add .row input {
         margin-bottom: 1rem; }
 
+#versions_sub_list {
+  white-space: pre-line; }
+
 .ui-autocomplete {
   z-index: 1060;
   background-color: #eee;
