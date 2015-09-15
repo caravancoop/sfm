@@ -5,6 +5,8 @@ register = Library()
 @register.inclusion_tag('complexfield/view.html')
 def view_complex_field(field, object_id, path):
     field_id = field.get_field_str_id()
+    if object_id is None:
+        object_id = 0
 
     return {
         'value' : field,
