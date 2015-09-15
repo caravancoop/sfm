@@ -260,7 +260,11 @@ class ComplexFieldContainer(object):
             object_name.capitalize(),
             object_name + ".models"
         )
-        object_ = object_class.from_id(id_)
+        print(object_class)
+        if id_ == '0':
+            object_ = object_class()
+        else:
+            object_ = object_class.from_id(id_)
         field = getattr(object_, field_name)
 
         return field
