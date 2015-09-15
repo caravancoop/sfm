@@ -6,24 +6,6 @@
 
 <div class="modal-body">
   <div class="row">
-    <!-- <div class="modal_tr_info col-sm-8">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Language</th>
-            <th>Translation</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for trans in field.get_translations %}
-          <tr>
-            <td>{{trans.lang}}</td>
-            <td>{{trans.value}}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div> -->
 
     <div class="modal_tr_info col-sm-8">
       <table class="table" id="translate_table">
@@ -35,11 +17,11 @@
         </thead>
         <tbody id="translate_table_body">
           <template id="translate_template">
-          <tr>
-            <td class="tr_language"></td>
-            <td class="tr_value"></td>
-          </tr>
-        </template>
+            <tr>
+              <td class="tr_language"></td>
+              <td class="tr_value"></td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -57,5 +39,4 @@
 
   <div class="modal-footer">
     <button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">Close</button>
-    <!-- <button type="button" class="btn sfm-btn-action">Save changes</button> -->
   </div>
