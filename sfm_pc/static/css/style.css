@@ -6492,6 +6492,14 @@ body {
       .modal-content .modal_src_add .row input, .modal-content .modal_vr_add .row input, .modal-content .modal_tr_add .row input {
         margin-bottom: 1rem; }
 
+h5, li {
+  text-align: center; }
+
+table th, table td {
+  text-align: center; }
+  table th #versions_sub_list, table td #versions_sub_list {
+    padding-bottom: 2rem; }
+
 #versions_sub_list {
   white-space: pre-line; }
 
@@ -6503,10 +6511,8 @@ body {
   max-width: 15em;
   overflow-y: scroll;
   list-style-type: none; }
-  .ui-autocomplete li {
-    padding-left: 1em; }
-    .ui-autocomplete li:hover {
-      background-color: #ccc; }
+  .ui-autocomplete li:hover {
+    background-color: #ccc; }
 
 .sfm-btn-action {
   color: #FFFFFF;

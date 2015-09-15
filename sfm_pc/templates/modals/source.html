@@ -1,19 +1,19 @@
 {% load i18n %}
 <div class="modal-header" data-modal-type="source" data-field-object-name="{{field.get_object_name}}" data-field-object-id="{{object_id}}" data-field-attr-name="{{field.get_attr_name}}">
   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-  <h4 class="modal-title" id="myModalLabel">{% trans "View/Edit Sources" %}</h4>
+  <h4 class="modal-title">{% trans "View/Edit Sources" %}</h4>
 </div>
 
 <div class="modal-body row">
   <div class="people_src_info col-sm-6">
     <ul id="sources_list" data-role="listview">
-      <h5 class="col-sm-4">Source</h5>
-      <h5 class="col-sm-6">Confidence</h5>
+      <h5 class="col-sm-3">Source</h5>
+      <h5 class="col-sm-7">Confidence</h5>
       <h5 class="col-sm-2">Delete</h5>
       <template id="source-template">
         <li>
-          <p class="col-sm-4 src_name"></p>
-          <p class="col-sm-6 src_confidence"></p>
+          <p class="col-sm-3 src_name"></p>
+          <p class="col-sm-7 src_confidence"></p>
           <p class="col-sm-2 sources_list_remove"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></p>
         </li>
       </template>

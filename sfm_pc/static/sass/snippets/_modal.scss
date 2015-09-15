@@ -31,7 +31,20 @@
       }
     }
   }
+}
 
+// Modal specific styling
+h5, li {
+  text-align: center;
+}
+
+table {
+  th, td {
+    text-align: center;
+    #versions_sub_list {
+      padding-bottom: 2rem;
+    }
+  }
 }
 
 #versions_sub_list {
@@ -48,7 +61,7 @@
   list-style-type: none;
 
   li {
-    padding-left: 1em;
+    // padding-left: 1em;
     &:hover {
       background-color: #ccc;
     }
