@@ -20,6 +20,13 @@ $('.addPerson').on('click', function() {
 
 	console.log(sourceObject);
 
+	var model_object_id = $('.modalBox').data('model-object-id');
+	console.log("model_object_id: " + model_object_id);
+
+	if(model_object_id === "None") {
+		model_object_id = "add";
+	}
+
 	var name = document.getElementById('Person_PersonName').value;
 	var alias = document.getElementById('Person_PersonAlias').value;
 	var notes = document.getElementById('Person_PersonNotes').value;
@@ -38,7 +45,7 @@ $('.addPerson').on('click', function() {
 	};
 	$.ajax({
 		type: "POST",
-		url: "/" + window.LANG + "/person/add/",
+		url: "/" + window.LANG + "/person/" + model_object_id + "/",
 		data: {
 			csrfmiddlewaretoken: window.CSRF_TOKEN,
 			person: JSON.stringify(data)
@@ -209,7 +216,7 @@ function createVersionsList (genericObject) {
 
 			}
 
-			versionSources += genericObject[i].sources[j].source + " " + confidenceString  + String.fromCharCode(13);
+			versionSources += genericObject[i].sources[j].source + " " + confidenceString + String.fromCharCode(10);
 			versiontempl.querySelector('#versions_sub_list').textContent = versionSources;
 
 			console.log(versionSources);
