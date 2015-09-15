@@ -27,7 +27,7 @@ $('.addPerson').on('click', function() {
 	var data = {
 		Person_PersonName : {
 			"value" : name,
-			"sources" : genericObject
+			"sources" : sourceObject
 		},
 		Person_PersonAlias : {
 			"value" : alias
@@ -179,7 +179,7 @@ function createVersionsList (genericObject) {
 
 	for(var i = 0; i < genericObject.length; i++) {
 
-		var versionSources;
+		var versionSources = "";
 		var versionInfo = genericObject[i];
 		var versiontempl = document.getElementById('version_template').content.cloneNode(true);
 
@@ -209,7 +209,7 @@ function createVersionsList (genericObject) {
 
 			}
 
-			versionSources += genericObject[i].sources[j].source + " " + confidenceString + '\n';
+			versionSources += genericObject[i].sources[j].source + " " + confidenceString  + String.fromCharCode(13);
 			versiontempl.querySelector('#versions_sub_list').textContent = versionSources;
 
 			console.log(versionSources);
