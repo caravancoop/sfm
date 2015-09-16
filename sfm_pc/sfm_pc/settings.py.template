@@ -96,8 +96,8 @@ WSGI_APPLICATION = 'sfm_pc.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'db',
-        'USER': 'user',
+        'NAME': 'sfm-db',
+        'USER': 'sfm-user',
         'PASSWORD': 'password',
         'HOST': '127.0.0.1',
         'PORT': '5432',
