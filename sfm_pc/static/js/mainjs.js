@@ -1,5 +1,6 @@
 var genericObject = [];
 var sourceObject = [];
+var versionObject = [];
 var object_name, object_id, field_name;
 
 function grabData() {
@@ -37,7 +38,8 @@ $('.addPerson').on('click', function() {
 			"sources" : sourceObject
 		},
 		Person_PersonAlias : {
-			"value" : alias
+			"value" : alias,
+			"sources" : versionObject
 		},
 		Person_PersonNotes : {
 			"value" : notes
@@ -197,6 +199,8 @@ function createSourcesList (genericObject) {
 }
 
 function createVersionsList (genericObject) {
+	versionObject = genericObject;
+	console.log(versionObject);
 
 	$('#versions_list').find("tr:not(:has(th))").remove();
 

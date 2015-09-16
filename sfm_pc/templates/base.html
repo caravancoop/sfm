@@ -18,7 +18,7 @@
   {% block content %}{% endblock %}
   <script type="text/javascript">
     window.CSRF_TOKEN = "{{ csrf_token }}";
-    window.LANG = "{{ LANGUAGE_CODE }}";  
+    window.LANG = "{{ LANGUAGE_CODE }}";
   </script>
   <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
   <script src="{% static "js/script.js" %}"></script>
