@@ -254,6 +254,13 @@ class ComplexFieldContainer(object):
 
         c_field.save()
 
+    def validate(self, value, lang, sources=[]):
+        if hasattr(self.field_model(), "source_required"):
+            if not len(sources):
+                return "Sources are required to update this field"
+
+        return None
+
     @classmethod
     def field_from_str_and_id(cls, object_name, id_, field_name):
         object_class = class_for_name(

@@ -87,9 +87,13 @@ class PersonUpdate(UpdateView):
         except Person.DoesNotExist:
             return HttpResponse(status=418)
 
-        person.update(data)
-
-        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+        errors = person.update(data)
+        if errors is None:
+            return HttpResponse(json.dumps({"success": True}),
+                                content_type="application/json")
+        else:
+            return HttpResponse(json.dumps({"success": False, "errors": errors}),
+                                content_type="application/json")
 
     def get_context_data(self, **kwargs):
         context = super(PersonUpdate, self).get_context_data(**kwargs)

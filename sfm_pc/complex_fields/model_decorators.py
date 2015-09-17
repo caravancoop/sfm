@@ -17,7 +17,11 @@ def versioned(orig_cls):
     register(orig_cls)
     return orig_cls
 
-
 def sourced(orig_cls):
+    orig_cls.sourced = True
+    orig_cls.source_required = True
+    return orig_cls
+
+def sourced_optional(orig_cls):
     orig_cls.sourced = True
     return orig_cls
