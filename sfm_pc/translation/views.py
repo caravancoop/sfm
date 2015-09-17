@@ -14,7 +14,7 @@ def translate(request, object_type, object_id, field_name):
     field = ComplexFieldContainer.field_from_str_and_id(
         object_type, object_id, field_name
     )
-    
+
     if request.method == 'POST':
         data = json.loads(request.POST.dict()['translation'])
         try:
@@ -39,7 +39,10 @@ def autocomplete_language(request):
         Q(iso_639_1__icontains=data)
     )
     languages = [
-        lang.name_native
+        {
+            "label": lang.name_en + ", " + lang.name_native,
+            "value": lang.iso_639_1
+        }
         for lang in langs.all()
     ]
 
