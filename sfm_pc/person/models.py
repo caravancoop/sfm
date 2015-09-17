@@ -57,7 +57,7 @@ class Person(models.Model):
 @versioned
 @sourced
 class PersonName(ComplexField):
-    object = models.ForeignKey('Person')
+    object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
@@ -65,13 +65,13 @@ class PersonName(ComplexField):
 @versioned
 @sourced
 class PersonAlias(ComplexField):
-    object = models.ForeignKey('Person')
+    object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Aliases")
 
 @versioned
 class PersonNotes(ComplexField):
-    object = models.ForeignKey('Person')
+    object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Notes")
 

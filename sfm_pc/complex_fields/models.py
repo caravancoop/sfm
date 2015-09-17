@@ -20,7 +20,7 @@ class ComplexField(models.Model):
 
     class Meta:
         abstract = True
-        unique_together = ('object', 'lang')
+        unique_together = ('object_ref', 'lang')
 
     def revert(self, id):
         if hasattr(self, 'versioned'):
@@ -86,7 +86,7 @@ class ComplexFieldContainer(object):
         return table_name + "_" + field_name
 
     def get_value(self, lang=get_language()):
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
         if hasattr(self.field_model, 'translated'):
             c_fields_lang = c_fields.filter(lang=lang)
             c_field = list(c_fields_lang[:1])
@@ -102,7 +102,7 @@ class ComplexFieldContainer(object):
         return None
 
     def set_value(self, value, lang=get_language()):
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
         if hasattr(self.field_model, 'translated'):
             c_fields = c_fields.filter(lang=lang)
         field = list(c_fields[:1])
@@ -117,7 +117,7 @@ class ComplexFieldContainer(object):
             new_field.save()
 
     def get_history(self):
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
         history = {}
         for c_field in c_fields:
             field_history = reversion.get_for_object(c_field)
@@ -132,7 +132,7 @@ class ComplexFieldContainer(object):
         return history
 
     def get_history_for_lang(self, lang=get_language()):
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
         c_fields = c_fields.filter(lang=lang)
         history = []
         field = list(c_fields[:1])
@@ -153,7 +153,7 @@ class ComplexFieldContainer(object):
         return history
 
     def get_langs_in_history(self):
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
         langs = []
         if c_fields:
             langs = [
@@ -168,7 +168,7 @@ class ComplexFieldContainer(object):
         if not hasattr(self.field_model, 'translated'):
             return translations
 
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
         c_fields = c_fields.exclude(value__isnull=True).exclude(value__exact='')
 
         for field in c_fields:
@@ -181,14 +181,14 @@ class ComplexFieldContainer(object):
         return translations
 
     def revert_field(self, lang, id_):
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
         c_fields = c_fields.filter(lang=lang)
         field = list(c_fields[:1])
         if field:
             sources = field[0].sources.all()
             field[0].revert(id_)
 
-            fields = self.field_model.objects.filter(object=self.table_object)
+            fields = self.field_model.objects.filter(object_ref=self.table_object)
             fields = fields.exclude(lang = lang)
             for field in fields:
                 field.revert_to_source(sources)
@@ -198,7 +198,7 @@ class ComplexFieldContainer(object):
         if not hasattr(self.field_model, 'sourced'):
             return sources
 
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
         field = list(c_fields[:1])
         if field:
             sources = field[0].sources.all()
@@ -206,7 +206,7 @@ class ComplexFieldContainer(object):
         return sources
 
     def update(self, value, lang, sources=[]):
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
 
         for field in c_fields:
             field.value = None
@@ -218,9 +218,9 @@ class ComplexFieldContainer(object):
         c_field = list(c_field[:1])
         if not c_field:
             if self.translated:
-                c_field = self.field_model(object=self.table_object, lang=lang)
+                c_field = self.field_model(object_ref=self.table_object, lang=lang)
             else:
-                c_field = self.field_model(object=self.table_object)
+                c_field = self.field_model(object_ref=self.table_object)
         else:
             c_field = c_field[0]
 
@@ -232,7 +232,7 @@ class ComplexFieldContainer(object):
                 c_field.sources.add(src)
 
     def translate(self, value, lang):
-        c_fields = self.field_model.objects.filter(object=self.table_object)
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
 
         if not c_fields.exists():
             raise FieldDoesNotExist("Can't translate a field that doesn't exist")
@@ -240,7 +240,7 @@ class ComplexFieldContainer(object):
         c_field = c_fields.filter(lang=lang)
         c_field = list(c_field[:1])
         if not c_field:
-            c_field = self.field_model(object=self.table_object, lang=lang)
+            c_field = self.field_model(object_ref=self.table_object, lang=lang)
         else:
             c_field = c_field[0]
             if c_field.value != None:
