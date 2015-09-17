@@ -7,7 +7,10 @@ from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, FieldDoesNotExist
 from django.utils.translation import get_language
 
+from languages_plus.models import Language
+
 from source.models import Source
+from translation.models import get_language_from_iso
 from sfm_pc.utils import class_for_name
 
 
@@ -170,7 +173,7 @@ class ComplexFieldContainer(object):
 
         for field in c_fields:
             trans = {
-                'lang': field.lang,
+                'lang': get_language_from_iso(field.lang),
                 'value': field.value
             }
             translations.append(trans)
