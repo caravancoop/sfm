@@ -1,4 +1,5 @@
 from django.utils.translation import ugettext as _
+from django.utils.translation import activate, get_language
 from django.db import models
 
 CONFIDENCE_LEVELS = (
@@ -33,3 +34,12 @@ class Source(models.Model):
     def get_sources(cls, source_ids):
         sources = cls.objects.filter(id__in = source_ids)
         return sources
+
+    @classmethod
+    def get_confidences(cls, lang=get_language()):
+        activate(lang)
+        confs = {}
+        for conf in CONFIDENCE_LEVELS:
+            confs[conf[0]]= conf[1]
+
+        return confs

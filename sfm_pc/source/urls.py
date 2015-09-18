@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from source.views import get_sources
+from source.views import get_sources, get_confidences
 
 urlpatterns = patterns(
     '',
@@ -9,4 +9,7 @@ urlpatterns = patterns(
         '(?P<field_name>[a-zA-Z]+)/',
         get_sources,
         name="get_sources"),
+    url(r'confidences/',
+        get_confidences,
+        name="get_confidences"),
 )
