@@ -12,8 +12,8 @@ class Person(models.Model):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
         self.alias = ComplexFieldContainer(self, PersonAlias)
-        self.notes = ComplexFieldContainer(self, PersonNotes)
-        self.complex_fields = [self.name, self.alias, self.notes]
+        self.death_date = ComplexFieldContainer(self, PersonDeathDate)
+        self.complex_fields = [self.name, self.alias, self.death_date]
 
     @classmethod
     def from_id(cls, id_):
@@ -70,8 +70,9 @@ class PersonAlias(ComplexField):
     field_name = _("Aliases")
 
 @versioned
-class PersonNotes(ComplexField):
+@sourced
+class PersonDeathDate(ComplexField):
     object_ref = models.ForeignKey('Person')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Notes")
+    value = models.DateField(default=None, blank=True, null=True)
+    field_name = _("Death date")
 
