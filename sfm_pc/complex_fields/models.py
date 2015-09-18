@@ -270,7 +270,7 @@ class ComplexFieldContainer(object):
             object_name.capitalize(),
             object_name + ".models"
         )
-        print(object_class)
+
         if id_ == '0':
             object_ = object_class()
         else:
