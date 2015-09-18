@@ -1,19 +1,19 @@
 .header{
+	line-height:$header-height;
 	height:$header-height;
-	&.inner-title-wrapper{
-		@include mg('lr', 3em);
+	color:$header-ft-clr;
+	.inner-title-wrapper{
+		@include mg('lr', $header-mg);
 		height:100%;
-		border-bottom: solid thin $pri-bg-clr;
-		h3.page-title{
-		float:left;
-		height:$sidebar-title-height;
-		line-height:$sidebar-title-height;
+		border-bottom: solid thin rgba($sfm-grey-L, 0.5);
+		h1.page-title{
+			line-height:$header-height;
+			margin:0;
+			float:left;
+		font-weight:$ft-normal;
+	}//h1.page-title
 
-		}
-		a{
-			float:right;
-			margin-top:2.25rem;
-		}
 
 	}//.inner-title-wrapper
+
 }//header

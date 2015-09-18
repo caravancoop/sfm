@@ -2,6 +2,10 @@
   @include button-variant($sfm-btn-action-color, $sfm-btn-action-bg, $sfm-btn-action-border);
 }
 
-.sfm-btn-cancel{
-   @include button-variant($white, $sfm-grey-D2,  $sfm-grey-D2);
+.sfm-btn-default{
+   @include button-variant($sfm-btn-default-color, $sfm-btn-default-bg,  $sfm-btn-default-border);
+}
+
+.btn{
+  min-width:6.25rem;
 }

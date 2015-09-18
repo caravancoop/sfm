@@ -1,24 +1,26 @@
 section{
 	&.content{
-		h3{
-			// margin-top:1em;
-		}
 		max-width:100%;
-		@include pd("lr", 4em);
-		// margin-top:1em;
+		@include pd("lr", 3rem);
 		margin-left:$header-mg-L;
-		.row{
-			padding:0.5em 0em;
-			@include mg('lr', -2em);
+		h3{
+			font-weight:$ft-normal;
 		}
-
 
 		.form-group {
 			label {
+				margin-top:1rem;
 				width: 100%;
-				font-weight: $ft-normal;
+				font-weight: $ft-light;
+				font-size: 0.9rem;
 				.actions {
 					float: right;
+				}
+				.add-new-link{
+					font-size:0.7rem;
+					color:$ter-bg-clr;
+					font-weight:500;
+					text-decoration:none;
 				}
 			}
 		}
@@ -52,10 +54,23 @@ section{
 }
 
 .table-responsive {
+	margin-top:$table-mg-top;
 	table {
+		font-size:$table-ft-sz;
+		thead{
+			th{
+				font-weight:$table-ft-weight;
+				@include pd('lr', 1rem);
+			}
+
+			background-color: $pri-bg-clr;
+			color:$white;
+		}
 		tbody {
 			tr{
 				td {
+					font-weight:$table-ft-weight;
+					@include pd('lr', 1rem);
 					@include text-overflow();
 				} // td
 			} //tr
