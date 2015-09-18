@@ -10,9 +10,17 @@ from complex_fields.models import ComplexField, ComplexFieldContainer
 class Organization(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.parent_organization = ComplexFieldContainer(self, ParentOrganization)
+        self.name = ComplexFieldContainer(self, OrganizationName)
+        self.alias = ComplexFieldContainer(self, OrganizationAlias)
+        self.classification = ComplexFieldContainer(self, OrganizationClassification)
+        self.founding_date = ComplexFieldContainer(self, OrganizationFoundingDate)
+        self.dissolution_date = ComplexFieldContainer(self, OrganizationDissolutionDate)
+        self.real_founding = ComplexFieldContainer(self, OrganizationRealFounding)
+        self.real_dissolution = ComplexFieldContainer(self, OrganizationRealDissolution)
 
-        self.complex_fields = [self.parent_organization]
+        self.complex_fields = [self.name, self.alias, self.classification,
+                               self.founding_date, self.dissolution_date,
+                               self.real_founding, self.real_dissolution]
 
     @classmethod
     def create(cls, dict_values, lang=get_language()):
@@ -22,16 +30,62 @@ class Organization(models.Model):
         return org
 
 
+@translated
 @versioned
 @sourced
-class ParentOrganization(ComplexField):
-    object_ref = models.ForeignKey('Organization', related_name="child_org")
-    #value = models.TextField()
-    value = models.ForeignKey(
-        'Organization',
-        related_name="parent_org",
-        default=None,
-        blank=True,
-        null=True
-    )
-    field_name = _("Parent organization")
+class OrganizationName(ComplexField):
+    object_ref = models.ForeignKey('Organization')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Name")
+
+
+@translated
+@versioned
+@sourced
+class OrganizationAlias(ComplexField):
+    object_ref = models.ForeignKey('Organization')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Alias")
+
+
+@versioned
+@sourced
+class OrganizationClassification(ComplexField):
+    object_ref = models.ForeignKey('Organization')
+    value = models.ForeignKey('Classification', default=None, blank=True,
+                              null=True)
+    field_name = _("Classification")
+
+
+@versioned
+@sourced
+class OrganizationFoundingDate(ComplexField):
+    object_ref = models.ForeignKey('Organization')
+    value = models.DateField(default=None, blank=True, null=True)
+    field_name = _("Date of creation")
+
+
+@versioned
+@sourced
+class OrganizationDissolutionDate(ComplexField):
+    object_ref = models.ForeignKey('Organization')
+    value = models.DateField(default=None, blank=True, null=True)
+    field_name = _("Date of disbandment")
+
+
+@versioned
+class OrganizationRealFounding(ComplexField):
+    object_ref = models.ForeignKey('Organization')
+    value = models.BooleanField(default=None)
+    field_name = _("Real creation")
+
+
+@versioned
+class OrganizationRealDissolution(ComplexField):
+    object_ref = models.ForeignKey('Organization')
+    value = models.BooleanField(default=None)
+    field_name = _("Real dissolution")
+
+
+class Classification(models.Model):
+    value = models.TextField()

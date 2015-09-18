@@ -5,7 +5,7 @@
 {% block content %}
 <section class="content">
   <div class="inner-title-wrapper row header">
-    <h3 class="page-title">{% trans "Person" %}</h3>
+    <h3 class="page-title">{% trans "Organization" %}</h3>
     <a href="/person/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
   </div>
   <div class="row">
@@ -24,7 +24,27 @@
     <form>
         <div class="row">
             <div class="form-group col-sm-4">
-                {% view_complex_field organization.parent_organization organization.id request.path %}
+                {% view_complex_field organization.name organization.id request.path %}
+            </div>
+            <div class="form-group col-sm-4">
+                {% view_complex_field organization.alias organization.id request.path %}
+            </div>
+            <div class="form-group col-sm-4">
+                {% view_complex_field organization.classification organization.id request.path %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-4">
+                {% view_complex_field organization.founding_date organization.id request.path %}
+            </div>
+            <div class="form-group col-sm-2">
+                {% view_complex_field organization.real_founding organization.id request.path %}
+            </div>
+            <div class="form-group col-sm-4">
+                {% view_complex_field organization.dissolution_date organization.id request.path %}
+            </div>
+            <div class="form-group col-sm-2">
+                {% view_complex_field organization.real_dissolution organization.id request.path %}
             </div>
         </div><!-- /.row-->
         <div class="row">
