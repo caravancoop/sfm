@@ -2,6 +2,7 @@ db.sqlite3
 *.pyc
 *.*~
 *.swp
+*.swo
 env/*
 *.orig
 
