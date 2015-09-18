@@ -1,7 +1,7 @@
 import reversion
 
 from django.contrib import admin
-from .models import Person, PersonName, PersonAlias, PersonNotes
+from .models import Person, PersonName, PersonAlias, PersonDeathDate
 
 
 
