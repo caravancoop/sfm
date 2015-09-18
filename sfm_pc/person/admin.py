@@ -3,21 +3,34 @@ import reversion
 from django.contrib import admin
 from .models import Person, PersonName, PersonAlias, PersonNotes
 
-class PersonAdmin(admin.ModelAdmin):
-    pass
 
-class PersonNameAdmin(admin.ModelAdmin):
-    pass
+
+
+class PersonNameInlineAdmin(admin.TabularInline):
+    model = PersonName 
+
+class PersonAliasInlineAdmin(admin.TabularInline):
+    model = PersonAlias 
+
+class PersonNotesInlineAdmin(admin.TabularInline):
+    model = PersonNotes
+
+class PersonAdmin(admin.ModelAdmin):
+    inlines = [
+        PersonNameInlineAdmin,
+        PersonAliasInlineAdmin,
+        PersonNotesInlineAdmin,  
+] 
+
+
+class PersonNameAdmin(reversion.VersionAdmin):
+    model = PersonName
 
 class PersonAliasAdmin(reversion.VersionAdmin):
-    pass
+    model = PersonAlias
 
 class PersonNotesAdmin(reversion.VersionAdmin):
-    pass
+    model = PersonNotes
 
 
 admin.site.register(Person, PersonAdmin)
-admin.site.register(PersonName, PersonNameAdmin)
-admin.site.register(PersonAlias, PersonAliasAdmin)
-admin.site.register(PersonNotes, PersonNotesAdmin)
-
