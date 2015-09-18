@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load viewcomplexfield %}
+{% load viewcomplexfielddate %}
+{% load i18n %}
+{% block content %}
+<section class="content">
+  <div class="inner-title-wrapper row header">
+    <h3 class="page-title">{% trans "Person" %}</h3>
+    <a href="/person/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <h4>Properties</h4>
+    </div>
+  </div>
+
+  <div class="modal fade sourceModal" id="complexFieldModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+      </div>
+    </div>
+  </div>
+
+    <form>
+        <div class="row">
+            <div class="form-group col-sm-4">
+                {% view_complex_field organization.parent_organization organization.id request.path %}
+            </div>
+        </div><!-- /.row-->
+        <div class="row">
+        </div>
+    </form>
+
+
+  <div class="row">
+    <div class="col-sm-12 col-md-12">
+      <button class="btn sfm-btn-cancel col-sm-2" type="submit">Cancel</button>
+      <button class="btn col-sm-2 pull-right sfm-btn-action addPerson" type="submit">Save</button>
+    </div>
+  </div>
+
+</section>
+
+{% endblock %}
