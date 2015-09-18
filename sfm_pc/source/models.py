@@ -40,6 +40,6 @@ class Source(models.Model):
         activate(lang)
         confs = {}
         for conf in CONFIDENCE_LEVELS:
-            confs[conf[0]]= conf[1]
+            confs[conf[0]]= _(conf[1])
 
         return confs
