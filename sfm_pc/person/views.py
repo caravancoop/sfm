@@ -1,17 +1,13 @@
-from __future__ import unicode_literals
 import json
 
-from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.base import TemplateView
-from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, render_to_response
-from django.template import RequestContext, loader
+from django.template import RequestContext
 from django.http import HttpResponse
 from django.db.models import Max
 from .models import Person
-from .forms import PersonForm
 
 def ajax_request(function):
     def wrapper(request, *args, **kwargs):
