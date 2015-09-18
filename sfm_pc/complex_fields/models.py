@@ -157,7 +157,10 @@ class ComplexFieldContainer(object):
         langs = []
         if c_fields:
             langs = [
-                get_language_from_iso(field.lang)
+                {
+                    "label": get_language_from_iso(field.lang),
+                    "value": field.lang
+                }
                 for field in c_fields
             ]
 
