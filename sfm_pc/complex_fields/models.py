@@ -15,7 +15,7 @@ from sfm_pc.utils import class_for_name
 
 
 class ComplexField(models.Model):
-    lang = models.CharField(max_length=5, null=False)
+    lang = models.CharField(max_length=5, null=True)
     sources = models.ManyToManyField(Source, related_name="%(app_label)s_%(class)s_related")
 
     class Meta:
