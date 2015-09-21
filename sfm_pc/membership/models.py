@@ -49,6 +49,7 @@ class Membership(models.Model):
             return dates[0].value
         return None
 
+
 @versioned
 @sourced
 class MembershipPerson(ComplexField):
