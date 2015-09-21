@@ -12,14 +12,14 @@ class PersonNameInlineAdmin(admin.TabularInline):
 class PersonAliasInlineAdmin(admin.TabularInline):
     model = PersonAlias 
 
-class PersonNotesInlineAdmin(admin.TabularInline):
-    model = PersonNotes
+class PersonDeathDateInlineAdmin(admin.TabularInline):
+    model = PersonDeathDate
 
 class PersonAdmin(admin.ModelAdmin):
     inlines = [
         PersonNameInlineAdmin,
         PersonAliasInlineAdmin,
-        PersonNotesInlineAdmin,  
+        PersonDeathDateInlineAdmin,  
 ] 
 
 
@@ -29,8 +29,8 @@ class PersonNameAdmin(reversion.VersionAdmin):
 class PersonAliasAdmin(reversion.VersionAdmin):
     model = PersonAlias
 
-class PersonNotesAdmin(reversion.VersionAdmin):
-    model = PersonNotes
+class PersonDeathDateAdmin(reversion.VersionAdmin):
+    model = PersonDeathDate
 
 
 admin.site.register(Person, PersonAdmin)
