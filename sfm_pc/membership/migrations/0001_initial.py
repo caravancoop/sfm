@@ -2,27 +2,43 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django_date_extensions.fields
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('source', '0001_initial'),
+        ('person', '0005_auto_20150921_1748'),
         ('organization', '0001_initial'),
-        ('person', '0006_auto_20150921_1435'),
+        ('source', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
+            name='Context',
+            fields=[
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('value', models.TextField()),
+            ],
+        ),
+        migrations.CreateModel(
             name='Membership',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='MembershipDate',
+            fields=[
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('value', django_date_extensions.fields.ApproximateDateField(max_length=10)),
+                ('object_ref', models.ForeignKey(to='membership.Membership')),
             ],
         ),
         migrations.CreateModel(
             name='MembershipOrganization',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('object_ref', models.ForeignKey(to='membership.Membership')),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='membership_membershiporganization_related')),
@@ -35,7 +51,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MembershipPerson',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('object_ref', models.ForeignKey(to='membership.Membership')),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='membership_membershipperson_related')),
@@ -48,7 +64,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MembershipRank',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('object_ref', models.ForeignKey(to='membership.Membership')),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='membership_membershiprank_related')),
@@ -60,7 +76,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MembershipRole',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('object_ref', models.ForeignKey(to='membership.Membership')),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='membership_membershiprole_related')),
@@ -72,9 +88,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MembershipTitle',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('lang', models.CharField(max_length=5, null=True)),
-                ('value', models.TextField(blank=True, default=None, null=True)),
+                ('value', models.TextField(null=True, default=None, blank=True)),
                 ('object_ref', models.ForeignKey(to='membership.Membership')),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='membership_membershiptitle_related')),
             ],
@@ -85,14 +101,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Rank',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('value', models.TextField()),
             ],
         ),
         migrations.CreateModel(
             name='Role',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('value', models.TextField()),
             ],
         ),
