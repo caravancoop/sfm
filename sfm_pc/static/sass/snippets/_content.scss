@@ -9,6 +9,7 @@ section{
 
 		.form-group {
 			label {
+				height:1.5rem;
 				margin-top:1rem;
 				width: 100%;
 				font-weight: $ft-light;
@@ -32,6 +33,7 @@ section{
 
 		.actions{
 			float:right;
+			height:100%;
 			a{
 				color:$sfm-grey-D2;
 				&:hover{

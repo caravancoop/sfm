@@ -16,11 +16,20 @@
   {% include "sidebar.html" %}
 
   {% block content %}{% endblock %}
+
+  <!--  test-->
+
+
+
+
+
+  <!--  test-->
   <script type="text/javascript">
     window.CSRF_TOKEN = "{{ csrf_token }}";
     window.LANG = "{{ LANGUAGE_CODE }}";
   </script>
-  <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+  <!-- <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script> -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
   <script src="{% static "js/script.js" %}"></script>
   <script src="{% static "js/mainjs.js" %}"></script>
   <script>
@@ -30,6 +39,16 @@
 
   $('body').on('hidden.bs.modal', '.modal', function () {
     $(this).removeData('bs.modal');
+  });
+  $(function () {
+    $('[data-toggle="popover"]').popover({
+      container: 'body',
+        html: true,
+        content: function () {
+            var clone = $($(this).data('popover-content')).clone(true).removeClass('hide');
+            return clone;
+        }
+    });
   });
 
   </script>
