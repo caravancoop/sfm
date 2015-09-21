@@ -1,0 +1,12 @@
+#input-actions{
+  li{
+    list-style-type: none;
+    height: 2rem;
+    a{
+      color:$sfm-popover-clr;
+      &:hover{
+        color:$sfm-popover-hv-clr;
+      }
+    }
+  }
+}
