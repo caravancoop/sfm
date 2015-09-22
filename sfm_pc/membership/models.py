@@ -27,6 +27,27 @@ class Membership(models.Model):
         self.complex_fields = [self.person, self.organization, self.role,
                                self.title, self.rank]
 
+    @property
+    def dates(self):
+        if self.id:
+            dates = MembershipDate.objects.filter(object_ref==self)
+            return dates
+        else:
+            return []
+
+    @property
+    def start_date(self):
+        if self.real_start.get_value():
+            dates = MembershipDate.objects.filter(object_ref=self).order_by("value")
+            return dates[0].value
+        return None
+
+    @property
+    def end_date(self):
+        if self.real_end.get_value():
+            dates = MembershipDate.objects.filter(object_ref=self).order_by("-value")
+            return dates[0].value
+        return None
 
 @versioned
 @sourced
