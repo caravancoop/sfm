@@ -86,10 +86,8 @@ class PersonView(TemplateView):
 
         return context
 
-class PersonUpdate(UpdateView):
+class PersonUpdate(TemplateView):
     template_name = 'person/edit.html'
-
-    model = Person
 
     def post(self, request, *args, **kwargs):
         data = json.loads(request.POST.dict()['person'])
@@ -109,6 +107,7 @@ class PersonUpdate(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(PersonUpdate, self).get_context_data(**kwargs)
         context['title'] = "Person"
+        context['person'] = Person.objects.get(pk=context.get('pk'))
 
         return context
 
