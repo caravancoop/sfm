@@ -15,6 +15,10 @@ class Person(models.Model):
         self.death_date = ComplexFieldContainer(self, PersonDeathDate)
         self.complex_fields = [self.name, self.alias, self.death_date]
 
+    @property
+    def value(self):
+        return self.name.get_value()
+
     @classmethod
     def from_id(cls, id_):
         queryset = cls.objects.filter(id=id_)
