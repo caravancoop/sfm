@@ -20,6 +20,7 @@ class Membership(models.Model):
         self.title = ComplexFieldContainer(self, MembershipTitle)
         self.rank = ComplexFieldContainer(self, MembershipRank)
         self.real_start = ComplexFieldContainer(self, MembershipRealStart)
+        self.real_end = ComplexFieldContainer(self, MembershipRealEnd)
         self.start_context = ComplexFieldContainer(self, MembershipStartContext)
         self.end_context = ComplexFieldContainer(self, MembershipEndContext)
 
