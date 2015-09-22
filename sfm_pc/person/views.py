@@ -98,11 +98,15 @@ class PersonUpdate(TemplateView):
 
         errors = person.update(data)
         if errors is None:
-            return HttpResponse(json.dumps({"success": True}),
-                                content_type="application/json")
+            return HttpResponse(
+                json.dumps({"success": True}),
+                content_type="application/json"
+            )
         else:
-            return HttpResponse(json.dumps({"success": False, "errors": errors}),
-                                content_type="application/json")
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
 
     def get_context_data(self, **kwargs):
         context = super(PersonUpdate, self).get_context_data(**kwargs)
