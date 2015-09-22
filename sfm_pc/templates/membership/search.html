@@ -98,7 +98,7 @@
                         {% for member in memberships %}
 						<tr data-person-id="{{ member.id }}">
 							<td>{% trans member.role.get_value.value %}</td>
-							<td>{% trans member.title.get_value %}</td>
+							<td>{% trans member.title.get_value.value %}</td>
 							<td>{% trans member.rank.get_value.value %}</td>
                             <td>{{ member.start_date }}</td>
                             <td>{{ member.end_date }}
