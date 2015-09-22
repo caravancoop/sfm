@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<section class="content">
+    <div class="inner-title-wrapper row header">
+         <h3 class="page-title">{% trans "Search an organization" %}</h3>
+         <a href="/organization/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
+    </div>
+		<form>
+			<div class="row">
+				<div class="form-group col-sm-4">
+					<label for="name">{% trans "Name" %}</label>
+					<input type="text" class="form-control" id="name" placeholder="{% trans "Enter Name" %}">
+				</div>
+				<div class="form-group col-sm-4">
+					<label for="alias">{% trans "Aliases or alternative spellings" %}</label>
+					<input type="text" class="form-control" id="alias" placeholder="{% trans "Enter Alias" %}">
+				</div>
+				<div class="form-group col-sm-4">
+                    <label for="classification">{% trans "Classification" %}</label>
+                    <input type="text" class="form-control" id="classification" placeholder="{% trans "Enter classification" %}">
+                    <script type="text/javascript">
+                        $("#classification").autocomplete({
+                            source: "/" + window.LANG + "/organization/classification/autocomplete"
+                        });
+                    </script>
+                </div>
+			</div>
+            <div class="row">
+            </div>
+
+			<div class="row">
+				<div class="dropdown form-group col-sm-6">
+					<label>Membership</label>
+					<select id="people_srch_membership">
+						<option>Choose or create...</option>
+						<option value="">Commander</option>
+						<option value="">Sergent</option>
+					</select>
+				</div>
+
+				<div class="dropdown form-group col-sm-2">
+					<label>Death date</label>
+					<select id="people_srch_deathdate">
+						<option>dd</option>
+						<option value="">01</option>
+						<option value="">02</option>
+					</select>
+				</div>
+
+				<div class="dropdown form-group col-sm-2">
+					<label>Month</label>
+					<select id="people_srch_deathdate">
+						<option>mm</option>
+						<option value="">January</option>
+						<option value="">February</option>
+						<option value="">March</option>
+						<option value="">April</option>
+						<option value="">May</option>
+						<option value="">June</option>
+						<option value="">July</option>
+						<option value="">August</option>
+						<option value="">September</option>
+						<option value="">October</option>
+						<option value="">November</option>
+						<option value="">December</option>
+					</select>
+				</div>
+
+				<div class="dropdown form-group col-sm-2">
+					<label>Year</label>
+					<select id="people_srch_deathdate">
+						<option>yyyy</option>
+						<option value="">2015</option>
+						<option value="">2014</option>
+					</select>
+				</div>
+			</div>
+
+
+			<div class="row">
+				<div class="dropdown form-group col-sm-6">
+					<label>Radius</label>
+					<select id="people_srch_radius">
+						<option>1 - 25km</option>
+						<option value="1">1 km</option>
+						<option value="2">2 km</option>
+						<option value="3">3 km</option>
+						<option value="4">4 km</option>
+						<option value="5">5 km</option>
+						<option value="6">6 km</option>
+					</select>
+				</div>
+
+				<div class="form-group col-sm-2">
+					<label for="latitude">Longitude</label>
+					<input type="text" class="form-control" id="latitude" placeholder="12.73">
+				</div>
+
+				<div class="form-group col-sm-2">
+					<label for="longitude">Latitude</label>
+					<input type="text" class="form-control" id="longitude" placeholder="81.45">
+				</div>
+
+				<div class="location col-sm-2">
+					<!-- <i class="fa fa-map-marker fa-2x"></i> -->
+				</div>
+
+			</div>
+		</form>
+
+		<div class="row">
+			<div class="col-sm-12 form-group">
+				<label for="people_srch_post">{{ organizations|length }} Results
+					<div class="actions">
+						<button type="button" class="btn sfm-btn-action">Export <i class="fa fa-share-square-o"></i></button>
+					</div>
+				</label>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="table-responsive col-sm-12">
+				<table class="table table-bordered table-striped">
+					<thead>
+						<tr>
+							<th class="col-sm-2"><span class="caret"></span>{% trans "Name" %}</th>
+							<th class="col-sm-2"><span class="caret"></span>{% trans "Alias" %}</th>
+							<th class="col-sm-2"><span class="caret"></span>{% trans "Classification" %}</th>
+							<th class="col-sm-2"><span class="caret"></span>{% trans "Superior Unit" %}</th>
+							<th class="col-sm-2"><span class="caret"></span>{% trans "Start date" %}</th>
+							<th class="col-sm-2"><span class="caret"></span>{% trans "End date" %}</th>
+						</tr>
+					</thead>
+					<tbody>
+                        {% for org in organizations %}
+						<tr data-person-id="{{ org.id }}">
+							<td>{{ org.name }}</td>
+							<td>{{ org.alias }}</td>
+							<td>{{ org.classification.get_value.value }}</td>
+							<td>TODO</td>
+							<td>TODO</td>
+							<td>TODO
+								<i class="fa fa-times-circle fa-lg actions"></i>
+							</td>
+						</tr>
+                        {% endfor %}
+                    </tbody>
+				</div>
+			</div>
+
+		</section>
+	{% endblock %}

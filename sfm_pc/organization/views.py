@@ -42,7 +42,9 @@ class OrganizationView(TemplateView):
                 organizationalias__value__contains=alias_val
             )
 
-        context['organization'] = org_query
+        context['organizations'] = org_query
+
+        return context
 
 
 class OrganizationCreate(TemplateView):
