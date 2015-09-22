@@ -53,10 +53,26 @@ class OrganizationCreate(TemplateView):
         data = json.loads(request.POST.dict()['organization'])
         organization = Organization.create(data)
 
-        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+        return HttpResponse(json.dumps({"success": True}),
+                            content_type="application/json")
 
     def get_context_data(self, **kwargs):
         context = super(OrganizationCreate, self).get_context_data(**kwargs)
         context['organization'] = Organization()
 
         return context
+
+
+def classification_autocomplete(request):
+    data = request.GET.dict()['term']
+
+    classifications = Classification.objects.filter(
+        value__icontains=data
+    )
+
+    classifications = [
+        _(classif.value)
+        for classif in classifications
+    ]
+
+    return HttpResponse(json.dumps(classifications))
