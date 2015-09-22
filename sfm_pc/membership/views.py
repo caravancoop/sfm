@@ -43,6 +43,38 @@ class MembershipView(TemplateView):
         return context
 
 
+class MembershipUpdate(TemplateView):
+    template_name = 'membership/edit.html'
+
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.POST.dict()['membership'])
+        try:
+            membership = Membership.objects.get(pk=kwargs.get('pk'))
+        except Membership.DoesNotExist:
+            msg = "This membership does not exist, it should be created " \
+                  "before updating it."
+            return HttpResponse(msg, status=400)
+
+        errors = membership.update(data)
+        if errors is None:
+            return HttpResponse(
+                json.dumps({"success": True}),
+                content_type="application/json"
+            )
+        else:
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
+    def get_context_data(self, **kwargs):
+        context = super(MembershipUpdate, self).get_context_data(**kwargs)
+        context['title'] = "Membership"
+        context['membership'] = Membership.objects.get(pk=context.get('pk'))
+
+        return context
+
+
 class MembershipCreate(TemplateView):
     template_name = 'membership/edit.html'
 
