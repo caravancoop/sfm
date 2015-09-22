@@ -1,8 +1,8 @@
 {% load i18n %}
 
-<label for="{{ field_id}}">{{field_name}}
-  <div class="actions"><button type="button" class="sfm-btn-option" data-popover-content="#input-actions" data-toggle="popover" data-placement="bottom"><i class="fa fa-ellipsis-h"></i></button></div>
-  <div class=" hide" id="input-actions">
+<label for="{{field_str_id}}">{{field_name}}
+  <div class="actions"><button type="button" class="sfm-btn-option input-action-btn" data-popover-content=".input-actions-{{field_str_id}}" data-toggle="popover" data-placement="bottom"><i class="fa fa-ellipsis-h"></i></button></div>
+  <div class=" hide input-actions input-actions-{{field_str_id}}">
     <ul>
       {% if sourced %}
       <li>
@@ -24,4 +24,4 @@
     {% endif %}
   </div>
 </label>
-<input type="text" class="form-control" id="{{ field_id }}" value="{{ value }}" placeholder="Enter {{field_name}}">
+<input type="text" class="form-control" id="{{ field_str_id }}" value="{{ value }}" placeholder="Enter {{field_name}}">

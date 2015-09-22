@@ -32,6 +32,7 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
   <script src="{% static "js/script.js" %}"></script>
   <script src="{% static "js/mainjs.js" %}"></script>
+  <script src="{% static "js/newjs.js" %}"></script>
   <script>
   $(document).ready(function() {
     $('select').selectpicker('show');
@@ -42,10 +43,10 @@
   });
   //qiuck fix for action btn menu
   $(function () {
-    $('#input-actions').on('mouseleave click', function(){
-      $btn_id = $(this).closest('.popover').attr('id');
-      $('[aria-describedby=' + $btn_id+']').trigger("click");
-    });
+    // $('.input-actions').on('mouseleave click', function(){
+    //   $btn_id = $(this).closest('.popover').attr('id');
+    //   $('[aria-describedby=' + $btn_id+']').trigger("click");
+    // });
 
     $('[data-toggle="popover"]').popover({
       container: 'body',
