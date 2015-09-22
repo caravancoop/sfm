@@ -22,6 +22,10 @@ class Organization(models.Model):
                                self.founding_date, self.dissolution_date,
                                self.real_founding, self.real_dissolution]
 
+    @property
+    def value(self):
+        return self.name.get_value()
+
     @classmethod
     def create(cls, dict_values, lang=get_language()):
         org = cls()
