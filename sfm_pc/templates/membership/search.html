@@ -100,8 +100,8 @@
 							<td>{% trans member.role.get_value.value %}</td>
 							<td>{% trans member.title.get_value %}</td>
 							<td>{% trans member.rank.get_value.value %}</td>
-                            <td>{% trans "TODO" %}</td>
-                            <td>{% trans "TODO" %}
+                            <td>{{ member.start_date }}</td>
+                            <td>{{ member.end_date }}
 								<i class="fa fa-times-circle fa-lg actions"></i>
 							</td>
 						</tr>
