@@ -19,6 +19,9 @@ class Membership(models.Model):
         self.role = ComplexFieldContainer(self, MembershipRole)
         self.title = ComplexFieldContainer(self, MembershipTitle)
         self.rank = ComplexFieldContainer(self, MembershipRank)
+        self.real_start = ComplexFieldContainer(self, MembershipRealStart)
+        self.start_context = ComplexFieldContainer(self, MembershipStartContext)
+        self.end_context = ComplexFieldContainer(self, MembershipEndContext)
 
         self.complex_fields = [self.person, self.organization, self.role,
                                self.title, self.rank]
@@ -65,10 +68,44 @@ class MembershipRank(ComplexField):
     field_name = _("Rank")
 
 
-class MembershipDate(models.Model):
+@versioned
+@sourced
+class MembershipDate(ComplexField):
     object_ref = models.ForeignKey('Membership')
     value = ApproximateDateField()
     field_name = _("Dates")
+
+
+@versioned
+@sourced
+class MembershipRealStart(ComplexField):
+    object_ref = models.ForeignKey('Membership')
+    value = models.BooleanField(default=None)
+    field_name = _("Real start date")
+
+
+@versioned
+@sourced
+class MembershipRealEnd(ComplexField):
+    object_ref = models.ForeignKey('Membership')
+    value = models.BooleanField(default=None)
+    field_name = _("Real end date")
+
+
+@versioned
+@sourced
+class MembershipStartContext(ComplexField):
+    object_ref = models.ForeignKey('Membership')
+    value = models.ForeignKey('Context')
+    field_name = _("Start context")
+
+
+@versioned
+@sourced
+class MembershipEndContext(ComplexField):
+    object_ref = models.ForeignKey('Membership')
+    value = models.ForeignKey('Context')
+    field_name = _("End context")
 
 
 class Role(models.Model):
