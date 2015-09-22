@@ -35,16 +35,10 @@
         </div>
         <div class="row">
             <div class="form-group col-sm-4">
-                {% view_complex_field membership.role membership.id request.path %}
-            </div>
-            <div class="form-group col-sm-2">
                 {% view_complex_field membership.title membership.id request.path %}
             </div>
-            <div class="form-group col-sm-4">
-                {% view_complex_field membership.rank membershi.id request.path %}
-            </div>
             <div class="form-group col-sm-2">
-                {% view_complex_field membership.role membership.id request.path %}
+                {% view_complex_field membership.rank membership.id request.path %}
             </div>
         </div><!-- /.row-->
         <div class="row">
