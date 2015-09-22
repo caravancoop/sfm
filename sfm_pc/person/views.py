@@ -46,6 +46,22 @@ class PersonView(TemplateView):
         person_query = (Person.objects
                         .annotate(Max(order_by))
                         .order_by(dirsym + order_by + "__max"))
+
+
+        name = self.request.GET.get('Person_PersonName')
+        if name:
+            person_query = person_query.filter(personname__value__contains=name)
+
+        alias_val = self.request.GET.get('Person_PersonAlias')
+        if alias_val:
+            person_query = person_query.filter(personalias__value__contains=alias_val)
+
+        """death_date = self.request.GET.get('Person_PersonDeathDate')
+        if death_date:
+            person_query = person_query.filter(persondeathdate__value__contains=alias_val)
+        """
+
+        context['persons'] = person_query
         """
         currlist = [
             {
