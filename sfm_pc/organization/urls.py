@@ -10,3 +10,4 @@ urlpatterns = patterns(
     url(r'(?P<pk>\d+)/$', OrganizationUpdate.as_view(), name='edit_organization'),
     url(r'classification/autocomplete', classification_autocomplete,
         name="classification_autocomplete")
+)
