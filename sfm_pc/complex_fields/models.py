@@ -20,7 +20,6 @@ class ComplexField(models.Model):
 
     class Meta:
         abstract = True
-        unique_together = ('object_ref', 'lang')
 
     def revert(self, id):
         if hasattr(self, 'versioned'):
