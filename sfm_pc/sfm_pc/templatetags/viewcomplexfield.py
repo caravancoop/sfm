@@ -9,8 +9,12 @@ def view_complex_field(field, object_id, path):
     if object_id is None:
         object_id = 0
 
+    value = field.get_value()
+    if not isinstance(value, str) and value is not None:
+        value = value.value
+
     return {
-        'value' : field,
+        'value' : value,
         'object_id': object_id,
         'object_name': field.get_object_name(),
         'field_str_id': field.get_field_str_id(),
