@@ -87,17 +87,21 @@
 				<table class="table table-bordered table-striped">
 					<thead>
 						<tr>
-							<th class="col-sm-3"><span class="caret"></span> Name</th>
-							<th class="col-sm-4"><span class="caret"></span> Alias</th>
-							<th class="col-sm-5"><span class="caret"></span> Notes</th>
+							<th class="col-sm-2"><span class="caret"></span>{% trans "Role" %}</th>
+							<th class="col-sm-3"><span class="caret"></span>{% trans "Title" %}</th>
+							<th class="col-sm-3"><span class="caret"></span>{% trans "Rank" %}</th>
+							<th class="col-sm-2"><span class="caret"></span>{% trans "Start date" %}</th>
+							<th class="col-sm-2"><span class="caret"></span>{% trans "End date" %}</th>
 						</tr>
 					</thead>
 					<tbody>
-                        {% for person in persons %}
-						<tr data-person-id="{{ person.id }}">
-							<td>{{ person.name }}</td>
-							<td>{{ person.alias }}</td>
-							<td>{{ person.notes }}
+                        {% for member in memberships %}
+						<tr data-person-id="{{ member.id }}">
+							<td>{% trans member.role.get_value.value %}</td>
+							<td>{% trans member.title.get_value %}</td>
+							<td>{% trans member.rank.get_value.value %}</td>
+                            <td>{% trans "TODO" %}</td>
+                            <td>{% trans "TODO" %}
 								<i class="fa fa-times-circle fa-lg actions"></i>
 							</td>
 						</tr>
