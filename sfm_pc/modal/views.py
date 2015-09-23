@@ -16,6 +16,7 @@ class SourceView(TemplateView):
             context.get('object_type'),
             context.get('object_id'),
             context.get('field_name'),
+            context.get('field_id', None)
         )
         context['field'] = field
 
@@ -31,6 +32,7 @@ class TranslationView(TemplateView):
             context.get('object_type'),
             context.get('object_id'),
             context.get('field_name'),
+            context.get('field_id', None)
         )
 
         context['field'] = field
@@ -47,6 +49,7 @@ class VersionView(TemplateView):
             context.get('object_type'),
             context.get('object_id'),
             context.get('field_name'),
+            context.get('field_id', None)
         )
 
         context['field'] = field

@@ -1,18 +1,18 @@
 {% load i18n %}
 
-<label for="{{ field_id}}">{{field_name}}
+<label for="{{ field_str_id }}">{{field_name}}
     <div class="actions">
         {% if sourced %}
-            <a class="modalBox" href="" title="{% trans Source %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/source/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}" data-model-object-id="{{object_id}}"><i class="fa fa-link"></i></a>
+            <a class="modalBox" href="" title="{% trans Source %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/source/{{object_name}}/{{object_id}}/{{attr_name}}/{% if is_list %}{{ field_id }}/{% endif %}" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}" data-model-object-id="{{object_id}}"><i class="fa fa-link"></i></a>
         {% endif %}
         {% if "add" not in path %}
             {% if versioned %}
-                <a class="modalBox" href="" title="{% trans Versioned %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/version/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-undo"></i></a>
+                <a class="modalBox" href="" title="{% trans Versioned %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/version/{{object_name}}/{{object_id}}/{{attr_name}}/{% if is_list %}{{ field_id }}/{% endif %}" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-undo"></i></a>
             {% endif %}
             {% if translated %}
-                <a class="modalBox" href="" title="{% trans Translated %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/translate/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-flag"></i></a>
+                <a class="modalBox" href="" title="{% trans Translated %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/translate/{{object_name}}/{{object_id}}/{{attr_name}}/{% if is_list %}{{ field_id }}/{% endif %}" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-flag"></i></a>
             {% endif %}
         {% endif %}
     </div>
 </label>
-<input type="text" class="form-control" id="{{ field_id }}" value="{{ value }}" placeholder="Enter {{field_name}}">
+<input type="text" class="form-control" id="{{ field_str_id }}" value="{{ value }}" placeholder="Enter {{field_name}}">

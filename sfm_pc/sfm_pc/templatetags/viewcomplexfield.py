@@ -1,4 +1,7 @@
 from django.template import Library
+from django_date_extensions.fields import ApproximateDate
+
+from complex_fields.models import ComplexFieldListContainer
 
 register = Library()
 
@@ -10,7 +13,8 @@ def view_complex_field(field, object_id, path):
         object_id = 0
 
     value = field.get_value()
-    if not isinstance(value, str) and value is not None:
+    if (not isinstance(value, str) and value is not None and
+        not isinstance(value, ApproximateDate)):
         value = value.value
 
     return {
@@ -23,5 +27,7 @@ def view_complex_field(field, object_id, path):
         'sourced': field.sourced,
         'translated': field.translated,
         'versioned': field.versioned,
+        'is_list': isinstance(field, ComplexFieldListContainer),
+        'field_id': field.id_,
         'path': path,
     }
