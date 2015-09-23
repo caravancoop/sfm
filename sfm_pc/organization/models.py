@@ -26,6 +26,14 @@ class Organization(models.Model):
     def value(self):
         return self.name.get_value()
 
+    @classmethod
+    def from_id(cls, id_):
+        try:
+            membership = cls.objects.get(id=id_)
+            return membership
+        except cls.DoesNotExist:
+            return None
+
     def validate(self, dict_values, lang):
         errors = {}
         for field in self.complex_fields:
