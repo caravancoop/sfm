@@ -280,3 +280,29 @@ class ComplexFieldContainer(object):
         field = getattr(object_, field_name)
 
         return field
+
+
+class ComplexFieldListContainer(object):
+    def __init__(self, table_object, field_model):
+        self.table_object = table_object
+        self.field_model = field_model
+
+    def get_list(self):
+        complex_fields = []
+        try:
+            fields = self.field_model.objects.filter(object_ref=self.table_object).order_by("value")
+        except self.field_model.DoesNotExist:
+            return []
+        for field in fields:
+            complex_fields.append(
+                ComplexFieldContainer(self.table_object, self.field_model, field.id)
+            )
+
+        return complex_fields
+
+    def get_complex_field(self, id_):
+        try:
+            field = ComplexFieldContainer(self.table_object, self.field_model, id_)
+            return field
+        except self.field_model.DoesNotExist:
+            return None
