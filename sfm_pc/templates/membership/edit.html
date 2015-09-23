@@ -42,7 +42,19 @@
             </div>
         </div><!-- /.row-->
         <div class="row">
-        </div>
+            <h5>Dates</h5>
+
+        <div class="row">
+            {% for date in membership.date.get_list %}
+                <div class="form-group col-sm-3">
+                    {% view_complex_field date membership.id request.path %}
+                </div>
+                <p>
+                    {{ date.value }}
+                    <a class="btn">Delete</a>
+                </p>
+            {% endfor %}
+        </div></div>
     </form>
 
 
