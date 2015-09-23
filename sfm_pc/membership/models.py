@@ -77,6 +77,7 @@ class Membership(models.Model):
             source = Source.create_sources(dict_values[field_name].get('sources', []))
             field.update(dict_values[field_name]['values'], lang, sources)
 
+
 @versioned
 @sourced
 class MembershipPerson(ComplexField):
