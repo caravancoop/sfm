@@ -6,7 +6,8 @@ from django_date_extensions.fields import ApproximateDateField
 from source.models import Source
 
 from complex_fields.model_decorators import versioned, translated, sourced
-from complex_fields.models import ComplexField, ComplexFieldContainer
+from complex_fields.models import (ComplexField, ComplexFieldContainer,
+                                   ComplexFieldListContainer)
 from person.models import Person
 from organization.models import Organization
 
@@ -27,13 +28,7 @@ class Membership(models.Model):
         self.complex_fields = [self.person, self.organization, self.role,
                                self.title, self.rank]
 
-    @property
-    def dates(self):
-        if self.id:
-            dates = MembershipDate.objects.filter(object_ref==self)
-            return dates
-        else:
-            return []
+        self.date = ComplexFieldListContainer(self, MembershipDate)
 
     @property
     def start_date(self):
