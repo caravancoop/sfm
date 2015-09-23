@@ -5,10 +5,10 @@ from django.utils.translation import get_language
 
 from complex_fields.models import ComplexFieldContainer
 
-def get_versions(request, object_type, object_id, field_name,
+def get_versions(request, object_type, object_id, field_name, field_id,
                  lang=get_language()):
     field = ComplexFieldContainer.field_from_str_and_id(
-        object_type, object_id, field_name
+        object_type, object_id, field_name, field_id
     )
     if field.translated:
         versions = field.get_history_for_lang(lang)
