@@ -26,6 +26,30 @@ class Organization(models.Model):
     def value(self):
         return self.name.get_value()
 
+    def validate(self, dict_values, lang):
+        errors = {}
+        for field in self.complex_fields:
+            field_name = field.get_field_str_id()
+            sources = dict_values[field_name].get('sources', [])
+
+            error = field.validate(dict_values[field_name], lang, sources)
+            if error is not None:
+                errors[field_name] = error
+
+        return errors
+
+    def update(self, dict_values, lang=get_language()):
+        errors = self.validate(dict_values, lang)
+        if len(errors):
+            return errors
+
+        for field in self.complex_fields:
+            field_name = field.get_field_str_id()
+
+            source = Source.create_sources(dict_values[field_name].get('sources', []))
+            field.update(dict_values[field_name]['values'], lang, sources)
+
+
     @classmethod
     def create(cls, dict_values, lang=get_language()):
         org = cls()
