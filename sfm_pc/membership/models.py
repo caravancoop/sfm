@@ -123,7 +123,17 @@ class MembershipRank(ComplexField):
 class MembershipDate(ComplexField):
     object_ref = models.ForeignKey('Membership')
     value = ApproximateDateField()
-    field_name = _("Dates")
+
+    @property
+    def field_name(self):
+        name = ""
+        if self.object_ref_id:
+            if self.value == self.object_ref.start_date:
+                name = _("Real start")
+            if self.value == self.object_ref.end_date:
+                name = _("Real end")
+        return name
+
 
 
 @versioned
