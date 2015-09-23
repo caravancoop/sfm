@@ -54,8 +54,6 @@ class ComplexFieldContainer(object):
     def __init__(self, table_object, field_model):
         self.table_object = table_object
         self.field_model = field_model
-        if hasattr(field_model(), 'field_name'):
-            self.field_name = field_model().field_name
         self.sourced = hasattr(field_model(), 'sourced')
         self.translated = hasattr(field_model(), 'translated')
         self.versioned = hasattr(field_model(), 'versioned')
@@ -65,6 +63,21 @@ class ComplexFieldContainer(object):
         if value is None:
             value = ""
         return value
+
+    @property
+    def field_name(self):
+        if self.id_ is None:
+            if not hasattr(self.field_model(),'field_name'):
+                return 'No field model'
+            return self.field_model().field_name
+
+        try:
+            field = self.field_model.objects.get(pk=self.id_)
+            return field.field_name
+        except self.field_model.DoesNotExist:
+            if not hasattr(self.field_model(),'field_name'):
+                return 'No field model'
+            return self.field_model().field_name
 
     def get_attr_name(self):
         table_name = self.table_object.__class__.__name__
