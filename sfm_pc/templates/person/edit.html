@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
 {% load viewcomplexfield %}
 {% load i18n %}
 {% block content %}
