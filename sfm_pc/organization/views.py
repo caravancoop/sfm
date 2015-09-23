@@ -47,6 +47,38 @@ class OrganizationView(TemplateView):
         return context
 
 
+class OrganizationUpdate(TemplateView):
+    template_name = 'organization/edit.html'
+
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.POST.dict())['organization']
+        try:
+            organization = Organization.objects.get(pk=kwargs.get('pk'))
+        except Organization.DoesNotExist:
+            msg = "This orgnanization does not exist, it should be created " \
+                  "before updating it."
+            return HttpResponse(msg, status=400)
+
+        errors = organization.update(data)
+        if errors is None:
+            return HttpResponse(
+                json.dumps({"success": True}),
+                content_type="application/json"
+            )
+        else:
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganizationUpdate, self).get_context_data(**kwargs)
+        context['title'] = "Organization"
+        context['organization'] = Organization.objects.get(pk=context.get('pk'))
+
+        return context
+
+
 class OrganizationCreate(TemplateView):
     template_name = 'organization/edit.html'
 
