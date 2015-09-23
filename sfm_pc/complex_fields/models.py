@@ -51,12 +51,13 @@ class ComplexField(models.Model):
                     pass
 
 class ComplexFieldContainer(object):
-    def __init__(self, table_object, field_model):
+    def __init__(self, table_object, field_model, id_=None):
         self.table_object = table_object
         self.field_model = field_model
         self.sourced = hasattr(field_model(), 'sourced')
         self.translated = hasattr(field_model(), 'translated')
         self.versioned = hasattr(field_model(), 'versioned')
+        self.id_ = id_
 
     def __str__(self):
         value = self.get_value(get_language())
@@ -99,6 +100,9 @@ class ComplexFieldContainer(object):
 
     def get_value(self, lang=get_language()):
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
+        if self.id_:
+            c_fields = c_fields.filter(pk=self.id_)
+
         if hasattr(self.field_model, 'translated'):
             c_fields_lang = c_fields.filter(lang=lang)
             c_field = list(c_fields_lang[:1])
@@ -280,17 +284,21 @@ class ComplexFieldContainer(object):
         return None
 
     @classmethod
-    def field_from_str_and_id(cls, object_name, id_, field_name):
+    def field_from_str_and_id(cls, object_name, object_id, field_name, field_id=None):
         object_class = class_for_name(
             object_name.capitalize(),
             object_name + ".models"
         )
 
-        if id_ == '0':
+        if object_id == '0':
             object_ = object_class()
         else:
-            object_ = object_class.from_id(id_)
+            object_ = object_class.from_id(object_id)
         field = getattr(object_, field_name)
+
+        if isinstance(field, ComplexFieldListContainer):
+            container = ComplexFieldListContainer(field.table_object, field.field_model)
+            field = container.get_complex_field(field_id)
 
         return field
 
