@@ -79,7 +79,6 @@ class Membership(models.Model):
 
 
     def update(self, dict_values, lang=get_language()):
-        # Add dates treatment
         (dict_values, errors) = self.validate(dict_values, lang)
         if len(errors):
             return errors
@@ -99,7 +98,6 @@ class Membership(models.Model):
             else:
                 new_date = ComplexFieldContainer(self, MembershipDate, date['id'])
             new_date.update(date['value'], lang, sources)
-            print("TEST")
 
     @classmethod
     def create(cls, dict_values, lang=get_language()):
