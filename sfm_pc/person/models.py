@@ -12,8 +12,8 @@ class Person(models.Model):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
         self.alias = ComplexFieldContainer(self, PersonAlias)
-        self.death_date = ComplexFieldContainer(self, PersonDeathDate)
-        self.complex_fields = [self.name, self.alias, self.death_date]
+        self.deathdate = ComplexFieldContainer(self, PersonDeathDate)
+        self.complex_fields = [self.name, self.alias, self.deathdate]
 
     @classmethod
     def from_id(cls, id_):
