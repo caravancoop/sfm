@@ -22,8 +22,7 @@ class Organization(models.Model):
                                self.founding_date, self.dissolution_date,
                                self.real_founding, self.real_dissolution]
 
-    @property
-    def value(self):
+    def get_value(self):
         return self.name.get_value()
 
     @classmethod

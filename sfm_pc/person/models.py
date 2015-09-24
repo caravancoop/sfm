@@ -15,8 +15,7 @@ class Person(models.Model):
         self.death_date = ComplexFieldContainer(self, PersonDeathDate)
         self.complex_fields = [self.name, self.alias, self.death_date]
 
-    @property
-    def value(self):
+    def get_value(self):
         return self.name.get_value()
 
     @classmethod
@@ -48,6 +47,7 @@ class Person(models.Model):
 
             sources = Source.create_sources(dict_values[field_name].get('sources', []))
             field.update(dict_values[field_name]['value'], lang, sources)
+
 
     @classmethod
     def create(cls, dict_values, lang=get_language()):

@@ -15,7 +15,10 @@ def view_complex_field(field, object_id, path):
     value = field.get_value()
     if (not isinstance(value, str) and value is not None and
         not isinstance(value, ApproximateDate)):
-        value = value.value
+        if hasattr(value, "get_value"):
+            value = value.get_value()
+        else:
+            value = value.value
 
     return {
         'value' : value,

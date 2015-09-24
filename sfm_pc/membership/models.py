@@ -62,27 +62,50 @@ class Membership(models.Model):
         errors = {}
         for field in self.complex_fields:
             field_name = field.get_field_str_id()
-            sources = dict_values[field_name].get('sources', [])
 
             if field_name not in dict_values and field_name in self.required_fields:
                 errors[field_name] = "This field is required"
-            error = field.validate(dict_values[field_name], lang, sources)
-            if error is not None:
-                errors[field_name] = error
 
-        return errors
+            elif field_name in dict_values:
+                sources = dict_values[field_name].get('sources', [])
+
+                (error, value) = field.validate(dict_values[field_name]['value'], lang, sources)
+                if error is not None:
+                    errors[field_name] = error
+                else:
+                    dict_values[field_name]['value'] = value
+
+        return (dict_values, errors)
+
 
     def update(self, dict_values, lang=get_language()):
         # Add dates treatment
-        errors = self.validate(dict_values, lang)
+        (dict_values, errors) = self.validate(dict_values, lang)
         if len(errors):
             return errors
 
+        self.save()
         for field in self.complex_fields:
             field_name = field.get_field_str_id()
 
-            source = Source.create_sources(dict_values[field_name].get('sources', []))
-            field.update(dict_values[field_name]['values'], lang, sources)
+            if field_name in dict_values:
+                sources = Source.create_sources(dict_values[field_name].get('sources', []))
+                field.update(dict_values[field_name]['value'], lang, sources)
+
+        for date in dict_values['Membership_MembershipDate']:
+            sources = Source.create_sources(date.get('sources', []))
+            if date['id'] == 0:
+                new_date = ComplexFieldContainer(self, MembershipDate, date['id'])
+            else:
+                new_date = ComplexFieldContainer(self, MembershipDate, date['id'])
+            new_date.update(date['value'], lang, sources)
+            print("TEST")
+
+    @classmethod
+    def create(cls, dict_values, lang=get_language()):
+        membership = cls()
+        membership.update(dict_values, lang)
+        return membership
 
 
 @versioned
