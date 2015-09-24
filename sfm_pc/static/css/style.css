@@ -5972,14 +5972,14 @@ button.close {
 input[type=text] {
   font-weight: 300; }
 
-#input-actions li {
+.input-actions li {
   list-style-type: none;
   height: 2rem; }
-  #input-actions li a {
+  .input-actions li a {
     line-height: 2rem;
     color: #4D4D4D;
     text-decoration: none; }
-    #input-actions li a:hover {
+    .input-actions li a:hover {
       color: #F1655A; }
 
 body, html, *, li, ul {
