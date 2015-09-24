@@ -25,6 +25,11 @@
         <div class="row">
             <div class="form-group col-sm-4">
                 {% view_complex_field membership.person membership.id request.path %}
+                <script type="text/javascript">
+                    $("#Membership_MembershipPerson").autocomplete({
+                        source: "/" + window.LANG + "/person/name/autocomplete/"
+                    });
+                </script>
             </div>
             <div class="form-group col-sm-4">
                 {% view_complex_field membership.organization membership.id request.path %}

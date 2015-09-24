@@ -3,11 +3,12 @@ import json
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.base import TemplateView
+from django.utils.translation import ugettext as _
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db.models import Max
-from .models import Person
+from .models import Person, PersonName
 
 def ajax_request(function):
     def wrapper(request, *args, **kwargs):
@@ -143,3 +144,19 @@ class PersonCreate(TemplateView):
         context['person'] = Person()
 
         return context
+
+
+def person_autocomplete(request):
+    term = request.GET.dict()['term']
+
+    person_names = PersonName.objects.filter(value__icontains=term)
+
+    persons = [
+        {
+            'label': _(name.object_ref.name.get_value()),
+            'value': str(name.object_ref_id) + ": " + name.object_ref.name.get_value()
+        }
+        for name in person_names
+    ]
+
+    return HttpResponse(json.dumps(persons))
