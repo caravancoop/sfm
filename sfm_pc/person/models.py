@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
-from source.models import Source
 
+from django_date_extensions.fields import ApproximateDateField
+
+from source.models import Source
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
 
@@ -77,6 +79,6 @@ class PersonAlias(ComplexField):
 @sourced
 class PersonDeathDate(ComplexField):
     object_ref = models.ForeignKey('Person')
-    value = models.DateField(default=None, blank=True, null=True)
+    value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Death date")
 
