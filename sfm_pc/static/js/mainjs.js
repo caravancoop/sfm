@@ -82,18 +82,19 @@ function autoFill () {
 	});
 }
 
-//
+//remove all the li elements
 function removeListElements () {
 	// remove this element from the dom
 	$('#sources_list > li').remove();
 }
 
+
 $('#complexFieldModal').on('shown.bs.modal', function () {
 
-// update selectpicker after changes
+// update selectpicker after changes for dynamic reasons
 	$('select').selectpicker('refresh');
 
-	// model header div attributes
+	// modal header div attributes
 	object_name = $('.modal-header').data('field-object-name');
 	object_id = $('.modal-header').data('field-object-id');
 	field_name = $('.modal-header').data('field-attr-name');
@@ -110,7 +111,7 @@ $('#complexFieldModal').on('shown.bs.modal', function () {
 //Genric AJAX call to get info for the modals
 function genericGetFunction (object_name, object_id, field_name, modal_type, getURL) {
 
-	// console.log(object_id);
+	console.log(object_id);
 
 	//if this is the version modal
 	if (modal_type === "version") {
@@ -131,6 +132,7 @@ function genericGetFunction (object_name, object_id, field_name, modal_type, get
 		dataType: "json",
 		// sucess callback function
 		success: function (response, status) { //no point in passing the status as an argument
+			// console.log(getURL);
 			// console.log(response);
 			separateObjects(response, modal_type);
 		},
@@ -208,13 +210,13 @@ function createSourcesList (genericObject) {
 
 		}
 
-		var tmpl = document.getElementById('source-template').content.cloneNode(true);
-
-		tmpl.querySelector('.src_name').textContent = sourceInfo.source;
-		tmpl.querySelector('.src_confidence').textContent = confidenceString;
-		tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
-
-		sourcesList.appendChild(tmpl);
+		// var tmpl = document.getElementById('source-template').content.cloneNode(true);
+		//
+		// tmpl.querySelector('.src_name').textContent = sourceInfo.source;
+		// tmpl.querySelector('.src_confidence').textContent = confidenceString;
+		// tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
+		//
+		// sourcesList.appendChild(tmpl);
 	}
 }
 
