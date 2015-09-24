@@ -103,7 +103,7 @@ class ComplexFieldContainer(object):
         if self.id_:
             c_fields = c_fields.filter(pk=self.id_)
 
-        if hasattr(self.field_model, 'translated'):
+        if self.translated:
             c_fields_lang = c_fields.filter(lang=lang)
             c_field = list(c_fields_lang[:1])
 
@@ -119,7 +119,7 @@ class ComplexFieldContainer(object):
 
     def set_value(self, value, lang=get_language()):
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
-        if hasattr(self.field_model, 'translated'):
+        if self.translated:
             c_fields = c_fields.filter(lang=lang)
         field = list(c_fields[:1])
         if field:
@@ -127,7 +127,7 @@ class ComplexFieldContainer(object):
             field[0].save()
         else:
             new_field = self.field_model()
-            if hasattr(self.field_model, 'translated'):
+            if self.translated:
                 new_field.lang = lang
             new_field.value = value
             new_field.save()
@@ -246,7 +246,7 @@ class ComplexFieldContainer(object):
         c_field.value = value
         c_field.save()
 
-        if hasattr(c_field, 'sourced'):
+        if self.sourced:
             for src in sources:
                 c_field.sources.add(src)
 
