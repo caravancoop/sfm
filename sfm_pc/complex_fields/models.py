@@ -98,7 +98,10 @@ class ComplexFieldContainer(object):
         field_name = self.field_model.__name__
         return table_name + "_" + field_name
 
-    def get_value(self, lang=get_language()):
+    def get_field(self, lang=get_language()):
+        if self.id_ == 0:
+            return None
+
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
         if self.id_:
             c_fields = c_fields.filter(pk=self.id_)
@@ -114,7 +117,14 @@ class ComplexFieldContainer(object):
             c_field = list(c_fields[:1])
 
         if c_field:
-            return c_field[0].value
+            return c_field[0]
+
+        return None
+
+    def get_value(self, lang=get_language()):
+        field = self.get_field(lang)
+        if field is not None:
+            return field.value
         return None
 
     def set_value(self, value, lang=get_language()):
@@ -224,24 +234,24 @@ class ComplexFieldContainer(object):
 
         return sources
 
-    def update(self, value, lang, sources=[]):
-        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
 
-        for field in c_fields:
-            field.value = None
-            if hasattr(field, 'sourced'):
-                for source in sources:
-                    field.sources.clear()
-            field.save()
-        c_field = c_fields.filter(lang=lang)
-        c_field = list(c_field[:1])
-        if not c_field:
+    def update(self, value, lang, sources=[]):
+        if self.get_field_str_id() in self.table_object.complex_fields:
+            c_fields = self.field_model.objects.filter(object_ref=self.table_object)
+
+            for field in c_fields:
+                field.value = None
+                if self.sourced:
+                    for source in sources:
+                        field.sources.clear()
+                field.save()
+        c_field = self.get_field()
+
+        if c_field is None:
             if self.translated:
                 c_field = self.field_model(object_ref=self.table_object, lang=lang)
             else:
                 c_field = self.field_model(object_ref=self.table_object)
-        else:
-            c_field = c_field[0]
 
         c_field.value = value
         c_field.save()
@@ -279,9 +289,25 @@ class ComplexFieldContainer(object):
     def validate(self, value, lang, sources=[]):
         if hasattr(self.field_model(), "source_required"):
             if not len(sources):
-                return "Sources are required to update this field"
+                return ("Sources are required to update this field", value)
 
+        fk_model = self.get_fk_model()
+        if fk_model is not None:
+            try:
+                value = fk_model.objects.get(pk=value)
+            except fk_model.DoesNotExist:
+                return (_("The object does not exists"), value)
+
+        return (None, value)
+
+    def get_fk_model(self, field_name="value"):
+        field_object, model, direct, m2m = (
+            self.field_model._meta.get_field_by_name(field_name)
+        )
+        if not m2m and direct and isinstance(field_object, models.ForeignKey):
+            return field_object.rel.to
         return None
+
 
     @classmethod
     def field_from_str_and_id(cls, object_name, object_id, field_name, field_id=None):
