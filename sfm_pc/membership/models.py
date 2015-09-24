@@ -29,6 +29,11 @@ class Membership(models.Model):
                                self.title, self.rank]
 
         self.date = ComplexFieldListContainer(self, MembershipDate)
+        self.required_fields = [
+            "Membership_MembershipPerson",
+            "Membership_MembershipOrganization",
+        ]
+
 
     @property
     def start_date(self):
@@ -59,6 +64,8 @@ class Membership(models.Model):
             field_name = field.get_field_str_id()
             sources = dict_values[field_name].get('sources', [])
 
+            if field_name not in dict_values and field_name in self.required_fields:
+                errors[field_name] = "This field is required"
             error = field.validate(dict_values[field_name], lang, sources)
             if error is not None:
                 errors[field_name] = error
