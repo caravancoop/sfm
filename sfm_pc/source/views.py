@@ -12,7 +12,11 @@ def get_sources(request, object_type, object_id, field_name):
     )
     sources = field.get_sources()
     sources_json = [
-        {"source": source.source, "confidence": source.confidence}
+        {
+            "source": source.source,
+            "confidence": source.confidence,
+            "id": source.id
+        }
         for source in sources
     ]
 
