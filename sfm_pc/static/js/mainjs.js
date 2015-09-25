@@ -111,7 +111,7 @@ $('#complexFieldModal').on('shown.bs.modal', function () {
 //Genric AJAX call to get info for the modals
 function genericGetFunction (object_name, object_id, field_name, modal_type, getURL) {
 
-	console.log(object_id);
+	// console.log(object_id);
 
 	//if this is the version modal
 	if (modal_type === "version") {

@@ -16,6 +16,19 @@
   {% include "sidebar.html" %}
 
   {% block content %}{% endblock %}
+  <!--  TABLE ROW TEMPLATE -->
+<div id="source-template2" class="hide">
+  <li >
+    <p class="col-sm-6 src_name"></p>
+    <p class="col-sm-4 src_conf"></p>
+    <p class="col-sm-2 src_del">
+      <span title="Delete Source">
+        <i class="fa fa-trash fa-lg"></i>
+      </span>
+    </p>
+  </li>
+</div>
+
   <script type="text/javascript">
     window.CSRF_TOKEN = "{{ csrf_token }}";
     window.LANG = "{{ LANGUAGE_CODE }}";
@@ -30,6 +43,22 @@
 
   $('body').on('hidden.bs.modal', '.modal', function () {
     $(this).removeData('bs.modal');
+  });
+  //qiuck fix for action btn menu
+  $(function () {
+    $('.input-actions').on('mouseleave click', function(){
+      $btn_id = $(this).closest('.popover').attr('id');
+      $('[aria-describedby=' + $btn_id+']').trigger("click");
+    });
+
+    $('[data-toggle="popover"]').popover({
+      container: 'body',
+        html: true,
+        content: function () {
+            var clone = $($(this).data('popover-content')).clone(true).removeClass('hide');
+            return clone;
+        }
+    });
   });
 
   </script>
