@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<section class="content">
+  <div class="inner-title-wrapper row header">
+    <h3 class="page-title">{% trans "Search a membership" %}</h3>
+    <a href="/membership/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
+  </div>
+  <form>
+    <div class="row">
+      <div class="form-group col-sm-4">
+        <label for="role">{% trans "Role" %}</label>
+        <select class="form-group dropdown" id="role" placeholder="{% trans "Enter role" %}">
+          <option value="">{% trans "Choose" %}</option>
+          {% for role in roles %}
+            <option value="{{role.id}}">{% trans role.value %}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group col-sm-4">
+        <label for="rank">{% trans "Rank" %}</label>
+        <select class="form-group dropdown" id="rank" placeholder="{% trans "Enter rank" %}">
+          <option value="">{% trans "Choose" %}</option>
+          {% for rank in ranks %}
+            <option value="{{rank.id}}">{% trans rank.value %}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group col-sm-4">
+        <label for="classification">{% trans "Title" %}</label>
+        <input type="text" class="form-control" id="title" placeholder="{% trans "Enter title" %}">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="dropdown form-group col-sm-2">
+        <label>Death date</label>
+        <select id="people_srch_deathdate">
+          <option>dd</option>
+          <option value="">01</option>
+          <option value="">02</option>
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>Month</label>
+        <select id="people_srch_deathdate">
+          <option>mm</option>
+          <option value="">January</option>
+          <option value="">February</option>
+          <option value="">March</option>
+          <option value="">April</option>
+          <option value="">May</option>
+          <option value="">June</option>
+          <option value="">July</option>
+          <option value="">August</option>
+          <option value="">September</option>
+          <option value="">October</option>
+          <option value="">November</option>
+          <option value="">December</option>
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>Year</label>
+        <select id="people_srch_deathdate">
+          <option>yyyy</option>
+          <option value="">2015</option>
+          <option value="">2014</option>
+        </select>
+      </div>
+    </div>
+  </form>
+
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      <label for="people_srch_post">{{ memberships|length }} Results
+        <div class="actions">
+          <button type="button" class="btn sfm-btn-action">Export <i class="fa fa-share-square-o"></i></button>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="table-responsive col-sm-12">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Role" %}</th>
+            <th class="col-sm-3"><span class="caret"></span>{% trans "Title" %}</th>
+            <th class="col-sm-3"><span class="caret"></span>{% trans "Rank" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Start date" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "End date" %}</th>
+        </tr>
+      </thead>
+    <tbody>
+      {% for member in memberships %}
+        <tr data-person-id="{{ member.id }}">
+          <td>{% trans member.role.get_value.value %}</td>
+          <td>{% trans member.title.get_value.value %}</td>
+          <td>{% trans member.rank.get_value.value %}</td>
+          <td>{{ member.start_date }}</td>
+          <td>{{ member.end_date }}
+            <i class="fa fa-times-circle fa-lg actions"></i>
+          </td>
+        </tr>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

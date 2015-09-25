@@ -1,17 +1,14 @@
-from __future__ import unicode_literals
 import json
 
-from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.base import TemplateView
-from django.core.urlresolvers import reverse_lazy
+from django.utils.translation import ugettext as _
 from django.shortcuts import render, render_to_response
-from django.template import RequestContext, loader
+from django.template import RequestContext
 from django.http import HttpResponse
 from django.db.models import Max
-from .models import Person
-from .forms import PersonForm
+from .models import Person, PersonName
 
 def ajax_request(function):
     def wrapper(request, *args, **kwargs):
@@ -102,11 +99,15 @@ class PersonUpdate(TemplateView):
 
         errors = person.update(data)
         if errors is None:
-            return HttpResponse(json.dumps({"success": True}),
-                                content_type="application/json")
+            return HttpResponse(
+                json.dumps({"success": True}),
+                content_type="application/json"
+            )
         else:
-            return HttpResponse(json.dumps({"success": False, "errors": errors}),
-                                content_type="application/json")
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
 
     def get_context_data(self, **kwargs):
         context = super(PersonUpdate, self).get_context_data(**kwargs)
@@ -143,3 +144,19 @@ class PersonCreate(TemplateView):
         context['person'] = Person()
 
         return context
+
+
+def person_autocomplete(request):
+    term = request.GET.dict()['term']
+
+    person_names = PersonName.objects.filter(value__icontains=term)
+
+    persons = [
+        {
+            'label': _(name.object_ref.name.get_value()),
+            'value': str(name.object_ref_id) + ": " + name.object_ref.name.get_value()
+        }
+        for name in person_names
+    ]
+
+    return HttpResponse(json.dumps(persons))

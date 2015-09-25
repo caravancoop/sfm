@@ -2,134 +2,153 @@
 {% load i18n %}
 {% block content %}
 <section class="content">
-    <div class="inner-title-wrapper row header">
-         <h3 class="page-title">{% trans "Search a person" %}</h3>
-         <a href="/person/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
+
+  <tr id="table-row-template">
+    <td class="col-src"></td>
+    <td class="col-conf"></td>
+    <td class="col-del"></td>
+  </tr>
+  <div class="row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Person" %}</h1>
+      <div class="pull-right">
+        <a href="/person/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> Add New</a>
+      </div>
     </div>
-		<form>
-			<div class="row">
-				<div class="form-group col-sm-6">
-					<label for="name">Name</label>
-					<input type="text" class="form-control" id="name" placeholder="Enter Name">
-				</div>
-				<div class="form-group col-sm-6">
-					<label for="alias">Aliases or alternative spellings</label>
-					<input type="text" class="form-control" id="alias" placeholder="Enter Alias">
-				</div>
-			</div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <h3>{% trans "Search" %}</h3>
+    </div>
+  </div>
+  <div class="row">
+  <form> 
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" placeholder="Enter Name">
+      </div>
+      <div class="form-group col-sm-6">
+        <label for="alias">Aliases or alternative spellings</label>
+        <input type="text" class="form-control" id="alias" placeholder="Enter Alias">
+      </div>
+    </div>
 
-			<div class="row">
-				<div class="dropdown form-group col-sm-6">
-					<label>Membership</label>
-					<select id="people_srch_membership">
-						<option>Choose or create...</option>
-						<option value="">Commander</option>
-						<option value="">Sergent</option>
-					</select>
-				</div>
+    <div class="row">
+      <div class="dropdown form-group col-sm-6">
+        <label>Membership</label>
+        <select id="people_srch_membership">
+          <option>Choose or create...</option>
+          <option value="">Commander</option>
+          <option value="">Sergent</option>
+        </select>
+      </div>
 
-				<div class="dropdown form-group col-sm-2">
-					<label>Death date</label>
-					<select id="people_srch_deathdate">
-						<option>dd</option>
-						<option value="">01</option>
-						<option value="">02</option>
-					</select>
-				</div>
+      <div class="dropdown form-group col-sm-2">
+        <label>Death date</label>
+        <select id="people_srch_deathdate">
+          <option>dd</option>
+          <option value="">01</option>
+          <option value="">02</option>
+        </select>
+      </div>
 
-				<div class="dropdown form-group col-sm-2">
-					<label>Month</label>
-					<select id="people_srch_deathdate">
-						<option>mm</option>
-						<option value="">January</option>
-						<option value="">February</option>
-						<option value="">March</option>
-						<option value="">April</option>
-						<option value="">May</option>
-						<option value="">June</option>
-						<option value="">July</option>
-						<option value="">August</option>
-						<option value="">September</option>
-						<option value="">October</option>
-						<option value="">November</option>
-						<option value="">December</option>
-					</select>
-				</div>
+      <div class="dropdown form-group col-sm-2">
+        <label>Month</label>
+        <select id="people_srch_deathdate">
+          <option>mm</option>
+          <option value="">January</option>
+          <option value="">February</option>
+          <option value="">March</option>
+          <option value="">April</option>
+          <option value="">May</option>
+          <option value="">June</option>
+          <option value="">July</option>
+          <option value="">August</option>
+          <option value="">September</option>
+          <option value="">October</option>
+          <option value="">November</option>
+          <option value="">December</option>
+        </select>
+      </div>
 
-				<div class="dropdown form-group col-sm-2">
-					<label>Year</label>
-					<select id="people_srch_deathdate">
-						<option>yyyy</option>
-						<option value="">2015</option>
-						<option value="">2014</option>
-					</select>
-				</div>
-			</div>
+      <div class="dropdown form-group col-sm-2">
+        <label>Year</label>
+        <select id="people_srch_deathdate">
+          <option>yyyy</option>
+          <option value="">2015</option>
+          <option value="">2014</option>
+        </select>
+      </div>
+    </div>
 
 
-			<div class="row">
-				<div class="dropdown form-group col-sm-6">
-					<label>Radius</label>
-					<select id="people_srch_radius">
-						<option>1 - 25km</option>
-						<option value="1">1 km</option>
-						<option value="2">2 km</option>
-						<option value="3">3 km</option>
-						<option value="4">4 km</option>
-						<option value="5">5 km</option>
-						<option value="6">6 km</option>
-					</select>
-				</div>
+    <div class="row">
+      <div class="dropdown form-group col-sm-6">
+        <label>Radius</label>
+        <select id="people_srch_radius">
+          <option>1 - 25km</option>
+          <option value="1">1 km</option>
+          <option value="2">2 km</option>
+          <option value="3">3 km</option>
+          <option value="4">4 km</option>
+          <option value="5">5 km</option>
+          <option value="6">6 km</option>
+        </select>
+      </div>
 
-				<div class="form-group col-sm-2">
-					<label for="latitude">Longitude</label>
-					<input type="text" class="form-control" id="latitude" placeholder="12.73">
-				</div>
+      <div class="form-group col-sm-2">
+        <label for="latitude">Longitude</label>
+        <input type="text" class="form-control" id="latitude" placeholder="12.73">
+      </div>
 
-				<div class="form-group col-sm-2">
-					<label for="longitude">Latitude</label>
-					<input type="text" class="form-control" id="longitude" placeholder="81.45">
-				</div>
+      <div class="form-group col-sm-2">
+        <label for="longitude">Latitude</label>
+        <input type="text" class="form-control" id="longitude" placeholder="81.45">
+      </div>
 
-				<div class="location col-sm-2">
-					<!-- <i class="fa fa-map-marker fa-2x"></i> -->
-				</div>
+      <div class="location col-sm-2">
+        <!-- <i class="fa fa-map-marker fa-2x"></i> -->
+      </div>
 
-			</div>
-		</form>
+    </div>
+  </form>
+  </div>
 
-		<div class="row">
-			<div class="col-sm-12 form-group">
-				<label for="people_srch_post">{{ persons|length }} Results
-					<div class="actions">
-						<button type="button" class="btn sfm-btn-action">Export <i class="fa fa-share-square-o"></i></button>
-					</div>
-				</label>
-			</div>
-		</div>
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      <label for="people_srch_post">{{ persons|length }} Results
+        <div class="actions">
+          <button type="button" class="btn sfm-btn-action">Export <i class="fa fa-share-square-o"></i></button>
+        </div>
+      </label>
+    </div>
+  </div>
 
-		<div class="row">
-			<div class="table-responsive col-sm-12">
-				<table class="table table-bordered table-striped">
-					<thead>
-						<tr>
-							<th class="col-sm-3"><span class="caret"></span> Name</th>
-							<th class="col-sm-4"><span class="caret"></span> Alias</th>
-							<th class="col-sm-5"><span class="caret"></span> Notes</th>
-						</tr>
-					</thead>
-					<tbody>
-                        {% for person in persons %}
-						<tr data-person-id="{{ person.id }}">
-							<td>{{ person.name }}</td>
-							<td>{{ person.alias }}</td>
-							<td>{{ person.notes }}
-								<i class="fa fa-times-circle fa-lg actions"></i>
-							</td>
-						</tr>
-                        {% endfor %}
-				</div>
-			</div>
+  <div class="row">
+    <div class="table-responsive col-sm-12">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th class="col-sm-3"><span class="caret"></span> Name</th>
+            <th class="col-sm-4"><span class="caret"></span> Alias</th>
+            <th class="col-sm-5"><span class="caret"></span> Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for person in persons %}
+            <tr data-person-id="{{ person.id }}">
+              <td>{{ person.name }}</td>
+              <td>{{ person.alias }}</td>
+              <td>{{ person.notes }}
+                <i class="fa fa-times-circle fa-lg actions"></i>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-		</section>
-	{% endblock %}
+</section>
+{% endblock %}

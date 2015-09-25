@@ -12,6 +12,8 @@ from person.views import *
 
 urlpatterns = i18n_patterns(
     '',
+    url(r'^organization/', include('organization.urls')),
+    url(r'^membership/', include('membership.urls')),
     url(r'^person/', include('person.urls')),
     url(r'^modal/', include('modal.urls')),
     url(r'^translate/', include('translation.urls')),
