@@ -25,7 +25,8 @@
 
   <!--  test-->
   <!--  TABLE ROW TEMPLATE -->
-  <li id="source-template2" class="hide">
+<div id="source-template2" class="hide">
+  <li >
     <p class="col-sm-6 src_name"></p>
     <p class="col-sm-4 src_conf"></p>
     <p class="col-sm-2 src_del">
@@ -34,6 +35,8 @@
       </span>
     </p>
   </li>
+</div>
+
 
   <script type="text/javascript">
     window.CSRF_TOKEN = "{{ csrf_token }}";
@@ -54,10 +57,10 @@
   });
   //qiuck fix for action btn menu
   $(function () {
-    // $('.input-actions').on('mouseleave click', function(){
-    //   $btn_id = $(this).closest('.popover').attr('id');
-    //   $('[aria-describedby=' + $btn_id+']').trigger("click");
-    // });
+    $('.input-actions').on('mouseleave click', function(){
+      $btn_id = $(this).closest('.popover').attr('id');
+      $('[aria-describedby=' + $btn_id+']').trigger("click");
+    });
 
     $('[data-toggle="popover"]').popover({
       container: 'body',
