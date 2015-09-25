@@ -3,27 +3,36 @@ var sourceObject = [];
 var versionObject = [];
 var object_name, object_id, field_name;
 
+// grabData bound to add button in souce modal
 function grabData() {
 
+	//these values are taken from the link in the drop down select menu
 	var field_str = $('.modalBox').data('field-str');
 	var model_id = $('.modalBox').data('model-id');
 
+
+	//grab the value from the modal input field
 	var source = $(".modal-body").find("." + model_id + "_src_addSource").val();
+	//grab the value from the modal select field
 	var confidence = $(".modal-body").find("." + model_id + "_src_addConfidence").val();
 
+	//push the values as an object literal in an object array
 	genericObject.push({source: source, confidence: confidence});
 
-	removeListElements();
-	createSourcesList(genericObject);
+// the two next functions combined refresh the list
+	removeListElements();//destroy the list
+	createSourcesList(genericObject);//regenerate the list
 }
 
+
+// bound to the save button
+// adds the person to the database by way of ajax POST
 $('.addPerson').on('click', function() {
 
-	console.log(sourceObject);
 
 	var model_object_id = $('.modalBox').data('model-object-id');
-	console.log("model_object_id: " + model_object_id);
 
+	// if user is not 0, then you are updating the user
 	if(model_object_id == 0) {
 		model_object_id = "add";
 	}
@@ -58,6 +67,7 @@ $('.addPerson').on('click', function() {
 	});
 });
 
+// autocomplete for translate language
 function autoFill () {
 	$("#modal_tr_language").autocomplete({
 		// request.term needs to be passed up to the server.
@@ -72,22 +82,27 @@ function autoFill () {
 	});
 }
 
+//remove all the li elements
 function removeListElements () {
+	// remove this element from the dom
 	$('#sources_list > li').remove();
 }
 
+
 $('#complexFieldModal').on('shown.bs.modal', function () {
 
+// update selectpicker after changes for dynamic reasons
 	$('select').selectpicker('refresh');
 
+	// modal header div attributes
 	object_name = $('.modal-header').data('field-object-name');
 	object_id = $('.modal-header').data('field-object-id');
 	field_name = $('.modal-header').data('field-attr-name');
 	modal_type = $('.modal-header').data('modal-type');
 	var getURL = "/" + modal_type + "/" + object_name + "/" + object_id + "/" + field_name;
 
-	console.log(modal_type);
-	console.log(object_name + " " + object_id + " " + field_name);
+	// console.log(modal_type);
+	// console.log(object_name + " " + object_id + " " + field_name);
 
 	genericGetFunction(object_name, object_id, field_name, modal_type, getURL);
 
@@ -98,21 +113,27 @@ function genericGetFunction (object_name, object_id, field_name, modal_type, get
 
 	console.log(object_id);
 
+	//if this is the version modal
 	if (modal_type === "version") {
+		// get the language value from the select option
 		var language = document.getElementById('people_vr_language').value;
-
+		// add the language to the current path
 		getURL = getURL + "/" + language;
 	}
+	// this is useless ****
 	else if (modal_type === "source" || modal_type === "translate"){
 		getURL = getURL;
 	}
+	// *****
 
 	$.ajax({
 		type: "GET",
 		url: getURL,
 		dataType: "json",
-		success: function (response, status) {
-			console.log(response);
+		// sucess callback function
+		success: function (response, status) { //no point in passing the status as an argument
+			// console.log(getURL);
+			// console.log(response);
 			separateObjects(response, modal_type);
 		},
 		error: function (request, status, error) {
@@ -142,6 +163,7 @@ function separateObjects(response, modal_type) {
 
 	for (var i in response) {
 		// console.log(response[i]);
+		//push the values of the objetc property in the genericObjecct array
 		genericObject.push(response[i]);
 	}
 
@@ -159,7 +181,7 @@ function separateObjects(response, modal_type) {
 
 function createSourcesList (genericObject) {
 	sourceObject = genericObject;
-	console.log(sourceObject);
+	// console.log(sourceObject);
 
 	// Get a reference to the sources list in the main DOM.
 	var sourcesList = document.getElementById('sources_list');
@@ -188,13 +210,13 @@ function createSourcesList (genericObject) {
 
 		}
 
-		var tmpl = document.getElementById('source-template').content.cloneNode(true);
-
-		tmpl.querySelector('.src_name').textContent = sourceInfo.source;
-		tmpl.querySelector('.src_confidence').textContent = confidenceString;
-		tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
-
-		sourcesList.appendChild(tmpl);
+		// var tmpl = document.getElementById('source-template').content.cloneNode(true);
+		//
+		// tmpl.querySelector('.src_name').textContent = sourceInfo.source;
+		// tmpl.querySelector('.src_confidence').textContent = confidenceString;
+		// tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
+		//
+		// sourcesList.appendChild(tmpl);
 	}
 }
 
@@ -272,7 +294,7 @@ function createTranslationsList (genericObject) {
 
 function changeLanguage () {
 
-	console.log("Change Language");
+	// console.log("Change Language");
 	var language = document.getElementById('people_vr_language').value;
 
 	$.ajax({

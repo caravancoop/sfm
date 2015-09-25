@@ -6,26 +6,35 @@
 
 <div class="modal-body row">
   <div class="people_src_info col-sm-6">
-    <ul id="sources_list" data-role="listview">
-      <h5 class="col-sm-3">Source</h5>
-      <h5 class="col-sm-7">Confidence</h5>
+
+
+
+
+    <ul class="sources_list" data-role="listview">
+      <h5 class="col-sm-6">Source</h5>
+      <h5 class="col-sm-4">Confidence</h5>
       <h5 class="col-sm-2">Delete</h5>
-      <template id="source-template">
+
+      <!-- <template id="source-template">
         <li>
           <p class="col-sm-3 src_name"></p>
           <p class="col-sm-7 src_confidence"></p>
           <p class="col-sm-2 sources_list_remove"><span title="Delete Source"><i class="fa fa-trash fa-lg"></i></span></p>
         </li>
-      </template>
+      </template> -->
     </ul>
+
+
+
+
   </div>
 
   <div class="modal_src_add col-sm-6">
     <p>Add</p>
     <div class="row">
-      <input type="text" class="form-control person_src_addSource" placeholder="Enter Source">
+      <input type="text" class="form-control person_src_addSource --src-name" placeholder="Enter Source">
       <div class=" form-group dropdown col-sm-12">
-        <select class="person_src_addConfidence">
+        <select class="person_src_addConfidence --src-conf">
           <option>Level of confidence</option>
           <option value="1">Low</option>
           <option value="2">Medium</option>
@@ -33,7 +42,7 @@
         </select>
       </div>
     </div>
-    <button type="button" class="btn center-block sfm-btn-action" onclick="grabData()">Add</btn>
+    <button type="button" class="btn center-block sfm-btn-action --src-add-btn" >Add</btn>
     </div>
   </div>
 

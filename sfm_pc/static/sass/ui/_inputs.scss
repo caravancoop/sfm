@@ -1,0 +1,27 @@
+$ph-ft-weight:$ft-light;
+$ph-ft-style:italic;
+
+
+::-webkit-input-placeholder {
+   font-weight:$ph-ft-weight;
+   font-style:$ph-ft-style;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+  font-weight:$ph-ft-weight;
+  font-style:$ph-ft-style;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+  font-weight:$ph-ft-weight;
+  font-style:$ph-ft-style;
+}
+
+:-ms-input-placeholder {
+  font-weight:$ph-ft-weight;
+  font-style:$ph-ft-style;
+}
+
+input[type=text]{
+  font-weight:$ft-light;
+};

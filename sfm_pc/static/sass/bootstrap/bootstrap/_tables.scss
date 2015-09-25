@@ -111,8 +111,13 @@ th {
 // Default zebra-stripe styles (alternating gray and transparent backgrounds)
 
 .table-striped {
-  > tbody > tr:nth-of-type(odd) {
-    background-color: $table-bg-accent;
+  // > tbody > tr:nth-of-type(odd) {
+  //   background-color: $table-bg-accent;
+  // }
+
+  //modified by frank
+  > tbody > tr:nth-of-type(even) {
+    background-color:$table-even-bg-clr;
   }
 }
 

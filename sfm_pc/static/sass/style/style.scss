@@ -1,13 +1,15 @@
-@import "../sass-core/_core-functions.scss";
+
 @import "../sass-core/_core-colors.scss";
 @import "../sass-core/_core-queries.scss";
 @import "../sass-core/_core-defaults.scss";
 @import "../bootstrap/_bootstrap.scss";
 
-@import "../bootstrap/bootstrap/_theme.scss";
-@import "../bootstrap/bootstrap/mixins/_buttons.scss";
-@import "../css/bootstrap-select.min.css";
+@import "../sass-core/_core-functions.scss";
 
+@import "../css/bootstrap-select.min.css";
+@import "../ui/_buttons.scss";
+@import "../ui/_inputs.scss";
+@import "../ui/_popovers.scss";
 body, html ,*, li, ul{
   box-sizing:border-box;
   margin:0;
@@ -17,35 +19,18 @@ body, html ,*, li, ul{
 
 body, html{
   @include hw();
+  font-size: 16px;
 }
 
 body{
-  font-family: 'Open Sans', sans-serif;
+  // font-family: 'Open Sans', sans-serif;
   font-weight:100;
-  font-size: 16px;
+line-height: inherit;
   background-color: white;
   color: $default-font-clr;
-  transition:all 1.5s ease;
 }
-h1,h2,h3,h4,h5{
-  padding:0;
-  margin:0;
-}
- h1{
-  font-size:3em;
- }
- h2{
-  font-size:2.5em;
- }
- h3{
-  font-size:2em;
- }
- h4{
-  font-size:1.5em;
- }
- h5{
-  font-size:1em;
- }
+
+
  // { @include btn-styles($sfm-orange);}
 object{
   width:100%;
@@ -57,4 +42,3 @@ object{
  @import "../snippets/_content.scss";
  @import "../snippets/_login.scss";
  @import "../snippets/_modal.scss";
- @import "../ui/_buttons.scss";

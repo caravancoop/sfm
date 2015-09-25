@@ -13,16 +13,16 @@
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 </head>
 <body>
+  {% include "sidebar.html" %}
+
+  {% block content %}{% endblock %}
   <script type="text/javascript">
     window.CSRF_TOKEN = "{{ csrf_token }}";
     window.LANG = "{{ LANGUAGE_CODE }}";
   </script>
-  {% include "sidebar.html" %}
-
-  {% block content %}{% endblock %}
-  <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
   <script src="{% static "js/script.js" %}"></script>
   <script src="{% static "js/mainjs.js" %}"></script>
+  <script src="{% static "js/newjs.js" %}"></script>
   <script>
   $(document).ready(function() {
     $('select').selectpicker('show');
