@@ -96,11 +96,9 @@
     },
     // this function sets the 3 dimentional array indexes specific to the modal and the input field
     setArrayIndexes:function(el_index1, el_index2){
-      //set indexes
+      //set gloabal indexes
       index1 = el_index1;
       index2 = el_index2;
-      // index1 = this.$el_modal.find('.modal-header')[0].dataset.fieldObjectName;
-      // index2 = this.$el_modal.find('.modal-header')[0].dataset.fieldAttrName;
       //test and set index parameters for the modal views
       if(this.sourceObjArr[index1] === undefined && this.sourceObjArr[index2] === undefined){
         this.sourceObjArr[index1]=[];
