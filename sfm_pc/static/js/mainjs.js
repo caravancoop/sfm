@@ -27,45 +27,45 @@ function grabData() {
 
 // bound to the save button
 // adds the person to the database by way of ajax POST
-$('.addPerson').on('click', function() {
-
-
-	var model_object_id = $('.modalBox').data('model-object-id');
-
-	// if user is not 0, then you are updating the user
-	if(model_object_id == 0) {
-		model_object_id = "add";
-	}
-
-	var name = document.getElementById('Person_PersonName').value;
-	var alias = document.getElementById('Person_PersonAlias').value;
-	var notes = document.getElementById('Person_PersonNotes').value;
-
-	var data = {
-		Person_PersonName : {
-			"value" : name,
-			"sources" : sourceObject
-		},
-		Person_PersonAlias : {
-			"value" : alias,
-			"sources" : versionObject
-		},
-		Person_PersonNotes : {
-			"value" : notes
-		},
-	};
-	$.ajax({
-		type: "POST",
-		url: "/" + window.LANG + "/person/" + model_object_id + "/",
-		data: {
-			csrfmiddlewaretoken: window.CSRF_TOKEN,
-			person: JSON.stringify(data)
-		},
-		success: function(response, status){
-			console.log(response);
-		}
-	});
-});
+// $('.addPerson').on('click', function() {
+//
+//
+// 	var model_object_id = $('.modalBox').data('model-object-id');
+//
+// 	// if user is not 0, then you are updating the user
+// 	if(model_object_id == 0) {
+// 		model_object_id = "add";
+// 	}
+//
+// 	var name = document.getElementById('Person_PersonName').value;
+// 	var alias = document.getElementById('Person_PersonAlias').value;
+// 	var notes = document.getElementById('Person_PersonNotes').value;
+//
+// 	var data = {
+// 		Person_PersonName : {
+// 			"value" : name,
+// 			"sources" : sourceObject
+// 		},
+// 		Person_PersonAlias : {
+// 			"value" : alias,
+// 			"sources" : versionObject
+// 		},
+// 		Person_PersonNotes : {
+// 			"value" : notes
+// 		},
+// 	};
+// 	$.ajax({
+// 		type: "POST",
+// 		url: "/" + window.LANG + "/person/" + model_object_id + "/",
+// 		data: {
+// 			csrfmiddlewaretoken: window.CSRF_TOKEN,
+// 			person: JSON.stringify(data)
+// 		},
+// 		success: function(response, status){
+// 			console.log(response);
+// 		}
+// 	});
+// });
 
 // autocomplete for translate language
 function autoFill () {
@@ -143,19 +143,19 @@ function genericGetFunction (object_name, object_id, field_name, modal_type, get
 }
 
 //Remove sources from the source modal
-$(document).on("click", ".sources_list_remove", function (event) {
-	var id = $(this).attr('id');
-
-	for(var i = 0; i < genericObject.length; i++) {
-		if(genericObject[i].source === id) {
-			genericObject.splice(i, 1);
-		}
-	}
-
-	//Remove all elements from the existing list and create a new one.
-	removeListElements();
-	createSourcesList(genericObject);
-});
+// $(document).on("click", ".sources_list_remove", function (event) {
+// 	var id = $(this).attr('id');
+//
+// 	for(var i = 0; i < genericObject.length; i++) {
+// 		if(genericObject[i].source === id) {
+// 			genericObject.splice(i, 1);
+// 		}
+// 	}
+//
+// 	//Remove all elements from the existing list and create a new one.
+// 	removeListElements();
+// 	createSourcesList(genericObject);
+// });
 
 function separateObjects(response, modal_type) {
 	//Setting the content of genericObject to an empty object
