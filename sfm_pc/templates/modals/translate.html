@@ -3,37 +3,29 @@
   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
   <h4 class="modal-title">{% trans "View/Edit Translations" %}</h4>
 </div>
-
-<div class="modal-body">
-  <div class="row">
-
-    <div class="modal_tr_info col-sm-8">
-      <table class="table" id="translate_table">
-        <thead>
+<div class="modal-body row">
+  <div class="modal_tr_info col-sm-8">
+    <ul class="languages_list" id="translate_table">
+      <h5 class="col-sm-6">Language</h5>
+      <h5 class="col-sm-6">Translation</h5>
+      <!-- <tbody id="translate_table_body">
+        <template id="translate_template">
           <tr>
-            <th>Language</th>
-            <th>Translation</th>
+            <td class="tr_language"></td>
+            <td class="tr_value"></td>
           </tr>
-        </thead>
-        <tbody id="translate_table_body">
-          <template id="translate_template">
-            <tr>
-              <td class="tr_language"></td>
-              <td class="tr_value"></td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
-    </div>
+        </template>
+      </tbody> -->
+    </ul>
+  </div>
 
-    <div class="modal_tr_add col-sm-4">
-      <p>Add a Language:</p>
-      <div class="row">
-        <input type="text" class="form-control col-sm-12" id="modal_tr_language" value="" placeholder="Start typing..." onchange="autoFill()" oninput="autoFill()">
-        <input type="text" class="form-control col-sm-12" id="modal_tr_value" placeholder="Enter Translation">
-      </div>
-      <button type="button" class="btn sfm-btn-action center-block addTranslation" onclick="addTranslation()">Add</btn>
-      </div>
+  <div class="modal_tr_add col-sm-4">
+    <p>Add a Language:</p>
+    <div class="row">
+      <input type="text" class="form-control col-sm-12 --lang-name" placeholder="Start typing...">
+      <input type="text" class="form-control col-sm-12 --lang-trans" placeholder="Enter Translation">
+    </div>
+    <button type="button" class="btn sfm-btn-action center-block addTranslation --lang-add-btn" >Add</btn>
     </div>
   </div>
 

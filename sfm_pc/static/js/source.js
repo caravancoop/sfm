@@ -29,8 +29,8 @@ var source = (function(){
       this.$mdFieldName = null;
       this.$mdModalType = null;
 
-      this.response = null;
-      this.$tblRowTemplate = null;
+      // this.response = null;
+      this.$rowTemplate = null;
       this.$sourceList = null;
     },
     getAll:function(){
@@ -110,12 +110,12 @@ var source = (function(){
           confidenceString = "Def";
         }
         // create list element and add it to the list in the appropriate modal
-        this.$tblRowTemplate = $('#source-template2').find('li').clone().removeClass('hide');
-        this.$tblRowTemplate.find('.src_name').html(sourceInfo.source);
-        this.$tblRowTemplate.find('.src_conf').html(confidenceString);
-        this.$tblRowTemplate.find('.src_del').attr('id', sourceInfo.id);
+        this.$rowTemplate = $('#source-template').find('li').clone().removeClass('hide');
+        this.$rowTemplate.find('.src_name').html(sourceInfo.source);
+        this.$rowTemplate.find('.src_conf').html(confidenceString);
+        this.$rowTemplate.find('.src_del').attr('id', sourceInfo.id);
 
-        this.$sourceList.append(this.$tblRowTemplate);  //append the row to the list
+        this.$sourceList.append(this.$rowTemplate);  //append the row to the list
       }
     },
     //this function dynamically assigns the element vars everytime a modal is triggered

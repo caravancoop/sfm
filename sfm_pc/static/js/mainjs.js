@@ -174,7 +174,7 @@ function separateObjects(response, modal_type) {
 		createVersionsList(genericObject);
 	}
 	else if (modal_type === "translate"){
-		createTranslationsList(genericObject);
+		// createTranslationsList(genericObject);
 	}
 
 }
@@ -273,24 +273,24 @@ function createVersionsList (genericObject) {
 	}
 }
 
-function createTranslationsList (genericObject) {
-
-	$('#translate_table').find("tr:not(:has(th))").remove();
-
-	// Get a reference to the translation list in the main DOM.
-	var translateList = document.getElementById('translate_table');
-
-	for(var i = 0; i < genericObject.length; i++) {
-
-		var translateInfo = genericObject[i];
-		var tmpl = document.getElementById('translate_template').content.cloneNode(true);
-
-		tmpl.querySelector('.tr_language').textContent = translateInfo.lang;
-		tmpl.querySelector('.tr_value').textContent = translateInfo.value;
-
-		translateList.appendChild(tmpl);
-	}
-}
+// function createTranslationsList (genericObject) {
+//
+// 	$('#translate_table').find("tr:not(:has(th))").remove();
+//
+// 	// Get a reference to the translation list in the main DOM.
+// 	var translateList = document.getElementById('translate_table');
+//
+// 	for(var i = 0; i < genericObject.length; i++) {
+//
+// 		var translateInfo = genericObject[i];
+// 		var tmpl = document.getElementById('translate_template').content.cloneNode(true);
+//
+// 		tmpl.querySelector('.tr_language').textContent = translateInfo.lang;
+// 		tmpl.querySelector('.tr_value').textContent = translateInfo.value;
+//
+// 		translateList.appendChild(tmpl);
+// 	}
+// }
 
 function changeLanguage () {
 
@@ -339,23 +339,23 @@ function revertVersion () {
 	});
 }
 
-function getTranslation () {
-
-	$.ajax({
-		type: "GET",
-		url: "/translate/" + object_name + "/" + object_id + "/" + field_name,
-		dataType: "json",
-		crossdomain: true,
-		success: function (response, status) {
-			console.log(response + "get Translation");
-			separateObjects(response, "translate");
-		},
-		error: function (request, status, error) {
-			console.log(error + "error in Translation");
-		}
-	});
-
-}
+// function getTranslation () {
+//
+// 	$.ajax({
+// 		type: "GET",
+// 		url: "/translate/" + object_name + "/" + object_id + "/" + field_name,
+// 		dataType: "json",
+// 		crossdomain: true,
+// 		success: function (response, status) {
+// 			console.log(response + "get Translation");
+// 			separateObjects(response, "translate");
+// 		},
+// 		error: function (request, status, error) {
+// 			console.log(error + "error in Translation");
+// 		}
+// 	});
+//
+// }
 
 function addTranslation () {
 

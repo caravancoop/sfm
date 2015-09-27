@@ -17,7 +17,7 @@
 
   {% block content %}{% endblock %}
   <!--  TABLE ROW TEMPLATE -->
-<div id="source-template2" class="hide">
+<div id="source-template" class="hide">
   <li >
     <p class="col-sm-6 src_name"></p>
     <p class="col-sm-4 src_conf"></p>
@@ -26,6 +26,13 @@
         <i class="fa fa-trash fa-lg"></i>
       </span>
     </p>
+  </li>
+</div>
+
+<div id="language-template" class="hide">
+  <li >
+    <p class="col-sm-6 lang_name"></p>
+    <p class="col-sm-6 lang_trans"></p>
   </li>
 </div>
 
@@ -49,10 +56,10 @@
   });
   //qiuck fix for action btn menu
   $(function () {
-    // $('.input-actions').on('mouseleave click', function(){
-    //   $btn_id = $(this).closest('.popover').attr('id');
-    //   $('[aria-describedby=' + $btn_id+']').trigger("click");
-    // });
+    $('.input-actions').on('mouseleave click', function(){
+      $btn_id = $(this).closest('.popover').attr('id');
+      $('[aria-describedby=' + $btn_id+']').trigger("click");
+    });
 
     $('[data-toggle="popover"]').popover({
       container: 'body',
