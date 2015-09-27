@@ -5,7 +5,6 @@ var source = (function(){
     sourceObjArr : [],
     fieldStrArr : [],
     modelArr : [],
-    foo:"bar",
     init:function(){
       this.cacheDom();
       this.bindEvents();
@@ -14,21 +13,21 @@ var source = (function(){
     cacheDom:function(){
       //the modal module
       this.$el_modal =  $('#complexFieldModal');
-      this.$srcNamer = null;//source name
-      this.$confLvlr = null;//level of confidence
-      this.$addBtnr = null;//add button
-      this.$el_popoverTriggerr = null; //get the btn trigger for the modal
-      this.$txtInputr = null; //get the input field that corresponds to the current modal
+      this.$srcName = null;//source name
+      this.$confLvl = null;//level of confidence
+      this.$addBtn = null;//add button
+      this.$el_popoverTrigger = null; //get the btn trigger for the modal
+      this.$txtInput = null; //get the input field that corresponds to the current modal
       this.$modalHeader = null; //modal header class
 
       this.fieldStr = null;
       this.dataModId = null;
 
       // modal header div attributes
-      this.$mdObjNamer = null;
+      this.$mdObjName = null;
       this.$mdObjId = null;
-      this.$mdFieldNamer = null;
-      this.$mdModalTyper = null;
+      this.$mdFieldName = null;
+      this.$mdModalType = null;
 
       this.response = null;
       this.$tblRowTemplate = null;
@@ -155,32 +154,32 @@ var source = (function(){
       // console.log(this.sourceObjArr['person']['Person_PersonName'][0]);
       // console.log(this.sourceObjArr['person']['Person_PersonName']);
 
-       this.sourceObjArr['person']['Person_PersonName'].clean();
-       this.sourceObjArr['person']['Person_PersonAlias'].clean();
+      this.sourceObjArr['person']['Person_PersonName'].clean();
+      this.sourceObjArr['person']['Person_PersonAlias'].clean();
       //  var nameObj = this.sourceObjArr['person']['Person_PersonName'];
       console.log(this.sourceObjArr['person']['Person_PersonName']);
       var data = {
-    Person_PersonName : {
-    "value" : $("#Person_PersonName").val(),
-    "sources" : this.sourceObjArr['person']['Person_PersonName'],
-    },
+        Person_PersonName : {
+          "value" : $("#Person_PersonName").val(),
+          "sources" : this.sourceObjArr['person']['Person_PersonName'],
+        },
         Person_PersonAlias : {
-    "value" : $("#Person_PersonAlias").val(),
-    "sources" : this.sourceObjArr['person']['Person_PersonAlias'],
-    }
-    };
+          "value" : $("#Person_PersonAlias").val(),
+          "sources" : this.sourceObjArr['person']['Person_PersonAlias'],
+        }
+      };
       $.ajax({
-    type: "POST",
-    url: "/" + window.LANG + "/person/" + this.$mdObjId + "/",
-    data: {
-    csrfmiddlewaretoken: window.CSRF_TOKEN,
-    person: JSON.stringify(data)
+        type: "POST",
+        url: "/" + window.LANG + "/person/" + this.$mdObjId + "/",
+        data: {
+          csrfmiddlewaretoken: window.CSRF_TOKEN,
+          person: JSON.stringify(data)
+        },
+        success: function(response, status){
+          console.log(response);
+        }
+      });
     },
-    success: function(response, status){
-    console.log(response);
-    }
-    });
-  },
     // this function sets the 3 dimentional array indexes specific to the modal and the input field
     setArrayIndexes:function(el_index1, el_index2){
       //set gloabal indexes

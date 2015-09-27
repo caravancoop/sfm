@@ -49,10 +49,10 @@
   });
   //qiuck fix for action btn menu
   $(function () {
-    $('.input-actions').on('mouseleave click', function(){
-      $btn_id = $(this).closest('.popover').attr('id');
-      $('[aria-describedby=' + $btn_id+']').trigger("click");
-    });
+    // $('.input-actions').on('mouseleave click', function(){
+    //   $btn_id = $(this).closest('.popover').attr('id');
+    //   $('[aria-describedby=' + $btn_id+']').trigger("click");
+    // });
 
     $('[data-toggle="popover"]').popover({
       container: 'body',
