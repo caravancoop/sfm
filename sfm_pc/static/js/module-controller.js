@@ -6,25 +6,25 @@ var moduleController = (function(){
       // this.bindEvents();
     },
     cacheDom:function(){
+      this.$el_modal =  $('#complexFieldModal');
       this._srcModule = null;
       this._versModule = null;
       this._langModule = null;
     },
     // this function binds all the initial events to the selectors
     bindEvents:function(){
-      // this.$el_modal.on('shown.bs.modal', this.dynamicAssignments.bind(this));
-      // this.$el_modal.on('click', '.--src-add-btn', this.addSources.bind(this));
-      // this.$el_modal.on('click', '.src_del', this.deleteSource.bind(this));
       // $('body').on('click', '.addPerson', this.update.bind(this));
     },
     getModules:function(){
       this._srcModule = source.publicAPI();
+      this._langModule = language.publicAPI();
     }
   };
   modCtrl.init();
   return {
     dispModObjs: function(){
       console.log(modCtrl._srcModule);
+      console.log(modCtrl._langModule);
     }
   };
 })();

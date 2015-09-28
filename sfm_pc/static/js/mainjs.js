@@ -68,45 +68,45 @@ function grabData() {
 // });
 
 // autocomplete for translate language
-function autoFill () {
-	$("#modal_tr_language").autocomplete({
-		// request.term needs to be passed up to the server.
-
-		source: "/translate/languages/autocomplete",
-		success: function (response, status) {
-			console.log(response);
-		},
-		error: function (request, status, error) {
-			console.log(error);
-		}
-	});
-}
+// function autoFill () {
+// 	$("#modal_tr_language").autocomplete({
+// 		// request.term needs to be passed up to the server.
+//
+// 		source: "/translate/languages/autocomplete",
+// 		success: function (response, status) {
+// 			console.log(response);
+// 		},
+// 		error: function (request, status, error) {
+// 			console.log(error);
+// 		}
+// 	});
+// }
 
 //remove all the li elements
-function removeListElements () {
-	// remove this element from the dom
-	$('#sources_list > li').remove();
-}
+// function removeListElements () {
+// 	// remove this element from the dom
+// 	$('#sources_list > li').remove();
+// }
 
 
-$('#complexFieldModal').on('shown.bs.modal', function () {
-
-// update selectpicker after changes for dynamic reasons
-	$('select').selectpicker('refresh');
-
-	// modal header div attributes
-	object_name = $('.modal-header').data('field-object-name');
-	object_id = $('.modal-header').data('field-object-id');
-	field_name = $('.modal-header').data('field-attr-name');
-	modal_type = $('.modal-header').data('modal-type');
-	var getURL = "/" + modal_type + "/" + object_name + "/" + object_id + "/" + field_name;
-
-	// console.log(modal_type);
-	// console.log(object_name + " " + object_id + " " + field_name);
-
-	genericGetFunction(object_name, object_id, field_name, modal_type, getURL);
-
-});
+// $('#complexFieldModal').on('shown.bs.modal', function () {
+//
+// // update selectpicker after changes for dynamic reasons
+// 	$('select').selectpicker('refresh');
+//
+// 	// modal header div attributes
+// 	object_name = $('.modal-header').data('field-object-name');
+// 	object_id = $('.modal-header').data('field-object-id');
+// 	field_name = $('.modal-header').data('field-attr-name');
+// 	modal_type = $('.modal-header').data('modal-type');
+// 	var getURL = "/" + modal_type + "/" + object_name + "/" + object_id + "/" + field_name;
+//
+// 	// console.log(modal_type);
+// 	// console.log(object_name + " " + object_id + " " + field_name);
+//
+// 	genericGetFunction(object_name, object_id, field_name, modal_type, getURL);
+//
+// });
 
 //Genric AJAX call to get info for the modals
 function genericGetFunction (object_name, object_id, field_name, modal_type, getURL) {
@@ -157,68 +157,68 @@ function genericGetFunction (object_name, object_id, field_name, modal_type, get
 // 	createSourcesList(genericObject);
 // });
 
-function separateObjects(response, modal_type) {
-	//Setting the content of genericObject to an empty object
-	genericObject = [];
+// function separateObjects(response, modal_type) {
+// 	//Setting the content of genericObject to an empty object
+// 	genericObject = [];
+//
+// 	for (var i in response) {
+// 		// console.log(response[i]);
+// 		//push the values of the objetc property in the genericObjecct array
+// 		genericObject.push(response[i]);
+// 	}
+//
+// 	if (modal_type === "source" ) {
+// 		createSourcesList(genericObject);
+// 	}
+// 	else if (modal_type === "version") {
+// 		createVersionsList(genericObject);
+// 	}
+// 	else if (modal_type === "translate"){
+// 		// createTranslationsList(genericObject);
+// 	}
+//
+// }
 
-	for (var i in response) {
-		// console.log(response[i]);
-		//push the values of the objetc property in the genericObjecct array
-		genericObject.push(response[i]);
-	}
-
-	if (modal_type === "source" ) {
-		createSourcesList(genericObject);
-	}
-	else if (modal_type === "version") {
-		createVersionsList(genericObject);
-	}
-	else if (modal_type === "translate"){
-		// createTranslationsList(genericObject);
-	}
-
-}
-
-function createSourcesList (genericObject) {
-	sourceObject = genericObject;
-	// console.log(sourceObject);
-
-	// Get a reference to the sources list in the main DOM.
-	var sourcesList = document.getElementById('sources_list');
-
-	for(var i = 0; i < genericObject.length; i++) {
-
-		var confidenceString;
-		var sourceInfo = genericObject[i];
-
-		switch(sourceInfo.confidence) {
-
-			case "1":
-			confidenceString = "Low";
-			break;
-
-			case "2":
-			confidenceString = "Medium";
-			break;
-
-			case "3":
-			confidenceString = "High";
-			break;
-
-			default:
-			confidenceString = "Def";
-
-		}
-
-		// var tmpl = document.getElementById('source-template').content.cloneNode(true);
-		//
-		// tmpl.querySelector('.src_name').textContent = sourceInfo.source;
-		// tmpl.querySelector('.src_confidence').textContent = confidenceString;
-		// tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
-		//
-		// sourcesList.appendChild(tmpl);
-	}
-}
+// function createSourcesList (genericObject) {
+// 	sourceObject = genericObject;
+// 	// console.log(sourceObject);
+//
+// 	// Get a reference to the sources list in the main DOM.
+// 	var sourcesList = document.getElementById('sources_list');
+//
+// 	for(var i = 0; i < genericObject.length; i++) {
+//
+// 		var confidenceString;
+// 		var sourceInfo = genericObject[i];
+//
+// 		switch(sourceInfo.confidence) {
+//
+// 			case "1":
+// 			confidenceString = "Low";
+// 			break;
+//
+// 			case "2":
+// 			confidenceString = "Medium";
+// 			break;
+//
+// 			case "3":
+// 			confidenceString = "High";
+// 			break;
+//
+// 			default:
+// 			confidenceString = "Def";
+//
+// 		}
+//
+// 		// var tmpl = document.getElementById('source-template').content.cloneNode(true);
+// 		//
+// 		// tmpl.querySelector('.src_name').textContent = sourceInfo.source;
+// 		// tmpl.querySelector('.src_confidence').textContent = confidenceString;
+// 		// tmpl.querySelector('.sources_list_remove').id = sourceInfo.source;
+// 		//
+// 		// sourcesList.appendChild(tmpl);
+// 	}
+// }
 
 function createVersionsList (genericObject) {
 	versionObject = genericObject;

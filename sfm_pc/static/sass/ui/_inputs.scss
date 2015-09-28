@@ -25,3 +25,16 @@ $ph-ft-style:italic;
 input[type=text]{
   font-weight:$ft-light;
 };
+
+
+
+//* Autocomplete style
+.ui-menu-item {
+    height: $input-height-base;
+    line-height: $input-height-base;
+    overflow: hidden;
+    width: 100%;
+    padding-left: $padding-base-horizontal;
+    padding-right: $padding-base-horizontal;
+    cursor:pointer;
+}

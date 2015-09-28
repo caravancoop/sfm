@@ -54,19 +54,18 @@ var language = (function(){
       this.$el_popoverTrigger = null; //get the btn trigger for the modal
       this.$txtInput = null; //get the input field that corresponds to the current modal
       // this.$modalHeader = null; //modal header class
-
+      this.$addBtn = null;
       this.fieldStr = null;
       this.dataModId = null;
       this.$rowTemplate = null;
       this.$languageList = null;
       this.$langName = null;
       this.$langTrans = null;
-
     },
     bindEvents:function(){
       this.$el_modal.on('shown.bs.modal', this.dynamicAssignments.bind(this));
       this.$el_modal.on('click', '.--lang-add-btn', this.addLanguages.bind(this));
-      this.$el_modal.on('onchange oninput', '.--lang-name', this.autoFill.bind(this));
+      this.$el_modal.on('change input', '.--lang-name', this.autoFill.bind(this));
     },
     render:function(){
       this.$languageList.find('li').empty();//delete old list
@@ -122,8 +121,7 @@ var language = (function(){
       this.render();
     },
     autoFill:function(){
-      console.log("test");
-      this.langName.autocomplete({
+      this.$langName.autocomplete({
         // request options from the server.
         source: "/translate/languages/autocomplete",
     		success: function (response, status) {

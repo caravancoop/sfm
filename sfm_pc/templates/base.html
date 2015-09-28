@@ -28,6 +28,17 @@
     </p>
   </li>
 </div>
+<div id="version-template" class="hide">
+  <li >
+    <p class="col-sm-4 ver_vers"></p>
+    <p class="col-sm-6 ver_src-conf"></p>
+    <p class="col-sm-2 ver_rev">
+      <span title="Revert">
+        <i class="fa fa-undo fa-lg"></i>
+      </span>
+    </p>
+  </li>
+</div>
 
 <div id="language-template" class="hide">
   <li >
@@ -44,7 +55,8 @@
   <script src="{% static "js/script.js" %}"></script>
   <script src="{% static "js/mainjs.js" %}"></script>
   <script src="{% static "js/source.js" %}"></script>
-  <script src="{% static "js/translation.js" %}"></script>
+  <script src="{% static "js/language.js" %}"></script>
+  <script src="{% static "js/version.js" %}"></script>
   <script src="{% static "js/module-controller.js" %}"></script>
   <script>
   $(document).ready(function() {

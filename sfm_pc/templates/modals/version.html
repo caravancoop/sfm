@@ -3,16 +3,16 @@
 	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 	<h4 class="modal-title">{% trans "View/Revert Versions" %}</h4>
 </div>
-
 <div class="modal-body row">
 	<div class="people_vr_info col-sm-8">
-		<div class="row">
-			<h5 class="col-sm-3">Versions</h5>
+		<ul class="versions_list">
+			<h5 class="col-sm-4">Versions</h5>
 			<h5 class="col-sm-6"> Source & Confidence</h5>
-			<h5 class="col-sm-3">Revert</h5>
-		</div>
+			<h5 class="col-sm-2">Revert</h5>
+		</ul>
+	</div>
 
-		<div class="row">
+		<!-- <div class="row">
 			<ul id="versions_list">
 				<template id="version_template">
 					<table>
@@ -34,14 +34,14 @@
 				</template>
 			</ul>
 		</div>
-	</div>
+	</div> -->
 
 	<div class="modal_vr_add col-sm-4">
 		<p>Choose Language</p>
 		<div class="row">
-			<select id="people_vr_language" onchange="changeLanguage()">
+			<select class="--ver-lang" onchange="changeLanguage()">
 				{% for lang in langs %}
-				<option value="{{lang}}">{{lang}}</option>
+				<option value="{{lang.value}}">{{lang.label}}</option>
 				{% endfor %}
 			</select>
 		</div>
