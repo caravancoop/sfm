@@ -106,7 +106,7 @@ class OrganizationFoundingDate(ComplexField):
 @sourced
 class OrganizationDissolutionDate(ComplexField):
     object_ref = models.ForeignKey('Organization')
-    value = models.DateField(default=None, blank=True, null=True)
+    value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Date of disbandment")
 
 
