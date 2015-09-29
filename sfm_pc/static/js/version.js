@@ -7,9 +7,12 @@ var version = (function(){
     init:function(){
       this.cacheDom();
       this.bindEvents();
-      this.getAll();
+      // this.getAll();
     },
     getAll:function(){
+      this.verObjArr = [];
+      this.fieldStrArr = [];
+      this.modelArr = [];
       var self = this;
       $('.modalBox').each(function(){
         var versions = $(this).data('remote').replace('/modal', "");
@@ -38,7 +41,7 @@ var version = (function(){
           // success callback function
           success: function (response) {
             for (var i in response) {
-              if(patt.test(versions)){ //test if path contains versions
+              if(patt.test(versions) && typeof response[i] !== 'function'){ //test if path contains versions
                 this.verObjArr[index1][index2][this.verObjArr[index1][index2].length] = response[i];
               }
             }
@@ -89,6 +92,7 @@ var version = (function(){
       this.$versionList = $('.versions_list');
       this.fieldStr = this.$el_popoverTrigger[0].dataset.fieldStr;
       this.dataModId = this.$el_popoverTrigger[0].dataset.modelId;
+      this.getAll();
       this.render();
       this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
     },
@@ -104,6 +108,35 @@ var version = (function(){
         this.verObjArr[index1][index2] = [];
       }
     },
+    revertVersion:function(){
+      var version_id = $(event.target).closest('p').attr('id');
+      var data = {
+        "lang" : "en",
+        "id" : version_id
+      };
+
+      $.ajax({
+        type: "POST",
+        url: "/" + window.LANG + "/version/revert/" + object_name + "/" + object_id + "/" + field_name + "/",
+        // dataType: 'json',
+        data: {
+          csrfmiddlewaretoken: window.CSRF_TOKEN,
+          revert: JSON.stringify(data)
+        },
+        success: function (response, status) {
+          console.log(response);
+          var language = document.getElementById('people_vr_language').value;
+          getURL = "/version/" + object_name + "/" + object_id + "/" + field_name + "/" + language;
+          genericGetFunction(object_name, object_id, field_name, "version", getURL);
+        },
+        error: function (request, status, error) {
+          console.log(error);
+        }
+      });
+    },
+    changeLanguages:function(){
+
+    }
   };
   verModule.init();
   return {

@@ -7,9 +7,12 @@ var language = (function(){
     init:function(){
       this.cacheDom();
       this.bindEvents();
-      this.getAll();
+      // this.getAll();
     },
     getAll:function(){
+      this.langObjArr = [];
+      this.fieldStrArr = [];
+      this.modelArr = [];
       var self = this;
       $('.modalBox').each(function(){
         var languages = $(this).data('remote').replace('/modal', "");
@@ -38,7 +41,7 @@ var language = (function(){
           // success callback function
           success: function (response) {
             for (var i in response) {
-              if(patt.test(languages)){ //test if path contains languages
+              if(patt.test(languages) && typeof response[i] !== 'function'){ //test if path contains languages
                 this.langObjArr[index1][index2][this.langObjArr[index1][index2].length] = response[i];
               }
             }
@@ -92,13 +95,13 @@ var language = (function(){
       this.$txtInput = $('#' + this.$el_popoverTrigger[0].dataset.fieldStr);
       this.$modalHeader = this.$el_modal.find('.modal-header');
       this.$mdObjName = this.$modalHeader.data('field-object-name');
-      // this.$mdObjId = this.$modalHeader.data('field-object-id');
+      this.$mdObjId = this.$modalHeader.data('field-object-id');
       this.$mdFieldName = this.$modalHeader.data('field-attr-name');
       this.$mdModalType = this.$modalHeader.data('modal-type');
       this.$languageList = $('.languages_list');
       this.fieldStr = this.$el_popoverTrigger[0].dataset.fieldStr;
       this.dataModId = this.$el_popoverTrigger[0].dataset.modelId;
-
+      this.getAll();
       this.render();
       this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
     },
@@ -116,21 +119,43 @@ var language = (function(){
     },
     addLanguages:function(){
       this.langObjArr[index1][index2][this.langObjArr[index1][index2].length] = {lang: this.$langName.val(), value: this.$langTrans.val()};
-      this.$langName.val("");
-      this.$langTrans.val("");
+      this.update();
       this.render();
     },
     autoFill:function(){
+      console.log(this.$langName);
       this.$langName.autocomplete({
         // request options from the server.
         source: "/translate/languages/autocomplete",
+      });
+    },
+    update:function(){
+      var postData = {
+    		"value" : this.$langTrans.val(),
+    		"lang" : this.$langName.val()
+    	};
+      $.ajax({
+        context:langModule,
+    		type: "POST",
+    		url: "/" + window.LANG + "/translate/" + this.$mdObjName + "/" + this.$mdObjId + "/" + this.$mdFieldName + "/",
+    		data: {
+    			csrfmiddlewaretoken: window.CSRF_TOKEN,
+    			translation: JSON.stringify(postData)
+    		},
     		success: function (response, status) {
     			console.log(response);
+    			//on success, clear fields
+          this.$langName.val("");
+          this.$langTrans.val("");
+          this.getAll();
+          this.render();
+          console.log("success");
     		},
     		error: function (request, status, error) {
+    			console.log(status);
     			console.log(error);
     		}
-      });
+    	});
     }
   };
   langModule.init();

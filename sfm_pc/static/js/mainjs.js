@@ -357,29 +357,29 @@ function revertVersion () {
 //
 // }
 
-function addTranslation () {
-
-	var field_language_value = document.getElementById('modal_tr_value').value;
-	var field_language_translation = document.getElementById('modal_tr_language').value;
-	var data = {
-		"value" : field_language_value,
-		"lang" : field_language_translation
-	};
-
-	$.ajax({
-		type: "POST",
-		url: "/" + window.LANG + "/translate/" + object_name + "/" + object_id + "/" + field_name + "/",
-		data: {
-			csrfmiddlewaretoken: window.CSRF_TOKEN,
-			translation: JSON.stringify(data)
-		},
-		success: function (response, status) {
-			console.log(response);
-			getTranslation();
-		},
-		error: function (request, status, error) {
-			console.log(status);
-			console.log(error);
-		}
-	});
-}
+// function addTranslation () {
+//
+// 	var field_language_value = document.getElementById('modal_tr_value').value;
+// 	var field_language_translation = document.getElementById('modal_tr_language').value;
+// 	var data = {
+// 		"value" : field_language_value,
+// 		"lang" : field_language_translation
+// 	};
+//
+// 	$.ajax({
+// 		type: "POST",
+// 		url: "/" + window.LANG + "/translate/" + object_name + "/" + object_id + "/" + field_name + "/",
+// 		data: {
+// 			csrfmiddlewaretoken: window.CSRF_TOKEN,
+// 			translation: JSON.stringify(data)
+// 		},
+// 		success: function (response, status) {
+// 			console.log(response);
+// 			getTranslation();
+// 		},
+// 		error: function (request, status, error) {
+// 			console.log(status);
+// 			console.log(error);
+// 		}
+// 	});
+// }

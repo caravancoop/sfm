@@ -29,7 +29,6 @@ var moduleController = (function(){
   };
 })();
 
-(function(){
   //this Appends a clean function to the Array prototype
   Array.prototype.clean = function(deleteValue) {
     for (var i = 0; i < this.length; i++) {
@@ -40,4 +39,11 @@ var moduleController = (function(){
     }
     return this;
   };
-}());
+
+  Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};

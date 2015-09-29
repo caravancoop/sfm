@@ -2,7 +2,7 @@ var source = (function(){
   var index1, index2;
   var srcModule = {
     tempId: 0,
-    sourceObjArr : [],
+    srcObjArr : [],
     fieldStrArr : [],
     modelArr : [],
     init:function(){
@@ -33,12 +33,16 @@ var source = (function(){
       this.$rowTemplate = null;
       this.$sourceList = null;
     },
-    getAll:function(){
+    getAll:function(event){
+      this.srcObjArr = [];
+      this.fieldStrArr = [];
+      this.modelArr = [];
       var self = this;
       $('.modalBox').each(function(){
         var sources = $(this).data('remote').replace('/modal', "");
         var model = $(this).data('model-id');
         var fieldStr = $(this).data('field-str');
+        // console.log(fieldStr);
         if (self.$mdObjId === null || self.$mdObjId === undefined || self.$mdObjId === ""){
           self.$mdObjId =  $(this).data('model-object-id');
         }
@@ -61,9 +65,11 @@ var source = (function(){
           dataType: "json",
           // success callback function
           success: function (response) {
+
             for (var i in response) {
-              if(patt.test(sources)){ //test if path contains sources
-                this.sourceObjArr[index1][index2][this.sourceObjArr[index1][index2].length] = response[i];
+              if(patt.test(sources) && typeof response[i] !== 'function'){ //test if path contains sources
+                this.srcObjArr[index1][index2][this.srcObjArr[index1][index2].length] = response[i];
+
               }
             }
           },
@@ -88,10 +94,10 @@ var source = (function(){
     render:function(){
       // render the new list in the modal
       this.$sourceList.find('li').empty(); //delete old list
-      this.sourceObjArr[this.dataModId][this.fieldStr].clean();
-      for(var i = 0; i < this.sourceObjArr[this.dataModId][this.fieldStr].length; i++){
+      this.srcObjArr[this.dataModId][this.fieldStr].clean();
+      for(var i = 0; i < this.srcObjArr[this.dataModId][this.fieldStr].length; i++){
         var confidenceString;
-        var sourceInfo = this.sourceObjArr[this.dataModId][this.fieldStr][i];
+        var sourceInfo = this.srcObjArr[this.dataModId][this.fieldStr][i];
 
         switch(sourceInfo.confidence) {
           case "1":
@@ -135,50 +141,9 @@ var source = (function(){
       this.$sourceList = $('.sources_list');
       this.fieldStr = this.$el_popoverTrigger[0].dataset.fieldStr;
       this.dataModId = this.$el_popoverTrigger[0].dataset.modelId;
-
+      this.getAll(event);
       this.render();
       this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
-    },
-    update:function(){
-      var name, alias;
-      for(var i = 0; i < this.sourceObjArr['person']['Person_PersonName'].length; ++i){
-        delete this.sourceObjArr['person']['Person_PersonName'][i].id;
-        // console.log(this.sourceObjArr['person']['Person_PersonName'][i].id);
-        // console.log("test");
-      }
-      for(var i = 0; i < this.sourceObjArr['person']['Person_PersonAlias'].length; ++i){
-        delete this.sourceObjArr['person']['Person_PersonAlias'][i].id;
-        // console.log(this.sourceObjArr['person']['Person_PersonName'][i].id);
-        // console.log("test");
-      }
-      // console.log(this.sourceObjArr['person']['Person_PersonName'][0]);
-      // console.log(this.sourceObjArr['person']['Person_PersonName']);
-
-      this.sourceObjArr['person']['Person_PersonName'].clean();
-      this.sourceObjArr['person']['Person_PersonAlias'].clean();
-      //  var nameObj = this.sourceObjArr['person']['Person_PersonName'];
-      console.log(this.sourceObjArr['person']['Person_PersonName']);
-      var data = {
-        Person_PersonName : {
-          "value" : $("#Person_PersonName").val(),
-          "sources" : this.sourceObjArr['person']['Person_PersonName'],
-        },
-        Person_PersonAlias : {
-          "value" : $("#Person_PersonAlias").val(),
-          "sources" : this.sourceObjArr['person']['Person_PersonAlias'],
-        }
-      };
-      $.ajax({
-        type: "POST",
-        url: "/" + window.LANG + "/person/" + this.$mdObjId + "/",
-        data: {
-          csrfmiddlewaretoken: window.CSRF_TOKEN,
-          person: JSON.stringify(data)
-        },
-        success: function(response, status){
-          console.log(response);
-        }
-      });
     },
     // this function sets the 3 dimentional array indexes specific to the modal and the input field
     setArrayIndexes:function(el_index1, el_index2){
@@ -186,11 +151,11 @@ var source = (function(){
       index1 = el_index1;
       index2 = el_index2;
       //test and set index parameters for the modal views
-      if(this.sourceObjArr[index1] === undefined && this.sourceObjArr[index2] === undefined){
-        this.sourceObjArr[index1]=[];
-        this.sourceObjArr[index1][index2] = [];
-      }else if(this.sourceObjArr[index1][index2] === undefined){
-        this.sourceObjArr[index1][index2] = [];
+      if(this.srcObjArr[index1] === undefined && this.srcObjArr[index2] === undefined){
+        this.srcObjArr[index1]=[];
+        this.srcObjArr[index1][index2] = [];
+      }else if(this.srcObjArr[index1][index2] === undefined){
+        this.srcObjArr[index1][index2] = [];
       }
     },
     getTempId:function(){
@@ -199,24 +164,69 @@ var source = (function(){
       return id;
     },
     addSources:function(){
-      this.sourceObjArr[index1][index2][this.sourceObjArr[index1][index2].length] = {source: this.$srcName.val(), confidence: this.$confLvl.val(), id: this.getTempId()};
+      this.srcObjArr[index1][index2][this.srcObjArr[index1][index2].length] = {source: this.$srcName.val(), confidence: this.$confLvl.val(), id: this.getTempId()};
       this.$srcName.val("");
       this.render();
     },
     deleteSource:function(event){
-      for( var i = 0; i < this.sourceObjArr[this.dataModId][this.fieldStr].length; ++i){
-        if(this.sourceObjArr[this.dataModId][this.fieldStr][i].id == $(event.target).closest('p').attr('id')){
-          delete this.sourceObjArr[this.dataModId][this.fieldStr][i];
+      for( var i = 0; i < this.srcObjArr[this.dataModId][this.fieldStr].length; ++i){
+        if(this.srcObjArr[this.dataModId][this.fieldStr][i].id == $(event.target).closest('p').attr('id')){
+          delete this.srcObjArr[this.dataModId][this.fieldStr][i];
           break;
         }
       }
       this.render();
+    },
+    update:function(){
+
+    var objArr = [];
+    var modelArr = Object.keys(this.srcObjArr);
+    // console.log(modelArr);
+    // console.log(this.srcObjArr[modelArr]);
+
+    for(var x = 0; x < modelArr.length; ++x){
+      // console.log('test');
+      for (var model in this.srcObjArr[modelArr[x]]){
+
+        if (typeof this.srcObjArr[modelArr[x]][model] !== 'function') {
+
+          for (var index in this.srcObjArr[modelArr[x]][model]){
+            // console.log(model);
+
+            if (typeof this.srcObjArr[modelArr[x]][model][index] !== 'function') {
+              // console.log(this.srcObjArr[modelArr[x]][model][index]);
+              // console.log(Object.keys(this.srcObjArr[modelArr[x]]));
+              // console.log(this.srcObjArr[modelArr[x]][model][index]);
+              var obj = {};
+              obj[model] = [];
+              obj[model]['source'] = this.srcObjArr[modelArr[x]][model][index].source;
+              obj[model]['confidence'] = this.srcObjArr[modelArr[x]][model][index].confidence;
+              objArr.push(obj);
+              console.log(Object.keys(objArr));
+              // console.log(index);
+            }
+          }
+        }
+      }
     }
+    // console.log(Object.size(this.srcObjArr));
+      // $.ajax({
+      //   type: "POST",
+      //   url: "/" + window.LANG + "/person/" + this.$mdObjId + "/",
+      //   data: {
+      //     csrfmiddlewaretoken: window.CSRF_TOKEN,
+      //     person: JSON.stringify(postData)
+      //   },
+      //   success: function(response, status){
+      //     console.log(response);
+      //   }
+      // });
+    },
   };
   srcModule.init();
   return {
     publicAPI: function(){
-      return srcModule.sourceObjArr;
+      return srcModule.srcObjArr;
     }
   };
 })();
