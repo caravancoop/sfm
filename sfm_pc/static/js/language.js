@@ -7,7 +7,7 @@ var language = (function(){
     init:function(){
       this.cacheDom();
       this.bindEvents();
-      // this.getAll();
+      this.getAll();
     },
     getAll:function(){
       this.langObjArr = [];
@@ -64,6 +64,7 @@ var language = (function(){
       this.$languageList = null;
       this.$langName = null;
       this.$langTrans = null;
+      this.$langCode = null;
     },
     bindEvents:function(){
       this.$el_modal.on('shown.bs.modal', this.dynamicAssignments.bind(this));
@@ -90,6 +91,7 @@ var language = (function(){
       this.$el_popoverTrigger = $(event.relatedTarget);
       // console.log(this.$el_popoverTrigger[0]);
       this.$langName = this.$el_modal.find('.--lang-name');   //source name
+      this.$langCode = this.$el_modal.find('.--lang-code');
       this.$langTrans = this.$el_modal.find('.--lang-trans');   //level of confidence
       this.$addBtn = this.$el_modal.find('.--lang-add-btn')[0]; //add button
       this.$txtInput = $('#' + this.$el_popoverTrigger[0].dataset.fieldStr);
@@ -101,7 +103,7 @@ var language = (function(){
       this.$languageList = $('.languages_list');
       this.fieldStr = this.$el_popoverTrigger[0].dataset.fieldStr;
       this.dataModId = this.$el_popoverTrigger[0].dataset.modelId;
-      this.getAll();
+      // this.getAll();
       this.render();
       this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
     },
@@ -123,16 +125,22 @@ var language = (function(){
       this.render();
     },
     autoFill:function(){
+      var self = this;
       console.log(this.$langName);
       this.$langName.autocomplete({
         // request options from the server.
         source: "/translate/languages/autocomplete",
+        select: function (event, ui) {
+        event.preventDefault();
+        self.$langCode.val(ui.item.value);
+        self.$langName.val(ui.item.label);
+    }
       });
     },
     update:function(){
       var postData = {
     		"value" : this.$langTrans.val(),
-    		"lang" : this.$langName.val()
+    		"lang" : this.$langCode.val()
     	};
       $.ajax({
         context:langModule,
@@ -147,7 +155,7 @@ var language = (function(){
     			//on success, clear fields
           this.$langName.val("");
           this.$langTrans.val("");
-          this.getAll();
+          // this.getAll();
           this.render();
           console.log("success");
     		},

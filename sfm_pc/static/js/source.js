@@ -33,7 +33,7 @@ var source = (function(){
       this.$rowTemplate = null;
       this.$sourceList = null;
     },
-    getAll:function(event){
+    getAll:function(){
       this.srcObjArr = [];
       this.fieldStrArr = [];
       this.modelArr = [];
@@ -141,7 +141,7 @@ var source = (function(){
       this.$sourceList = $('.sources_list');
       this.fieldStr = this.$el_popoverTrigger[0].dataset.fieldStr;
       this.dataModId = this.$el_popoverTrigger[0].dataset.modelId;
-      this.getAll(event);
+      // this.getAll(event);
       this.render();
       this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
     },
@@ -198,29 +198,46 @@ var source = (function(){
               // console.log(Object.keys(this.srcObjArr[modelArr[x]]));
               // console.log(this.srcObjArr[modelArr[x]][model][index]);
               var obj = {};
-              obj[model] = [];
+              obj[model] = {};
               obj[model]['source'] = this.srcObjArr[modelArr[x]][model][index].source;
               obj[model]['confidence'] = this.srcObjArr[modelArr[x]][model][index].confidence;
               objArr.push(obj);
-              console.log(Object.keys(objArr));
+
               // console.log(index);
             }
           }
         }
       }
     }
-    // console.log(Object.size(this.srcObjArr));
-      // $.ajax({
-      //   type: "POST",
-      //   url: "/" + window.LANG + "/person/" + this.$mdObjId + "/",
-      //   data: {
-      //     csrfmiddlewaretoken: window.CSRF_TOKEN,
-      //     person: JSON.stringify(postData)
-      //   },
-      //   success: function(response, status){
-      //     console.log(response);
-      //   }
-      // });
+    postData = {};
+    for(var j = 0; j < objArr.length; ++j){
+      var dataModel = Object.keys(objArr[j]);
+        if(String(dataModel) === String(Object.keys(objArr[j]))){
+          postData[String(Object.keys(objArr[j]))]={};
+          postData[String(Object.keys(objArr[j]))]['value'] = $('#'+Object.keys(objArr[0])).val();
+          for(var k = 0; k < objArr.length; ++k){
+            if(postData[String(Object.keys(objArr[j]))]['sources'] === undefined){
+              postData[String(Object.keys(objArr[j]))]['sources'] = [];
+            }
+            postData[String(Object.keys(objArr[j]))]['sources'][k] = objArr[k][String(dataModel)];
+            // console.log(objArr[k][String(dataModel)]);
+          }
+        }
+    }
+    console.log(postData);
+    // console.log(JSON.stringify(postData));
+
+      $.ajax({
+        type: "POST",
+        url: "/" + window.LANG + "/person/" + this.$mdObjId + "/",
+        data: {
+          csrfmiddlewaretoken: window.CSRF_TOKEN,
+          person: JSON.stringify(postData)
+        },
+        success: function(response, status){
+          console.log(response);
+        }
+      });
     },
   };
   srcModule.init();

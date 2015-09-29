@@ -7,7 +7,7 @@ var version = (function(){
     init:function(){
       this.cacheDom();
       this.bindEvents();
-      // this.getAll();
+      this.getAll();
     },
     getAll:function(){
       this.verObjArr = [];
@@ -92,7 +92,7 @@ var version = (function(){
       this.$versionList = $('.versions_list');
       this.fieldStr = this.$el_popoverTrigger[0].dataset.fieldStr;
       this.dataModId = this.$el_popoverTrigger[0].dataset.modelId;
-      this.getAll();
+      // this.getAll();
       this.render();
       this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
     },
