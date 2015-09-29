@@ -61,8 +61,16 @@ class Person(models.Model):
             field_name = field.get_field_str_id()
 
             if field_name in dict_values:
-                sources = Source.create_sources(dict_values[field_name].get('sources', []))
-                field.update(dict_values[field_name]['value'], lang, sources)
+                # If there's no change to the field, we don't update it
+                if field.get_value(lang) == dict_values[field_name]['value']:
+                    if not field.has_same_sources(dict_values[field_name].get('sources', [])):
+                        sources = Source.create_sources(dict_values[field_name].get('sources', []))
+                        field.update(dict_values[field_name]['value'], lang, sources)
+
+                else:
+                    sources = Source.create_sources(dict_values[field_name].get('sources', []))
+                    field.update(dict_values[field_name]['value'], lang, sources)
+
 
     @classmethod
     def create(cls, dict_values, lang=get_language()):

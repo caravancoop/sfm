@@ -309,6 +309,17 @@ class ComplexFieldContainer(object):
         return None
 
 
+    def has_same_sources(self, sources):
+        saved_sources = []
+        for src in self.get_sources():
+            saved_src = {}
+            saved_src['source'] = src.source
+            saved_src['confidence'] = src.confidence
+            saved_sources.append(saved_src)
+        if sorted(saved_sources) != sorted(sources):
+            return False
+        return True
+
     @classmethod
     def field_from_str_and_id(cls, object_name, object_id, field_name, field_id=None):
         object_class = class_for_name(
