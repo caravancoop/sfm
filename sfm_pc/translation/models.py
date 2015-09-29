@@ -10,6 +10,6 @@ def get_language_from_iso(iso):
         return "Unknown"
 
     if iso == get_language():
-        return lang.name_en + ", " + lang.name_native
-    else:
         return lang.name_en
+    else:
+        return lang.name_en + ", " + lang.name_native
