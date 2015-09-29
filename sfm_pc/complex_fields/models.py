@@ -236,16 +236,25 @@ class ComplexFieldContainer(object):
 
 
     def update(self, value, lang, sources=[]):
-        if self.get_field_str_id() in self.table_object.complex_fields:
-            c_fields = self.field_model.objects.filter(object_ref=self.table_object)
+        c_field = self.get_field(lang)
+        sources_updated = False
 
-            for field in c_fields:
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
+
+        # Update translations
+        for field in c_fields:
+            # Set translation values to None if the value is changed
+            if c_field is None or c_field.value != value:
                 field.value = None
-                if self.sourced:
-                    for source in sources:
-                        field.sources.clear()
+
+            # Update sources for all translations if they are not the same
+            if self.sourced and not self.has_same_sources(sources):
+                sources_updated = True
+                field.sources.clear()
+                for source in sources:
+                    field.sources.add(source)
+            if field.lang != lang:
                 field.save()
-        c_field = self.get_field()
 
         if c_field is None:
             if self.translated:
@@ -253,12 +262,10 @@ class ComplexFieldContainer(object):
             else:
                 c_field = self.field_model(object_ref=self.table_object)
 
-        c_field.value = value
-        c_field.save()
-
-        if self.sourced:
-            for src in sources:
-                c_field.sources.add(src)
+        # New version only if there was a change on this field
+        if c_field.value != value or sources_updated:
+            c_field.value = value
+            c_field.save()
 
     def translate(self, value, lang):
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
