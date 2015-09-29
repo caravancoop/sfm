@@ -317,7 +317,7 @@ class ComplexFieldContainer(object):
             saved_src['confidence'] = src.confidence
             saved_sources.append(saved_src)
         pairs = zip(saved_sources, sources)
-        if any(x != y for x, y in pairs):
+        if len(saved_sources) != len(sources) or any(x != y for x, y in pairs):
             return False
         return True
 
