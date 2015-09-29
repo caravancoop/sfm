@@ -17,6 +17,10 @@ class Person(models.Model):
         self.deathdate = ComplexFieldContainer(self, PersonDeathDate)
         self.complex_fields = [self.name, self.alias, self.deathdate]
 
+        self.required_fields = [
+            "Person_PersonName",
+        ]
+
     def get_value(self):
         return self.name.get_value()
 
