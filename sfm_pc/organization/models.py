@@ -124,50 +124,6 @@ class OrganizationRealDissolution(ComplexField):
     field_name = _("Real dissolution")
 
 
-class OrganizationComposition(models.Model):
-    def __init__(self, *args, **kwargs):
-        self.parent = ComplexFieldContainer(self, OrganizationCompositionParent)
-        self.child = ComplexFieldContainer(self, OrganizationCompositionChild)
-        self.startdate = ComplexFieldContainer(self, OrganizationCompositionStartDate)
-        self.enddate = ComplexFieldContainer(self, OrganizationCompositionEndDate)
-        self.classification = ComplexFieldContainer(self, OrganizationCompositionClassification)
-
-
-@versioned
-@sourced
-class OrganizationCompositionParent(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = models.ForeignKey('Organization', related_name='child_organization')
-    field_name = _("Child organization")
-
-@versioned
-@sourced
-class OrganizationCompositionChild(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = models.ForeignKey('Organization', related_name='parent_organization')
-    field_name = _("Parent organization")
-
-@versioned
-@sourced
-class OrganizationCompositionStartDate(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Start date")
-
-@versioned
-@sourced
-class OrganizationCompositionEndDate(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("End date")
-
-@versioned
-@sourced
-class OrganizationCompositionClassification(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = models.ForeignKey('Classification', default=None, blank=True,
-                              null=True)
-    field_name = _("Classification")
 
 class Classification(models.Model):
     value = models.TextField()

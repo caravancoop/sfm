@@ -4,10 +4,7 @@ from django.contrib import admin
 from .models import (Organization, OrganizationName, OrganizationAlias,
                      OrganizationClassification, OrganizationFoundingDate,
                      OrganizationDissolutionDate, OrganizationRealFounding,
-                     OrganizationRealDissolution, OrganizationComposition,
-                     OrganizationCompositionParent, OrganizationCompositionChild,
-                     OrganizationCompositionStartDate, OrganizationCompositionEndDate,
-                     OrganizationCompositionClassification, Classification)
+                     OrganizationRealDissolution, Classification)
 
 
 class OrganizationAdmin(admin.ModelAdmin):
@@ -34,24 +31,6 @@ class OrganizationRealFoundingAdmin(reversion.VersionAdmin):
 class OrganizationRealDissolutionAdmin(reversion.VersionAdmin):
     pass
 
-class OrganizationCompositionAdmin(admin.ModelAdmin):
-    pass
-
-class OrganizationCompositionParentAdmin(reversion.VersionAdmin):
-    pass
-
-class OrganizationCompositionChildAdmin(reversion.VersionAdmin):
-    pass
-
-class OrganizationCompositionStartDateAdmin(reversion.VersionAdmin):
-    pass
-
-class OrganizationCompositionEndDateAdmin(reversion.VersionAdmin):
-    pass
-
-class OrganizationCompositionClassificationAdmin(reversion.VersionAdmin):
-    pass
-
 class ClassificationAdmin(admin.ModelAdmin):
     pass
 
@@ -64,11 +43,4 @@ admin.site.register(OrganizationFoundingDate, OrganizationFoundingDateAdmin)
 admin.site.register(OrganizationDissolutionDate, OrganizationDissolutionDateAdmin)
 admin.site.register(OrganizationRealFounding, OrganizationRealFoundingAdmin)
 admin.site.register(OrganizationRealDissolution, OrganizationRealDissolutionAdmin)
-admin.site.register(OrganizationComposition, OrganizationCompositionAdmin)
-admin.site.register(OrganizationCompositionParent, OrganizationCompositionParentAdmin)
-admin.site.register(OrganizationCompositionChild, OrganizationCompositionChildAdmin)
-admin.site.register(OrganizationCompositionStartDate, OrganizationCompositionStartDateAdmin)
-admin.site.register(OrganizationCompositionEndDate, OrganizationCompositionEndDateAdmin)
-admin.site.register(OrganizationCompositionClassification,
-                    OrganizationCompositionClassificationAdmin)
 admin.site.register(Classification, ClassificationAdmin)
