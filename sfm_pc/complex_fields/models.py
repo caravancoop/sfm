@@ -149,7 +149,7 @@ class ComplexFieldContainer(object):
             field_history = reversion.get_for_object(c_field)
             history[c_field.lang] = [
                 {
-                    "value": fh.field_dict['value'],
+                    "value": str(fh.field_dict['value']),
                     "sources": fh.field_dict['sources'],
                     "id": fh.id
                 }
