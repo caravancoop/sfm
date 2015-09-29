@@ -316,7 +316,8 @@ class ComplexFieldContainer(object):
             saved_src['source'] = src.source
             saved_src['confidence'] = src.confidence
             saved_sources.append(saved_src)
-        if sorted(saved_sources) != sorted(sources):
+        pairs = zip(saved_sources, sources)
+        if any(x != y for x, y in pairs):
             return False
         return True
 
