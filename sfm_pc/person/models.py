@@ -41,7 +41,6 @@ class Person(models.Model):
                 errors[field_name] = "This field is required"
             elif field_name in dict_values:
                 sources = dict_values[field_name].get('sources', [])
-                import ipdb; ipdb.set_trace()
                 (error, value) = field.validate(dict_values[field_name]['value'], lang, sources)
                 if error is not None:
                     errors[field_name] = error
