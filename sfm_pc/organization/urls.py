@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from .views import (OrganizationCreate, OrganizationView, OrganizationUpdate,
-                    classification_autocomplete)
+                    classification_autocomplete, organization_autocomplete)
 
 urlpatterns = patterns(
     '',
@@ -9,5 +9,7 @@ urlpatterns = patterns(
     url(r'add/$', OrganizationCreate.as_view(), name="add_organization"),
     url(r'(?P<pk>\d+)/$', OrganizationUpdate.as_view(), name='edit_organization'),
     url(r'classification/autocomplete', classification_autocomplete,
-        name="classification_autocomplete")
+        name="classification_autocomplete"),
+    url(r'autocomplete', organization_autocomplete,
+        name="organization_autocomplete"),
 )

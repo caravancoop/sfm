@@ -97,6 +97,20 @@ class OrganizationCreate(TemplateView):
         return context
 
 
+def organization_autocomplete(request):
+    data = request.GET.dict()['term']
+
+    organizations = Organization.objects.filter(
+        organizationname__value__icontains=data
+    )
+
+    organizations = [
+        _(orgs.name.get_value())
+        for orgs in organizations
+    ]
+
+    return HttpResponse(json.dumps(organizations))
+
 def classification_autocomplete(request):
     data = request.GET.dict()['term']
 
