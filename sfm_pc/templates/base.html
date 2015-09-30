@@ -20,7 +20,7 @@
   {% include "sidebar.html" %}
 
   {% block content %}{% endblock %}
-  <!--  TABLE ROW TEMPLATE -->
+<!--  TABLE ROW TEMPLATES -->
 <div id="source-template" class="hide">
   <li >
     <p class="col-sm-6 src_name"></p>
@@ -43,14 +43,13 @@
     </p>
   </li>
 </div>
-
 <div id="language-template" class="hide">
   <li >
     <p class="col-sm-6 lang_name"></p>
     <p class="col-sm-6 lang_trans"></p>
   </li>
 </div>
-
+<!--  END TABLE ROW TEMPLATES -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
   <script src="{% static "js/script.js" %}"></script>
   <script src="{% static "js/mainjs.js" %}"></script>

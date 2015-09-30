@@ -5981,6 +5981,9 @@ input[type=text] {
   padding-right: 12px;
   cursor: pointer; }
 
+div.death-date {
+  float: left !important; }
+
 .input-actions li {
   list-style-type: none;
   height: 2rem; }

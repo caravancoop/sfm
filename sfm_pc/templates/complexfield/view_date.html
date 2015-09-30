@@ -1,18 +1,46 @@
 {% load i18n %}
 
-<label for="{{ field_id}}">{{field_name}}
-    <div class="actions">
-        {% if sourced %}
-            <a class="modalBox" href="" title="{% trans Source %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/source/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}" data-model-object-id="{{object_id}}"><i class="fa fa-link"></i></a>
-        {% endif %}
-        {% if "add" not in path %}
-            {% if versioned %}
-                <a class="modalBox" href="" title="{% trans Versioned %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/version/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-undo"></i></a>
-            {% endif %}
-            {% if translated %}
-                <a class="modalBox" href="" title="{% trans Translated %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/translate/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-flag"></i></a>
-            {% endif %}
-        {% endif %}
-    </div>
+<label for="{{field_str_id}}">{{field_name}}
+  <div class="actions"><button type="button" class="sfm-btn-option input-action-btn" data-popover-content=".input-actions-{{field_str_id}}" data-toggle="popover" data-placement="bottom"><i class="fa fa-ellipsis-h"></i></button></div>
+  <div class=" hide input-actions input-actions-{{field_str_id}}">
+    <ul>
+      {% if sourced %}
+      <li>
+        <a class="modalBox" href="" title="{% trans Source %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/source/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}" data-model-object-id="{{object_id}}"><i class="fa fa-link"> Source</i></a>
+      </li>
+      {% endif %}
+      {% if "add" not in path %}
+      {% if versioned %}
+      <li>
+        <a class="modalBox" href="" title="{% trans Versioned %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/version/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-undo"></i> Version</a>
+      </li>
+      {% endif %}
+      {% if translated %}
+      <li>
+        <a class="modalBox" href="" title="{% trans Translated %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/translate/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-flag"></i> Language</a>
+      </li>
+    </ul>
+    {% endif %}
+  {% endif %}
+  </div>
 </label>
-<input type="text" class="form-control" id="{{ field_id }}" value="{{ value }}" placeholder="Enter {{field_name}}">
+<select name="" id="" class="death-date col-sm-4">
+  <option value="0">Month</option>
+  <option value="1">Januare</option>
+  <option value="2">February</option>
+  <option value="3">March</option>
+  <option value="4">April</option>
+  <option value="5">May</option>
+  <option value="6">June</option>
+  <option value="7">July</option>
+  <option value="8">August</option>
+  <option value="9">September</option>
+  <option value="10">October</option>
+  <option value="11">November</option>
+  <option value="12">December</option>
+</select>
+<select name="" id="" class="death-date col-sm-4">
+  <!-- (option[value=$]{_$})*31 -->
+</select>
+<select name="" id="" class="death-date col-sm-4"></select>
+<input type="hidden" class="form-control" id="{{ field_str_id }}" value="{% if value %}{{ value }}{% endif %}" placeholder="Enter {{field_name}}">
