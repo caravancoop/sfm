@@ -5981,8 +5981,16 @@ input[type=text] {
   padding-right: 12px;
   cursor: pointer; }
 
-div.death-date {
-  float: left !important; }
+div .date-wrapper .btn {
+  min-width: 0; }
+
+div .date-wrapper .death-date {
+  width: calc((100%/3) - 5px) !important;
+  float: left !important;
+  margin-left: 5px !important; }
+
+div .date-wrapper:first-child {
+  margin-left: 0 !important; }
 
 .input-actions li {
   list-style-type: none;

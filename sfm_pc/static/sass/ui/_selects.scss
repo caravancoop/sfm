@@ -1,9 +1,16 @@
 div{
+  .date-wrapper{
+    .btn{
+      min-width:0;
+    }
+    .death-date{
+      width:calc((100%/3) - 5px)!important;
+      float:left !important;
+      margin-left:5px !important;
 
-  &.death-date{
-    // width:(100%/3)!important;
-    float:left !important;
-    
+    }
+    &:first-child{
+      margin-left:0 !important;
+    }
   }
-
 }
