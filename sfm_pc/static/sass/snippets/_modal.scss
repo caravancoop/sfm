@@ -13,7 +13,13 @@
         padding-bottom: 0.5em;
       }
       p{
-
+        max-height: 1rem;
+        i{
+          cursor: pointer;
+          &:hover{
+            color:$ter-bg-clr;
+          }
+        }
       }
     }
   }

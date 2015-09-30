@@ -13,25 +13,25 @@ var source = (function(){
     cacheDom:function(){
       //the modal module
       this.$el_modal =  $('#complexFieldModal');
-      this.$srcName = null;//source name
-      this.$confLvl = null;//level of confidence
-      this.$addBtn = null;//add button
-      this.$el_popoverTrigger = null; //get the btn trigger for the modal
-      this.$txtInput = null; //get the input field that corresponds to the current modal
-      this.$modalHeader = null; //modal header class
-
-      this.fieldStr = null;
-      this.dataModId = null;
-
-      // modal header div attributes
-      this.$mdObjName = null;
-      this.$mdObjId = null;
-      this.$mdFieldName = null;
-      this.$mdModalType = null;
-
-      // this.response = null;
-      this.$rowTemplate = null;
-      this.$sourceList = null;
+      // this.$srcName = null;//source name
+      // this.$confLvl = null;//level of confidence
+      // this.$addBtn = null;//add button
+      // this.$el_popoverTrigger = null; //get the btn trigger for the modal
+      // this.$txtInput = null; //get the input field that corresponds to the current modal
+      // this.$modalHeader = null; //modal header class
+      //
+      // this.fieldStr = null;
+      // this.dataModId = null;
+      //
+      // // modal header div attributes
+      // this.$mdObjName = null;
+      // this.$mdObjId = null;
+      // this.$mdFieldName = null;
+      // this.$mdModalType = null;
+      //
+      // // this.response = null;
+      // this.$rowTemplate = null;
+      // this.$sourceList = null;
     },
     getAll:function(){
       this.srcObjArr = [];
@@ -197,7 +197,7 @@ var source = (function(){
         }
       }
       postData = {};
-      console.log(objArr);
+      // console.log(objArr);
       for(var j = 0; j < objArr.length; ++j){
         var model = String(Object.keys(objArr[j]));
         //   if(String(dataModel) === String(Object.keys(objArr[j]))){
@@ -214,8 +214,8 @@ var source = (function(){
           }
         }
       }
-      console.log(postData);
-      console.log(JSON.stringify(postData));
+      // console.log(postData);
+      // console.log(JSON.stringify(postData));
       if(this.$mdObjId === 0){
         this.$mdObjId = "add";
       }
@@ -226,9 +226,9 @@ var source = (function(){
           csrfmiddlewaretoken: window.CSRF_TOKEN,
           person: JSON.stringify(postData)
         },
-        success: function(response, status){
-          console.log("response: " + response + " status: " + status);
-        }
+        // success: function(response, status){
+        //   console.log("response: " + response + " status: " + status);
+        // }
       });
     },
   };
