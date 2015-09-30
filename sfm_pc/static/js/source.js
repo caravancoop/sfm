@@ -217,7 +217,7 @@ var source = (function(){
       console.log(postData);
       console.log(JSON.stringify(postData));
       if(this.$mdObjId === 0){
-        this.$mdObjId = "none";
+        this.$mdObjId = "add";
       }
       $.ajax({
         type: "POST",
