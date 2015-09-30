@@ -1,8 +1,6 @@
 import json
 
-from django.views.generic.edit import UpdateView
 from django.views.generic.base import TemplateView
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Max
 
