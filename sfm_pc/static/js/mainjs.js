@@ -219,59 +219,59 @@ function genericGetFunction (object_name, object_id, field_name, modal_type, get
 // 		// sourcesList.appendChild(tmpl);
 // 	}
 // }
-
-function createVersionsList (genericObject) {
-	versionObject = genericObject;
-	console.log(versionObject);
-
-	$('#versions_list').find("tr:not(:has(th))").remove();
-
-	// Get a reference to the versions list in the main DOM.
-	var versionsList = document.getElementById('versions_list');
-
-	for(var i = 0; i < genericObject.length; i++) {
-
-		var versionSources = "";
-		var versionInfo = genericObject[i];
-		var versiontempl = document.getElementById('version_template').content.cloneNode(true);
-
-		versiontempl.querySelector('.version').textContent = versionInfo.value;
-		console.log(genericObject[i]);
-		if(genericObject[i].sources != undefined) {
-			for (var j = 0; j < genericObject[i].sources.length; j++) {
-
-				var confidenceString;
-
-				switch(genericObject[i].sources[j].confidence) {
-
-					case "1":
-					confidenceString = "Low";
-					break;
-
-					case "2":
-					confidenceString = "Medium";
-					break;
-
-					case "3":
-					confidenceString = "High";
-					break;
-
-					default:
-					confidenceString = "Def";
-
-				}
-
-				versionSources += genericObject[i].sources[j].source + " - " + confidenceString + String.fromCharCode(10);
-				versiontempl.querySelector('#versions_sub_list').textContent = versionSources;
-
-				// console.log(versionSources);
-			}
-		versionSources = null;
-		versiontempl.querySelector('.revertButton').value = versionInfo.id;
-		versionsList.appendChild(versiontempl);
-	}
-	}
-}
+//
+// function createVersionsList (genericObject) {
+// 	versionObject = genericObject;
+// 	console.log(versionObject);
+//
+// 	$('#versions_list').find("tr:not(:has(th))").remove();
+//
+// 	// Get a reference to the versions list in the main DOM.
+// 	var versionsList = document.getElementById('versions_list');
+//
+// 	for(var i = 0; i < genericObject.length; i++) {
+//
+// 		var versionSources = "";
+// 		var versionInfo = genericObject[i];
+// 		var versiontempl = document.getElementById('version_template').content.cloneNode(true);
+//
+// 		versiontempl.querySelector('.version').textContent = versionInfo.value;
+// 		console.log(genericObject[i]);
+// 		if(genericObject[i].sources != undefined) {
+// 			for (var j = 0; j < genericObject[i].sources.length; j++) {
+//
+// 				var confidenceString;
+//
+// 				switch(genericObject[i].sources[j].confidence) {
+//
+// 					case "1":
+// 					confidenceString = "Low";
+// 					break;
+//
+// 					case "2":
+// 					confidenceString = "Medium";
+// 					break;
+//
+// 					case "3":
+// 					confidenceString = "High";
+// 					break;
+//
+// 					default:
+// 					confidenceString = "Def";
+//
+// 				}
+//
+// 				versionSources += genericObject[i].sources[j].source + " - " + confidenceString + String.fromCharCode(10);
+// 				versiontempl.querySelector('#versions_sub_list').textContent = versionSources;
+//
+// 				// console.log(versionSources);
+// 			}
+// 		versionSources = null;
+// 		versiontempl.querySelector('.revertButton').value = versionInfo.id;
+// 		versionsList.appendChild(versiontempl);
+// 	}
+// 	}
+// }
 
 // function createTranslationsList (genericObject) {
 //
@@ -292,30 +292,30 @@ function createVersionsList (genericObject) {
 // 	}
 // }
 
-function changeLanguage () {
-
-	// console.log("Change Language");
-	var language = document.getElementById('people_vr_language').value;
-
-	$.ajax({
-		type: "GET",
-		url: "/version/" + object_name + "/" + object_id + "/" + field_name + "/" + language,
-		dataType: "json",
-		success: function (response, status) {
-			console.log(response);
-			separateObjects(response, "version");
-		},
-		error: function (request, status, error) {
-			console.log(error);
-		}
-	});
-}
+// function changeLanguage () {
+//
+// 	// console.log("Change Language");
+// 	var language = document.getElementById('people_vr_language').value;
+//
+// 	$.ajax({
+// 		type: "GET",
+// 		url: "/version/" + object_name + "/" + object_id + "/" + field_name + "/" + language,
+// 		dataType: "json",
+// 		success: function (response, status) {
+// 			console.log(response);
+// 			separateObjects(response, "version");
+// 		},
+// 		error: function (request, status, error) {
+// 			console.log(error);
+// 		}
+// 	});
+// }
 
 function revertVersion () {
 
 	version_id = $('.revertButton').attr('value');
 	var data = {
-		"lang" : "en",
+"lang" : "en",
 		"id" : version_id
 	};
 

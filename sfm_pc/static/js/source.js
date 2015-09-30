@@ -179,54 +179,46 @@ var source = (function(){
     },
     update:function(){
 
-    var objArr = [];
-    var modelArr = Object.keys(this.srcObjArr);
-    // console.log(modelArr);
-    // console.log(this.srcObjArr[modelArr]);
-
-    for(var x = 0; x < modelArr.length; ++x){
-      // console.log('test');
-      for (var model in this.srcObjArr[modelArr[x]]){
-
-        if (typeof this.srcObjArr[modelArr[x]][model] !== 'function') {
-
-          for (var index in this.srcObjArr[modelArr[x]][model]){
-            // console.log(model);
-
-            if (typeof this.srcObjArr[modelArr[x]][model][index] !== 'function') {
-              // console.log(this.srcObjArr[modelArr[x]][model][index]);
-              // console.log(Object.keys(this.srcObjArr[modelArr[x]]));
-              // console.log(this.srcObjArr[modelArr[x]][model][index]);
-              var obj = {};
-              obj[model] = {};
-              obj[model]['source'] = this.srcObjArr[modelArr[x]][model][index].source;
-              obj[model]['confidence'] = this.srcObjArr[modelArr[x]][model][index].confidence;
-              objArr.push(obj);
-
-              // console.log(index);
+      var objArr = [];
+      var modelArr = Object.keys(this.srcObjArr);
+      for(var x = 0; x < modelArr.length; ++x){
+        for (var model in this.srcObjArr[modelArr[x]]){
+          if (typeof this.srcObjArr[modelArr[x]][model] !== 'function') {
+            for (var index in this.srcObjArr[modelArr[x]][model]){
+              if (typeof this.srcObjArr[modelArr[x]][model][index] !== 'function') {
+                var obj = {};
+                obj[model] = {};
+                obj[model]['source'] = this.srcObjArr[modelArr[x]][model][index].source;
+                obj[model]['confidence'] = this.srcObjArr[modelArr[x]][model][index].confidence;
+                objArr.push(obj);
+              }
             }
           }
         }
       }
-    }
-    postData = {};
-    for(var j = 0; j < objArr.length; ++j){
-      var dataModel = Object.keys(objArr[j]);
-        if(String(dataModel) === String(Object.keys(objArr[j]))){
-          postData[String(Object.keys(objArr[j]))]={};
-          postData[String(Object.keys(objArr[j]))]['value'] = $('#'+Object.keys(objArr[0])).val();
-          for(var k = 0; k < objArr.length; ++k){
-            if(postData[String(Object.keys(objArr[j]))]['sources'] === undefined){
-              postData[String(Object.keys(objArr[j]))]['sources'] = [];
-            }
-            postData[String(Object.keys(objArr[j]))]['sources'][k] = objArr[k][String(dataModel)];
-            // console.log(objArr[k][String(dataModel)]);
+      postData = {};
+      console.log(objArr);
+      for(var j = 0; j < objArr.length; ++j){
+        var model = String(Object.keys(objArr[j]));
+        //   if(String(dataModel) === String(Object.keys(objArr[j]))){
+        postData[model]={};
+        postData[model]['value'] = $('#'+ model).val(); //assign input field value to the object key value pair
+        for(var k = 0; k < objArr.length; ++k){
+          //if the sources key doesn't exist, create it
+          if(postData[model]['sources'] === undefined){
+            postData[model]['sources'] = [];
+          }
+          // if the object exists add it to the approporiate object array
+          if(objArr[k][model] !== undefined ){
+            postData[model]['sources'][postData[model]['sources'].length] = objArr[k][model];
           }
         }
-    }
-    console.log(postData);
-    // console.log(JSON.stringify(postData));
-
+      }
+      console.log(postData);
+      console.log(JSON.stringify(postData));
+      if(this.$mdObjId === 0){
+        this.$mdObjId = "none";
+      }
       $.ajax({
         type: "POST",
         url: "/" + window.LANG + "/person/" + this.$mdObjId + "/",
@@ -235,7 +227,7 @@ var source = (function(){
           person: JSON.stringify(postData)
         },
         success: function(response, status){
-          console.log(response);
+          console.log("response: " + response + " status: " + status);
         }
       });
     },

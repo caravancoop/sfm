@@ -54,19 +54,20 @@ var version = (function(){
     },
     cacheDom:function(){
       this.$el_modal =  $('#complexFieldModal');
-      this.$el_popoverTrigger = null; //get the btn trigger for the modal
-      this.$txtInput = null; //get the input field that corresponds to the current modal
-
-      this.fieldStr = null;
-      this.dataModId = null;
-      this.$rowTemplate = null;
-      this.$versionList = null;
-      this.$verLanguage = null;
-      this.$verTrans = null;
+      // this.$el_popoverTrigger = null; //get the btn trigger for the modal
+      // this.$txtInput = null; //get the input field that corresponds to the current modal
+      //
+      // this.fieldStr = null;
+      // this.dataModId = null;
+      // this.$rowTemplate = null;
+      // this.$versionList = null;
+      // this.$verLanguage = null;
+      // this.$verTrans = null;
 
     },
     bindEvents:function(){
       this.$el_modal.on('shown.bs.modal', this.dynamicAssignments.bind(this));
+      this.$el_modal.on('change', '.--ver-lang', this.changeLanguage.bind(this));
     },
     render:function(){
       this.$versionList.find('li').empty();//delete old list
@@ -90,8 +91,18 @@ var version = (function(){
       this.$verLanguage = this.$el_modal.find('.--ver-lang');   //version language name
       this.$txtInput = $('#' + this.$el_popoverTrigger[0].dataset.fieldStr);
       this.$versionList = $('.versions_list');
+
+
+      this.$modalHeader = this.$el_modal.find('.modal-header');
+      this.$mdObjName = this.$modalHeader.data('field-object-name');
+      this.$mdObjId = this.$modalHeader.data('field-object-id');
+      this.$mdFieldName = this.$modalHeader.data('field-attr-name');
+      this.$mdModalType = this.$modalHeader.data('modal-type');
+      this.$sourceList = $('.sources_list');
       this.fieldStr = this.$el_popoverTrigger[0].dataset.fieldStr;
       this.dataModId = this.$el_popoverTrigger[0].dataset.modelId;
+
+console.log(this.$mdObjId);
       // this.getAll();
       this.render();
       this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
@@ -109,35 +120,57 @@ var version = (function(){
       }
     },
     revertVersion:function(){
-      var version_id = $(event.target).closest('p').attr('id');
-      var data = {
-        "lang" : "en",
-        "id" : version_id
-      };
-
-      $.ajax({
-        type: "POST",
-        url: "/" + window.LANG + "/version/revert/" + object_name + "/" + object_id + "/" + field_name + "/",
-        // dataType: 'json',
-        data: {
-          csrfmiddlewaretoken: window.CSRF_TOKEN,
-          revert: JSON.stringify(data)
-        },
-        success: function (response, status) {
-          console.log(response);
-          var language = document.getElementById('people_vr_language').value;
-          getURL = "/version/" + object_name + "/" + object_id + "/" + field_name + "/" + language;
-          genericGetFunction(object_name, object_id, field_name, "version", getURL);
-        },
-        error: function (request, status, error) {
-          console.log(error);
-        }
-      });
+      // var version_id = $(event.target).closest('p').attr('id');
+      // var data = {
+      //   "lang" : "en",
+      //   "id" : version_id
+      // };
+      //
+      // $.ajax({
+      //   type: "POST",
+      //   url: "/" + window.LANG + "/version/revert/" + object_name + "/" + object_id + "/" + field_name + "/",
+      //   // dataType: 'json',
+      //   data: {
+      //     csrfmiddlewaretoken: window.CSRF_TOKEN,
+      //     revert: JSON.stringify(data)
+      //   },
+      //   success: function (response, status) {
+      //     console.log(response);
+      //     var language = document.getElementById('people_vr_language').value;
+      //     getURL = "/version/" + object_name + "/" + object_id + "/" + field_name + "/" + language;
+      //     genericGetFunction(object_name, object_id, field_name, "version", getURL);
+      //   },
+      //   error: function (request, status, error) {
+      //     console.log(error);
+      //   }
+      // });
     },
-    changeLanguages:function(){
-
+    changeLanguage:function(){
+      var self = this;
+      var getURL = window.location;
+      this.verObjArr[index1][index2] = [];
+      $.ajax({
+    		type: "GET",
+        context:this,
+    		url:  "/" + window.LANG + "/version/" + this.dataModId + "/" + this.$mdObjId + "/" + this.$mdFieldName + "/" + this.$verLanguage.val() + "/",
+    		dataType: "json",
+    		success: function (response, status) {
+          for (var i in response) {
+            if(typeof response[i] !== 'function'){ //test if path contains versions
+              this.verObjArr[index1][index2][this.verObjArr[index1][index2].length] = response[i];
+              console.log(response[i]);
+            }
+          }
+          this.render();
+    			// separateObjects(response, "version");
+    		},
+    		error: function (request, status, error) {
+    			console.log(error);
+    		}
+    	});
     }
   };
+
   verModule.init();
   return {
     publicAPI: function(){
