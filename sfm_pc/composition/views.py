@@ -8,6 +8,69 @@ from organization.models import Classification
 from composition.models import Composition
 
 
+class CompositionView(TemplateView):
+    template_name = 'composition/search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CompositionView, self).get_context_data(**kwargs)
+
+        order_by = self.request.GET.get('orderby')
+        if not order_by:
+            order_by = 'compositionstartdate__value'
+
+        direction = self.request.GET.get('direction')
+        if not direction:
+            direction = 'ASC'
+
+        dirsym = ''
+        if direction == 'DESC':
+            dirsym = '-'
+
+        composition_query = (Composition.objects
+                        .annotate(Max(order_by))
+                        .order_by(dirsym + order_by + "__max"))
+
+        classification = self.request.GET.get('classification')
+        if role:
+            org_query = composition_query.filter(membershiprole__id=classification)
+
+        context['composition'] = composition_query
+        context['classifications'] = Classification.objects.all()
+
+        return context
+
+
+class CompositionUpdate(TemplateView):
+    template_name = 'composition/edit.html'
+
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.POST.dict()['composition'])
+        try:
+            composition = Composition.objects.get(pk=kwargs.get('pk'))
+        except Composition.DoesNotExist:
+            msg = "This membership does not exist, it should be created " \
+                  "before updating it."
+            return HttpResponse(msg, status=400)
+
+        errors = composition.update(data)
+        if errors is None:
+            return HttpResponse(
+                json.dumps({"success": True}),
+                content_type="application/json"
+            )
+        else:
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
+    def get_context_data(self, **kwargs):
+        context = super(CompositionUpdate, self).get_context_data(**kwargs)
+        context['composition'] = Composition.objects.get(pk=context.get('pk'))
+
+        return context
+
+
 class CompositionCreate(TemplateView):
     template_name = 'composition/edit.html'
 
