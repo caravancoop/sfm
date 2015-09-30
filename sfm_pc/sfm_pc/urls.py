@@ -12,6 +12,7 @@ from person.views import *
 
 urlpatterns = i18n_patterns(
     '',
+    url(r'^composition/', include('composition.urls')),
     url(r'^organization/', include('organization.urls')),
     url(r'^membership/', include('membership.urls')),
     url(r'^person/', include('person.urls')),

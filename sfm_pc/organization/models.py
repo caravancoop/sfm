@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
-from source.models import Source
 
+from django_date_extensions.fields import ApproximateDateField
+
+from source.models import Source
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
 
@@ -104,7 +106,7 @@ class OrganizationFoundingDate(ComplexField):
 @sourced
 class OrganizationDissolutionDate(ComplexField):
     object_ref = models.ForeignKey('Organization')
-    value = models.DateField(default=None, blank=True, null=True)
+    value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Date of disbandment")
 
 
@@ -120,6 +122,7 @@ class OrganizationRealDissolution(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.BooleanField(default=None)
     field_name = _("Real dissolution")
+
 
 
 class Classification(models.Model):

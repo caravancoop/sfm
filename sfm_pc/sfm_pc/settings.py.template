@@ -48,7 +48,10 @@ INSTALLED_APPS = (
     'countries_plus',
     'reversion',
     'sfm_pc',
+    'organization',
     'person',
+    'membership',
+    'composition',
     'source',
 )
 
