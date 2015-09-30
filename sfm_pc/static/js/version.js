@@ -110,7 +110,7 @@ console.log(this.$mdObjId);
         this.verObjArr[index1][index2] = [];
       }
     },
-    revertVersion:function(){
+    revertVersion:function(event){
       var version_id = $(event.target).closest('p').attr('id');
       var postData = {
         "lang" : this.$verLanguage.val(),
