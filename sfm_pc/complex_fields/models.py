@@ -259,6 +259,11 @@ class ComplexFieldContainer(object):
         if c_field is None:
             if self.translated:
                 c_field = self.field_model(object_ref=self.table_object, lang=lang)
+                c_field.save()
+                if self.sourced:
+                    sources_updated = True
+                    for source in sources:
+                        c_field.sources.add(source)
             else:
                 c_field = self.field_model(object_ref=self.table_object)
 
@@ -286,7 +291,7 @@ class ComplexFieldContainer(object):
         c_field.save()
 
         if hasattr(c_field, 'sourced'):
-            with_sources = self.field_model.objects.exclude(sources=None)
+            with_sources = c_fields.exclude(sources=None)
             sources = with_sources[0].sources.all()
             for src in sources:
                 c_field.sources.add(src)
