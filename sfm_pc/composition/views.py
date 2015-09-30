@@ -31,7 +31,7 @@ class CompositionView(TemplateView):
                         .order_by(dirsym + order_by + "__max"))
 
         classification = self.request.GET.get('classification')
-        if role:
+        if classification:
             org_query = composition_query.filter(membershiprole__id=classification)
 
         context['composition'] = composition_query
