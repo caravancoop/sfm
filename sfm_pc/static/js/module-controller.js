@@ -21,7 +21,6 @@ var moduleController = (function(){
 
     },
     setDates:function(){
-
       var d = new Date();
       var day, month, year, currYear, currMonth, currDay;
       var firstYear = 1950;
@@ -93,6 +92,7 @@ var moduleController = (function(){
       this.setDateArrayIndexes($hiddenInputId, 'day');
       // store month in datePickerArr array
       this.datePickerArr[this.dt_id_index][this.dt_date_index] = $newValue;
+      this.updateDates($hiddenInputId);
     },
     changeMonth:function(event){
       var $dateWrapper = $(event.target).closest('.date-wrapper');
@@ -104,6 +104,7 @@ var moduleController = (function(){
       // store month in datePickerArr array
       this.datePickerArr[this.dt_id_index][this.dt_date_index] = $newValue;
       this.setDay($hiddenInputId);
+      this.updateDates($hiddenInputId);
 
     },
     changeYear:function(event){
@@ -117,11 +118,30 @@ var moduleController = (function(){
       this.datePickerArr[this.dt_id_index][this.dt_date_index] = $newValue;
       $dateWrapper.find('.-sfm-month').prop('disabled', false);
       $('select').selectpicker('refresh');
+      this.updateDates($hiddenInputId);
     },
     getModules:function(){
       this._srcModule = source.publicAPI();
       this._langModule = language.publicAPI();
     },
+    updateDates:function(hiddenInputId){
+      var $input = $('.date-wrapper[data-date-target='+ hiddenInputId ).find('input');
+      var year = this.datePickerArr[hiddenInputId]['year'];
+      var month = this.datePickerArr[hiddenInputId]['month'];
+      var day = this.datePickerArr[hiddenInputId]['day'];
+      if(year === undefined){
+        year = 00;
+      }
+      if(month === undefined){
+        month = 00;
+      }
+      if(day === undefined){
+        day = 00;
+      }
+      $input.val(year + '-' + month + '-' + day);
+      console.log($input.val());
+
+    }
 
   };
   modCtrl.init();
