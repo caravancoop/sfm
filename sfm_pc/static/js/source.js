@@ -263,21 +263,17 @@ var source = (function(){
           person: JSON.stringify(values)
         },
         success: function(response, status){
-          console.log(response.errors);
-          for (var i in response.errors) {
-
-            // $("#" + Object.keys(i)).siblings('.error-message').html(response.errors[i]);
+          var err_str, err_id;
+          for(var key in response.errors){
+            err_str = response.errors[key];
+            err_id = Object.keys(response.errors)[0];
+            $("#" + err_id).siblings('.error-message').html(err_str);
           }
         },
         // error: function (request, status, error) {
-        error: function(requestObject, error, errorThrown) {
-          console.log(requestObject);
+        error: function(error) {
           console.log(error);
-          console.log(errorThrown);
-          // for (var i in error) {
-          //   $("#" + Object.keys(i)).siblings('.error-message').html(response[i]);
-          // }
-          $("#Person_PersonName").siblings('.error-message').html("test");
+
         }
       });
     },

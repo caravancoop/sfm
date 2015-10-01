@@ -1,5 +1,10 @@
 var moduleController = (function(){
   var modCtrl = {
+    monthArr:["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    dateIsSet:false,
+    oldYear:null,
+    oldMonth:null,
+    oldDay:null,
     init:function(){
       this.cacheDom();
       // this.getModules();
@@ -15,6 +20,7 @@ var moduleController = (function(){
       this.dPickerId = null;
       this.dt_id_index = null;
       this.dt_date_index = null;
+
       // this._srcModule = null;
       // this._versModule = null;
       // this._langModule = null;
@@ -35,14 +41,25 @@ var moduleController = (function(){
         month = self.dateWrapper.find('.-sfm-month'); // set the month
         day = self.dateWrapper.find('.-sfm-day'); // set the date
         $input = $('.date-wrapper[data-date-target='+ self.dPickerId ).find('input');
+        var currentDate = $input.val();
+        var tempArray = currentDate.split("-");
+        self.oldYear = tempArray[0];
+        self.oldMonth = tempArray[1];
+        self.oldDay = tempArray[2];
         //set the year
-        // if($input === ""){
-        //   console.log("empty");
-        // }else{
-          // console.log("full");
+        // console.log($input);
+        if($input.val() === ""){
+          console.log("empty");
           self.setYear(firstYear,currYear,year);
           self.setMonth(currMonth,month);
-        // }
+        }else{
+          console.log("full");
+          self.dateIsSet = true;
+          self.setYear(firstYear,currYear,year);
+          self.setMonth(currMonth,month);
+
+
+        }
 
       });
       $('select').selectpicker('refresh');
@@ -52,12 +69,49 @@ var moduleController = (function(){
       for(var y = firstYear; y <= currYear; ++y){
         $(year).append('<option value=' + y + '>' + y + '</option>');
       }
+      if(this.dateIsSet){
+        $(year).attr("title", this.oldYear);
+      }
     },
     setMonth:function(currMonth,month){
-      var monthArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      for(var m = 0; m < monthArr.length; ++m){
-        $(month).append('<option value=' + (m+1) + '>' + monthArr[m] + '</option>');
+
+      for(var m = 0; m < this.monthArr.length; ++m){
+        $(month).append('<option value=' + (m+1) + '>' + this.monthArr[m] + '</option>');
       }
+      if(this.dateIsSet){
+        $(month).attr("title", this.monthArr[parseInt(this.oldMonth-1)]);
+        $(month).prop('disabled', false);
+        this.setOldDay(this.dPickerId);
+      }
+    },
+    setOldDay:function(hiddenInputId){
+
+      var $input = $('.date-wrapper[data-date-target='+ hiddenInputId ).find('input');
+      // console.log($input);
+      var currentDate = $input.val();
+      var tempArray = currentDate.split("-");
+      var year = tempArray[0];
+      var month = tempArray[1];
+      var $day = $('.date-wrapper[data-date-target='+ hiddenInputId ).find('.-sfm-day');
+      // clear out day select
+      $($day[0]).empty();
+      var daysInMonth = this.daysInMonth(month, year);
+      for(var d = 1; d <= daysInMonth; ++d){
+        $($day[0]).append('<option value=' + d + '>' + d + '</option>');
+      }
+      this.setDateArrayIndexes(hiddenInputId, 'year');
+      this.datePickerArr[this.dt_id_index][this.dt_date_index] = year;
+      this.setDateArrayIndexes(hiddenInputId, 'month');
+      this.datePickerArr[this.dt_id_index][this.dt_date_index] = month;
+      this.setDateArrayIndexes(hiddenInputId, 'day');
+
+      if(this.dateIsSet){
+        // console.log($($day[0]));
+        $($day[0]).attr("title", this.oldDay);
+        this.datePickerArr[this.dt_id_index][this.dt_date_index] = this.oldDay;
+      }
+      $($day[0]).prop('disabled', false);
+      $('select').selectpicker('refresh');
     },
     setDay:function(hiddenInputId){
       var year = this.datePickerArr[hiddenInputId]['year'];
@@ -138,7 +192,7 @@ var moduleController = (function(){
       var year = this.datePickerArr[hiddenInputId]['year'];
       var month = this.datePickerArr[hiddenInputId]['month'];
       var day = this.datePickerArr[hiddenInputId]['day'];
-      if($input.val() === ""){
+      // if($input.val() === ""){
         console.log("empty");
 
         if(year === undefined){
@@ -150,16 +204,16 @@ var moduleController = (function(){
         if(day === undefined){
           day = 00;
         }
-      }else{
-        console.log("not empty");
-        var currentDate = $input.val();
-        var tempArray = currentDate.split("-");
-        this.datePickerArr[hiddenInputId]['year'] = tempArray[0];
-        this.datePickerArr[hiddenInputId]['month'] = tempArray[1];
-        this.datePickerArr[hiddenInputId]['day'] = tempArray[2];
-        // console.log(tempArray);
-
-      }
+      // }else{
+      //   console.log("not empty");
+      //   var currentDate = $input.val();
+      //   var tempArray = currentDate.split("-");
+      //   this.datePickerArr[hiddenInputId]['year'] = tempArray[0];
+      //   this.datePickerArr[hiddenInputId]['month'] = tempArray[1];
+      //   this.datePickerArr[hiddenInputId]['day'] = tempArray[2];
+      //   // console.log(tempArray);
+      //
+      // }
 
       $input.val(year + '-' + month + '-' + day);
       console.log($input.val());
