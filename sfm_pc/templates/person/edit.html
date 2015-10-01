@@ -20,13 +20,13 @@
   </div>
   <div class="row">
     <form>
-      <div class="form-group col-sm-4">
+      <div class="form-group col-sm-4 complex-field">
         {% view_complex_field person.name person.id request.path %}
       </div>
-      <div class="form-group col-sm-4">
+      <div class="form-group col-sm-4 complex-field">
         {% view_complex_field person.alias person.id request.path %}
       </div>
-      <div class="form-group col-sm-4">
+      <div class="form-group col-sm-4 complex-field">
         {% view_complex_field_date person.deathdate person.id request.path %}
       </div>
     </form>

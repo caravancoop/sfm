@@ -52,7 +52,7 @@ var source = (function(){
         }
         //if the model is not in array push it
         if ($.inArray(model, self.modelArr) === -1){
-          self.modelArr.push(fieldStr);
+          self.modelArr.push(model);
         }
         //set the source object array indexes
         self.setArrayIndexes(model, fieldStr);
@@ -65,7 +65,7 @@ var source = (function(){
           dataType: "json",
           // success callback function
           success: function (response) {
-            console.log(response);
+
             for (var i in response) {
               if(patt.test(sources) && typeof response[i] !== 'function'){ //test if path contains sources
                 this.srcObjArr[index1][index2][this.srcObjArr[index1][index2].length] = response[i];
@@ -178,56 +178,96 @@ var source = (function(){
       this.render();
     },
     update:function(){
+// this.fieldStrArr
+      // var objArr = [];
+      // var modelArr = Object.keys(this.srcObjArr);
+      // for(var x = 0; x < modelArr.length; ++x){
+      //   for (var model in this.srcObjArr[modelArr[x]]){
+      //     if (typeof this.srcObjArr[modelArr[x]][model] !== 'function') {
+      //       for (var index in this.srcObjArr[modelArr[x]][model]){
+      //         if (typeof this.srcObjArr[modelArr[x]][model][index] !== 'function') {
+      //           var obj = {};
+      //           obj[model] = {};
+      //           obj[model]['source'] = this.srcObjArr[modelArr[x]][model][index].source;
+      //           obj[model]['confidence'] = this.srcObjArr[modelArr[x]][model][index].confidence;
+      //           objArr.push(obj);
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
+      // postData = {};
+      // // console.log(objArr);
+      // for(var j = 0; j < objArr.length; ++j){
+      //   var model = String(Object.keys(objArr[j]));
+      //   //   if(String(dataModel) === String(Object.keys(objArr[j]))){
+      //   if ($.inArray(model, this.fieldStrArr) === 1){
+      //     // self.fieldStrArr.pop(fieldStr);
+      //
+      //     for (var i=this.fieldStrArr.length-1; i>=0; i--) {
+      //       if (this.fieldStrArr[i] === model) {
+      //         this.fieldStrArr.splice(i, 1);
+      //
+      //       }
+      //     }
+      //   }
+      //   // console.log(model);
+      //   postData[model]={};
+      //   postData[model]['value'] = $('#'+ model).val(); //assign input field value to the object key value pair
+      //   for(var k = 0; k < objArr.length; ++k){
+      //     //if the sources key doesn't exist, create it
+      //     if(postData[model]['sources'] === undefined){
+      //       postData[model]['sources'] = [];
+      //     }
+      //     // if the object exists add it to the approporiate object array
+      //     if(objArr[k][model] !== undefined ){
+      //       postData[model]['sources'][postData[model]['sources'].length] = objArr[k][model];
+      //     }
+      //   }
+      // }
+      // // console.log(postData);
+      // // console.log(JSON.stringify(postData));
+      // if(this.$mdObjId === 0){
+      //   this.$mdObjId = "add";
+      // }
 
-      var objArr = [];
-      var modelArr = Object.keys(this.srcObjArr);
-      for(var x = 0; x < modelArr.length; ++x){
-        for (var model in this.srcObjArr[modelArr[x]]){
-          if (typeof this.srcObjArr[modelArr[x]][model] !== 'function') {
-            for (var index in this.srcObjArr[modelArr[x]][model]){
-              if (typeof this.srcObjArr[modelArr[x]][model][index] !== 'function') {
-                var obj = {};
-                obj[model] = {};
-                obj[model]['source'] = this.srcObjArr[modelArr[x]][model][index].source;
-                obj[model]['confidence'] = this.srcObjArr[modelArr[x]][model][index].confidence;
-                objArr.push(obj);
-              }
-            }
-          }
-        }
-      }
-      postData = {};
-      // console.log(objArr);
-      for(var j = 0; j < objArr.length; ++j){
-        var model = String(Object.keys(objArr[j]));
-        //   if(String(dataModel) === String(Object.keys(objArr[j]))){
-        postData[model]={};
-        postData[model]['value'] = $('#'+ model).val(); //assign input field value to the object key value pair
-        for(var k = 0; k < objArr.length; ++k){
-          //if the sources key doesn't exist, create it
-          if(postData[model]['sources'] === undefined){
-            postData[model]['sources'] = [];
-          }
-          // if the object exists add it to the approporiate object array
-          if(objArr[k][model] !== undefined ){
-            postData[model]['sources'][postData[model]['sources'].length] = objArr[k][model];
-          }
-        }
-      }
-      // console.log(postData);
-      console.log(JSON.stringify(postData));
-      if(this.$mdObjId === 0){
-        this.$mdObjId = "add";
-      }
+      // //  monkey patch
+
+
+           var objArr = [];
+           var values = {};
+           var modelArr = Object.keys(this.srcObjArr);
+
+           sourcesObj = this.srcObjArr;
+
+           $(".complex-field").each(function(i, obj){
+             id = $(obj).find('input').attr('id');
+             values[id] = {};
+             values[id]['value'] = $(obj).find('input').val();
+             srcs = [];
+             $.each(sourcesObj['person'][id], function(key, value){
+               src = {};
+               src['source'] = value['source'];
+               src['confidence'] = value['confidence'];
+               srcs.push(src);
+             });
+             values[id]['sources'] = srcs;
+
+           });
+
       $.ajax({
         type: "POST",
         url: window.location,
         data: {
           csrfmiddlewaretoken: window.CSRF_TOKEN,
-          person: JSON.stringify(postData)
+          person: JSON.stringify(values)
         },
         success: function(response, status){
-          console.log("response: " + response + " status: " + status);
+          console.log(response.errors);
+          for (var i in response.errors) {
+
+            // $("#" + Object.keys(i)).siblings('.error-message').html(response.errors[i]);
+          }
         },
         // error: function (request, status, error) {
         error: function(requestObject, error, errorThrown) {

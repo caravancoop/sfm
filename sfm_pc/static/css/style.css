@@ -6112,11 +6112,10 @@ section.content {
   padding-right: 3rem;
   margin-left: 14.5rem; }
   section.content .form-group {
-    overflow: hidden;
     text-overflow: ellipsis; }
   section.content .error-message {
     color: #F1655A;
-    overflow: hidden; }
+    overflow-x: hidden; }
   section.content h3 {
     font-weight: 400; }
   section.content .form-group label {

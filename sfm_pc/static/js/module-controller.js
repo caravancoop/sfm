@@ -2,7 +2,7 @@ var moduleController = (function(){
   var modCtrl = {
     init:function(){
       this.cacheDom();
-      this.getModules();
+      // this.getModules();
       this.setDates();
       this.bindEvents();
     },
@@ -24,17 +24,26 @@ var moduleController = (function(){
       var d = new Date();
       var day, month, year, currYear, currMonth, currDay;
       var firstYear = 1950;
+      var $input;
       currYear = d.getFullYear();
       var self = this;
       //for each date on the page
       this.dateWrapper.each(function(){
+
         self.dPickerId = $(this).data('date-target');
         year = self.dateWrapper.find('.-sfm-year'); // set the year
         month = self.dateWrapper.find('.-sfm-month'); // set the month
         day = self.dateWrapper.find('.-sfm-day'); // set the date
+        $input = $('.date-wrapper[data-date-target='+ self.dPickerId ).find('input');
         //set the year
-        self.setYear(firstYear,currYear,year);
-        self.setMonth(currMonth,month);
+        // if($input === ""){
+        //   console.log("empty");
+        // }else{
+          // console.log("full");
+          self.setYear(firstYear,currYear,year);
+          self.setMonth(currMonth,month);
+        // }
+
       });
       $('select').selectpicker('refresh');
 
@@ -121,23 +130,37 @@ var moduleController = (function(){
       this.updateDates($hiddenInputId);
     },
     getModules:function(){
-      this._srcModule = source.publicAPI();
-      this._langModule = language.publicAPI();
+      // this._srcModule = source.publicAPI();
+      // this._langModule = language.publicAPI();
     },
     updateDates:function(hiddenInputId){
       var $input = $('.date-wrapper[data-date-target='+ hiddenInputId ).find('input');
       var year = this.datePickerArr[hiddenInputId]['year'];
       var month = this.datePickerArr[hiddenInputId]['month'];
       var day = this.datePickerArr[hiddenInputId]['day'];
-      if(year === undefined){
-        year = 00;
+      if($input.val() === ""){
+        console.log("empty");
+
+        if(year === undefined){
+          year = 00;
+        }
+        if(month === undefined){
+          month = 00;
+        }
+        if(day === undefined){
+          day = 00;
+        }
+      }else{
+        console.log("not empty");
+        var currentDate = $input.val();
+        var tempArray = currentDate.split("-");
+        this.datePickerArr[hiddenInputId]['year'] = tempArray[0];
+        this.datePickerArr[hiddenInputId]['month'] = tempArray[1];
+        this.datePickerArr[hiddenInputId]['day'] = tempArray[2];
+        // console.log(tempArray);
+
       }
-      if(month === undefined){
-        month = 00;
-      }
-      if(day === undefined){
-        day = 00;
-      }
+
       $input.val(year + '-' + month + '-' + day);
       console.log($input.val());
 

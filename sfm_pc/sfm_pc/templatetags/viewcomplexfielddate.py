@@ -7,9 +7,13 @@ def view_complex_field_date(field, object_id, path):
     field_id = field.get_field_str_id()
     if object_id is None:
         object_id = 0
-
+    value = field.get_value()
+    if value is None:
+        value = ''
+    else:
+        value = repr(value)
     return {
-        'value' : field,
+        'value' : value,
         'object_id': object_id,
         'object_name': field.get_object_name(),
         'field_str_id': field.get_field_str_id(),
