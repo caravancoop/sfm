@@ -65,7 +65,7 @@ var source = (function(){
           dataType: "json",
           // success callback function
           success: function (response) {
-
+            console.log(response);
             for (var i in response) {
               if(patt.test(sources) && typeof response[i] !== 'function'){ //test if path contains sources
                 this.srcObjArr[index1][index2][this.srcObjArr[index1][index2].length] = response[i];
@@ -215,20 +215,30 @@ var source = (function(){
         }
       }
       // console.log(postData);
-      // console.log(JSON.stringify(postData));
+      console.log(JSON.stringify(postData));
       if(this.$mdObjId === 0){
         this.$mdObjId = "add";
       }
       $.ajax({
         type: "POST",
-        url: "/" + window.LANG + "/person/" + this.$mdObjId + "/",
+        url: window.location,
         data: {
           csrfmiddlewaretoken: window.CSRF_TOKEN,
           person: JSON.stringify(postData)
         },
-        // success: function(response, status){
-        //   console.log("response: " + response + " status: " + status);
-        // }
+        success: function(response, status){
+          console.log("response: " + response + " status: " + status);
+        },
+        // error: function (request, status, error) {
+        error: function(requestObject, error, errorThrown) {
+          console.log(requestObject);
+          console.log(error);
+          console.log(errorThrown);
+          // for (var i in error) {
+          //   $("#" + Object.keys(i)).siblings('.error-message').html(response[i]);
+          // }
+          $("#Person_PersonName").siblings('.error-message').html("test");
+        }
       });
     },
   };

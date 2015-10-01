@@ -1,5 +1,13 @@
 section{
 	&.content{
+		.form-group {
+			overflow: hidden;
+    	text-overflow: ellipsis;
+		}
+		.error-message{
+			color:$ter-bg-clr;
+			overflow:hidden;
+		}
 		max-width:100%;
 		@include pd("lr", 3rem);
 		margin-left:$header-mg-L;
