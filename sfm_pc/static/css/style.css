@@ -6018,9 +6018,8 @@ body {
   background-color: white;
   color: #363636; }
 
-object {
-  width: 100%;
-  height: 100%; }
+#person-linked-table tr {
+  cursor: pointer; }
 
 .sidebar-arrow, aside nav ul li.active a:before {
   content: ' ';

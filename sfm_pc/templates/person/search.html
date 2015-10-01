@@ -21,8 +21,7 @@
       <h3>{% trans "Search" %}</h3>
     </div>
   </div>
-  <div class="row">
-  <form> 
+  <form>
     <div class="row">
       <div class="form-group col-sm-6">
         <label for="name">Name</label>
@@ -113,7 +112,6 @@
 
     </div>
   </form>
-  </div>
 
   <div class="row">
     <div class="col-sm-12 form-group">
@@ -127,7 +125,7 @@
 
   <div class="row">
     <div class="table-responsive col-sm-12">
-      <table class="table table-bordered table-striped">
+      <table class="table table-bordered table-striped table-hover">
         <thead>
           <tr>
             <th class="col-sm-3"><span class="caret"></span> Name</th>
@@ -135,14 +133,16 @@
             <th class="col-sm-5"><span class="caret"></span> Notes</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="person-linked-table">
           {% for person in persons %}
             <tr data-person-id="{{ person.id }}">
-              <td>{{ person.name }}</td>
+
+              <td><a href="{{person.id}}"></a>{{ person.name }}</td>
               <td>{{ person.alias }}</td>
               <td>{{ person.notes }}
                 <i class="fa fa-times-circle fa-lg actions"></i>
               </td>
+
             </tr>
           {% endfor %}
         </tbody>
