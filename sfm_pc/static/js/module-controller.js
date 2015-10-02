@@ -40,7 +40,7 @@ var moduleController = (function(){
         year = self.dateWrapper.find('.-sfm-year'); // set the year
         month = self.dateWrapper.find('.-sfm-month'); // set the month
         day = self.dateWrapper.find('.-sfm-day'); // set the date
-        $input = $('.date-wrapper[data-date-target='+ self.dPickerId ).find('input');
+        $input = $('.date-wrapper[data-date-target='+ self.dPickerId +']').find('input');
         var currentDate = $input.val();
         var tempArray = currentDate.split("-");
         self.oldYear = tempArray[0];
@@ -86,13 +86,13 @@ var moduleController = (function(){
     },
     setOldDay:function(hiddenInputId){
 
-      var $input = $('.date-wrapper[data-date-target='+ hiddenInputId ).find('input');
+      var $input = $('.date-wrapper[data-date-target='+ hiddenInputId  +']').find('input');
       // console.log($input);
       var currentDate = $input.val();
       var tempArray = currentDate.split("-");
       var year = tempArray[0];
       var month = tempArray[1];
-      var $day = $('.date-wrapper[data-date-target='+ hiddenInputId ).find('.-sfm-day');
+      var $day = $('.date-wrapper[data-date-target='+ hiddenInputId  +']').find('.-sfm-day');
       // clear out day select
       $($day[0]).empty();
       var daysInMonth = this.daysInMonth(month, year);
@@ -116,7 +116,7 @@ var moduleController = (function(){
     setDay:function(hiddenInputId){
       var year = this.datePickerArr[hiddenInputId]['year'];
       var month = this.datePickerArr[hiddenInputId]['month'];
-      var $day = $('.date-wrapper[data-date-target='+ hiddenInputId ).find('.-sfm-day');
+      var $day = $('.date-wrapper[data-date-target='+ hiddenInputId  +']').find('.-sfm-day');
       // clear out day select
       $($day[0]).empty();
       var daysInMonth = this.daysInMonth(month, year);
@@ -188,7 +188,7 @@ var moduleController = (function(){
       // this._langModule = language.publicAPI();
     },
     updateDates:function(hiddenInputId){
-      var $input = $('.date-wrapper[data-date-target='+ hiddenInputId ).find('input');
+      var $input = $('.date-wrapper[data-date-target='+ hiddenInputId +']' ).find('input');
       var year = this.datePickerArr[hiddenInputId]['year'];
       var month = this.datePickerArr[hiddenInputId]['month'];
       var day = this.datePickerArr[hiddenInputId]['day'];

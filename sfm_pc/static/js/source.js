@@ -62,7 +62,7 @@ var source = (function(){
     render:function(){
       // render the new list in the modal
       this.$sourceList.find('li').empty(); //delete old list
-      this.srcObjArr[this.dataModId][this.fieldStr].clean();
+      //this.srcObjArr[this.dataModId][this.fieldStr].clean();
       for(var i = 0; i < this.srcObjArr[this.dataModId][this.fieldStr].length; i++){
         var confidenceString;
         var sourceInfo = this.srcObjArr[this.dataModId][this.fieldStr][i];

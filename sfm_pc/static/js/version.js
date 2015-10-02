@@ -62,7 +62,7 @@ var version = (function(){
     },
     render:function(){
       this.$versionList.find('li').empty();//delete old list
-      this.verObjArr[this.dataModId][this.fieldStr].clean();
+      //this.verObjArr[this.dataModId][this.fieldStr].clean();
       for(var i = 0; i < this.verObjArr[this.dataModId][this.fieldStr].length; i++){
 
         var versionInfo = this.verObjArr[this.dataModId][this.fieldStr][i];

@@ -74,7 +74,7 @@ var language = (function(){
     render:function(){
       this.$languageList.find('li').empty();//delete old list
 
-      this.langObjArr[this.dataModId][this.fieldStr].clean();
+      //this.langObjArr[this.dataModId][this.fieldStr].clean();
       for(var i = 0; i < this.langObjArr[this.dataModId][this.fieldStr].length; i++){
 
         var languageInfo = this.langObjArr[this.dataModId][this.fieldStr][i];
