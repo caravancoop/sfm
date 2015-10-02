@@ -4,7 +4,7 @@ var source = (function(){
     tempId: 0,
     srcObjArr : [],
     fieldStrArr : [],
-    modelArr : [],
+    fieldArr : [],
     init:function(){
       this.cacheDom();
       this.bindEvents();
@@ -13,30 +13,8 @@ var source = (function(){
     cacheDom:function(){
       //the modal module
       this.$el_modal =  $('#complexFieldModal');
-      // this.$srcName = null;//source name
-      // this.$confLvl = null;//level of confidence
-      // this.$addBtn = null;//add button
-      // this.$el_popoverTrigger = null; //get the btn trigger for the modal
-      // this.$txtInput = null; //get the input field that corresponds to the current modal
-      // this.$modalHeader = null; //modal header class
-      //
-      // this.fieldStr = null;
-      // this.dataModId = null;
-      //
-      // // modal header div attributes
-      // this.$mdObjName = null;
-      // this.$mdObjId = null;
-      // this.$mdFieldName = null;
-      // this.$mdModalType = null;
-      //
-      // // this.response = null;
-      // this.$rowTemplate = null;
-      // this.$sourceList = null;
     },
     getAll:function(){
-      this.srcObjArr = [];
-      this.fieldStrArr = [];
-      this.modelArr = [];
       var self = this;
       $('.modalBox').each(function(){
         var sources = $(this).data('remote').replace('/modal', "");
@@ -46,13 +24,11 @@ var source = (function(){
         if (self.$mdObjId === null || self.$mdObjId === undefined || self.$mdObjId === ""){
           self.$mdObjId =  $(this).data('model-object-id');
         }
-        //if the fieldStr is not in array push it
+        //if the fieldStr is not in array push it in
         if ($.inArray(fieldStr, self.fieldStrArr) === -1){
+          // this will be used to create the id of every field with an option box
           self.fieldStrArr.push(fieldStr);
-        }
-        //if the model is not in array push it
-        if ($.inArray(model, self.modelArr) === -1){
-          self.modelArr.push(model);
+          self.fieldArr.push({model:model,field:fieldStr});
         }
         //set the source object array indexes
         self.setArrayIndexes(model, fieldStr);
@@ -63,13 +39,10 @@ var source = (function(){
           type: "GET",
           url: sources,
           dataType: "json",
-          // success callback function
           success: function (response) {
-
             for (var i in response) {
               if(patt.test(sources) && typeof response[i] !== 'function'){ //test if path contains sources
                 this.srcObjArr[index1][index2][this.srcObjArr[index1][index2].length] = response[i];
-
               }
             }
           },
@@ -78,7 +51,6 @@ var source = (function(){
           }
         });
       });
-      // console.log(this.$mdObjId);
     },
     // this function binds all the initial events to the selectors
     bindEvents:function(){
@@ -87,10 +59,6 @@ var source = (function(){
       this.$el_modal.on('click', '.src_del', this.deleteSource.bind(this));
       $('body').on('click', '.addPerson', this.update.bind(this));
     },
-    //this function unbinds the events from the selectors
-    unbindEvents:function(){
-
-    },
     render:function(){
       // render the new list in the modal
       this.$sourceList.find('li').empty(); //delete old list
@@ -98,7 +66,6 @@ var source = (function(){
       for(var i = 0; i < this.srcObjArr[this.dataModId][this.fieldStr].length; i++){
         var confidenceString;
         var sourceInfo = this.srcObjArr[this.dataModId][this.fieldStr][i];
-
         switch(sourceInfo.confidence) {
           case "1":
           confidenceString = "Low";
@@ -120,7 +87,6 @@ var source = (function(){
         this.$rowTemplate.find('.src_name').html(sourceInfo.source);
         this.$rowTemplate.find('.src_conf').html(confidenceString);
         this.$rowTemplate.find('.src_del').attr('id', sourceInfo.id);
-
         this.$sourceList.append(this.$rowTemplate);  //append the row to the list
       }
     },
@@ -178,102 +144,83 @@ var source = (function(){
       this.render();
     },
     update:function(){
-// this.fieldStrArr
-      // var objArr = [];
-      // var modelArr = Object.keys(this.srcObjArr);
-      // for(var x = 0; x < modelArr.length; ++x){
-      //   for (var model in this.srcObjArr[modelArr[x]]){
-      //     if (typeof this.srcObjArr[modelArr[x]][model] !== 'function') {
-      //       for (var index in this.srcObjArr[modelArr[x]][model]){
-      //         if (typeof this.srcObjArr[modelArr[x]][model][index] !== 'function') {
-      //           var obj = {};
-      //           obj[model] = {};
-      //           obj[model]['source'] = this.srcObjArr[modelArr[x]][model][index].source;
-      //           obj[model]['confidence'] = this.srcObjArr[modelArr[x]][model][index].confidence;
-      //           objArr.push(obj);
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
-      // postData = {};
-      // // console.log(objArr);
-      // for(var j = 0; j < objArr.length; ++j){
-      //   var model = String(Object.keys(objArr[j]));
-      //   //   if(String(dataModel) === String(Object.keys(objArr[j]))){
-      //   if ($.inArray(model, this.fieldStrArr) === 1){
-      //     // self.fieldStrArr.pop(fieldStr);
-      //
-      //     for (var i=this.fieldStrArr.length-1; i>=0; i--) {
-      //       if (this.fieldStrArr[i] === model) {
-      //         this.fieldStrArr.splice(i, 1);
-      //
-      //       }
-      //     }
-      //   }
-      //   // console.log(model);
-      //   postData[model]={};
-      //   postData[model]['value'] = $('#'+ model).val(); //assign input field value to the object key value pair
-      //   for(var k = 0; k < objArr.length; ++k){
-      //     //if the sources key doesn't exist, create it
-      //     if(postData[model]['sources'] === undefined){
-      //       postData[model]['sources'] = [];
-      //     }
-      //     // if the object exists add it to the approporiate object array
-      //     if(objArr[k][model] !== undefined ){
-      //       postData[model]['sources'][postData[model]['sources'].length] = objArr[k][model];
-      //     }
-      //   }
-      // }
-      // // console.log(postData);
-      // // console.log(JSON.stringify(postData));
-      // if(this.$mdObjId === 0){
-      //   this.$mdObjId = "add";
-      // }
+      this.ref_model = null; //referece model
+      var objArr = [];
+      var modelArr = Object.keys(this.srcObjArr);
+      for(var x = 0; x < modelArr.length; ++x){
+        for (var model in this.srcObjArr[modelArr[x]]){
+          if (typeof this.srcObjArr[modelArr[x]][model] !== 'function') {
+            for (var index in this.srcObjArr[modelArr[x]][model]){
+              if (typeof this.srcObjArr[modelArr[x]][model][index] !== 'function') {
+                var obj = {};
+                obj[model] = {};
+                obj[model].source = this.srcObjArr[modelArr[x]][model][index].source;
+                obj[model].confidence = this.srcObjArr[modelArr[x]][model][index].confidence;
+                objArr.push(obj);
+                // this.ref_model = model;
+              }
+            }
+          }
+        }
+      }
+      postData = {};
+      for(var j = 0; j < objArr.length; ++j){
+        var fieldId = String(Object.keys(objArr[j]));
 
-      // //  monkey patch
+          //remove the field id's and models that have been accounted for
+          for (var i = 0; i < this.fieldArr.length; i++){
+            if (this.fieldArr[i].field && this.fieldArr[i].field === fieldId) {
+                this.fieldArr.splice(i, 1);
+                break;
+            }
+          }
 
 
-           var objArr = [];
-           var values = {};
-           var modelArr = Object.keys(this.srcObjArr);
-
-           sourcesObj = this.srcObjArr;
-
-           $(".complex-field").each(function(i, obj){
-             id = $(obj).find('input').attr('id');
-             values[id] = {};
-             values[id]['value'] = $(obj).find('input').val();
-             srcs = [];
-             $.each(sourcesObj['person'][id], function(key, value){
-               src = {};
-               src['source'] = value['source'];
-               src['confidence'] = value['confidence'];
-               srcs.push(src);
-             });
-             values[id]['sources'] = srcs;
-
-           });
+        postData[fieldId]={};
+        postData[fieldId].value = $('#'+ fieldId).val(); //assign input field value to the object key value pair
+        for(var k = 0; k < objArr.length; ++k){
+          //if the sources key doesn't exist, create it
+          if(postData[fieldId].sources === undefined){
+            postData[fieldId].sources = [];
+          }
+          // if the object exists add it to the approporiate object array
+          if(objArr[k][fieldId] !== undefined ){
+            postData[fieldId].sources[postData[fieldId].sources.length] = objArr[k][fieldId];
+          }
+        }
+      }
+      // for fields without sources, add the text field value
+      for(var s = 0; s < this.fieldArr.length; s++){
+        if(postData[this.fieldArr[s].field] === undefined){
+          postData[this.fieldArr[s].field]={};
+        }
+        postData[this.fieldArr[s].field].value = $("#"+this.fieldArr[s].field).val();
+          // console.log($("#"+this.fieldArr[s].field).val());
+      }
+      // console.log(postData);
+      console.log(JSON.stringify(postData));
+      if(this.$mdObjId === 0){
+        this.$mdObjId = "add";
+      }
 
       $.ajax({
         type: "POST",
         url: window.location,
         data: {
           csrfmiddlewaretoken: window.CSRF_TOKEN,
-          person: JSON.stringify(values)
+          person: JSON.stringify(postData)
         },
         success: function(response, status){
+          console.log(response);
           var err_str, err_id;
           for(var key in response.errors){
             err_str = response.errors[key];
             err_id = Object.keys(response.errors)[0];
-            $("#" + err_id).siblings('.error-message').html(err_str);
+            $("#" + err_id).siblings('.error-message').html("* " + err_str);
           }
         },
-        // error: function (request, status, error) {
-        error: function(error) {
-          console.log(error);
-
+        error: function(requestObject, error, errorThrown) {
+          console.log(requestObject);
         }
       });
     },
