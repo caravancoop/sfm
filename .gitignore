@@ -12,4 +12,5 @@ sfm_pc/sfm_pc/settings.py
 env/
 bin/
 lib/
+node_modules/
 .DS_Store
