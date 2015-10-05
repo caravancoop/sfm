@@ -135,7 +135,13 @@ class PersonCreate(TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['person'])
-        person = Person.create(data)
+        errors = Person.create(data)
+
+        if errors is not None:
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
 
         return HttpResponse(json.dumps({"success": True}), content_type="application/json")
 

@@ -67,8 +67,9 @@ class Person(models.Model):
     @classmethod
     def create(cls, dict_values, lang=get_language()):
         person = cls()
-        person.update(dict_values, lang)
-        return person
+        errors = person.update(dict_values, lang)
+
+        return errors
 
 
 @translated
