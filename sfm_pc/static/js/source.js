@@ -64,30 +64,32 @@ var source = (function(){
       this.$sourceList.find('li').empty(); //delete old list
       //this.srcObjArr[this.dataModId][this.fieldStr].clean();
       for(var i = 0; i < this.srcObjArr[this.dataModId][this.fieldStr].length; i++){
-        var confidenceString;
-        var sourceInfo = this.srcObjArr[this.dataModId][this.fieldStr][i];
-        switch(sourceInfo.confidence) {
-          case "1":
-          confidenceString = "Low";
-          break;
+        if(this.srcObjArr[this.dataModId][this.fieldStr][i]){
+          var confidenceString;
+          var sourceInfo = this.srcObjArr[this.dataModId][this.fieldStr][i];
+          switch(sourceInfo.confidence) {
+            case "1":
+            confidenceString = "Low";
+            break;
 
-          case "2":
-          confidenceString = "Medium";
-          break;
+            case "2":
+            confidenceString = "Medium";
+            break;
 
-          case "3":
-          confidenceString = "High";
-          break;
+            case "3":
+            confidenceString = "High";
+            break;
 
-          default:
-          confidenceString = "Def";
+            default:
+            confidenceString = "Def";
+          }
+          // create list element and add it to the list in the appropriate modal
+          this.$rowTemplate = $('#source-template').find('li').clone().removeClass('hide');
+          this.$rowTemplate.find('.src_name').html(sourceInfo.source);
+          this.$rowTemplate.find('.src_conf').html(confidenceString);
+          this.$rowTemplate.find('.src_del').attr('id', sourceInfo.id);
+          this.$sourceList.append(this.$rowTemplate);  //append the row to the list
         }
-        // create list element and add it to the list in the appropriate modal
-        this.$rowTemplate = $('#source-template').find('li').clone().removeClass('hide');
-        this.$rowTemplate.find('.src_name').html(sourceInfo.source);
-        this.$rowTemplate.find('.src_conf').html(confidenceString);
-        this.$rowTemplate.find('.src_del').attr('id', sourceInfo.id);
-        this.$sourceList.append(this.$rowTemplate);  //append the row to the list
       }
     },
     //this function dynamically assigns the element vars everytime a modal is triggered
