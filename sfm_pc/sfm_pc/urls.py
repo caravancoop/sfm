@@ -20,6 +20,7 @@ urlpatterns = i18n_patterns(
     url(r'^translate/', include('translation.urls')),
     url(r'^version/', include('version.urls')),
     url(r'^source/', include('source.urls')),
+    url(r'^area/', include('area.urls')),
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),

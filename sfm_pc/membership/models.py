@@ -3,12 +3,12 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
 from django_date_extensions.fields import ApproximateDateField
-from source.models import Source
 
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import (ComplexField, ComplexFieldContainer,
                                    ComplexFieldListContainer)
 from person.models import Person
+from source.models import Source
 from organization.models import Organization
 
 
