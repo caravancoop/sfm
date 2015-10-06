@@ -269,6 +269,8 @@ class ComplexFieldContainer(object):
 
         # New version only if there was a change on this field
         if c_field.value != value or sources_updated:
+            if value == '':
+                value = None
             c_field.value = value
             c_field.save()
 
@@ -305,7 +307,7 @@ class ComplexFieldContainer(object):
                 return ("Sources are required to update this field", value)
 
         fk_model = self.get_fk_model()
-        if fk_model is not None:
+        if fk_model is not None and value != "":
             try:
                 value = fk_model.objects.get(pk=value)
             except fk_model.DoesNotExist:
