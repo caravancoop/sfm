@@ -95,7 +95,9 @@ class PersonUpdate(TemplateView):
         try:
             person = Person.objects.get(pk=kwargs.get('pk'))
         except Person.DoesNotExist:
-            return HttpResponse(status=418)
+            msg = "This person does not exist, it should be created " \
+                  "before updating it."
+            return HttpResponse(msg, status=400)
 
         errors = person.update(data)
         if errors is None:
