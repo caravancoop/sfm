@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 {% block content %}
 <section class="content">
 
@@ -45,38 +46,40 @@
 
       <div class="dropdown form-group col-sm-2">
         <label>Death date</label>
-        <select id="people_srch_deathdate">
-          <option>dd</option>
-          <option value="">01</option>
-          <option value="">02</option>
+        <select id="deathdate_day">
+          <option value="">dd</option>
+          {% for int in day_range %}
+            <option value="{% if int < 10 %}0{% endif %}{{int}}">{{int}}</option>
+          {% endfor %}
         </select>
       </div>
 
       <div class="dropdown form-group col-sm-2">
         <label>Month</label>
-        <select id="people_srch_deathdate">
-          <option>mm</option>
-          <option value="">January</option>
-          <option value="">February</option>
-          <option value="">March</option>
-          <option value="">April</option>
-          <option value="">May</option>
-          <option value="">June</option>
-          <option value="">July</option>
-          <option value="">August</option>
-          <option value="">September</option>
-          <option value="">October</option>
-          <option value="">November</option>
-          <option value="">December</option>
+        <select id="deathdate_month">
+          <option value="">mm</option>
+          <option value="01">January</option>
+          <option value="02">February</option>
+          <option value="03">March</option>
+          <option value="04">April</option>
+          <option value="05">May</option>
+          <option value="06">June</option>
+          <option value="07">July</option>
+          <option value="08">August</option>
+          <option value="09">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
         </select>
       </div>
 
       <div class="dropdown form-group col-sm-2">
         <label>Year</label>
-        <select id="people_srch_deathdate">
-          <option>yyyy</option>
-          <option value="">2015</option>
-          <option value="">2014</option>
+        <select id="deathdate_year">
+          <option value="">yyyy</option>
+          {% for int in year_range %}
+            <option value="{{int}}">{{int}}</option>
+          {% endfor %}
         </select>
       </div>
     </div>
@@ -133,7 +136,7 @@
             <th class="col-sm-5"><span class="caret"></span> Notes</th>
           </tr>
         </thead>
-        <tbody id="person-linked-table">
+        <tbody id="object-linked-table">
           {% for person in persons %}
             <tr data-person-id="{{ person.id }}">
 
@@ -149,6 +152,8 @@
       </table>
     </div>
   </div>
+
+  <script src="{% static "js/search.js" %}"></script>
 
 </section>
 {% endblock %}

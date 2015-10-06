@@ -1,5 +1,7 @@
 import json
 
+from datetime import date
+
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.base import TemplateView
@@ -84,8 +86,73 @@ class PersonView(TemplateView):
         """
         context['orderby'] = order_by
         context['direction'] = direction
+        context['year_range'] = range(1955, date.today().year + 1)
+        context['day_range'] = range(1, 32)
 
         return context
+
+
+def person_search(request):
+    terms = request.GET.dict()
+
+    persons = Person.objects.all()
+
+    order_by = terms.get('orderby')
+    if not order_by:
+        order_by = 'personname__value'
+
+    direction = terms.get('direction')
+    if not direction:
+        direction = 'ASC'
+
+    dirsym = ''
+    if direction == 'DESC':
+        dirsym = '-'
+
+    person_query = (Person.objects
+                    .annotate(Max(order_by))
+                    .order_by(dirsym + order_by + "__max"))
+
+
+    name = terms.get('name')
+    if name:
+        person_query = person_query.filter(personname__value__contains=name)
+
+    alias_val = terms.get('alias')
+    if alias_val:
+        person_query = person_query.filter(personalias__value__contains=alias_val)
+
+    deathdate_year = terms.get('deathdate_year')
+    if deathdate_year:
+        person_query = person_query.filter(persondeathdate__value__startswith=deathdate_year)
+
+    deathdate_month = terms.get('deathdate_month')
+    if deathdate_month:
+        person_query = person_query.filter(persondeathdate__value__contains="-" + deathdate_month + "-")
+
+    deathdate_day = terms.get('deathdate_day')
+    if deathdate_day:
+        person_query = person_query.filter(persondeathdate__value__endswith=deathdate_day)
+
+    column_names = [_('Name'), _('Alias'), _('Death date')]
+    keys = ['name', 'alias', 'deathdate']
+    persons = [
+        {
+            "id": person.id,
+            "name": person.name.get_value(),
+            "alias": person.alias.get_value(),
+            "deathdate": str(person.deathdate.get_value()),
+        }
+        for person in person_query
+    ]
+
+    return HttpResponse(json.dumps({
+        'success': True,
+        'column_names': column_names,
+        'keys': keys,
+        'objects': persons,
+    }))
+
 
 class PersonUpdate(TemplateView):
     template_name = 'person/edit.html'
