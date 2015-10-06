@@ -91,7 +91,7 @@ class PersonUpdate(TemplateView):
     template_name = 'person/edit.html'
 
     def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['person'])
+        data = json.loads(request.POST.dict()['object'])
         try:
             person = Person.objects.get(pk=kwargs.get('pk'))
         except Person.DoesNotExist:
@@ -124,7 +124,7 @@ class PersonCreate(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
-        data = json.loads(request.POST.dict()['person'])
+        data = json.loads(request.POST.dict()['object'])
         errors = Person.create(data)
 
         if errors is not None:
