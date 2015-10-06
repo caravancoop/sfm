@@ -57,7 +57,7 @@ var source = (function(){
       this.$el_modal.on('shown.bs.modal', this.dynamicAssignments.bind(this));
       this.$el_modal.on('click', '.--src-add-btn', this.addSources.bind(this));
       this.$el_modal.on('click', '.src_del', this.deleteSource.bind(this));
-      $('body').on('click', '.addPerson', this.update.bind(this));
+      $('body').on('click', '.addObject', this.update.bind(this));
     },
     render:function(){
       // render the new list in the modal
@@ -210,7 +210,7 @@ var source = (function(){
         url: window.location,
         data: {
           csrfmiddlewaretoken: window.CSRF_TOKEN,
-          person: JSON.stringify(postData)
+          object: JSON.stringify(postData)
         },
         success: function(response, status){
           console.log(response);
