@@ -118,18 +118,6 @@ class PersonUpdate(TemplateView):
 
         return context
 
-class FieldUpdate(TemplateView):
-    template_name = 'field/popup/edit.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(FieldUpdate, self).get_context_data(**kwargs)
-        person = Person.from_id(context.get('person_id'))
-        field = person.get_attribute_object(
-            "Person"+context.get('field_type').capitalize()
-        )
-        context['field'] = field
-
-        return context
 
 class PersonCreate(TemplateView):
     template_name = 'person/edit.html'
