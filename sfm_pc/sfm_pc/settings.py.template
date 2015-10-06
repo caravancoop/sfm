@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'languages_plus',
     'countries_plus',
     'reversion',
+    'leaflet',
     'sfm_pc',
     'organization',
     'person',
