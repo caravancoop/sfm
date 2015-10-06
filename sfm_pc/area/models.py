@@ -2,8 +2,10 @@ from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
-from complex_fields.model_decorators import versioned, translated, sourced
+from complex_fields.model_decorators import (versioned, translated, sourced,
+                                             sourced_optional)
 from complex_fields.models import ComplexField, ComplexFieldContainer
+from source.models import Source
 
 class Area(models.Model):
     def __init__(self, *args, **kwargs):
@@ -28,9 +30,11 @@ class AreaName(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
+@versioned
+@sourced_optional
 class AreaGeometry(ComplexField):
     object_ref = models.ForeignKey('Area')
-    value = models.MultiPolygonField()
+    value = models.PolygonField(default=None, blank=True, null=True)
     objects = models.GeoManager()
     field_name = _("Location geometry")
 
