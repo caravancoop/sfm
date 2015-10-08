@@ -76,7 +76,11 @@ var moduleController = (function(){
     setMonth:function(currMonth,month){
 
       for(var m = 0; m < this.monthArr.length; ++m){
-        $(month).append('<option value=' + (m+1) + '>' + this.monthArr[m] + '</option>');
+        if(m < 10){
+          $(month).append('<option value="0' + (m+1) + '">' + this.monthArr[m] + '</option>');
+        } else {
+          $(month).append('<option value=' + (m+1) + '>' + this.monthArr[m] + '</option>');
+        }
       }
       if(this.dateIsSet){
         $(month).attr("title", this.monthArr[parseInt(this.oldMonth-1)]);
@@ -96,8 +100,12 @@ var moduleController = (function(){
       // clear out day select
       $($day[0]).empty();
       var daysInMonth = this.daysInMonth(month, year);
-      for(var d = 1; d <= daysInMonth; ++d){
-        $($day[0]).append('<option value=' + d + '>' + d + '</option>');
+      for(var d = 0; d <= daysInMonth; ++d){
+        if( d < 10 ){
+          $($day[0]).append('<option value="0' + d + '">0' + d + '</option>');
+        } else {
+          $($day[0]).append('<option value=' + d + '>' + d + '</option>');
+        }
       }
       this.setDateArrayIndexes(hiddenInputId, 'year');
       this.datePickerArr[this.dt_id_index][this.dt_date_index] = year;
@@ -120,8 +128,12 @@ var moduleController = (function(){
       // clear out day select
       $($day[0]).empty();
       var daysInMonth = this.daysInMonth(month, year);
-      for(var d = 1; d <= daysInMonth; ++d){
-        $($day[0]).append('<option value=' + d + '>' + d + '</option>');
+      for(var d = 0; d <= daysInMonth; ++d){
+        if( d < 10 ){
+          $($day[0]).append('<option value="0' + d + '">0' + d + '</option>');
+        } else {
+          $($day[0]).append('<option value=' + d + '>' + d + '</option>');
+        }
       }
       $($day[0]).prop('disabled', false);
       $('select').selectpicker('refresh');
