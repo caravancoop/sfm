@@ -200,7 +200,6 @@ var source = (function(){
           // console.log($("#"+this.fieldArr[s].field).val());
       }
       // console.log(postData);
-      console.log(JSON.stringify(postData));
       if(this.$mdObjId === 0){
         this.$mdObjId = "add";
       }
@@ -217,8 +216,7 @@ var source = (function(){
           var err_str, err_id;
           for(var key in response.errors){
             err_str = response.errors[key];
-            err_id = Object.keys(response.errors)[0];
-            $("#" + err_id).siblings('.error-message').html("* " + err_str);
+            $("#" + key).siblings('.error-message').html("* " + err_str);
           }
         },
         error: function(requestObject, error, errorThrown) {
