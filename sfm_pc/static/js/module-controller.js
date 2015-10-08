@@ -37,9 +37,9 @@ var moduleController = (function(){
       this.dateWrapper.each(function(){
 
         self.dPickerId = $(this).data('date-target');
-        year = self.dateWrapper.find('.-sfm-year'); // set the year
-        month = self.dateWrapper.find('.-sfm-month'); // set the month
-        day = self.dateWrapper.find('.-sfm-day'); // set the date
+        year = $(this).find('.-sfm-year'); // set the year
+        month = $(this).find('select.-sfm-month'); // set the month
+        day = $(this).find('select.-sfm-day'); // set the date
         $input = $('.date-wrapper[data-date-target='+ self.dPickerId +']').find('input');
         var currentDate = $input.val();
         var tempArray = currentDate.split("-");
