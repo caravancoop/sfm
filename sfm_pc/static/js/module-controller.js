@@ -7,15 +7,12 @@ var moduleController = (function(){
     oldDay:null,
     init:function(){
       this.cacheDom();
-      // this.getModules();
       this.setDates();
       this.bindEvents();
     },
     cacheDom:function(){
       this.$el_modal =  $('#complexFieldModal');
       this.dateWrapper = $('.date-wrapper');
-      this.month = null;
-      this.year = null;
       this.datePickerArr = [];
       this.dPickerId = null;
       this.dt_id_index = null;
@@ -57,13 +54,10 @@ var moduleController = (function(){
           self.dateIsSet = true;
           self.setYear(firstYear,currYear,year);
           self.setMonth(currMonth,month);
-
-
         }
 
       });
       $('select').selectpicker('refresh');
-
     },
     setYear:function(firstYear,currYear,year){
       for(var y = firstYear; y <= currYear; ++y){
@@ -194,10 +188,6 @@ var moduleController = (function(){
       $dateWrapper.find('.-sfm-month').prop('disabled', false);
       $('select').selectpicker('refresh');
       this.updateDates($hiddenInputId);
-    },
-    getModules:function(){
-      // this._srcModule = source.publicAPI();
-      // this._langModule = language.publicAPI();
     },
     updateDates:function(hiddenInputId){
       var $input = $('.date-wrapper[data-date-target='+ hiddenInputId +']' ).find('input');
