@@ -5984,7 +5984,7 @@ input[type=text] {
 div .date-wrapper .btn {
   min-width: 0; }
 
-div .date-wrapper .death-date {
+div .date-wrapper .approx-date {
   width: calc((100%/3) - 5px) !important;
   float: left !important;
   margin-left: 5px !important; }

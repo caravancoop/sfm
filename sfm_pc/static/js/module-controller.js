@@ -143,9 +143,9 @@ var moduleController = (function(){
     },
     // this function binds all the initial events to the selectors
     bindEvents:function(){
-      $('.death-date.-sfm-year').on('change', this.changeYear.bind(this));
-      $('.death-date.-sfm-month').on('change',this.changeMonth.bind(this)) ;
-      $('.death-date.-sfm-day').on('change', this.changeDay.bind(this));
+      $('.approx-date.-sfm-year').on('change', this.changeYear.bind(this));
+      $('.approx-date.-sfm-month').on('change',this.changeMonth.bind(this)) ;
+      $('.approx-date.-sfm-day').on('change', this.changeDay.bind(this));
     },
     changeDay:function(event){
       var $hiddenInputId  = $(event.target).closest('.date-wrapper').data('date-target');

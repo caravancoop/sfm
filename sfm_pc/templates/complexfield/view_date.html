@@ -25,11 +25,11 @@
   </div>
 </label>
 <div class="date-wrapper" data-date-target={{ field_str_id }}>
-  <select name="" id="" class="death-date -sfm-year" title="Year"></select>
-  <select name="" id="" class="death-date -sfm-month" title='Month' disabled>
+  <select name="" id="" class="approx-date -sfm-year" title="Year">
   </select>
-  <select name="" id="" class="death-date -sfm-day" title='Day' disabled>
-    <!-- (option[value=$]{_$})*31 -->
+  <select name="" id="" class="approx-date -sfm-month" title='Month' disabled>
+  </select>
+  <select name="" id="" class="approx-date -sfm-day" title='Day' disabled>
   </select>
   <input type="hidden" class="form-control" id="{{ field_str_id }}" value="{% if value %}{{ value }}{% endif %}" placeholder="Enter {{field_name}}">
   <span class="error-message" data-em-target={{ field_str_id }}></span>
