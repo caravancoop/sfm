@@ -15,14 +15,14 @@ class Organization(models.Model):
         self.name = ComplexFieldContainer(self, OrganizationName)
         self.alias = ComplexFieldContainer(self, OrganizationAlias)
         self.classification = ComplexFieldContainer(self, OrganizationClassification)
-        self.founding_date = ComplexFieldContainer(self, OrganizationFoundingDate)
-        self.dissolution_date = ComplexFieldContainer(self, OrganizationDissolutionDate)
-        self.real_founding = ComplexFieldContainer(self, OrganizationRealFounding)
-        self.real_dissolution = ComplexFieldContainer(self, OrganizationRealDissolution)
+        self.foundingdate = ComplexFieldContainer(self, OrganizationFoundingDate)
+        self.dissolutiondate = ComplexFieldContainer(self, OrganizationDissolutionDate)
+        self.realfounding = ComplexFieldContainer(self, OrganizationRealFounding)
+        self.realdissolution = ComplexFieldContainer(self, OrganizationRealDissolution)
 
         self.complex_fields = [self.name, self.alias, self.classification,
-                               self.founding_date, self.dissolution_date,
-                               self.real_founding, self.real_dissolution]
+                               self.foundingdate, self.dissolutiondate,
+                               self.realfounding, self.realdissolution]
 
     def get_value(self):
         return self.name.get_value()
