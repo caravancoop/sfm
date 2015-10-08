@@ -51,7 +51,7 @@ class OrganizationUpdate(TemplateView):
     template_name = 'organization/edit.html'
 
     def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict())['organization']
+        data = json.loads(request.POST.dict())['object']
         try:
             organization = Organization.objects.get(pk=kwargs.get('pk'))
         except Organization.DoesNotExist:
@@ -84,7 +84,7 @@ class OrganizationCreate(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
-        data = json.loads(request.POST.dict()['organization'])
+        data = json.loads(request.POST.dict()['object'])
         organization = Organization.create(data)
 
         return HttpResponse(json.dumps({"success": True}),
