@@ -24,6 +24,10 @@ class Organization(models.Model):
                                self.foundingdate, self.dissolutiondate,
                                self.realfounding, self.realdissolution]
 
+        self.required_fields = [
+            "Organization_OrganizationName",
+        ]
+
     def get_value(self):
         return self.name.get_value()
 
