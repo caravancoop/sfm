@@ -111,6 +111,7 @@ class OrganizationDissolutionDate(ComplexField):
 
 
 @versioned
+@sourced
 class OrganizationRealFounding(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.BooleanField(default=None)
@@ -118,11 +119,11 @@ class OrganizationRealFounding(ComplexField):
 
 
 @versioned
+@sourced
 class OrganizationRealDissolution(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.BooleanField(default=None)
     field_name = _("Real dissolution")
-
 
 
 class Classification(models.Model):
