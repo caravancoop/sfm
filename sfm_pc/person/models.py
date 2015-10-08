@@ -37,11 +37,15 @@ class Person(models.Model):
         for field in self.complex_fields:
             field_name = field.get_field_str_id()
 
-            if field_name not in dict_values and field_name in self.required_fields:
+            if ((field_name not in dict_values or
+                 dict_values[field_name]['value'] == "") and
+                field_name in self.required_fields):
                 errors[field_name] = "This field is required"
             elif field_name in dict_values:
                 sources = dict_values[field_name].get('sources', [])
-                (error, value) = field.validate(dict_values[field_name]['value'], lang, sources)
+                (error, value) = field.validate(
+                    dict_values[field_name]['value'], lang, sources
+                )
                 if error is not None:
                     errors[field_name] = error
                 else:
@@ -60,7 +64,9 @@ class Person(models.Model):
             field_name = field.get_field_str_id()
 
             if field_name in dict_values:
-                sources = Source.create_sources(dict_values[field_name].get('sources', []))
+                sources = Source.create_sources(
+                    dict_values[field_name].get('sources', [])
+                )
                 field.update(dict_values[field_name]['value'], lang, sources)
 
 
