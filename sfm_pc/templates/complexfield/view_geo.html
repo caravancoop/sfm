@@ -29,21 +29,4 @@
 {% leaflet_js plugins="forms" %}
 {% leaflet_css plugins="forms" %}
   {{ geo_form.value }}
-<script type="text/javascript">
-  $(document).ready(function(e){
-    $(".leaflet-draw-actions li").on("click", function(e){
-      alert("testiiiiiiiiiiii");
-
-    });
-  });
-  //window.addEventListener("map:init", function(e){
-  //});
-  /*L.FieldStoreHere = L.FieldStore.extend({
-    save: function() {
-      
-        alert("test");
-      $("#Area_AreaGeometry").value = this._serialize(layer);
-    }
-  });*/
-</script>
 <span class="error-message" data-em-target={{ field_str_id }}></span>
