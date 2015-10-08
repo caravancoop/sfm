@@ -8,6 +8,7 @@ var moduleController = (function(){
     init:function(){
       this.cacheDom();
       this.setDates();
+      this.setRadios();
       this.bindEvents();
     },
     cacheDom:function(){
@@ -22,6 +23,16 @@ var moduleController = (function(){
       // this._versModule = null;
       // this._langModule = null;
 
+    },
+    setRadios:function(){
+      $.each($('input[type="radio"]:checked'), function(index, element){
+        id = $(element).attr('name');
+        $('#' + id).val($(element).val());
+      });
+    },
+    changeRadio:function(e){
+      elem = $(e.target);
+      $('#' + elem.attr('name')).val(elem.val());
     },
     setDates:function(){
       var d = new Date();
@@ -152,6 +163,7 @@ var moduleController = (function(){
       $('.approx-date.-sfm-year').on('change', this.changeYear.bind(this));
       $('.approx-date.-sfm-month').on('change',this.changeMonth.bind(this)) ;
       $('.approx-date.-sfm-day').on('change', this.changeDay.bind(this));
+      $('input[type="radio"]').on('change', this.changeRadio.bind(this));
     },
     changeDay:function(event){
       var $hiddenInputId  = $(event.target).closest('.date-wrapper').data('date-target');

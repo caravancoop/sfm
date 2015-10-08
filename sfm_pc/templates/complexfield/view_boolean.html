@@ -1,0 +1,33 @@
+{% load i18n %}
+
+<label for="{{field_str_id}}">{{field_name}}
+  <div class="actions"><button type="button" class="sfm-btn-option input-action-btn" data-popover-content=".input-actions-{{field_str_id}}" data-toggle="popover" data-placement="bottom"><i class="fa fa-ellipsis-h"></i></button></div>
+  <div class=" hide input-actions input-actions-{{field_str_id}}">
+    <ul>
+      {% if sourced %}
+      <li>
+        <a class="modalBox" href="" title="{% trans Source %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/source/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}" data-model-object-id="{{object_id}}"><i class="fa fa-link"> Source</i></a>
+      </li>
+      {% endif %}
+      {% if "add" not in path %}
+      {% if versioned %}
+      <li>
+        <a class="modalBox" href="" title="{% trans Versioned %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/version/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-undo"></i> Version</a>
+      </li>
+      {% endif %}
+      {% if translated %}
+      <li>
+        <a class="modalBox" href="" title="{% trans Translated %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/translate/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-flag"></i> Language</a>
+      </li>
+    </ul>
+    {% endif %}
+  {% endif %}
+  </div>
+</label>
+<div>
+  <input type="hidden" id="{{field_str_id}}" value="{{value}}">
+  <label class="radio-inline" style="width:40%;"><input type="radio" name="{{field_str_id}}" value="true" {% if value %}checked{% endif %}>{% trans "Yes" %}</label>
+  <label class="radio-inline" style="width:40%;"><input type="radio" name="{{field_str_id}}" value="false" {% if not value %}checked{% endif %}>{% trans "No" %}</label>
+</div>
+
+<span class="error-message" data-em-target={{ field_str_id }}></span>
