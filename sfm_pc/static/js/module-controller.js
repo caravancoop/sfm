@@ -115,7 +115,6 @@ var moduleController = (function(){
         this.datePickerArr[this.dt_id_index][this.dt_date_index] = this.oldDay;
       }
       $($day[0]).prop('disabled', false);
-      $('select').selectpicker('refresh');
     },
     setDay:function(hiddenInputId){
       var year = this.datePickerArr[hiddenInputId]['year'];
@@ -132,7 +131,6 @@ var moduleController = (function(){
         }
       }
       $($day[0]).prop('disabled', false);
-      $('select').selectpicker('refresh');
     },
     daysInMonth:function (month,year) {
       return new Date(year, month, 0).getDate();
@@ -164,6 +162,7 @@ var moduleController = (function(){
       // store month in datePickerArr array
       this.datePickerArr[this.dt_id_index][this.dt_date_index] = $newValue;
       this.updateDates($hiddenInputId);
+      $('select').selectpicker('refresh');
     },
     changeMonth:function(event){
       var $dateWrapper = $(event.target).closest('.date-wrapper');
@@ -176,6 +175,7 @@ var moduleController = (function(){
       this.datePickerArr[this.dt_id_index][this.dt_date_index] = $newValue;
       this.setDay($hiddenInputId);
       this.updateDates($hiddenInputId);
+      $('select').selectpicker('refresh');
 
     },
     changeYear:function(event){
@@ -188,8 +188,8 @@ var moduleController = (function(){
       // store month in datePickerArr array
       this.datePickerArr[this.dt_id_index][this.dt_date_index] = $newValue;
       $dateWrapper.find('.-sfm-month').prop('disabled', false);
-      $('select').selectpicker('refresh');
       this.updateDates($hiddenInputId);
+      $('select').selectpicker('refresh');
     },
     updateDates:function(hiddenInputId){
       var $input = $('.date-wrapper[data-date-target='+ hiddenInputId +']' ).find('input');
