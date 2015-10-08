@@ -109,7 +109,9 @@ var moduleController = (function(){
 
       if(this.dateIsSet){
         // console.log($($day[0]));
-        $($day[0]).attr("title", this.oldDay);
+        if( this.oldDay != 0){
+          $($day[0]).attr("title", this.oldDay);
+        }
         this.datePickerArr[this.dt_id_index][this.dt_date_index] = this.oldDay;
       }
       $($day[0]).prop('disabled', false);
