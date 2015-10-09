@@ -124,7 +124,7 @@ def classification_autocomplete(request):
     )
 
     classifications = [
-        _(classif.value)
+        {"value": classif.id, "label":_(classif.value)}
         for classif in classifications
     ]
 
