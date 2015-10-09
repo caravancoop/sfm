@@ -70,11 +70,11 @@ class Organization(models.Model):
         for field in self.complex_fields:
             field_name = field.get_field_str_id()
 
-            if field in dict_values:
-                source = Source.create_sources(
+            if field_name in dict_values:
+                sources = Source.create_sources(
                     dict_values[field_name].get('sources', [])
                 )
-                field.update(dict_values[field_name]['values'], lang, sources)
+                field.update(dict_values[field_name]['value'], lang, sources)
 
 
     @classmethod
