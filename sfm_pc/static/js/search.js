@@ -5,6 +5,7 @@ var moduleController = (function(){
         this.loadPage();
         this.refreshResults();
         this.bindInputs();
+        this.bindPopstate();
     }
 
     /**
@@ -61,13 +62,16 @@ var moduleController = (function(){
      */
     this.paramsExtract = function(){
         var qstring = window.location.hash;
+        this.params = {}
 
         if(qstring){
             var qsplit = qstring.substr(1).split('&');
 
             for (var params in qsplit) {
-                var pair = qsplit[params].split('=');
-                this.params[pair[0]] = decodeURIComponent(pair[1]);
+                if(params != "clean"){
+                    var pair = qsplit[params].split('=');
+                    this.params[pair[0]] = decodeURIComponent(pair[1]);
+                }
             }
         }
     }
@@ -82,7 +86,7 @@ var moduleController = (function(){
         history.pushState({}, "",
             window.location.origin +
             window.location.pathname +
-            "?#" + this.params.serialize());
+            "?#" + $.param(this.params));
     }
 
     /*
@@ -95,6 +99,18 @@ var moduleController = (function(){
             update(elem);
         });
     }
+
+    /*
+     * Bind popstate event
+     */
+     this.bindPopstate = function(){
+        self = this;
+        window.onpopstate = function(e){
+            e.preventDefault();
+            this.loadPage();
+            this.refreshResults();
+        }
+     }
 
     this.init();
 })();
