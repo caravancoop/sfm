@@ -1,11 +1,24 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 {% block content %}
 <section class="content">
-  <div class="inner-title-wrapper row header">
-    <h3 class="page-title">{% trans "Search a membership" %}</h3>
-    <a href="/membership/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
+
+  <tr id="table-row-template">
+    <td class="col-src"></td>
+    <td class="col-conf"></td>
+    <td class="col-del"></td>
+  </tr>
+
+  <div class="row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Search a membership" %}</h1>
+      <div class="pull-right">
+        <a href="/membership/add/" class="btn sfm-btn-action"><i class="fa fa-plus"> Add New</i></a>
+      </div>
+    </div>
   </div>
+
   <form>
     <div class="row">
       <div class="form-group col-sm-4">
@@ -17,7 +30,6 @@
           {% endfor %}
         </select>
       </div>
-
       <div class="form-group col-sm-4">
         <label for="rank">{% trans "Rank" %}</label>
         <select class="form-group dropdown" id="rank" placeholder="{% trans "Enter rank" %}">
@@ -75,9 +87,9 @@
 
   <div class="row">
     <div class="col-sm-12 form-group">
-      <label for="people_srch_post">{{ memberships|length }} Results
+      <label for="people_srch_post">{{ memberships|length }} {% trans "Results" %}
         <div class="actions">
-          <button type="button" class="btn sfm-btn-action">Export <i class="fa fa-share-square-o"></i></button>
+          <button type="button" class="btn sfm-btn-action">{% trans "Export" %} <i class="fa fa-share-square-o"></i></button>
         </div>
       </label>
     </div>
@@ -93,21 +105,15 @@
             <th class="col-sm-3"><span class="caret"></span>{% trans "Rank" %}</th>
             <th class="col-sm-2"><span class="caret"></span>{% trans "Start date" %}</th>
             <th class="col-sm-2"><span class="caret"></span>{% trans "End date" %}</th>
-        </tr>
-      </thead>
-    <tbody>
-      {% for member in memberships %}
-        <tr data-person-id="{{ member.id }}">
-          <td>{% trans member.role.get_value.value %}</td>
-          <td>{% trans member.title.get_value.value %}</td>
-          <td>{% trans member.rank.get_value.value %}</td>
-          <td>{{ member.start_date }}</td>
-          <td>{{ member.end_date }}
-            <i class="fa fa-times-circle fa-lg actions"></i>
-          </td>
-        </tr>
-      {% endfor %}
+          </tr>
+        </thead>
+        <tbody id="object-linked-table">
+        </tbody>
+      </table>
     </div>
   </div>
+
+  <script src="{% static "js/search.js" %}"></script>
+
 </section>
 {% endblock %}
