@@ -47,39 +47,80 @@
 
     <div class="row">
       <div class="dropdown form-group col-sm-2">
-        <label>Death date</label>
-        <select id="people_srch_deathdate">
-          <option>dd</option>
-          <option value="">01</option>
-          <option value="">02</option>
+        <label>{% trans "Start date" %}</label>
+        <select id="startdate_day">
+          <option>{% trans "dd" %}</option>
+          {% for int in day_range %}
+            <option value="{% if int < 10 %}0{% endif %}{{ int }}">{{ int }}</option>
+          {% endfor %}
         </select>
       </div>
 
       <div class="dropdown form-group col-sm-2">
-        <label>Month</label>
-        <select id="people_srch_deathdate">
-          <option>mm</option>
-          <option value="">January</option>
-          <option value="">February</option>
-          <option value="">March</option>
-          <option value="">April</option>
-          <option value="">May</option>
-          <option value="">June</option>
-          <option value="">July</option>
-          <option value="">August</option>
-          <option value="">September</option>
-          <option value="">October</option>
-          <option value="">November</option>
-          <option value="">December</option>
+        <label>{% trans "Month" %}</label>
+        <select id="startdate_month">
+          <option>{% trans "mm" %}</option>
+          <option value="">{% trans "January" %}</option>
+          <option value="">{% trans "February" %}</option>
+          <option value="">{% trans "March" %}</option>
+          <option value="">{% trans "April" %}</option>
+          <option value="">{% trans "May" %}</option>
+          <option value="">{% trans "June" %}</option>
+          <option value="">{% trans "July" %}</option>
+          <option value="">{% trans "August" %}</option>
+          <option value="">{% trans "September" %}</option>
+          <option value="">{% trans "October" %}</option>
+          <option value="">{% trans "November" %}</option>
+          <option value="">{% trans "December" %}</option>
         </select>
       </div>
 
       <div class="dropdown form-group col-sm-2">
-        <label>Year</label>
-        <select id="people_srch_deathdate">
-          <option>yyyy</option>
-          <option value="">2015</option>
-          <option value="">2014</option>
+        <label>{% trans "Year" %}</label>
+        <select id="startdate_year">
+          <option>{% trans "yyyy" %}</option>
+          {% for int in year_range %}
+            <option value="{{int}}">{{int}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "End date" %}</label>
+        <select id="enddate_day">
+          <option>{% trans "dd" %}</option>
+          {% for int in day_range %}
+            <option value="{% if int < 10 %}0{% endif %}{{ int }}">{{ int }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Month" %}</label>
+        <select id="enddate_month">
+          <option>{% trans "mm" %}</option>
+          <option value="">{% trans "January" %}</option>
+          <option value="">{% trans "February" %}</option>
+          <option value="">{% trans "March" %}</option>
+          <option value="">{% trans "April" %}</option>
+          <option value="">{% trans "May" %}</option>
+          <option value="">{% trans "June" %}</option>
+          <option value="">{% trans "July" %}</option>
+          <option value="">{% trans "August" %}</option>
+          <option value="">{% trans "September" %}</option>
+          <option value="">{% trans "October" %}</option>
+          <option value="">{% trans "November" %}</option>
+          <option value="">{% trans "December" %}</option>
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Year" %}</label>
+        <select id="enddate_year">
+          <option>{% trans "yyyy" %}</option>
+          {% for int in year_range %}
+            <option value="{{int}}">{{int}}</option>
+          {% endfor %}
         </select>
       </div>
     </div>
