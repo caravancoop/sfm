@@ -1,98 +1,110 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 {% block content %}
 <section class="content">
-    <div class="inner-title-wrapper row header">
-         <h3 class="page-title">{% trans "Search a composition" %}</h3>
-         <a href="/composition/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
+
+  <tr id="table-row-template">
+    <td class="col-src"></td>
+    <td class="col-conf"></td>
+    <td class="col-del"></td>
+  </tr>
+
+  <div class="row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Search a composition" %}</h1>
+      <div class="pull-right">
+        <a href="/composition/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> {% trans "Add new" %}</a>
+      </div>
     </div>
-		<form>
-			<div class="row">
-				<div class="form-group col-sm-4">
-					<label for="name">{% trans "Start date" %}</label>
-					<input type="text" class="form-control" id="startdate" placeholder="{% trans "Enter Date" %}">
-				</div>
-				<div class="form-group col-sm-4">
-					<label for="alias">{% trans "End date" %}</label>
-					<input type="text" class="form-control" id="enddate" placeholder="{% trans "Enter Date" %}">
-				</div>
-				<div class="form-group col-sm-4">
-                    <label for="classification">{% trans "Classification" %}</label>
-                    <input type="text" class="form-control" id="classification" placeholder="{% trans "Enter classification" %}">
-                    <script type="text/javascript">
-                        $("#classification").autocomplete({
-                            source: "/" + window.LANG + "/organization/classification/autocomplete"
-                        });
-                    </script>
-                </div>
-			</div>
-            <div class="row">
-            </div>
+  </div>
 
-			<div class="row">
-				<div class="dropdown form-group col-sm-5">
-					<label for="parent">{% trans "Parent organization" %}</label>
-                    <input type="text" class="form-control" id="parent" placeholder="{% trans "Enter parent organization" %}">
-                    <script type="text/javascript">
-                        $("#parent").autocomplete({
-                            source: "/" + window.LANG + "/organization/autocomplete"
-                        });
-                    </script>
-				</div>
-                <div class="col-sm-2">
-                  With
-                </div>
+  <form>
+    <div class="row">
+      <div class="form-group col-sm-4">
+        <label for="name">{% trans "Start date" %}</label>
+        <input type="text" class="form-control" id="startdate" placeholder="{% trans "Enter Date" %}">
+      </div>
+      <div class="form-group col-sm-4">
+        <label for="alias">{% trans "End date" %}</label>
+        <input type="text" class="form-control" id="enddate" placeholder="{% trans "Enter Date" %}">
+      </div>
+      <div class="form-group col-sm-4">
+        <label for="classification">{% trans "Classification" %}</label>
+        <input type="text" class="form-control" id="classification" placeholder="{% trans "Enter classification" %}">
+        <script type="text/javascript">
+          $("#classification").autocomplete({
+            source: "/" + window.LANG + "/organization/classification/autocomplete"
+          });
+        </script>
+      </div>
+    </div>
 
-				<div class="dropdown form-group col-sm-5">
-					<label for="child">{% trans "Child organization" %}</label>
-                    <input type="text" class="form-control" id="child" placeholder="{% trans "Enter child organization" %}">
-                    <script type="text/javascript">
-                        $("#child").autocomplete({
-                            source: "/" + window.LANG + "/organization/autocomplete"
-                        });
-                    </script>
-				</div>
+    <div class="row">
+      <div class="dropdown form-group col-sm-5">
+        <label for="parent">{% trans "Parent organization" %}</label>
+        <input type="text" class="form-control" id="parent" placeholder="{% trans "Enter parent organization" %}">
+        <script type="text/javascript">
+          $("#parent").autocomplete({
+            source: "/" + window.LANG + "/organization/autocomplete"
+          });
+        </script>
+      </div>
+      <div class="form-group col-sm-2">
+        <label>&nbsp;</label>
+        <div class="text-center">{% trans "With" %}</div>
+      </div>
+      <div class="dropdown form-group col-sm-5">
+        <label for="child">{% trans "Child organization" %}</label>
+        <input type="text" class="form-control" id="child" placeholder="{% trans "Enter child organization" %}">
+        <script type="text/javascript">
+          $("#child").autocomplete({
+            source: "/" + window.LANG + "/organization/autocomplete"
+          });
+        </script>
+      </div>
+    </div>
+  </form>
 
-			</div>
-		</form>
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      <label for="people_srch_post">{{ compositions|length }} {% trans "Results" %}
+        <div class="actions">
+          <button type="button" class="btn sfm-btn-action">{% trans "Export" %} <i class="fa fa-share-square-o"></i></button>
+        </div>
+      </label>
+    </div>
+  </div>
 
-		<div class="row">
-			<div class="col-sm-12 form-group">
-				<label for="people_srch_post">{{ compositions|length }} Results
-					<div class="actions">
-						<button type="button" class="btn sfm-btn-action">Export <i class="fa fa-share-square-o"></i></button>
-					</div>
-				</label>
-			</div>
-		</div>
+  <div class="row">
+    <div class="table-responsive col-sm-12">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Start date" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "End date" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Classification" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Parent" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Child" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for compos in compositions %}
+            <tr data-person-id="{{ org.id }}">
+              <td>{{ compos.startdate }}</td>
+              <td>{{ compos.enddate }}</td>
+              <td>{{ compos.classification.get_value.value }}</td>
+              <td>{{ compos.parent.name.value }}</td>
+              <td>{{ compos.child.name.value }}
+                <i class="fa fa-times-circle fa-lg actions"></i>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </div>
+    </div>
 
-		<div class="row">
-			<div class="table-responsive col-sm-12">
-				<table class="table table-bordered table-striped">
-					<thead>
-						<tr>
-							<th class="col-sm-2"><span class="caret"></span>{% trans "Start date" %}</th>
-							<th class="col-sm-2"><span class="caret"></span>{% trans "End date" %}</th>
-							<th class="col-sm-2"><span class="caret"></span>{% trans "Classification" %}</th>
-							<th class="col-sm-2"><span class="caret"></span>{% trans "Parent" %}</th>
-							<th class="col-sm-2"><span class="caret"></span>{% trans "Child" %}</th>
-						</tr>
-					</thead>
-					<tbody>
-                        {% for compos in compositions %}
-						<tr data-person-id="{{ org.id }}">
-							<td>{{ compos.startdate }}</td>
-							<td>{{ compos.enddate }}</td>
-							<td>{{ compos.classification.get_value.value }}</td>
-							<td>{{ compos.parent.name.value }}</td>
-							<td>{{ compos.child.name.value
-								<i class="fa fa-times-circle fa-lg actions"></i>
-							</td>
-						</tr>
-                        {% endfor %}
-                    </tbody>
-				</div>
-			</div>
+    <script src="{% static "js/search.js" %}"></script>
 
-		</section>
-	{% endblock %}
+  </section>
+{% endblock %}
