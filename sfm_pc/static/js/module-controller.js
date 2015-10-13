@@ -55,13 +55,10 @@ var moduleController = (function(){
         self.oldMonth = tempArray[1];
         self.oldDay = tempArray[2];
         //set the year
-        // console.log($input);
         if($input.val() === ""){
-          console.log("empty");
           self.setYear(firstYear,currYear,year);
           self.setMonth(currMonth,month);
         }else{
-          console.log("full");
           self.dateIsSet = true;
           self.setYear(firstYear,currYear,year);
           self.setMonth(currMonth,month);
@@ -96,7 +93,6 @@ var moduleController = (function(){
     setOldDay:function(hiddenInputId){
 
       var $input = $('.date-wrapper[data-date-target='+ hiddenInputId  +']').find('input');
-      // console.log($input);
       var currentDate = $input.val();
       var tempArray = currentDate.split("-");
       var year = tempArray[0];
@@ -119,7 +115,6 @@ var moduleController = (function(){
       this.setDateArrayIndexes(hiddenInputId, 'day');
 
       if(this.dateIsSet){
-        // console.log($($day[0]));
         if( this.oldDay != 0){
           $($day[0]).attr("title", this.oldDay);
         }
@@ -209,7 +204,6 @@ var moduleController = (function(){
       var month = this.datePickerArr[hiddenInputId]['month'];
       var day = this.datePickerArr[hiddenInputId]['day'];
       // if($input.val() === ""){
-        console.log("empty");
 
         if(year === undefined){
           year = 00;
@@ -221,18 +215,15 @@ var moduleController = (function(){
           day = 00;
         }
       // }else{
-      //   console.log("not empty");
       //   var currentDate = $input.val();
       //   var tempArray = currentDate.split("-");
       //   this.datePickerArr[hiddenInputId]['year'] = tempArray[0];
       //   this.datePickerArr[hiddenInputId]['month'] = tempArray[1];
       //   this.datePickerArr[hiddenInputId]['day'] = tempArray[2];
-      //   // console.log(tempArray);
       //
       // }
 
       $input.val(year + '-' + month + '-' + day);
-      console.log($input.val());
 
     }
 
@@ -240,8 +231,6 @@ var moduleController = (function(){
   modCtrl.init();
   return {
     dispModObjs: function(){
-      // console.log(modCtrl._srcModule);
-      // console.log(modCtrl._langModule);
     }
   };
 })();
