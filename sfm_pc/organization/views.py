@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 from django.views.generic.edit import UpdateView
 from django.views.generic.base import TemplateView
