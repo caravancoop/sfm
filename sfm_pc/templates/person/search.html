@@ -13,7 +13,7 @@
     <div class="inner-title-wrapper">
       <h1 class="page-title">{% trans "Person" %}</h1>
       <div class="pull-right">
-        <a href="/person/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> Add New</a>
+        <a href="/person/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> {% trans "Add New" %}</a>
       </div>
     </div>
   </div>
@@ -36,7 +36,7 @@
 
     <div class="row">
       <div class="dropdown form-group col-sm-6">
-        <label>Membership</label>
+        <label>{% trans "Membership" %}</label>
         <select id="people_srch_membership">
           <option>Choose or create...</option>
           <option value="">Commander</option>
@@ -45,9 +45,9 @@
       </div>
 
       <div class="dropdown form-group col-sm-2">
-        <label>Death date</label>
+        <label>i{% trans "Death date" %}</label>
         <select id="deathdate_day">
-          <option value="">dd</option>
+          <option value="">{% trans "dd" %}</option>
           {% for int in day_range %}
             <option value="{% if int < 10 %}0{% endif %}{{int}}">{{int}}</option>
           {% endfor %}
@@ -57,7 +57,7 @@
       <div class="dropdown form-group col-sm-2">
         <label>{% trans "Month" %}</label>
         <select id="deathdate_month">
-          <option value="">mm</option>
+          <option value="">{% trans "mm" %}</option>
           <option value="01">{% trans "January" %}</option>
           <option value="02">{% trans "February" %}</option>
           <option value="03">{% trans "March" %}</option>
@@ -74,9 +74,9 @@
       </div>
 
       <div class="dropdown form-group col-sm-2">
-        <label>Year</label>
+        <label>{% trans "Year" %}</label>
         <select id="deathdate_year">
-          <option value="">yyyy</option>
+          <option value="">{% trans "yyyy" %}</option>
           {% for int in year_range %}
             <option value="{{int}}">{{int}}</option>
           {% endfor %}
@@ -87,25 +87,25 @@
 
     <div class="row">
       <div class="dropdown form-group col-sm-6">
-        <label>Radius</label>
+        <label>{% trans "Radius" %}</label>
         <select id="people_srch_radius">
-          <option>1 - 25km</option>
-          <option value="1">1 km</option>
-          <option value="2">2 km</option>
-          <option value="3">3 km</option>
-          <option value="4">4 km</option>
-          <option value="5">5 km</option>
-          <option value="6">6 km</option>
+          <option>{% trans "1 - 25km" %}</option>
+          <option value="1">{% trans "1 km" %}</option>
+          <option value="2">{% trans "2 km" %}</option>
+          <option value="3">{% trans "3 km" %}</option>
+          <option value="4">{% trans "4 km" %}</option>
+          <option value="5">{% trans "5 km" %}</option>
+          <option value="6">{% trans "6 km" %}</option>
         </select>
       </div>
 
       <div class="form-group col-sm-2">
-        <label for="latitude">Longitude</label>
+        <label for="latitude">{% trans "Longitude" %}</label>
         <input type="text" class="form-control" id="latitude" placeholder="12.73">
       </div>
 
       <div class="form-group col-sm-2">
-        <label for="longitude">Latitude</label>
+        <label for="longitude">{% trans "Latitude" %}</label>
         <input type="text" class="form-control" id="longitude" placeholder="81.45">
       </div>
 
@@ -118,9 +118,9 @@
 
   <div class="row">
     <div class="col-sm-12 form-group">
-      <label for="people_srch_post">{{ persons|length }} Results
+      <label for="people_srch_post">{{ persons|length }} {% trans "Results" %}
         <div class="actions">
-          <button type="button" class="btn sfm-btn-action">Export <i class="fa fa-share-square-o"></i></button>
+          <button type="button" class="btn sfm-btn-action">{% trans "Export" %} <i class="fa fa-share-square-o"></i></button>
         </div>
       </label>
     </div>
@@ -131,9 +131,9 @@
       <table class="table table-bordered table-striped table-hover">
         <thead>
           <tr>
-            <th class="col-sm-3"><span class="caret"></span> Name</th>
-            <th class="col-sm-4"><span class="caret"></span> Alias</th>
-            <th class="col-sm-5"><span class="caret"></span> Notes</th>
+            <th class="col-sm-3"><span class="caret"></span>{% trans "Name" %}</th>
+            <th class="col-sm-4"><span class="caret"></span>{% trans "Alias" %}</th>
+            <th class="col-sm-5"><span class="caret"></span>{% trans "Notes" %}</th>
           </tr>
         </thead>
         <tbody id="object-linked-table">
