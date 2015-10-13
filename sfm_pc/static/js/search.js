@@ -37,10 +37,13 @@ var moduleController = (function(){
             $.each(data.objects, function(index, object){
                 row = "<tr data-object-id='" + object['id'] + "'>";
                 $.each(data.keys, function(i, key){
-                    row += "<td>" + object[key] + "</td>";
+                    row += "<td><a href='" + object['id'] + "'></a>" + object[key] + "</td>";
                 })
                 row += "</tr>";
                 $('#object-linked-table').append(row);
+            });
+            $("#object-linked-table tr").click( function() {
+                window.location = $(this).find('a').attr('href');
             });
         }
     }
