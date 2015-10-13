@@ -4,69 +4,67 @@
 {% load i18n %}
 {% block content %}
 <section class="content">
-  <div class="inner-title-wrapper row header">
-    <h3 class="page-title">{% trans "Membership" %}</h3>
-    <a href="/membership/add/" class="btn sfm-btn-action">Add New <i class="fa fa-plus"></i></a>
+  <div class="row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Membership" %}</h1>
+      <div class="pull-right">
+        <a href="/membership/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> Add New</a>
+      </div>
+    </div>
   </div>
+
   <div class="row">
     <div class="col-sm-12">
       <h4>Properties</h4>
     </div>
   </div>
 
-  <div class="modal fade sourceModal" id="complexFieldModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
+  <div class="row">
+    <form>
+      <div class="form-group col-sm-4">
+        {% view_complex_field membership.person membership.id request.path %}
+        <script type="text/javascript">
+          $("#Membership_MembershipPerson").autocomplete({
+            source: "/" + window.LANG + "/person/name/autocomplete/"
+          });
+        </script>
+      </div>
+      <div class="form-group col-sm-4">
+        {% view_complex_field membership.organization membership.id request.path %}
+      </div>
+      <div class="form-group col-sm-4">
+        {% view_complex_field membership.role membership.id request.path %}
       </div>
     </div>
-  </div>
+    <div class="row">
+      <div class="form-group col-sm-4">
+        {% view_complex_field membership.title membership.id request.path %}
+      </div>
+      <div class="form-group col-sm-4">
+        {% view_complex_field membership.rank membership.id request.path %}
+      </div>
+    </div><!-- /.row-->
+ 
+    <div class="row">
+      <h5>Dates</h5>
 
-    <form>
-        <div class="row">
-            <div class="form-group col-sm-4">
-                {% view_complex_field membership.person membership.id request.path %}
-                <script type="text/javascript">
-                    $("#Membership_MembershipPerson").autocomplete({
-                        source: "/" + window.LANG + "/person/name/autocomplete/"
-                    });
-                </script>
-            </div>
-            <div class="form-group col-sm-4">
-                {% view_complex_field membership.organization membership.id request.path %}
-            </div>
-            <div class="form-group col-sm-4">
-                {% view_complex_field membership.role membership.id request.path %}
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-sm-4">
-                {% view_complex_field membership.title membership.id request.path %}
-            </div>
-            <div class="form-group col-sm-4">
-                {% view_complex_field membership.rank membership.id request.path %}
-            </div>
-        </div><!-- /.row-->
-        <div class="row">
-            <h5>Dates</h5>
-
-        <div class="row">
-            {% for date in membership.date.get_list %}
-                <div class="form-group col-sm-3">
-                    {% view_complex_field date membership.id request.path %}
-                </div>
-                <p>
-                    {{ date.value }}
-                    <a class="btn">Delete</a>
-                </p>
-            {% endfor %}
-        </div></div>
+      <div class="row">
+        {% for date in membership.date.get_list %}
+          <div class="form-group col-sm-3">
+            {% view_complex_field date membership.id request.path %}
+          </div>
+          <p>
+            {{ date.value }}
+            <a class="btn">Delete</a>
+          </p>
+        {% endfor %}
+      </div>
     </form>
-
 
   <div class="row">
     <div class="col-sm-12 col-md-12">
       <button class="btn sfm-btn-cancel col-sm-2" type="submit">Cancel</button>
-      <button class="btn col-sm-2 pull-right sfm-btn-action addPerson" type="submit">Save</button>
+      <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
     </div>
   </div>
 
