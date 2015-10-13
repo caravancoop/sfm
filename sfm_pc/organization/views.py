@@ -28,23 +28,114 @@ class OrganizationView(TemplateView):
         if direction == 'DESC':
             dirsym = '-'
 
-        org_query = (Organization.objects
+        orgs_query = (Organization.objects
                         .annotate(Max(order_by))
                         .order_by(dirsym + order_by + "__max"))
 
         name = self.request.GET.get('name')
         if name:
-            org_query = org_query.filter(organizationname__value__contains=name)
+            orgs_query = orgs_query.filter(organizationname__value__contains=name)
 
         alias_val = self.request.GET.get('alias')
         if name:
-            org_query = org_query.filter(
+            orgs_query = orgs_query.filter(
                 organizationalias__value__contains=alias_val
             )
 
-        context['organizations'] = org_query
+        context['organizations'] = orgs_query
+        context['year_range'] = range(1955, date.today().year + 1)
+        context['day_range'] = range(1, 31)
 
         return context
+
+def organization_search(request):
+    terms = request.GET.dict()
+
+    order_by = terms.get('orderby')
+    if not order_by:
+        order_by = 'organizationname__value'
+
+    direction = terms.get('direction')
+    if not direction:
+        direction = 'ASC'
+
+    dirsym = ''
+    if direction == 'DESC':
+        dirsym = '-'
+
+    orgs_query = (Organization.objects
+                  .annotate(Max(order_by))
+                  .order_by(dirsym + order_by + "__max"))
+
+
+    name = terms.get('name')
+    if name:
+        orgs_query = orgs_query.filter(organizationname__value__contains=name)
+
+    alias_val = terms.get('alias')
+    if alias_val:
+        orgs_query = orgs_query.filter(organizationalias__value__contains=alias_val)
+
+    foundingdate_year = terms.get('founding_year')
+    if foundingdate_year:
+        orgs_query = orgs_query.filter(
+            organizationfoundingdate__value__startswith=foundingdate_year
+        )
+
+    foundingdate_month = terms.get('founding_month')
+    if foundingdate_month:
+        orgs_query = orgs_query.filter(
+            organizationfoundingdate__value__contains="-" + foundingdate_month + "-"
+        )
+
+    foundingdate_day = terms.get('founding_day')
+    if foundingdate_day:
+        orgs_query = orgs_query.filter(
+            organizationfoundingdate__value__endswith=foundingdate_day
+        )
+
+    dissolutiondate_year = terms.get('dissolution_year')
+    if dissolutiondate_year:
+        orgs_query = orgs_query.filter(
+            organizationdissolutiondate__value__startswith=dissolutiondate_year
+        )
+
+    dissolutiondate_month = terms.get('dissolution_month')
+    if dissolutiondate_month:
+        orgs_query = orgs_query.filter(
+            organizationdissolutiondate__value__contains="-" + dissolutiondate_month + "-"
+        )
+
+    dissolutiondate_day = terms.get('dissolution_day')
+    if dissolutiondate_day:
+        orgs_query = orgs_query.filter(
+            organizationdissolutiondate__value__endswith=dissolutiondate_day
+        )
+
+    classification = terms.get('classification')
+    if classification:
+        orgs_query = orgs_query.filter(organizationclassification__value_id=classification)
+
+    keys = ['name', 'alias', 'classification', 'superiorunit', 'foundingdate',
+            'dissolutiondate']
+    orgs = [
+        {
+            "id": org.id,
+            "name": org.name.get_value(),
+            "alias": org.alias.get_value(),
+            "classification": str(org.classification.get_value().value),
+            "superiorunit": "TODO",
+            "foundingdate": str(org.foundingdate.get_value()),
+            "dissolutiondate": str(org.dissolutiondate.get_value()),
+        }
+        for org in orgs_query
+    ]
+
+    return HttpResponse(json.dumps({
+        'success': True,
+        'keys': keys,
+        'objects': orgs,
+    }))
 
 
 class OrganizationUpdate(TemplateView):

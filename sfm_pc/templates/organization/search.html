@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 {% block content %}
 <section class="content">
 
@@ -143,22 +144,13 @@
           </tr>
         </thead>
 
-        <tbody>
-        {% for org in organizations %}
-          <tr data-person-id="{{ org.id }}">
-            <td>{{ org.name }}</td>
-            <td>{{ org.alias }}</td>
-            <td>{{ org.classification.get_value.value }}</td>
-            <td>TODO</td>
-            <td>TODO</td>
-            <td>TODO
-              <i class="fa fa-times-circle fa-lg actions"></i>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
+        <tbody id="object-linked-table">
+        </tbody>
+      </table>
     </div>
   </div>
+
+  <script src="{% static "js/search.js" %}"></script>
 
 </section>
 {% endblock %}
