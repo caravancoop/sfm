@@ -137,17 +137,6 @@
           </tr>
         </thead>
         <tbody id="object-linked-table">
-          {% for person in persons %}
-            <tr data-person-id="{{ person.id }}">
-
-              <td><a href="{{person.id}}"></a>{{ person.name }}</td>
-              <td>{{ person.alias }}</td>
-              <td>{{ person.notes }}
-                <i class="fa fa-times-circle fa-lg actions"></i>
-              </td>
-
-            </tr>
-          {% endfor %}
         </tbody>
       </table>
     </div>
