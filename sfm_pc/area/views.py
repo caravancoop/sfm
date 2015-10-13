@@ -7,6 +7,13 @@ from .models import Area
 from .forms import ZoneForm
 
 
+class AreaView(TemplateView):
+    template_name = 'area/search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AreaView, self).get_context_data(**kwargs)
+
+
 class AreaUpdate(TemplateView):
     template_name = 'area/edit.html'
 
