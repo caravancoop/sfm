@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block content %}
+<section class="content">
+
+  <div class="row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Search Violations" %}</h1>
+      <div class="pull-right">
+        <a href="/violation/add/" class="btn sfm-btn-action"><i class="fa fa-plus"> Add New</i></a>
+      </div>
+    </div>
+  </div>
+
+  <form>
+    <div class="row">
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Start date" %}</label>
+        <select id="startdate_day">
+          <option>{% trans "dd" %}</option>
+          {% for int in day_range %}
+            <option value="{% if int < 10 %}0{% endif %}{{ int }}">{{ int }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Month" %}</label>
+        <select id="startdate_month">
+          <option>{% trans "mm" %}</option>
+          <option value="">{% trans "January" %}</option>
+          <option value="">{% trans "February" %}</option>
+          <option value="">{% trans "March" %}</option>
+          <option value="">{% trans "April" %}</option>
+          <option value="">{% trans "May" %}</option>
+          <option value="">{% trans "June" %}</option>
+          <option value="">{% trans "July" %}</option>
+          <option value="">{% trans "August" %}</option>
+          <option value="">{% trans "September" %}</option>
+          <option value="">{% trans "October" %}</option>
+          <option value="">{% trans "November" %}</option>
+          <option value="">{% trans "December" %}</option>
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Year" %}</label>
+        <select id="startdate_year">
+          <option>{% trans "yyyy" %}</option>
+          {% for int in year_range %}
+            <option value="{{int}}">{{int}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "End date" %}</label>
+        <select id="enddate_day">
+          <option>{% trans "dd" %}</option>
+          {% for int in day_range %}
+            <option value="{% if int < 10 %}0{% endif %}{{ int }}">{{ int }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Month" %}</label>
+        <select id="enddate_month">
+          <option>{% trans "mm" %}</option>
+          <option value="">{% trans "January" %}</option>
+          <option value="">{% trans "February" %}</option>
+          <option value="">{% trans "March" %}</option>
+          <option value="">{% trans "April" %}</option>
+          <option value="">{% trans "May" %}</option>
+          <option value="">{% trans "June" %}</option>
+          <option value="">{% trans "July" %}</option>
+          <option value="">{% trans "August" %}</option>
+          <option value="">{% trans "September" %}</option>
+          <option value="">{% trans "October" %}</option>
+          <option value="">{% trans "November" %}</option>
+          <option value="">{% trans "December" %}</option>
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Year" %}</label>
+        <select id="enddate_year">
+          <option>{% trans "yyyy" %}</option>
+          {% for int in year_range %}
+            <option value="{{int}}">{{int}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="form-group col-sm-3">
+        <label for="adminlevel1">{% trans "Admin level 1" %}</label>
+        <input type="text" class="form-control" id="adminlevel1" placeholder="{% trans "Admin level 1" %}">
+      </div>
+      <div class="form-group col-sm-3">
+        <label for="adminlevel2">{% trans "Admin level 2" %}</label>
+        <input type="text" class="form-control" id="adminlevel2" placeholder="{% trans "Admin level 2" %}">
+      </div>
+      <div class="form-group col-sm-6">
+        <label for="locationdescription">{% trans "Location description" %}</label>
+        <input type="text" class="form-control" id="locatoindescription" placeholder="{% trans "Locatoin description" %}">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="dropdown form-group col-sm-6">
+        <label>{% trans "Radius" %}</label>
+        <select id="people_srch_radius">
+          <option>{% trans "1 - 25km" %}</option>
+          <option value="1">{% trans "1 km" %}</option>
+          <option value="2">{% trans "2 km" %}</option>
+          <option value="3">{% trans "3 km" %}</option>
+          <option value="4">{% trans "4 km" %}</option>
+          <option value="5">{% trans "5 km" %}</option>
+          <option value="6">{% trans "6 km" %}</option>
+        </select>
+      </div>
+
+      <div class="form-group col-sm-2">
+        <label for="latitude">{% trans "Longitude" %}</label>
+        <input type="text" class="form-control" id="latitude" placeholder="12.73">
+      </div>
+
+      <div class="form-group col-sm-2">
+        <label for="longitude">{% trans "Latitude" %}</label>
+        <input type="text" class="form-control" id="longitude" placeholder="81.45">
+      </div>
+
+      <div class="form-group col-sm-2">
+        <label>&nbsp;</label><br>
+        <div class="text-center"><i class="fa fa-map-marker fa-lg"></i> {% trans "View map" %}</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-4">
+        <label for="geoname">{% trans "GeoName name" %}</label>
+        <input type="text" class="form-control" id="geoname" placeholder="{% trans "GeoName" %}">
+      </div>
+      <div class="form-group col-sm-4">
+        <label for="geonameid">{% trans "GeoName ID" %}</label>
+        <input type="text" class="form-control" id="geonameid" placeholder="{% trans "GeoName ID" %}">
+      </div>
+      <div class="form-group col-sm-4">
+        <label for="source">{% trans "Source" %}</label>
+        <input type="text" class="form-control" id="source" placeholder="{% trans "Source" %}">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-4">
+        <label for="type">{% trans "Violation type" %}</label>
+        <input type="text" class="form-control" id="type" placeholder="{% trans "Violation type" %}">
+      </div>
+      <div class="form-group col-sm-8">
+        <label for="description">{% trans "Violation description" %}</label>
+        <input type="text" class="form-control" id="description" placeholder="{% trans "Violation description" %}">
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label for="perpetrator">{% trans "Perpetrator" %}</label>
+        <input type="text" class="form-control" id="perpetrator" placeholder="{% trans "Perpetrator" %}">
+      </div>
+      <div class="form-group col-sm-6">
+        <label for="perpetratororganization">{% trans "Perpetrator Organization" %}</label>
+        <input type="text" class="form-control" id="perpetratororganization" placeholder="{% trans "Perpetrator Organization" %}">
+      </div>
+    </div>
+
+  </form>
+
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      <label for="people_srch_post">{{ violations|length }} {% trans "Results" %}
+        <div class="actions">
+          <button type="button" class="btn sfm-btn-action">{% trans "Export" %} <i class="fa fa-share-square-o"></i></button>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="table-responsive col-sm-12">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Start date" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "End date" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "GeoName" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Violation Type" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Perpetrator" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Organization" %}</th>
+          </tr>
+        </thead>
+        <tbody id="object-linked-table">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="{% static "js/search.js" %}"></script>
+
+</section>
+{% endblock %}
