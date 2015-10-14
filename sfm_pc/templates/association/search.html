@@ -62,7 +62,7 @@
       
       <div class="dropdown form-group col-sm-2">
         <label>{% trans "End date" %}</label>
-        <select id="dissolution_day">
+        <select id="end_day">
           <option value="">{% trans "dd" %}</option>
           {% for int in day_range %}
             <option value="{% if int < 10 %}0{% endif %}{{int}}">{{int}}</option>

@@ -26,7 +26,7 @@ class AssociationUpdate(TemplateView):
         data = json.loads(request.POST.dict()['object'])
         try:
             association = Association.objects.get(pk=kwargs.get('pk'))
-        except Area.DoesNotExist:
+        except Association.DoesNotExist:
             msg = "This association does not exist, it should be created " \
                   "before updating it."
             return HttpResponse(msg, status=400)
@@ -45,7 +45,7 @@ class AssociationUpdate(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AssociationUpdate, self).get_context_data(**kwargs)
-        area = Area.objects.get(pk=context.get('pk'))
+        association = Association.objects.get(pk=context.get('pk'))
         context['association'] = association
 
         return context
