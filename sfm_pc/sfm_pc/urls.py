@@ -24,6 +24,7 @@ urlpatterns = i18n_patterns(
     url(r'^association/', include('association.urls')),
     url(r'^site/', include('site_sfm.urls')),
     url(r'^emplacement/', include('emplacement.urls')),
+    url(r'^violation/', include('violation.urls')),
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
