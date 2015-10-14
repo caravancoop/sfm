@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block content %}
+<section class="content">
+
+  <div class="row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Search Site" %}</h1>
+      <div class="pull-right">
+        <a href="/site/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> {% trans "Add New" %}</a> 
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <h3>{% trans "Properties" %}</h3>
+    </div>
+  </div>
+
+  <form>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label for="name">{% trans "Name" %}</label>
+        <input type="text" class="form-control" id="name" placeholder="{% trans "Enter Name" %}">
+      </div>
+      <div class="form-group col-sm-3">
+        <label for="adminlevel1">{% trans "Admin level 1" %}</label>
+        <input type="text" class="form-control" id="adminlevel1" placeholder="{% trans "Admin level 1" %}">
+      </div>
+      <div class="form-group col-sm-3">
+        <label for="adminlevel2">{% trans "Admin level 2" %}</label>
+        <input type="text" class="form-control" id="adminlevel2" placeholder="{% trans "Admin level 2" %}">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="dropdown form-group col-sm-6">
+        <label>{% trans "Radius" %}</label>
+        <select id="people_srch_radius">
+          <option>{% trans "1 - 25km" %}</option>
+          <option value="1">{% trans "1 km" %}</option>
+          <option value="2">{% trans "2 km" %}</option>
+          <option value="3">{% trans "3 km" %}</option>
+          <option value="4">{% trans "4 km" %}</option>
+          <option value="5">{% trans "5 km" %}</option>
+          <option value="6">{% trans "6 km" %}</option>
+        </select>
+      </div>
+
+      <div class="form-group col-sm-2">
+        <label for="latitude">{% trans "Longitude" %}</label>
+        <input type="text" class="form-control" id="latitude" placeholder="12.73">
+      </div>
+
+      <div class="form-group col-sm-2">
+        <label for="longitude">{% trans "Latitude" %}</label>
+        <input type="text" class="form-control" id="longitude" placeholder="81.45">
+      </div>
+
+      <div class="form-group col-sm-2">
+        <label>&nbsp;</label><br>
+        <div class="text-center"><i class="fa fa-map-marker fa-lg"></i> {% trans "View map" %}</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label for="geoname">{% trans "GeoName name" %}</label>
+        <input type="text" class="form-control" id="geoname" placeholder="{% trans "GeoName" %}">
+      </div>
+      <div class="form-group col-sm-6">
+        <label for="geonameid">{% trans "GeoName ID" %}</label>
+        <input type="text" class="form-control" id="geonameid" placeholder="{% trans "GeoName ID" %}">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <h3>{% trans "Relations" %}</h3>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-5">
+        <label for="emplacement">{% trans "Emplacement" %}</label>
+        <input type="text" class="form-control" id="emplacement" placeholder="{% trans "Enter emplacement" %}">
+      </div>
+    </div>
+  </form>
+  
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      <label for="people_srch_post">{{ sites|length }} {% trans "Results" %}
+        <div class="actions">
+          <button type="button" class="btn sfm-btn-action">{% trans "Export" %} <i class="fa fa-share-square-o"></i></button>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="table-responsive col-sm-12">
+      <table class="table table-bordered table-striped table-hover">
+        <thead>
+          <tr>
+            <th class="col-sm-4"><span class="caret"></span>{% trans "Name" %}</th>
+            <th class="col-sm-4"><span class="caret"></span>{% trans "GeoName" %}</th>
+            <th class="col-sm-4"><span class="caret"></span>{% trans "GeoName ID" %}</th>
+          </tr>
+        </thead>
+        <tbody id="object-linked-table">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="{% static "js/search.js" %}"></script>
+
+</section>
+{% endblock %}
