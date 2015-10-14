@@ -21,6 +21,7 @@ urlpatterns = i18n_patterns(
     url(r'^version/', include('version.urls')),
     url(r'^source/', include('source.urls')),
     url(r'^area/', include('area.urls')),
+    url(r'^association/', include('association.urls')),
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
