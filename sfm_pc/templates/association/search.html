@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block content %}
+<section class="content">
+
+  <div class="row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Search Area Association" %}</h1>
+      <div class="pull-right">
+        <a href="/association/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> {% trans "Add New" %}</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <h3>{% trans "Properties" %}</h3>
+    </div>
+  </div>
+
+  <form>
+    <div class="row">
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Start date" %}</label>
+        <select id="start_day">
+          <option value="">{% trans "dd" %}</option>
+          {% for int in day_range %}
+            <option value="{% if int < 10 %}0{% endif %}{{int}}">{{int}}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Month" %}</label>
+        <select id="start_month">
+          <option value="">{% trans "mm" %}</option>
+          <option value="01">{% trans "January" %}</option>
+          <option value="02">{% trans "February" %}</option>
+          <option value="03">{% trans "March" %}</option>
+          <option value="04">{% trans "April" %}</option>
+          <option value="05">{% trans "May" %}</option>
+          <option value="06">{% trans "June" %}</option>
+          <option value="07">{% trans "July" %}</option>
+          <option value="08">{% trans "August" %}</option>
+          <option value="09">{% trans "September" %}</option>
+          <option value="10">{% trans "October" %}</option>
+          <option value="11">{% trans "November" %}</option>
+          <option value="12">{% trans "December" %}</option>
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Year" %}</label>
+        <select id="start_year">
+          <option value="">{% trans "yyyy" %}</option>
+          {% for int in year_range %}
+            <option value="{{int}}">{{int}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "End date" %}</label>
+        <select id="dissolution_day">
+          <option value="">{% trans "dd" %}</option>
+          {% for int in day_range %}
+            <option value="{% if int < 10 %}0{% endif %}{{int}}">{{int}}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Month" %}</label>
+        <select id="end_month">
+          <option value="">{% trans "mm" %}</option>
+          <option value="01">{% trans "January" %}</option>
+          <option value="02">{% trans "February" %}</option>
+          <option value="03">{% trans "March" %}</option>
+          <option value="04">{% trans "April" %}</option>
+          <option value="05">{% trans "May" %}</option>
+          <option value="06">{% trans "June" %}</option>
+          <option value="07">{% trans "July" %}</option>
+          <option value="08">{% trans "August" %}</option>
+          <option value="09">{% trans "September" %}</option>
+          <option value="10">{% trans "October" %}</option>
+          <option value="11">{% trans "November" %}</option>
+          <option value="12">{% trans "December" %}</option>
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Year" %}</label>
+        <select id="end_year">
+          <option value="">{% trans "yyyy" %}</option>
+          {% for int in year_range %}
+            <option value="{{int}}">{{int}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <h3>{% trans "Relations" %}</h3>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-5">
+        <label for="organization">{% trans "Organization" %}</label>
+        <input type="text" class="form-control" id="organization" placeholder="{% trans "Enter organization name" %}">
+      </div>
+      <div class="form-group col-sm-2">
+        <label>&nbsp;</label>
+        <div class="text-center">{% trans "With" %}</div>
+      </div>
+      <div class="form-group col-sm-5">
+        <label for="area">{% trans "Area" %}</label>
+        <input type="text" class="form-control" id="area" placeholder="Enter area name">
+      </div>
+    </div>
+  </form>
+
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      <label for="people_srch_post">{{ associations|length }} {% trans "Results" %}
+        <div class="actions">
+          <button type="button" class="btn sfm-btn-action">{% trans "Export" %} <i class="fa fa-share-square-o"></i></button>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="table-responsive col-sm-12">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "Start date" %}</th>
+            <th class="col-sm-2"><span class="caret"></span>{% trans "End date" %}</th>
+            <th class="col-sm-5"><span class="caret"></span>{% trans "Organization" %}</th>
+            <th class="col-sm-3"><span class="caret"></span>{% trans "Area" %}</th>
+          </tr>
+        </thead>
+
+        <tbody id="object-linked-table">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="{% static "js/search.js" %}"></script>
+
+</section>
+{% endblock %}
