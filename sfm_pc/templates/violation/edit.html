@@ -1,0 +1,148 @@
+{% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
+{% load viewcomplexfield %}
+{% load viewcomplexfielddate %}
+{% load viewcomplexfieldgeo %}
+{% load i18n %}
+{% block content %}
+
+<section class="content">
+  <div class="inner-title-wrapper row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Violation" %}</h1>
+      <div class="pull-right">
+        <a href="/violation/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> Add new</a>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <h3>Properties</h3>
+    </div>
+  </div>
+
+  <form>
+    <div class="row">
+      <div class="form-group col-sm-3">
+        {% view_complex_field_date violation.startdate violation.id request.path %}
+      </div>
+      <div class="form-group col-sm-3">
+        {% view_complex_field_date violation.enddate violation.id request.path %}
+      </div>
+      <div class="form-group col-sm-6">
+        {% view_complex_field violation.locationdescription violation.id request.path %}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-3">
+        {% view_complex_field violation.adminlevel1 violation.id request.path %}
+      </div>
+      <div class="form-group col-sm-3">
+        {% view_complex_field violation.adminlevel2 violation.id request.path %}
+      </div>
+      <div class="form-group col-sm-3">
+        {% view_complex_field violation.geoname violation.id request.path %}
+      </div>
+      <div class="form-group col-sm-3">
+        {% view_complex_field violation.geonameid violation.id request.path %}
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="form-group col-sm-6">
+        {% view_complex_field violation.description violation.id request.path %}
+      </div>
+      <div class="form-group col-sm-3">
+        {% view_complex_field violation.perpetrator violation.id request.path %}
+      </div>
+      <div class="form-group col-sm-3">
+        {% view_complex_field violation.perpetratororganization violation.id request.path %}
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-sm-12">
+        <h3>Relations</h3>
+      </div>
+    </div>
+   
+    <div class="row">
+      <div class="dropdown form-group col-sm-6">
+        <label for="add_type">{% trans "Violations Types" %}</label>
+        <select id="add_type">
+          {% for type in violationtypes %}
+            <option value="type.id">{{type.code}}</select>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-2">
+        <label>&nbsp;</label>
+        <div class="form-control btn"><i class="fa fa-plus"></i> {% trans "Add to the list" %}</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="table-responsive col-sm-3">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th class="col-sm-3"><span class="caret"></span>{% trans "Type" %}</th>
+            </tr>
+          </thead>
+
+          <tbody id="types-table">
+            <tr data-object-id="1"><td>Type1</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="dropdown form-group col-sm-6">
+        <label for="add_source">{% trans "Sources" %}</label>
+        <select id="add_source">
+          {% for source in sources %}
+            <option value="{{source.id}}">{{source.source}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-2">
+        <label>&nbsp;</label>
+        <div class="form-control btn"><i class="fa fa-plus"></i> {% trans "Add to the list" %}</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="table-responsive col-sm-5">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th class="col-sm-3"><span class="caret"></span>{% trans "Source" %}</th>
+              <th class="col-sm-2"><span class="caret"></span>{% trans "Confidence" %}</th>
+            </tr>
+          </thead>
+
+          <tbody id="types-table">
+            <tr data-object-id="1"><td>Source 1</td><td>Low</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-12">
+        {% view_complex_field_geo violation.location violation.id point request.path %}
+      </div>
+    </div>
+
+  </form>
+
+
+  <div class="row">
+    <div class="col-sm-12 col-md-12">
+      <button class="btn sfm-btn-cancel col-sm-2" type="submit">{% trans "Cancel" %}</button>
+      <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">{% trans "Save" %}</button>
+    </div>
+  </div>
+
+</section>
+
+{% endblock %}
