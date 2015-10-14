@@ -23,6 +23,7 @@ urlpatterns = i18n_patterns(
     url(r'^area/', include('area.urls')),
     url(r'^association/', include('association.urls')),
     url(r'^site/', include('site_sfm.urls')),
+    url(r'^emplacement/', include('emplacement.urls')),
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
