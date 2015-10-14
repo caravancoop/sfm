@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'source',
     'area',
     'association',
+    'site_sfm',
 )
 
 MIDDLEWARE_CLASSES = (
