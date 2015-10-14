@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     'composition',
     'source',
     'area',
+    'association',
 )
 
 MIDDLEWARE_CLASSES = (
