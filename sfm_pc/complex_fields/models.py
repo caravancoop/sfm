@@ -99,7 +99,7 @@ class ComplexFieldContainer(object):
         return table_name + "_" + field_name
 
     def get_field(self, lang=get_language()):
-        if self.id_ == 0 or self.id_ is None:
+        if self.id_ == 0:
             return None
 
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
