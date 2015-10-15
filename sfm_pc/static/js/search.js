@@ -6,6 +6,7 @@ var moduleController = (function(){
         this.refreshResults();
         this.bindInputs();
         this.bindPopstate();
+        this.bindOrderby();
     }
 
     /**
@@ -60,6 +61,12 @@ var moduleController = (function(){
 
         for(field in this.params){
             $("[ID='"+field+"']").not("[type=radio]").val(decodeURIComponent(this.params[field]));
+        }
+        if(typeof this.params['orderby'] !== 'undefined'){
+            col = $("#result-table").find('[data-orderby="'+this.params['orderby']+'"]');
+            if( this.params['order'] == 'ASC' ){
+                col.addClass('dropup');
+            }
         }
     }
 
@@ -119,6 +126,31 @@ var moduleController = (function(){
         }
      }
 
+    /*
+     *
+     */
+    this.bindOrderby = function(){
+        self = this;
+        cols = $("#result-table th")
+        $.each(cols, function(index, col){
+            $(col).on('click', function(){
+                orderby = $(this).data('orderby');
+                if( self.params['orderby'] == orderby ){
+                    if( self.params['order'] == "DESC" ){
+                        $(this).addClass('dropup');
+                        self.updateParameter('order', 'ASC');
+                    } else {
+                        self.updateParameter('order', 'DESC');
+                    }
+                } else {
+                    old_col = $("#result-table").find('[data-orderby="'+self.params['orderby']+'"]');
+                    old_col.removeClass('dropup');
+                    self.params['orderby'] = orderby;
+                    self.updateParameter('order', 'DESC');
+                }
+            });
+        });
+    }
 
     /*
      *

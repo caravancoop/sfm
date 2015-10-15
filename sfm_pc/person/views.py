@@ -101,6 +101,8 @@ def person_search(request):
     order_by = terms.get('orderby')
     if not order_by:
         order_by = 'personname__value'
+    elif order_by in ['name']:
+        order_by = 'person' + order_by + '__value'
 
     direction = terms.get('direction')
     if not direction:
