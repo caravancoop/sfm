@@ -28,66 +28,7 @@ class PersonView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(PersonView, self).get_context_data(**kwargs)
 
-        persons = Person.objects.all()
-        context['persons'] = persons
-
-        order_by = self.request.GET.get('orderby')
-        if not order_by:
-            order_by = 'personname__value'
-
-        direction = self.request.GET.get('direction')
-        if not direction:
-            direction = 'ASC'
-
-        dirsym = ''
-        if direction == 'DESC':
-            dirsym = '-'
-
-        person_query = (Person.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
-
-
-        name = self.request.GET.get('Person_PersonName')
-        if name:
-            person_query = person_query.filter(personname__value__contains=name)
-
-        alias_val = self.request.GET.get('Person_PersonAlias')
-        if alias_val:
-            person_query = person_query.filter(personalias__value__contains=alias_val)
-
-        """death_date = self.request.GET.get('Person_PersonDeathDate')
-        if death_date:
-            person_query = person_query.filter(persondeathdate__value__contains=alias_val)
-        """
-
-        context['persons'] = person_query
-        """
-        currlist = [
-            {
-                'person_id': p.id,
-                'name': p.get_name() or '',
-                'alias': p.get_alias(),
-                'notes': p.get_notes()
-            }
-            for p in person_query
-        ]
-
-        paginator = Paginator(currlist, 200)
-
-        page = self.request.GET.get('page')
-        try:
-            person = paginator.page(page)
-        except PageNotAnInteger:
-            person = paginator.page(1)
-        except EmptyPage:
-            person = paginator.page(paginator.num_pages)
-
-        context['person'] = person
-        """
-        context['orderby'] = order_by
-        context['direction'] = direction
-        context['year_range'] = range(1955, date.today().year + 1)
+        context['year_range'] = range(1950, date.today().year + 1)
         context['day_range'] = range(1, 32)
 
         return context
