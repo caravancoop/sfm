@@ -110,21 +110,26 @@ var moduleController = (function(){
         update = this.updateParameter;
         $("select, input").on("change", function(e) {
             elem = $(e.target);
-            update(elem);
-        });
+            update(elem.attr('id'), elem.val());
+        }).keyup(function(event){
+            if(event.keyCode == 13){
+                $(this).trigger("change");
+            }
+        }); 
     }
 
     /*
      * Bind popstate event
      */
-     this.bindPopstate = function(){
+    this.bindPopstate = function(){
         self = this;
         window.onpopstate = function(e){
-            e.preventDefault();
+        e.preventDefault();
             this.loadPage();
             this.refreshResults();
         }
-     }
+    }
+
 
     /*
      *
