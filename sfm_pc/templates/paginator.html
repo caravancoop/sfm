@@ -1,0 +1,27 @@
+<ul class="pagination">
+  {% if paginator.has_other_pages %}
+    {% if paginator.has_previous %}
+      <li>
+        <a data-page-id="{{ paginator.previous_page_number }}">&laquo;</a>
+      </li>
+    {% endif %}
+  
+    {% for page in pages %}
+      {% if page >= min and page <= max %}
+        {% if page == actual %}
+          <li class="active"><a data-page-id="{{ page }}">{{page}}</a></li>
+        {% else %}
+          <li><a data-page-id="{{ page }}">{{page}}</a></li>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+
+    {% if paginator.has_next %}
+      <li>
+        <a data-page-id="{{ paginator.next_page_number }}">&raquo;</a>
+      </li>
+    {% endif %}
+  {% endif %}
+
+
+</div>

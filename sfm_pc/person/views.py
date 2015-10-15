@@ -7,6 +7,7 @@ from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.shortcuts import render, render_to_response
+from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db.models import Max
@@ -113,6 +114,7 @@ def person_search(request):
                     .annotate(Max(order_by))
                     .order_by(dirsym + order_by + "__max"))
 
+    page = int(terms.get('page', 1))
 
     name = terms.get('name')
     if name:
@@ -136,6 +138,17 @@ def person_search(request):
 
     column_names = [_('Name'), _('Alias'), _('Death date')]
     keys = ['name', 'alias', 'deathdate']
+
+    paginator = Paginator(person_query, 15)
+    try:
+        person_page = paginator.page(page)
+    except PageNotAnInteger:
+        person_page = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        person_page = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
     persons = [
         {
             "id": person.id,
@@ -143,14 +156,23 @@ def person_search(request):
             "alias": person.alias.get_value(),
             "deathdate": str(person.deathdate.get_value()),
         }
-        for person in person_query
+        for person in person_page
     ]
+
+    html_paginator = render_to_string(
+        'paginator.html',
+        {'actual': page, 'min': page - 5, 'max': page + 5,
+         'paginator': person_page,
+         'pages': range(1, paginator.num_pages + 1) }
+    )
 
     return HttpResponse(json.dumps({
         'success': True,
         'column_names': column_names,
         'keys': keys,
         'objects': persons,
+        'paginator': html_paginator,
+        'result_number': len(person_query)
     }))
 
 

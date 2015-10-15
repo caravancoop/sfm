@@ -45,6 +45,10 @@ var moduleController = (function(){
             $("#object-linked-table tr").click( function() {
                 window.location = $(this).find('a').attr('href');
             });
+
+            $("#paginator-content").html(data.paginator);
+            this.bindPaginator();
+            $("#result-number").html(data.result_number);
         }
     }
 
@@ -80,11 +84,11 @@ var moduleController = (function(){
     }
 
     /*
-     * @param {{ element }}
+     * @param {{ key, value }}
      * Update the page with the new search parameter
      */
-    this.updateParameter = function(elem){
-        this.params[elem.attr('id')] = elem.val();
+    this.updateParameter = function(key, value){
+        this.params[key] = value;
         refreshResults(this.params);
         history.pushState({}, "",
             window.location.origin +
@@ -115,6 +119,16 @@ var moduleController = (function(){
         }
      }
 
+
+    /*
+     *
+     */
+    this.bindPaginator = function(){
+        self = this;
+        $('#paginator-content li a').on('click', function(){
+            self.updateParameter('page', $(this).data('page-id'));
+        });
+    }
     this.init();
 })();
 
