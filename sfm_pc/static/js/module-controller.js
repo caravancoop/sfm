@@ -27,8 +27,7 @@ var moduleController = (function(){
     setRadios:function(){
       $.each($('input[type="radio"]:checked'), function(index, element){
         id = $(element).attr('name');
-        var value = Boolean($(element).val());
-        $('#' + id).val(value);
+        $('#' + id).val($(element).val());
       });
     },
     changeRadio:function(e){
