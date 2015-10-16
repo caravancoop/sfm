@@ -9,9 +9,7 @@ def view_complex_field_boolean(field, object_id, path):
         object_id = 0
     value = field.get_value()
     if value is None:
-        value = ''
-    else:
-        value = repr(value)
+        value = False
     return {
         'value' : value,
         'object_id': object_id,

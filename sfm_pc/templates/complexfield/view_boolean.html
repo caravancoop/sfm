@@ -26,8 +26,8 @@
 </label>
 <div>
   <input type="hidden" id="{{field_str_id}}" value="{{value}}">
-  <label class="radio-inline" style="width:40%;"><input type="radio" name="{{field_str_id}}" value="true" {% if value %}checked{% endif %}>{% trans "Yes" %}</label>
-  <label class="radio-inline" style="width:40%;"><input type="radio" name="{{field_str_id}}" value="false" {% if not value %}checked{% endif %}>{% trans "No" %}</label>
+  <label class="radio-inline" style="width:40%;"><input type="radio" name="{{field_str_id}}" value="True" {% if value %}checked{% endif %}>{% trans "Yes" %}</label>
+  <label class="radio-inline" style="width:40%;"><input type="radio" name="{{field_str_id}}" value="False" {% if not value %}checked{% endif %}>{% trans "No" %}</label>
   <br><span class="error-message" data-em-target={{ field_str_id }}></span>
 </div>
 

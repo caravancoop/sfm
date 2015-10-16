@@ -133,14 +133,22 @@ class ComplexFieldContainer(object):
             c_fields = c_fields.filter(lang=lang)
         field = list(c_fields[:1])
         if field:
-            field[0].value = value
-            field[0].save()
+            field = field[0]
         else:
-            new_field = self.field_model()
+            field = self.field_model()
             if self.translated:
-                new_field.lang = lang
-            new_field.value = value
-            new_field.save()
+                field.lang = lang
+            else:
+                field.lang = 'en'
+
+        if field._meta.get_field('value').get_internal_type() == "BooleanField":
+            if value == "False":
+                value = False
+            elif value == "True":
+                value = True
+
+        field.value = value
+        field.save()
 
     def get_history(self):
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
