@@ -143,7 +143,8 @@ class OrganizationUpdate(TemplateView):
     template_name = 'organization/edit.html'
 
     def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict())['object']
+        data = json.loads(request.POST.dict()['object'])
+
         try:
             organization = Organization.objects.get(pk=kwargs.get('pk'))
         except Organization.DoesNotExist:
