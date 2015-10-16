@@ -239,22 +239,8 @@ class ComplexFieldContainer(object):
         c_field = self.get_field(lang)
         sources_updated = False
 
-        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
-
-        # Update translations
-        for field in c_fields:
-            # Set translation values to None if the value is changed
-            if c_field is None or c_field.value != value:
-                field.value = None
-
-            # Update sources for all translations if they are not the same
-            if self.sourced and not self.has_same_sources(sources):
-                sources_updated = True
-                field.sources.clear()
-                for source in sources:
-                    field.sources.add(source)
-            if field.lang != lang:
-                field.save()
+        if self.translated:
+            sources_updated = self.update_translations(value, lang, sources)
 
         if c_field is None:
             if self.translated:
@@ -269,10 +255,37 @@ class ComplexFieldContainer(object):
 
         # New version only if there was a change on this field
         if c_field.value != value or sources_updated:
-            if value == '':
+            if c_field._meta.get_field('value').get_internal_type() == "BooleanField":
+                if value == "False":
+                    value = False
+                elif value == "True":
+                    value = True
+            elif value == '':
                 value = None
             c_field.value = value
             c_field.save()
+
+    def update_translations(self, value, lang, sources):
+        c_fields = self.field_model.objects.filter(object_ref=self.table_object)
+        sources_updated = False
+
+        for field in c_fields:
+            # Set translation values to None if the value is changed or False
+            # if it's a boolean
+            if field is None or field.value != value:
+                field.value = None
+
+            # Update sources for all translations if they are not the same
+            if self.sourced and not self.has_same_sources(sources):
+                sources_updated = True
+                field.sources.clear()
+                for source in sources:
+                    field.sources.add(source)
+
+            if field.lang != lang:
+                field.save()
+
+        return sources_updated
 
     def translate(self, value, lang):
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
