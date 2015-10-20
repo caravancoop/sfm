@@ -2,7 +2,7 @@
 {% load leaflet_tags %}
 
 <label for="{{field_str_id}}">{{field_name}}
-  <div class="actions"><button type="button" class="sfm-btn-option input-action-btn" data-popover-content=".input-actions-{{field_str_id}}" data-toggle="popover" data-placement="bottom"><i class="fa fa-ellipsis-h"></i></button></div>
+  <div class="actions"><button type="button" class="sfm-btn-option input-action-btn" data-popover-content=".input-actions-{{field_str_id}}" data-toggle="popover" data-trigger="focus" data-placement="bottom"><i class="fa fa-ellipsis-h"></i></button></div>
   <div class=" hide input-actions input-actions-{{field_str_id}}">
     <ul>
       {% if sourced %}
