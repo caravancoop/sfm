@@ -14,7 +14,7 @@ var language = (function(){
       this.fieldStrArr = [];
       this.modelArr = [];
       var self = this;
-      $('.modalBox').each(function(){
+      $('.modalBox.translation').each(function(){
         var languages = $(this).data('remote').replace('/modal', "");
         var model = $(this).data('model-id');
         var fieldStr = $(this).data('field-str');
@@ -87,25 +87,26 @@ var language = (function(){
       }
     },
     dynamicAssignments:function(event){
-      $('select').selectpicker('refresh');  //refresh the select box
-      this.$el_popoverTrigger = $(event.relatedTarget);
-      // console.log(this.$el_popoverTrigger[0]);
-      this.$langName = this.$el_modal.find('.--lang-name');   //source name
-      this.$langCode = this.$el_modal.find('.--lang-code');
-      this.$langTrans = this.$el_modal.find('.--lang-trans');   //level of confidence
-      this.$addBtn = this.$el_modal.find('.--lang-add-btn')[0]; //add button
-      this.$txtInput = $('#' + this.$el_popoverTrigger[0].dataset.fieldStr);
       this.$modalHeader = this.$el_modal.find('.modal-header');
-      this.$mdObjName = this.$modalHeader.data('field-object-name');
-      this.$mdObjId = this.$modalHeader.data('field-object-id');
-      this.$mdFieldName = this.$modalHeader.data('field-attr-name');
       this.$mdModalType = this.$modalHeader.data('modal-type');
-      this.$languageList = $('.languages_list');
-      this.fieldStr = this.$el_popoverTrigger[0].dataset.fieldStr;
-      this.dataModId = this.$el_popoverTrigger[0].dataset.modelId;
-      // this.getAll();
-      this.render();
-      this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
+      if(this.$mdModalType == "translate"){
+        $('select').selectpicker('refresh');  //refresh the select box
+        this.$el_popoverTrigger = $(event.relatedTarget);
+        // console.log(this.$el_popoverTrigger[0]);
+        this.$langName = this.$el_modal.find('.--lang-name');   //source name
+        this.$langCode = this.$el_modal.find('.--lang-code');
+        this.$langTrans = this.$el_modal.find('.--lang-trans');   //level of confidence
+        this.$addBtn = this.$el_modal.find('.--lang-add-btn')[0]; //add button
+        this.$txtInput = $('#' + this.$el_popoverTrigger[0].dataset.fieldStr);
+        this.$mdObjName = this.$modalHeader.data('field-object-name');
+        this.$mdObjId = this.$modalHeader.data('field-object-id');
+        this.$mdFieldName = this.$modalHeader.data('field-attr-name');
+        this.$languageList = $('.languages_list');
+        this.fieldStr = this.$el_popoverTrigger[0].dataset.fieldStr;
+        this.dataModId = this.$el_popoverTrigger[0].dataset.modelId;
+        this.render();
+        this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
+      }
     },
     setArrayIndexes:function(el_index1, el_index2){
       //set gloabal indexes
