@@ -24,8 +24,19 @@
     }
   }
 
+  .modal_src_conf{
+    border-bottom: 1px solid $sfm-grey-D2;
+  }
+
+  .modal_src_info{
+    margin-top: 10px;
+  }
+
+
   .modal_src_add, .modal_vr_add, .modal_tr_add {
-    border-left: 1px solid $sfm-grey-D2;
+    padding-bottom: 5px;
+    margin-top: 10px;
+    border-bottom: 1px solid $sfm-grey-D2;
     .row {
       padding: 0;
       margin: 0;

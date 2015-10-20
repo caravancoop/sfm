@@ -4,30 +4,32 @@
   <h4 class="modal-title">{% trans "View/Edit Sources" %}</h4>
 </div>
 <div class="modal-body row">
-  <div class="people_src_info col-sm-6">
-    <ul class="sources_list" data-role="listview">
-      <h5 class="col-sm-10">Source</h5>
-      <h5 class="col-sm-2">Delete</h5>
-    </ul>
-  </div>
-  <div class="modal_src_add col-sm-6">
-    <div class="row">
-      <p>Confidence</p>
-      <div class=" form-group dropdown col-sm-12">
+  <div class="row modal_src_conf">
+    <div class="col-sm-2">
+      <p>{% trans "Confidence" %}</p>
+      <div class="text-center form-group dropdown">
         <select class="--src-conf">
-          <option value="1">Low</option>
-          <option value="2">Medium</option>
-          <option value="3">High</option>
+          <option value="1">{% trans "Low" %}</option>
+          <option value="2">{% trans "Medium" %}</option>
+          <option value="3">{% trans "High" %}</option>
         </select>
       </div>
     </div>
-    <div class="row">
-      <p>Add</p>
+  </div>
+  <div class="modal_src_add row">
+    <div class="col-sm-12">
+      <p>{% trans "Add" %}</p>
       <input type="text" class="form-control  --src-name" placeholder="Enter Source">
     </div>
-    <button type="button" class="btn center-block sfm-btn-action --src-add-btn" >Add</btn>
+    <button type="button" class="btn center-block sfm-btn-action --src-add-btn" >{% trans "Add" %}</button>
+  </div>
+  <div class="modal_src_info row">
+    <div class="col-sm-12">
+    <p>{% trans "Sources" %}</p>
+    <ul class="sources_list" data-role="listview">
+    </ul>
   </div>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">Close</button>
+  <button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">{% trans "Close" %}</button>
 </div>

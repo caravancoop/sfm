@@ -6198,8 +6198,14 @@ body {
           cursor: pointer; }
           .modal-content .modal-body.row ul p i:hover {
             color: #F1655A; }
+  .modal-content .modal_src_conf {
+    border-bottom: 1px solid #666666; }
+  .modal-content .modal_src_info {
+    margin-top: 10px; }
   .modal-content .modal_src_add, .modal-content .modal_vr_add, .modal-content .modal_tr_add {
-    border-left: 1px solid #666666; }
+    padding-bottom: 5px;
+    margin-top: 10px;
+    border-bottom: 1px solid #666666; }
     .modal-content .modal_src_add .row, .modal-content .modal_vr_add .row, .modal-content .modal_tr_add .row {
       padding: 0;
       margin: 0; }
