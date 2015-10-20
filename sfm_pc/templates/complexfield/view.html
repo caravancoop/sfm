@@ -10,18 +10,18 @@
         </li>
       {% endif %}
       {% if "add" not in path %}
-      {% if versioned %}
-      <li>
-        <a class="modalBox" href="" title="{% trans Versioned %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/version/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-undo"></i> Version</a>
-      </li>
+        {% if versioned %}
+          <li>
+            <a class="modalBox version" href="" title="{% trans Versioned %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/version/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-undo"></i> Version</a>
+          </li>
+        {% endif %}
+        {% if translated %}
+          <li>
+            <a class="modalBox translation" href="" title="{% trans Translated %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/translate/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-flag"></i> Language</a>
+          </li>
+        {% endif %}
       {% endif %}
-      {% if translated %}
-      <li>
-        <a class="modalBox" href="" title="{% trans Translated %}" data-toggle="modal" data-target="#complexFieldModal" data-remote="/modal/translate/{{object_name}}/{{object_id}}/{{attr_name}}/" data-field-str="{{field_str_id}}" data-model-id="{{object_name}}"><i class="fa fa-flag"></i> Language</a>
-      </li>
     </ul>
-    {% endif %}
-  {% endif %}
   </div>
 </label>
 <input type="text" class="form-control" id="{{ field_str_id }}" value="{% if value %}{{ value }}{% endif %}" placeholder="Enter {{field_name}}">
