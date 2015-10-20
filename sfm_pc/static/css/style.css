@@ -6193,7 +6193,7 @@ body {
       .modal-content .modal-body.row ul h5 {
         padding-bottom: 0.5em; }
       .modal-content .modal-body.row ul p {
-        max-height: 1rem; }
+        overflow: auto; }
         .modal-content .modal-body.row ul p i {
           cursor: pointer; }
           .modal-content .modal-body.row ul p i:hover {

@@ -13,7 +13,7 @@
         padding-bottom: 0.5em;
       }
       p{
-        max-height: 1rem;
+        overflow: auto;
         i{
           cursor: pointer;
           &:hover{
