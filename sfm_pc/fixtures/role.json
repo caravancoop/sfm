@@ -1,0 +1,37 @@
+[
+    {
+        "model": "membership.role",
+        "pk": 1,
+        "fields": {
+            "value": "Commander"
+        }
+    },
+    {
+        "model": "membership.role",
+        "pk": 2,
+        "fields": {
+            "value": "Second in command"
+        }
+    },
+    {
+        "model": "membership.role",
+        "pk": 3,
+        "fields": {
+            "value": "Chief of Staff"
+        }
+    },
+    {
+        "model": "membership.role",
+        "pk": 4,
+        "fields": {
+            "value": "In Charge of Operations"
+        }
+    },
+    {
+        "model": "membership.role",
+        "pk": 5,
+        "fields": {
+            "value": "Field Commander"
+        }
+    }
+]
