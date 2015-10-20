@@ -7,12 +7,13 @@ from django_date_extensions.fields import ApproximateDateField
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import (ComplexField, ComplexFieldContainer,
                                    ComplexFieldListContainer)
+from complex_fields.base_models import BaseModel
 from person.models import Person
 from source.models import Source
 from organization.models import Organization
 
 
-class Membership(models.Model):
+class Membership(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.person = ComplexFieldContainer(self, MembershipPerson)
@@ -57,40 +58,7 @@ class Membership(models.Model):
         except cls.DoesNotExist:
             return None
 
-
-    def validate(self, dict_values, lang):
-        errors = {}
-        for field in self.complex_fields:
-            field_name = field.get_field_str_id()
-
-            if field_name not in dict_values and field_name in self.required_fields:
-                errors[field_name] = "This field is required"
-
-            elif field_name in dict_values:
-                sources = dict_values[field_name].get('sources', [])
-
-                (error, value) = field.validate(dict_values[field_name]['value'], lang, sources)
-                if error is not None:
-                    errors[field_name] = error
-                else:
-                    dict_values[field_name]['value'] = value
-
-        return (dict_values, errors)
-
-
     def update(self, dict_values, lang=get_language()):
-        (dict_values, errors) = self.validate(dict_values, lang)
-        if len(errors):
-            return errors
-
-        self.save()
-        for field in self.complex_fields:
-            field_name = field.get_field_str_id()
-
-            if field_name in dict_values:
-                sources = Source.create_sources(dict_values[field_name].get('sources', []))
-                field.update(dict_values[field_name]['value'], lang, sources)
-
         for date in dict_values['Membership_MembershipDate']:
             sources = Source.create_sources(date.get('sources', []))
             if date['id'] == 0:
