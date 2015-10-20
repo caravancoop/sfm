@@ -90,8 +90,6 @@ var source = (function(){
     dynamicAssignments:function(event){
       $('select').selectpicker('refresh');  //refresh the select box
       this.$el_popoverTrigger = $(event.relatedTarget);
-      console.log(this.$el_popoverTrigger);
-      console.log("BOB");
       this.$srcName = this.$el_modal.find('.--src-name');   //source name
       this.$confLvl = this.$el_modal.find('.--src-conf');   //level of confidence
       this.$addBtn = this.$el_modal.find('.--src-add-btn')[0]; //add button
