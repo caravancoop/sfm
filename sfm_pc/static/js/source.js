@@ -1,7 +1,10 @@
 var source = (function(){
-  var index1, index2;
+  var field_id;
   var srcModule = {
     tempId: 0,
+    objects: {},
+    actualObject: "",
+    actualElement: null,
     srcObjArr : [],
     fieldStrArr : [],
     fieldArr : [],
@@ -12,15 +15,18 @@ var source = (function(){
     },
     cacheDom:function(){
       //the modal module
+      this.actualObject = moduleController.getActualObjectName();
+      this.objects[this.actualObject] = {};
+      this.actualElement = moduleController.getActualObject()['element']
       this.$el_modal =  $('#complexFieldModal');
     },
     getAll:function(){
       var self = this;
-      $('.modalBox').each(function(){
-        var sources = $(this).data('remote').replace('/modal', "");
+      object = this.objects[this.actualObject];
+      $('.modalBox.source').each(function(){
+        var sources_url= $(this).data('remote').replace('/modal', "");
         var model = $(this).data('model-id');
         var fieldStr = $(this).data('field-str');
-        // console.log(fieldStr);
         if (self.$mdObjId === null || self.$mdObjId === undefined || self.$mdObjId === ""){
           self.$mdObjId =  $(this).data('model-object-id');
         }
@@ -37,14 +43,12 @@ var source = (function(){
           async: false,
           context:self,
           type: "GET",
-          url: sources,
+          url: sources_url,
           dataType: "json",
           success: function (response) {
-            for (var i in response) {
-              if(patt.test(sources) && typeof response[i] !== 'function'){ //test if path contains sources
-                this.srcObjArr[index1][index2][this.srcObjArr[index1][index2].length] = response[i];
-              }
-            }
+            object[field_id] = {}
+            object[field_id]['sources'] = response['sources'];
+            object[field_id]['confidence'] = response['confidence'];
           },
           error: function (request, status, error) {
             console.log(error);
@@ -54,49 +58,40 @@ var source = (function(){
     },
     // this function binds all the initial events to the selectors
     bindEvents:function(){
+      this.$el_modal.on('change', '.--src-conf', this.updateConfidence.bind(this));
       this.$el_modal.on('shown.bs.modal', this.dynamicAssignments.bind(this));
       this.$el_modal.on('click', '.--src-add-btn', this.addSources.bind(this));
       this.$el_modal.on('click', '.src_del', this.deleteSource.bind(this));
       $('body').on('click', '.addObject', this.update.bind(this));
     },
+
+    // render the new list in the modal
     render:function(){
-      // render the new list in the modal
+      object = this.objects[this.actualObject];
       this.$sourceList.find('li').empty(); //delete old list
-      //this.srcObjArr[this.dataModId][this.fieldStr].clean();
-      for(var i = 0; i < this.srcObjArr[this.dataModId][this.fieldStr].length; i++){
-        if(this.srcObjArr[this.dataModId][this.fieldStr][i]){
+      
+      for(var i = 0; i < object[this.fieldStr]['sources'].length; i++){
+        if(object[this.fieldStr]['sources'][i]){
           var confidenceString;
-          var sourceInfo = this.srcObjArr[this.dataModId][this.fieldStr][i];
-          switch(sourceInfo.confidence) {
-            case "1":
-            confidenceString = "Low";
-            break;
-
-            case "2":
-            confidenceString = "Medium";
-            break;
-
-            case "3":
-            confidenceString = "High";
-            break;
-
-            default:
-            confidenceString = "Def";
-          }
+          var sourceInfo = object[this.fieldStr]['sources'][i];
           // create list element and add it to the list in the appropriate modal
           this.$rowTemplate = $('#source-template').find('li').clone().removeClass('hide');
           this.$rowTemplate.find('.src_name').html(sourceInfo.source);
-          this.$rowTemplate.find('.src_conf').html(confidenceString);
           this.$rowTemplate.find('.src_del').attr('id', sourceInfo.id);
           this.$sourceList.append(this.$rowTemplate);  //append the row to the list
         }
+      }
+      if(object[this.fieldStr]['confidence']){
+        this.$confLvl.val(object[this.fieldStr]['confidence']); 
+        $('select').selectpicker('refresh');
       }
     },
     //this function dynamically assigns the element vars everytime a modal is triggered
     dynamicAssignments:function(event){
       $('select').selectpicker('refresh');  //refresh the select box
       this.$el_popoverTrigger = $(event.relatedTarget);
-      // console.log(this.$el_popoverTrigger[0]);
+      console.log(this.$el_popoverTrigger);
+      console.log("BOB");
       this.$srcName = this.$el_modal.find('.--src-name');   //source name
       this.$confLvl = this.$el_modal.find('.--src-conf');   //level of confidence
       this.$addBtn = this.$el_modal.find('.--src-add-btn')[0]; //add button
@@ -114,16 +109,16 @@ var source = (function(){
       this.setArrayIndexes(this.$el_popoverTrigger[0].dataset.modelId, this.$el_popoverTrigger[0].dataset.fieldStr);
     },
     // this function sets the 3 dimentional array indexes specific to the modal and the input field
-    setArrayIndexes:function(el_index1, el_index2){
+    setArrayIndexes:function(el_index1, el_field_id){
       //set gloabal indexes
       index1 = el_index1;
-      index2 = el_index2;
+      field_id = el_field_id;
       //test and set index parameters for the modal views
-      if(this.srcObjArr[index1] === undefined && this.srcObjArr[index2] === undefined){
+      if(this.srcObjArr[index1] === undefined && this.srcObjArr[field_id] === undefined){
         this.srcObjArr[index1]=[];
-        this.srcObjArr[index1][index2] = [];
-      }else if(this.srcObjArr[index1][index2] === undefined){
-        this.srcObjArr[index1][index2] = [];
+        this.srcObjArr[index1][field_id] = [];
+      }else if(this.srcObjArr[index1][field_id] === undefined){
+        this.srcObjArr[index1][field_id] = [];
       }
     },
     getTempId:function(){
@@ -131,75 +126,54 @@ var source = (function(){
       this.tempId++;
       return id;
     },
+    updateConfidence: function(){
+      object = this.objects[this.actualObject];
+      object[field_id]['confidence'] = this.$confLvl.val();
+    },
     addSources:function(){
-      this.srcObjArr[index1][index2][this.srcObjArr[index1][index2].length] = {source: this.$srcName.val(), confidence: this.$confLvl.val(), id: this.getTempId()};
+      object = this.objects[this.actualObject];
+      object[field_id]['sources'].push({source: this.$srcName.val(), id: this.getTempId()});
       this.$srcName.val("");
       this.render();
     },
     deleteSource:function(event){
-      for( var i = 0; i < this.srcObjArr[this.dataModId][this.fieldStr].length; ++i){
-        if(this.srcObjArr[this.dataModId][this.fieldStr][i].id == $(event.target).closest('p').attr('id')){
-          delete this.srcObjArr[this.dataModId][this.fieldStr][i];
-          break;
+      object = this.objects[this.actualObject];
+      self = this;
+      object[this.fieldStr]['sources'].forEach(function(source) {
+        if(source.id == $(event.target).closest('p').attr('id')){
+          index = object[self.fieldStr]['sources'].indexOf(source);
+          object[self.fieldStr]['sources'].splice(index, 1);
         }
-      }
+      });
       this.render();
     },
     update:function(){
-      this.ref_model = null; //referece model
+      object = this.objects[this.actualObject];
+
       var objArr = [];
-      var modelArr = Object.keys(this.srcObjArr);
-      for(var x = 0; x < modelArr.length; ++x){
-        for (var model in this.srcObjArr[modelArr[x]]){
-          if (typeof this.srcObjArr[modelArr[x]][model] !== 'function') {
-            for (var index in this.srcObjArr[modelArr[x]][model]){
-              if (typeof this.srcObjArr[modelArr[x]][model][index] !== 'function') {
-                var obj = {};
-                obj[model] = {};
-                obj[model].source = this.srcObjArr[modelArr[x]][model][index].source;
-                obj[model].confidence = this.srcObjArr[modelArr[x]][model][index].confidence;
-                objArr.push(obj);
-                // this.ref_model = model;
-              }
-            }
-          }
-        }
-      }
+      var modelArr = Object.keys(this.objects);
+      self = this;
+
       postData = {};
-      for(var j = 0; j < objArr.length; ++j){
-        var fieldId = String(Object.keys(objArr[j]));
+      for (var fieldStr in object) {
+        if (object.hasOwnProperty(fieldStr)) {
+          postData[fieldStr] = object[fieldStr];
 
-          //remove the field id's and models that have been accounted for
-          for (var i = 0; i < this.fieldArr.length; i++){
-            if (this.fieldArr[i].field && this.fieldArr[i].field === fieldId) {
-                this.fieldArr.splice(i, 1);
-                break;
+          // Remove temp ids
+          postData[fieldStr]['sources'].forEach( function(source) {
+            if(source['id'][0] == "_"){
+              source['id'] = 0;
             }
-          }
-
-
-        postData[fieldId]={};
-        postData[fieldId].value = $('#'+ fieldId).val(); //assign input field value to the object key value pair
-        for(var k = 0; k < objArr.length; ++k){
-          //if the sources key doesn't exist, create it
-          if(postData[fieldId].sources === undefined){
-            postData[fieldId].sources = [];
-          }
-          // if the object exists add it to the approporiate object array
-          if(objArr[k][fieldId] !== undefined ){
-            postData[fieldId].sources[postData[fieldId].sources.length] = objArr[k][fieldId];
-          }
+          });
         }
       }
-      // for fields without sources, add the text field value
-      for(var s = 0; s < this.fieldArr.length; s++){
-        if(postData[this.fieldArr[s].field] === undefined){
-          postData[this.fieldArr[s].field]={};
-        }
-        postData[this.fieldArr[s].field].value = $("#"+this.fieldArr[s].field).val();
-          // console.log($("#"+this.fieldArr[s].field).val());
-      }
-      // console.log(postData);
+
+      this.actualElement.find('.real-input').each(function(index, input){
+        postData[input.id]['value'] = input.value;
+      });
+
+      console.log(postData);
+
       if(this.$mdObjId === 0){
         this.$mdObjId = "add";
       }

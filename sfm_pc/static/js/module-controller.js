@@ -21,6 +21,9 @@ var moduleController = (function(){
   return {
     getActualObject: function(){
         return modCtrl.objects[modCtrl.actualObject];
+    },
+    getActualObjectName: function(){
+        return modCtrl.actualObject;
     }
   };
 })();
