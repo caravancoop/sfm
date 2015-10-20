@@ -185,7 +185,7 @@ class ComplexFieldContainer(object):
                 {
                     "value": fh.field_dict['value'],
                     "sources": [
-                        {"source": src.source, "confidence": src.confidence}
+                        src.source
                         for src in Source.get_sources(fh.field_dict['sources'])
                     ],
                     "id": fh.id
@@ -251,24 +251,30 @@ class ComplexFieldContainer(object):
 
         return sources
 
+    def get_confidence(self):
+        field = self.get_field()
+        if field is None:
+            return '1'
+        return field.confidence
 
-    def update(self, value, lang, sources=[]):
-        c_field = self.get_field(lang)
+    def update(self, value, lang, sources={}):
+        if not self.translated:
+            c_field = self.get_field(lang)
+        else:
+            c_field = self.get_field(None)
         sources_updated = False
 
         if self.translated:
             sources_updated = self.update_translations(value, lang, sources)
 
         if c_field is None:
-            if self.translated:
-                c_field = self.field_model(object_ref=self.table_object, lang=lang)
-                c_field.save()
-                if self.sourced:
-                    sources_updated = True
-                    for source in sources:
-                        c_field.sources.add(source)
-            else:
-                c_field = self.field_model(object_ref=self.table_object)
+            return self.update_new(value, lang, sources)
+
+        if self.sourced and not self.has_same_sources(sources):
+            sources_updated = True
+            c_field.confidence = sources['confidence']
+            for source in sources.get('sources', []):
+                c_field.sources.add(source)
 
         # New version only if there was a change on this field
         if c_field.value != value or sources_updated:
@@ -281,6 +287,20 @@ class ComplexFieldContainer(object):
                 value = None
             c_field.value = value
             c_field.save()
+
+    def update_new(self, value, lang, sources={}):
+        if self.translated:
+            c_field = self.field_model(object_ref=self.table_object, lang=lang)
+        else:
+            c_field = self.field_model(object_ref=self.table_object)
+
+        c_field.value = value
+        c_field.save()
+
+        if self.sourced:
+            c_field.confidence = sources['confidence']
+            for source in sources.get('sources', []):
+                c_field.sources.add(source)
 
     def update_translations(self, value, lang, sources):
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
@@ -296,8 +316,9 @@ class ComplexFieldContainer(object):
             if self.sourced and not self.has_same_sources(sources):
                 sources_updated = True
                 field.sources.clear()
-                for source in sources:
+                for source in sources['sources']:
                     field.sources.add(source)
+                field.confidence = sources['confidence']
 
             if field.lang != lang:
                 field.save()
@@ -330,11 +351,13 @@ class ComplexFieldContainer(object):
 
         c_field.save()
 
-    def validate(self, value, lang, sources=[]):
+    def validate(self, value, lang, sources={}):
         if (hasattr(self.field_model(), "source_required") and
             value != ""):
-            if not len(sources):
+            if not len(sources['sources']) :
                 return ("Sources are required to update this field", value)
+            elif sources['confidence'] == 0 :
+                return ("A confidence must be set for this field", value)
 
         fk_model = self.get_fk_model()
         if fk_model is not None and value != "":
@@ -355,11 +378,15 @@ class ComplexFieldContainer(object):
 
 
     def has_same_sources(self, sources):
+        if not self.get_confidence() == sources['confidence']:
+            return False
+
+        sources = sources['sources']
+
         saved_sources = []
         for src in self.get_sources():
             saved_src = {}
             saved_src['source'] = src.source
-            saved_src['confidence'] = src.confidence
             saved_sources.append(saved_src)
         pairs = zip(saved_sources, sources)
         if len(saved_sources) != len(sources) or any(x != y for x, y in pairs):
