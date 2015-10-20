@@ -241,7 +241,7 @@ class ComplexFieldContainer(object):
 
     def get_sources(self):
         sources = []
-        if not hasattr(self.field_model, 'sourced'):
+        if not self.sourced:
             return sources
 
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
