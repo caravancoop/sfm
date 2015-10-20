@@ -20,7 +20,7 @@
     </ul>
   </div>
 </label>
-<input type="hidden" hidden="true" class="form-control" id="{{ field_str_id }}" value="{% if value %}{{ value }}{% endif %}" placeholder="Enter {{field_name}}">
+<input type="hidden" hidden="true" class="form-control real-input" id="{{ field_str_id }}" value="{% if value %}{{ value }}{% endif %}" placeholder="Enter {{field_name}}">
 {% leaflet_js plugins="forms" %}
 {% leaflet_css plugins="forms" %}
   {{ geo_form.value }}
