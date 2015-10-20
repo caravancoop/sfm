@@ -11,20 +11,15 @@ def get_sources(request, object_type, object_id, field_name):
         object_type, object_id, field_name
     )
     sources = field.get_sources()
-    sources_json = [
-        {
-            "source": source.source,
-            "confidence": source.confidence,
-            "id": source.id
-        }
-        for source in sources
-    ]
+    sources_json = {
+        "confidence": field.get_confidence(),
+        "sources": [
+            {
+                "source": source.source,
+                "id": source.id
+            }
+            for source in sources
+        ]
+    }
 
     return HttpResponse(json.dumps(sources_json))
-
-def get_confidences(request):
-    lang = request.GET.get('lang', get_language())
-    return HttpResponse(json.dumps({
-        "confidences": Source.get_confidences(lang)
-    }))
-
