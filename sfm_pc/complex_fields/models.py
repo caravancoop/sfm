@@ -5,6 +5,7 @@ import re
 from django.db import models
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, FieldDoesNotExist
+from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
 from languages_plus.models import Language
@@ -14,9 +15,17 @@ from translation.models import get_language_from_iso
 from sfm_pc.utils import class_for_name
 
 
+CONFIDENCE_LEVELS = (
+    ('1', _('Low')),
+    ('2', _('Medium')),
+    ('3', _('High')),
+)
+
+
 class ComplexField(models.Model):
     lang = models.CharField(max_length=5, null=True)
     sources = models.ManyToManyField(Source, related_name="%(app_label)s_%(class)s_related")
+    confidence = models.CharField(max_length=1, default=1, choices=CONFIDENCE_LEVELS)
 
     class Meta:
         abstract = True
