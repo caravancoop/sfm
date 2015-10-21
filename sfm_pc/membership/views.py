@@ -46,7 +46,7 @@ class MembershipUpdate(TemplateView):
     template_name = 'membership/edit.html'
 
     def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['membership'])
+        data = json.loads(request.POST.dict()['object'])
         try:
             membership = Membership.objects.get(pk=kwargs.get('pk'))
         except Membership.DoesNotExist:
