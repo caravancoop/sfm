@@ -131,17 +131,18 @@ class PersonUpdate(TemplateView):
                   "before updating it."
             return HttpResponse(msg, status=400)
 
-        errors = person.update(data)
-        if errors is None:
-            return HttpResponse(
-                json.dumps({"success": True}),
-                content_type="application/json"
-            )
-        else:
+        (errors, data) = person.validate(data, get_language())
+        if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
+
+        person.update(data)
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(PersonUpdate, self).get_context_data(**kwargs)
@@ -157,13 +158,16 @@ class PersonCreate(TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
-        errors = Person.create(data)
 
-        if errors is not None:
+        (errors, data) = Person().validate(data, get_language())
+
+        if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
+
+        Person.create(data)
 
         return HttpResponse(json.dumps({"success": True}), content_type="application/json")
 
