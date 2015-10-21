@@ -66,22 +66,23 @@
       <table class="table table-bordered table-striped table-hover">
         <thead>
           <tr>
-            <th class="col-sm-4">Memberships</th>
-            <th class="col-sm-4">Start date</th>
-            <th class="col-sm-4">End date</th>
+            <th class="col-sm-3">{% trans "Memberships" %}</th>
+            <th class="col-sm-3">{% trans "Role" %}</th>
+            <th class="col-sm-2">{% trans "Rank" %}</th>
+            <th class="col-sm-2">{% trans "Start date" %}</th>
+            <th class="col-sm-2">{% trans "End date" %}</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1,001</td>
-            <td>Lorem</td>
-            <td>ipsum</td>
-          </tr>
-          <tr>
-            <td>1,001</td>
-            <td>Lorem</td>
-            <td>ipsum</td>
-          </tr>
+          {% for member in memberships %}
+            <tr>
+              <td>{{ member.organization.get_value }}</td>
+              <td>{{ member.role.get_value.value }}</td>
+              <td>{{ member.rank.get_value.value }}</td>
+              <td>{{ member.startdate.get_value }}</td>
+              <td>{{ member.enddate.get_value }}</td>
+            </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>

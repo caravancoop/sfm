@@ -12,6 +12,7 @@ from django.template import RequestContext
 from django.http import HttpResponse
 from django.db.models import Max
 from .models import Person, PersonName
+from membership.models import Membership
 
 def ajax_request(function):
     def wrapper(request, *args, **kwargs):
@@ -148,6 +149,9 @@ class PersonUpdate(TemplateView):
         context = super(PersonUpdate, self).get_context_data(**kwargs)
         context['title'] = "Person"
         context['person'] = Person.objects.get(pk=context.get('pk'))
+        context['memberships'] = Membership.objects.filter(
+            membershippersonmember__value=context['person']
+        ).filter(membershiporganization__value__isnull=False)
 
         return context
 
