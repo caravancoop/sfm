@@ -190,7 +190,7 @@ def person_autocomplete(request):
     persons = [
         {
             'label': _(name.object_ref.name.get_value()),
-            'value': str(name.object_ref_id) + ": " + name.object_ref.name.get_value()
+            'value': str(name.object_ref_id)
         }
         for name in person_names
     ]
