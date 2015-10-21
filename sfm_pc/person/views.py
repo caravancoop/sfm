@@ -132,7 +132,7 @@ class PersonUpdate(TemplateView):
                   "before updating it."
             return HttpResponse(msg, status=400)
 
-        (errors, data) = person.validate(data, get_language())
+        (errors, data) = person.validate(data)
         if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
@@ -163,7 +163,7 @@ class PersonCreate(TemplateView):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
 
-        (errors, data) = Person().validate(data, get_language())
+        (errors, data) = Person().validate(data)
 
         if len(errors):
             return HttpResponse(
