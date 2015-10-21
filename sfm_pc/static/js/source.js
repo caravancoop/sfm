@@ -186,6 +186,9 @@ var source = (function(){
         success: function(response, status){
           console.log(response);
           var err_str, err_id;
+          self.actualElement.find('.error-message').each(function(index, error){
+            $(error).html("");
+          });
           for(var key in response.errors){
             err_str = response.errors[key];
             $("#" + key).siblings('.error-message').html("* " + err_str);
