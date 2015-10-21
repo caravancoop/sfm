@@ -14,7 +14,7 @@ class BaseModel(object):
         except cls.DoesNotExist:
             return None
 
-    def validate(self, dict_values, lang):
+    def validate(self, dict_values, lang=get_language()):
         errors = {}
         for field in self.complex_fields:
             field_name = field.get_field_str_id()
@@ -32,18 +32,13 @@ class BaseModel(object):
                     dict_values[field_name]['value'], lang, sources
                 )
 
+                dict_values[field_name]['value'] = value
                 if error is not None:
                     errors[field_name] = error
-                else:
-                    dict_values[field_name]['value'] = value
 
-        return (dict_values, errors)
+        return (errors, dict_values)
 
     def update(self, dict_values, lang=get_language()):
-        (dict_values, errors) = self.validate(dict_values, lang)
-        if len(errors):
-            return errors
-
         self.save()
         for field in self.complex_fields:
             field_name = field.get_field_str_id()

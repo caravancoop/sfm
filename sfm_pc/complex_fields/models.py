@@ -278,13 +278,6 @@ class ComplexFieldContainer(object):
 
         # New version only if there was a change on this field
         if c_field.value != value or sources_updated:
-            if c_field._meta.get_field('value').get_internal_type() == "BooleanField":
-                if value == "False":
-                    value = False
-                elif value == "True":
-                    value = True
-            elif value == '':
-                value = None
             c_field.value = value
             c_field.save()
 
@@ -301,6 +294,35 @@ class ComplexFieldContainer(object):
             c_field.confidence = sources['confidence']
             for source in sources.get('sources', []):
                 c_field.sources.add(source)
+
+    def adapt_value(self, value):
+        c_field = self.field_model()
+        internal_type = c_field._meta.get_field('value').get_internal_type()
+        if internal_type == "BooleanField":
+            if value == "False" or value == "":
+                return (False, None)
+            elif value == "True":
+                return (True, None)
+            else:
+                return (None, "Invalid value for this field")
+        elif internal_type == "ForeignKey":
+            if value == "":
+                return (None, None)
+
+            fk_model = self.get_fk_model()
+            try:
+                value = fk_model.objects.get(pk=value)
+            except fk_model.DoesNotExist:
+                return (None, _("This value does not exists"))
+
+            #foreign_class = c_field._meta.get_field('value').rel.to
+            #object_ = foreign_class.from_id(int(value))
+            #return (object_, None)
+            return (value, None)
+        else:
+            return (value, None)
+
+
 
     def update_translations(self, value, lang, sources):
         c_fields = self.field_model.objects.filter(object_ref=self.table_object)
@@ -359,14 +381,9 @@ class ComplexFieldContainer(object):
             elif sources['confidence'] == 0 :
                 return ("A confidence must be set for this field", value)
 
-        fk_model = self.get_fk_model()
-        if fk_model is not None and value != "":
-            try:
-                value = fk_model.objects.get(pk=value)
-            except fk_model.DoesNotExist:
-                return (_("The object does not exists"), value)
 
-        return (None, value)
+        (value, error) = self.adapt_value(value)
+        return (error, value)
 
     def get_fk_model(self, field_name="value"):
         field_object, model, direct, m2m = (
