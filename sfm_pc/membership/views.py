@@ -53,17 +53,17 @@ class MembershipUpdate(TemplateView):
                   "before updating it."
             return HttpResponse(msg, status=400)
 
-        errors = membership.update(data)
-        if errors is None:
-            return HttpResponse(
-                json.dumps({"success": True}),
-                content_type="application/json"
-            )
-        else:
+        (errors, data) = membership.validate(data)
+        if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
+        membership.update(data)
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(MembershipUpdate, self).get_context_data(**kwargs)
@@ -78,7 +78,14 @@ class MembershipCreate(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
-        data = json.loads(request.POST.dict()['membership'])
+        data = json.loads(request.POST.dict()['object'])
+        (errors, data) = Membership().validate(data)
+        if len(errors):
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
         membership = Membership.create(data)
 
         return HttpResponse(json.dumps({"success": True}), content_type="application/json")

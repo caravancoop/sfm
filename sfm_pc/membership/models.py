@@ -62,14 +62,42 @@ class Membership(models.Model, BaseModel):
         except cls.DoesNotExist:
             return None
 
+    def validate(self, dict_values, lang=get_language()):
+        errors = {}
+
+        if ((dict_values.get("Membership_MembershipPersonMember", "") == "" !=
+             dict_values.get("Membership_MembershipOrganizationMember", "") == "")):
+            #(dict_values.get("Membership_MembershipPersonMember", "") != "" and
+            # dict_values.get("Membership_MembershipOrganizationMember", "") != "")):
+            errors['Membership_MembershipPersonMember'] = (
+                _("One, and only one, person or organization must be choose as a member"))
+
+        elif (dict_values.get("Membership_MembershipPersonMember", "") != ""):
+            sources = dict_values["Membership_MembershipPersonMember"].get("sources")
+            if not len(sources):
+                errors["Membership_MembershipPersonMember"] = ("Sources are " +
+                        "required to update this field")
+        elif (dict_values.get("Membership_MembershipOrganizationMember", "") != ""):
+            sources = dict_values["Membership_MembershipOrganizationMember"].get("sources")
+            if not len(sources):
+                errors["Membership_MembershipOrganizationMember"] = ("Sources are " +
+                        "required to update this field")
+
+        (base_errors, values) = super().validate(dict_values)
+        errors.update(base_errors)
+
+        return (errors, values)
+
     def update(self, dict_values, lang=get_language()):
-        for date in dict_values['Membership_MembershipDate']:
-            sources = Source.create_sources(date.get('sources', []))
-            if date['id'] == 0:
-                new_date = ComplexFieldContainer(self, MembershipDate, date['id'])
-            else:
-                new_date = ComplexFieldContainer(self, MembershipDate, date['id'])
-            new_date.update(date['value'], lang, sources)
+        super().update(dict_values, lang)
+        if 'Membership_MembershipDate' in dict_values:
+            for date in dict_values['Membership_MembershipDate']:
+                sources = Source.create_sources(date.get('sources', []))
+                if date['id'] == 0:
+                    new_date = ComplexFieldContainer(self, MembershipDate, date['id'])
+                else:
+                    new_date = ComplexFieldContainer(self, MembershipDate, date['id'])
+                new_date.update(date['value'], lang, sources)
 
     @classmethod
     def create(cls, dict_values, lang=get_language()):
