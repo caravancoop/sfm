@@ -203,8 +203,8 @@ def organization_autocomplete(request):
     )
 
     organizations = [
-        _(orgs.name.get_value())
-        for orgs in organizations
+        {"value": org.id, "label": _(org.name.get_value())}
+        for org in organizations
     ]
 
     return HttpResponse(json.dumps(organizations))
