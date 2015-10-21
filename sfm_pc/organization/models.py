@@ -33,6 +33,8 @@ class Organization(models.Model, BaseModel):
     def get_value(self):
         return self.name.get_value()
 
+    def __str__(self):
+        return self.name.get_value()
 
 @translated
 @versioned
