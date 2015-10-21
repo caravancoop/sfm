@@ -1,7 +1,7 @@
 $(document).on("keydown.autocomplete", ".autocomplete-tag", function() {
     self = this;
     $(this).autocomplete({
-        source: $(this).data('source-url'),
+        source: "/" + window.LANG + $(this).data('source-url'),
         select: function(event, ui) {
             event.preventDefault();
             $(self).val(ui.item.label);
