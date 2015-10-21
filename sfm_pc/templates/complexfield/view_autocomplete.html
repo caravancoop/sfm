@@ -24,6 +24,6 @@
     </ul>
   </div>
 </label>
-<input type="hidden" class="real-input" id="{{ field_str_id }}" value="{% if value %}{{ value }}{% endif %}">
+<input type="hidden" class="real-input" id="{{ field_str_id }}" value="{% if value_id %}{{ value_id }}{% endif %}">
 <input type="text" class="form-control autocomplete-tag" data-source-url="{{ source_url }}" data-id="{{ field_str_id }}" value="{% if value %}{{ value }}{% endif %}" placeholder="Enter {{field_name}}">
 <span class="error-message" data-em-target={{ field_str_id }}></span>

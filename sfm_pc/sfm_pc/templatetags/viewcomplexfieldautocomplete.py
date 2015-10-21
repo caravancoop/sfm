@@ -13,8 +13,12 @@ def view_complex_field_autocomplete(field, object_id, source_url, path):
         object_id = 0
 
     value = field.get_value()
-    if (not isinstance(value, str) and value is not None and
-        not isinstance(value, ApproximateDate)):
+    if value is not None:
+        value_id = value.id
+    else:
+        value_id = None
+
+    if not isinstance(value, str) and value is not None:
         if hasattr(value, "get_value"):
             value = value.get_value()
         else:
@@ -22,6 +26,7 @@ def view_complex_field_autocomplete(field, object_id, source_url, path):
 
     return {
         'value' : value,
+        'value_id': value_id,
         'object_id': object_id,
         'object_name': field.get_object_name(),
         'field_str_id': field.get_field_str_id(),
