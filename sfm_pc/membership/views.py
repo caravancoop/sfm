@@ -16,7 +16,7 @@ class MembershipView(TemplateView):
 
         order_by = self.request.GET.get('orderby')
         if not order_by:
-            order_by = 'membershipperson__value'
+            order_by = 'membershippersonmember__value'
 
         direction = self.request.GET.get('direction')
         if not direction:

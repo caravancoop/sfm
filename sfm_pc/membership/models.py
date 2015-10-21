@@ -4,7 +4,8 @@ from django.utils.translation import get_language
 
 from django_date_extensions.fields import ApproximateDateField
 
-from complex_fields.model_decorators import versioned, translated, sourced
+from complex_fields.model_decorators import (versioned, translated, sourced,
+                                             sourced_optional)
 from complex_fields.models import (ComplexField, ComplexFieldContainer,
                                    ComplexFieldListContainer)
 from complex_fields.base_models import BaseModel
@@ -16,7 +17,8 @@ from organization.models import Organization
 class Membership(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.person = ComplexFieldContainer(self, MembershipPerson)
+        self.personmember = ComplexFieldContainer(self, MembershipPersonMember)
+        self.organizationmember = ComplexFieldContainer(self, MembershipOrganizationMember)
         self.organization = ComplexFieldContainer(self, MembershipOrganization)
         self.role = ComplexFieldContainer(self, MembershipRole)
         self.title = ComplexFieldContainer(self, MembershipTitle)
@@ -75,11 +77,19 @@ class Membership(models.Model, BaseModel):
 
 
 @versioned
-@sourced
-class MembershipPerson(ComplexField):
+@sourced_optional
+class MembershipPersonMember(ComplexField):
     object_ref = models.ForeignKey('Membership')
-    value = models.ForeignKey(Person)
-    field_name = _("Person")
+    value = models.ForeignKey(Person, default=None, blank=True, null=True)
+    field_name = _("Person member")
+
+
+@versioned
+@sourced_optional
+class MembershipOrganizationMember(ComplexField):
+    object_ref = models.ForeignKey('Membership')
+    value = models.ForeignKey(Organization, default=None, blank=True, null=True)
+    field_name = _("Organization member")
 
 
 @versioned

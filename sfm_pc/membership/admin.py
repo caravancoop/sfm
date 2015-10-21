@@ -2,16 +2,20 @@ import reversion
 
 from django.contrib import admin
 
-from .models import (Membership, MembershipPerson, MembershipOrganization,
-                     MembershipRole, MembershipTitle, MembershipRank, MembershipDate,
-                     MembershipRealStart, MembershipRealEnd, MembershipStartContext,
-                     MembershipEndContext, Role, Rank, Context)
+from .models import (Membership, MembershipPersonMember, MembershipOrganizationMember,
+                     MembershipOrganization, MembershipRole, MembershipTitle,
+                     MembershipRank, MembershipDate, MembershipRealStart,
+                     MembershipRealEnd, MembershipStartContext, MembershipEndContext,
+                     Role, Rank, Context)
 
 
 class MembershipAdmin(admin.ModelAdmin):
     pass
 
-class MembershipPersonAdmin(reversion.VersionAdmin):
+class MembershipPersonMemberAdmin(reversion.VersionAdmin):
+    pass
+
+class MembershipOrganizationMemberAdmin(reversion.VersionAdmin):
     pass
 
 class MembershipOrganizationAdmin(reversion.VersionAdmin):
@@ -52,7 +56,8 @@ class ContextAdmin(reversion.VersionAdmin):
 
 
 admin.site.register(Membership, MembershipAdmin)
-admin.site.register(MembershipPerson, MembershipPersonAdmin)
+admin.site.register(MembershipPersonMember, MembershipPersonMemberAdmin)
+admin.site.register(MembershipOrganizationMember, MembershipOrganizationMemberAdmin)
 admin.site.register(MembershipOrganization, MembershipOrganizationAdmin)
 admin.site.register(MembershipRole, MembershipRoleAdmin)
 admin.site.register(MembershipTitle, MembershipTitleAdmin)
