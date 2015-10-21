@@ -56,6 +56,7 @@ class BaseModel(object):
     @classmethod
     def create(cls, dict_values, lang=get_language()):
         field = cls()
-        errors = field.update(dict_values, lang)
-        return errors
+        field.update(dict_values, lang)
+
+        return field
 

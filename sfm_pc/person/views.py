@@ -141,7 +141,7 @@ class PersonUpdate(TemplateView):
 
         person.update(data)
         return HttpResponse(
-            json.dumps({"success": True}),
+            json.dumps({"success": True, "id": person.id}),
             content_type="application/json"
         )
 
@@ -171,9 +171,12 @@ class PersonCreate(TemplateView):
                 content_type="application/json"
             )
 
-        Person.create(data)
+        person = Person.create(data)
 
-        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+        return HttpResponse(
+            json.dumps({"success": True, "id": person.id}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(PersonCreate, self).get_context_data(**kwargs)

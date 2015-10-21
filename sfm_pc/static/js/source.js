@@ -189,9 +189,19 @@ var source = (function(){
           self.actualElement.find('.error-message').each(function(index, error){
             $(error).html("");
           });
-          for(var key in response.errors){
-            err_str = response.errors[key];
-            $("#" + key).siblings('.error-message').html("* " + err_str);
+          if(response.errors !== undefined){
+            for(var key in response.errors){
+              err_str = response.errors[key];
+              $("#" + key).siblings('.error-message').html("* " + err_str);
+            }
+          } else {
+            url = window.location.href
+            if(self.$mdObjId == "add"){
+              url = url.replace('add', response.id);
+            } else {
+              url = url.replace(response.id + '/', '')
+            }
+            window.location.href = url;
           }
         },
         error: function(requestObject, error, errorThrown) {
