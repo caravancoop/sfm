@@ -1,6 +1,7 @@
 import json
 
 from django.views.generic.base import TemplateView
+from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.db.models import Max
 
@@ -97,3 +98,35 @@ class MembershipCreate(TemplateView):
         context['ranks'] = Rank.objects.all()
 
         return context
+
+
+def rank_autocomplete(request):
+    term = request.GET.dict().get('term')
+
+    ranks = Rank.objects.filter(value__icontains=term)
+
+    ranks = [
+        {
+            'label': _(rank.value),
+            'value': str(rank.id)
+        }
+        for rank in ranks
+    ]
+
+    return HttpResponse(json.dumps(ranks))
+
+
+def role_autocomplete(request):
+    term = request.GET.dict().get('term')
+
+    roles = Role.objects.filter(value__icontains=term)
+
+    roles = [
+        {
+            'label': _(role.value),
+            'value': str(role.id)
+        }
+        for role in roles
+    ]
+
+    return HttpResponse(json.dumps(roles))
