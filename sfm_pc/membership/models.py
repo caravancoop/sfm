@@ -23,13 +23,15 @@ class Membership(models.Model, BaseModel):
         self.role = ComplexFieldContainer(self, MembershipRole)
         self.title = ComplexFieldContainer(self, MembershipTitle)
         self.rank = ComplexFieldContainer(self, MembershipRank)
-        self.real_start = ComplexFieldContainer(self, MembershipRealStart)
-        self.real_end = ComplexFieldContainer(self, MembershipRealEnd)
-        self.start_context = ComplexFieldContainer(self, MembershipStartContext)
-        self.end_context = ComplexFieldContainer(self, MembershipEndContext)
+        self.realstart = ComplexFieldContainer(self, MembershipRealStart)
+        self.realend = ComplexFieldContainer(self, MembershipRealEnd)
+        self.startcontext = ComplexFieldContainer(self, MembershipStartContext)
+        self.endcontext = ComplexFieldContainer(self, MembershipEndContext)
 
-        self.complex_fields = [self.person, self.organization, self.role,
-                               self.title, self.rank]
+        self.complex_fields = [self.personmember, self.organizationmember,
+                               self.organization, self.role, self.title, self.rank,
+                               self.realstart, self.realend, self.startcontext,
+                               self.endcontext]
 
         self.date = ComplexFieldListContainer(self, MembershipDate)
         self.required_fields = [
@@ -40,14 +42,14 @@ class Membership(models.Model, BaseModel):
 
     @property
     def start_date(self):
-        if self.real_start.get_value():
+        if self.realstart.get_value():
             dates = MembershipDate.objects.filter(object_ref=self).order_by("value")
             return dates[0].value
         return None
 
     @property
     def end_date(self):
-        if self.real_end.get_value():
+        if self.realend.get_value():
             dates = MembershipDate.objects.filter(object_ref=self).order_by("-value")
             return dates[0].value
         return None
