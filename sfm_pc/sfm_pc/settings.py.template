@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'countries_plus',
     'reversion',
     'leaflet',
+    'complex_fields',
     'sfm_pc',
     'organization',
     'person',
