@@ -31,17 +31,18 @@ class EmplacementUpdate(TemplateView):
                   "before updating it."
             return HttpResponse(msg, status=400)
 
-        errors = emplacement.update(data)
+        (errors, data) = emplacement.validate(data)
         if errors is None:
-            return HttpResponse(
-                json.dumps({"success": True}),
-                content_type="application/json"
-            )
-        else:
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
+
+        emplacement.update(data)
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(EmplacementUpdate, self).get_context_data(**kwargs)
@@ -56,9 +57,18 @@ class EmplacementCreate(TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
+        (errors, data) = Emplacement().validate(data)
+
+        if len(errors):
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
         emplacement = Emplacement.create(data)
 
-        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+        return HttpResponse(json.dumps({"success": True, "id": emplacement.id}),
+                            content_type="application/json")
 
     def get_context_data(self, **kwargs):
         context = super(EmplacementCreate, self).get_context_data(**kwargs)
