@@ -50,7 +50,11 @@ var dateController = (function(){
         day = $(this).find('select.-sfm-day'); // set the date
         $input = $('.date-wrapper[data-date-target='+ self.dPickerId +']').find('input');
         var currentDate = $input.val();
-        var tempArray = currentDate.split("-");
+        if( currentDate == undefined ){
+          var tempArray = ['Year', '00', '00'];
+        } else {
+          var tempArray = currentDate.split("-");
+        }
         self.oldYear = tempArray[0];
         self.oldMonth = tempArray[1];
         self.oldDay = tempArray[2];
@@ -94,7 +98,11 @@ var dateController = (function(){
 
       var $input = $('.date-wrapper[data-date-target='+ hiddenInputId  +']').find('input');
       var currentDate = $input.val();
-      var tempArray = currentDate.split("-");
+      if( currentDate == undefined ){
+        var tempArray = ['Year', '00', '00'];
+      } else {
+        var tempArray = currentDate.split("-");
+      }
       var year = tempArray[0];
       var month = tempArray[1];
       var $day = $('.date-wrapper[data-date-target='+ hiddenInputId  +']').find('.-sfm-day');
