@@ -1,6 +1,7 @@
 {% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
 {% load viewcomplexfield %}
 {% load viewcomplexfielddate %}
+{% load viewcomplexfieldautocomplete %}
 {% load i18n %}
 {% block content %}
 
@@ -21,23 +22,23 @@
 
   <form>
     <div class="row">
-      <div class="form-group col-sm-6">
+      <div class="form-group col-sm-6 complex-field">
         {% view_complex_field_date association.startdate association.id request.path %}
       </div>
-      <div class="form-group col-sm-6">
+      <div class="form-group col-sm-6 complex-field">
         {% view_complex_field_date association.enddate association.id request.path %}
       </div>
     </div>
     <div class="row">
-      <div class="form-group col-sm-5">
-        {% view_complex_field association.organization association.id request.path %}
+      <div class="form-group col-sm-5 complex-field">
+        {% view_complex_field_autocomplete association.organization association.id "/organization/name/autocomplete/" request.path %}
       </div>
       <div class="form-group col-sm-2">
         <label>&nbsp;</label>
         <div class="text-center">{% trans "With" %}</div>
       </div>
-      <div class="form-group col-sm-5">
-        {% view_complex_field association.area association.id request.path %}
+      <div class="form-group col-sm-5 complex-field">
+        {% view_complex_field_autocomplete association.area association.id "/area/name/autocomplete/" request.path %}
       </div>
     </div>
   </form>
