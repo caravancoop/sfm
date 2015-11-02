@@ -6,11 +6,12 @@ from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import versioned, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
+from complex_fields.base_models import BaseModel
 from source.models import Source
 from organization.models import Organization
 from area.models import Area
 
-class Association(models.Model):
+class Association(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, AssociationStartDate)
@@ -25,6 +26,23 @@ class Association(models.Model):
             "Association_AssociationOrganization",
             "Association_AssociationArea",
         ]
+
+    def validate(self, dict_values, lang=get_language()):
+        errors = {}
+
+        start = dict_values.get("Association_AssociationStartDate")
+        end = dict_values.get("Association_AssociationEndDate")
+        if (start and start.get("value") != "" and
+                end and end.get("value") != "" and
+                start.get("value") >= end.get("value")):
+            errors['Association_AssociationStartDate'] = (
+                "The start date must be before the end date"
+            )
+
+        (base_errors, values) = super().validate(dict_values)
+        errors.update(base_errors)
+
+        return (errors, values)
 
 @versioned
 @sourced

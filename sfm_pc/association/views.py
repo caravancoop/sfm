@@ -31,17 +31,18 @@ class AssociationUpdate(TemplateView):
                   "before updating it."
             return HttpResponse(msg, status=400)
 
-        errors = association.update(data)
-        if errors is None:
-            return HttpResponse(
-                json.dumps({"success": True}),
-                content_type="application/json"
-            )
-        else:
+        (errors, data) = association.validate(data)
+        if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
+
+        association.update(data)
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(AssociationUpdate, self).get_context_data(**kwargs)
@@ -56,9 +57,17 @@ class AssociationCreate(TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
+        (errors, data) = Association().validate(data)
+        if len(errors):
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
         association = Association.create(data)
 
-        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+        return HttpResponse(json.dumps({"success": True, "id": association.id}),
+                            content_type="application/json")
 
     def get_context_data(self, **kwargs):
         context = super(AssociationCreate, self).get_context_data(**kwargs)
