@@ -17,6 +17,9 @@ body, html ,*, li, ul{
   padding:0;
 }
 
+.ui-helper-hidden-accessible {
+  display:none;
+}
 
 body, html{
   @include hw();

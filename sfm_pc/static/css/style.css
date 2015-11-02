@@ -6007,6 +6007,9 @@ body, html, *, li, ul {
   margin: 0;
   padding: 0; }
 
+.ui-helper-hidden-accessible {
+  display: none; }
+
 body, html {
   height: 100%;
   width: 100%;
