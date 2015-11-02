@@ -1,4 +1,5 @@
 {% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
+{% load viewcomplexfieldgeo %}
 {% load viewcomplexfield %}
 {% load i18n %}
 {% block content %}
@@ -30,20 +31,23 @@
 
     <div class="row">
       <div class="form-group col-sm-6">
-        <!-- To update when view_complex_field_geo_point will be done.-->
-        {% view_complex_field site.coordinates site.id request.path %}
-      </div>
-      <div class="form-group col-sm-6">
         {% view_complex_field site.adminlevel2 site.id request.path %}
       </div>
     </div>
-  
+
     <div class="row">
       <div class="form-group col-sm-6">
         {% view_complex_field site.geoname site.id request.path %}
       </div>
       <div class="form-group col-sm-6">
         {% view_complex_field site.geonameid site.id request.path %}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-12">
+        <!-- To update when view_complex_field_geo_point will be done.-->
+        {% view_complex_field_geo site.coordinates site.id zone request.path %}
       </div>
     </div>
 
