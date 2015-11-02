@@ -44,7 +44,7 @@ class CompositionUpdate(TemplateView):
     template_name = 'composition/edit.html'
 
     def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['composition'])
+        data = json.loads(request.POST.dict()['object'])
         try:
             composition = Composition.objects.get(pk=kwargs.get('pk'))
         except Composition.DoesNotExist:
@@ -52,17 +52,18 @@ class CompositionUpdate(TemplateView):
                   "before updating it."
             return HttpResponse(msg, status=400)
 
-        errors = composition.update(data)
-        if errors is None:
-            return HttpResponse(
-                json.dumps({"success": True}),
-                content_type="application/json"
-            )
-        else:
+        (errors, data) = composition.validate(data)
+        if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
+
+        composition.update(data)
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(CompositionUpdate, self).get_context_data(**kwargs)
@@ -76,14 +77,21 @@ class CompositionCreate(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
-        data = json.loads(request.POST.dict()['composition'])
+        data = json.loads(request.POST.dict()['object'])
+        (errors, data) = Composition().validate(data)
+        if len(errors):
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
         composition = Composition.create(data)
 
-        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+        return HttpResponse(json.dumps({"success": True, "id": composition.id}),
+                            content_type="application/json")
 
     def get_context_data(self, **kwargs):
         context = super(CompositionCreate, self).get_context_data(**kwargs)
         context['composition'] = Composition()
-        context['classification'] = Classification.objects.all()
 
         return context
