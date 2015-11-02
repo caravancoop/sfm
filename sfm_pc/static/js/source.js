@@ -167,6 +167,9 @@ var source = (function(){
       }
 
       this.actualElement.find('.real-input').each(function(index, input){
+        if(postData[input.id] === undefined){
+          postData[input.id] = {};
+        }
         postData[input.id]['value'] = input.value;
       });
 
