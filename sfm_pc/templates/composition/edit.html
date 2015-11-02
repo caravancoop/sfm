@@ -1,6 +1,7 @@
 {% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
 {% load viewcomplexfield %}
 {% load viewcomplexfielddate %}
+{% load viewcomplexfieldautocomplete %}
 {% load i18n %}
 {% block content %}
 
@@ -22,19 +23,14 @@
     </div>
 
     <div class="row">
-      <div class="form-group col-sm-4">
-        {% view_complex_field composition.startdate composition.id request.path %}
+      <div class="form-group col-sm-4 complex-field">
+        {% view_complex_field_date composition.startdate composition.id request.path %}
       </div>
-      <div class="form-group col-sm-4">
-        {% view_complex_field composition.enddate composition.id request.path %}
+      <div class="form-group col-sm-4 complex-field">
+        {% view_complex_field_date composition.enddate composition.id request.path %}
       </div>
-      <div class="form-group col-sm-4">
-        {% view_complex_field composition.classification composition.id request.path %}
-        <script type="text/javascript">
-          $("#Composition_CompositionClassification").autocomplete({
-            source: "/" + window.LANG + "/organization/classification/autocomplete"
-          });
-        </script>
+      <div class="form-group col-sm-4 complex-field">
+        {% view_complex_field_autocomplete composition.classification composition.id "/organization/classification/autocomplete" request.path %}
       </div>
     </div>
 
@@ -45,15 +41,15 @@
     </div>
 
     <div class="row">
-      <div class="form-group col-sm-5">
-        {% view_complex_field composition.parent composition.id request.path %}
+      <div class="form-group col-sm-5 complex-field">
+        {% view_complex_field_autocomplete composition.parent composition.id "/organization/name/autocomplete" request.path %}
       </div>
       <div class="form-group col-sm-2">
         <label>&nbsp;</label>
         <div class="text-center">{% trans "With" %}</div>
       </div>
-      <div class="form-group col-sm-5">
-        {% view_complex_field composition.child composition.id request.path %}
+      <div class="form-group col-sm-5 complex-field">
+        {% view_complex_field_autocomplete composition.child composition.id "/organization/name/autocomplete" request.path %}
       </div>
     </div>
   </form>
