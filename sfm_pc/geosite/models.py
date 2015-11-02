@@ -6,17 +6,23 @@ from django.utils.translation import get_language
 from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
 from complex_fields.models import ComplexField, ComplexFieldContainer
+from complex_fields.base_models import BaseModel
 from source.models import Source
 
-class Site(models.Model):
+class Geosite(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = ComplexFieldContainer(self, SiteName)
-        self.adminlevel1 = ComplexFieldContainer(self, SiteAdminLevel1)
-        self.adminlevel2 = ComplexFieldContainer(self, SiteAdminLevel2)
-        self.coordinates = ComplexFieldContainer(self, SiteCoordinates)
-        self.geoname = ComplexFieldContainer(self, SiteGeoname)
-        self.geonameid = ComplexFieldContainer(self, SiteGeonameId)
+        self.name = ComplexFieldContainer(self, GeositeName)
+        self.adminlevel1 = ComplexFieldContainer(self, GeositeAdminLevel1)
+        self.adminlevel2 = ComplexFieldContainer(self, GeositeAdminLevel2)
+        self.coordinates = ComplexFieldContainer(self, GeositeCoordinates)
+        self.geoname = ComplexFieldContainer(self, GeositeGeoname)
+        self.geonameid = ComplexFieldContainer(self, GeositeGeonameId)
+
+        self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
+                               self.coordinates, self.geoname, self.geonameid]
+
+        self.required_fields = ["Geosite_GeositeName"]
 
     def get_value(self):
         return self.name.get_value()
@@ -28,42 +34,43 @@ class Site(models.Model):
 @translated
 @versioned
 @sourced
-class SiteName(ComplexField):
-    object_ref = models.ForeignKey('Site')
+class GeositeName(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
 @versioned
 @sourced
-class SiteAdminLevel1(ComplexField):
-    object_ref = models.ForeignKey('Site')
+class GeositeAdminLevel1(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 1")
 
 @versioned
 @sourced
-class SiteAdminLevel2(ComplexField):
-    object_ref = models.ForeignKey('Site')
+class GeositeAdminLevel2(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 2")
 
 @versioned
 @sourced
-class SiteCoordinates(ComplexField):
-    object_ref = models.ForeignKey('Site')
+class GeositeCoordinates(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
     value = models.PointField(default=None, blank=True, null=True)
+    objects = models.GeoManager()
     field_name = _("Coordinates")
 
 @versioned
 @sourced
-class SiteGeoname(ComplexField):
-    object_ref = models.ForeignKey('Site')
+class GeositeGeoname(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("GeoName name")
 
 @versioned
 @sourced
-class SiteGeonameId(ComplexField):
-    object_ref = models.ForeignKey('Site')
+class GeositeGeonameId(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("GeoName ID")

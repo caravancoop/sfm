@@ -58,7 +58,7 @@ INSTALLED_APPS = (
     'source',
     'area',
     'association',
-    'site_sfm',
+    'geosite',
     'emplacement',
     'violation',
 )
@@ -195,5 +195,5 @@ SITE_ID = 1
 
 ALLOWED_CLASS_FOR_NAME = [
     'Person', 'Organization', 'Membership', 'Composition', 'Association', 'Area',
-    'Emplacement', 'Site', 'Violation'
+    'Emplacement', 'Geosite', 'Violation'
 ]

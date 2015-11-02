@@ -22,7 +22,7 @@ urlpatterns = i18n_patterns(
     url(r'^source/', include('source.urls')),
     url(r'^area/', include('area.urls')),
     url(r'^association/', include('association.urls')),
-    url(r'^site/', include('site_sfm.urls')),
+    url(r'^geosite/', include('geosite.urls')),
     url(r'^emplacement/', include('emplacement.urls')),
     url(r'^violation/', include('violation.urls')),
 

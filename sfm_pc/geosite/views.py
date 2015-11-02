@@ -66,7 +66,7 @@ class SiteCreate(TemplateView):
 def site_autocomplete(request):
     data = request.GET.dict()['term']
 
-    sites = Site.objects.filter(
+    sites = Geosite.objects.filter(
         sitename__value__icontains=data
     )
 

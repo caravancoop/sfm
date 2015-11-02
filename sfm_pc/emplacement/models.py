@@ -9,7 +9,7 @@ from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 from source.models import Source
 from organization.models import Organization
-from site_sfm.models import Site
+from geosite.models import Geosite
 
 class Emplacement(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
@@ -70,5 +70,5 @@ class EmplacementOrganization(ComplexField):
 @versioned
 class EmplacementSite(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
-    value = models.ForeignKey(Site)
+    value = models.ForeignKey(Geosite)
     field_name = _("Site")
