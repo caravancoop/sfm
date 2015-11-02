@@ -1,6 +1,7 @@
 {% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
 {% load viewcomplexfield %}
 {% load viewcomplexfielddate %}
+{% load viewcomplexfieldautocomplete %}
 {% load i18n %}
 {% block content %}
 
@@ -30,14 +31,14 @@
     </div>
     <div class="row">
       <div class="form-group col-sm-5">
-        {% view_complex_field emplacement.organization emplacement.id request.path %}
+        {% view_complex_field_autocomplete emplacement.organization emplacement.id "/organization/autocomplete/" request.path %}
       </div>
       <div class="form-group col-sm-2">
         <label>&nbsp;</label>
         <div class="text-center">{% trans "With" %}</div>
       </div>
       <div class="form-group col-sm-5">
-        {% view_complex_field emplacement.site emplacement.id request.path %}
+        {% view_complex_field_autocomplete emplacement.site emplacement.id "/site/autocomplete/" request.path %}
       </div>
     </div>
   </form>
