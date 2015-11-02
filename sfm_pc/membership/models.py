@@ -91,16 +91,6 @@ class Membership(models.Model, BaseModel):
 
         return (errors, values)
 
-    def update(self, dict_values, lang=get_language()):
-        super().update(dict_values, lang)
-        if 'Membership_MembershipDate' in dict_values:
-            for date in dict_values['Membership_MembershipDate']:
-                sources = Source.create_sources(date.get('sources', []))
-                if date['id'] == 0:
-                    new_date = ComplexFieldContainer(self, MembershipDate, date['id'])
-                else:
-                    new_date = ComplexFieldContainer(self, MembershipDate, date['id'])
-                new_date.update(date['value'], lang, sources)
 
     @classmethod
     def create(cls, dict_values, lang=get_language()):
