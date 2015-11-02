@@ -21,32 +21,28 @@
 
   <form>
     <div class="row">
-      <div class="form-group col-sm-6">
+      <div class="form-group col-sm-4 complex-field">
         {% view_complex_field site.name site.id request.path %}
       </div>
-      <div class="form-group col-sm-6">
+      <div class="form-group col-sm-4 complex-field">
         {% view_complex_field site.adminlevel1 site.id request.path %}
       </div>
-    </div>
-
-    <div class="row">
-      <div class="form-group col-sm-6">
+      <div class="form-group col-sm-4 complex-field">
         {% view_complex_field site.adminlevel2 site.id request.path %}
       </div>
     </div>
 
     <div class="row">
-      <div class="form-group col-sm-6">
+      <div class="form-group col-sm-6 complex-field">
         {% view_complex_field site.geoname site.id request.path %}
       </div>
-      <div class="form-group col-sm-6">
+      <div class="form-group col-sm-6 complex-field">
         {% view_complex_field site.geonameid site.id request.path %}
       </div>
     </div>
 
     <div class="row">
-      <div class="form-group col-sm-12">
-        <!-- To update when view_complex_field_geo_point will be done.-->
+      <div class="form-group col-sm-12 complex-field">
         {% view_complex_field_geo site.coordinates site.id zone request.path %}
       </div>
     </div>
