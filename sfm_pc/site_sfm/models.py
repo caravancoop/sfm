@@ -18,6 +18,12 @@ class Site(models.Model):
         self.geoname = ComplexFieldContainer(self, SiteGeoname)
         self.geonameid = ComplexFieldContainer(self, SiteGeonameId)
 
+    def get_value(self):
+        return self.name.get_value()
+
+    def __str__(self):
+        return self.name.get_value()
+
 
 @translated
 @versioned

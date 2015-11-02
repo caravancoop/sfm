@@ -1,6 +1,7 @@
 import json
 
 from django.views.generic.base import TemplateView
+from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 
 from .models import Site
@@ -60,3 +61,18 @@ class SiteCreate(TemplateView):
 
 
         return context
+
+
+def site_autocomplete(request):
+    data = request.GET.dict()['term']
+
+    sites = Site.objects.filter(
+        sitename__value__icontains=data
+    )
+
+    sites = [
+        {"value": site.id, "label": _(site.name.get_value())}
+        for site in sites
+    ]
+
+    return HttpResponse(json.dumps(sites))
