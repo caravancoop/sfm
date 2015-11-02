@@ -152,17 +152,18 @@ class OrganizationUpdate(TemplateView):
                   "before updating it."
             return HttpResponse(msg, status=400)
 
-        errors = organization.update(data)
-        if errors is None:
-            return HttpResponse(
-                json.dumps({"success": True}),
-                content_type="application/json"
-            )
-        else:
+        (errors, data) = organization.validate(data)
+        if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
+
+        organization.update(data)
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(OrganizationUpdate, self).get_context_data(**kwargs)
@@ -178,14 +179,16 @@ class OrganizationCreate(TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
-        errors = Organization.create(data)
-        if errors is not None:
+        (errors, data) = Organization().validate(data)
+        if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
 
-        return HttpResponse(json.dumps({"success": True}),
+        org = Organization.create(data)
+
+        return HttpResponse(json.dumps({"success": True, "id": org.id}),
                             content_type="application/json")
 
     def get_context_data(self, **kwargs):
