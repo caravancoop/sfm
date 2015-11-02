@@ -26,17 +26,19 @@ class AreaUpdate(TemplateView):
                   "before updating it."
             return HttpResponse(msg, status=400)
 
-        errors = area.update(data)
-        if errors is None:
-            return HttpResponse(
-                json.dumps({"success": True}),
-                content_type="application/json"
-            )
-        else:
+        (errors, data) = area.validate(data)
+        if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
+
+        area.update(data)
+
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(AreaUpdate, self).get_context_data(**kwargs)
@@ -53,9 +55,20 @@ class AreaCreate(TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
+
+        (errors, data) = Area().validate(data)
+        if len(errors):
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
         area = Area.create(data)
 
-        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+        return HttpResponse(
+            json.dumps({"success": True, "id": area.id}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(AreaCreate, self).get_context_data(**kwargs)
