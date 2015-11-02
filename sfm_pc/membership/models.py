@@ -54,8 +54,6 @@ class Membership(models.Model, BaseModel):
 
         if ((dict_values.get("Membership_MembershipPersonMember", "") == "" !=
              dict_values.get("Membership_MembershipOrganizationMember", "") == "")):
-            #(dict_values.get("Membership_MembershipPersonMember", "") != "" and
-            # dict_values.get("Membership_MembershipOrganizationMember", "") != "")):
             errors['Membership_MembershipPersonMember'] = (
                 _("One, and only one, person or organization must be choose as a member"))
 
