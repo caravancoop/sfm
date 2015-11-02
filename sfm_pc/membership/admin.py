@@ -4,9 +4,9 @@ from django.contrib import admin
 
 from .models import (Membership, MembershipPersonMember, MembershipOrganizationMember,
                      MembershipOrganization, MembershipRole, MembershipTitle,
-                     MembershipRank, MembershipDate, MembershipRealStart,
-                     MembershipRealEnd, MembershipStartContext, MembershipEndContext,
-                     Role, Rank, Context)
+                     MembershipRank, MembershipFirstCitedDate, MembershipLastCitedDate,
+                     MembershipRealStart, MembershipRealEnd, MembershipStartContext,
+                     MembershipEndContext, Role, Rank, Context)
 
 
 class MembershipAdmin(admin.ModelAdmin):
@@ -30,7 +30,10 @@ class MembershipTitleAdmin(reversion.VersionAdmin):
 class MembershipRankAdmin(reversion.VersionAdmin):
     pass
 
-class MembershipDateAdmin(reversion.VersionAdmin):
+class MembershipFirstCitedDateAdmin(reversion.VersionAdmin):
+    pass
+
+class MembershipLastCitedDateAdmin(reversion.VersionAdmin):
     pass
 
 class MembershipRealStartAdmin(reversion.VersionAdmin):
@@ -62,7 +65,8 @@ admin.site.register(MembershipOrganization, MembershipOrganizationAdmin)
 admin.site.register(MembershipRole, MembershipRoleAdmin)
 admin.site.register(MembershipTitle, MembershipTitleAdmin)
 admin.site.register(MembershipRank, MembershipRankAdmin)
-admin.site.register(MembershipDate, MembershipDateAdmin)
+admin.site.register(MembershipFirstCitedDate, MembershipFirstCitedDateAdmin)
+admin.site.register(MembershipLastCitedDate, MembershipLastCitedDateAdmin)
 admin.site.register(MembershipRealStart, MembershipRealStartAdmin)
 admin.site.register(MembershipRealEnd, MembershipRealEndAdmin)
 admin.site.register(MembershipStartContext, MembershipStartContextAdmin)

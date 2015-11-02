@@ -1,6 +1,7 @@
 {% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
 {% load viewcomplexfield %}
 {% load viewcomplexfielddate %}
+{% load viewcomplexfieldboolean %}
 {% load viewcomplexfieldautocomplete %}
 {% load i18n %}
 {% block content %}
@@ -49,8 +50,6 @@
       <div class="form-group col-sm-4 complex-field">
         {% view_complex_field_autocomplete membership.role membership.id "/membership/role/autocomplete/" request.path %}
       </div>
-    </div>
-    <div class="row">
       <div class="form-group col-sm-4 complex-field">
         {% view_complex_field membership.title membership.id request.path %}
       </div>
@@ -60,9 +59,22 @@
     </div><!-- /.row-->
  
     <div class="row">
-      <h5>Dates</h5>
+      <div class="form-group col-sm-4 complex-field">
+        {% view_complex_field_date membership.firstciteddate membership.id request.path %}
+      </div>
+      <div class="form-group col-sm-2 complex-field">
+        {% view_complex_field_boolean membership.realstart membership.id request.path %}
+      </div>
+      <div class="form-group col-sm-4 complex-field">
+        {% view_complex_field_date membership.lastciteddate membership.id request.path %}
+      </div>
+      <div class="form-group col-sm-2 complex-field">
+        {% view_complex_field_boolean membership.realend membership.id request.path %}
+      </div>
+    </div>
 
-      <div class="row">
+    <div class="row">
+      <div class="col-sm-12">
         {% for date in membership.date.get_list %}
           <div class="form-group col-sm-3">
             {% view_complex_field date membership.id request.path %}
@@ -73,8 +85,8 @@
           </p>
         {% endfor %}
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
 
   <div class="row">
     <div class="col-sm-12 col-md-12">

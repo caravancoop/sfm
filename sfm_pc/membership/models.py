@@ -27,32 +27,19 @@ class Membership(models.Model, BaseModel):
         self.realend = ComplexFieldContainer(self, MembershipRealEnd)
         self.startcontext = ComplexFieldContainer(self, MembershipStartContext)
         self.endcontext = ComplexFieldContainer(self, MembershipEndContext)
+        self.firstciteddate = ComplexFieldContainer(self, MembershipFirstCitedDate)
+        self.lastciteddate = ComplexFieldContainer(self, MembershipLastCitedDate)
 
         self.complex_fields = [self.personmember, self.organizationmember,
                                self.organization, self.role, self.title, self.rank,
                                self.realstart, self.realend, self.startcontext,
-                               self.endcontext]
+                               self.endcontext, self.firstciteddate, self.lastciteddate]
 
-        self.date = ComplexFieldListContainer(self, MembershipDate)
         self.required_fields = [
             "Membership_MembershipPerson",
             "Membership_MembershipOrganization",
         ]
 
-
-    @property
-    def start_date(self):
-        if self.realstart.get_value():
-            dates = MembershipDate.objects.filter(object_ref=self).order_by("value")
-            return dates[0].value
-        return None
-
-    @property
-    def end_date(self):
-        if self.realend.get_value():
-            dates = MembershipDate.objects.filter(object_ref=self).order_by("-value")
-            return dates[0].value
-        return None
 
     @classmethod
     def from_id(cls, id_):
@@ -82,6 +69,24 @@ class Membership(models.Model, BaseModel):
             if not len(sources):
                 errors["Membership_MembershipOrganizationMember"] = ("Sources are " +
                         "required to update this field")
+
+        first_cited = dict_values.get("Membership_MembershipFirstCitedDate")
+        last_cited = dict_values.get("Membership_MembershipLastCitedDate")
+        if (first_cited and first_cited.get('value') != "" and
+                last_cited and last_cited.get("value") != "" and
+                first_cited.get('value') >= last_cited.get('value')):
+            errors["Membership_MembershipFirstCitedDate"] = (
+                "The first cited date must be before the last cited date"
+            )
+
+        real_start = dict_values.get("Membership_MembershipRealStart")
+        real_end = dict_values.get("Membership_MembershipRealEnd")
+        if( real_start.get("value") == 'True' and not len(real_start.get('sources'))):
+            errors['Membership_MembershipRealStart'] = ("Sources are required " +
+                                                        "to update this field")
+        if( real_end.get("value") == 'True' and not len(real_end.get('sources'))):
+            errors['Membership_MembershipRealEnd'] = ("Sources are required " +
+                                                        "to update this field")
 
         (base_errors, values) = super().validate(dict_values)
         errors.update(base_errors)
@@ -157,24 +162,22 @@ class MembershipRank(ComplexField):
 
 @versioned
 @sourced
-class MembershipDate(ComplexField):
+class MembershipFirstCitedDate(ComplexField):
     object_ref = models.ForeignKey('Membership')
     value = ApproximateDateField()
-
-    @property
-    def field_name(self):
-        name = ""
-        if self.object_ref_id:
-            if self.value == self.object_ref.start_date:
-                name = _("Real start")
-            if self.value == self.object_ref.end_date:
-                name = _("Real end")
-        return name
-
+    field_name = _("First cited date")
 
 
 @versioned
 @sourced
+class MembershipLastCitedDate(ComplexField):
+    object_ref = models.ForeignKey('Membership')
+    value = ApproximateDateField()
+    field_name = _("Last cited date")
+
+
+@versioned
+@sourced_optional
 class MembershipRealStart(ComplexField):
     object_ref = models.ForeignKey('Membership')
     value = models.BooleanField(default=None)
@@ -182,7 +185,7 @@ class MembershipRealStart(ComplexField):
 
 
 @versioned
-@sourced
+@sourced_optional
 class MembershipRealEnd(ComplexField):
     object_ref = models.ForeignKey('Membership')
     value = models.BooleanField(default=None)

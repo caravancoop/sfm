@@ -89,7 +89,7 @@ class MembershipCreate(TemplateView):
 
         membership = Membership.create(data)
 
-        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+        return HttpResponse(json.dumps({"success": True, "id": membership.id}), content_type="application/json")
 
     def get_context_data(self, **kwargs):
         context = super(MembershipCreate, self).get_context_data(**kwargs)
