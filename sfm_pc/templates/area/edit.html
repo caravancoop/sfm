@@ -26,15 +26,15 @@
       <div class="form-group col-sm-4 complex-field">
         {% view_complex_field area.name area.id request.path %}
       </div>
-      <div class="form-group col-sm-4">
+      <div class="form-group col-sm-4 complex-field">
         {% view_complex_field_autocomplete area.code area.id "/area/code/autocomplete/" request.path %}
       </div>
-      <div class="form-group col-sm-4">
+      <div class="form-group col-sm-4 complex-field">
         {% view_complex_field area.geoname area.id request.path %}
       </div>
     </div>
     <div class="row">
-      <div class="form-group col-sm-12">
+      <div class="form-group col-sm-12 complex-field">
         {% view_complex_field_geo area.geometry area.id zone request.path %}
       </div>
 
