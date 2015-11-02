@@ -69,3 +69,11 @@ class AreaGeoName(ComplexField):
 
 class Code(models.Model):
     value = models.TextField()
+
+    @classmethod
+    def from_id(cls, id_):
+        try:
+            code = cls.objects.get(id=id_)
+            return code
+        except cls.DoesNotExist:
+            return None

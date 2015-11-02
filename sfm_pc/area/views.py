@@ -1,9 +1,10 @@
 import json
 
 from django.views.generic.base import TemplateView
+from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 
-from .models import Area
+from .models import Area, Code
 from .forms import ZoneForm
 
 
@@ -77,3 +78,33 @@ class AreaCreate(TemplateView):
 
 
         return context
+
+
+def area_autocomplete(request):
+    data = request.GET.dict()['term']
+
+    areas = Area.objects.filter(
+        areaname__value__icontains=data
+    )
+
+    areas = [
+        {"value": area.id, "label": _(area.name.get_value())}
+        for area in areas
+    ]
+
+    return HttpResponse(json.dumps(areas))
+
+
+def code_autocomplete(request):
+    data = request.GET.dict()['term']
+
+    codes = Code.objects.filter(
+        value__icontains=data
+    )
+
+    codes = [
+        {"value": code.id, "label": _(code.value)}
+        for code in codes
+    ]
+
+    return HttpResponse(json.dumps(codes))
