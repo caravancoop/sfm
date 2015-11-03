@@ -41,8 +41,6 @@ class PersonView(TemplateView):
 def person_search(request):
     terms = request.GET.dict()
 
-    persons = Person.objects.all()
-
     order_by = terms.get('orderby')
     if not order_by:
         order_by = 'personname__value'
