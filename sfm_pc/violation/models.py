@@ -6,9 +6,16 @@ from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import (versioned, translated, sourced)
 from complex_fields.models import ComplexField, ComplexFieldContainer, ComplexFieldListContainer
+from complex_fields.base_models import BaseModel
 from source.models import Source
 
-class Violation(models.Model):
+CONFIDENCE_LEVELS = (
+    ('1', _('Low')),
+    ('2', _('Medium')),
+    ('3', _('High')),
+)
+
+class Violation(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, ViolationStartDate)
@@ -32,12 +39,29 @@ class Violation(models.Model):
                                self.geonameid, self.location, self.description,
                                self.perpetrator, self.perpetratororganization]
 
-        self.types = ComplexFieldListContainer(self, ViolationType)
+        self.required_fields = []
 
-    @classmethod
-    def create(cls, dict_values, lang=get_language()):
-        violation = cls()
-        return violation
+        self.types = ComplexFieldListContainer(self, ViolationType)
+        self.sources = models.ManyToManyField(Source)
+        self.confidence = models.CharField(max_length=1, default=1,
+                                           choices=CONFIDENCE_LEVELS)
+
+    def validate(self, dict_values):
+        errors = {}
+
+        start = dict_values['Violation_ViolationStartDate']
+        end = dict_values['Violation_ViolationEndDate']
+        if (start and start.get('value') and end and end.get('value') and
+                start.get('value') >= end.get('value')):
+            errors['Violation_ViolationStartDate'] = _(
+                "The start date must be before the end date"
+            )
+
+        (base_errors, values) = super().validate(dict_values)
+        errors.update(base_errors)
+
+        return (errors, values)
+
 
 class ViolationStartDate(models.Model):
     object_ref = models.ForeignKey('Violation')
@@ -50,7 +74,7 @@ class ViolationEndDate(models.Model):
     field_name = _("End date")
 
 @translated
-class ViolationLocationDescription(models.Model):
+class ViolationLocationDescription(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Location description")

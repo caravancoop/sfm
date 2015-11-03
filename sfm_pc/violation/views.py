@@ -27,17 +27,19 @@ class ViolationUpdate(TemplateView):
                   "before updating it."
             return HttpResponse(msg, status=400)
 
-        errors = violation.update(data)
+        (errors, data) = violation.validate(data)
         if errors is None:
-            return HttpResponse(
-                json.dumps({"success": True}),
-                content_type="application/json"
-            )
-        else:
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
+
+        violation.update(date)
+
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
 
     def get_context_data(self, **kwargs):
         context = super(ViolationUpdate, self).get_context_data(**kwargs)
@@ -52,9 +54,18 @@ class ViolationCreate(TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
+        (errors, data) = Violation().validate(data)
+
+        if len(errors):
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
         violation = Violation.create(data)
 
-        return HttpResponse(json.dumps({"success": True}), content_type="application/json")
+        return HttpResponse(json.dumps({"success": True, "id": violation.id}),
+                            content_type="application/json")
 
     def get_context_data(self, **kwargs):
         context = super(ViolationCreate, self).get_context_data(**kwargs)
