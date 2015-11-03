@@ -14,7 +14,7 @@ from django.db.models import Max
 from django.contrib.gis.geos import Point
 
 from .models import Person, PersonName
-from membership.models import Membership
+from membership.models import Membership, Role
 
 def ajax_request(function):
     def wrapper(request, *args, **kwargs):
@@ -33,6 +33,7 @@ class PersonView(TemplateView):
 
         context['year_range'] = range(1950, date.today().year + 1)
         context['day_range'] = range(1, 32)
+        context['roles'] = Role.get_role_list()
 
         return context
 

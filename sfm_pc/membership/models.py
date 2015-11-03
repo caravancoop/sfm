@@ -199,6 +199,16 @@ class MembershipEndContext(ComplexField):
 class Role(models.Model):
     value = models.TextField()
 
+    @classmethod
+    def get_role_list(cls):
+        roles = cls.objects.all()
+        roles = [
+            role.value
+            for role in roles
+        ]
+
+        return roles
+
 class Rank(models.Model):
     value = models.TextField()
 
