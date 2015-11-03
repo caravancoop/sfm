@@ -1,5 +1,7 @@
 import json
 
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.template.loader import render_to_string
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
@@ -13,6 +15,51 @@ class AreaView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AreaView, self).get_context_data(**kwargs)
+
+
+def area_search(request):
+    terms = request.GET.dict()
+
+    area_query = Area.objects.all()
+    page = int(terms.get('page', 1))
+
+    column_names = [_('Name'), _('Classification')]
+    keys = ['name', 'code']
+
+    paginator = Paginator(area_query, 15)
+    try:
+        area_page = paginator.page(page)
+    except PageNotAnInteger:
+        person_page = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        person_page = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+    areas = [
+        {
+            "id": area.id,
+            "name": str(area.name.get_value()),
+            "code": str(area.code.get_value()),
+        }
+        for area in area_page
+    ]
+
+    html_paginator = render_to_string(
+        'paginator.html',
+        {'actual': page, 'min': page - 5, 'max': page + 5,
+         'paginator': area_page,
+         'pages': range(1, paginator.num_pages + 1)}
+    )
+
+    return HttpResponse(json.dumps({
+        'success': True,
+        'column_names': column_names,
+        'keys': keys,
+        'objects': areas,
+        'paginator': html_paginator,
+        'result_number': len(area_query)
+    }))
 
 
 class AreaUpdate(TemplateView):
