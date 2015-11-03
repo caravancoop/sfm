@@ -48,7 +48,7 @@ var source = (function(){
           async: false,
           context:self,
           type: "GET",
-          url: sources_url,
+          url: "/" + window.LANG + sources_url,
           dataType: "json",
           success: function (response) {
             object[field_id] = {}
