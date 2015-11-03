@@ -82,7 +82,7 @@ def site_autocomplete(request):
     data = request.GET.dict()['term']
 
     sites = Geosite.objects.filter(
-        sitename__value__icontains=data
+        geositename__value__icontains=data
     )
 
     sites = [
