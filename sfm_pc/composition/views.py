@@ -99,7 +99,7 @@ class CompositionUpdate(TemplateView):
         try:
             composition = Composition.objects.get(pk=kwargs.get('pk'))
         except Composition.DoesNotExist:
-            msg = "This membership does not exist, it should be created " \
+            msg = "This composition does not exist, it should be created " \
                   "before updating it."
             return HttpResponse(msg, status=400)
 
