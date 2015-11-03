@@ -124,7 +124,7 @@ def organization_search(request):
             "id": org.id,
             "name": org.name.get_value(),
             "alias": org.alias.get_value(),
-            "classification": str(org.classification.get_value().value),
+            "classification": str(org.classification.get_value()),
             "superiorunit": "TODO",
             "foundingdate": str(org.foundingdate.get_value()),
             "dissolutiondate": str(org.dissolutiondate.get_value()),
