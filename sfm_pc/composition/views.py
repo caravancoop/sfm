@@ -1,6 +1,9 @@
 import json
 
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.template.loader import render_to_string
 from django.views.generic.base import TemplateView
+from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.db.models import Max
 
@@ -32,12 +35,60 @@ class CompositionView(TemplateView):
 
         classification = self.request.GET.get('classification')
         if classification:
-            org_query = composition_query.filter(membershiprole__id=classification)
+            org_query = composition_query.filter(compositionrole__id=classification)
 
         context['composition'] = composition_query
         context['classifications'] = Classification.objects.all()
 
         return context
+
+def composition_search(request):
+    terms = request.GET.dict()
+
+    composition_query = Composition.objects.all()
+    page = int(terms.get('page', 1))
+
+    column_names = [_('Parent'), _('Child'), _('Classification'), _('Start date'),
+                     _('End date')]
+    keys = ['parent', 'child', 'classification', 'startdate', 'enddate']
+
+    paginator = Paginator(composition_query, 15)
+    try:
+        composition_page = paginator.page(page)
+    except PageNotAnInteger:
+        person_page = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        person_page = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+    compositions = [
+        {
+            "id": composition.id,
+            "parent": str(composition.parent.get_value()),
+            "child": str(composition.child.get_value()),
+            "classification": str(composition.classification.get_value()),
+            "startdate": str(composition.startdate.get_value()),
+            "enddate": str(composition.enddate.get_value()),
+        }
+        for composition in composition_page
+    ]
+
+    html_paginator = render_to_string(
+        'paginator.html',
+        {'actual': page, 'min': page - 5, 'max': page + 5,
+         'paginator': composition_page,
+         'pages': range(1, paginator.num_pages + 1)}
+    )
+
+    return HttpResponse(json.dumps({
+        'success': True,
+        'column_names': column_names,
+        'keys': keys,
+        'objects': compositions,
+        'paginator': html_paginator,
+        'result_number': len(composition_query)
+    }))
 
 
 class CompositionUpdate(TemplateView):
