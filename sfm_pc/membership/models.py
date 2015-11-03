@@ -49,7 +49,7 @@ class Membership(models.Model, BaseModel):
         except cls.DoesNotExist:
             return None
 
-    def validate(self, dict_values, lang=get_language()):
+    def validate(self, dict_values):
         errors = {}
 
         if ((dict_values.get("Membership_MembershipPersonMember", "") == "" !=
