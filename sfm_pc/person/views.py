@@ -11,6 +11,8 @@ from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db.models import Max
+from django.contrib.gis.geos import Point
+
 from .models import Person, PersonName
 from membership.models import Membership
 
@@ -70,15 +72,52 @@ def person_search(request):
 
     deathdate_year = terms.get('deathdate_year')
     if deathdate_year:
-        person_query = person_query.filter(persondeathdate__value__startswith=deathdate_year)
+        person_query = person_query.filter(
+            persondeathdate__value__startswith=deathdate_year
+        )
 
     deathdate_month = terms.get('deathdate_month')
     if deathdate_month:
-        person_query = person_query.filter(persondeathdate__value__contains="-" + deathdate_month + "-")
+        person_query = person_query.filter(
+            persondeathdate__value__contains="-" + deathdate_month + "-"
+        )
 
     deathdate_day = terms.get('deathdate_day')
     if deathdate_day:
-        person_query = person_query.filter(persondeathdate__value__endswith=deathdate_day)
+        person_query = person_query.filter(
+            persondeathdate__value__endswith=deathdate_day
+        )
+
+    role = terms.get('role_membership')
+    if role:
+        person_query = person_query.filter(
+            membershippersonmember__object_ref__membershiprole__value__value=role
+        )
+
+    latitude = terms.get('latitude')
+    longitude = terms.get('longitude')
+    if latitude and longitude:
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+        except ValueError:
+            latitude = 0
+            longitude = 0
+
+        point = Point(latitude, longitude)
+        radius = terms.get('radius')
+        if radius:
+            try:
+                radius = float(radius)
+            except ValueError:
+                radius = 0
+            person_query = person_query.filter(
+                membershippersonmember__object_ref__membershiporganization__value__associationorganization__object_ref__associationarea__value__areageometry__value__dwithin=(point, radius)
+            )
+        else:
+            person_query = person_query.filter(
+                membershippersonmember__object_ref__membershiporganization__value__associationorganization__object_ref__associationarea__value__areageometry__value__bbcontains=point
+            )
 
     column_names = [_('Name'), _('Alias'), _('Death date')]
     keys = ['name', 'alias', 'deathdate']
