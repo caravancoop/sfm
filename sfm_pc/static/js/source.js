@@ -19,10 +19,15 @@ var source = (function(){
       this.objects[this.actualObject] = {};
       this.actualElement = moduleController.getActualObject()['element']
       this.$el_modal =  $('#complexFieldModal');
+      this.$mdObjId = moduleController.getActualObjectId();
     },
     getAll:function(){
       var self = this;
       object = this.objects[this.actualObject];
+      if (self.$mdObjId === null || self.$mdObjId === undefined || self.$mdObjId === ""){
+        self.$mdObjId =  $('#field-container').data('model-object-id');
+      }
+
       $('.modalBox.source').each(function(){
         var sources_url= $(this).data('remote').replace('/modal', "");
         var model = $(this).data('model-id');

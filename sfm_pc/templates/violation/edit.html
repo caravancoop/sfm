@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <form>
+  <form id="fields-container" data-model-object-id="{{violation.id}}">
     <div class="row">
       <div class="form-group col-sm-3">
         {% view_complex_field_date violation.startdate violation.id request.path %}

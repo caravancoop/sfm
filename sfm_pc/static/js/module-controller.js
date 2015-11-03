@@ -2,16 +2,19 @@ var moduleController = (function(){
   var modCtrl = {
     objects:{},
     actualObject:"",
+    actualObjectId:"",
     
     init:function(){
       this.cacheDom();
-      //this.setDates();
-      //this.setRadios();
-      //this.bindEvents();
     },
     cacheDom:function(){
       this.objects['object-1'] = {"element": $('.content'), "data":{}}
       this.actualObject = "object-1";
+      this.actualObjectElement = this.objects[this.actualObject]['element']
+      this.actualObjectId = this.actualObjectElement.find('#fields-container').data('model-object-id');
+      if(this.actualObjectId == "" || this.actualObjectId == "None"){
+        this.actualObjectId = 0;
+      }
     },
     // this function binds all the initial events to the selectors
     bindEvents:function(){
@@ -24,7 +27,10 @@ var moduleController = (function(){
     },
     getActualObjectName: function(){
         return modCtrl.actualObject;
-    }
+    },
+    getActualObjectId: function(){
+        return modCtrl.actualObjectId;
+    },
   };
 })();
 
