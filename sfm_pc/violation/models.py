@@ -23,7 +23,7 @@ class Violation(models.Model, BaseModel):
             self, ViolationLocationDescription
         )
         self.adminlevel1 = ComplexFieldContainer(self, ViolationAdminLevel1)
-        self.adminlevel2 = ComplexFieldContainer(self, ViolationAdminLevel1)
+        self.adminlevel2 = ComplexFieldContainer(self, ViolationAdminLevel2)
         self.geoname = ComplexFieldContainer(self, ViolationGeoname)
         self.geonameid = ComplexFieldContainer(self, ViolationGeonameId)
         self.location = ComplexFieldContainer(self, ViolationLocation)
