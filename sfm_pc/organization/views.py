@@ -46,11 +46,11 @@ def organization_search(request):
 
     name = terms.get('name')
     if name:
-        orgs_query = orgs_query.filter(organizationname__value__contains=name)
+        orgs_query = orgs_query.filter(organizationname__value__icontains=name)
 
     alias_val = terms.get('alias')
     if alias_val:
-        orgs_query = orgs_query.filter(organizationalias__value__contains=alias_val)
+        orgs_query = orgs_query.filter(organizationalias__value__icontains=alias_val)
 
     foundingdate_year = terms.get('founding_year')
     if foundingdate_year:

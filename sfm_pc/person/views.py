@@ -63,11 +63,11 @@ def person_search(request):
 
     name = terms.get('name')
     if name:
-        person_query = person_query.filter(personname__value__contains=name)
+        person_query = person_query.filter(personname__value__icontains=name)
 
     alias_val = terms.get('alias')
     if alias_val:
-        person_query = person_query.filter(personalias__value__contains=alias_val)
+        person_query = person_query.filter(personalias__value__icontains=alias_val)
 
     deathdate_year = terms.get('deathdate_year')
     if deathdate_year:
