@@ -110,7 +110,7 @@ def organization_search(request):
             except ValueError:
                 radius = 0
             orgs_query = orgs_query.filter(
-                membershippersonmember__object_ref__membershiporganization__value__associationorganization__object_ref__associationarea__value__areageometry__value__dwithin=(point, radius)
+                associationorganization__object_ref__associationarea__value__areageometry__value__dwithin=(point, radius)
             )
         else:
             orgs_query = orgs_query.filter(
