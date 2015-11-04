@@ -30,12 +30,12 @@
       </div>
       <div class="form-group col-sm-4">
         <label for="classification">{% trans "Classification" %}</label>
-        <input type="text" class="form-control" id="classification" placeholder="{% trans "Enter classification" %}">
-        <script type="text/javascript">
-          $("#classification").autocomplete({
-            source: "/" + window.LANG + "/organization/classification/autocomplete"
-          });
-        </script>
+        <select class="form-group dropdown" id="classification" placeholder="{% trans "Enter classification" %}">
+          <option value="">{% trans "Choose" %}</option>
+          {% for classif in classifications %}
+            <option value="{{classif.id}}">{{ classif }}</option>
+          {% endfor %}
+        </select>
       </div>
     </div>
 
