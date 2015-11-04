@@ -52,18 +52,20 @@ class Membership(models.Model, BaseModel):
     def validate(self, dict_values):
         errors = {}
 
-        if ((dict_values.get("Membership_MembershipPersonMember", "") == "" !=
-             dict_values.get("Membership_MembershipOrganizationMember", "") == "")):
+        person_member = dict_values.get("Membership_MembershipPersonMember")
+        organization_member = dict_values.get("Membership_MembershipOrganizationMember")
+        if ((person_member.get("value", "") == "" and
+             organization_member.get("value", "") == "")):
             errors['Membership_MembershipPersonMember'] = (
                 _("One, and only one, person or organization must be choose as a member"))
 
-        elif (dict_values.get("Membership_MembershipPersonMember", "") != ""):
-            sources = dict_values["Membership_MembershipPersonMember"].get("sources")
+        elif (person_member.get("value", "") != ""):
+            sources = person_member.get("sources")
             if not len(sources):
                 errors["Membership_MembershipPersonMember"] = ("Sources are " +
                         "required to update this field")
-        elif (dict_values.get("Membership_MembershipOrganizationMember", "") != ""):
-            sources = dict_values["Membership_MembershipOrganizationMember"].get("sources")
+        elif (organization_member.get("value", "") != ""):
+            sources = organization_member.get("sources")
             if not len(sources):
                 errors["Membership_MembershipOrganizationMember"] = ("Sources are " +
                         "required to update this field")
