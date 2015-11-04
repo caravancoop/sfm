@@ -33,7 +33,7 @@ var source = (function(){
         var model = $(this).data('model-id');
         var fieldStr = $(this).data('field-str');
         if (self.$mdObjId === null || self.$mdObjId === undefined || self.$mdObjId === ""){
-          self.$mdObjId =  $(this).data('model-object-id');
+          self.$mdObjId =  $('#field-container').data('model-object-id');
         }
         //if the fieldStr is not in array push it in
         if ($.inArray(fieldStr, self.fieldStrArr) === -1){
@@ -204,7 +204,7 @@ var source = (function(){
             }
           } else {
             url = window.location.href
-            if(self.$mdObjId == "add"){
+            if(self.$mdObjId == "add" || self.$mdObjId == "None"){
               url = url.replace('add', response.id);
             } else {
               url = url.replace(response.id + '/', '')
