@@ -19,27 +19,6 @@ class MembershipView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(MembershipView, self).get_context_data(**kwargs)
 
-        order_by = self.request.GET.get('orderby')
-        if not order_by:
-            order_by = 'membershippersonmember__value'
-
-        direction = self.request.GET.get('direction')
-        if not direction:
-            direction = 'ASC'
-
-        dirsym = ''
-        if direction == 'DESC':
-            dirsym = '-'
-
-        membership_query = (Membership.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
-
-        role = self.request.GET.get('role')
-        if role:
-            org_query = membership_query.filter(membershiprole__id=role)
-
-        context['memberships'] = membership_query
         context['roles'] = Role.objects.all()
         context['ranks'] = Rank.objects.all()
         context['year_range'] = range(1950, date.today().year + 1)
