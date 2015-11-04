@@ -80,13 +80,13 @@ class ViolationUpdate(TemplateView):
             return HttpResponse(msg, status=400)
 
         (errors, data) = violation.validate(data)
-        if errors is None:
+        if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
 
-        violation.update(date)
+        violation.update(data)
 
         return HttpResponse(
             json.dumps({"success": True}),
