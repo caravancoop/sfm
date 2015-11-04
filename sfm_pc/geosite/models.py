@@ -1,7 +1,10 @@
+import json
+
 from django.contrib.gis.db import models
 
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
+from django.contrib.gis.geos import Point
 
 from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
@@ -29,6 +32,25 @@ class Geosite(models.Model, BaseModel):
 
     def __str__(self):
         return self.name.get_value()
+
+    def validate(self, dict_values):
+        errors = {}
+
+        coordinates = dict_values['Geosite_GeositeCoordinates'].get("value")
+        if coordinates:
+            coord = json.loads(coordinates).get("coordinates")
+            if coord:
+                try:
+                    Point(coord)
+                except TypeError:
+                    errors["Geosite_GeositeCoordinates"] = (
+                        "The coordinates must be a point, not a polygon"
+                    )
+
+        (base_errors, values) = super().validate(dict_values)
+        errors.update(base_errors)
+
+        return (errors, values)
 
 
 @translated

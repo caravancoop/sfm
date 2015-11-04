@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
+from django.contrib.gis import geos
 
 from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
@@ -35,6 +36,27 @@ class Area(models.Model, BaseModel):
             return area
         except cls.DoesNotExist:
             return None
+
+    def validate(self, dict_values):
+        errors = {}
+
+        coordinates = dict_values['Area_AreaGeometry'].get("value")
+        if coordinates:
+            try:
+                poly = geos.fromstr(coordinates)
+                if not isinstance(poly, geos.Polygon):
+                    errors["Area_AreaGeometry"] = (
+                        "The geometry must be a polygon, not a point"
+                    )
+            except TypeError:
+                errors["Area_AreaGeometry"] = (
+                    "Invalid data for a polygon"
+                )
+
+        (base_errors, values) = super().validate(dict_values)
+        errors.update(base_errors)
+
+        return (errors, values)
 
 
 @translated
