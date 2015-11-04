@@ -27,15 +27,20 @@
       </div>
       <div class="form-group col-sm-6">
         <label for="classification">{% trans "Classification" %}</label>
-        <input type="text" class="form-control" id="classification" placeholder="{% trans "Enter classification" %}">
+        <select class="form-group dropdown" id="classification" placeholder="{% trans "Select classification" %}">
+          <option value="">{% trans "Choose" %}</option>
+          {% for code in codes %}
+            <option value="{{code.id}}">{{ code }}</option>
+          {% endfor %}
+        </select>
       </div>
     </div>
 
     <div class="row">
       <div class="dropdown form-group col-sm-6">
         <label>{% trans "Radius" %}</label>
-        <select id="people_srch_radius">
-          <option>{% trans "1 - 25km" %}</option>
+        <select id="radius">
+          <option value="">{% trans "Choose" %}</option>
           <option value="1">{% trans "1 km" %}</option>
           <option value="2">{% trans "2 km" %}</option>
           <option value="3">{% trans "3 km" %}</option>
@@ -46,12 +51,12 @@
       </div>
 
       <div class="form-group col-sm-2">
-        <label for="latitude">{% trans "Longitude" %}</label>
+        <label for="latitude">{% trans "Latitude" %}</label>
         <input type="text" class="form-control" id="latitude" placeholder="12.73">
       </div>
 
       <div class="form-group col-sm-2">
-        <label for="longitude">{% trans "Latitude" %}</label>
+        <label for="longitude">{% trans "Longitude" %}</label>
         <input type="text" class="form-control" id="longitude" placeholder="81.45">
       </div>
 
