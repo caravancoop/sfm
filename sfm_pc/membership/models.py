@@ -211,8 +211,19 @@ class Role(models.Model):
 
         return roles
 
+    def __str__(self):
+        return self.value
+
+
 class Rank(models.Model):
     value = models.TextField()
 
+    def __str__(self):
+        return self.value
+
+
 class Context(models.Model):
     value = models.TextField()
+
+    def __str__(self):
+        return self.value

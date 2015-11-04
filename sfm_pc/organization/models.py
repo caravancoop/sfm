@@ -97,3 +97,6 @@ class OrganizationRealDissolution(ComplexField):
 
 class Classification(models.Model):
     value = models.TextField()
+
+    def __str__(self):
+        return self.value
