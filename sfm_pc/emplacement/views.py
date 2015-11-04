@@ -7,6 +7,7 @@ from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
+from django.db.models import Max
 
 from .models import Emplacement
 
@@ -17,8 +18,8 @@ class EmplacementView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(EmplacementView, self).get_context_data(**kwargs)
 
-        context['year_range'] = range(1955, date.today().year + 1)
-        context['day_range'] = range(1, 31)
+        context['year_range'] = range(1950, date.today().year + 1)
+        context['day_range'] = range(1, 32)
 
         return context
 
@@ -26,10 +27,74 @@ class EmplacementView(TemplateView):
 def emplacement_search(request):
     terms = request.GET.dict()
 
-    emplacement_query = Emplacement.objects.all()
+    order_by = terms.get('orderby')
+    if not order_by:
+        order_by = 'emplacementstartdate__value'
+    elif order_by in ['startdate']:
+        order_by = 'person' + order_by + '__value'
+
+    direction = terms.get('direction')
+    if not direction:
+        direction = 'ASC'
+
+    dirsym = ''
+    if direction == 'DESC':
+        dirsym = '-'
+
+    emplacement_query = (Emplacement.objects
+                         .annotate(Max(order_by))
+                         .order_by(dirsym + order_by + "__max"))
+
     page = int(terms.get('page', 1))
 
-    column_names = [_('Start date'), _('End date'), _('Organization'), _('Site')]
+    startdate_year = terms.get('startdate_year')
+    if startdate_year:
+        emplacement_query = emplacement_query.filter(
+            emplacementstartdate__value__startswith=startdate_year
+        )
+
+    startdate_month = terms.get('startdate_month')
+    if startdate_month:
+        emplacement_query = emplacement_query.filter(
+            emplacementstartdate__value__contains="-" + startdate_month + "-"
+        )
+
+    startdate_day = terms.get('startdate_day')
+    if startdate_day:
+        emplacement_query = emplacement_query.filter(
+            emplacementstartdate__value__endswith=startdate_day
+        )
+
+    enddate_year = terms.get('enddate_year')
+    if enddate_year:
+        emplacement_query = emplacement_query.filter(
+            emplacementenddate__value__startswith=enddate_year
+        )
+
+    enddate_month = terms.get('enddate_month')
+    if enddate_month:
+        emplacement_query = emplacement_query.filter(
+            emplacementenddate__value__contains="-" + enddate_month + "-"
+        )
+
+    enddate_day = terms.get('enddate_day')
+    if enddate_day:
+        emplacement_query = emplacement_query.filter(
+            emplacementenddate__value__endswith=enddate_day
+        )
+
+    organization = terms.get('organization')
+    if organization:
+        emplacement_query = emplacement_query.filter(
+            emplacementorganization__value__organizationname__value__icontains=organization
+        )
+
+    site = terms.get('site')
+    if site:
+        emplacement_query = emplacement_query.filter(
+            emplacementsite__value__geositename__value__icontains=site
+        )
+
     keys = ['startdate', 'enddate', 'organization', 'site']
 
     paginator = Paginator(emplacement_query, 15)
@@ -62,7 +127,6 @@ def emplacement_search(request):
 
     return HttpResponse(json.dumps({
         'success': True,
-        'column_names': column_names,
         'keys': keys,
         'objects': emplacements,
         'paginator': html_paginator,

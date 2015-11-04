@@ -23,7 +23,7 @@
     <div class="row">
       <div class="dropdown form-group col-sm-2">
         <label>{% trans "Start date" %}</label>
-        <select id="start_day">
+        <select id="startdate_day">
           <option value="">{% trans "dd" %}</option>
           {% for int in day_range %}
             <option value="{% if int < 10 %}0{% endif %}{{int}}">{{int}}</option>
@@ -33,7 +33,7 @@
 
       <div class="dropdown form-group col-sm-2">
         <label>{% trans "Month" %}</label>
-        <select id="start_month">
+        <select id="startdate_month">
           <option value="">{% trans "mm" %}</option>
           <option value="01">{% trans "January" %}</option>
           <option value="02">{% trans "February" %}</option>
@@ -52,7 +52,7 @@
 
       <div class="dropdown form-group col-sm-2">
         <label>{% trans "Year" %}</label>
-        <select id="start_year">
+        <select id="startdate_year">
           <option value="">{% trans "yyyy" %}</option>
           {% for int in year_range %}
             <option value="{{int}}">{{int}}</option>
@@ -62,7 +62,7 @@
       
       <div class="dropdown form-group col-sm-2">
         <label>{% trans "End date" %}</label>
-        <select id="end_day">
+        <select id="enddate_day">
           <option value="">{% trans "dd" %}</option>
           {% for int in day_range %}
             <option value="{% if int < 10 %}0{% endif %}{{int}}">{{int}}</option>
@@ -72,7 +72,7 @@
 
       <div class="dropdown form-group col-sm-2">
         <label>{% trans "Month" %}</label>
-        <select id="end_month">
+        <select id="enddate_month">
           <option value="">{% trans "mm" %}</option>
           <option value="01">{% trans "January" %}</option>
           <option value="02">{% trans "February" %}</option>
@@ -91,7 +91,7 @@
 
       <div class="dropdown form-group col-sm-2">
         <label>{% trans "Year" %}</label>
-        <select id="end_year">
+        <select id="enddate_year">
           <option value="">{% trans "yyyy" %}</option>
           {% for int in year_range %}
             <option value="{{int}}">{{int}}</option>
