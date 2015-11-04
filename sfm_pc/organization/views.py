@@ -43,9 +43,8 @@ class OrganizationView(TemplateView):
                 organizationalias__value__contains=alias_val
             )
 
-        context['organizations'] = orgs_query
-        context['year_range'] = range(1955, date.today().year + 1)
-        context['day_range'] = range(1, 31)
+        context['year_range'] = range(1950, date.today().year + 1)
+        context['day_range'] = range(1, 32)
 
         return context
 

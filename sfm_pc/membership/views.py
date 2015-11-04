@@ -1,5 +1,7 @@
 import json
 
+from datetime import date
+
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
@@ -40,6 +42,8 @@ class MembershipView(TemplateView):
         context['memberships'] = membership_query
         context['roles'] = Role.objects.all()
         context['ranks'] = Rank.objects.all()
+        context['year_range'] = range(1950, date.today().year + 1)
+        context['day_range'] = range(1, 32)
 
         return context
 

@@ -43,7 +43,7 @@
       <div class="dropdown form-group col-sm-2">
         <label>{% trans "Date of creation" %}</label>
         <select id="founding_day">
-          <option value="">dd</option>
+          <option value="">{% trans "dd" %}</option>
           {% for int in day_range %}
             <option value="{% if int < 10 %}0{% endif %}{{int}}">{{int}}</option>
           {% endfor %}
