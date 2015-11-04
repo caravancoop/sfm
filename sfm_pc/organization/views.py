@@ -18,32 +18,6 @@ class OrganizationView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(OrganizationView, self).get_context_data(**kwargs)
 
-        order_by = self.request.GET.get('orderby')
-        if not order_by:
-            order_by = 'organizationname__value'
-
-        direction = self.request.GET.get('direction')
-        if not direction:
-            direction = 'ASC'
-
-        dirsym = ''
-        if direction == 'DESC':
-            dirsym = '-'
-
-        orgs_query = (Organization.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
-
-        name = self.request.GET.get('name')
-        if name:
-            orgs_query = orgs_query.filter(organizationname__value__contains=name)
-
-        alias_val = self.request.GET.get('alias')
-        if name:
-            orgs_query = orgs_query.filter(
-                organizationalias__value__contains=alias_val
-            )
-
         context['year_range'] = range(1950, date.today().year + 1)
         context['day_range'] = range(1, 32)
         context['classifications'] = Classification.objects.all()
