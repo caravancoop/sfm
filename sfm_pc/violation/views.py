@@ -238,6 +238,8 @@ class ViolationUpdate(TemplateView):
         context = super(ViolationUpdate, self).get_context_data(**kwargs)
         violation = Violation.objects.get(pk=context.get('pk'))
         context['violation'] = violation
+        data = {"value": violation.location.get_value()}
+        context['point'] = ZoneForm(data)
 
         return context
 
