@@ -18,8 +18,8 @@ class AssociationView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AssociationView, self).get_context_data(**kwargs)
 
-        context['year_range'] = range(1955, date.today().year + 1)
-        context['day_range'] = range(1, 31)
+        context['year_range'] = range(1950, date.today().year + 1)
+        context['day_range'] = range(1, 32)
 
         return context
 
