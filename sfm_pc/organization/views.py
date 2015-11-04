@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Max
+from django.contrib.gis import geos
 
 from .models import Organization, Classification
 
@@ -45,6 +46,7 @@ class OrganizationView(TemplateView):
 
         context['year_range'] = range(1950, date.today().year + 1)
         context['day_range'] = range(1, 32)
+        context['classifications'] = Classification.objects.all()
 
         return context
 
@@ -115,6 +117,31 @@ def organization_search(request):
     classification = terms.get('classification')
     if classification:
         orgs_query = orgs_query.filter(organizationclassification__value_id=classification)
+
+    latitude = terms.get('latitude')
+    longitude = terms.get('longitude')
+    if latitude and longitude:
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+        except ValueError:
+            latitude = 0
+            longitude = 0
+
+        point = geos.Point(latitude, longitude)
+        radius = terms.get('radius')
+        if radius:
+            try:
+                radius = float(radius)
+            except ValueError:
+                radius = 0
+            orgs_query = orgs_query.filter(
+                membershippersonmember__object_ref__membershiporganization__value__associationorganization__object_ref__associationarea__value__areageometry__value__dwithin=(point, radius)
+            )
+        else:
+            orgs_query = orgs_query.filter(
+                associationorganization__object_ref__associationarea__value__areageometry__value__bbcontains=point
+            )
 
     keys = ['name', 'alias', 'classification', 'superiorunit', 'foundingdate',
             'dissolutiondate']
