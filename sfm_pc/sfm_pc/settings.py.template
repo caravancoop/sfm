@@ -197,3 +197,8 @@ ALLOWED_CLASS_FOR_NAME = [
     'Person', 'Organization', 'Membership', 'Composition', 'Association', 'Area',
     'Emplacement', 'Geosite', 'Violation'
 ]
+
+LEAFLET_CONFIG = {
+    'DEFAULT_ZOOM': 16,
+    'MIN_ZOOM': 2,
+}

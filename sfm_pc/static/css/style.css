@@ -6152,6 +6152,9 @@ section.content {
   section.content label[for=people_an_post] button {
     margin-left: 1em; }
 
+.leaflet-container {
+  height: 400px; }
+
 .table-responsive {
   margin-top: 1.5rem; }
   .table-responsive table {
