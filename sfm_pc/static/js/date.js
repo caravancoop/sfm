@@ -82,7 +82,7 @@ var dateController = (function(){
     setMonth:function(currMonth,month){
       $(month).append('<option value="00">None</option>');
       for(var m = 0; m < this.monthArr.length; ++m){
-        if(m < 10){
+        if(m < 9){
           $(month).append('<option value="0' + (m+1) + '">' + this.monthArr[m] + '</option>');
         } else {
           $(month).append('<option value=' + (m+1) + '>' + this.monthArr[m] + '</option>');
