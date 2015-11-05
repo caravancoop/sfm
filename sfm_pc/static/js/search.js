@@ -37,8 +37,13 @@ var moduleController = (function(){
             $('#object-linked-table').html("");
             $.each(data.objects, function(index, object){
                 row = "<tr data-object-id='" + object['id'] + "'>";
+                len = data.keys.length;
                 $.each(data.keys, function(i, key){
-                    row += "<td><a href='" + object['id'] + "'></a>" + object[key] + "</td>";
+                    if(i == len - 1){
+                      row += "<td><a href='" + object['id'] + "'></a>" + object[key] + "<a href='delete/" + object['id'] + "/'><i class='fa fa-trash fa-lg pull-right'></i></a></td>";
+                    } else {
+                      row += "<td><a href='" + object['id'] + "'></a>" + object[key] + "</td>";
+                    }
                 })
                 row += "</tr>";
                 $('#object-linked-table').append(row);

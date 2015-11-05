@@ -3,6 +3,8 @@ import json
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.gis.geos import Point
+from django.contrib.admin.util import NestedObjects
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
@@ -11,7 +13,6 @@ from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db.models import Max
-from django.contrib.gis.geos import Point
 
 from .models import Person, PersonName
 from membership.models import Membership, Role
@@ -24,6 +25,20 @@ def ajax_request(function):
         else:
             return function(request, *args, **kwargs)
     return wrapper
+
+class PersonDelete(DeleteView):
+    model = Person
+
+    def get_context_data(self, **kwargs):
+        context = super(PersonDelete, self).get_context_data(**kwargs)
+        import ipdb; ipdb.set_trace()
+        return context
+
+
+    def get_object(self, queryset=None):
+        obj = super(PersonDelete, self).get_object()
+
+        return obj
 
 class PersonView(TemplateView):
     template_name = 'person/search.html'

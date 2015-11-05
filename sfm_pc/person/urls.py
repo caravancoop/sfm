@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
-from .views import (PersonView, PersonUpdate, PersonCreate, person_autocomplete,
-                    person_search)
+from .views import (PersonView, PersonUpdate, PersonDelete, PersonCreate,
+                    person_autocomplete, person_search)
 
 urlpatterns = patterns(
     '',
@@ -9,5 +9,6 @@ urlpatterns = patterns(
     url(r'^$', PersonView.as_view(), name='person'),
     url(r'search/', person_search, name='person_search'),
     url(r'name/autocomplete/', person_autocomplete, name='person_autocomplete'),
+    url(r'delete/(?P<pk>\d+)/$', PersonDelete.as_view(), name='delete_person'),
     url(r'(?P<pk>\d+)/$', PersonUpdate.as_view(), name='edit_person'),
 )
