@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load viewcomplexfield %}
+{% load i18n %}
+{% load viewcomplexfielddate %}
+{% block content %}
+
+<section class="content">
+  <div class="row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Person" %}</h1>
+      <div class="pull-right">
+        <a href="/person/add/" class=" btn sfm-btn-action"><i class="fa fa-plus"></i> Add New</a>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <h3>{% for field in object.complex_fields %}
+        {{ field.get_value }}
+      {% endfor %}</h3>
+      <h3>Do you really want to delete this person?</h3>
+    </div>
+  </div>
+    <form action="" method="post">{% csrf_token %}
+       <p>Are you sure you want to delete "{{ object }}"?</p>
+          <input type="submit" value="Confirm" />
+          </form> 
+  
+
+<div class="row">
+  <div class="col-sm-12 col-md-12">
+        <a href="/person/add/" class=" btn sfm-btn-action"><i class="fa fa-plus"></i> Add New</a>
+    <button class="btn sfm-btn-default " type="submit">Cancel</button>
+    <button class="btn  pull-right sfm-btn-action" type="submit">Delete</button>
+  </div>
+</div>
+
+</section>
+
+{% endblock %}
