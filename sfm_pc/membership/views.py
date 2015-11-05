@@ -98,8 +98,6 @@ def membership_search(request):
             membershiplastciteddate__value__endswith=enddate_day
         )
 
-    column_names = [_('Role'), _('Title'), _('Rank'), _('Firest cited date'),
-                     _('Last cited date')]
     keys = ['role', 'title', 'rank', 'firstciteddate', 'lastciteddate']
 
     paginator = Paginator(membership_query, 15)
@@ -133,7 +131,6 @@ def membership_search(request):
 
     return HttpResponse(json.dumps({
         'success': True,
-        'column_names': column_names,
         'keys': keys,
         'objects': memberships,
         'paginator': html_paginator,

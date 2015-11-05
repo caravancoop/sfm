@@ -256,7 +256,6 @@ class ViolationCreate(TemplateView):
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
-
         violation = Violation.create(data)
 
         return HttpResponse(json.dumps({"success": True, "id": violation.id}),

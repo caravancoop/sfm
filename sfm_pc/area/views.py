@@ -79,9 +79,6 @@ def area_search(request):
                areageometry__value__bbcontains=point
             )
 
-    column_names = [_('Name'), _('Alias'), _('Death date')]
-    keys = ['name', 'alias', 'deathdate']
-
     keys = ['name', 'code']
 
     paginator = Paginator(area_query, 15)

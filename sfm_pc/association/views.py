@@ -95,7 +95,6 @@ def association_search(request):
             associationarea__value__areaname__value__icontains=area
         )
 
-    column_names = [_('Start date'), _('End date'), _('Organization'), _('Area')]
     keys = ['startdate', 'enddate', 'organization', 'area']
 
     paginator = Paginator(association_query, 15)
@@ -128,7 +127,6 @@ def association_search(request):
 
     return HttpResponse(json.dumps({
         'success': True,
-        'column_names': column_names,
         'keys': keys,
         'objects': associations,
         'paginator': html_paginator,

@@ -118,7 +118,6 @@ def person_search(request):
                 membershippersonmember__object_ref__membershiporganization__value__associationorganization__object_ref__associationarea__value__areageometry__value__bbcontains=point
             )
 
-    column_names = [_('Name'), _('Alias'), _('Death date')]
     keys = ['name', 'alias', 'deathdate']
 
     paginator = Paginator(person_query, 15)
@@ -150,7 +149,6 @@ def person_search(request):
 
     return HttpResponse(json.dumps({
         'success': True,
-        'column_names': column_names,
         'keys': keys,
         'objects': persons,
         'paginator': html_paginator,
