@@ -4,6 +4,11 @@ from django.db import models
 class Source(models.Model):
     source = models.TextField()
 
+    def __str__(self):
+        if self.source is None:
+            return ""
+        return self.source
+
     @classmethod
     def create_sources(cls, sources):
         srcs = []

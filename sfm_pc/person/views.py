@@ -12,6 +12,7 @@ from django.shortcuts import render, render_to_response
 from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.http import HttpResponse
+from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Max
 
 from .models import Person, PersonName
@@ -31,6 +32,9 @@ class PersonDelete(DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super(PersonDelete, self).get_context_data(**kwargs)
+        collector = NestedObjects(using=DEFAULT_DB_ALIAS)
+        collector.collect([context['object']])
+        context['deleted_elements'] = collector.nested()
         import ipdb; ipdb.set_trace()
         return context
 
