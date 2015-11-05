@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.template.loader import render_to_string
@@ -39,17 +40,88 @@ class CompositionView(TemplateView):
 
         context['composition'] = composition_query
         context['classifications'] = Classification.objects.all()
+        context['year_range'] = range(1950, date.today().year + 1)
+        context['day_range'] = range(1, 32)
 
         return context
 
 def composition_search(request):
     terms = request.GET.dict()
 
-    composition_query = Composition.objects.all()
+    order_by = terms.get('orderby')
+    if not order_by:
+        order_by = 'compositionstartdate__value'
+    elif order_by in ['startdate']:
+        order_by = 'composition' + order_by + '__value'
+
+    direction = terms.get('direction')
+    if not direction:
+        direction = 'ASC'
+
+    dirsym = ''
+    if direction == 'DESC':
+        dirsym = '-'
+
+    composition_query = (Composition.objects
+                    .annotate(Max(order_by))
+                    .order_by(dirsym + order_by + "__max"))
+
     page = int(terms.get('page', 1))
 
-    column_names = [_('Parent'), _('Child'), _('Classification'), _('Start date'),
-                     _('End date')]
+    startdate_year = terms.get('startdate_year')
+    if startdate_year:
+        composition_query = composition_query.filter(
+            compositionstartdate__value__startswith=startdate_year
+        )
+
+    startdate_month = terms.get('startdate_month')
+    if startdate_month:
+        composition_query = composition_query.filter(
+            compositionstartdate__value__contains="-" + startdate_month + "-"
+        )
+
+    startdate_day = terms.get('startdate_day')
+    if startdate_day:
+        composition_query = composition_query.filter(
+            compositionstartdate__value__endswith=startdate_day
+        )
+
+    enddate_year = terms.get('enddate_year')
+    if enddate_year:
+        composition_query = composition_query.filter(
+            compositionenddate__value__startswith=enddate_year
+        )
+
+    enddate_month = terms.get('enddate_month')
+    if enddate_month:
+        composition_query = composition_query.filter(
+            compositionenddate__value__contains="-" + enddate_month + "-"
+        )
+
+    enddate_day = terms.get('enddate_day')
+    if enddate_day:
+        composition_query = composition_query.filter(
+            compositionenddate__value__endswith=enddate_day
+        )
+
+    classification = terms.get('classification')
+    if classification:
+        composition_query = composition_query.filter(
+            compositionclassification__value_id=classification
+        )
+
+    parent = terms.get('parent')
+    if parent:
+        composition_query = composition_query.filter(
+            compositionparent__value__organizationname__value__icontains=parent
+        )
+
+    child = terms.get('child')
+    if child:
+        composition_query = composition_query.filter(
+            compositionchild__value__organizationname__value__icontains=child
+        )
+
     keys = ['parent', 'child', 'classification', 'startdate', 'enddate']
 
     paginator = Paginator(composition_query, 15)
@@ -83,7 +155,6 @@ def composition_search(request):
 
     return HttpResponse(json.dumps({
         'success': True,
-        'column_names': column_names,
         'keys': keys,
         'objects': compositions,
         'paginator': html_paginator,

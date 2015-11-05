@@ -15,22 +15,94 @@
 
   <form>
     <div class="row">
-      <div class="form-group col-sm-4">
-        <label for="name">{% trans "Start date" %}</label>
-        <input type="text" class="form-control" id="startdate" placeholder="{% trans "Enter Date" %}">
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Start date" %}</label>
+        <select id="startdate_day">
+          <option value="">{% trans "dd" %}</option>
+          {% for int in day_range %}
+            <option value="{% if int < 10 %}0{% endif %}{{ int }}">{{ int }}</option>
+          {% endfor %}
+        </select>
       </div>
-      <div class="form-group col-sm-4">
-        <label for="alias">{% trans "End date" %}</label>
-        <input type="text" class="form-control" id="enddate" placeholder="{% trans "Enter Date" %}">
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Month" %}</label>
+        <select id="startdate_month">
+          <option value="">{% trans "mm" %}</option>
+          <option value="01">{% trans "January" %}</option>
+          <option value="02">{% trans "February" %}</option>
+          <option value="03">{% trans "March" %}</option>
+          <option value="04">{% trans "April" %}</option>
+          <option value="05">{% trans "May" %}</option>
+          <option value="06">{% trans "June" %}</option>
+          <option value="07">{% trans "July" %}</option>
+          <option value="08">{% trans "August" %}</option>
+          <option value="09">{% trans "September" %}</option>
+          <option value="10">{% trans "October" %}</option>
+          <option value="11">{% trans "November" %}</option>
+          <option value="12">{% trans "December" %}</option>
+        </select>
       </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Year" %}</label>
+        <select id="startdate_year">
+          <option value="">{% trans "yyyy" %}</option>
+          {% for int in year_range %}
+            <option value="{{int}}">{{int}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "End date" %}</label>
+        <select id="enddate_day">
+          <option value="">{% trans "dd" %}</option>
+          {% for int in day_range %}
+            <option value="{% if int < 10 %}0{% endif %}{{ int }}">{{ int }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Month" %}</label>
+        <select id="enddate_month">
+          <option value="">{% trans "mm" %}</option>
+          <option value="01">{% trans "January" %}</option>
+          <option value="02">{% trans "February" %}</option>
+          <option value="03">{% trans "March" %}</option>
+          <option value="04">{% trans "April" %}</option>
+          <option value="05">{% trans "May" %}</option>
+          <option value="06">{% trans "June" %}</option>
+          <option value="07">{% trans "July" %}</option>
+          <option value="08">{% trans "August" %}</option>
+          <option value="09">{% trans "September" %}</option>
+          <option value="10">{% trans "October" %}</option>
+          <option value="11">{% trans "November" %}</option>
+          <option value="12">{% trans "December" %}</option>
+        </select>
+      </div>
+
+      <div class="dropdown form-group col-sm-2">
+        <label>{% trans "Year" %}</label>
+        <select id="enddate_year">
+          <option value="">{% trans "yyyy" %}</option>
+          {% for int in year_range %}
+            <option value="{{int}}">{{int}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
       <div class="form-group col-sm-4">
         <label for="classification">{% trans "Classification" %}</label>
-        <input type="text" class="form-control" id="classification" placeholder="{% trans "Enter classification" %}">
-        <script type="text/javascript">
-          $("#classification").autocomplete({
-            source: "/" + window.LANG + "/organization/classification/autocomplete"
-          });
-        </script>
+        <select class="form-group dropdown" id="classification" placeholder="{% trans "Enter classification" %}">
+          <option value="">{% trans "Choose" %}</option>
+          {% for classif in classifications %}
+            <option value="{{classif.id}}">{{ classif }}</option>
+          {% endfor %}
+        </select>
       </div>
     </div>
 
@@ -38,11 +110,6 @@
       <div class="dropdown form-group col-sm-5">
         <label for="parent">{% trans "Parent organization" %}</label>
         <input type="text" class="form-control" id="parent" placeholder="{% trans "Enter parent organization" %}">
-        <script type="text/javascript">
-          $("#parent").autocomplete({
-            source: "/" + window.LANG + "/organization/autocomplete"
-          });
-        </script>
       </div>
       <div class="form-group col-sm-2">
         <label>&nbsp;</label>
@@ -51,11 +118,6 @@
       <div class="dropdown form-group col-sm-5">
         <label for="child">{% trans "Child organization" %}</label>
         <input type="text" class="form-control" id="child" placeholder="{% trans "Enter child organization" %}">
-        <script type="text/javascript">
-          $("#child").autocomplete({
-            source: "/" + window.LANG + "/organization/autocomplete"
-          });
-        </script>
       </div>
     </div>
   </form>
