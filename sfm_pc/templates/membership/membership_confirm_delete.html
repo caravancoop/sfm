@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+
+<section class="content">
+  <div class="row header">
+    <div class="inner-title-wrapper">
+      <h1 class="page-title">{% trans "Membership" %}</h1>
+      <div class="pull-right">
+        <a href="/membership/add/" class=" btn sfm-btn-action"><i class="fa fa-plus"></i> Add New</a>
+      </div>
+    </div>
+  </div>
+  <form action="" method="post">{% csrf_token %}
+    <div class="row">
+      <p>{% trans "Are you sure you want to delete those objects?" %}</p>
+      {{ deleted_elements|unordered_list }} 
+    </div>
+    <div class="row">
+      <div class="col-sm-12 col-md-12">
+        <a href="/person/" class="btn sfm-btn-default " type="submit">Cancel</a>
+        <input class="btn pull-right sfm-btn-action" type="submit" value="{% trans "Delete" %}" />
+      </div>
+    </div>
+  </form> 
+  
+
+
+</section>
+
+{% endblock %}

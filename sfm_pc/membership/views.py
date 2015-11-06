@@ -4,13 +4,34 @@ from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import DeleteView
+from django.contrib.admin.util import NestedObjects
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db.models import Max
+from django.db import DEFAULT_DB_ALIAS
 
 from organization.models import Organization
 from .models import Membership, Role, Rank
+from sfm_pc.utils import deleted_in_str
+
+class MembershipDelete(DeleteView):
+    model = Membership
+
+    def get_context_data(self, **kwargs):
+        context = super(MembershipDelete, self).get_context_data(**kwargs)
+        collector = NestedObjects(using=DEFAULT_DB_ALIAS)
+        collector.collect([context['object']])
+        deleted_elements = collector.nested()
+        context['deleted_elements'] = deleted_in_str(deleted_elements)
+        return context
+
+
+    def get_object(self, queryset=None):
+        obj = super(MembershipDelete, self).get_object()
+
+        return obj
 
 
 class MembershipView(TemplateView):
