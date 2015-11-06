@@ -1,4 +1,5 @@
 import json
+import csv
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.base import TemplateView
@@ -15,6 +16,29 @@ class SiteView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SiteView, self).get_context_data(**kwargs)
+
+
+def geosite_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="geosites.csv"'
+
+    terms = request.GET.dict()
+    geosite_query = Geosite.search(terms)
+
+    writer = csv.writer(response)
+    for geosite in geosite_query:
+        writer.writerow([
+            geosite.id,
+            geosite.name.get_value(),
+            geosite.adminlevel1.get_value(),
+            geosite.adminlevel2.get_value(),
+            geosite.geoname.get_value(),
+            geosite.geonameid.get_value(),
+            str(geosite.coordinates.get_value())
+        ])
+
+    return response
+
 
 def site_search(request):
     terms = request.GET.dict()
