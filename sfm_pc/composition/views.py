@@ -1,15 +1,38 @@
 import json
+import csv
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.template.loader import render_to_string
+from django.contrib.admin.util import NestedObjects
+from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
-from django.db.models import Max
+from django.db import DEFAULT_DB_ALIAS
 
 from organization.models import Classification
 from composition.models import Composition
+from sfm_pc.utils import deleted_in_str
+
+
+class CompositionDelete(DeleteView):
+    model = Composition
+    template_name = "delete_confirm.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(CompositionDelete, self).get_context_data(**kwargs)
+        collector = NestedObjects(using=DEFAULT_DB_ALIAS)
+        collector.collect([context['object']])
+        deleted_elements = collector.nested()
+        context['deleted_elements'] = deleted_in_str(deleted_elements)
+        return context
+
+
+    def get_object(self, queryset=None):
+        obj = super(CompositionDelete, self).get_object()
+
+        return obj
 
 
 class CompositionView(TemplateView):
@@ -18,109 +41,40 @@ class CompositionView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompositionView, self).get_context_data(**kwargs)
 
-        order_by = self.request.GET.get('orderby')
-        if not order_by:
-            order_by = 'compositionstartdate__value'
-
-        direction = self.request.GET.get('direction')
-        if not direction:
-            direction = 'ASC'
-
-        dirsym = ''
-        if direction == 'DESC':
-            dirsym = '-'
-
-        composition_query = (Composition.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
-
-        classification = self.request.GET.get('classification')
-        if classification:
-            org_query = composition_query.filter(compositionrole__id=classification)
-
-        context['composition'] = composition_query
         context['classifications'] = Classification.objects.all()
         context['year_range'] = range(1950, date.today().year + 1)
         context['day_range'] = range(1, 32)
 
         return context
 
+
+def composition_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="compositions.csv"'
+
+    terms = request.GET.dict()
+    composition_query = Composition.search(terms)
+
+    writer = csv.writer(response)
+    for composition in composition_query:
+        writer.writerow([
+            composition.id,
+            composition.parent.get_value(),
+            composition.child.get_value(),
+            composition.classification.get_value(),
+            repr(composition.startdate.get_value()),
+            repr(composition.enddate.get_value()),
+        ])
+
+    return response
+
+
 def composition_search(request):
     terms = request.GET.dict()
 
-    order_by = terms.get('orderby')
-    if not order_by:
-        order_by = 'compositionstartdate__value'
-    elif order_by in ['startdate']:
-        order_by = 'composition' + order_by + '__value'
-
-    direction = terms.get('direction')
-    if not direction:
-        direction = 'ASC'
-
-    dirsym = ''
-    if direction == 'DESC':
-        dirsym = '-'
-
-    composition_query = (Composition.objects
-                    .annotate(Max(order_by))
-                    .order_by(dirsym + order_by + "__max"))
+    composition_query = Composition.search(terms)
 
     page = int(terms.get('page', 1))
-
-    startdate_year = terms.get('startdate_year')
-    if startdate_year:
-        composition_query = composition_query.filter(
-            compositionstartdate__value__startswith=startdate_year
-        )
-
-    startdate_month = terms.get('startdate_month')
-    if startdate_month:
-        composition_query = composition_query.filter(
-            compositionstartdate__value__contains="-" + startdate_month + "-"
-        )
-
-    startdate_day = terms.get('startdate_day')
-    if startdate_day:
-        composition_query = composition_query.filter(
-            compositionstartdate__value__endswith=startdate_day
-        )
-
-    enddate_year = terms.get('enddate_year')
-    if enddate_year:
-        composition_query = composition_query.filter(
-            compositionenddate__value__startswith=enddate_year
-        )
-
-    enddate_month = terms.get('enddate_month')
-    if enddate_month:
-        composition_query = composition_query.filter(
-            compositionenddate__value__contains="-" + enddate_month + "-"
-        )
-
-    enddate_day = terms.get('enddate_day')
-    if enddate_day:
-        composition_query = composition_query.filter(
-            compositionenddate__value__endswith=enddate_day
-        )
-
-    classification = terms.get('classification')
-    if classification:
-        composition_query = composition_query.filter(
-            compositionclassification__value_id=classification
-        )
-
-    parent = terms.get('parent')
-    if parent:
-        composition_query = composition_query.filter(
-            compositionparent__value__organizationname__value__icontains=parent
-        )
-
-    child = terms.get('child')
-    if child:
-        composition_query = composition_query.filter(
-            compositionchild__value__organizationname__value__icontains=child
-        )
 
     keys = ['parent', 'child', 'classification', 'startdate', 'enddate']
 
