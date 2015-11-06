@@ -1,4 +1,5 @@
 import json
+import csv
 
 from datetime import date
 
@@ -56,58 +57,28 @@ class PersonView(TemplateView):
 
         return context
 
+def person_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="persons.csv"'
 
-def person_search(request):
     terms = request.GET.dict()
     person_query = Person.search(terms)
 
-    order_by = terms.get('orderby')
-    if not order_by:
-        order_by = 'personname__value'
-    elif order_by in ['name']:
-        order_by = 'person' + order_by + '__value'
+    writer = csv.writer(response)
+    for person in person_query:
+        writer.writerow([
+            person.id,
+            person.name.get_value(),
+            person.alias.get_value(),
+            repr(person.deathdate.get_value())
+        ])
 
-    direction = terms.get('direction')
-    if not direction:
-        direction = 'ASC'
+    return response
 
-    dirsym = ''
-    if direction == 'DESC':
-        dirsym = '-'
 
-    person_query = (Person.objects
-                    .annotate(Max(order_by))
-                    .order_by(dirsym + order_by + "__max"))
-
-    page = int(terms.get('page', 1))
-
-    name = terms.get('name')
-    if name:
-        person_query = person_query.filter(personname__value__icontains=name)
-
-    alias_val = terms.get('alias')
-    if alias_val:
-        person_query = person_query.filter(personalias__value__icontains=alias_val)
-
-    deathdate_year = terms.get('deathdate_year')
-    if deathdate_year:
-        person_query = person_query.filter(
-            persondeathdate__value__startswith=deathdate_year
-        )
 
 def person_search(request):
     terms = request.GET.dict()
-    deathdate_month = terms.get('deathdate_month')
-    if deathdate_month:
-        person_query = person_query.filter(
-            persondeathdate__value__contains="-" + deathdate_month + "-"
-        )
-
-    deathdate_day = terms.get('deathdate_day')
-    if deathdate_day:
-        person_query = person_query.filter(
-            persondeathdate__value__endswith=deathdate_day
-        )
 
     page = int(terms.get('page', 1))
 

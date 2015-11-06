@@ -7,6 +7,7 @@ var moduleController = (function(){
         this.bindInputs();
         this.bindPopstate();
         this.bindOrderby();
+        this.bindExport();
     }
 
     /**
@@ -171,6 +172,18 @@ var moduleController = (function(){
             self.updateParameter('page', $(this).data('page-id'));
         });
     }
+
+    /*
+     * Bind the export button
+     */
+    this.bindExport = function(){
+        self = this;
+        $('#export-csv').on('click', function(){
+            url = window.location.origin + window.location.pathname + "csv/?" + $.param(self.params);
+            window.location = url;
+        });
+    }
+
     this.init();
 })();
 
