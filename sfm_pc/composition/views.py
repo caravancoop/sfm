@@ -1,4 +1,5 @@
 import json
+import csv
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -45,6 +46,28 @@ class CompositionView(TemplateView):
         context['day_range'] = range(1, 32)
 
         return context
+
+
+def composition_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="compositions.csv"'
+
+    terms = request.GET.dict()
+    composition_query = Composition.search(terms)
+
+    writer = csv.writer(response)
+    for composition in composition_query:
+        writer.writerow([
+            composition.id,
+            composition.parent.get_value(),
+            composition.child.get_value(),
+            composition.classification.get_value(),
+            repr(composition.startdate.get_value()),
+            repr(composition.enddate.get_value()),
+        ])
+
+    return response
+
 
 def composition_search(request):
     terms = request.GET.dict()
