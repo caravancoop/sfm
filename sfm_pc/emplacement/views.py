@@ -15,6 +15,25 @@ from .models import Emplacement
 from sfm_pc.utils import deleted_in_str
 
 
+class EmplacementDelete(DeleteView):
+    model = Emplacement
+    template_name = "delete_confirm.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(EmplacementDelete, self).get_context_data(**kwargs)
+        collector = NestedObjects(using=DEFAULT_DB_ALIAS)
+        collector.collect([context['object']])
+        deleted_elements = collector.nested()
+        context['deleted_elements'] = deleted_in_str(deleted_elements)
+        return context
+
+
+    def get_object(self, queryset=None):
+        obj = super(EmplacementDelete, self).get_object()
+
+        return obj
+
+
 class EmplacementView(TemplateView):
     template_name = 'emplacement/search.html'
 
