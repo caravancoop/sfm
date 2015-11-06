@@ -1,9 +1,11 @@
 import json
 from datetime import date
 
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.edit import UpdateView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
+from django.template.loader import render_to_string
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Max
@@ -43,6 +45,7 @@ def organization_search(request):
                   .annotate(Max(order_by))
                   .order_by(dirsym + order_by + "__max"))
 
+    page = int(terms.get('page', 1))
 
     name = terms.get('name')
     if name:
@@ -119,6 +122,17 @@ def organization_search(request):
 
     keys = ['name', 'alias', 'classification', 'superiorunit', 'foundingdate',
             'dissolutiondate']
+
+    paginator = Paginator(orgs_query, 15)
+    try:
+        orgs_page = paginator.page(page)
+    except PageNotAnInteger:
+        orgs_page = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        orgs_page = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
     orgs = [
         {
             "id": org.id,
@@ -129,13 +143,22 @@ def organization_search(request):
             "foundingdate": str(org.foundingdate.get_value()),
             "dissolutiondate": str(org.dissolutiondate.get_value()),
         }
-        for org in orgs_query
+        for org in orgs_page
     ]
+
+    html_paginator = render_to_string(
+        'paginator.html',
+        {'acutal': page, 'min': page - 5, 'max': page + 5,
+         'paginator': orgs_page,
+         'pages': range(1, paginator.num_pages + 1) }
+    )
 
     return HttpResponse(json.dumps({
         'success': True,
         'keys': keys,
         'objects': orgs,
+        'paginator': html_paginator,
+        'result_number': len(orgs_query)
     }))
 
 
