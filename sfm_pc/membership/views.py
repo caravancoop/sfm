@@ -18,6 +18,7 @@ from sfm_pc.utils import deleted_in_str
 
 class MembershipDelete(DeleteView):
     model = Membership
+    template_name = "delete_confirm.html"
 
     def get_context_data(self, **kwargs):
         context = super(MembershipDelete, self).get_context_data(**kwargs)

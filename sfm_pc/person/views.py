@@ -22,6 +22,7 @@ from sfm_pc.utils import deleted_in_str
 
 class PersonDelete(DeleteView):
     model = Person
+    template_name = "delete_confirm.html"
 
     def get_context_data(self, **kwargs):
         context = super(PersonDelete, self).get_context_data(**kwargs)
