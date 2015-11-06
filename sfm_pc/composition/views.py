@@ -8,7 +8,6 @@ from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
-from django.db.models import Max
 from django.db import DEFAULT_DB_ALIAS
 
 from organization.models import Classification
@@ -41,27 +40,6 @@ class CompositionView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompositionView, self).get_context_data(**kwargs)
 
-        order_by = self.request.GET.get('orderby')
-        if not order_by:
-            order_by = 'compositionstartdate__value'
-
-        direction = self.request.GET.get('direction')
-        if not direction:
-            direction = 'ASC'
-
-        dirsym = ''
-        if direction == 'DESC':
-            dirsym = '-'
-
-        composition_query = (Composition.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
-
-        classification = self.request.GET.get('classification')
-        if classification:
-            org_query = composition_query.filter(compositionrole__id=classification)
-
-        context['composition'] = composition_query
         context['classifications'] = Classification.objects.all()
         context['year_range'] = range(1950, date.today().year + 1)
         context['day_range'] = range(1, 32)
