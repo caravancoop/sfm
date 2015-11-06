@@ -1,4 +1,5 @@
 import json
+import csv
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -22,6 +23,34 @@ class ViolationView(TemplateView):
         context['day_range'] = range(1, 32)
 
         return context
+
+
+def violation_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="violations.csv"'
+
+    terms = request.GET.dict()
+    violation_query = Violation.search(terms)
+
+    writer = csv.writer(response)
+    for violation in violation_query:
+        writer.writerow([
+            violation.id,
+            violation.description.get_value(),
+            repr(violation.startdate.get_value()),
+            repr(violation.enddate.get_value()),
+            violation.locationdescription.get_value(),
+            violation.adminlevel1.get_value(),
+            violation.adminlevel2.get_value(),
+            violation.geoname.get_value(),
+            violation.geonameid.get_value(),
+            violation.location.get_value(),
+            violation.perpetrator.get_value(),
+            violation.perpetratororganization.get_value(),
+        ])
+
+    return response
+
 
 def violation_search(request):
     terms = request.GET.dict()
