@@ -2,6 +2,7 @@ import re
 import importlib
 
 from django.conf import settings
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 
@@ -59,3 +60,23 @@ def class_for_name(class_name, module_name="person.models"):
     module = importlib.import_module(module_name)
     class_ = getattr(module, class_name)
     return class_
+
+
+def deleted_in_str(objects):
+    index = 0
+    for obj in objects:
+        if isinstance(obj, list):
+            objects[index] = deleted_in_str(obj)
+
+        else:
+            if hasattr(obj, 'field_name'):
+                name = obj.field_name + ": " + str(obj)
+            else:
+                name = type(obj).__name__ + ": " + str(obj)
+            if '_sources' in name:
+                objects[index] = _("Object sources")
+            else:
+                objects[index] = name
+        index += 1
+
+    return objects

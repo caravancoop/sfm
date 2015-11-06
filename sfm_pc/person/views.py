@@ -17,6 +17,7 @@ from django.db.models import Max
 
 from .models import Person, PersonName
 from membership.models import Membership, Role
+from sfm_pc.utils import deleted_in_str
 
 def ajax_request(function):
     def wrapper(request, *args, **kwargs):
@@ -34,8 +35,8 @@ class PersonDelete(DeleteView):
         context = super(PersonDelete, self).get_context_data(**kwargs)
         collector = NestedObjects(using=DEFAULT_DB_ALIAS)
         collector.collect([context['object']])
-        context['deleted_elements'] = collector.nested()
-        import ipdb; ipdb.set_trace()
+        deleted_elements = collector.nested()
+        context['deleted_elements'] = deleted_in_str(deleted_elements)
         return context
 
 
