@@ -1,14 +1,18 @@
+import json
+import csv
 from datetime import date
 
-import json
-
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.admin.util import NestedObjects
+from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
+from django.db import DEFAULT_DB_ALIAS
 
 from .models import Emplacement
+from sfm_pc.utils import deleted_in_str
 
 
 class EmplacementView(TemplateView):
@@ -21,6 +25,26 @@ class EmplacementView(TemplateView):
         context['day_range'] = range(1, 32)
 
         return context
+
+
+def emplacement_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="emplacements.csv"'
+
+    terms = request.GET.dict()
+    emplacement_query = Emplacement.search(terms)
+
+    writer = csv.writer(response)
+    for emplacement in emplacement_query:
+        writer.writerow([
+            emplacement.id,
+            emplacement.organization.get_value(),
+            emplacement.site.get_value(),
+            repr(emplacement.startdate.get_value()),
+            repr(emplacement.enddate.get_value()),
+        ])
+
+    return response
 
 
 def emplacement_search(request):
