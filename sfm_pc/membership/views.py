@@ -9,7 +9,6 @@ from django.contrib.admin.util import NestedObjects
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from django.db.models import Max
 from django.db import DEFAULT_DB_ALIAS
 
 from organization.models import Organization
@@ -51,73 +50,9 @@ class MembershipView(TemplateView):
 def membership_search(request):
     terms = request.GET.dict()
 
-    order_by = terms.get('orderby')
-    if not order_by:
-        order_by = 'membershiprole__value'
-    elif order_by in ['title']:
-        order_by = 'membership' + order_by + '__value'
-
-    direction = terms.get('direction')
-    if not direction:
-        direction = 'ASC'
-
-    dirsym = ''
-    if direction == 'DESC':
-        dirsym = '-'
-
-    membership_query = (Membership.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
+    membership_query = Membership.search(terms)
 
     page = int(terms.get('page', 1))
-
-    role = terms.get("role")
-    if role:
-        membership_query = membership_query.filter(membershiprole__value=role)
-
-    rank = terms.get("rank")
-    if rank:
-        membership_query = membership_query.filter(membershiprank__value=rank)
-
-    title = terms.get("title")
-    if title:
-        membership_query = membership_query.filter(membershiptitle__value=title)
-
-    startdate_year = terms.get('startdate_year')
-    if startdate_year:
-        membership_query = membership_query.filter(
-            membershipfirstciteddate__value__startswith=startdate_year
-        )
-
-    startdate_month = terms.get('startdate_month')
-    if startdate_month:
-        membership_query = membership_query.filter(
-            membershipfirstciteddate__value__contains="-" + startdate_month + "-"
-        )
-
-    startdate_day = terms.get('startdate_day')
-    if startdate_day:
-        membership_query = membership_query.filter(
-            membershipfirstciteddate__value__endswith=startdate_day
-        )
-
-    enddate_year = terms.get('enddate_year')
-    if enddate_year:
-        membership_query = membership_query.filter(
-            membershiplastciteddate__value__startswith=enddate_year
-        )
-
-    enddate_month = terms.get('enddate_month')
-    if enddate_month:
-        membership_query = membership_query.filter(
-            membershiplastciteddate__value__contains="-" + enddate_month + "-"
-        )
-
-    enddate_day = terms.get('enddate_day')
-    if enddate_day:
-        membership_query = membership_query.filter(
-            membershiplastciteddate__value__endswith=enddate_day
-        )
 
     keys = ['role', 'title', 'rank', 'firstciteddate', 'lastciteddate']
 
