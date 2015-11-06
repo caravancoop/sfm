@@ -2,7 +2,8 @@ import json
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.views.generic.edit import UpdateView
+from django.contrib.admin.util import NestedObjects
+from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
@@ -10,8 +11,31 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Max
 from django.contrib.gis import geos
+from django.db import DEFAULT_DB_ALIAS
 
 from .models import Organization, Classification
+from sfm_pc.utils import deleted_in_str
+
+
+class OrganizationDelete(DeleteView):
+    model = Organization
+    template_name = "delete_confirm.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganizationDelete, self).get_context_data(**kwargs)
+        collector = NestedObjects(using=DEFAULT_DB_ALIAS)
+        collector.collect([context['object']])
+        deleted_elements = collector.nested()
+        context['deleted_elements'] = deleted_in_str(deleted_elements)
+        context['title'] = _("Organization")
+        context['model'] = "organization"
+        return context
+
+
+    def get_object(self, queryset=None):
+        obj = super(OrganizationDelete, self).get_object()
+
+        return obj
 
 
 class OrganizationView(TemplateView):
