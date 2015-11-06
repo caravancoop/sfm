@@ -1,4 +1,5 @@
 import json
+import csv
 
 from datetime import date
 
@@ -45,6 +46,30 @@ class MembershipView(TemplateView):
         context['day_range'] = range(1, 32)
 
         return context
+
+
+def membership_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="memberships.csv"'
+
+    terms = request.GET.dict()
+    membership_query = Membership.search(terms)
+
+    writer = csv.writer(response)
+    for membership in membership_query:
+        writer.writerow([
+            membership.personmember.get_value(),
+            membership.organizationmember.get_value(),
+            membership.role.get_value(),
+            membership.rank.get_value(),
+            membership.title.get_value(),
+            repr(membership.firstciteddate.get_value()),
+            repr(membership.lastciteddate.get_value()),
+            membership.realstart.get_value(),
+            membership.realend.get_value(),
+        ])
+
+    return response
 
 
 def membership_search(request):
