@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,7 +13,8 @@
   <script src="//code.jquery.com/jquery-1.10.2.js"></script>
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 </head>
-<body>
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+<body class="{% if LANGUAGE_BIDI %}rtl{% endif %}">
   <script type="text/javascript">
     window.CSRF_TOKEN = "{{ csrf_token }}";
     window.LANG = "{{ LANGUAGE_CODE }}";
