@@ -3,14 +3,9 @@
 {% load i18n %}
 {% load viewcomplexfielddate %}
 {% block content %}
-
-<section class="content">
   <div class="row header">
     <div class="inner-title-wrapper">
       <h1 class="page-title">{% trans "Person" %}</h1>
-      <div class="pull-right">
-        <a href="/person/add/" class=" btn sfm-btn-action"><i class="fa fa-plus"></i> Add New</a>
-      </div>
     </div>
   </div>
   <div class="row">
@@ -43,7 +38,9 @@
   <form>
     <div class="form-group dropdown col-sm-4">
       <label>{% trans "Role" %}
-        <a href="#" class="actions add-new-link"><i class="fa fa-plus"></i>{% trans "Add New" %}</a>
+      
+      
+        <a class="modalBox" href="#" data-target="#complexFieldModal" data-toggle="modal" data-remote="{% url 'add_membership' %}"><i class="fa fa-plus"></i>{% trans "Add New" %}</a>
       </label>
       <select id="people_edit_membership">
         <option>Choose...</option>
@@ -95,6 +92,5 @@
   </div>
 </div>
 
-</section>
 
 {% endblock %}

@@ -5,7 +5,7 @@ db.sqlite3
 *.swo
 env/*
 *.orig
-
+*.sass-cache*
 # Local configs
 sfm_pc/sfm_pc/settings.py
 
