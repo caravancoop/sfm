@@ -1,13 +1,12 @@
-from datetime import date
-
 import json
+import csv
+from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from django.db.models import Max
 
 from .models import Association
 
@@ -24,28 +23,28 @@ class AssociationView(TemplateView):
         return context
 
 
+def association_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="associations.csv"'
+
+    terms = request.GET.dict()
+    association_query = Association.search(terms)
+
+    writer = csv.writer(response)
+    for association in association_query:
+        writer.writerow([
+            association.id,
+            association.organization.get_value(),
+            association.area.get_value(),
+            repr(association.startdate.get_value()),
+            repr(association.enddate.get_value()),
+        ])
+
+    return response
+
+
 def association_search(request):
     terms = request.GET.dict()
-
-    order_by = terms.get('orderby')
-    if not order_by:
-        order_by = 'associationstartdate__value'
-    elif order_by in ['startdate']:
-        order_by = 'association' + order_by + '__value'
-
-    direction = terms.get('direction')
-    if not direction:
-        direction = 'ASC'
-
-    dirsym = ''
-    if direction == 'DESC':
-        dirsym = '-'
-
-def association_search(request):
-    terms = request.GET.dict()
-    association_query = (Association.objects
-                         .annotate(Max(order_by))
-                         .order_by(dirsym + order_by + "__max"))
 
     page = int(terms.get('page', 1))
 
