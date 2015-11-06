@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
+from django.db.models import Max
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -43,6 +44,77 @@ class Emplacement(models.Model, BaseModel):
         errors.update(base_errors)
 
         return (errors, values)
+
+
+    @classmethod
+    def search(cls, terms):
+        order_by = terms.get('orderby')
+        if not order_by:
+            order_by = 'emplacementstartdate__value'
+        elif order_by in ['startdate']:
+            order_by = 'person' + order_by + '__value'
+
+        direction = terms.get('direction')
+        if not direction:
+            direction = 'ASC'
+
+        dirsym = ''
+        if direction == 'DESC':
+            dirsym = '-'
+
+        emplacement_query = (Emplacement.objects
+                             .annotate(Max(order_by))
+                             .order_by(dirsym + order_by + "__max"))
+
+        startdate_year = terms.get('startdate_year')
+        if startdate_year:
+            emplacement_query = emplacement_query.filter(
+                emplacementstartdate__value__startswith=startdate_year
+            )
+
+        startdate_month = terms.get('startdate_month')
+        if startdate_month:
+            emplacement_query = emplacement_query.filter(
+                emplacementstartdate__value__contains="-" + startdate_month + "-"
+            )
+
+        startdate_day = terms.get('startdate_day')
+        if startdate_day:
+            emplacement_query = emplacement_query.filter(
+                emplacementstartdate__value__endswith=startdate_day
+            )
+
+        enddate_year = terms.get('enddate_year')
+        if enddate_year:
+            emplacement_query = emplacement_query.filter(
+                emplacementenddate__value__startswith=enddate_year
+            )
+
+        enddate_month = terms.get('enddate_month')
+        if enddate_month:
+            emplacement_query = emplacement_query.filter(
+                emplacementenddate__value__contains="-" + enddate_month + "-"
+            )
+
+        enddate_day = terms.get('enddate_day')
+        if enddate_day:
+            emplacement_query = emplacement_query.filter(
+                emplacementenddate__value__endswith=enddate_day
+            )
+
+        organization = terms.get('organization')
+        if organization:
+            emplacement_query = emplacement_query.filter(
+                emplacementorganization__value__organizationname__value__icontains=organization
+            )
+
+        site = terms.get('site')
+        if site:
+            emplacement_query = emplacement_query.filter(
+                emplacementsite__value__geositename__value__icontains=site
+            )
+
+        return emplacement_query
 
 @versioned
 @sourced
