@@ -69,7 +69,6 @@ def person_csv(request):
     return response
 
 
-
 def person_search(request):
     terms = request.GET.dict()
 
