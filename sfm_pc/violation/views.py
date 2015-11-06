@@ -6,8 +6,6 @@ from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from django.db.models import Max
-from django.contrib.gis import geos
 
 from .models import Violation, Type
 from source.models import Source
@@ -28,145 +26,8 @@ class ViolationView(TemplateView):
 def violation_search(request):
     terms = request.GET.dict()
 
-    order_by = terms.get('orderby')
-    if not order_by:
-        order_by = 'violationstartdate__value'
-    elif order_by in ['startdate']:
-        order_by = 'violation' + order_by + '__value'
-
-    direction = terms.get('direction')
-    if not direction:
-        direction = 'ASC'
-
-    dirsym = ''
-    if direction == 'DESC':
-        dirsym = '-'
-
-    violation_query = (Violation.objects
-                    .annotate(Max(order_by))
-                    .order_by(dirsym + order_by + "__max"))
-
-    startdate_year = terms.get('startdate_year')
-    if startdate_year:
-        violation_query = violation_query.filter(
-            violationstartdate__value__startswith=startdate_year
-        )
-
-    startdate_month = terms.get('startdate_month')
-    if startdate_month:
-        violation_query = violation_query.filter(
-            violationstartdate__value__contains="-" + startdate_month + "-"
-        )
-
-    startdate_day = terms.get('startdate_day')
-    if startdate_day:
-        violation_query = violation_query.filter(
-            violationstartdate__value__endswith=startdate_day
-        )
-
-    enddate_year = terms.get('enddate_year')
-    if enddate_year:
-        violation_query = violation_query.filter(
-            violationenddate__value__startswith=enddate_year
-        )
-
-    enddate_month = terms.get('enddate_month')
-    if enddate_month:
-        violation_query = violation_query.filter(
-            violationenddate__value__contains="-" + enddate_month + "-"
-        )
-
-    enddate_day = terms.get('enddate_day')
-    if enddate_day:
-        violation_query = violation_query.filter(
-            violationenddate__value__endswith=enddate_day
-        )
-
-    admin1 = terms.get('adminlevel1')
-    if admin1:
-        violation_query = violation_query.filter(
-            violationadminlevel1__value__icontains=admin1
-        )
-
-    admin2 = terms.get('adminlevel2')
-    if admin2:
-        violation_query = violation_query.filter(
-            violationadminlevel2__value__icontains=admin2
-        )
-
-    loc_desc = terms.get('locationdescription')
-    if loc_desc:
-        violation_query = violation_query.filter(
-            violationlocationdescription__value__icontains=loc_desc
-        )
-
-    latitude = terms.get('latitude')
-    longitude = terms.get('longitude')
-    if latitude and longitude:
-        try:
-            latitude = float(latitude)
-            longitude = float(longitude)
-        except ValueError:
-            latitude = 0
-            longitude = 0
-
-        point = geos.Point(latitude, longitude)
-        radius = terms.get('radius')
-        if radius:
-            try:
-                radius = float(radius)
-            except ValueError:
-                radius = 0
-            violation_query = violation_query.filter(
-                violationlocation__value__dwithin=(point, radius)
-            )
-        else:
-            violation_query = violation_query.filter(
-               violationlocation__value__bbcontains=point
-            )
-
-    geoname = terms.get('geoname')
-    if geoname:
-        violation_query = violation_query.filter(
-            violationgeoname__value__icontains=geoname
-        )
-
-    geonameid = terms.get('geonameid')
-    if geonameid:
-        violation_query = violation_query.filter(violationgeonameid__value=geonameid)
-
-    source = terms.get('source')
-    if source:
-        violation_query = violation_query.filter(
-            violationsource__source__source__icontains=source
-        )
-
-    v_type = terms.get('v_type')
-    if v_type:
-        violation_query = violation_query.filter(
-            violationtype__value__code__icontains=v_type
-        )
-
-    viol_descr = terms.get('description')
-    if viol_descr:
-        violation_query = violation_query.filter(
-            violationdescription__value__icontains=viol_descr
-        )
-
-    perpetrator = terms.get('perpetrator')
-    if perpetrator:
-        violation_query = violation_query.filter(
-            violationperpetrator__value__icontains=perpetrator
-        )
-
-    perpetratororganization = terms.get('perpetratororganization')
-    if perpetratororganization:
-        violation_query = violation_query.filter(
-            violationperpetratororganization__value__icontains=perpetratororganization
-        )
-
-
     page = int(terms.get('page', 1))
+    violation_query = Violation.search(terms)
 
     keys = ['startdate', 'enddate', 'geoname', 'perpetrator', 'organization']
 
