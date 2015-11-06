@@ -1,4 +1,5 @@
 import json
+import csv
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -48,6 +49,30 @@ class OrganizationView(TemplateView):
         context['classifications'] = Classification.objects.all()
 
         return context
+
+
+def organization_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="organizations.csv"'
+
+    terms = request.GET.dict()
+    organization_query = Organization.search(terms)
+
+    writer = csv.writer(response)
+    for organization in organization_query:
+        writer.writerow([
+            organization.id,
+            organization.name.get_value(),
+            organization.alias.get_value(),
+            organization.classification.get_value(),
+            repr(organization.foundingdate.get_value()),
+            repr(organization.dissolutiondate.get_value()),
+            organization.realfounding.get_value(),
+            organization.realdissolution.get_value(),
+        ])
+
+    return response
+
 
 def organization_search(request):
     terms = request.GET.dict()
