@@ -1,4 +1,5 @@
 import json
+import csv
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.template.loader import render_to_string
@@ -19,6 +20,26 @@ class AreaView(TemplateView):
         context['codes'] = Code.objects.all()
 
         return context
+
+
+def area_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="areas.csv"'
+
+    terms = request.GET.dict()
+    area_query = Area.search(terms)
+
+    writer = csv.writer(response)
+    for area in area_query:
+        writer.writerow([
+            area.id,
+            area.name.get_value(),
+            area.code.get_value(),
+            area.geoname.get_value(),
+            str(area.geometry.get_value()),
+        ])
+
+    return response
 
 
 def area_search(request):
