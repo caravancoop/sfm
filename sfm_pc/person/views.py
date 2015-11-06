@@ -19,14 +19,6 @@ from .models import Person, PersonName
 from membership.models import Membership, Role
 from sfm_pc.utils import deleted_in_str
 
-def ajax_request(function):
-    def wrapper(request, *args, **kwargs):
-        if not request.is_ajax():
-            return render_to_response('person/errors.html', {},
-                                      context_instance=RequestContext(request))
-        else:
-            return function(request, *args, **kwargs)
-    return wrapper
 
 class PersonDelete(DeleteView):
     model = Person
