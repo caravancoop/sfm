@@ -5,8 +5,6 @@ from django.template.loader import render_to_string
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
-from django.db.models import Max
-from django.contrib.gis import geos
 
 from .models import Area, Code
 from .forms import ZoneForm
@@ -26,58 +24,8 @@ class AreaView(TemplateView):
 def area_search(request):
     terms = request.GET.dict()
 
-    order_by = terms.get('orderby')
-    if not order_by:
-        order_by = 'areaname__value'
-    elif order_by in ['name']:
-        order_by = 'area' + order_by + '__value'
-
-    direction = terms.get('direction')
-    if not direction:
-        direction = 'ASC'
-
-    dirsym = ''
-    if direction == 'DESC':
-        dirsym = '-'
-
-    area_query = (Area.objects
-                    .annotate(Max(order_by))
-                    .order_by(dirsym + order_by + "__max"))
-
     page = int(terms.get('page', 1))
-
-    name = terms.get('name')
-    if name:
-        area_query = area_query.filter(areaname__value__icontains=name)
-
-    code = terms.get('classification')
-    if code:
-        area_query = area_query.filter(areacode__value=code)
-
-    latitude = terms.get('latitude')
-    longitude = terms.get('longitude')
-    if latitude and longitude:
-        try:
-            latitude = float(latitude)
-            longitude = float(longitude)
-        except ValueError:
-            latitude = 0
-            longitude = 0
-
-        point = geos.Point(latitude, longitude)
-        radius = terms.get('radius')
-        if radius:
-            try:
-                radius = float(radius)
-            except ValueError:
-                radius = 0
-            area_query = area_query.filter(
-                areageometry__value__dwithin=(point, radius)
-            )
-        else:
-            area_query = area_query.filter(
-               areageometry__value__bbcontains=point
-            )
+    area_query = Area.search(terms)
 
     keys = ['name', 'code']
 

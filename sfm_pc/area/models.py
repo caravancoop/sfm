@@ -2,6 +2,7 @@ from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 from django.contrib.gis import geos
+from django.db.models import Max
 
 from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
@@ -57,6 +58,62 @@ class Area(models.Model, BaseModel):
         errors.update(base_errors)
 
         return (errors, values)
+
+    @classmethod
+    def search(cls, terms):
+        order_by = terms.get('orderby')
+        if not order_by:
+            order_by = 'areaname__value'
+        elif order_by in ['name']:
+            order_by = 'area' + order_by + '__value'
+
+        direction = terms.get('direction')
+        if not direction:
+            direction = 'ASC'
+
+        dirsym = ''
+        if direction == 'DESC':
+            dirsym = '-'
+
+        area_query = (Area.objects
+                        .annotate(Max(order_by))
+                        .order_by(dirsym + order_by + "__max"))
+
+
+        name = terms.get('name')
+        if name:
+            area_query = area_query.filter(areaname__value__icontains=name)
+
+        code = terms.get('classification')
+        if code:
+            area_query = area_query.filter(areacode__value=code)
+
+        latitude = terms.get('latitude')
+        longitude = terms.get('longitude')
+        if latitude and longitude:
+            try:
+                latitude = float(latitude)
+                longitude = float(longitude)
+            except ValueError:
+                latitude = 0
+                longitude = 0
+
+            point = geos.Point(latitude, longitude)
+            radius = terms.get('radius')
+            if radius:
+                try:
+                    radius = float(radius)
+                except ValueError:
+                    radius = 0
+                area_query = area_query.filter(
+                    areageometry__value__dwithin=(point, radius)
+                )
+            else:
+                area_query = area_query.filter(
+                   areageometry__value__bbcontains=point
+                )
+
+        return area_query
 
 
 @translated
