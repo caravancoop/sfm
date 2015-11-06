@@ -6,7 +6,7 @@ from datetime import date
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.gis.geos import Point
 from django.contrib.admin.util import NestedObjects
-from django.views.generic.edit import UpdateView, DeleteView
+from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.shortcuts import render, render_to_response
@@ -22,6 +22,7 @@ from sfm_pc.utils import deleted_in_str
 
 class PersonDelete(DeleteView):
     model = Person
+    template_name = "delete_confirm.html"
 
     def get_context_data(self, **kwargs):
         context = super(PersonDelete, self).get_context_data(**kwargs)

@@ -1,4 +1,5 @@
 import json
+import csv
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -9,7 +10,6 @@ from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.db.models import Max
 from django.contrib.gis import geos
 from django.db import DEFAULT_DB_ALIAS
 
@@ -50,102 +50,39 @@ class OrganizationView(TemplateView):
 
         return context
 
+
+def organization_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="organizations.csv"'
+
+    terms = request.GET.dict()
+    organization_query = Organization.search(terms)
+
+    writer = csv.writer(response)
+    for organization in organization_query:
+        writer.writerow([
+            organization.id,
+            organization.name.get_value(),
+            organization.alias.get_value(),
+            organization.classification.get_value(),
+            repr(organization.foundingdate.get_value()),
+            repr(organization.dissolutiondate.get_value()),
+            organization.realfounding.get_value(),
+            organization.realdissolution.get_value(),
+        ])
+
+    return response
+
+
 def organization_search(request):
     terms = request.GET.dict()
 
-    order_by = terms.get('orderby')
-    if not order_by:
-        order_by = 'organizationname__value'
-
-    direction = terms.get('direction')
-    if not direction:
-        direction = 'ASC'
-
-    dirsym = ''
-    if direction == 'DESC':
-        dirsym = '-'
-
-    orgs_query = (Organization.objects
-                  .annotate(Max(order_by))
-                  .order_by(dirsym + order_by + "__max"))
-
     page = int(terms.get('page', 1))
-
-    name = terms.get('name')
-    if name:
-        orgs_query = orgs_query.filter(organizationname__value__icontains=name)
-
-    alias_val = terms.get('alias')
-    if alias_val:
-        orgs_query = orgs_query.filter(organizationalias__value__icontains=alias_val)
-
-    foundingdate_year = terms.get('founding_year')
-    if foundingdate_year:
-        orgs_query = orgs_query.filter(
-            organizationfoundingdate__value__startswith=foundingdate_year
-        )
-
-    foundingdate_month = terms.get('founding_month')
-    if foundingdate_month:
-        orgs_query = orgs_query.filter(
-            organizationfoundingdate__value__contains="-" + foundingdate_month + "-"
-        )
-
-    foundingdate_day = terms.get('founding_day')
-    if foundingdate_day:
-        orgs_query = orgs_query.filter(
-            organizationfoundingdate__value__endswith=foundingdate_day
-        )
-
-    dissolutiondate_year = terms.get('dissolution_year')
-    if dissolutiondate_year:
-        orgs_query = orgs_query.filter(
-            organizationdissolutiondate__value__startswith=dissolutiondate_year
-        )
-
-    dissolutiondate_month = terms.get('dissolution_month')
-    if dissolutiondate_month:
-        orgs_query = orgs_query.filter(
-            organizationdissolutiondate__value__contains="-" + dissolutiondate_month + "-"
-        )
-
-    dissolutiondate_day = terms.get('dissolution_day')
-    if dissolutiondate_day:
-        orgs_query = orgs_query.filter(
-            organizationdissolutiondate__value__endswith=dissolutiondate_day
-        )
-
-    classification = terms.get('classification')
-    if classification:
-        orgs_query = orgs_query.filter(organizationclassification__value_id=classification)
-
-    latitude = terms.get('latitude')
-    longitude = terms.get('longitude')
-    if latitude and longitude:
-        try:
-            latitude = float(latitude)
-            longitude = float(longitude)
-        except ValueError:
-            latitude = 0
-            longitude = 0
-
-        point = geos.Point(latitude, longitude)
-        radius = terms.get('radius')
-        if radius:
-            try:
-                radius = float(radius)
-            except ValueError:
-                radius = 0
-            orgs_query = orgs_query.filter(
-                associationorganization__object_ref__associationarea__value__areageometry__value__dwithin=(point, radius)
-            )
-        else:
-            orgs_query = orgs_query.filter(
-                associationorganization__object_ref__associationarea__value__areageometry__value__bbcontains=point
-            )
 
     keys = ['name', 'alias', 'classification', 'superiorunit', 'foundingdate',
             'dissolutiondate']
+
+    orgs_query = Organization.search(terms)
 
     paginator = Paginator(orgs_query, 15)
     try:
