@@ -13,7 +13,6 @@ from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
-from django.db.models import Max
 
 from .models import Person, PersonName
 from membership.models import Membership, Role
@@ -60,6 +59,7 @@ class PersonView(TemplateView):
 
 def person_search(request):
     terms = request.GET.dict()
+    person_query = Person.search(terms)
 
     order_by = terms.get('orderby')
     if not order_by:
@@ -95,6 +95,8 @@ def person_search(request):
             persondeathdate__value__startswith=deathdate_year
         )
 
+def person_search(request):
+    terms = request.GET.dict()
     deathdate_month = terms.get('deathdate_month')
     if deathdate_month:
         person_query = person_query.filter(
@@ -107,36 +109,9 @@ def person_search(request):
             persondeathdate__value__endswith=deathdate_day
         )
 
-    role = terms.get('role_membership')
-    if role:
-        person_query = person_query.filter(
-            membershippersonmember__object_ref__membershiprole__value__value=role
-        )
+    page = int(terms.get('page', 1))
 
-    latitude = terms.get('latitude')
-    longitude = terms.get('longitude')
-    if latitude and longitude:
-        try:
-            latitude = float(latitude)
-            longitude = float(longitude)
-        except ValueError:
-            latitude = 0
-            longitude = 0
-
-        point = Point(latitude, longitude)
-        radius = terms.get('radius')
-        if radius:
-            try:
-                radius = float(radius)
-            except ValueError:
-                radius = 0
-            person_query = person_query.filter(
-                membershippersonmember__object_ref__membershiporganization__value__associationorganization__object_ref__associationarea__value__areageometry__value__dwithin=(point, radius)
-            )
-        else:
-            person_query = person_query.filter(
-                membershippersonmember__object_ref__membershiporganization__value__associationorganization__object_ref__associationarea__value__areageometry__value__bbcontains=point
-            )
+    person_query = Person.search(terms)
 
     keys = ['name', 'alias', 'deathdate']
 
