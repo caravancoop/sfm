@@ -1,14 +1,9 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-
-<section class="content">
   <div class="row header">
     <div class="inner-title-wrapper">
       <h1 class="page-title">{{ title }}</h1>
-      <div class="pull-right">
-        <a href="/{{model}}/add/" class=" btn sfm-btn-action"><i class="fa fa-plus"></i> Add New</a>
-      </div>
     </div>
   </div>
   <form action="" method="post">{% csrf_token %}
@@ -23,9 +18,4 @@
       </div>
     </div>
   </form> 
-  
-
-
-</section>
-
 {% endblock %}

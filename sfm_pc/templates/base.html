@@ -20,8 +20,9 @@
     window.LANG = "{{ LANGUAGE_CODE }}";
   </script>
   {% include "sidebar.html" %}
-
+<section class="content">
   {% block content %}{% endblock %}
+</section>
 <!--  TABLE ROW TEMPLATES -->
 <div id="source-template" class="hide">
   <li >
@@ -67,6 +68,7 @@
   <script src="{% static "js/version.js" %}"></script>
   <script src="{% static "js/date.js" %}"></script>
   <script src="{% static "js/autocomplete.js" %}"></script>
+  <script src="{% static "js/modal.js" %}"></script>
   <script>
   $(document).ready(function() {
     $('select').selectpicker('show');
