@@ -209,10 +209,16 @@ class ViolationStartDate(models.Model):
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Start date")
 
+    def __str__(self):
+        return repr(self.value)
+
 class ViolationEndDate(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("End date")
+
+    def __str__(self):
+        return repr(self.value)
 
 @translated
 class ViolationLocationDescription(ComplexField):
@@ -220,53 +226,86 @@ class ViolationLocationDescription(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Location description")
 
+    def __str__(self):
+        return self.value
+
 class ViolationAdminLevel1(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 1")
+
+    def __str__(self):
+        return self.value
 
 class ViolationAdminLevel2(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 2")
 
+    def __str__(self):
+        return self.value
+
 class ViolationGeoname(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("GeoName name")
+
+    def __str__(self):
+        return self.value
 
 class ViolationGeonameId(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("GeoName ID")
 
+    def __str__(self):
+        return self.value
+
 class ViolationLocation(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = models.PointField(default=None, blank=True, null=True)
     field_name = _("Location")
+
+    def __str__(self):
+        return str(self.value)
 
 class ViolationDescription(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Description")
 
+    def __str__(self):
+        return self.value
+
 class ViolationPerpetrator(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Perpetrator")
+
+    def __str__(self):
+        return self.value
 
 class ViolationPerpetratorOrganization(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Perpetrator Organization")
 
+    def __str__(self):
+        return self.value
+
 class ViolationSource(models.Model):
     violation = models.ForeignKey('Violation')
     source = models.ForeignKey(Source)
 
+    def __str__(self):
+        return self.value
+
 class ViolationType(models.Model):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey('Type', default=None, blank=True, null=True)
+
+    def __str__(self):
+        return self.value
 
 class Type(models.Model):
     code = models.TextField()
