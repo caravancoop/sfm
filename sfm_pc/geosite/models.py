@@ -32,7 +32,7 @@ class Geosite(models.Model, BaseModel):
         return self.name.get_value()
 
     def __str__(self):
-        return self.name.get_value()
+        return str(self.name)
 
     def validate(self, dict_values):
         errors = {}

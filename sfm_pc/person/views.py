@@ -91,8 +91,8 @@ def person_search(request):
     persons = [
         {
             "id": person.id,
-            "name": person.name.get_value(),
-            "alias": person.alias.get_value(),
+            "name": str(person.name),
+            "alias": str(person.alias),
             "deathdate": str(person.deathdate.get_value()),
         }
         for person in person_page

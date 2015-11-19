@@ -88,10 +88,10 @@ def association_search(request):
     associations = [
         {
             "id": association.id,
-            "organization": str(association.organization.get_value()),
-            "area": str(association.area.get_value()),
-            "startdate": str(association.startdate.get_value()),
-            "enddate": str(association.enddate.get_value()),
+            "organization": str(association.organization),
+            "area": str(association.area),
+            "startdate": str(association.startdate),
+            "enddate": str(association.enddate),
         }
         for association in association_page
     ]

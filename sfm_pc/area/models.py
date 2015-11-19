@@ -28,7 +28,7 @@ class Area(models.Model, BaseModel):
         return self.name.get_value()
 
     def __str__(self):
-        return self.name.get_value()
+        return str(self.name)
 
     @classmethod
     def from_id(cls, id_):

@@ -96,11 +96,11 @@ def violation_search(request):
     violations = [
         {
             "id": violation.id,
-            "startdate": str(violation.startdate.get_value()),
-            "enddate": str(violation.enddate.get_value()),
-            "geoname": str(violation.geoname.get_value()),
-            "perpetrator": str(violation.perpetrator.get_value()),
-            "organization": str(violation.perpetratororganization.get_value()),
+            "startdate": str(violation.startdate.get_value().value),
+            "enddate": str(violation.enddate.get_value().value),
+            "geoname": str(violation.geoname.get_value().value),
+            "perpetrator": str(violation.perpetrator.get_value().value),
+            "organization": str(violation.perpetratororganization.get_value().value),
         }
         for violation in violation_page
     ]
@@ -151,7 +151,7 @@ class ViolationUpdate(TemplateView):
         context = super(ViolationUpdate, self).get_context_data(**kwargs)
         violation = Violation.objects.get(pk=context.get('pk'))
         context['violation'] = violation
-        data = {"value": violation.location.get_value()}
+        data = {"value": violation.location.get_value().value}
         context['point'] = ZoneForm(data)
 
         return context
