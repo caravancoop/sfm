@@ -86,7 +86,7 @@ def area_search(request):
     areas = [
         {
             "id": area.id,
-            "name": str(area.name.get_value()),
+            "name": str(area.name),
             "code": str(area.code.get_value()),
         }
         for area in area_page
