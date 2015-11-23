@@ -7,7 +7,7 @@
 {% block content %}
   <div class="row header">
     <div class="inner-title-wrapper">
-      <h1 class="page-title">{% trans "Membership" %}</h1>
+      <h1 class="page-title">{% trans "Person Membership" %}</h1>
     </div>
   </div>
 
@@ -20,17 +20,12 @@
   <form>
     <div class="row">
       <div class="form-group col-sm-5 complex-field">
-        {% view_complex_field_autocomplete membership.personmember membership.id "/person/name/autocomplete/" request.path %}
+        {% view_complex_field_autocomplete membership.member membership.id "/person/name/autocomplete/" request.path %}
       </div>
       <div class="form-group col-sm-2">
         <label>&nbsp;</label>
-        <div class="text-center">{% trans "OR" %}</div>
+        <div class="text-center">{% trans "With" %}</div>
       </div>
-      <div class="form-group col-sm-5 complex-field">
-        {% view_complex_field_autocomplete membership.organizationmember membership.id "/organization/name/autocomplete/" request.path %}
-      </div>
-    </div>
-    <div class="row">
       <div class="form-group col-sm-5 complex-field">
         {% view_complex_field_autocomplete membership.organization membership.id "/organization/name/autocomplete/" request.path %}
       </div>
@@ -44,13 +39,13 @@
 
     <div class="row">
       <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_autocomplete membership.role membership.id "/membership/role/autocomplete/" request.path %}
+        {% view_complex_field_autocomplete membership.role membership.id "/membershipperson/role/autocomplete/" request.path %}
       </div>
       <div class="form-group col-sm-4 complex-field">
         {% view_complex_field membership.title membership.id request.path %}
       </div>
       <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_autocomplete membership.rank membership.id "/membership/rank/autocomplete/" request.path %}
+        {% view_complex_field_autocomplete membership.rank membership.id "/membershipperson/rank/autocomplete/" request.path %}
       </div>
     </div><!-- /.row-->
  

@@ -16,7 +16,7 @@ from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 
 from .models import Person, PersonName
-from membership.models import Membership, Role
+from membershipperson.models import MembershipPerson, Role
 from sfm_pc.utils import deleted_in_str
 
 
@@ -143,9 +143,9 @@ class PersonUpdate(TemplateView):
         context = super(PersonUpdate, self).get_context_data(**kwargs)
         context['title'] = "Person"
         context['person'] = Person.objects.get(pk=context.get('pk'))
-        context['memberships'] = Membership.objects.filter(
+        context['memberships'] = MembershipPerson.objects.filter(
             membershippersonmember__value=context['person']
-        ).filter(membershiporganization__value__isnull=False)
+        ).filter(membershippersonorganization__value__isnull=False)
 
         return context
 

@@ -4,7 +4,6 @@ from django.shortcuts import render
 from django.views.generic.base import TemplateView
 
 from complex_fields.models import ComplexFieldContainer
-from sfm_pc.utils import class_for_name
 
 class SourceView(TemplateView):
     template_name = 'modals/source.html'

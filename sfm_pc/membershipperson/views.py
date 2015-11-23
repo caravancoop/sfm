@@ -13,15 +13,15 @@ from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 
 from organization.models import Organization
-from .models import Membership, Role, Rank
+from .models import MembershipPerson, Role, Rank
 from sfm_pc.utils import deleted_in_str
 
-class MembershipDelete(DeleteView):
-    model = Membership
+class MembershipPersonDelete(DeleteView):
+    model = MembershipPerson
     template_name = "delete_confirm.html"
 
     def get_context_data(self, **kwargs):
-        context = super(MembershipDelete, self).get_context_data(**kwargs)
+        context = super(MembershipPersonDelete, self).get_context_data(**kwargs)
         collector = NestedObjects(using=DEFAULT_DB_ALIAS)
         collector.collect([context['object']])
         deleted_elements = collector.nested()
@@ -30,16 +30,16 @@ class MembershipDelete(DeleteView):
 
 
     def get_object(self, queryset=None):
-        obj = super(MembershipDelete, self).get_object()
+        obj = super(MembershipPersonDelete, self).get_object()
 
         return obj
 
 
-class MembershipView(TemplateView):
-    template_name = 'membership/search.html'
+class MembershipPersonView(TemplateView):
+    template_name = 'membershipperson/search.html'
 
     def get_context_data(self, **kwargs):
-        context = super(MembershipView, self).get_context_data(**kwargs)
+        context = super(MembershipPersonView, self).get_context_data(**kwargs)
 
         context['roles'] = Role.objects.all()
         context['ranks'] = Rank.objects.all()
@@ -49,18 +49,17 @@ class MembershipView(TemplateView):
         return context
 
 
-def membership_csv(request):
+def membership_person_csv(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="memberships.csv"'
 
     terms = request.GET.dict()
-    membership_query = Membership.search(terms)
+    membership_query = MembershipPerson.search(terms)
 
     writer = csv.writer(response)
     for membership in membership_query:
         writer.writerow([
-            membership.personmember.get_value(),
-            membership.organizationmember.get_value(),
+            membership.member.get_value(),
             membership.role.get_value(),
             membership.rank.get_value(),
             membership.title.get_value(),
@@ -73,10 +72,10 @@ def membership_csv(request):
     return response
 
 
-def membership_search(request):
+def membership_person_search(request):
     terms = request.GET.dict()
 
-    membership_query = Membership.search(terms)
+    membership_query = MembershipPerson.search(terms)
 
     page = int(terms.get('page', 1))
 
@@ -120,14 +119,14 @@ def membership_search(request):
     }))
 
 
-class MembershipUpdate(TemplateView):
-    template_name = 'membership/edit.html'
+class MembershipPersonUpdate(TemplateView):
+    template_name = 'membershipperson/edit.html'
 
     def post(self, request, *args, **kwargs):
         data = json.loads(request.POST.dict()['object'])
         try:
-            membership = Membership.objects.get(pk=kwargs.get('pk'))
-        except Membership.DoesNotExist:
+            membership = MembershipPerson.objects.get(pk=kwargs.get('pk'))
+        except MembershipPerson.DoesNotExist:
             msg = "This membership does not exist, it should be created " \
                   "before updating it."
             return HttpResponse(msg, status=400)
@@ -145,34 +144,34 @@ class MembershipUpdate(TemplateView):
         )
 
     def get_context_data(self, **kwargs):
-        context = super(MembershipUpdate, self).get_context_data(**kwargs)
-        context['title'] = "Membership"
-        context['membership'] = Membership.objects.get(pk=context.get('pk'))
+        context = super(MembershipPersonUpdate, self).get_context_data(**kwargs)
+        context['title'] = "Membership Person"
+        context['membership'] = MembershipPerson.objects.get(pk=context.get('pk'))
 
         return context
 
 
-class MembershipCreate(TemplateView):
-    template_name = 'membership/edit.html'
+class MembershipPersonCreate(TemplateView):
+    template_name = 'membershipperson/edit.html'
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
-        (errors, data) = Membership().validate(data)
+        (errors, data) = MembershipPerson().validate(data)
         if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
                 content_type="application/json"
             )
 
-        membership = Membership.create(data)
+        membership = MembershipPerson.create(data)
 
         return HttpResponse(json.dumps({"success": True, "id": membership.id}),
                             content_type="application/json")
 
     def get_context_data(self, **kwargs):
-        context = super(MembershipCreate, self).get_context_data(**kwargs)
-        context['membership'] = Membership()
+        context = super(MembershipPersonCreate, self).get_context_data(**kwargs)
+        context['membership'] = MembershipPerson()
         context['roles'] = Role.objects.all()
         context['ranks'] = Rank.objects.all()
 
