@@ -190,7 +190,7 @@ def organization_autocomplete(request):
     )
 
     organizations = [
-        {"value": org.id, "label": _(org.name.get_value())}
+        {"value": org.id, "label": str(org.name)}
         for org in organizations
     ]
 
