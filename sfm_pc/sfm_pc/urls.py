@@ -6,7 +6,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from .views import *
 from person.views import *
-# from field.views import *
 
 
 urlpatterns = i18n_patterns(
@@ -34,6 +33,5 @@ urlpatterns = i18n_patterns(
     # Ajax calls
     url(r'^ajax/', include('ajax.urls')),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url'\
-        : '/login'}),
+    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url': '/login'}),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
