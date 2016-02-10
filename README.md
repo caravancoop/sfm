@@ -15,11 +15,6 @@ Create a database:
     createdb sfm-db
     python manage.py migrate --noinput
 
-Edit the project's settings:
-
-    cp sfm_pc/settings.py.template sfm_pc/settings.py
-    # Edit the DATABASES variable.
-
 Start the web server:
 
     python manage.py runserver
