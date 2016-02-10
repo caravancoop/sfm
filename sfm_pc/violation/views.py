@@ -87,10 +87,10 @@ def violation_search(request):
     try:
         violation_page = paginator.page(page)
     except PageNotAnInteger:
-        person_page = paginator.page(1)
+        violation_page = paginator.page(1)
         page = 1
     except EmptyPage:
-        person_page = paginator.page(paginator.num_pages)
+        violation_page = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
     violations = [
