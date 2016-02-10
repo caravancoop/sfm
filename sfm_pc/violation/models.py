@@ -5,7 +5,7 @@ from django.contrib.gis import geos
 
 from django_date_extensions.fields import ApproximateDateField
 
-from complex_fields.model_decorators import (versioned, translated, sourced)
+from complex_fields.model_decorators import translated
 from complex_fields.models import ComplexField, ComplexFieldContainer, ComplexFieldListContainer
 from complex_fields.base_models import BaseModel
 from source.models import Source

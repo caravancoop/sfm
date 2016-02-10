@@ -1,6 +1,5 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
-from django.utils.translation import get_language
 from django.contrib.gis import geos
 from django.db.models import Max
 
@@ -8,7 +7,6 @@ from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
-from source.models import Source
 
 class Area(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):

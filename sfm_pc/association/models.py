@@ -8,7 +8,6 @@ from django_date_extensions.fields import ApproximateDateField
 from complex_fields.model_decorators import versioned, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
-from source.models import Source
 from organization.models import Organization
 from area.models import Area
 
@@ -144,4 +143,3 @@ class AssociationArea(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.ForeignKey(Area)
     field_name = _("Area")
-

@@ -1,7 +1,6 @@
 import json
 
 from django.core.exceptions import ValidationError
-from django.views.generic.base import TemplateView
 from django.http import HttpResponse, HttpResponseServerError
 from django.db.models import Q
 

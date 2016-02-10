@@ -8,9 +8,7 @@ from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
-from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.gis import geos
 from django.db import DEFAULT_DB_ALIAS
 
 from .models import Organization, Classification

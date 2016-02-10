@@ -6,8 +6,6 @@ from .models import (Composition, CompositionParent, CompositionChild,
                      CompositionStartDate, CompositionEndDate,
                      CompositionClassification)
 
-from organization.models import Organization, Classification
-
 class CompositionAdmin(admin.ModelAdmin):
     pass
 

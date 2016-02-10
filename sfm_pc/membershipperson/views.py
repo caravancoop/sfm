@@ -12,7 +12,6 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 
-from organization.models import Organization
 from .models import MembershipPerson, Role, Rank
 from sfm_pc.utils import deleted_in_str
 

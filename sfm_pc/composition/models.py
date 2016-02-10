@@ -5,9 +5,8 @@ from django.db.models import Max
 
 from django_date_extensions.fields import ApproximateDateField
 
-from source.models import Source
 from organization.models import Organization, Classification
-from complex_fields.model_decorators import versioned, translated, sourced
+from complex_fields.model_decorators import versioned, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 

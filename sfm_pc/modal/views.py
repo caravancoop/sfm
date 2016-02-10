@@ -1,6 +1,3 @@
-import json
-
-from django.shortcuts import render
 from django.views.generic.base import TemplateView
 
 from complex_fields.models import ComplexFieldContainer

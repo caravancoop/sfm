@@ -7,7 +7,6 @@ from django.template.loader import render_to_string
 from django.contrib.admin.util import NestedObjects
 from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
-from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 

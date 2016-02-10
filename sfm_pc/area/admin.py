@@ -28,4 +28,3 @@ admin.site.register(AreaGeometry, AreaGeometryAdmin)
 admin.site.register(AreaCode, AreaCodeAdmin)
 admin.site.register(AreaGeoName, AreaGeoNameAdmin)
 admin.site.register(Code, CodeAdmin)
-

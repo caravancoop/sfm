@@ -17,5 +17,3 @@ class ZoneForm(forms.ModelForm):
         model = AreaGeometry
         fields = ('value',)
         widgets = {'value': LeafletWidget()}
-
-
