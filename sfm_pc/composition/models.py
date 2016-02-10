@@ -70,7 +70,6 @@ class Composition(models.Model, BaseModel):
                         .annotate(Max(order_by))
                         .order_by(dirsym + order_by + "__max"))
 
-
         startdate_year = terms.get('startdate_year')
         if startdate_year:
             composition_query = composition_query.filter(
@@ -127,12 +126,14 @@ class Composition(models.Model, BaseModel):
 
         return composition_query
 
+
 @versioned
 @sourced
 class CompositionParent(ComplexField):
     object_ref = models.ForeignKey(Composition)
     value = models.ForeignKey(Organization, related_name='child_organization')
     field_name = _("Parent organization")
+
 
 @versioned
 @sourced
@@ -141,6 +142,7 @@ class CompositionChild(ComplexField):
     value = models.ForeignKey(Organization, related_name='parent_organization')
     field_name = _("Child organization")
 
+
 @versioned
 @sourced
 class CompositionStartDate(ComplexField):
@@ -148,12 +150,14 @@ class CompositionStartDate(ComplexField):
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Start date")
 
+
 @versioned
 @sourced
 class CompositionEndDate(ComplexField):
     object_ref = models.ForeignKey(Composition)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("End date")
+
 
 @versioned
 @sourced

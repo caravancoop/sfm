@@ -29,7 +29,6 @@ class OrganizationDelete(DeleteView):
         context['model'] = "organization"
         return context
 
-
     def get_object(self, queryset=None):
         obj = super(OrganizationDelete, self).get_object()
 
@@ -193,6 +192,7 @@ def organization_autocomplete(request):
     ]
 
     return HttpResponse(json.dumps(organizations))
+
 
 def classification_autocomplete(request):
     data = request.GET.dict()['term']

@@ -107,6 +107,7 @@ class Person(models.Model, BaseModel):
 
         return person_query
 
+
 @translated
 @versioned
 @sourced
@@ -115,6 +116,7 @@ class PersonName(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
+
 @translated
 @versioned
 @sourced
@@ -122,6 +124,7 @@ class PersonAlias(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Aliases")
+
 
 @versioned
 @sourced

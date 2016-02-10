@@ -8,6 +8,7 @@ from languages_plus.models import Language
 
 from complex_fields.models import ComplexFieldContainer
 
+
 def translate(request, object_type, object_id, field_name):
 
     field = ComplexFieldContainer.field_from_str_and_id(
@@ -27,6 +28,7 @@ def translate(request, object_type, object_id, field_name):
         return HttpResponse(json.dumps(translations))
 
     return HttpResponse
+
 
 def autocomplete_language(request):
     data = request.GET.dict()['term']

@@ -28,7 +28,6 @@ class ViolationDelete(DeleteView):
         context['deleted_elements'] = deleted_in_str(deleted_elements)
         return context
 
-
     def get_object(self, queryset=None):
         obj = super(ViolationDelete, self).get_object()
 
@@ -154,6 +153,7 @@ class ViolationUpdate(TemplateView):
         context['point'] = ZoneForm(data)
 
         return context
+
 
 class ViolationCreate(TemplateView):
     template_name = 'violation/edit.html'

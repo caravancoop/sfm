@@ -54,6 +54,7 @@ class RequireLoginMiddleware(object):
         # Explicitly return None for all non-matching requests
         return None
 
+
 def class_for_name(class_name, module_name="person.models"):
     if class_name == "Membershipperson":
         class_name = "MembershipPerson"

@@ -27,7 +27,6 @@ class AreaDelete(DeleteView):
         context['deleted_elements'] = deleted_in_str(deleted_elements)
         return context
 
-
     def get_object(self, queryset=None):
         obj = super(AreaDelete, self).get_object()
 
@@ -143,6 +142,7 @@ class AreaUpdate(TemplateView):
 
         return context
 
+
 class AreaCreate(TemplateView):
     template_name = 'area/edit.html'
 
@@ -168,7 +168,6 @@ class AreaCreate(TemplateView):
         context = super(AreaCreate, self).get_context_data(**kwargs)
         context['area'] = Area()
         context['zone'] = ZoneForm()
-
 
         return context
 

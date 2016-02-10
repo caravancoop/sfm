@@ -13,47 +13,62 @@ from .models import (MembershipPerson, MembershipPersonMember, MembershipPersonO
 class MembershipPersonAdmin(admin.ModelAdmin):
     pass
 
+
 class MembershipPersonMemberAdmin(reversion.VersionAdmin):
     pass
+
 
 class MembershipPersonOrganizationMemberAdmin(reversion.VersionAdmin):
     pass
 
+
 class MembershipPersonOrganizationAdmin(reversion.VersionAdmin):
     pass
+
 
 class MembershipPersonRoleAdmin(reversion.VersionAdmin):
     pass
 
+
 class MembershipPersonTitleAdmin(reversion.VersionAdmin):
     pass
+
 
 class MembershipPersonRankAdmin(reversion.VersionAdmin):
     pass
 
+
 class MembershipPersonFirstCitedDateAdmin(reversion.VersionAdmin):
     pass
+
 
 class MembershipPersonLastCitedDateAdmin(reversion.VersionAdmin):
     pass
 
+
 class MembershipPersonRealStartAdmin(reversion.VersionAdmin):
     pass
+
 
 class MembershipPersonRealEndAdmin(reversion.VersionAdmin):
     pass
 
+
 class MembershipPersonStartContextAdmin(reversion.VersionAdmin):
     pass
+
 
 class MembershipPersonEndContextAdmin(reversion.VersionAdmin):
     pass
 
+
 class RoleAdmin(reversion.VersionAdmin):
     pass
 
+
 class RankAdmin(reversion.VersionAdmin):
     pass
+
 
 class ContextAdmin(reversion.VersionAdmin):
     pass

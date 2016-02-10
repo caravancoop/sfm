@@ -27,7 +27,6 @@ class CompositionDelete(DeleteView):
         context['deleted_elements'] = deleted_in_str(deleted_elements)
         return context
 
-
     def get_object(self, queryset=None):
         obj = super(CompositionDelete, self).get_object()
 

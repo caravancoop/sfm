@@ -26,7 +26,6 @@ class AssociationDelete(DeleteView):
         context['deleted_elements'] = deleted_in_str(deleted_elements)
         return context
 
-
     def get_object(self, queryset=None):
         obj = super(AssociationDelete, self).get_object()
 
@@ -142,6 +141,7 @@ class AssociationUpdate(TemplateView):
         context['association'] = association
 
         return context
+
 
 class AssociationCreate(TemplateView):
     template_name = 'association/edit.html'

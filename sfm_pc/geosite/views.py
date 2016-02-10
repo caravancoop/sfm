@@ -27,7 +27,6 @@ class GeositeDelete(DeleteView):
         context['deleted_elements'] = deleted_in_str(deleted_elements)
         return context
 
-
     def get_object(self, queryset=None):
         obj = super(GeositeDelete, self).get_object()
 
@@ -142,6 +141,7 @@ class SiteUpdate(TemplateView):
 
         return context
 
+
 class SiteCreate(TemplateView):
     template_name = 'site/edit.html'
 
@@ -165,7 +165,6 @@ class SiteCreate(TemplateView):
         context = super(SiteCreate, self).get_context_data(**kwargs)
         context['site'] = Geosite()
         context['zone'] = ZoneForm()
-
 
         return context
 

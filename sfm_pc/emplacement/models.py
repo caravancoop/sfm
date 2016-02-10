@@ -11,6 +11,7 @@ from complex_fields.base_models import BaseModel
 from organization.models import Organization
 from geosite.models import Geosite
 
+
 class Emplacement(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,7 +44,6 @@ class Emplacement(models.Model, BaseModel):
         errors.update(base_errors)
 
         return (errors, values)
-
 
     @classmethod
     def search(cls, terms):
@@ -115,6 +115,7 @@ class Emplacement(models.Model, BaseModel):
 
         return emplacement_query
 
+
 @versioned
 @sourced
 class EmplacementStartDate(ComplexField):
@@ -137,6 +138,7 @@ class EmplacementOrganization(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = models.ForeignKey(Organization)
     field_name = _("Organization")
+
 
 @versioned
 class EmplacementSite(ComplexField):

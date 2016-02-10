@@ -11,6 +11,7 @@ from complex_fields.base_models import BaseModel
 from organization.models import Organization
 from area.models import Area
 
+
 class Association(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,7 +65,6 @@ class Association(models.Model, BaseModel):
                              .annotate(Max(order_by))
                              .order_by(dirsym + order_by + "__max"))
 
-
         startdate_year = terms.get('startdate_year')
         if startdate_year:
             association_query = association_query.filter(
@@ -115,6 +115,7 @@ class Association(models.Model, BaseModel):
 
         return association_query
 
+
 @versioned
 @sourced
 class AssociationStartDate(ComplexField):
@@ -137,6 +138,7 @@ class AssociationOrganization(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.ForeignKey(Organization)
     field_name = _("Organization")
+
 
 @versioned
 class AssociationArea(ComplexField):

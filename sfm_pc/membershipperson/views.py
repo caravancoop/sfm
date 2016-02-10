@@ -15,6 +15,7 @@ from django.db import DEFAULT_DB_ALIAS
 from .models import MembershipPerson, Role, Rank
 from sfm_pc.utils import deleted_in_str
 
+
 class MembershipPersonDelete(DeleteView):
     model = MembershipPerson
     template_name = "delete_confirm.html"
@@ -26,7 +27,6 @@ class MembershipPersonDelete(DeleteView):
         deleted_elements = collector.nested()
         context['deleted_elements'] = deleted_in_str(deleted_elements)
         return context
-
 
     def get_object(self, queryset=None):
         obj = super(MembershipPersonDelete, self).get_object()

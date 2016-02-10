@@ -4,20 +4,26 @@ from django.contrib import admin
 
 from .models import (Area, AreaName, AreaGeometry, AreaCode, AreaGeoName, Code)
 
+
 class AreaAdmin(admin.ModelAdmin):
     pass
+
 
 class AreaNameAdmin(reversion.VersionAdmin):
     pass
 
+
 class AreaGeometryAdmin(admin.ModelAdmin):
     pass
+
 
 class AreaCodeAdmin(reversion.VersionAdmin):
     pass
 
+
 class AreaGeoNameAdmin(reversion.VersionAdmin):
     pass
+
 
 class CodeAdmin(admin.ModelAdmin):
     pass

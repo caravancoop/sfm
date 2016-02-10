@@ -10,6 +10,7 @@ from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 
+
 class Geosite(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,7 +71,6 @@ class Geosite(models.Model, BaseModel):
                         .annotate(Max(order_by))
                         .order_by(dirsym + order_by + "__max"))
 
-
         name = terms.get('name')
         if name:
             geosite_query = geosite_query.filter(geositename__value__icontains=name)
@@ -127,6 +127,7 @@ class GeositeName(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
+
 @versioned
 @sourced
 class GeositeAdminLevel1(ComplexField):
@@ -134,12 +135,14 @@ class GeositeAdminLevel1(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 1")
 
+
 @versioned
 @sourced
 class GeositeAdminLevel2(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 2")
+
 
 @versioned
 @sourced
@@ -149,12 +152,14 @@ class GeositeCoordinates(ComplexField):
     objects = models.GeoManager()
     field_name = _("Coordinates")
 
+
 @versioned
 @sourced
 class GeositeGeoname(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("GeoName name")
+
 
 @versioned
 @sourced

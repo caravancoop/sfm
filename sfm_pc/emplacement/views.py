@@ -26,7 +26,6 @@ class EmplacementDelete(DeleteView):
         context['deleted_elements'] = deleted_in_str(deleted_elements)
         return context
 
-
     def get_object(self, queryset=None):
         obj = super(EmplacementDelete, self).get_object()
 
@@ -141,6 +140,7 @@ class EmplacementUpdate(TemplateView):
         context['emplacement'] = emplacement
 
         return context
+
 
 class EmplacementCreate(TemplateView):
     template_name = 'emplacement/edit.html'

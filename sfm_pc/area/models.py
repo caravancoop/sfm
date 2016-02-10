@@ -8,6 +8,7 @@ from complex_fields.model_decorators import (versioned, translated, sourced,
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 
+
 class Area(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,7 +78,6 @@ class Area(models.Model, BaseModel):
                       .annotate(Max(order_by))
                       .order_by(dirsym + order_by + "__max"))
 
-
         name = terms.get('name')
         if name:
             area_query = area_query.filter(areaname__value__icontains=name)
@@ -122,6 +122,7 @@ class AreaName(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
+
 @versioned
 @sourced_optional
 class AreaGeometry(ComplexField):
@@ -130,6 +131,7 @@ class AreaGeometry(ComplexField):
     objects = models.GeoManager()
     field_name = _("Location geometry")
 
+
 @versioned
 @sourced
 class AreaCode(ComplexField):
@@ -137,12 +139,14 @@ class AreaCode(ComplexField):
     value = models.ForeignKey('Code', default=None, blank=True, null=True)
     field_name = _("Classification")
 
+
 @versioned
 @sourced
 class AreaGeoName(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.IntegerField(default=None, blank=True, null=True)
     field_name = _("GeoName ID")
+
 
 class Code(models.Model):
     value = models.TextField()

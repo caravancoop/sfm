@@ -28,11 +28,11 @@ class PersonDelete(DeleteView):
         context['deleted_elements'] = deleted_in_str(deleted_elements)
         return context
 
-
     def get_object(self, queryset=None):
         obj = super(PersonDelete, self).get_object()
 
         return obj
+
 
 class PersonView(TemplateView):
     template_name = 'person/search.html'
@@ -45,6 +45,7 @@ class PersonView(TemplateView):
         context['roles'] = Role.get_role_list()
 
         return context
+
 
 def person_csv(request):
     response = HttpResponse(content_type='text/csv')

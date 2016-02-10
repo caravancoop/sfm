@@ -38,7 +38,6 @@ class MembershipPerson(models.Model, BaseModel):
             "Membership_MembershipOrganization",
         ]
 
-
     @classmethod
     def from_id(cls, id_):
         try:
@@ -74,7 +73,6 @@ class MembershipPerson(models.Model, BaseModel):
         errors.update(base_errors)
 
         return (errors, values)
-
 
     @classmethod
     def create(cls, dict_values, lang=get_language()):

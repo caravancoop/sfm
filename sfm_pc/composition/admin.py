@@ -6,20 +6,26 @@ from .models import (Composition, CompositionParent, CompositionChild,
                      CompositionStartDate, CompositionEndDate,
                      CompositionClassification)
 
+
 class CompositionAdmin(admin.ModelAdmin):
     pass
+
 
 class CompositionParentAdmin(reversion.VersionAdmin):
     pass
 
+
 class CompositionChildAdmin(reversion.VersionAdmin):
     pass
+
 
 class CompositionStartDateAdmin(reversion.VersionAdmin):
     pass
 
+
 class CompositionEndDateAdmin(reversion.VersionAdmin):
     pass
+
 
 class CompositionClassificationAdmin(reversion.VersionAdmin):
     pass

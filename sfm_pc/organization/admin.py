@@ -10,26 +10,34 @@ from .models import (Organization, OrganizationName, OrganizationAlias,
 class OrganizationAdmin(admin.ModelAdmin):
     pass
 
+
 class OrganizationNameAdmin(reversion.VersionAdmin):
     pass
+
 
 class OrganizationAliasAdmin(reversion.VersionAdmin):
     pass
 
+
 class OrganizationClassificationAdmin(reversion.VersionAdmin):
     pass
+
 
 class OrganizationFoundingDateAdmin(reversion.VersionAdmin):
     pass
 
+
 class OrganizationDissolutionDateAdmin(reversion.VersionAdmin):
     pass
+
 
 class OrganizationRealFoundingAdmin(reversion.VersionAdmin):
     pass
 
+
 class OrganizationRealDissolutionAdmin(reversion.VersionAdmin):
     pass
+
 
 class ClassificationAdmin(admin.ModelAdmin):
     pass

@@ -6,23 +6,30 @@ from .models import (Geosite, GeositeName, GeositeAdminLevel1,
                      GeositeAdminLevel2, GeositeCoordinates,
                      GeositeGeoname, GeositeGeonameId)
 
+
 class GeositeAdmin(admin.ModelAdmin):
     pass
+
 
 class GeositeNameAdmin(reversion.VersionAdmin):
     pass
 
+
 class GeositeAdminLevel1Admin(reversion.VersionAdmin):
     pass
+
 
 class GeositeAdminLevel2Admin(reversion.VersionAdmin):
     pass
 
+
 class GeositeCoordinatesAdmin(reversion.VersionAdmin):
     pass
 
+
 class GeositeGeonameAdmin(reversion.VersionAdmin):
     pass
+
 
 class GeositeGeonameIdAdmin(reversion.VersionAdmin):
     pass

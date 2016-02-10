@@ -2,6 +2,7 @@ from django.views.generic.base import TemplateView
 
 from complex_fields.models import ComplexFieldContainer
 
+
 class SourceView(TemplateView):
     template_name = 'modals/source.html'
 
@@ -17,6 +18,7 @@ class SourceView(TemplateView):
         context['field'] = field
 
         return context
+
 
 class TranslationView(TemplateView):
     template_name = 'modals/translate.html'
@@ -34,6 +36,7 @@ class TranslationView(TemplateView):
         context['field'] = field
 
         return context
+
 
 class VersionView(TemplateView):
     template_name = 'modals/version.html'
