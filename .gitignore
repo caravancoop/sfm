@@ -1,15 +1,11 @@
-db.sqlite3
-*.pyc
 *.*~
-*.swp
-*.swo
-env/*
 *.orig
+*.pyc
 *.sass-cache*
-# Local configs
-
-env/
-bin/
-lib/
-node_modules/
+*.swo
+*.swp
 .DS_Store
+bin/
+db.sqlite3
+env/
+node_modules/
