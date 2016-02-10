@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.gis.geos import Point
 from django.utils.translation import ugettext as _
 from django.db.models import Max
 
