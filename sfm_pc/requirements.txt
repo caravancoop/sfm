@@ -1,3 +1,4 @@
+dj-database-url==0.3.0
 Django==1.8.3
 django-jsonview==0.5.0
 django-localeurl==2.0.2
@@ -9,3 +10,7 @@ django-date-extensions==1.1.0
 django-leaflet==0.16.0
 psycopg2==2.6.1
 git+ssh://git@github.com/caravancoop/complex_fields.git
+
+# @see https://devcenter.heroku.com/articles/getting-started-with-django#requirements-txt
+dj-static==0.0.6
+gunicorn==19.0.0
