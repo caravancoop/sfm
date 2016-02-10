@@ -5,6 +5,7 @@
 *.swo
 *.swp
 .DS_Store
+/staticfiles
 bin/
 db.sqlite3
 env/
