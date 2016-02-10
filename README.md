@@ -56,10 +56,9 @@ To enable the [geo](https://github.com/cyberdelia/heroku-geo-buildpack/) buildpa
 
     heroku config:add BUILDPACK_URL=https://github.com/ddollar/heroku-buildpack-multi.git
 
-Add this addon to access dependencies in private repositories:
+Use [Gemfury](#gemfury) to access dependencies in private repositories:
 
     heroku addons:create gemfury:hello
-    echo `heroku config:get GEMFURY_URL`
 
 Deploy:
 
@@ -75,4 +74,13 @@ Create an admin user:
 
 Open the website:
 
-    
+    heroku open
+
+### Gemfury
+
+    heroku config:get GEMFURY_URL
+    cd ../complex_fields
+    python setup.py sdist
+    curl -F package=@dist/django-complex-fields-0.1.0.tar.gz $GEMFURY_URL
+
+Replace the `--extra-index-url` in `requirements.txt` with your `GEMFURY_URL` if necessary.
