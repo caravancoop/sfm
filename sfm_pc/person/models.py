@@ -66,7 +66,7 @@ class Person(models.Model, BaseModel):
         if deathdate_month:
             person_query = person_query.filter(
                 persondeathdate__value__contains="-" + deathdate_month + "-"
-              )
+                )
 
         deathdate_day = terms.get('deathdate_day')
         if deathdate_day:

@@ -81,8 +81,8 @@ class Violation(models.Model, BaseModel):
             dirsym = '-'
 
         violation_query = (Violation.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
+                           .annotate(Max(order_by))
+                           .order_by(dirsym + order_by + "__max"))
 
         startdate_year = terms.get('startdate_year')
         if startdate_year:
@@ -160,7 +160,7 @@ class Violation(models.Model, BaseModel):
                 )
             else:
                 violation_query = violation_query.filter(
-                   violationlocation__value__bbcontains=point
+                    violationlocation__value__bbcontains=point
                 )
 
         geoname = terms.get('geoname')

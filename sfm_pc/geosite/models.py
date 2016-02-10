@@ -68,8 +68,8 @@ class Geosite(models.Model, BaseModel):
             dirsym = '-'
 
         geosite_query = (Geosite.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
+                         .annotate(Max(order_by))
+                         .order_by(dirsym + order_by + "__max"))
 
         name = terms.get('name')
         if name:
@@ -105,7 +105,7 @@ class Geosite(models.Model, BaseModel):
                 )
             else:
                 geosite_query = geosite_query.filter(
-                   geositecoordinates__value__bbcontains=point
+                    geositecoordinates__value__bbcontains=point
                 )
 
         geoname = terms.get('geoname')

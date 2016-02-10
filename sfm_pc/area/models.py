@@ -108,7 +108,7 @@ class Area(models.Model, BaseModel):
                 )
             else:
                 area_query = area_query.filter(
-                   areageometry__value__bbcontains=point
+                    areageometry__value__bbcontains=point
                 )
 
         return area_query

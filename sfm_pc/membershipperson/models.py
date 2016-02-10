@@ -55,7 +55,7 @@ class MembershipPerson(models.Model, BaseModel):
                 last_cited and last_cited.get("value") != "" and
                 first_cited.get('value') >= last_cited.get('value')):
             errors["Membership_MembershipFirstCitedDate"] = (
-               "The first cited date must be before the last cited date"
+                "The first cited date must be before the last cited date"
             )
 
         real_start = dict_values.get("Membership_MembershipRealStart")

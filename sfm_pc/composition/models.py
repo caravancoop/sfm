@@ -35,7 +35,7 @@ class Composition(models.Model, BaseModel):
         if (parent and parent.get("value") and child and child.get("value") and
             parent.get("value") == child.get("value")):
             errors["Composition_CompositionParent"] = ("The parent and the child" +
-                " organizations must be differents")
+                                                       " organizations must be differents")
 
         start = dict_values.get("Composition_CompositionStartDate")
         end = dict_values.get("Composition_CompositionEndDate")
@@ -67,8 +67,8 @@ class Composition(models.Model, BaseModel):
             dirsym = '-'
 
         composition_query = (Composition.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
+                             .annotate(Max(order_by))
+                             .order_by(dirsym + order_by + "__max"))
 
         startdate_year = terms.get('startdate_year')
         if startdate_year:
