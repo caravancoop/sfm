@@ -109,7 +109,7 @@ def organization_search(request):
         'paginator.html',
         {'acutal': page, 'min': page - 5, 'max': page + 5,
          'paginator': orgs_page,
-         'pages': range(1, paginator.num_pages + 1) }
+         'pages': range(1, paginator.num_pages + 1)}
     )
 
     return HttpResponse(json.dumps({
@@ -202,7 +202,7 @@ def classification_autocomplete(request):
     )
 
     classifications = [
-        {"value": classif.id, "label":_(classif.value)}
+        {"value": classif.id, "label": _(classif.value)}
         for classif in classifications
     ]
 

@@ -74,8 +74,8 @@ class Area(models.Model, BaseModel):
             dirsym = '-'
 
         area_query = (Area.objects
-                        .annotate(Max(order_by))
-                        .order_by(dirsym + order_by + "__max"))
+                      .annotate(Max(order_by))
+                      .order_by(dirsym + order_by + "__max"))
 
 
         name = terms.get('name')

@@ -56,19 +56,19 @@ class MembershipPerson(models.Model, BaseModel):
                 last_cited and last_cited.get("value") != "" and
                 first_cited.get('value') >= last_cited.get('value')):
             errors["Membership_MembershipFirstCitedDate"] = (
-                "The first cited date must be before the last cited date"
+               "The first cited date must be before the last cited date"
             )
 
         real_start = dict_values.get("Membership_MembershipRealStart")
         real_end = dict_values.get("Membership_MembershipRealEnd")
-        if( real_start is not None and real_start.get("value") == 'True' and
+        if (real_start is not None and real_start.get("value") == 'True' and
             not len(real_start.get('sources'))):
             errors['Membership_MembershipRealStart'] = ("Sources are required " +
                                                         "to update this field")
-        if( real_end is not None and real_end.get("value") == 'True' and
+        if (real_end is not None and real_end.get("value") == 'True' and
             not len(real_end.get('sources'))):
             errors['Membership_MembershipRealEnd'] = ("Sources are required " +
-                                                        "to update this field")
+                                                      "to update this field")
 
         (base_errors, values) = super().validate(dict_values)
         errors.update(base_errors)

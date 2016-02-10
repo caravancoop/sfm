@@ -98,7 +98,7 @@ def person_search(request):
         'paginator.html',
         {'actual': page, 'min': page - 5, 'max': page + 5,
          'paginator': person_page,
-         'pages': range(1, paginator.num_pages + 1) }
+         'pages': range(1, paginator.num_pages + 1)}
     )
 
     return HttpResponse(json.dumps({
