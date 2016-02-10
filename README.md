@@ -42,7 +42,7 @@ Add configuration variables (replace `<SECRET-KEY>`):
 
     heroku config:set DJANGO_SECRET_KEY=<SECRET-KEY>
 
-You'll need a [production tier PostgreSQL database](https://devcenter.heroku.com/articles/postgis) ($50/mo) to use PostGIS (replace `<DATABASE>`):
+Add a [production tier PostgreSQL database](https://devcenter.heroku.com/articles/postgis) ($50/mo) to use PostGIS (replace `<DATABASE>`):
 
     heroku addons:create heroku-postgresql:standard-0
     heroku pg:wait
@@ -52,9 +52,18 @@ In the PostgreSQL shell, run:
 
     CREATE EXTENSION postgis;
 
-You'll need the [geo](https://github.com/cyberdelia/heroku-geo-buildpack/) buildpack for GeoDjango:
+To enable the [geo](https://github.com/cyberdelia/heroku-geo-buildpack/) buildpack for GeoDjango:
 
     heroku config:add BUILDPACK_URL=https://github.com/ddollar/heroku-buildpack-multi.git
+
+Add this addon to access dependencies in private repositories:
+
+    heroku addons:create gemfury:hello
+    echo `heroku config:get GEMFURY_URL`
+
+Deploy:
+
+    git push heroku dev:master
 
 Setup the database:
 
@@ -64,6 +73,6 @@ Create an admin user:
 
     heroku run python manage.py createsuperuser
 
-Deploy:
+Open the website:
 
-    git push heroku master
+    
