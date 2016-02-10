@@ -13,11 +13,19 @@ Install the requirements:
 Create a database:
 
     createdb sfm-db
-    python manage.py migrate --noinput
+    psql sfm-db -c "CREATE EXTENSION postgis;"
+    export DATABASE_URL=postgis://localhost/sfm-db
+    ./manage.py migrate --noinput
+
+Create an admin user:
+
+    ./manage.py createsuperuser
 
 Start the web server:
 
-    python manage.py runserver
+    ./manage.py runserver
+
+Open http://127.0.0.1:8000/ and sign in with your email and password.
 
 ## Deployment
 
@@ -34,12 +42,10 @@ Add configuration variables (replace `<SECRET-KEY>`):
 
     heroku config:set DJANGO_SECRET_KEY=<SECRET-KEY>
 
-You'll need a [production tier PostgreSQL database](https://devcenter.heroku.com/articles/postgis) to use PostGIS (replace `<DATABASE>`):
+You'll need a [production tier PostgreSQL database](https://devcenter.heroku.com/articles/postgis) ($50/mo) to use PostGIS (replace `<DATABASE>`):
 
-    heroku addons:add heroku-postgresql:standard-0
+    heroku addons:create heroku-postgresql:standard-0
     heroku pg:wait
-    heroku pg:promote <DATABASE>
-    heroku addons:remove heroku-postgresql:dev
     heroku pg:psql
 
 In the PostgreSQL shell, run:
@@ -53,6 +59,10 @@ You'll need the [geo](https://github.com/cyberdelia/heroku-geo-buildpack/) build
 Setup the database:
 
     heroku run python manage.py migrate --noinput
+
+Create an admin user:
+
+    heroku run python manage.py createsuperuser
 
 Deploy:
 
