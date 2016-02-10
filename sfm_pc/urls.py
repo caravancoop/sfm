@@ -34,4 +34,4 @@ urlpatterns = i18n_patterns(
     url(r'^ajax/', include('ajax.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url': '/login'}),
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+)
