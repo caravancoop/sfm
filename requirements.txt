@@ -9,7 +9,10 @@ django-allauth==0.23.0
 django-date-extensions==1.1.0
 django-leaflet==0.16.0
 psycopg2==2.6.1
-git+https://8ae396aedf25cb019020d6e2c6d384d1a1df0492:x-oauth-basic@github.com/caravancoop/complex_fields.git
+
+# @see https://devcenter.heroku.com/articles/gemfury#using-with-python
+--extra-index-url https://repo.fury.io/UghfumGSgAsiaBvzzd19/me/
+django-complex-fields==0.1.0
 
 # @see https://devcenter.heroku.com/articles/getting-started-with-django#requirements-txt
 dj-static==0.0.6
