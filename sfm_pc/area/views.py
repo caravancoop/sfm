@@ -77,10 +77,10 @@ def area_search(request):
     try:
         area_page = paginator.page(page)
     except PageNotAnInteger:
-        person_page = paginator.page(1)
+        area_page = paginator.page(1)
         page = 1
     except EmptyPage:
-        person_page = paginator.page(paginator.num_pages)
+        area_page = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
     areas = [

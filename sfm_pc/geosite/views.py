@@ -75,10 +75,10 @@ def site_search(request):
     try:
         geosite_page = paginator.page(page)
     except PageNotAnInteger:
-        person_page = paginator.page(1)
+        geosite_page = paginator.page(1)
         page = 1
     except EmptyPage:
-        person_page = paginator.page(paginator.num_pages)
+        geosite_page = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
     geosites = [
