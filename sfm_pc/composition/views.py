@@ -82,10 +82,10 @@ def composition_search(request):
     try:
         composition_page = paginator.page(page)
     except PageNotAnInteger:
-        person_page = paginator.page(1)
+        composition_page = paginator.page(1)
         page = 1
     except EmptyPage:
-        person_page = paginator.page(paginator.num_pages)
+        composition_page = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
     compositions = [
