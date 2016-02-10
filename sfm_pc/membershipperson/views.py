@@ -85,10 +85,10 @@ def membership_person_search(request):
     try:
         membership_page = paginator.page(page)
     except PageNotAnInteger:
-        person_page = paginator.page(1)
+        membership_page = paginator.page(1)
         page = 1
     except EmptyPage:
-        person_page = paginator.page(paginator.num_pages)
+        membership_page = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
     memberships = [
