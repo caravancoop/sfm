@@ -10,9 +10,7 @@ django-date-extensions==1.1.0
 django-leaflet==0.16.0
 psycopg2==2.6.1
 
-# @see https://devcenter.heroku.com/articles/gemfury#using-with-python
---extra-index-url https://repo.fury.io/UghfumGSgAsiaBvzzd19/me/
-django-complex-fields==0.1.0
+-e git+https://github.com/caravancoop/complex_fields.git#egg=complex_fields
 
 # @see https://devcenter.heroku.com/articles/getting-started-with-django#requirements-txt
 dj-static==0.0.6
