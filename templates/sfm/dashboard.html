@@ -2,10 +2,42 @@
 {% load viewcomplexfield %}
 {% load i18n %}
 {% block content %}
-<section class="content">
-  <div class="inner-title-wrapper row header">
-    <h3 class="page-title">{% trans "Dashboard" %}</h3>
-  </div>
-</section>
+<h3 class="page-title">{% trans "Dashboard" %}</h3>
+<div class="row">
+    <div class="col-sm-4 col-sm-offset-8">
+        <a href="{% url 'create-source' %}" class="btn btn-default">Create new entry</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <h4>Recent Entries</h4>
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Researcher</th>
+                    <th>Source</th>
+                    <th>Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Joe</td>
+                    <td>Nigerian weekly</td>
+                    <td>Yesterday</td>
+                </tr>
+                <tr>
+                    <td>Jim</td>
+                    <td>Nigerian monthly</td>
+                    <td>Two days ago</td>
+                </tr>
+                <tr>
+                    <td>Jim</td>
+                    <td>Nigerian yearly</td>
+                    <td>a week ago</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 {% endblock %}

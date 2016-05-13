@@ -4,8 +4,8 @@ from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
-from .views import *
-from person.views import *
+from .views import Dashboard, CreateSource
+#from person.views import *
 
 
 urlpatterns = i18n_patterns(
@@ -26,6 +26,7 @@ urlpatterns = i18n_patterns(
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
+    url(r'^create-source/', CreateSource.as_view(), name="create-source"),
 
     # Admin panel
     url(r'^admin/', include(admin.site.urls)),
