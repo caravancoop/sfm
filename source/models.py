@@ -1,10 +1,17 @@
 from django.db import models
 
+class Publication(models.Model):
+    title = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    
+    def __str__(self):
+        if self.title is None:
+            return ""
+        return self.title
 
 class Source(models.Model):
     title = models.TextField()
-    publication_name = models.TextField()
-    publication_country = models.TextField()
+    publication = models.ForeignKey(Publication, null=True)
     published_on = models.DateField()
     source_url = models.URLField()
     archive_url = models.URLField()

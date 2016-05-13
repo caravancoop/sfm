@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.forms import ModelForm
+from django import forms
 from .models import Source
 
 
-class SourceForm(ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(SourceForm, self).__init__(*args, **kwargs)
-
-    class Meta:
-        model = Source
-        fields = '__all__'
+class SourceForm(forms.Form):
+    title = forms.CharField()
+    publication = forms.ChoiceField()
+    published_on = forms.DateField()
+    source_url = forms.URLField()
+    archive_url = forms.URLField()
+    
+    def clean(self):
+        cleaned_data = super(SourceForm, self).clean()
+        print(cleaned_data)
+        
+        return cleaned_data

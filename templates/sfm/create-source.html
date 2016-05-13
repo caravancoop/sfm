@@ -3,11 +3,78 @@
 {% load i18n %}
 {% block content %}
 <div class="row">
-<form method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input class="btn btn-default" type="submit" value="Submit" />
-</form>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.title.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label for="id_title" class="col-sm-2 control-label">Source title</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="id_title" name="title">
+            {% if form.title.errors %}
+                {% for error in form.title.errors %}
+                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% endfor %}
+            {% endif %}
+            </div>
+        </div>
+        {% if form.publication_name.errors or form.publication_country.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label for="id_publication_name" class="col-sm-2 control-label">Publication</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="id_publication_name" name="publication_name" placeholer="Name">
+            {% if form.publication_name.errors %}
+                {% for error in form.publication_name.errors %}
+                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% endfor %}
+            {% endif %}
+            </div>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="id_publication_country" name="publication_country" placeholder="Country">
+            {% if form.publication_country.errors %}
+                {% for error in form.publication_country.errors %}
+                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% endfor %}
+            {% endif %}
+            </div>
+        </div>
+        <div class="form-group">
+            <div class='col-sm-10 col-sm-offset-2'>
+                <input class="btn btn-default" type="submit" value="Submit" />
+            </div>
+        </div>
+    </form>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+    $(document).ready(function(e){
+        $('#id_publication').autocomplete({
+            source: "{% url 'publications-autocomplete' %}",
+            minLength: 2,
+            select: function(event, ui){
+                $('#id_publication').val(ui.item.publication_title);
+                $('#id_publication_id').val(ui.item.publication_id);
+                return false;
+            },
+            focus: function(event, ui){
+                $('#id_publication').val(ui.item.publication_title);
+                return false;
+            }
+        })
+        .data('ui-autocomplete')._renderItem = function(ul, item){
+            var pub_name = item.publication_title + ' (' + item.publication_country + ')'
+            return $('<li>')
+                .append('<a data-publication_id="' + item.publication_id + '">' + pub_name + '</a>')
+                .appendTo('<ul>');
+        }
+    })
+</script>
 {% endblock %}
