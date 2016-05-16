@@ -1,6 +1,12 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load viewcomplexfield %}
 {% load i18n %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <script src="{% static "js/select2.min.js" %}"></script>
+
+{% endblock %}
 {% block content %}
 <div class="row">
     <form method="post">
@@ -27,7 +33,9 @@
         {% endif %}
             <label for="id_publication_name" class="col-sm-2 control-label">Publication</label>
             <div class="col-sm-5">
-                <input type="text" class="form-control" id="id_publication_name" name="publication_name" placeholer="Name">
+                <select id="id_publication_name" name="publication_name">
+                    <option value="None" selected=true>---------</option>
+                </select>
             {% if form.publication_name.errors %}
                 {% for error in form.publication_name.errors %}
                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -56,25 +64,40 @@
 {% block extra_js %}
 <script type="text/javascript">
     $(document).ready(function(e){
-        $('#id_publication').autocomplete({
-            source: "{% url 'publications-autocomplete' %}",
-            minLength: 2,
-            select: function(event, ui){
-                $('#id_publication').val(ui.item.publication_title);
-                $('#id_publication_id').val(ui.item.publication_id);
-                return false;
+        $('#id_publication_name').select2({
+            ajax: {
+                url: "{% url 'publications-autocomplete' %}",
+                datType: 'json',
+                delay: 250,
+                data: function(params){
+                    console.log(params);
+                    return {
+                        q: params.term,
+                        page: params.page
+                    };
+                },
+                processResults: function(data, params){
+                    params.page = params.page || 1;
+                    return {
+                        results: data.items,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    }
+                },
+                cache: true
             },
-            focus: function(event, ui){
-                $('#id_publication').val(ui.item.publication_title);
-                return false;
+            escapeMarkup: function(markup){ return markup; },
+            minimumInputLength: 2,
+            templateResult: function(data){
+                console.log('result', data);
+                return '<p>Hi! result</p>';
+            },
+            templateSelection: function(data){
+                console.log('selection', data);
+                return '<p>Hi! selection</p>'
             }
-        })
-        .data('ui-autocomplete')._renderItem = function(ul, item){
-            var pub_name = item.publication_title + ' (' + item.publication_country + ')'
-            return $('<li>')
-                .append('<a data-publication_id="' + item.publication_id + '">' + pub_name + '</a>')
-                .appendTo('<ul>');
-        }
+        });
     })
 </script>
 {% endblock %}

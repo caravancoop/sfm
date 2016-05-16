@@ -24,7 +24,7 @@ class CreateSource(FormView):
         return response
     
 def publications_autocomplete(request):
-    term = request.GET.get('term')
+    term = request.GET.get('q')
     publications = Publication.objects.filter(title__icontains=term).all()
     
     results = []
