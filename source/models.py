@@ -1,8 +1,10 @@
 from django.db import models
 
 class Publication(models.Model):
+    uuid = models.UUIDField(primary_key=True)
     title = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
+    country_iso = models.CharField(max_length=2)
+    country_name = models.CharField(max_length=255)
     
     def __str__(self):
         if self.title is None:

@@ -11,8 +11,14 @@ class SourceForm(forms.Form):
     source_url = forms.URLField()
     archive_url = forms.URLField()
     
-    def clean(self):
-        cleaned_data = super(SourceForm, self).clean()
-        print(cleaned_data)
+    def clean_publication(self):
+        data = self.cleaned_data['publication']
         
+        return data
+
+    def clean(self):
+        print('before clean')
+        cleaned_data = super(SourceForm, self).clean()
+        print('after clean')
+
         return cleaned_data
