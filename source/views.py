@@ -27,15 +27,16 @@ class CreateSource(FormView):
         
         # Try to find the publication
 
-        publication_uuid = form.data.get('publication_country_uuid')
+        publication_uuid = form.data.get('publication')
         publication, created = Publication.objects.get_or_create(uuid=publication_uuid)
-
+        
         if created:
             publication.title = form.data.get('publication_title')
             publication.country_iso = form.data.get('publication_country_iso')
             publication.country_name = form.data.get('publication_country_name')
             publication.save()
         
+        self.publication = publication
 
         if form.is_valid():
             return self.form_valid(form)
@@ -44,9 +45,14 @@ class CreateSource(FormView):
 
     def form_valid(self, form):
         response = super(CreateSource, self).form_valid(form)
-        # Save the ID of the source object just created to the session data
-        # so that we can link things up in the coming steps.
-        self.request.session['source_id'] = self.object.id
+        
+        source = Source.objects.create(title=form.cleaned_data['title'],
+                                       source_url=form.cleaned_data['source_url'],
+                                       archive_url=form.cleaned_data['archive_url'],
+                                       publication=self.publication,
+                                       published_on=form.cleaned_data['published_on'])
+
+        self.request.session['source_id'] = source.id
         return response
     
 def publications_autocomplete(request):
@@ -57,9 +63,8 @@ def publications_autocomplete(request):
     for publication in publications:
         results.append({
             'text': publication.title,
-            'country': publication.country,
-            'id': publication.id,
-            'uuid': publication.uuid,
+            'country_iso': publication.country_iso,
+            'id': str(publication.uuid),
         })
     
     return HttpResponse(json.dumps(results), content_type='application/json')

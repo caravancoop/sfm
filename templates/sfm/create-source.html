@@ -45,7 +45,7 @@
                 <select id="id_publication" class="form-control" name="publication">
                     <option value="None" selected=selected>---------</option>
                 </select>
-                <input type="hidden" name="publication_name" id="id_publication_name" />
+                <input type="hidden" name="publication_title" id="id_publication_title" />
             {% if form.publication.errors %}
                 {% for error in form.publication.errors %}
                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -54,7 +54,6 @@
             </div>
             <div class="col-sm-5">
                 <input type="hidden" name="publication_country_name" id="id_publication_country_name" />
-                <input type="hidden" name="publication_country_uuid" id="id_publication_country_uuid" />
                 <select id="id_publication_country_iso" class="form-control" name="publication_country_iso" disabled=true>
                     <option value="">--------</option>
                     <option value="AF">Afghanistan</option>
@@ -363,10 +362,9 @@
                         }
                     } else {
                         return {results: [{
-                                    'id': 1,
+                                    'id': "{{ publication_uuid }}",
                                     'text': params.term,
-                                    'country': null,
-                                    'uuid': "{{ publication_uuid }}"}]}
+                                    'country_iso': null}]}
                     }
                 },
                 cache: true
@@ -377,11 +375,13 @@
         });
         $('#id_publication_country_iso').select2();
         $('#id_publication').on('select2:select', function(e){
-            $('#id_publication_name').val(e.params.data.text);
-            if(e.params.data.country){
-                $('#id_publication_country_iso').find('option[value="' + e.params.data.country + '"]').prop('selected', true);
+            $('#id_publication_title').val(e.params.data.text);
+            if(e.params.data.country_iso){
+                var country_option = $('#id_publication_country_iso').val(e.params.data.country_iso);
+                country_option.trigger('change');
+            } else {
+                $('#id_publication_country_iso').prop('disabled', false);
             }
-            $('#id_publication_country_iso').prop('disabled', false);
             $('#id_publication_country_uuid').val(e.params.data.uuid);
         });
         $('#id_publication_country_iso').on('select2:select', function(e){
