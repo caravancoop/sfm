@@ -5,7 +5,7 @@ from django.views.generic.base import TemplateView
 from django.http import HttpResponse
 from django.views.generic.edit import FormView
 
-from source.forms import SourceForm
+from .forms import SourceForm
 from source.models import Source, Publication
 
 class Dashboard(TemplateView):
