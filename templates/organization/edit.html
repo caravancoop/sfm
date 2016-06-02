@@ -28,7 +28,15 @@
         {% view_complex_field organization.alias organization.id request.path %}
       </div>
       <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_autocomplete organization.classification organization.id "/organization/classification/autocomplete/" request.path %}
+        <label for="Organization_OrganizationClassification">Classicifation</label>
+        <select class="form-control real-input" id="Organization_OrganizationClassification">
+            <option value="">--------</option>
+            <option value="Administrative">Administrative</option>
+            <option value="Command">Command</option>
+            <option value="Informal">Informal</option>
+            <option value="Organization/Administrative">Organization/Administrative</option>
+        </select>
+        <span class="error-message" data-em-target="Organization_OrganizationClassification"></span>
       </div>
     </div>
     <div class="row">
