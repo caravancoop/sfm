@@ -29,7 +29,7 @@ class Source(models.Model):
         srcs = []
         for src in sources:
             try:
-                existing_source = Source.objects.get(source=src['title'])
+                existing_source = Source.objects.get(source=src.title)
                 srcs.append(existing_source)
             except Source.DoesNotExist:
                 new_source = cls(source=src['source'])

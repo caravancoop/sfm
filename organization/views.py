@@ -13,6 +13,7 @@ from django.db import DEFAULT_DB_ALIAS
 
 from .models import Organization, Classification
 from sfm_pc.utils import deleted_in_str
+from source.models import Source
 
 
 class OrganizationDelete(DeleteView):
@@ -94,8 +95,8 @@ def organization_search(request):
     orgs = [
         {
             "id": org.id,
-            "name": org.name.get_value(),
-            "alias": org.alias.get_value(),
+            "name": str(org.name.get_value()),
+            "alias": str(org.alias.get_value()),
             "classification": str(org.classification.get_value()),
             "superiorunit": "TODO",
             "foundingdate": str(org.foundingdate.get_value()),
@@ -110,7 +111,7 @@ def organization_search(request):
          'paginator': orgs_page,
          'pages': range(1, paginator.num_pages + 1)}
     )
-
+    
     return HttpResponse(json.dumps({
         'success': True,
         'keys': keys,
@@ -125,6 +126,10 @@ class OrganizationUpdate(TemplateView):
 
     def post(self, request, *args, **kwargs):
         data = json.loads(request.POST.dict()['object'])
+        
+        for field_name, field_data in data.items():
+            data[field_name]['sources'] = [Source.objects.first()]
+            data[field_name]['confidence'] = 'High'
 
         try:
             organization = Organization.objects.get(pk=kwargs.get('pk'))
@@ -158,9 +163,16 @@ class OrganizationCreate(TemplateView):
     template_name = 'organization/edit.html'
 
     def post(self, request, *args, **kwargs):
+        
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
+        
+        for field_name, field_data in data.items():
+            data[field_name]['sources'] = [Source.objects.first()]
+            data[field_name]['confidence'] = 'High'
+        
         (errors, data) = Organization().validate(data)
+        
         if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
