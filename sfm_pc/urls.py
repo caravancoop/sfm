@@ -5,7 +5,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from .views import Dashboard, CreateSource, publications_autocomplete
-
+from organization.views import OrganizationCreate
 
 urlpatterns = i18n_patterns(
     '',
@@ -18,6 +18,7 @@ urlpatterns = i18n_patterns(
     url(r'^version/', include('version.urls')),
     url(r'^source/', include('source.urls')),
     url(r'^create-source/', CreateSource.as_view(), name="create-source"),
+    url(r'^create-orgs/', OrganizationCreate.as_view(), name="create-orgs"),
     url(r'^publications-autocomplete/', publications_autocomplete, name="publications-autocomplete"),
     url(r'^area/', include('area.urls')),
     url(r'^association/', include('association.urls')),

@@ -5,7 +5,7 @@ from django.views.generic.base import TemplateView
 from django.http import HttpResponse
 from django.views.generic.edit import FormView
 
-from .forms import SourceForm
+from .forms import SourceForm, OrgForm
 from source.models import Source, Publication
 
 class Dashboard(TemplateView):
@@ -18,7 +18,7 @@ class Dashboard(TemplateView):
 class CreateSource(FormView):
     template_name = 'sfm/create-source.html'
     form_class = SourceForm
-    success_url = '/'
+    success_url = '/create-orgs/'
     
     def get_context_data(self, **kwargs):
         context = super(CreateSource, self).get_context_data(**kwargs)

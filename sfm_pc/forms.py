@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django import forms
-from .models import Source, Publication
-
+from source.models import Source, Publication
+from organization.models import Organization
 
 class SourceForm(forms.Form):
     title = forms.CharField()
@@ -11,3 +11,9 @@ class SourceForm(forms.Form):
     source_url = forms.URLField()
     archive_url = forms.URLField()
 
+class OrgForm(forms.ModelForm):
+     
+    class Meta:
+        model = Organization
+        fields = '__all__'
+ 
