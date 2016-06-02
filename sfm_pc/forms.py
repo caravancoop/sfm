@@ -10,6 +10,7 @@ class SourceForm(forms.Form):
     published_on = forms.DateField()
     source_url = forms.URLField()
     archive_url = forms.URLField()
+/bin/bash: :e: command not found
 
 class OrgForm(forms.ModelForm):
      

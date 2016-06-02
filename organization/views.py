@@ -160,6 +160,7 @@ class OrganizationCreate(TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
+        print(request.POST.dict())
         (errors, data) = Organization().validate(data)
         if len(errors):
             return HttpResponse(
