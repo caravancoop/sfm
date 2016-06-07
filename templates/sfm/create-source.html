@@ -45,7 +45,8 @@
                 <select id="id_publication" class="form-control" name="publication">
                     <option value="None" selected=selected>---------</option>
                 </select>
-                <input type="hidden" name="publication_title" id="id_publication_title" />
+                <input type="hidden" name="publication_title" id="id_publication_title">
+                <input type="hidden" name="publication_uuid" id="id_publication_uuid">
             {% if form.publication.errors %}
                 {% for error in form.publication.errors %}
                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -382,7 +383,7 @@
             } else {
                 $('#id_publication_country_iso').prop('disabled', false);
             }
-            $('#id_publication_country_uuid').val(e.params.data.uuid);
+            $('#id_publication_country_uuid').val(e.params.data.id);
         });
         $('#id_publication_country_iso').on('select2:select', function(e){
             var val = $(this).val();

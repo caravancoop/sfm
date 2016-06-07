@@ -1,23 +1,162 @@
-
 {% extends "base.html" %}
-{% load staticfiles %}
 {% load viewcomplexfield %}
+{% load staticfiles %}
 {% load i18n %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <style>
+    .dynamic-form { margin: 10px 0; }
+  </style>
   <script src="{% static "js/select2.min.js" %}"></script>
-
+  <script src="{% static "js/dynamic-formset.js" %}"></script>
 {% endblock %}
 {% block content %}
-<div class="row">
-    <form method="post">
-        {% csrf_token %}
-        {{ form }}
-        <div class="form-group">
-            <div class="col-sm-12">
-                <input type="submit" class="btn btn-default" value="Submit" />
+<script type="text/javascript">
+    <!--
+    function autofillEvents(x) {
+        s = x.toString();
+        $('#id_form-' + s + '-name').select2({
+            ajax: {
+                url: "{% url 'organizations-autocomplete' %}",
+                datType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return { q: params.term, };
+                },
+                processResults: function(data, params) {
+                    if (data.length >= 1) return { results: data, };
+                    else {
+                        return {results: [{
+                                     // 'id': "{{ organization_uuid }}",
+                                     'id': params.term,
+                                     'text': params.term }]};
+                    }                       
+                },
+               cache: true
+            }, 
+            escapeMarkup: function(markup){ return markup; },
+            minimumInputLength: 2,
+            tags: true
+        });
+        $('#id_form-' + s + '-alias').select2();
+    }
+
+
+    $(function () {
+        $('.add-row').click(function() {
+    	    return addForm(this, 'form');
+        });
+        $('.delete-row').click(function() {
+    	    return deleteForm(this, 'form');
+        })
+    })
+    //-->
+</script>
+<form method="post" action="">
+    {% csrf_token %}
+    {{ formset.management_form }} 
+    <div class="row">
+        <div class="col-sm-12" id="manage-forms"><a href="javascript:void(0)" class="add-row">Add organization</a></div>
+    </div>
+    {% for form in formset %}
+    <div class="dynamic-form">
+        <div class="row">
+            {% if form.name.errors or form.alias.errors or form.classification.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label">Organization name
+                    <select id="id_form-0-name" class="form-control" name="form-0-name"><option value="None" selected="selected">--------</option></select></label>
+                    <!-- <input type="hidden" name="uuid" id="id_uuid"> -->
+                    {% if form.name.errors %}
+                        {% for error in form.name.errors %}
+                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-4">
+                    <label class="control-label">Aliases
+                    <select id="id_form-0-alias" class="form-control" name="form-0-alias"multiple="multiple"></select></label>
+                    {% if form.alias.errors %}
+                        {% for error in form.alias.errors %}
+                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %} 
+                </div>
+                <div class="col-sm-4">
+                    <label class="control-label">Classification
+                    <select id="id_form-0-classification" class="form-control" name="form-0-classification">
+                        <option value="administrative">Administrative</option>
+                        <option value="command">Command</option>
+                        <option value="informal">Informal</option>
+                        <option value="organization">Organization</option>
+                    </select></label>
+                </div>
+                </div>
             </div>
+            <div class="row">
+            {% if form.creation.errors or form.c_real.errors or form.dissolution.errors or form.d_real.errors %}
+                <div class="form-group has error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label">Founding date
+                    {{ form.foundingdate }}</label>
+                    {% if form.foundingdate.errors %}
+                        {% for error in form.foundingdate.errors %}
+                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+
+                </div>
+                <div class="col-sm-2">
+                    <label class="control-label">Real?
+                    {{ form.realfounding }}</label>
+                    {% if form.realfounding.errors %}
+                        {% for error in form.realfounding.errors %}
+                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+
+                </div>
+                <div class="col-sm-4">
+                    <label class="control-label">Dissolution date
+                    {{ form.dissolutiondate }}</label>
+                    {% if form.dissolutiondate.errors %}
+                        {% for error in form.dissolutiondate.errors %}
+                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+
+                        
+                </div>
+                <div class="col-sm-2">
+                    <label class="control-label">Real?
+                    {% if form.realdissolution.errors %}</label>
+                        {% for error in form.realdissolution.errors %}
+                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+
+
+                    {{ form.realdissolution }}
+                </div>
+                </div>
+            </div>
+            <a id="remove-{{ form.prefix }}-row" href="javascript:void(0)" class="delete-row {% if forloop.first %}hidden{% endif %}">remove</a><hr></div>
+    </div>
+    {% endfor %}
+    <div class="row">
+    <div class="form-group">
+        <div class="col-md-12">
+            <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
+            <button type="submit" class="btn sfm-btn-cancel" value="Skip">Skip</button>
         </div>
+    </div>
+    </div>
     </form>
 </div>
 
@@ -25,5 +164,11 @@
 
 {% block extra_js %}
 <script type="text/javascript">
+    var globalRow;
+    $(document).ready(function(e) {
+        $("#id_form-TOTAL_FORMS").val(1); 
+        globalRow = $('.dynamic-form:first').clone(true).get(0);  
+        autofillEvents(0);
+    });
 </script>
 {% endblock %}
