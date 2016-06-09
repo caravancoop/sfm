@@ -123,8 +123,8 @@
         var alias_field = '#id_form-' + form_num + '-alias';
 
         var process_results = function(data, params) {
-            if (data.results.length >= 1) {
-                return { results: data.results, };
+            if (data.length >= 1) {
+                return { results: data, };
             } else {
                 $(name_field + '_text').val(params.term);
                 return {results: [{
@@ -161,66 +161,5 @@
 
         form_num ++;
     }
-</script>
-<script type="text/javascript">
-    function autofillEvents(x) {
-        s = x.toString();
-        $('#id_form-' + s + '-name').select2({
-            ajax: {
-                url: "{% url 'organizations-autocomplete' %}",
-                datType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return { q: params.term, };
-                },
-                processResults: function(data, params) {
-                    if (data.results.length >= 1) {
-                        return { results: data.results, };
-                    } else {
-                        $('#id_form-' + s + '-name_text').val(params.term);
-                        return {results: [{
-                                     'id': -1,
-                                     'text': params.term }]};
-                    }
-                },
-                cache: true
-            },
-            escapeMarkup: function(markup){ return markup; },
-            minimumInputLength: 2,
-            tags: true
-        });
-        $('#id_form-' + s + '-alias').select2({
-            ajax: {
-                url: "{% url 'aliases-autocomplete' %}",
-                datType: 'json',
-                delay: 250,
-                data: function(params) { return { q: params.term, }; },
-                processResults: function(data, params) {
-                    if (data.length >= 1) return { results: data, };
-                    else {
-                        return { results: [{
-                            'id': 1,
-                            'text': params.term
-                            }]
-                        };
-                    }
-                },
-                cache: true
-            },
-            escapeMarkup: function(markup) { return markup; },
-            minimumInputLength: 2,
-            tags: true
-        });
-    }
-
-
-    $(function () {
-        $('.add-row').click(function() {
-    	    return addForm(this, 'form');
-        });
-        $('.delete-row').click(function() {
-    	    return deleteForm(this, 'form');
-        })
-    })
 </script>
 {% endblock %}
