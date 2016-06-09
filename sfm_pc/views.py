@@ -181,19 +181,17 @@ def organizations_autocomplete(request):
             'text': str(organization.name),
             'id': organization.id,
         })
-    response = {
-        'results': results,
-        'next_id': 1,
-    }
-    return HttpResponse(json.dumps(response), content_type='application/json')
+    return HttpResponse(json.dumps(results), content_type='application/json')
 
 def aliases_autocomplete(request):
     term = request.GET.get('q')
-    aliases = Organization.objects.filter(organizationalias__value__icontains=term).order_by().values('organizationalias__value').distinct()
+    alias_query = OrganizationAlias.objects.filter(value__icontains=term)
     results = []
-    for alias in aliases:
+    for alias in alias_query:
         results.append({
-            'text': alias['organizationalias__value'],
-            'id': alias['organizationalias__value']
+            'text': alias.value,
+            'id': alias.id
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
+
+    
