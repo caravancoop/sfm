@@ -7,73 +7,8 @@
   <style>
     .dynamic-form { margin: 10px 0; }
   </style>
-  <script src="{% static "js/select2.min.js" %}"></script>
-  <script src="{% static "js/dynamic-formset.js" %}"></script>
 {% endblock %}
 {% block content %}
-<script type="text/javascript">
-    <!--
-    function autofillEvents(x) {
-        s = x.toString();
-        $('#id_form-' + s + '-name').select2({
-            ajax: {
-                url: "{% url 'organizations-autocomplete' %}",
-                datType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return { q: params.term, };
-                },
-                processResults: function(data, params) {
-                    if (data.results.length >= 1) {
-                        return { results: data.results, };
-                    } else {
-                        $('#id_form-' + s + '-name_text').val(params.term);
-                        return {results: [{
-                                     'id': -1,
-                                     'text': params.term }]};
-                    }
-                },
-                cache: true
-            },
-            escapeMarkup: function(markup){ return markup; },
-            minimumInputLength: 2,
-            tags: true
-        });
-        $('#id_form-' + s + '-alias').select2({
-            ajax: {
-                url: "{% url 'aliases-autocomplete' %}",
-                datType: 'json',
-                delay: 250,
-                data: function(params) { return { q: params.term, }; },
-                processResults: function(data, params) {
-                    if (data.length >= 1) return { results: data, };
-                    else {
-                        return { results: [{
-                            'id': 1,
-                            'text': params.term
-                            }]
-                        };
-                    }
-                },
-                cache: true
-            },
-            escapeMarkup: function(markup) { return markup; },
-            minimumInputLength: 2,
-            tags: true
-        });
-    }
-
-
-    $(function () {
-        $('.add-row').click(function() {
-    	    return addForm(this, 'form');
-        });
-        $('.delete-row').click(function() {
-    	    return deleteForm(this, 'form');
-        })
-    })
-    //-->
-</script>
 <form method="post" action="">
     {% csrf_token %}
     {{ formset.management_form }}
@@ -194,6 +129,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static "js/select2.min.js" %}"></script>
+<script src="{% static "js/dynamic-formset.js" %}"></script>
 <script type="text/javascript">
     var globalRow;
     $(document).ready(function(e) {
@@ -201,5 +138,66 @@
         globalRow = $('.dynamic-form:first').clone(true).get(0);
         autofillEvents(0);
     });
+</script>
+<script type="text/javascript">
+    function autofillEvents(x) {
+        s = x.toString();
+        $('#id_form-' + s + '-name').select2({
+            ajax: {
+                url: "{% url 'organizations-autocomplete' %}",
+                datType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return { q: params.term, };
+                },
+                processResults: function(data, params) {
+                    if (data.results.length >= 1) {
+                        return { results: data.results, };
+                    } else {
+                        $('#id_form-' + s + '-name_text').val(params.term);
+                        return {results: [{
+                                     'id': -1,
+                                     'text': params.term }]};
+                    }
+                },
+                cache: true
+            },
+            escapeMarkup: function(markup){ return markup; },
+            minimumInputLength: 2,
+            tags: true
+        });
+        $('#id_form-' + s + '-alias').select2({
+            ajax: {
+                url: "{% url 'aliases-autocomplete' %}",
+                datType: 'json',
+                delay: 250,
+                data: function(params) { return { q: params.term, }; },
+                processResults: function(data, params) {
+                    if (data.length >= 1) return { results: data, };
+                    else {
+                        return { results: [{
+                            'id': 1,
+                            'text': params.term
+                            }]
+                        };
+                    }
+                },
+                cache: true
+            },
+            escapeMarkup: function(markup) { return markup; },
+            minimumInputLength: 2,
+            tags: true
+        });
+    }
+
+
+    $(function () {
+        $('.add-row').click(function() {
+    	    return addForm(this, 'form');
+        });
+        $('.delete-row').click(function() {
+    	    return deleteForm(this, 'form');
+        })
+    })
 </script>
 {% endblock %}

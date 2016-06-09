@@ -129,9 +129,9 @@ class CreateOrgs(FormSetView):
         dummy_formset = OrgFormSet(initial=form_data)
 
         if dummy_formset.is_valid():
-            return self.formset_valid(dummy_formset)
+            return self.formset_valid(formset)
         else:
-            return self.formset_invalid(dummy_formset)
+            return self.formset_invalid(formset)
 
     def formset_valid(self, formset):
         response = super(CreateOrgs, self).formset_valid(formset)
