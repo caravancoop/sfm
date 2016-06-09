@@ -6,10 +6,11 @@ from django.http import HttpResponse
 from django.views.generic.edit import FormView
 from extra_views import FormSetView
 from django.forms import formset_factory
+from django.core.exceptions import ObjectDoesNotExist
 
 from .forms import SourceForm, OrgForm
 from source.models import Source, Publication
-from organization.models import Organization
+from organization.models import Organization, OrganizationName
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -36,7 +37,7 @@ class CreateSource(FormView):
 
         publication_uuid = form.data.get('publication')
         publication, created = Publication.objects.get_or_create(uuid=publication_uuid)
-        
+
         if created:
             publication.title = form.data.get('publication_title')
             publication.country_iso = form.data.get('publication_country_iso')
@@ -78,6 +79,8 @@ class CreateOrgs(FormSetView):
         OrgFormSet = self.get_formset()
         formset = OrgFormSet(request.POST)
 
+        print(request.POST)
+
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])     
         
         self.organizations = []
@@ -85,18 +88,16 @@ class CreateOrgs(FormSetView):
         # handle aliases
         # handle names
         for i in range(0,num_forms):
-            #organization_uuid = formset.data['form-' + str(i) + '-uuid'][0]
-            organization, created = Organization.objects.get_or_create(organizationname__value=formset.data['form-' + str(i) + '-name'][0])
-
-            if created:
-                organization.name = formset.data['form-' + str(i) + '-name']
-                # organization.alias = formset.data['form-' + str(i) + '-alias'] # need to change once alias is a real thing
-                organization.classification = formset.data['form-' + str(i) + '-classification']
-                organization.foundingdate = formset.data['form-' + str(i) + '-foundingdate']
-                organization.realfounding = formset.data['form-' + str(i) + '-realfounding']
-                organization.dissolutiondate = formset.data['form-' + str(i) + '-dissolutiondate']
-                organization.realdissolution = formset.data['form-' + str(i) + '-realdissolution']
-
+            created = False
+            try:
+               organization = Organization.objects.get(organizationname__value=formset.data['form-' + str(i) + '-name'])
+            except ObjectDoesNotExist:
+               created = True
+               organization = Organization.create({'Organization_OrganizationName': {'value': formset.data['form-' + str(i) + '-name'], 
+                   'confidence': 1}}) # need to fix confidence thing ???
+ 
+            #if created:
+            # name, alias, classification, foundingdate, realfounding, dissolutiondate, realdissolution
             self.organizations.append(organization)
 
         if formset.is_valid():
@@ -127,12 +128,27 @@ def publications_autocomplete(request):
 def organizations_autocomplete(request):
     term = request.GET.get('q')
     organizations = Organization.objects.filter(organizationname__value__icontains=term).all()
-    
+ 
     results = []
     for organization in organizations:
         results.append({
-            'text': organization.name,
-            #'id': str(organization.uuid),
+            'text': str(organization.name),
+            'id': str(organization.name),
         })
-    print(results)
+    response = {
+        'results': results,
+        'next_id': 1,
+    }
+    return HttpResponse(json.dumps(response), content_type='application/json')
+
+def aliases_autocomplete(request):
+    term = request.GET.get('q')
+    aliases = Organization.objects.filter(organizationalias__value__icontains=term).order_by().values('organizationalias__value').distinct()
+
+    results = []
+    for alias in aliases:
+        results.append({
+            'text': str(alias),
+            'id': str(alias)
+        })
     return HttpResponse(json.dumps(results), content_type='application/json')

@@ -27,18 +27,38 @@
                     if (data.length >= 1) return { results: data, };
                     else {
                         return {results: [{
-                                     // 'id': "{{ organization_uuid }}",
                                      'id': params.term,
                                      'text': params.term }]};
                     }                       
                 },
-               cache: true
+                cache: true
             }, 
             escapeMarkup: function(markup){ return markup; },
             minimumInputLength: 2,
             tags: true
         });
-        $('#id_form-' + s + '-alias').select2();
+        $('#id_form-' + s + '-alias').select2({
+            ajax: {
+                url: "{% url 'aliases-autocomplete' %}",
+                datType: 'json',
+                delay: 250,
+                data: function(params) { return { q: params.term, }; },
+                processResults: function(data, params) {
+                    if (data.length >= 1) return { results: data, };
+                    else { 
+                        return { results: [{ 
+                            'id': 1, 
+                            'text': params.term 
+                            }]
+                        };
+                    }
+                },
+                cache: true
+            },
+            escapeMarkup: function(markup) { return markup; },
+            minimumInputLength: 2,
+            tags: true
+        });
     }
 
 
