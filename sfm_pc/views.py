@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .forms import SourceForm, OrgForm
 from source.models import Source, Publication
-from organization.models import Organization, OrganizationName
+from organization.models import Organization, OrganizationName, OrganizationAlias
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -100,27 +100,45 @@ class CreateOrgs(FormSetView):
             
             name_id = formset.data[name_id_key]
             name_text = formset.data[name_text_key]
-            
+           
+            aliases = formset.data.getlist(form_prefix + 'alias')
+           
             if name_id == 'None':
                 return self.formset_invalid(formset)
 
             elif name_id == '-1':
-                
-                # TODO: Figure out the confidence, dates, classification, alias 
                 org_info = {
                     'Organization_OrganizationName': {
                         'value': name_text, 
                         'confidence': 1
+                    },
+                    'Organization_OrganizationAlias': {
+                        'value': 'an alias test 2',
+                        'confidence': 1
                     }
                 }
                 
-                organization = Organization.create(org_info) 
-                
-
+                organization = Organization.create(org_info)      
             else:
                 organization = Organization.objects.get(id=name_id)
-            
+                
+                formset.data.getlist(form_prefix + 'alias')
+                
+                # remove aliases already bound to this particular organization 
+                existing_aliases = [d['value'] for d in OrganizationAlias.objects.filter(object_ref_id=5).values('value').distinct()]
+                aliases = [a for a in aliases if not a in existing_alises]           
 
+            # TODO: Figure out the aliases, classification, dates, booleans
+            # add aliases to this organization
+            for alias in aliases:
+                alias_data = {
+                    'Organization_OrganizationAlias': {
+                        'value': alias, 
+                        'confidence': 1
+                    }
+                }
+                organization.update(alias_data)
+            
             form[name_id_key] = organization.id
 
             self.organizations.append(organization)
@@ -172,11 +190,10 @@ def organizations_autocomplete(request):
 def aliases_autocomplete(request):
     term = request.GET.get('q')
     aliases = Organization.objects.filter(organizationalias__value__icontains=term).order_by().values('organizationalias__value').distinct()
-
     results = []
     for alias in aliases:
         results.append({
-            'text': str(alias),
-            'id': str(alias)
+            'text': alias['organizationalias__value'],
+            'id': alias['organizationalias__value']
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
