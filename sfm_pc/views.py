@@ -85,25 +85,53 @@ class CreateOrgs(FormSetView):
         
         self.organizations = []
  
-        # handle aliases
-        # handle names
+        form_data = []
         for i in range(0,num_forms):
-            created = False
-            try:
-               organization = Organization.objects.get(organizationname__value=formset.data['form-' + str(i) + '-name'])
-            except ObjectDoesNotExist:
-               created = True
-               organization = Organization.create({'Organization_OrganizationName': {'value': formset.data['form-' + str(i) + '-name'], 
-                   'confidence': 1}}) # need to fix confidence thing ???
- 
-            #if created:
-            # name, alias, classification, foundingdate, realfounding, dissolutiondate, realdissolution
-            self.organizations.append(organization)
 
-        if formset.is_valid():
-            return self.formset_valid(formset)
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+            
+            form = {k: formset.data[k] for k in form_keys}
+
+            name_id_key = 'form-{0}-name'.format(i)
+            name_text_key = 'form-{0}-name_text'.format(i)
+            
+            name_id = formset.data[name_id_key]
+            name_text = formset.data[name_text_key]
+            
+            if name_id == 'None':
+                return self.formset_invalid(formset)
+
+            elif name_id == '-1':
+                
+                # TODO: Figure out the confidence, dates, classification, alias 
+                org_info = {
+                    'Organization_OrganizationName': {
+                        'value': name_text, 
+                        'confidence': 1
+                    }
+                }
+                
+                organization = Organization.create(org_info) 
+                
+
+            else:
+                organization = Organization.objects.get(id=name_id)
+            
+
+            form[name_id_key] = organization.id
+
+            self.organizations.append(organization)
+            form_data.append(form)
+        
+        dummy_formset = OrgFormSet(initial=form_data)
+
+        if dummy_formset.is_valid():
+            return self.formset_valid(dummy_formset)
         else:
-            return self.formset_invalid(formset)
+            return self.formset_invalid(dummy_formset)
 
     def formset_valid(self, formset):
         response = super(CreateOrgs, self).formset_valid(formset)
@@ -128,12 +156,12 @@ def publications_autocomplete(request):
 def organizations_autocomplete(request):
     term = request.GET.get('q')
     organizations = Organization.objects.filter(organizationname__value__icontains=term).all()
- 
+
     results = []
     for organization in organizations:
         results.append({
             'text': str(organization.name),
-            'id': str(organization.name),
+            'id': organization.id,
         })
     response = {
         'results': results,
