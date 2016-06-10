@@ -4,6 +4,7 @@
 {% load i18n %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
   <style>
     .dynamic-form { margin: 10px 0; }
   </style>
@@ -38,6 +39,7 @@
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
 <script src="{% static "js/ejs_production.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/EJS" id="formTemplate">
     <div id="form-<%= form_id %>-wrapper">
         <div class="row">
@@ -69,7 +71,7 @@
             <div class="form-group">
                 <div class="col-sm-4">
                     <label class="control-label" for="id_form-<%= form_id %>-foundingdate">Founding date</label>
-                    <input type="text" class="form-control" id="id_form-<%= form_id %>-foundingdate" name="form-<%= form_id %>-foundingdate" />
+                    <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-foundingdate" name="form-<%= form_id %>-foundingdate" />
                 </div>
                 <div class="col-sm-2">
                     <div class="checkbox">
@@ -80,7 +82,7 @@
                 </div>
                 <div class="col-sm-4">
                     <label class="control-label" for="id_form-<%= form_id %>-dissolutiondate">Dissolution date</label>
-                    <input type="text" class="form-control" id="id_form-<%= form_id %>-dissolutiondate" name="form-<%= form_id %>-dissolutiondate" />
+                    <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-dissolutiondate" name="form-<%= form_id %>-dissolutiondate" />
                 </div>
                 <div class="col-sm-2">
                     <div class="checkbox">
@@ -199,7 +201,10 @@
         $(name_field).on('select2:select', function(e){
             var value = e.params.data.text;
             $(name_field + '_text').val(value);
-        })
+        });
+
+        $('.datepicker').datepicker('destroy');
+        $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
 
         form_num ++;
     }

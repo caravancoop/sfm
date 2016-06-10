@@ -115,9 +115,6 @@ class CreateOrgs(FormSetView):
             else:
                 organization = Organization.objects.get(id=name_id)
                 
-            # TODO: Figure out the aliases, classification, dates, booleans
-            # add aliases to this organization
-            
             alias_id_key = 'form-{0}-alias'.format(i)
             alias_text_key = 'form-{0}-alias_text'.format(i)
             
@@ -143,7 +140,7 @@ class CreateOrgs(FormSetView):
             form[form_prefix + 'classification'] = [None]
 
             if classification:
-                print('classification', classification)
+                
                 classification_obj = Classification.objects.get(id=classification)
                 organization.update({
                     'Organization_OrganizationClassification': {
