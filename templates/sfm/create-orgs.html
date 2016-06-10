@@ -45,7 +45,7 @@
                 <div class="col-sm-4">
                     <label class="control-label">Organization name</label>
                     <select id="id_form-<%= form_id %>-name" class="form-control" name="form-<%= form_id %>-name">
-                        <option value="None" selected="selected">--------</option>
+                        <option value="" selected="selected">--------</option>
                     </select>
                     <input type="hidden" name="form-<%= form_id %>-name_text" id="id_form-<%= form_id %>-name_text" />
                 </div>
@@ -57,10 +57,10 @@
                 <div class="col-sm-4">
                     <label class="control-label">Classification</label>
                     <select id="id_form-<%= form_id %>-classification" class="form-control" name="form-<%= form_id %>-classification">
-                        <option value="administrative">Administrative</option>
-                        <option value="command">Command</option>
-                        <option value="informal">Informal</option>
-                        <option value="organization">Organization</option>
+                        <option value="" selected="selected">--------</option>
+                        {% for classification in classifications %}
+                            <option value="{{ classification.id }}">{{ classification.value }}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>

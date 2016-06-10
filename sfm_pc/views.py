@@ -10,7 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .forms import SourceForm, OrgForm
 from source.models import Source, Publication
-from organization.models import Organization, OrganizationName, OrganizationAlias
+from organization.models import Organization, OrganizationName, OrganizationAlias, Classification
+
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -72,7 +73,7 @@ class CreateOrgs(FormSetView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateOrgs, self).get_context_data(**kwargs)
-        context['organization_uuid'] = str(uuid4())
+        context['classifications'] = Classification.objects.all()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -112,37 +113,50 @@ class CreateOrgs(FormSetView):
                         'value': name_text, 
                         'confidence': 1
                     },
-                    'Organization_OrganizationAlias': {
-                        'value': 'an alias test 2',
-                        'confidence': 1
-                    }
                 }
                 
                 organization = Organization.create(org_info)      
             else:
                 organization = Organization.objects.get(id=name_id)
                 
-                formset.data.getlist(form_prefix + 'alias')
-                
                 # remove aliases already bound to this particular organization 
                 existing_aliases = [d['value'] for d in OrganizationAlias.objects.filter(object_ref_id=5).values('value').distinct()]
-                aliases = [a for a in aliases if not a in existing_alises]           
+                aliases = [a for a in aliases if not a in existing_aliases]           
 
             # TODO: Figure out the aliases, classification, dates, booleans
             # add aliases to this organization
             for alias in aliases:
                 alias_data = {
                     'Organization_OrganizationAlias': {
-                        'value': alias, 
+                        'value': alias,
                         'confidence': 1
                     }
                 }
                 organization.update(alias_data)
-            
+           
+            classification = formset.data[form_prefix + 'classification']
+
+            foundingdate = formset.data[form_prefix + 'foundingdate']
+            realfounding = form_prefix + 'realfounding' in formset.data.keys()
+            dissolutiondate = formset.data[form_prefix + 'dissolutiondate']
+            realdissolution = form_prefix + 'realdissolution' in formset.data.keys()
+
+            if classification:
+                organization.update({
+                    'Organization_OrganizationClassification': {
+                        'value': Classification.objects.filter(id=classification)[0],
+                        'confidence': 1
+                    }
+                })
+            # need to force validation for 'None' as well, since i don't think it's required?
+ 
+
             form[name_id_key] = organization.id
 
             self.organizations.append(organization)
             form_data.append(form)
+
+            
         
         dummy_formset = OrgFormSet(initial=form_data)
 
