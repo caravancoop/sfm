@@ -9,7 +9,7 @@
   </style>
 {% endblock %}
 {% block content %}
-<form method="post" action="">
+<form method="post" action="" id="org-form">
     {% csrf_token %}
     {{ formset.management_form }}
     <div class="row">
@@ -122,42 +122,84 @@
         var name_field = '#id_form-' + form_num + '-name';
         var alias_field = '#id_form-' + form_num + '-alias';
 
-        var process_results = function(data, params) {
-            if (data.length >= 1) {
-                return { results: data, };
-            } else {
-                $(name_field + '_text').val(params.term);
-                return {results: [{
-                             'id': -1,
-                             'text': params.term }]};
-            }
-        }
-
-
-        var select2_opts = {
+        var name_opts = {
             ajax: {
+                url: "{% url 'organizations-autocomplete' %}",
                 datType: 'json',
                 delay: 250,
                 data: function(params) {
-                    return { q: params.term, };
+                    return { q: params.term };
                 },
-                cache: true
+                cache: true,
+                processResults: function(data, params) {
+                    if (data.length >= 1) {
+                        return { results: data };
+                    } else {
+                        return {results: [{
+                                    'id': -1,
+                                    'text': params.term }]};
+                    }
+                }
             },
             escapeMarkup: function(markup){ return markup; },
             minimumInputLength: 2,
             tags: true
         }
 
-        select2_opts['ajax']['url'] = "{% url 'organizations-autocomplete' %}"
-        select2_opts['ajax']['processResults'] = process_results;
+        var alias_opts = {
+            ajax: {
+                url: "{% url 'aliases-autocomplete' %}",
+                datType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return { q: params.term };
+                },
+                cache: true,
+                processResults: function(data, params) {
+                    if (data.length >= 1) {
+                        return { results: data };
+                    } else {
+                        return {results: [{
+                                    'id': params.term,
+                                    'text': params.term }]};
+                    }
+                }
+            },
+            escapeMarkup: function(markup){ return markup; },
+            minimumInputLength: 2,
+            tags: true
+        }
 
-        $(name_field).select2(select2_opts);
+        $(name_field).select2(name_opts);
 
-        select2_opts['ajax']['url'] = "{% url 'aliases-autocomplete' %}"
-
-        $(alias_field).select2(select2_opts);
+        $(alias_field).select2(alias_opts);
 
         $('#remove_form-' +  form_num).on('click', deleteForm);
+
+        $(alias_field).on('select2:select', function(e){
+            var value = e.params.data.text;
+            var name = $(e.target).prop('name') + '_text';
+            var form_id = $(e.target).prop('name').split('-')[1]
+            var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
+            $('#org-form').append(hidden_input);
+        });
+
+        $(alias_field).on('select2:unselect', function(e){
+            var value = e.params.data.text;
+            var inputs = $('#org-form').find('input[value="'+ value + '"]');
+            var form_id = $(e.target).prop('name').split('-')[1]
+
+            $.each(inputs, function(i, input){
+                if ($(input).data('form_id') == form_id){
+                    $(input).remove();
+                }
+            })
+        });
+
+        $(name_field).on('select2:select', function(e){
+            var value = e.params.data.text;
+            $(name_field + '_text').val(value);
+        })
 
         form_num ++;
     }

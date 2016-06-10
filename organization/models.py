@@ -6,7 +6,7 @@ from django.db.models import Max
 from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import versioned, translated, sourced, sourced_optional
-from complex_fields.models import ComplexField, ComplexFieldContainer
+from complex_fields.models import ComplexField, ComplexFieldContainer, ComplexFieldListContainer
 from complex_fields.base_models import BaseModel
 
 
@@ -15,14 +15,14 @@ class Organization(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, OrganizationName)
-        self.alias = ComplexFieldContainer(self, OrganizationAlias)
+        self.aliases = ComplexFieldContainer(self, OrganizationAlias)
         self.classification = ComplexFieldContainer(self, OrganizationClassification)
         self.foundingdate = ComplexFieldContainer(self, OrganizationFoundingDate)
         self.dissolutiondate = ComplexFieldContainer(self, OrganizationDissolutionDate)
         self.realfounding = ComplexFieldContainer(self, OrganizationRealFounding)
         self.realdissolution = ComplexFieldContainer(self, OrganizationRealDissolution)
 
-        self.complex_fields = [self.name, self.alias, self.classification,
+        self.complex_fields = [self.name, self.aliases, self.classification,
                                self.foundingdate, self.dissolutiondate,
                                self.realfounding, self.realdissolution]
 
@@ -138,15 +138,20 @@ class OrganizationName(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
-
 @translated
 @versioned
 @sourced
 class OrganizationAlias(ComplexField):
     object_ref = models.ForeignKey('Organization')
-    value = models.TextField(default=None, blank=True, null=True)
+    value = models.ForeignKey('Alias', default=None, blank=True, null=True)
+    
     field_name = _("Alias")
 
+class Alias(models.Model):
+    value = models.TextField()
+    
+    def __str__(self):
+        return self.value
 
 @versioned
 @sourced

@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 from django import forms
 from source.models import Source, Publication
-from organization.models import Organization, OrganizationName, Classification
+from organization.models import Organization, OrganizationName, \
+    Classification, Alias
 from django.utils.translation import ugettext as _
 
 class SourceForm(forms.Form):
@@ -14,8 +15,8 @@ class SourceForm(forms.Form):
 
 class OrgForm(forms.Form):
     name = forms.ModelChoiceField(queryset=OrganizationName.objects.all())
-    alias = forms.ModelMultipleChoiceField(queryset=Organization.objects.order_by().values('organizationalias__value').distinct(), required=False)
     classification = forms.ModelMultipleChoiceField(queryset=Classification.objects.all())
+    alias = forms.ModelMultipleChoiceField(queryset=Alias.objects.all(), required=False)
     foundingdate = forms.DateField(required=False)
     realfounding = forms.BooleanField(required=False)
     dissolutiondate = forms.DateField(required=False)

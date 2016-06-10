@@ -10,8 +10,13 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .forms import SourceForm, OrgForm
 from source.models import Source, Publication
+<<<<<<< HEAD
 from organization.models import Organization, OrganizationName, OrganizationAlias, Classification
 
+=======
+from organization.models import Organization, OrganizationName, \
+    OrganizationAlias, Alias
+>>>>>>> Getting Aliases and form validation worked out
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -80,13 +85,11 @@ class CreateOrgs(FormSetView):
         OrgFormSet = self.get_formset()
         formset = OrgFormSet(request.POST)
 
-        print(request.POST)
-
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])     
         
         self.organizations = []
  
-        form_data = []
+        form_data = {}
         for i in range(0,num_forms):
 
             form_prefix = 'form-{0}-'.format(i)
@@ -94,15 +97,13 @@ class CreateOrgs(FormSetView):
             form_keys = [k for k in formset.data.keys() \
                              if k.startswith(form_prefix)]
             
-            form = {k: formset.data[k] for k in form_keys}
+            form = {k: formset.data.getlist(k) for k in form_keys}
 
             name_id_key = 'form-{0}-name'.format(i)
             name_text_key = 'form-{0}-name_text'.format(i)
             
             name_id = formset.data[name_id_key]
             name_text = formset.data[name_text_key]
-           
-            aliases = formset.data.getlist(form_prefix + 'alias')
            
             if name_id == 'None':
                 return self.formset_invalid(formset)
@@ -119,27 +120,31 @@ class CreateOrgs(FormSetView):
             else:
                 organization = Organization.objects.get(id=name_id)
                 
-                # remove aliases already bound to this particular organization 
-                existing_aliases = [d['value'] for d in OrganizationAlias.objects.filter(object_ref_id=5).values('value').distinct()]
-                aliases = [a for a in aliases if not a in existing_aliases]           
-
             # TODO: Figure out the aliases, classification, dates, booleans
             # add aliases to this organization
+            
+            alias_id_key = 'form-{0}-alias'.format(i)
+            alias_text_key = 'form-{0}-alias_text'.format(i)
+            
+            aliases = formset.data.getlist(alias_text_key)
+            
+            form[alias_id_key] = []
+
             for alias in aliases:
+                
+                alias_obj, created = Alias.objects.get_or_create(value=alias)
+
                 alias_data = {
                     'Organization_OrganizationAlias': {
-                        'value': alias,
+                        'value': alias_obj, 
                         'confidence': 1
                     }
                 }
                 organization.update(alias_data)
+                
+                form[alias_id_key].append(alias_obj.id)
            
             classification = formset.data[form_prefix + 'classification']
-
-            foundingdate = formset.data[form_prefix + 'foundingdate']
-            realfounding = form_prefix + 'realfounding' in formset.data.keys()
-            dissolutiondate = formset.data[form_prefix + 'dissolutiondate']
-            realdissolution = form_prefix + 'realdissolution' in formset.data.keys()
 
             if classification:
                 organization.update({
@@ -148,27 +153,32 @@ class CreateOrgs(FormSetView):
                         'confidence': 1
                     }
                 })
-            # need to force validation for 'None' as well, since i don't think it's required?
+            
+            foundingdate = formset.data[form_prefix + 'foundingdate']
+            realfounding = form_prefix + 'realfounding' in formset.data.keys()
+            dissolutiondate = formset.data[form_prefix + 'dissolutiondate']
+            realdissolution = form_prefix + 'realdissolution' in formset.data.keys()
  
+            self.organizations.append(organization)
 
-            form[name_id_key] = organization.id
+            del form[alias_text_key]
+
+            form[name_id_key] = organization.name.get_field().id
 
             self.organizations.append(organization)
-            form_data.append(form)
-
-            
+            form_data.update(form)
         
-        dummy_formset = OrgFormSet(initial=form_data)
-
+        form_data['form-TOTAL_FORMS'] = num_forms
+        form_data['form-INITIAL_FORMS'] = '0'
+        form_data['form-MIN_NUM_FORMS'] = ''
+        form_data['form-MAX_NUM_FORMS'] = ''
+        
+        dummy_formset = OrgFormSet(form_data)
+        
         if dummy_formset.is_valid():
-            return self.formset_valid(formset)
+            return self.formset_valid(dummy_formset)
         else:
-            return self.formset_invalid(formset)
-
-    def formset_valid(self, formset):
-        response = super(CreateOrgs, self).formset_valid(formset)
-        # what does the rest of this stuff do??
-        return response
+            return self.formset_invalid(dummy_formset)
 
  
 def publications_autocomplete(request):
@@ -199,11 +209,11 @@ def organizations_autocomplete(request):
 
 def aliases_autocomplete(request):
     term = request.GET.get('q')
-    alias_query = OrganizationAlias.objects.filter(value__icontains=term)
+    alias_query = OrganizationAlias.objects.filter(value__value__icontains=term)
     results = []
     for alias in alias_query:
         results.append({
-            'text': alias.value,
+            'text': alias.value.value,
             'id': alias.id
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
