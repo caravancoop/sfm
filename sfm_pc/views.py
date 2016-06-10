@@ -7,6 +7,7 @@ from django.views.generic.edit import FormView
 from extra_views import FormSetView
 from django.forms import formset_factory
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.datastructures import MultiValueDictKeyError
 
 from .forms import SourceForm, OrgForm
 from source.models import Source, Publication
@@ -79,28 +80,38 @@ class CreateOrgs(FormSetView):
     def post(self, request, *args, **kwargs):
         OrgFormSet = self.get_formset()
         formset = OrgFormSet(request.POST)
+        
+        print(request.POST)
 
-        num_forms = int(formset.data['form-TOTAL_FORMS'][0])     
+        forms_added = int(formset.data['form-FORMS_ADDED'][0])     
         
         self.organizations = []
  
         form_data = {}
-        for i in range(0,num_forms):
+        actual_form_index = 0
+
+        for i in range(0, forms_added):
 
             form_prefix = 'form-{0}-'.format(i)
+            actual_form_prefix = 'form-{0}-'.format(actual_form_index)
+
+            form_key_mapper = {k: k.replace(str(i), str(actual_form_index)) \
+                                   for k in formset.data.keys() \
+                                       if k.startswith(form_prefix)}
             
-            form_keys = [k for k in formset.data.keys() \
-                             if k.startswith(form_prefix)]
-            
-            form = {k: formset.data.getlist(k) for k in form_keys}
+            form = {k: formset.data.getlist(k) for k in form_key_mapper}
 
             name_id_key = 'form-{0}-name'.format(i)
             name_text_key = 'form-{0}-name_text'.format(i)
             
-            name_id = formset.data[name_id_key]
+            try:
+                name_id = formset.data[name_id_key]
+            except MultiValueDictKeyError:
+                continue
+            
             name_text = formset.data[name_text_key]
            
-            if name_id == 'None':
+            if name_id == 'None' or not name_id:
                 return self.formset_invalid(formset)
 
             elif name_id == '-1':
@@ -135,7 +146,7 @@ class CreateOrgs(FormSetView):
                 organization.update(alias_data)
                 
                 form[alias_id_key].append(alias_obj.id)
-           
+            
             classification = formset.data.get(form_prefix + 'classification')
             form[form_prefix + 'classification'] = [None]
 
@@ -159,14 +170,18 @@ class CreateOrgs(FormSetView):
  
             self.organizations.append(organization)
 
-            del form[alias_text_key]
-
             form[name_id_key] = organization.name.get_field().id
 
             self.organizations.append(organization)
+            
+            # rewrite keys
+            form = {form_key_mapper[k]: form[k] for k in form_key_mapper}
+            
             form_data.update(form)
+
+            actual_form_index += 1
         
-        form_data['form-TOTAL_FORMS'] = num_forms
+        form_data['form-TOTAL_FORMS'] = formset.data['form-TOTAL_FORMS']
         form_data['form-INITIAL_FORMS'] = '0'
         form_data['form-MIN_NUM_FORMS'] = ''
         form_data['form-MAX_NUM_FORMS'] = ''
@@ -177,6 +192,7 @@ class CreateOrgs(FormSetView):
             return self.formset_valid(dummy_formset)
         else:
             return self.formset_invalid(dummy_formset)
+
 
  
 def publications_autocomplete(request):

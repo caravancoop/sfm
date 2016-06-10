@@ -13,6 +13,7 @@
 <form method="post" action="" id="org-form">
     {% csrf_token %}
     {{ formset.management_form }}
+    <input type="hidden" value="0" name="form-FORMS_ADDED" id="id_form-FORMS_ADDED" />
     <div class="row">
         <div class="col-sm-12" id="manage-forms">
             <a href="javascript://" id="add-form">Add organization</a>
@@ -20,7 +21,154 @@
     </div>
     <div id="dynamic-form">
         {% if formset.errors %}
-            {{ formset.errors }}
+            {% for form in formset %}
+                {% with form_id=forloop.counter0 %}
+                    <div id="form-{{ form_id }}-wrapper">
+                        <div class="row">
+                            {% if form.name.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-4">
+                                    <label class="control-label">Organization name</label>
+                                    <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
+                                        {% if form.cleaned_data.name %}
+                                            <option value="">--------</option>
+                                            <option value="{{ form.cleaned_data.name.id }}" selected=true>{{ form.cleaned_data.name.value }}</option>
+                                        {% else %}
+                                            <option value="" selected=true>--------</option>
+                                        {% endif %}
+                                    </select>
+                                    {% if form.name.errors %}
+                                        {% for error in form.name.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" />
+                                </div>
+                            </div>
+                            {% if form.alias.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-4">
+                                    <label class="control-label">Aliases</label>
+                                    <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
+                                        {% if form.cleaned_data.alias %}
+                                            {% for alias in form.cleaned_data.alias %}
+                                                <option value="{{ alias.id }}" selected="true">{{ alias.value }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                    {% if form.alias.errors %}
+                                        {% for error in form.alias.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if form.classification.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-4">
+                                    <label class="control-label">Classification </label>
+                                    <select id="id_form-{{ form_id }}-classification" class="form-control" name="form-{{ form_id }}-classification">
+                                        <option value="" selected="selected">--------</option>
+                                        {% for classification in classifications %}
+                                            {% if classification in form.cleaned_data.classification %}
+                                                <option value="{{ classification.id }}" selected="true">{{ classification.value }}</option>
+                                            {% else %}
+                                                <option value="{{ classification.id }}">{{ classification.value }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    {% if form.classification.errors %}
+                                        {% for error in form.classification.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            {% if form.foundingdate.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-4">
+                                    <label class="control-label" for="id_form-{{ form_id }}-foundingdate">Founding date</label>
+                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-foundingdate" name="form-{{ form_id }}-foundingdate" value="{{ form.cleaned_data.foundingdate|date:'d/m/Y' }}"/>
+                                    {% if form.foundingdate.errors %}
+                                        {% for error in form.foundingdate.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if form.realfounding.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-2">
+                                    <div class="checkbox">
+                                        <label class="control-label" for="id_form-{{ form_id }}-realfounding">Real?
+                                            <input type="checkbox" class="form-control" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" />
+                                        </label>
+                                        {% if form.realfounding.errors %}
+                                            {% for error in form.realfounding.errors %}
+                                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if form.dissolutiondate.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-4">
+                                    <label class="control-label" for="id_form-{{ form_id }}-dissolutiondate">Dissolution date</label>
+                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-dissolutiondate" name="form-{{ form_id }}-dissolutiondate" value="{{ form.cleaned_data.dissolutiondate|date:'d/m/Y' }}" />
+                                    {% if form.dissolutiondate.errors %}
+                                        {% for error in form.dissolutiondate.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if form.realdissolution.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-2">
+                                    <div class="checkbox">
+                                        <label class="control-label" for="id_form-{{ form_id }}-realdissolution">Real?
+                                            <input type="checkbox" class="form-control" id="id_form-{{ form_id }}-realdissolution" name="form-{{ form_id }}-realdissolution" />
+                                        </label>
+                                        {% if form.realdissolution.errors %}
+                                            {% for error in form.realdissolution.errors %}
+                                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if form_id > 0 %}
+                            <a id="remove_form-{{ form_id }}" href="javascript://" class="remove-form">remove</a>
+                        {% endif %}
+                        <hr>
+                    </div>
+                {% endwith %}
+            {% endfor %}
         {% endif %}
     </div>
     <div class="row">
@@ -94,16 +242,75 @@
             </div>
         </div>
         <% if (form_id > 0) { %>
-            <a id="remove_form-<%= form_id %>" href="javascript://" class="delete-form">remove</a>
+            <a id="remove_form-<%= form_id %>" href="javascript://" class="remove-form">remove</a>
         <% } %>
         <hr>
     </div>
 </script>
 <script type="text/javascript">
     var form_num = 0;
+    var name_opts = {
+        ajax: {
+            url: "{% url 'organizations-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': -1,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+
+    var alias_opts = {
+        ajax: {
+            url: "{% url 'aliases-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': params.term,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+
     $(document).ready(function(e) {
-        addForm();
+        {% if formset.errors %}
+            $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
+            $('.name-field').select2(name_opts);
+            $('.alias-field').select2(alias_opts);
+        {% else %}
+            addForm();
+        {% endif %}
+
+        var form_count = $('#dynamic-form').children().length;
+        $('#id_form-FORMS_ADDED').val(form_count);
+
         $('#add-form').on('click', addForm);
+        $('.remove-form').on('click', deleteForm);
     });
 
     function deleteForm(e){
@@ -112,7 +319,9 @@
         var wrapper_id = '#form-' + form_id + '-wrapper';
         $(wrapper_id).remove();
 
-        // Decrement form number so things are synced
+        var form_count = $('#dynamic-form').children().length;
+        $('#id_form-TOTAL_FORMS').val(form_count);
+
         form_num --;
     }
 
@@ -123,54 +332,6 @@
 
         var name_field = '#id_form-' + form_num + '-name';
         var alias_field = '#id_form-' + form_num + '-alias';
-
-        var name_opts = {
-            ajax: {
-                url: "{% url 'organizations-autocomplete' %}",
-                datType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return { q: params.term };
-                },
-                cache: true,
-                processResults: function(data, params) {
-                    if (data.length >= 1) {
-                        return { results: data };
-                    } else {
-                        return {results: [{
-                                    'id': -1,
-                                    'text': params.term }]};
-                    }
-                }
-            },
-            escapeMarkup: function(markup){ return markup; },
-            minimumInputLength: 2,
-            tags: true
-        }
-
-        var alias_opts = {
-            ajax: {
-                url: "{% url 'aliases-autocomplete' %}",
-                datType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return { q: params.term };
-                },
-                cache: true,
-                processResults: function(data, params) {
-                    if (data.length >= 1) {
-                        return { results: data };
-                    } else {
-                        return {results: [{
-                                    'id': params.term,
-                                    'text': params.term }]};
-                    }
-                }
-            },
-            escapeMarkup: function(markup){ return markup; },
-            minimumInputLength: 2,
-            tags: true
-        }
 
         $(name_field).select2(name_opts);
 
@@ -205,6 +366,12 @@
 
         $('.datepicker').datepicker('destroy');
         $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
+
+        var form_count = $('#dynamic-form').children().length;
+        $('#id_form-TOTAL_FORMS').val(form_count);
+
+        var forms_added = parseInt($('#id_form-FORMS_ADDED').val()) + 1;
+        $('#id_form-FORMS_ADDED').val(forms_added);
 
         form_num ++;
     }
