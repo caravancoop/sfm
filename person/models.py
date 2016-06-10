@@ -125,6 +125,11 @@ class PersonAlias(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Aliases")
 
+class Alias(models.Model):
+    value = models.TextField()
+    
+    def __str__(self):
+        return self.value
 
 @versioned
 @sourced
