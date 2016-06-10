@@ -10,13 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .forms import SourceForm, OrgForm
 from source.models import Source, Publication
-<<<<<<< HEAD
-from organization.models import Organization, OrganizationName, OrganizationAlias, Classification
-
-=======
 from organization.models import Organization, OrganizationName, \
-    OrganizationAlias, Alias
->>>>>>> Getting Aliases and form validation worked out
+    OrganizationAlias, Alias, Classification
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -144,19 +139,25 @@ class CreateOrgs(FormSetView):
                 
                 form[alias_id_key].append(alias_obj.id)
            
-            classification = formset.data[form_prefix + 'classification']
+            classification = formset.data.get(form_prefix + 'classification')
+            form[form_prefix + 'classification'] = [None]
 
             if classification:
+                print('classification', classification)
+                classification_obj = Classification.objects.get(id=classification)
                 organization.update({
                     'Organization_OrganizationClassification': {
-                        'value': Classification.objects.filter(id=classification)[0],
+                        'value': classification_obj,
                         'confidence': 1
                     }
                 })
+
+                form[form_prefix + 'classification'] = [classification_obj.id]
             
-            foundingdate = formset.data[form_prefix + 'foundingdate']
+            form[form_prefix + 'foundingdate'] = form[form_prefix + 'foundingdate'][0]
             realfounding = form_prefix + 'realfounding' in formset.data.keys()
-            dissolutiondate = formset.data[form_prefix + 'dissolutiondate']
+            
+            form[form_prefix + 'dissolutiondate'] = form[form_prefix + 'dissolutiondate'][0]
             realdissolution = form_prefix + 'realdissolution' in formset.data.keys()
  
             self.organizations.append(organization)

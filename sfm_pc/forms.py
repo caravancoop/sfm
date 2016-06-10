@@ -6,6 +6,8 @@ from organization.models import Organization, OrganizationName, \
     Classification, Alias
 from django.utils.translation import ugettext as _
 
+from django_date_extensions.fields import ApproximateDateFormField
+
 class SourceForm(forms.Form):
     title = forms.CharField()
     publication = forms.ModelChoiceField(queryset=Publication.objects.all())
@@ -17,9 +19,9 @@ class OrgForm(forms.Form):
     name = forms.ModelChoiceField(queryset=OrganizationName.objects.all())
     classification = forms.ModelMultipleChoiceField(queryset=Classification.objects.all())
     alias = forms.ModelMultipleChoiceField(queryset=Alias.objects.all(), required=False)
-    foundingdate = forms.DateField(required=False)
+    foundingdate = ApproximateDateFormField(required=False)
     realfounding = forms.BooleanField(required=False)
-    dissolutiondate = forms.DateField(required=False)
+    dissolutiondate = ApproximateDateFormField(required=False)
     realdissolution = forms.BooleanField(required=False)
     
 
