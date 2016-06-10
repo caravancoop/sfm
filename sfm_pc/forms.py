@@ -4,6 +4,8 @@ from django import forms
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     Classification, Alias
+from person.models import Person, PersonName
+from person.models import Alias as Alias2
 from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
@@ -25,4 +27,10 @@ class OrgForm(forms.Form):
     realdissolution = forms.BooleanField(required=False)
     
 
+class PersonForm(forms.Form):
+    name = forms.ModelChoiceField(queryset=PersonName.objects.all()) 
+    alias = forms.ModelMultipleChoiceField(queryset=Alias2.objects.all(), required=False)
+    deathdate = ApproximateDateFormField(required=False)
 
+class RelationForm(forms.Form):
+    print("who knows what goes here?????")

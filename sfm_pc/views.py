@@ -9,10 +9,12 @@ from django.forms import formset_factory
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
 
-from .forms import SourceForm, OrgForm
+from .forms import SourceForm, OrgForm, PersonForm, RelationForm
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias, Classification
+from person.models import Person, PersonName, PersonAlias
+from person.models import Alias as Alias2
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -193,8 +195,104 @@ class CreateOrgs(FormSetView):
         else:
             return self.formset_invalid(dummy_formset)
 
+class CreatePeople(FormSetView):
+    template_name = 'sfm/create-people.html'
+    form_class = PersonForm
+    success_url = '/set-relations/'
+    extra = 1
+    max_num = None
 
+    def post(self, request, *args, **kwargs):
+        OrgFormSet = self.get_formset()
+        formset = OrgFormSet(request.POST)
+
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])     
+        
+        self.people = []
  
+        form_data = {}
+        for i in range(0,num_forms):
+
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+            
+            form = {k: formset.data.getlist(k) for k in form_keys}
+
+            name_id_key = 'form-{0}-name'.format(i)
+            name_text_key = 'form-{0}-name_text'.format(i)
+            
+            name_id = formset.data[name_id_key]
+            name_text = formset.data[name_text_key]
+           
+            if name_id == 'None':
+                return self.formset_invalid(formset)
+
+            elif name_id == '-1':
+                person_info = {
+                    'Person_PersonName': {
+                        'value': name_text, 
+                        'confidence': 1
+                    },
+                }
+                
+                person = Person.create(person_info)      
+            else:
+                person = Person.objects.get(id=name_id)
+            
+            alias_id_key = 'form-{0}-alias'.format(i)
+            alias_text_key = 'form-{0}-alias_text'.format(i)
+            
+            aliases = formset.data.getlist(alias_text_key)
+            
+            form[alias_id_key] = []
+
+            for alias in aliases:
+                
+                alias_obj, created = Alias2.objects.get_or_create(value=alias)
+
+                alias_data = {
+                    'Organization_OrganizationAlias': {
+                        'value': alias_obj, 
+                        'confidence': 1
+                    }
+                }
+                person.update(alias_data)
+                
+                form[alias_id_key].append(alias_obj.id)
+           
+            self.people.append(person)
+
+            del form[alias_text_key]
+
+            form[name_id_key] = person.name.get_field().id
+
+            self.people.append(person)
+            form_data.update(form)
+        
+        form_data['form-TOTAL_FORMS'] = num_forms
+        form_data['form-INITIAL_FORMS'] = '0'
+        form_data['form-MIN_NUM_FORMS'] = ''
+        form_data['form-MAX_NUM_FORMS'] = ''
+        
+        dummy_formset = PersonFormSet(form_data)
+        
+        if dummy_formset.is_valid():
+            return self.formset_valid(dummy_formset)
+        else:
+            return self.formset_invalid(dummy_formset)
+
+class SetRelations(FormView):
+    template_name = 'sfm/set-relations.html'
+    form_class = RelationForm
+    success_url = '/add-sites-areas/'
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        
+        # Try to find the publication
+
 def publications_autocomplete(request):
     term = request.GET.get('q')
     publications = Publication.objects.filter(title__icontains=term).all()
@@ -232,4 +330,25 @@ def aliases_autocomplete(request):
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
 
-    
+def people_autocomplete(request):
+    term = request.GET.get('q')
+    people = Person.objects.filter(personname__value__icontains=term).all()
+    results = []
+    for person in people:
+        results.append({
+            'text': str(person.name),
+            'id': person.id,
+        })
+    return HttpResponse(json.dumps(results), content_type='application/json')    
+
+def aliases2_autocomplete(request):
+    term = request.GET.get('q')
+    alias_query = PersonAlias.objects.filter(value__icontains=term)
+    results = []
+    for alias in alias_query:
+        results.append({
+            'text': alias.value.value,
+            'id': alias.id
+        })
+    return HttpResponse(json.dumps(results), content_type='application/json')
+
