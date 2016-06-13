@@ -20,13 +20,17 @@ from person.models import Person, PersonName, PersonAlias
 from person.models import Alias as PersonAliasObject
 from membershipperson.models import MembershipPerson
 
+from reversion.models import Version
+
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
 
     def get_context_data(self, **kwargs):
         context = super(Dashboard, self).get_context_data(**kwargs)
-        context['sources'] = Source.objects.all()
-        
+        context['edits'] = sorted(Version.objects.get_unique(), 
+                                  key=lambda x: x.revision.date_created, 
+                                  reverse=True)
+
         if self.request.session.get('source_id'):
             del self.request.session['source_id']
         
@@ -345,14 +349,16 @@ class CreatePeople(FormSetView):
 
             date_key = 'form-{0}-deathdate'.format(i)
             deathdate = formset.data.get(date_key)
-            death_data = {
-                'Person_PersonDeathDate': {
-                    'value': deathdate,
-                    'confidence': 1,
-                    'sources': [source],
+
+            if deathdate:
+                death_data = {
+                    'Person_PersonDeathDate': {
+                        'value': deathdate,
+                        'confidence': 1,
+                        'sources': [source],
+                    }
                 }
-            }
-            person.update(death_data)
+                person.update(death_data)
            
             form[date_key] = deathdate
 

@@ -14,27 +14,25 @@
         <table class="table table-condensed">
             <thead>
                 <tr>
-                    <th>Researcher</th>
-                    <th>Source</th>
+                    <th>Editor</th>
+                    <th>Edit</th>
                     <th>Updated</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Joe</td>
-                    <td>Nigerian weekly</td>
-                    <td>Yesterday</td>
-                </tr>
-                <tr>
-                    <td>Jim</td>
-                    <td>Nigerian monthly</td>
-                    <td>Two days ago</td>
-                </tr>
-                <tr>
-                    <td>Jim</td>
-                    <td>Nigerian yearly</td>
-                    <td>a week ago</td>
-                </tr>
+                {% for edit in edits %}
+                    {% if edit.content_type.name == 'source' %}
+                        <tr>
+                            <td>{{ edit.revision.user.username }}</td>
+                            {% spaceless %}
+                            <td>
+                                    {{ edit.object }}
+                            </td>
+                            {% endspaceless %}
+                            <td>{{ edit.revision.date_created }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
             </tbody>
         </table>
     </div>

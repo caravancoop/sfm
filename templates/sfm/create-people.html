@@ -10,16 +10,19 @@
   </style>
 {% endblock %}
 {% block content %}
-<form method="post" action="" id="person-form">
-    {% csrf_token %}
-    {{ formset.management_form }}
-    <input type="hidden" value="0" name="form-FORMS_ADDED" id="id_form-FORMS_ADDED" />
-    <div class="row">
-        <div class="col-sm-12" id="manage-forms">
-            <a href="javascript://" id="add-form">Add person</a>
-        </div>
-    </div>
-    <div id="dynamic-form">
+<div class="row">
+    <h3><small>Adding content from:</small> {{ source.title }} ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}}) </h3>
+    <hr />
+</div>
+<div class="row">
+    <h2>People</h2>
+    <p>Describe any people found in your source.</p>
+    <hr />
+    <form method="post" action="" id="person-form">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        <input type="hidden" value="0" name="form-FORMS_ADDED" id="id_form-FORMS_ADDED" />
+        <div id="dynamic-form">
         {% if formset.errors %}
             {% for form in formset %}
                 {% with form_id=forloop.counter0 %}
@@ -85,6 +88,7 @@
                                 </div>
                             </div>
                         </div>
+                        <br />
                         <div class="row">
                             <div class="form-group">
                             <div class="col-sm-12">
@@ -97,14 +101,29 @@
                             </div>
                         </div>
                         {% if form_id > 0 %}
-                            <a id="remove_form-{{ form_id }}" href="javascript://" class="remove-form">remove</a>
+                            <br />
+                            <div class="col-sm-12">
+                                <button id="remove_form-{{ form_id }}" href="javascript://" class="remove-form btn btn-danger">
+                                    Remove Person <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
                         {% endif %}
-                        <hr>
+                        <br />
+                        <hr />
                     </div>
                 {% endwith %}
             {% endfor %}
         {% endif %}
     </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-12">
+            <button class="btn btn-info" href="javascript://" id="add-form">
+                Add person <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    <br />
     <div class="row">
         <div class="form-group">
             <div class="col-md-12">
@@ -144,6 +163,7 @@
                 </div>
             </div>
         </div>
+        <br />
         <div class="row">
             <div class="form-group">
                 <div class="col-sm-12">
@@ -156,8 +176,14 @@
             </div>
         </div>
         <% if (form_id > 0) { %>
-            <a id="remove_form-<%= form_id %>" href="javascript://" class="remove-form">remove</a>
+            <br />
+            <div class="col-sm-2 pull-right">
+                <button id="remove_form-<%= form_id %>" href="javascript://" class="remove-form btn btn-danger">
+                    Remove Person <i class="fa fa-minus"></i>
+                </button>
+            </div>
         <% } %>
+        <br />
         <hr>
     </div>
 </script>
@@ -217,7 +243,7 @@
             $('.name-field').select2(name_opts);
             $('.alias-field').select2(alias_opts);
         {% else %}
-            addForm();
+            addForm(null);
         {% endif %}
 
         var form_count = $('#dynamic-form').children().length;
@@ -228,6 +254,8 @@
     });
 
     function deleteForm(e){
+        e.preventDefault();
+
         var form_id = $(e.target).prop('id').split('-')[1];
 
         var wrapper_id = '#form-' + form_id + '-wrapper';
@@ -239,7 +267,11 @@
         form_num --;
     }
 
-    function addForm(){
+    function addForm(e){
+
+        if (e){
+            e.preventDefault();
+        }
         var template = new EJS({'text': $('#formTemplate').html()});
         var form_guts = template.render({'form_id': form_num});
         $('#dynamic-form').append(form_guts);
