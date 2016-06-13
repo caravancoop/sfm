@@ -154,7 +154,7 @@
                     </select>
                 </div>
             </div>
-        </div> 
+        </div>
         <% if (form_id > 0) { %>
             <a id="remove_form-<%= form_id %>" href="javascript://" class="remove-form">remove</a>
         <% } %>
@@ -189,7 +189,7 @@
 
     var alias_opts = {
         ajax: {
-            url: "{% url 'aliases2-autocomplete' %}",
+            url: "{% url 'personalias-autocomplete' %}",
             datType: 'json',
             delay: 250,
             data: function(params) {

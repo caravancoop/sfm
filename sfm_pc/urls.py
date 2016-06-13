@@ -5,7 +5,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from .views import Dashboard, CreateSource, CreateOrgs, CreatePeople, \
-    SetRelations, publications_autocomplete, organizations_autocomplete, \
+    publications_autocomplete, organizations_autocomplete, \
     aliases_autocomplete, people_autocomplete, personalias_autocomplete
 from organization.views import OrganizationCreate
 

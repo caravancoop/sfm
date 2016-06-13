@@ -26,6 +26,10 @@ class Dashboard(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(Dashboard, self).get_context_data(**kwargs)
         context['sources'] = Source.objects.all()
+        
+        if self.request.session.get('source_id'):
+            del self.request.session['source_id']
+        
         return context
 
 class CreateSource(FormView):
@@ -36,6 +40,9 @@ class CreateSource(FormView):
     def get_context_data(self, **kwargs):
         context = super(CreateSource, self).get_context_data(**kwargs)
         context['publication_uuid'] = str(uuid4())
+        
+        if self.request.session.get('source_id'):
+            del self.request.session['source_id']
         
         return context
 
@@ -220,8 +227,6 @@ class CreateOrgs(FormSetView):
             # Now update org
             organization.update(org_info)
  
-            self.organizations.append(organization)
-
             form[name_id_key] = organization.name.get_field().id
 
             self.organizations.append(organization)
@@ -244,6 +249,14 @@ class CreateOrgs(FormSetView):
             return self.formset_valid(dummy_formset)
         else:
             return self.formset_invalid(dummy_formset)
+    
+    def formset_valid(self, formset):
+        response = super().formset_valid(formset)
+        
+        self.request.session['organizations'] = [{'id': o.id, 'name': o.name.get_value().value} \
+                                                     for o in self.organizations]
+        
+        return response
 
 class CreatePeople(FormSetView):
     template_name = 'sfm/create-people.html'
@@ -254,17 +267,28 @@ class CreatePeople(FormSetView):
 
     def get_context_data(self, **kwargs):
         context = super(CreatePeople, self).get_context_data(**kwargs)
-        context['organizations'] = [{'id':1, 'name':'test'},{'id':2,'name':'test2'},{'id':3,'name':'test3'}]
+        
+        if not self.request.session.get('source_id'):
+            messages.add_message(request, 
+                                 messages.INFO, 
+                                 "Before adding people, please tell us about your source.",
+                                 extra_tags='alert alert-info')
+            return redirect('create-source')
+        
+        context['organizations'] = self.request.session['organizations']
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
         return context
 
     def post(self, request, *args, **kwargs):
         PersonFormSet = self.get_formset()
         formset = PersonFormSet(request.POST)
 
-        num_forms = int(formset.data['form-TOTAL_FORMS'][0])     
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
         
         self.people = []
- 
+        
+        source = Source.objects.get(id=self.request.session['source_id'])
+
         form_data = {}
         for i in range(0,num_forms):
 
@@ -288,7 +312,8 @@ class CreatePeople(FormSetView):
                 person_info = {
                     'Person_PersonName': {
                         'value': name_text, 
-                        'confidence': 1
+                        'confidence': 1,
+                        'sources': [source],
                     },
                 }
                 
@@ -310,7 +335,8 @@ class CreatePeople(FormSetView):
                 alias_data = {
                     'Person_PersonAlias': {
                         'value': alias_obj.value, 
-                        'confidence': 1
+                        'confidence': 1,
+                        'sources': [source],
                     }
                 }
                 person.update(alias_data)
@@ -322,7 +348,8 @@ class CreatePeople(FormSetView):
             death_data = {
                 'Person_PersonDeathDate': {
                     'value': deathdate,
-                    'confidence': 1
+                    'confidence': 1,
+                    'sources': [source],
                 }
             }
             person.update(death_data)
@@ -345,11 +372,13 @@ class CreatePeople(FormSetView):
                 mem_data = {
                     'MembershipPerson_MembershipPersonMember': {
                         'value': person,
-                        'confidence': 1
+                        'confidence': 1,
+                        'sources': [source],
                     },
-                    'Membership_MembershipOrganization': { 
+                    'MembershipPerson_MembershipPersonOrganization': { 
                         'value': Organization.objects.get(id=org),
-                        'confidence': 1
+                        'confidence': 1,
+                        'sources': [source],
                     }
                 }
                 MembershipPerson.create(mem_data)
