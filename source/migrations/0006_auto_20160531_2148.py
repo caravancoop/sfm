@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='publication',
-            name='uuid',
+            name='id',
             field=models.UUIDField(primary_key=True, serialize=False, default='0ebee800-570f-4861-8827-50adfc8fd4c8'),
             preserve_default=False,
         ),

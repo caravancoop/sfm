@@ -11,9 +11,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='source',
-            name='publication_id',
-            field=models.UUIDField(),
-        ),
+            migrations.RunSQL('''
+                ALTER TABLE source_source 
+                ALTER COLUMN publication_id 
+                TYPE UUID USING publication_id::VARCHAR::UUID
+            '''),
     ]

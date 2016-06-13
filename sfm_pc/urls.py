@@ -4,7 +4,9 @@ from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
-from .views import Dashboard, CreateSource, CreateOrgs, CreatePeople, SetRelations, publications_autocomplete, organizations_autocomplete, aliases_autocomplete, people_autocomplete, aliases2_autocomplete
+from .views import Dashboard, CreateSource, CreateOrgs, CreatePeople, \
+    SetRelations, publications_autocomplete, organizations_autocomplete, \
+    aliases_autocomplete, people_autocomplete, personalias_autocomplete
 from organization.views import OrganizationCreate
 
 urlpatterns = i18n_patterns(
@@ -25,7 +27,7 @@ urlpatterns = i18n_patterns(
     url(r'^organizations-autocomplete/', organizations_autocomplete, name="organizations-autocomplete"),
     url(r'^aliases-autocomplete/', aliases_autocomplete, name="aliases-autocomplete"),
     url(r'^people-autocomplete/', people_autocomplete, name="people-autocomplete"),
-    url(r'^aliases2-autocomplete/', aliases2_autocomplete, name="aliases2-autocomplete"),
+    url(r'^personalias-autocomplete/', personalias_autocomplete, name="personalias-autocomplete"),
     url(r'^area/', include('area.urls')),
     url(r'^association/', include('association.urls')),
     url(r'^geosite/', include('geosite.urls')),

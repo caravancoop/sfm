@@ -4,23 +4,27 @@ from uuid import uuid4
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse
 from django.views.generic.edit import FormView
-from extra_views import FormSetView
 from django.forms import formset_factory
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
+from django.shortcuts import redirect
+from django.contrib import messages
+
+from extra_views import FormSetView
 
 from .forms import SourceForm, OrgForm, PersonForm, RelationForm
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
-    OrganizationAlias, Alias, Classification
+    OrganizationAlias, Alias as OrganizationAliasObject, Classification
 from person.models import Person, PersonName, PersonAlias
-from person.models import Alias as Alias2
+from person.models import Alias as PersonAliasObject
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
 
     def get_context_data(self, **kwargs):
         context = super(Dashboard, self).get_context_data(**kwargs)
+        context['sources'] = Source.objects.all()
         return context
 
 class CreateSource(FormView):
@@ -40,7 +44,7 @@ class CreateSource(FormView):
         # Try to find the publication
 
         publication_uuid = form.data.get('publication')
-        publication, created = Publication.objects.get_or_create(uuid=publication_uuid)
+        publication, created = Publication.objects.get_or_create(id=publication_uuid)
 
         if created:
             publication.title = form.data.get('publication_title')
@@ -58,11 +62,11 @@ class CreateSource(FormView):
     def form_valid(self, form):
         response = super(CreateSource, self).form_valid(form)
         
-        source = Source.objects.create(title=form.cleaned_data['title'],
-                                       source_url=form.cleaned_data['source_url'],
-                                       archive_url=form.cleaned_data['archive_url'],
-                                       publication=self.publication,
-                                       published_on=form.cleaned_data['published_on'])
+        source, created = Source.objects.get_or_create(title=form.cleaned_data['title'],
+                                                       source_url=form.cleaned_data['source_url'],
+                                                       archive_url=form.cleaned_data['archive_url'],
+                                                       publication=self.publication,
+                                                       published_on=form.cleaned_data['published_on'])
 
         self.request.session['source_id'] = source.id
         return response
@@ -75,23 +79,34 @@ class CreateOrgs(FormSetView):
     max_num = None
 
     def get_context_data(self, **kwargs):
+        # Redirect to source creation page if no source in session
+        if not self.request.session.get('source_id'):
+            messages.add_message(request, 
+                                 messages.INFO, 
+                                 "Before adding an organization, please tell us about your source.",
+                                 extra_tags='alert alert-info')
+            return redirect('create-source')
+
         context = super(CreateOrgs, self).get_context_data(**kwargs)
         context['classifications'] = Classification.objects.all()
+
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        
         return context
 
     def post(self, request, *args, **kwargs):
         OrgFormSet = self.get_formset()
         formset = OrgFormSet(request.POST)
         
-        print(request.POST)
-
         forms_added = int(formset.data['form-FORMS_ADDED'][0])     
         
         self.organizations = []
- 
+        
+        source = Source.objects.get(id=self.request.session['source_id'])
+
         form_data = {}
         actual_form_index = 0
-
+        
         for i in range(0, forms_added):
 
             form_prefix = 'form-{0}-'.format(i)
@@ -112,22 +127,25 @@ class CreateOrgs(FormSetView):
                 continue
             
             name_text = formset.data[name_text_key]
+            
+            org_info = {
+                'Organization_OrganizationName': {
+                    'value': name_text, 
+                    'confidence': 1,
+                    'sources': [source]
+                },
+            }
            
             if name_id == 'None' or not name_id:
                 return self.formset_invalid(formset)
 
             elif name_id == '-1':
-                org_info = {
-                    'Organization_OrganizationName': {
-                        'value': name_text, 
-                        'confidence': 1
-                    },
-                }
-                
                 organization = Organization.create(org_info)      
+            
             else:
                 organization = Organization.objects.get(id=name_id)
-                
+
+            # Save aliases first
             alias_id_key = 'form-{0}-alias'.format(i)
             alias_text_key = 'form-{0}-alias_text'.format(i)
             
@@ -137,38 +155,69 @@ class CreateOrgs(FormSetView):
 
             for alias in aliases:
                 
-                alias_obj, created = Alias.objects.get_or_create(value=alias)
+                alias_obj, created = OrganizationAliasObject.objects.get_or_create(value=alias)
 
                 alias_data = {
                     'Organization_OrganizationAlias': {
                         'value': alias_obj, 
-                        'confidence': 1
+                        'confidence': 1,
+                        'sources': [source]
                     }
                 }
                 organization.update(alias_data)
                 
                 form[alias_id_key].append(alias_obj.id)
             
+            # Next do classification
             classification = formset.data.get(form_prefix + 'classification')
             form[form_prefix + 'classification'] = [None]
-
+            
             if classification:
                 
                 classification_obj = Classification.objects.get(id=classification)
-                organization.update({
-                    'Organization_OrganizationClassification': {
-                        'value': classification_obj,
-                        'confidence': 1
-                    }
-                })
+                org_info['Organization_OrganizationClassification'] = {
+                    'value': classification_obj,
+                    'confidence': 1,
+                    'sources': [source]
+                }
 
                 form[form_prefix + 'classification'] = [classification_obj.id]
             
+            # Now do dates
             form[form_prefix + 'foundingdate'] = form[form_prefix + 'foundingdate'][0]
             realfounding = form_prefix + 'realfounding' in formset.data.keys()
-            
+            form[form_prefix + 'realfounding'] = realfounding
+
             form[form_prefix + 'dissolutiondate'] = form[form_prefix + 'dissolutiondate'][0]
             realdissolution = form_prefix + 'realdissolution' in formset.data.keys()
+            form[form_prefix + 'realdissolution'] = realdissolution
+            
+            # Add to dict used to update org
+            org_info.update({
+                'Organization_OrganizationFoundingDate': {
+                    'value': form[form_prefix + 'foundingdate'],
+                    'confidence': 1,
+                    'sources': [source],
+                },
+                'Organization_OrganizationRealFounding': {
+                    'value': realfounding,
+                    'confidence': 1,
+                    'sources': [source],
+                },
+                'Organization_OrganizationDissolutionDate': {
+                    'value': form[form_prefix + 'dissolutiondate'],
+                    'confidence': 1,
+                    'sources': [source],
+                },
+                'Organization_OrganizationRealDissoution': {
+                    'value': realdissolution,
+                    'confidence': 1,
+                    'sources': [source],
+                }
+            })
+            
+            # Now update org
+            organization.update(org_info)
  
             self.organizations.append(organization)
 
@@ -250,10 +299,10 @@ class CreatePeople(FormSetView):
 
             for alias in aliases:
                 
-                alias_obj, created = Alias2.objects.get_or_create(value=alias)
+                alias_obj, created = PersonAliasObject.objects.get_or_create(value=alias)
 
                 alias_data = {
-                    'Organization_OrganizationAlias': {
+                    'Person_PersonAlias': {
                         'value': alias_obj, 
                         'confidence': 1
                     }
@@ -302,7 +351,7 @@ def publications_autocomplete(request):
         results.append({
             'text': publication.title,
             'country_iso': publication.country_iso,
-            'id': str(publication.uuid),
+            'id': str(publication.id),
         })
     
     return HttpResponse(json.dumps(results), content_type='application/json')
@@ -341,7 +390,7 @@ def people_autocomplete(request):
         })
     return HttpResponse(json.dumps(results), content_type='application/json')    
 
-def aliases2_autocomplete(request):
+def personalias_autocomplete(request):
     term = request.GET.get('q')
     alias_query = PersonAlias.objects.filter(value__icontains=term)
     results = []

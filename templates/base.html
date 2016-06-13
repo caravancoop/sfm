@@ -21,6 +21,15 @@
   </script>
   {% include "sidebar.html" %}
 <section class="content">
+{% if messages %}
+    <div class="row">
+        {% for message in messages %}
+        <div {% if message.tags %}class="{{ message.tags }}"{% endif %} role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
   {% block content %}{% endblock %}
 </section>
 <!--  TABLE ROW TEMPLATES -->
