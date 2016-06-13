@@ -32,5 +32,3 @@ class PersonForm(forms.Form):
     alias = forms.ModelMultipleChoiceField(queryset=Alias2.objects.all(), required=False)
     deathdate = ApproximateDateFormField(required=False)
 
-class RelationForm(forms.Form):
-    print("who knows what goes here?????")

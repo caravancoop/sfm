@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% load viewcomplexfield %}
+{% load staticfiles %}
+{% load i18n %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+  <style>
+    .dynamic-form { margin: 10px 0; }
+  </style>
+{% endblock %}
+{% block content %}
+<form method="post" action="" id="person-form">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <input type="hidden" value="0" name="form-FORMS_ADDED" id="id_form-FORMS_ADDED" />
+    <div class="row">
+        <div class="col-sm-12" id="manage-forms">
+            <a href="javascript://" id="add-form">Add person</a>
+        </div>
+    </div>
+    <div id="dynamic-form">
+        {% if formset.errors %}
+            {% for form in formset %}
+                {% with form_id=forloop.counter0 %}
+                    <div id="form-{{ form_id }}-wrapper">
+                        <div class="row">
+                            {% if form.name.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-4">
+                                    <label class="control-label">Name</label>
+                                    <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
+                                        {% if form.cleaned_data.name %}
+                                            <option value="">--------</option>
+                                            <option value="{{ form.cleaned_data.name.id }}" selected=true>{{ form.cleaned_data.name.value }}</option>
+                                        {% else %}
+                                            <option value="" selected=true>--------</option>
+                                        {% endif %}
+                                    </select>
+                                    {% if form.name.errors %}
+                                        {% for error in form.name.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" />
+                                </div>
+                            </div>
+                            {% if form.alias.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-4">
+                                    <label class="control-label">Aliases</label>
+                                    <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
+                                        {% if form.cleaned_data.alias %}
+                                            {% for alias in form.cleaned_data.alias %}
+                                                <option value="{{ alias.id }}" selected="true">{{ alias.value }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                    {% if form.alias.errors %}
+                                        {% for error in form.alias.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if form.deathdate.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                <div class="col-sm-4">
+                                    <label class="control-label" for="id_form-{{ form_id }}-deathdate">Date of death</label>
+                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-deathdate" name="form-{{ form_id }}-deathdate" value="{{ form.cleaned_data.deathdate|date:'d/m/Y' }}"/>
+                                    {% if form.deathdate.errors %}
+                                        {% for error in form.deathdate.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                            <div class="col-sm-12">
+                                <select id="id_form-{{ form_id }}-orgs" class="form-control orgs-field" name="form-{{ form_id }}-orgs" multiple="multiple">
+                                    {% for organization in organizations %}
+                                        <option value="{{ organization.id }}">{{ organization.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            </div>
+                        </div>
+                        {% if form_id > 0 %}
+                            <a id="remove_form-{{ form_id }}" href="javascript://" class="remove-form">remove</a>
+                        {% endif %}
+                        <hr>
+                    </div>
+                {% endwith %}
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
+                <button type="submit" class="btn sfm-btn-cancel" value="Skip">Skip</button>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "js/select2.min.js" %}"></script>
+<script src="{% static "js/ejs_production.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/EJS" id="formTemplate">
+    <div id="form-<%= form_id %>-wrapper">
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <label class="control-label">Name</label>
+                    <select id="id_form-<%= form_id %>-name" class="form-control" name="form-<%= form_id %>-name">
+                        <option value="" selected="selected">--------</option>
+                    </select>
+                    <input type="hidden" name="form-<%= form_id %>-name_text" id="id_form-<%= form_id %>-name_text" />
+                </div>
+                <div class="col-sm-4">
+                    <label class="control-label">Aliases</label>
+                    <select id="id_form-<%= form_id %>-alias" class="form-control" name="form-<%= form_id %>-alias" multiple="multiple">
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="control-label" for="id_form-<%= form_id %>-deathdate">Death date</label>
+                    <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-deathdate" name="form-<%= form_id %>-deathdate" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-12">
+                    <select id="id_form-<%= form_id %>-orgs" class="form-control orgs-field" name="form-<%= form_id %>-orgs" multiple="multiple">
+                        {% for organization in organizations %}
+                            <option value="{{ organization.id }}">{{ organization.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div> 
+        <% if (form_id > 0) { %>
+            <a id="remove_form-<%= form_id %>" href="javascript://" class="remove-form">remove</a>
+        <% } %>
+        <hr>
+    </div>
+</script>
+<script type="text/javascript">
+    var form_num = 0;
+    var name_opts = {
+        ajax: {
+            url: "{% url 'people-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': -1,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+
+    var alias_opts = {
+        ajax: {
+            url: "{% url 'aliases2-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': params.term,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+
+    $(document).ready(function(e) {
+        {% if formset.errors %}
+            $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
+            $('.name-field').select2(name_opts);
+            $('.alias-field').select2(alias_opts);
+        {% else %}
+            addForm();
+        {% endif %}
+
+        var form_count = $('#dynamic-form').children().length;
+        $('#id_form-FORMS_ADDED').val(form_count);
+
+        $('#add-form').on('click', addForm);
+        $('.remove-form').on('click', deleteForm);
+    });
+
+    function deleteForm(e){
+        var form_id = $(e.target).prop('id').split('-')[1];
+
+        var wrapper_id = '#form-' + form_id + '-wrapper';
+        $(wrapper_id).remove();
+
+        var form_count = $('#dynamic-form').children().length;
+        $('#id_form-TOTAL_FORMS').val(form_count);
+
+        form_num --;
+    }
+
+    function addForm(){
+        var template = new EJS({'text': $('#formTemplate').html()});
+        var form_guts = template.render({'form_id': form_num});
+        $('#dynamic-form').append(form_guts);
+
+        var name_field = '#id_form-' + form_num + '-name';
+        var alias_field = '#id_form-' + form_num + '-alias';
+
+        $(name_field).select2(name_opts);
+
+        $(alias_field).select2(alias_opts);
+
+        $('#remove_form-' +  form_num).on('click', deleteForm);
+
+        $(alias_field).on('select2:select', function(e){
+            var value = e.params.data.text;
+            var name = $(e.target).prop('name') + '_text';
+            var form_id = $(e.target).prop('name').split('-')[1]
+            var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
+            $('#person-form').append(hidden_input);
+        });
+
+        $(alias_field).on('select2:unselect', function(e){
+            var value = e.params.data.text;
+            var inputs = $('#person-form').find('input[value="'+ value + '"]');
+            var form_id = $(e.target).prop('name').split('-')[1]
+
+            $.each(inputs, function(i, input){
+                if ($(input).data('form_id') == form_id){
+                    $(input).remove();
+                }
+            })
+        });
+
+        $(name_field).on('select2:select', function(e){
+            var value = e.params.data.text;
+            $(name_field + '_text').val(value);
+        });
+
+        $('.datepicker').datepicker('destroy');
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
+
+        var form_count = $('#dynamic-form').children().length;
+        $('#id_form-TOTAL_FORMS').val(form_count);
+
+        var forms_added = parseInt($('#id_form-FORMS_ADDED').val()) + 1;
+        $('#id_form-FORMS_ADDED').val(forms_added);
+
+        form_num ++;
+    }
+</script>
+{% endblock %}

@@ -22,7 +22,6 @@ urlpatterns = i18n_patterns(
     url(r'^create-source/', CreateSource.as_view(), name="create-source"),
     url(r'^create-orgs/', CreateOrgs.as_view(), name="create-orgs"),
     url(r'^create-people/', CreatePeople.as_view(), name="create-people"),
-    url(r'^set-relations/', SetRelations.as_view(), name="set-relations"),
     url(r'^publications-autocomplete/', publications_autocomplete, name="publications-autocomplete"),
     url(r'^organizations-autocomplete/', organizations_autocomplete, name="organizations-autocomplete"),
     url(r'^aliases-autocomplete/', aliases_autocomplete, name="aliases-autocomplete"),

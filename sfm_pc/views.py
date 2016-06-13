@@ -12,12 +12,13 @@ from django.contrib import messages
 
 from extra_views import FormSetView
 
-from .forms import SourceForm, OrgForm, PersonForm, RelationForm
+from .forms import SourceForm, OrgForm, PersonForm
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias as OrganizationAliasObject, Classification
 from person.models import Person, PersonName, PersonAlias
 from person.models import Alias as PersonAliasObject
+from membershipperson.models import MembershipPerson
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -247,13 +248,18 @@ class CreateOrgs(FormSetView):
 class CreatePeople(FormSetView):
     template_name = 'sfm/create-people.html'
     form_class = PersonForm
-    success_url = '/set-relations/'
+    success_url = '/set-locations/'
     extra = 1
     max_num = None
 
+    def get_context_data(self, **kwargs):
+        context = super(CreatePeople, self).get_context_data(**kwargs)
+        context['organizations'] = [{'id':1, 'name':'test'},{'id':2,'name':'test2'},{'id':3,'name':'test3'}]
+        return context
+
     def post(self, request, *args, **kwargs):
-        OrgFormSet = self.get_formset()
-        formset = OrgFormSet(request.POST)
+        PersonFormSet = self.get_formset()
+        formset = PersonFormSet(request.POST)
 
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])     
         
@@ -303,14 +309,26 @@ class CreatePeople(FormSetView):
 
                 alias_data = {
                     'Person_PersonAlias': {
-                        'value': alias_obj, 
+                        'value': alias_obj.value, 
                         'confidence': 1
                     }
                 }
                 person.update(alias_data)
                 
                 form[alias_id_key].append(alias_obj.id)
+
+            date_key = 'form-{0}-deathdate'.format(i)
+            deathdate = formset.data.get(date_key)
+            death_data = {
+                'Person_PersonDeathDate': {
+                    'value': deathdate,
+                    'confidence': 1
+                }
+            }
+            person.update(death_data)
            
+            form[date_key] = deathdate
+
             self.people.append(person)
 
             del form[alias_text_key]
@@ -319,7 +337,23 @@ class CreatePeople(FormSetView):
 
             self.people.append(person)
             form_data.update(form)
-        
+
+            orgs_key = 'form-{0}-orgs'.format(i)
+            orgs = formset.data.getlist(orgs_key)
+
+            for org in orgs:
+                mem_data = {
+                    'MembershipPerson_MembershipPersonMember': {
+                        'value': person,
+                        'confidence': 1
+                    },
+                    'Membership_MembershipOrganization': { 
+                        'value': Organization.objects.get(id=org),
+                        'confidence': 1
+                    }
+                }
+                MembershipPerson.create(mem_data)
+
         form_data['form-TOTAL_FORMS'] = num_forms
         form_data['form-INITIAL_FORMS'] = '0'
         form_data['form-MIN_NUM_FORMS'] = ''
@@ -331,16 +365,6 @@ class CreatePeople(FormSetView):
             return self.formset_valid(dummy_formset)
         else:
             return self.formset_invalid(dummy_formset)
-
-class SetRelations(FormView):
-    template_name = 'sfm/set-relations.html'
-    form_class = RelationForm
-    success_url = '/add-sites-areas/'
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        
-        # Try to find the publication
 
 def publications_autocomplete(request):
     term = request.GET.get('q')
@@ -396,7 +420,7 @@ def personalias_autocomplete(request):
     results = []
     for alias in alias_query:
         results.append({
-            'text': alias.value.value,
+            'text': alias.value,
             'id': alias.id
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
