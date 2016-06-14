@@ -167,6 +167,7 @@ LOGIN_REQUIRED_URLS_EXCEPTIONS = (
 )
 
 LOGIN_URL = reverse_lazy('account_login')
+LOGIN_REDIRECT_URL = '/'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",

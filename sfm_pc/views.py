@@ -56,6 +56,10 @@ class CreateSource(FormView):
         # Try to find the publication
 
         publication_uuid = form.data.get('publication')
+        
+        if publication_uuid == 'None':
+            return self.form_invalid(form)
+
         publication, created = Publication.objects.get_or_create(id=publication_uuid)
 
         if created:
@@ -364,9 +368,15 @@ class CreatePeople(FormSetView):
            
             form[date_key] = deathdate
 
+            self.people.append(person)
+            
+            try:
+                del form[alias_text_key]
+            except KeyError:
+                pass
+
             form[name_id_key] = person.name.get_field().id
 
-            self.people.append(person)
             form_data.update(form)
 
             orgs_key = 'form-{0}-orgs'.format(i)
@@ -559,7 +569,7 @@ def people_autocomplete(request):
             'text': str(person.name),
             'id': person.id,
         })
-    return HttpResponse(json.dumps(results), content_type='application/json')    
+    return HttpResponse(json.dumps(results), content_type='application/json')
 
 def personalias_autocomplete(request):
     term = request.GET.get('q')

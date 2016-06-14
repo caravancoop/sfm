@@ -2,12 +2,6 @@
 {% load viewcomplexfield %}
 {% load i18n %}
 {% block content %}
-<h3 class="page-title">{% trans "Dashboard" %}</h3>
-<div class="row">
-    <div class="col-sm-4 col-sm-offset-8">
-        <a href="{% url 'create-source' %}" class="btn btn-default">Create new entry</a>
-    </div>
-</div>
 <div class="row">
     <div class="col-sm-12">
         <h4>Recent Entries</h4>
@@ -15,7 +9,7 @@
             <thead>
                 <tr>
                     <th>Editor</th>
-                    <th>Edit</th>
+                    <th>Source added</th>
                     <th>Updated</th>
                 </tr>
             </thead>
