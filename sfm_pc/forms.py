@@ -6,6 +6,7 @@ from organization.models import Organization, OrganizationName, \
     Classification, Alias
 from person.models import Person, PersonName
 from person.models import Alias as Alias2
+from membershipperson.models import Role, Rank, Context, MembershipPerson
 from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
@@ -32,3 +33,13 @@ class PersonForm(forms.Form):
     alias = forms.ModelMultipleChoiceField(queryset=Alias2.objects.all(), required=False)
     deathdate = ApproximateDateFormField(required=False)
 
+class PersonMembershipForm(forms.Form):
+    membership = forms.ModelChoiceField(queryset=MembershipPerson.objects.all())
+    role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
+    title = forms.CharField(required=False)
+    rank = forms.ModelChoiceField(queryset=Rank.objects.all(), required=False)
+    realstart = forms.BooleanField(required = False) 
+    realend = forms.BooleanField(required = False)
+    startcontext = forms.ModelChoiceField(queryset=Context.objects.all(), required=False)
+    endcontext = forms.ModelChoiceField(queryset=Context.objects.all(), required=False)
+    first = forms.BooleanField(required=False)

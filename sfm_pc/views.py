@@ -12,7 +12,7 @@ from django.contrib import messages
 
 from extra_views import FormSetView
 
-from .forms import SourceForm, OrgForm, PersonForm
+from .forms import SourceForm, OrgForm, PersonForm, PersonMembershipForm
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias as OrganizationAliasObject, Classification
@@ -93,7 +93,7 @@ class CreateOrgs(FormSetView):
     def get_context_data(self, **kwargs):
         # Redirect to source creation page if no source in session
         if not self.request.session.get('source_id'):
-            messages.add_message(request, 
+            messages.add_message(self.request, 
                                  messages.INFO, 
                                  "Before adding an organization, please tell us about your source.",
                                  extra_tags='alert alert-info')
@@ -265,7 +265,7 @@ class CreateOrgs(FormSetView):
 class CreatePeople(FormSetView):
     template_name = 'sfm/create-people.html'
     form_class = PersonForm
-    success_url = '/set-locations/'
+    success_url = '/membership-info/'
     extra = 1
     max_num = None
 
@@ -290,11 +290,13 @@ class CreatePeople(FormSetView):
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
         
         self.people = []
-        
+        self.memberships = []
+
         source = Source.objects.get(id=self.request.session['source_id'])
 
         form_data = {}
         for i in range(0,num_forms):
+            first = True
 
             form_prefix = 'form-{0}-'.format(i)
             
@@ -362,10 +364,6 @@ class CreatePeople(FormSetView):
            
             form[date_key] = deathdate
 
-            self.people.append(person)
-
-            del form[alias_text_key]
-
             form[name_id_key] = person.name.get_field().id
 
             self.people.append(person)
@@ -387,7 +385,14 @@ class CreatePeople(FormSetView):
                         'sources': [source],
                     }
                 }
-                MembershipPerson.create(mem_data)
+                membership = MembershipPerson.create(mem_data)
+                self.memberships.append({
+                    'person': str(person.name),
+                    'organization': str(Organization.objects.get(id=org).name),
+                    'membership': membership.id,
+                    'first': first
+                })
+                first = False
 
         form_data['form-TOTAL_FORMS'] = num_forms
         form_data['form-INITIAL_FORMS'] = '0'
@@ -401,6 +406,113 @@ class CreatePeople(FormSetView):
         else:
             return self.formset_invalid(dummy_formset)
 
+    def formset_valid(self, formset):
+        response = super().formset_valid(formset)
+        
+        self.request.session['people'] = [{'id': p.id, 'name': p.name.get_value().value} \
+                                                     for p in self.people]
+        self.request.session['memberships'] = self.memberships
+        return response
+
+class MembershipInfo(FormSetView):
+    template_name = 'sfm/membership-info.html'
+    form_class = PersonMembershipForm
+    success_url = '/set-locations/'
+    extra=0
+    max_num = None
+
+    def get_context_data(self, **kwargs):
+        context = super(MembershipInfo, self).get_context_data(**kwargs)
+        if not self.request.session.get('source_id'):
+            messages.add_message(request, 
+                                 messages.INFO, 
+                                 "Before adding people, please tell us about your source.",
+                                 extra_tags='alert alert-info')
+            return redirect('create-source')
+        
+        context['organizations'] = self.request.session['organizations']
+        context['people'] = self.request.session['people']
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        context['memberships'] = self.request.session['memberships']
+        return context
+
+    def get_initial(self):
+        data = []
+        for i in self.request.session['memberships']:
+            data.append({})
+        return data
+
+    def post(self, request, *args, **kwargs):
+        PersonMembershipFormSet = self.get_formset()
+        formset = PersonMembershipFormSet(request.POST)
+
+ 
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
+
+    def formset_valid(self, formset):
+        source = Source.objects.get(id=self.request.session['source_id'])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+        for i in range(0, num_forms):
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+            membership = MembershipPerson.objects.get(id=formset.data[form_prefix + 'membership'])
+            mem_data = {}
+            if formset.data[form_prefix + 'role']:
+                mem_data['MembershipPerson_MembershipPersonRole'] = {
+                    'value': formset.data[form_prefix + 'role'],
+                    'confidence': 1,
+                    'source': [source]
+                }
+            if formset.data[form_prefix + 'title']:
+                mem_data['MembershipPerson_MembershipPersonTitle'] = {
+                    'value': formset.data[form_prefix + 'title'],
+                    'confidence': 1,
+                    'source': [source]
+                }
+            if formset.data[form_prefix + 'rank']:
+                mem_data['MembershipPerson_MembershipPersonRank'] = {
+                    'value': formset.data[form_prefix + 'rank'],
+                    'confidence': 1,
+                    'source': [source]
+                }
+            if formset.data[form_prefix + 'startcontext']:
+                mem_data['MembershipPerson_MembershipStartContext'] = {
+                    'value': formset.data[form_prefix + 'startcontext'],
+                    'confidence': 1,
+                    'source': [source]
+                }
+            if formset.data.get(form_prefix + 'realstart'):
+                mem_data['MembershipPerson_MembershipPersonRealStart'] = {
+                    'value': formset.data[form_prefix + 'realstart'],
+                    'confidence': 1,
+                    'source': [source]
+                }
+            if formset.data[form_prefix + 'endcontext']:
+                mem_data['MembershipPerson_MembershipEndContext'] = {
+                    'value': formset.data[form_prefix + 'endcontext'],
+                    'confidence': 1,
+                    'source': [source]
+                }
+            if formset.data.get(form_prefix + 'realend'):
+                mem_data['MembershipPerson_MembershipRealEnd'] = {
+                    'value': formset.data[form_prefix + 'realend'],
+                    'confidence': 1,
+                    'source': [source]
+                }
+            membership.update(mem_data)
+ 
+        response = super().formset_valid(formset)
+        return response
+
+    def formset_invalid(self, formset):
+        response = super().formset_invalid(formset)
+        return response
+ 
 def publications_autocomplete(request):
     term = request.GET.get('q')
     publications = Publication.objects.filter(title__icontains=term).all()

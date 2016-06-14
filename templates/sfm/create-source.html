@@ -32,7 +32,7 @@
             </div>
             <div class="col-sm-5">
                 <label for="id_published_on" class="col-sm-2 control-label">Date published</label>
-                <input type="text" class="form-control" id="id_published_on" name="published_on">
+                <input type="text" class="form-control datepicker" id="id_published_on" name="published_on">
             {% if form.published_on.errors %}
                 {% for error in form.published_on.errors %}
                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -350,6 +350,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/javascript">
     $(document).ready(function(e){
         $('#id_publication').select2({
@@ -395,7 +396,8 @@
             var val = $(this).val();
             var name = $(this).find('option[value="' + val + '"]').text();
             $('#id_publication_country_name').val(name);
-        });
-    })
+        }); 
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
+    });
 </script>
 {% endblock %}

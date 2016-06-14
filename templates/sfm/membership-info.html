@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load viewcomplexfield %}
+{% load staticfiles %}
+{% load i18n %}
+{% load get_item %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+<style>
+.submit { margin-top: 10px; }
+</style>
+{% endblock %}
+{% block content %}
+<form method="post" action="" id="person-form">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}  
+        {% with form_id=forloop.counter0 %}
+            {% with a_membership=memberships|from_index:form_id %}
+            {% if a_membership.first %}
+                <h3>{{ a_membership.person }}</h3>
+            {% endif %}
+            <h4>{{ a_membership.organization }}</h4>
+                    {% if form.person.errors %}
+                        {% for error in form.person.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %} 
+                   {% if form.organization.errors %}
+                        {% for error in form.organization.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                     {% if form.first.errors %}
+                        {% for error in form.first.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+ 
+ 
+            <div class="row">
+            <input type="hidden" name="form-{{ form_id }}-membership" id="id_form-{{ form_id }}-person" value="{{ a_membership.membership }}">
+        {% endwith %}
+            {% if form.role.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label">Role</label>
+                    <select id="id_form-{{ form_id }}-role" class="form-control" name="form-{{ form_id }}-role">
+                        <option value="" selected="selected">--------</option>
+                    </select>
+                    {% if form.role.errors %}
+                        {% for error in form.role.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                    <input type="hidden" name="form-{{ form_id }}-role-name_text" id="id_form-{{ form_id }}-role_text" />
+                </div>
+            </div>
+            {% if form.rank.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label">Rank</label>
+                    <select id="id_form-{{ form_id }}-rank" class="form-control" name="form-{{ form_id }}-rank">
+                        <option value="" selected="selected">--------</option>
+                    </select>
+                    {% if form.rank.errors %}
+                        {% for error in form.role.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                    <input type="hidden" name="form-{{ form_id }}-rank-name_text" id="id_form-{{ form_id }}-rank_text" />
+                </div>
+            </div>
+            {% if form.title.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                 <div class="col-sm-4">
+                    <label class="control-label" for="id_form-{{ form_id }}-title">Title</label>
+                    <input type="text" class="form-control" id="id_form-{{ form_id }}-title" name="form-{{ form_id }}-title" />
+                     {% if form.title.errors %}
+                        {% for error in form.title.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            </div>
+            <div class="row">
+            {% if form.startcontext.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label" for="id_form-{{ form_id }}-startcontext">Start context</label>
+                    <input type="text" id="id_form-{{ form_id }}-startcontext" class="form-control"  name="form-{{ form_id }}-startcontext">
+                    {% if form.startcontext.errors %}
+                        {% for error in form.startcontext.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.realstart.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-2">
+                    <label class="control-label" for="id_form-{{ form_id }}-realstart">Real?</label>
+                    <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart">
+                    {% if form.realstart.errors %}
+                        {% for error in form.realstart.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.endcontext.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label" for="id_form-{{ form_id }}-endcontext">End context</label>
+                    <input type="text" id="id_form-{{ form_id }}-endcontext" class="form-control" name="form-{{ form_id }}-endcontext">
+                    {% if form.endcontext.errors %}
+                        {% for error in form.endcontext.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.realend.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-2">
+                    <label class="control-label" for="id_form-{{ form_id }}-realend">Real?</label>
+                    <input type="checkbox" id="id_form-{{ form_id }}-realend" name="form-realend">
+                    {% if form.realend.errors %}
+                        {% for error in form.realend.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            </div>
+        {% endwith %}
+    {% endfor %}
+    <div class="row">
+        <div class="form-group submit">
+            <div class="col-md-12">
+                <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
+                <button type="submit" class="btn sfm-btn-cancel" value="Skip">Skip</button>
+            </div>
+        </div>
+    </div>
+ 
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %} 
