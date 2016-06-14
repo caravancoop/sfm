@@ -11,10 +11,11 @@
 </style>
 {% endblock %}
 {% block content %}
+{% include 'partials/nav-wizard.html' %}
 <form method="post" action="" id="person-form">
     {% csrf_token %}
     {{ formset.management_form }}
-    {% for form in formset %}  
+    {% for form in formset %}
         {% with form_id=forloop.counter0 %}
             {% with a_membership=memberships|from_index:form_id %}
             {% if a_membership.first %}
@@ -25,7 +26,7 @@
                         {% for error in form.person.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                         {% endfor %}
-                    {% endif %} 
+                    {% endif %}
                    {% if form.organization.errors %}
                         {% for error in form.organization.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -36,8 +37,8 @@
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                         {% endfor %}
                     {% endif %}
- 
- 
+
+
             <div class="row">
             <input type="hidden" name="form-{{ form_id }}-membership" id="id_form-{{ form_id }}-person" value="{{ a_membership.membership }}">
         {% endwith %}
@@ -165,10 +166,10 @@
             </div>
         </div>
     </div>
- 
+
 </form>
 
 {% endblock %}
 
 {% block extra_js %}
-{% endblock %} 
+{% endblock %}
