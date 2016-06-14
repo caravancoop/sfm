@@ -18,30 +18,28 @@
     {% for form in formset %}
         {% with form_id=forloop.counter0 %}
             {% with a_membership=memberships|from_index:form_id %}
-            {% if a_membership.first %}
-                <h3>{{ a_membership.person }}</h3>
-            {% endif %}
-            <h4>{{ a_membership.organization }}</h4>
-                    {% if form.person.errors %}
-                        {% for error in form.person.errors %}
-                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                        {% endfor %}
-                    {% endif %}
-                   {% if form.organization.errors %}
-                        {% for error in form.organization.errors %}
-                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                        {% endfor %}
-                    {% endif %}
-                     {% if form.first.errors %}
-                        {% for error in form.first.errors %}
-                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                        {% endfor %}
-                    {% endif %}
-
-
+                {% if a_membership.first %}
+                    <h3>{{ a_membership.person }}</h3>
+                {% endif %}
+                <h4>{{ a_membership.organization }}</h4>
+                       {% if form.person.errors %}
+                           {% for error in form.person.errors %}
+                               <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                           {% endfor %}
+                       {% endif %}
+                       {% if form.organization.errors %}
+                            {% for error in form.organization.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                        {% if form.first.errors %}
+                           {% for error in form.first.errors %}
+                               <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                           {% endfor %}
+                        {% endif %}
             <div class="row">
             <input type="hidden" name="form-{{ form_id }}-membership" id="id_form-{{ form_id }}-person" value="{{ a_membership.membership }}">
-        {% endwith %}
+            {% endwith %}
             {% if form.role.errors %}
             <div class="form-group has-error has-feedback">
             {% else %}
@@ -51,6 +49,8 @@
                     <label class="control-label">Role</label>
                     <select id="id_form-{{ form_id }}-role" class="form-control" name="form-{{ form_id }}-role">
                         <option value="" selected="selected">--------</option>
+                        <option value="Commander">Commander</option>
+                        <option value="Head man">Head man</option>
                     </select>
                     {% if form.role.errors %}
                         {% for error in form.role.errors %}
@@ -69,6 +69,9 @@
                     <label class="control-label">Rank</label>
                     <select id="id_form-{{ form_id }}-rank" class="form-control" name="form-{{ form_id }}-rank">
                         <option value="" selected="selected">--------</option>
+                        <option value="General">General</option>
+                        <option value="Colonel">Colonel</option>
+                        <option value="Major">Major</option>
                     </select>
                     {% if form.rank.errors %}
                         {% for error in form.role.errors %}

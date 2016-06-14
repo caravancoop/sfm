@@ -428,7 +428,7 @@ class MembershipInfo(FormSetView):
     template_name = 'sfm/membership-info.html'
     form_class = PersonMembershipForm
     success_url = '/set-locations/'
-    extra=0
+    extra = 0
     max_num = None
 
     def get_context_data(self, **kwargs):
@@ -436,7 +436,7 @@ class MembershipInfo(FormSetView):
         if not self.request.session.get('source_id'):
             messages.add_message(request, 
                                  messages.INFO, 
-                                 "Before adding people, please tell us about your source.",
+                                 "Before adding memberships, please tell us about your source.",
                                  extra_tags='alert alert-info')
             return redirect('create-source')
         
