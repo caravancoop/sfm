@@ -16,35 +16,37 @@ from django_date_extensions.fields import ApproximateDateFormField
 
 class SourceForm(forms.Form):
     title = forms.CharField()
-    publication = forms.ModelChoiceField(queryset=Publication.objects.all())
+    publication = forms.CharField()
     published_on = forms.DateField()
     source_url = forms.URLField()
     archive_url = forms.URLField()
 
 class OrgForm(forms.Form):
-    name = forms.ModelChoiceField(queryset=OrganizationName.objects.all())
-    classification = forms.ModelMultipleChoiceField(queryset=Classification.objects.all())
-    alias = forms.ModelMultipleChoiceField(queryset=Alias.objects.all(), required=False)
+    name = forms.CharField()
+    name_text = forms.CharField()
+    classification = forms.ModelChoiceField(queryset=Classification.objects.all())
+    alias = forms.CharField(required=False)
     foundingdate = ApproximateDateFormField(required=False)
     realfounding = forms.BooleanField(required=False)
-    dissolutiondate = ApproximateDateFormField(required=False)
-    realdissolution = forms.BooleanField(required=False)
-    
 
 class PersonForm(forms.Form):
-    name = forms.ModelChoiceField(queryset=PersonName.objects.all()) 
-    alias = forms.ModelMultipleChoiceField(queryset=Alias2.objects.all(), required=False)
+    name = forms.CharField()
+    name_text = forms.CharField()
+    alias = forms.CharField(required=False)
     deathdate = ApproximateDateFormField(required=False)
+    orgs = forms.CharField() 
 
 class PersonMembershipForm(forms.Form):
     membership = forms.ModelChoiceField(queryset=MembershipPerson.objects.all())
-    role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
+    role = forms.CharField(required=False)
     title = forms.CharField(required=False)
-    rank = forms.ModelChoiceField(queryset=Rank.objects.all(), required=False)
+    rank = forms.CharField(required=False)
     realstart = forms.BooleanField(required = False) 
     realend = forms.BooleanField(required = False)
-    startcontext = forms.ModelChoiceField(queryset=Context.objects.all(), required=False)
-    endcontext = forms.ModelChoiceField(queryset=Context.objects.all(), required=False)
+    startcontext = forms.CharField(required=False)
+    endcontext = forms.CharField(required=False)
+    firstciteddate = ApproximateDateFormField(required=False)
+    lastciteddate = ApproximateDateFormField(required=False)
     first = forms.BooleanField(required=False)
 
 class OrganizationGeographyForm(forms.Form):

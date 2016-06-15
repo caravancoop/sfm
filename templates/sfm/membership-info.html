@@ -88,7 +88,7 @@
             {% endif %}
                  <div class="col-sm-4">
                     <label class="control-label" for="id_form-{{ form_id }}-title">Title</label>
-                    <input type="text" class="form-control" id="id_form-{{ form_id }}-title" name="form-{{ form_id }}-title" />
+                    <input type="text" class="form-control" id="id_form-{{ form_id }}-title" name="form-{{ form_id }}-title" value="{{ form.cleaned_data.title }}" />
                      {% if form.title.errors %}
                         {% for error in form.title.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -105,7 +105,7 @@
             {% endif %}
                 <div class="col-sm-4">
                     <label class="control-label" for="id_form-{{ form_id }}-startcontext">Start context</label>
-                    <input type="text" id="id_form-{{ form_id }}-startcontext" class="form-control"  name="form-{{ form_id }}-startcontext">
+                    <input type="text" id="id_form-{{ form_id }}-startcontext" class="form-control"  name="form-{{ form_id }}-startcontext" value="{{ form.cleaned_data.startcontext }}">
                     {% if form.startcontext.errors %}
                         {% for error in form.startcontext.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -120,7 +120,11 @@
             {% endif %}
                 <div class="col-sm-2">
                     <label class="control-label" for="id_form-{{ form_id }}-realstart">Real?</label>
-                    <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart">
+                    {% if form.cleaned_data.realstart %}
+                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" checked>
+                    {% else %}
+                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" checked>
+                    {% endif %}
                     {% if form.realstart.errors %}
                         {% for error in form.realstart.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -135,7 +139,7 @@
             {% endif %}
                 <div class="col-sm-4">
                     <label class="control-label" for="id_form-{{ form_id }}-endcontext">End context</label>
-                    <input type="text" id="id_form-{{ form_id }}-endcontext" class="form-control" name="form-{{ form_id }}-endcontext">
+                    <input type="text" id="id_form-{{ form_id }}-endcontext" class="form-control" name="form-{{ form_id }}-endcontext" value="{{ form.cleaned_data.endcontext }}">
                     {% if form.endcontext.errors %}
                         {% for error in form.endcontext.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -150,7 +154,11 @@
             {% endif %}
                 <div class="col-sm-2">
                     <label class="control-label" for="id_form-{{ form_id }}-realend">Real?</label>
-                    <input type="checkbox" id="id_form-{{ form_id }}-realend" name="form-realend">
+                    {% if form.cleaned_data.realend %}
+                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realend" checked>
+                    {% else %}
+                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realend" checked>
+                    {% endif %} 
                     {% if form.realend.errors %}
                         {% for error in form.realend.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -158,6 +166,39 @@
                     {% endif %}
                 </div>
             </div>
+            </div>
+            <div class="row">
+                {% if form.firstciteddate.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                    <div class="col-sm-4">
+                        <label class="control-label" for="id_form-{{ form_id }}-firstciteddate">First cited date</label>
+                        <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-firstciteddate" name="form-{{ form_id }}-firstciteddate" value="{{ form.cleaned_data.firstciteddate|date:'Y-m-d' }}"/>
+                        {% if form.firstciteddate.errors %}
+                            {% for error in form.firstciteddate.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div> 
+                {% if form.lastciteddate.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                    <div class="col-sm-4">
+                        <label class="control-label" for="id_form-{{ form_id }}-lastciteddate">Last cited date</label>
+                        <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-lastciteddate" name="form-{{ form_id }}-lastciteddate" value="{{ form.cleaned_data.lastciteddate|date:'Y-m-d' }}"/>
+                        {% if form.lastciteddate.errors %}
+                            {% for error in form.lastciteddate.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div> 
+ 
             </div>
         {% endwith %}
     {% endfor %}
@@ -175,4 +216,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
+});
+</script>
 {% endblock %}

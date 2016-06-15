@@ -3,8 +3,7 @@ import reversion
 from django.contrib import admin
 from .models import (Organization, OrganizationName, OrganizationAlias,
                      OrganizationClassification, OrganizationFoundingDate,
-                     OrganizationDissolutionDate, OrganizationRealFounding,
-                     OrganizationRealDissolution, Classification)
+                     OrganizationRealFounding, Classification)
 
 
 class OrganizationAdmin(admin.ModelAdmin):
@@ -27,15 +26,7 @@ class OrganizationFoundingDateAdmin(reversion.VersionAdmin):
     pass
 
 
-class OrganizationDissolutionDateAdmin(reversion.VersionAdmin):
-    pass
-
-
 class OrganizationRealFoundingAdmin(reversion.VersionAdmin):
-    pass
-
-
-class OrganizationRealDissolutionAdmin(reversion.VersionAdmin):
     pass
 
 
@@ -48,7 +39,5 @@ admin.site.register(OrganizationName, OrganizationNameAdmin)
 admin.site.register(OrganizationAlias, OrganizationAliasAdmin)
 admin.site.register(OrganizationClassification, OrganizationClassificationAdmin)
 admin.site.register(OrganizationFoundingDate, OrganizationFoundingDateAdmin)
-admin.site.register(OrganizationDissolutionDate, OrganizationDissolutionDateAdmin)
 admin.site.register(OrganizationRealFounding, OrganizationRealFoundingAdmin)
-admin.site.register(OrganizationRealDissolution, OrganizationRealDissolutionAdmin)
 admin.site.register(Classification, ClassificationAdmin)

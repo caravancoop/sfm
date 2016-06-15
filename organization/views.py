@@ -64,9 +64,7 @@ def organization_csv(request):
             organization.alias.get_value(),
             organization.classification.get_value(),
             repr(organization.foundingdate.get_value()),
-            repr(organization.dissolutiondate.get_value()),
             organization.realfounding.get_value(),
-            organization.realdissolution.get_value(),
         ])
 
     return response
@@ -77,8 +75,7 @@ def organization_search(request):
 
     page = int(terms.get('page', 1))
 
-    keys = ['name', 'alias', 'classification', 'superiorunit', 'foundingdate',
-            'dissolutiondate']
+    keys = ['name', 'alias', 'classification', 'superiorunit', 'foundingdate']
 
     orgs_query = Organization.search(terms)
 
@@ -100,7 +97,6 @@ def organization_search(request):
             "classification": str(org.classification.get_value()),
             "superiorunit": "TODO",
             "foundingdate": str(org.foundingdate.get_value()),
-            "dissolutiondate": str(org.dissolutiondate.get_value()),
         }
         for org in orgs_page
     ]

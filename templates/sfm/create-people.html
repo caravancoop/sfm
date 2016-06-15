@@ -35,7 +35,7 @@
                                     <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
                                         {% if form.cleaned_data.name %}
                                             <option value="">--------</option>
-                                            <option value="{{ form.cleaned_data.name.id }}" selected=true>{{ form.cleaned_data.name.value }}</option>
+                                            <option value="{{ form.cleaned_data.name }}" selected=true>{{ form.cleaned_data.name_text }}</option>
                                         {% else %}
                                             <option value="" selected=true>--------</option>
                                         {% endif %}
@@ -45,7 +45,7 @@
                                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                         {% endfor %}
                                     {% endif %}
-                                    <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" />
+                                    <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" value="{{ form.cleaned_data.name_text }}" />
                                 </div>
                             </div>
                             {% if form.alias.errors %}
@@ -56,11 +56,6 @@
                                 <div class="col-sm-4">
                                     <label class="control-label">Aliases</label>
                                     <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
-                                        {% if form.cleaned_data.alias %}
-                                            {% for alias in form.cleaned_data.alias %}
-                                                <option value="{{ alias.id }}" selected="true">{{ alias.value }}</option>
-                                            {% endfor %}
-                                        {% endif %}
                                     </select>
                                     {% if form.alias.errors %}
                                         {% for error in form.alias.errors %}
@@ -76,7 +71,7 @@
                             {% endif %}
                                 <div class="col-sm-4">
                                     <label class="control-label" for="id_form-{{ form_id }}-deathdate">Date of death</label>
-                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-deathdate" name="form-{{ form_id }}-deathdate" value="{{ form.cleaned_data.deathdate|date:'d/m/Y' }}"/>
+                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-deathdate" name="form-{{ form_id }}-deathdate" value="{{ form.cleaned_data.deathdate|date:'Y-m-d' }}"/>
                                     {% if form.deathdate.errors %}
                                         {% for error in form.deathdate.errors %}
                                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -87,7 +82,11 @@
                         </div>
                         <br />
                         <div class="row">
+                        {% if form.orgs.errors %}
+                            <div class="form-group hass-eror has-feedback">
+                        {% else %}
                             <div class="form-group">
+                        {% endif %}
                             <div class="col-sm-12">
                                 <label class="control-label" for="id_form-{{ form_id }}-orgs">Select the organizations this person is a member of: </label>
                                 <select id="id_form-{{ form_id }}-orgs" class="form-control orgs-field" name="form-{{ form_id }}-orgs" multiple="multiple">
@@ -95,6 +94,9 @@
                                         <option value="{{ organization.id }}">{{ organization.name }}</option>
                                     {% endfor %}
                                 </select>
+                                    {% if form.orgs.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> A person must belong to at least one organization.</span>
+                                    {% endif %}
                             </div>
                             </div>
                         </div>

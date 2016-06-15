@@ -35,7 +35,7 @@
                                     <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
                                         {% if form.cleaned_data.name %}
                                             <option value="">--------</option>
-                                            <option value="{{ form.cleaned_data.name.id }}" selected=true>{{ form.cleaned_data.name.value }}</option>
+                                            <option value="{{ form.cleaned_data.name }}" selected=true>{{ form.cleaned_data.name_text }}</option>
                                         {% else %}
                                             <option value="" selected=true>--------</option>
                                         {% endif %}
@@ -45,7 +45,7 @@
                                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                         {% endfor %}
                                     {% endif %}
-                                    <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" value="{{ form.cleaned_data.name.value }}" />
+                                    <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" value="{{ form.cleaned_data.name_text }}" />
                                 </div>
                             </div>
                             {% if form.alias.errors %}
@@ -56,11 +56,6 @@
                                 <div class="col-sm-4">
                                     <label class="control-label">Aliases</label>
                                     <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
-                                        {% if form.cleaned_data.alias %}
-                                            {% for alias in form.cleaned_data.alias %}
-                                                <option value="{{ alias.id }}" selected="true">{{ alias.value }}</option>
-                                            {% endfor %}
-                                        {% endif %}
                                     </select>
                                     {% if form.alias.errors %}
                                         {% for error in form.alias.errors %}
@@ -79,7 +74,7 @@
                                     <select id="id_form-{{ form_id }}-classification" class="form-control" name="form-{{ form_id }}-classification">
                                         <option value="" selected="selected">--------</option>
                                         {% for classification in classifications %}
-                                            {% if classification in form.cleaned_data.classification %}
+                                            {% if classification.id == form.cleaned_data.classification.id %}
                                                 <option value="{{ classification.id }}" selected="true">{{ classification.value }}</option>
                                             {% else %}
                                                 <option value="{{ classification.id }}">{{ classification.value }}</option>
@@ -103,7 +98,7 @@
                             {% endif %}
                                 <div class="col-sm-4">
                                     <label class="control-label" for="id_form-{{ form_id }}-foundingdate">Founding date</label>
-                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-foundingdate" name="form-{{ form_id }}-foundingdate" value="{{ form.cleaned_data.foundingdate|date:'d/m/Y' }}"/>
+                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-foundingdate" name="form-{{ form_id }}-foundingdate" value="{{ form.cleaned_data.foundingdate|date:'Y-m-d' }}"/>
                                     {% if form.foundingdate.errors %}
                                         {% for error in form.foundingdate.errors %}
                                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -136,7 +131,7 @@
                             {% endif %}
                                 <div class="col-sm-4">
                                     <label class="control-label" for="id_form-{{ form_id }}-dissolutiondate">Dissolution date</label>
-                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-dissolutiondate" name="form-{{ form_id }}-dissolutiondate" value="{{ form.cleaned_data.dissolutiondate|date:'d/m/Y' }}" />
+                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-dissolutiondate" name="form-{{ form_id }}-dissolutiondate" value="{{ form.cleaned_data.dissolutiondate|date:'Y-m-d' }}" />
                                     {% if form.dissolutiondate.errors %}
                                         {% for error in form.dissolutiondate.errors %}
                                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -231,25 +226,14 @@
         <br />
         <div class="row">
             <div class="form-group">
-                <div class="col-sm-4">
+                <div class="col-sm-6">
                     <label class="control-label" for="id_form-<%= form_id %>-foundingdate">Founding date</label>
                     <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-foundingdate" name="form-<%= form_id %>-foundingdate" />
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-6">
                     <div class="checkbox">
                         <label class="control-label" for="id_form-<%= form_id %>-realfounding">Real?
                             <input type="checkbox" class="form-control" id="id_form-<%= form_id %>-realfounding" name="form-<%= form_id %>-realfounding" />
-                        </label>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <label class="control-label" for="id_form-<%= form_id %>-dissolutiondate">Dissolution date</label>
-                    <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-dissolutiondate" name="form-<%= form_id %>-dissolutiondate" />
-                </div>
-                <div class="col-sm-2">
-                    <div class="checkbox">
-                        <label class="control-label" for="id_form-<%= form_id %>-realdissolution">Real?
-                            <input type="checkbox" class="form-control" id="id_form-<%= form_id %>-realdissolution" name="form-<%= form_id %>-realdissolution" />
                         </label>
                     </div>
                 </div>
@@ -368,6 +352,7 @@
             var name = $(e.target).prop('name') + '_text';
             var form_id = $(e.target).prop('name').split('-')[1]
             var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
+            // serious issues here
             $('#org-form').append(hidden_input);
         });
 
@@ -386,6 +371,9 @@
         $(name_field).on('select2:select', function(e){
             var value = e.params.data.text;
             $(name_field + '_text').val(value);
+            if (isNaN($(name_field + ' :selected').attr('value'))) {
+                $(name_field + ' :selected').attr('value','-1');
+            }
         });
 
         $('.datepicker').datepicker('destroy');

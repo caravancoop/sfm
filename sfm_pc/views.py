@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
 from django.shortcuts import redirect
 from django.contrib import messages
+from countries_plus.models import Country
 
 from extra_views import FormSetView
 from reversion.models import Version
@@ -44,8 +45,18 @@ class CreateSource(FormView):
     
     def get_context_data(self, **kwargs):
         context = super(CreateSource, self).get_context_data(**kwargs)
-        context['publication_uuid'] = str(uuid4())
-        
+        context['publication_uuid'] = str(uuid4())       
+
+        pub_title = self.request.POST.get('publication_title')
+        if pub_title:
+            context['publication_title'] = pub_title
+
+        pub_country = self.request.POST.get('publication_country')
+        if pub_country:
+            context['publication_country'] = pub_country
+
+        context['countries'] = Country.objects.all()
+ 
         if self.request.session.get('source_id'):
             del self.request.session['source_id']
         
@@ -54,6 +65,13 @@ class CreateSource(FormView):
     def post(self, request, *args, **kwargs):
         form = self.get_form()
         
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        response = super(CreateSource, self).form_valid(form)
         # Try to find the publication
 
         publication_uuid = form.data.get('publication')
@@ -65,20 +83,12 @@ class CreateSource(FormView):
 
         if created:
             publication.title = form.data.get('publication_title')
-            publication.country_iso = form.data.get('publication_country_iso')
-            publication.country_name = form.data.get('publication_country_name')
+            publication.country = form.data.get('publication_country')
             publication.save()
         
         self.publication = publication
 
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        response = super(CreateSource, self).form_valid(form)
-        
+       
         source, created = Source.objects.get_or_create(title=form.cleaned_data['title'],
                                                        source_url=form.cleaned_data['source_url'],
                                                        archive_url=form.cleaned_data['archive_url'],
@@ -114,14 +124,20 @@ class CreateOrgs(FormSetView):
     def post(self, request, *args, **kwargs):
         OrgFormSet = self.get_formset()
         formset = OrgFormSet(request.POST)
-        
+               
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
+    
+    def formset_valid(self, formset):
+        response = super().formset_valid(formset)
         forms_added = int(formset.data['form-FORMS_ADDED'][0])     
         
         self.organizations = []
         
         source = Source.objects.get(id=self.request.session['source_id'])
 
-        form_data = {}
         actual_form_index = 0
         
         for i in range(0, forms_added):
@@ -205,10 +221,6 @@ class CreateOrgs(FormSetView):
             realfounding = form_prefix + 'realfounding' in formset.data.keys()
             form[form_prefix + 'realfounding'] = realfounding
 
-            form[form_prefix + 'dissolutiondate'] = form[form_prefix + 'dissolutiondate'][0]
-            realdissolution = form_prefix + 'realdissolution' in formset.data.keys()
-            form[form_prefix + 'realdissolution'] = realdissolution
-            
             # Add to dict used to update org
             org_info.update({
                 'Organization_OrganizationFoundingDate': {
@@ -221,16 +233,6 @@ class CreateOrgs(FormSetView):
                     'confidence': 1,
                     'sources': [source],
                 },
-                'Organization_OrganizationDissolutionDate': {
-                    'value': form[form_prefix + 'dissolutiondate'],
-                    'confidence': 1,
-                    'sources': [source],
-                },
-                'Organization_OrganizationRealDissoution': {
-                    'value': realdissolution,
-                    'confidence': 1,
-                    'sources': [source],
-                }
             })
             
             # Now update org
@@ -243,24 +245,7 @@ class CreateOrgs(FormSetView):
             # rewrite keys
             form = {form_key_mapper[k]: form[k] for k in form_key_mapper}
             
-            form_data.update(form)
-
             actual_form_index += 1
-        
-        form_data['form-TOTAL_FORMS'] = formset.data['form-TOTAL_FORMS']
-        form_data['form-INITIAL_FORMS'] = '0'
-        form_data['form-MIN_NUM_FORMS'] = ''
-        form_data['form-MAX_NUM_FORMS'] = ''
-        
-        dummy_formset = OrgFormSet(form_data)
-        
-        if dummy_formset.is_valid():
-            return self.formset_valid(dummy_formset)
-        else:
-            return self.formset_invalid(dummy_formset)
-    
-    def formset_valid(self, formset):
-        response = super().formset_valid(formset)
         
         self.request.session['organizations'] = [{'id': o.id, 'name': o.name.get_value().value} \
                                                      for o in self.organizations]
@@ -290,8 +275,14 @@ class CreatePeople(FormSetView):
 
     def post(self, request, *args, **kwargs):
         PersonFormSet = self.get_formset()
-        formset = PersonFormSet(request.POST)
+        formset = PersonFormSet(request.POST)       
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
 
+    def formset_valid(self, formset):
+        response = super().formset_valid(formset)
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
         
         self.people = []
@@ -404,21 +395,6 @@ class CreatePeople(FormSetView):
                     'first': first
                 })
                 first = False
-
-        form_data['form-TOTAL_FORMS'] = num_forms
-        form_data['form-INITIAL_FORMS'] = '0'
-        form_data['form-MIN_NUM_FORMS'] = ''
-        form_data['form-MAX_NUM_FORMS'] = ''
-        
-        dummy_formset = PersonFormSet(form_data)
-        
-        if dummy_formset.is_valid():
-            return self.formset_valid(dummy_formset)
-        else:
-            return self.formset_invalid(dummy_formset)
-
-    def formset_valid(self, formset):
-        response = super().formset_valid(formset)
         
         self.request.session['people'] = [{'id': p.id, 'name': p.name.get_value().value} \
                                                      for p in self.people]
@@ -574,7 +550,7 @@ def publications_autocomplete(request):
     for publication in publications:
         results.append({
             'text': publication.title,
-            'country_iso': publication.country_iso,
+            'country': publication.country,
             'id': str(publication.id),
         })
     
