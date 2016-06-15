@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+<style>
+.submit { margin-top: 10px; }
+</style>
+{% endblock %}
+{% block content %}
+{% include 'partials/nav-wizard.html' %}
+<form method="post" action="" id="person-form">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+        {% with form_id=forloop.counter0 %}
+            {% if form.geography_type.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label">Geography type</label>
+                    <select id="id_form-{{ form_id }}-geography_type" class="form-control" name="form-{{ form_id }}-geography_type">
+                        <option value="" selected="selected">--------</option>
+                        {% for geo_type in form.geography_type.choices %}
+                            {% if geo_type == form.cleaned_data.geography_type.value %}
+                                <option value="{{ geo_type }}" selected=true>{{ geo_type }}</option>
+                            {% else %}
+                                <option value="{{ geo_type }}">{{ geo_type }}</option>
+                            {% endif %}
+                        {% endfor %}
+                        <option value="Area">Area</option>
+                    </select>
+                    {% if form.geography_type.errors %}
+                        {% for error in form.geography_type.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.name.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label">Name</label>
+                    <input type="text" name="form-{{ form_id }}-name" id="id_form-{{ form_id }}-name" value="{{ form.cleaned_data.name.value }}" />
+                    {% if form.name.errors %}
+                        {% for error in form.name.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.geoname.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                 <div class="col-sm-4">
+                    <label class="control-label" for="id_form-{{ form_id }}-geoname">Geoname</label>
+                    <select class="form-control" id="id_form-{{ form_id }}-geoname" name="form-{{ form_id }}-geoname">
+                        {% for geoname in form.geoname.choices %}
+                            {% if geoname == form.cleaned_data.geoname.value %}
+                                <option value="{{ geoname.id }}" selected=true>{{ geoname.name }}</option>
+                            {% else %}
+                                <option value="{{ geoname.id }}">{{ geoname.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                     {% if form.geoname.errors %}
+                        {% for error in form.geoname.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            </div>
+        {% endwith %}
+    {% endfor %}
+    <div class="row">
+        <div class="form-group submit">
+            <div class="col-md-12">
+                <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
+                <button type="submit" class="btn sfm-btn-cancel" value="Skip">Skip</button>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

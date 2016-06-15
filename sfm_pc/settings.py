@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'languages_plus',
     'countries_plus',
+    'cities',
     'reversion',
     'leaflet',
     'complex_fields',

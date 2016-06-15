@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django import forms
+
+from cities.models import City
+
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     Classification, Alias
@@ -43,3 +46,14 @@ class PersonMembershipForm(forms.Form):
     startcontext = forms.ModelChoiceField(queryset=Context.objects.all(), required=False)
     endcontext = forms.ModelChoiceField(queryset=Context.objects.all(), required=False)
     first = forms.BooleanField(required=False)
+
+class OrganizationGeographyForm(forms.Form):
+    geography_type = forms.ChoiceField(choices=(('Site', 'Site',), ('Area', 'Area',),))
+    name = forms.CharField()
+    geoname = forms.ModelChoiceField(queryset=None)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        cities_by_country = City.objects.filter(country__code=kwargs['country_code'])
+        self.fields['geoname'].queryset = cities_by_country

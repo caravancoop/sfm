@@ -11,8 +11,10 @@ from django.shortcuts import redirect
 from django.contrib import messages
 
 from extra_views import FormSetView
+from reversion.models import Version
 
-from .forms import SourceForm, OrgForm, PersonForm, PersonMembershipForm
+from .forms import SourceForm, OrgForm, PersonForm, PersonMembershipForm, \
+    OrganizationGeography
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias as OrganizationAliasObject, Classification
@@ -20,7 +22,6 @@ from person.models import Person, PersonName, PersonAlias
 from person.models import Alias as PersonAliasObject
 from membershipperson.models import MembershipPerson
 
-from reversion.models import Version
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -427,7 +428,7 @@ class CreatePeople(FormSetView):
 class MembershipInfo(FormSetView):
     template_name = 'sfm/membership-info.html'
     form_class = PersonMembershipForm
-    success_url = '/set-locations/'
+    success_url = '/organization-geo/'
     extra = 0
     max_num = None
 
@@ -522,7 +523,41 @@ class MembershipInfo(FormSetView):
     def formset_invalid(self, formset):
         response = super().formset_invalid(formset)
         return response
+
+class OrganizationGeographies(FormSetView):
+    template_name = 'sfm/organization-geo.html'
+    form_class = OrganizationGeographyForm
+    success_url = '/create-events/'
+    extra = 0
+    max_num = None
+    
+    def get_context_data(self, **kwargs):
+        context = super(MembershipInfo, self).get_context_data(**kwargs)
+        if not self.request.session.get('source_id'):
+            messages.add_message(request, 
+                                 messages.INFO, 
+                                 "Before adding memberships, please tell us about your source.",
+                                 extra_tags='alert alert-info')
+            return redirect('create-source')
+        
+        context['organizations'] = self.request.session['organizations']
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        return context
+
+    def post(self, request, *args, **kwargs):
+        OrganizationGeographyFormset = self.get_formset()
+        formset = OrganizationGeographyFormset(request.POST)
  
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
+    
+    def form_valid(self, formset):
+        response = super().formset_valid(formset)
+        
+        return response
+
 def publications_autocomplete(request):
     term = request.GET.get('q')
     publications = Publication.objects.filter(title__icontains=term).all()
