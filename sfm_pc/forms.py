@@ -55,5 +55,5 @@ class OrganizationGeographyForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        cities_by_country = City.objects.filter(country__code=kwargs['country_code'])
+        cities_by_country = City.objects.filter(country__code__in=kwargs['country_codes'])
         self.fields['geoname'].queryset = cities_by_country

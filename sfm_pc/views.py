@@ -540,13 +540,21 @@ class OrganizationGeographies(FormSetView):
                                  extra_tags='alert alert-info')
             return redirect('create-source')
         
-        context['organizations'] = self.request.session['organizations']
+        organizations = self.request.session['organizations']
+        organization_countries = [o['country_code'] for o in organizations]
+        
+        context['organizations'] = organizations
+        context['country_codes'] = organization_countries
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         return context
 
     def post(self, request, *args, **kwargs):
+        organizations = self.request.session['organizations']
+        organization_countries = [o['country_code'] for o in organizations]
+
         OrganizationGeographyFormset = self.get_formset()
-        formset = OrganizationGeographyFormset(request.POST)
+        formset = OrganizationGeographyFormset(request.POST, 
+                                               country_codes=organization_countries)
  
         if formset.is_valid():
             return self.formset_valid(formset)
