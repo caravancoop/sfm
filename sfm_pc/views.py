@@ -530,8 +530,6 @@ class OrganizationGeographies(FormSetView):
 
         OrganizationGeographyFormset = self.get_formset()
         formset = OrganizationGeographyFormset(request.POST)
-
-        
  
         if formset.is_valid():
             return self.formset_valid(formset)
@@ -539,6 +537,14 @@ class OrganizationGeographies(FormSetView):
             return self.formset_invalid(formset)
     
     def form_valid(self, formset):
+        source = Source.objects.get(id=self.request.session['source_id'])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+        for i in range(0, num_forms):
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+ 
         response = super().formset_valid(formset)
         
         return response

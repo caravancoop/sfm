@@ -56,6 +56,7 @@ class OrganizationGeographyForm(forms.Form):
     geoname_text = forms.CharField()
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
+    org = forms.CharField()
 
     #def __init__(self, *args, **kwargs):
     #    super().__init__(*args, **kwargs)

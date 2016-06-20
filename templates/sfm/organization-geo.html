@@ -109,6 +109,27 @@
                 </div>
             </div> 
         </div>
+        <div class="row">
+            {% if form.orgs.errors %}
+                <div class="form-group hass-eror has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+            <div class="col-sm-12">
+                <label class="control-label" for="id_form-{{ form_id }}-org">Select the organization this geographical location applies to: </label>
+                <select id="id_form-{{ form_id }}-org" class="form-control org-field" name="form-{{ form_id }}-org">
+                    {% for organization in organizations %}
+                        <option value="{{ organization.id }}">{{ organization.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.org.errors %}
+                    {% for error in form.org.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            </div>
+        </div>
         {% endwith %}
     {% endfor %}
     <div class="row">
