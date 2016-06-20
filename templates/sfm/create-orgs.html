@@ -34,10 +34,7 @@
                                     <label class="control-label">Organization name</label>
                                     <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
                                         {% if form.cleaned_data.name %}
-                                            <option value="">--------</option>
                                             <option value="{{ form.cleaned_data.name }}" selected=true>{{ form.cleaned_data.name_text }}</option>
-                                        {% else %}
-                                            <option value="" selected=true>--------</option>
                                         {% endif %}
                                     </select>
                                     {% if form.name.errors %}
@@ -96,7 +93,7 @@
                             {% else %}
                                 <div class="form-group">
                             {% endif %}
-                                <div class="col-sm-4">
+                                <div class="col-sm-8">
                                     <label class="control-label" for="id_form-{{ form_id }}-foundingdate">Founding date</label>
                                     <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-foundingdate" name="form-{{ form_id }}-foundingdate" value="{{ form.cleaned_data.foundingdate|date:'Y-m-d' }}"/>
                                     {% if form.foundingdate.errors %}
@@ -111,46 +108,17 @@
                             {% else %}
                                 <div class="form-group">
                             {% endif %}
-                                <div class="col-sm-2">
+                                <div class="col-sm-4">
                                     <div class="checkbox">
                                         <label class="control-label" for="id_form-{{ form_id }}-realfounding">Real?
-                                            <input type="checkbox" class="form-control" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" />
+                                            {% if form.cleaned_data.realfounding %}
+                                                <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" class="form-control" checked>
+                                            {% else %}
+                                                <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" class="form-control">
+                                            {% endif %}    
                                         </label>
                                         {% if form.realfounding.errors %}
                                             {% for error in form.realfounding.errors %}
-                                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% if form.dissolutiondate.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-4">
-                                    <label class="control-label" for="id_form-{{ form_id }}-dissolutiondate">Dissolution date</label>
-                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-dissolutiondate" name="form-{{ form_id }}-dissolutiondate" value="{{ form.cleaned_data.dissolutiondate|date:'Y-m-d' }}" />
-                                    {% if form.dissolutiondate.errors %}
-                                        {% for error in form.dissolutiondate.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% if form.realdissolution.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-2">
-                                    <div class="checkbox">
-                                        <label class="control-label" for="id_form-{{ form_id }}-realdissolution">Real?
-                                            <input type="checkbox" class="form-control" id="id_form-{{ form_id }}-realdissolution" name="form-{{ form_id }}-realdissolution" />
-                                        </label>
-                                        {% if form.realdissolution.errors %}
-                                            {% for error in form.realdissolution.errors %}
                                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                             {% endfor %}
                                         {% endif %}
@@ -226,11 +194,11 @@
         <br />
         <div class="row">
             <div class="form-group">
-                <div class="col-sm-6">
+                <div class="col-sm-8">
                     <label class="control-label" for="id_form-<%= form_id %>-foundingdate">Founding date</label>
                     <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-foundingdate" name="form-<%= form_id %>-foundingdate" />
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                     <div class="checkbox">
                         <label class="control-label" for="id_form-<%= form_id %>-realfounding">Real?
                             <input type="checkbox" class="form-control" id="id_form-<%= form_id %>-realfounding" name="form-<%= form_id %>-realfounding" />

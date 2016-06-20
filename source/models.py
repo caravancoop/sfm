@@ -24,11 +24,10 @@ class Source(models.Model):
 
     @classmethod
     def create_sources(cls, sources):
-        # TODO: This does not seem to be used anywhere. Is it needed?
         srcs = []
         for src in sources:
             try:
-                existing_source = Source.objects.get(source=src.title)
+                existing_source = Source.objects.get(title=src.title)
                 srcs.append(existing_source)
             except Source.DoesNotExist:
                 new_source = cls(source=src['source'])

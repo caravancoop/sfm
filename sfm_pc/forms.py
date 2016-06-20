@@ -50,12 +50,15 @@ class PersonMembershipForm(forms.Form):
     first = forms.BooleanField(required=False)
 
 class OrganizationGeographyForm(forms.Form):
-    geography_type = forms.ChoiceField(choices=(('Site', 'Site',), ('Area', 'Area',),))
+    geography_type = forms.ChoiceField(choices=(('Site','Site'),('Area','Area'),))
     name = forms.CharField()
-    geoname = forms.ModelChoiceField(queryset=None)
+    geoname = forms.CharField()
+    geoname_text = forms.CharField()
+    startdate = ApproximateDateFormField(required=False)
+    enddate = ApproximateDateFormField(required=False)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    #def __init__(self, *args, **kwargs):
+    #    super().__init__(*args, **kwargs)
         
-        cities_by_country = City.objects.filter(country__code__in=kwargs['country_codes'])
-        self.fields['geoname'].queryset = cities_by_country
+    #    cities_by_country = City.objects.filter(country__code__in=kwargs['country_codes'])
+    #    self.fields['geoname'].queryset = cities_by_country

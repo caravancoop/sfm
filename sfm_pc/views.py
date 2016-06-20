@@ -9,20 +9,21 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
 from django.shortcuts import redirect
 from django.contrib import messages
-from countries_plus.models import Country
 
 from extra_views import FormSetView
 from reversion.models import Version
 
 from .forms import SourceForm, OrgForm, PersonForm, PersonMembershipForm, \
-    OrganizationGeography
+    OrganizationGeographyForm
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias as OrganizationAliasObject, Classification
 from person.models import Person, PersonName, PersonAlias
 from person.models import Alias as PersonAliasObject
-from membershipperson.models import MembershipPerson
+from membershipperson.models import MembershipPerson, Role, Rank, Context
+from association.models import Association
 
+from cities.models import City, Country, Region, Subregion, District
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -124,7 +125,6 @@ class CreateOrgs(FormSetView):
     def post(self, request, *args, **kwargs):
         OrgFormSet = self.get_formset()
         formset = OrgFormSet(request.POST)
-               
         if formset.is_valid():
             return self.formset_valid(formset)
         else:
@@ -263,7 +263,7 @@ class CreatePeople(FormSetView):
         context = super(CreatePeople, self).get_context_data(**kwargs)
         
         if not self.request.session.get('source_id'):
-            messages.add_message(request, 
+            messages.add_message(self.request, 
                                  messages.INFO, 
                                  "Before adding people, please tell us about your source.",
                                  extra_tags='alert alert-info')
@@ -421,6 +421,9 @@ class MembershipInfo(FormSetView):
         context['people'] = self.request.session['people']
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         context['memberships'] = self.request.session['memberships']
+        context['roles'] = [{'id': r.id, 'value': r.value} for r in Role.objects.all()]
+        context['ranks'] = [{'id': r.id, 'value': r.value} for r in Rank.objects.all()]
+        context['contexts'] = [{'id': c.id, 'value': c.value} for c in Context.objects.all()]
         return context
 
     def get_initial(self):
@@ -451,7 +454,7 @@ class MembershipInfo(FormSetView):
             mem_data = {}
             if formset.data[form_prefix + 'role']:
                 mem_data['MembershipPerson_MembershipPersonRole'] = {
-                    'value': formset.data[form_prefix + 'role'],
+                    'value': Role.objects.get(id=formset.data[form_prefix + 'role']),
                     'confidence': 1,
                     'source': [source]
                 }
@@ -463,7 +466,7 @@ class MembershipInfo(FormSetView):
                 }
             if formset.data[form_prefix + 'rank']:
                 mem_data['MembershipPerson_MembershipPersonRank'] = {
-                    'value': formset.data[form_prefix + 'rank'],
+                    'value': Rank.objects.get(id=formset.data[form_prefix + 'rank']),
                     'confidence': 1,
                     'source': [source]
                 }
@@ -504,11 +507,11 @@ class OrganizationGeographies(FormSetView):
     template_name = 'sfm/organization-geo.html'
     form_class = OrganizationGeographyForm
     success_url = '/create-events/'
-    extra = 0
+    extra = 1
     max_num = None
     
     def get_context_data(self, **kwargs):
-        context = super(MembershipInfo, self).get_context_data(**kwargs)
+        context = super(OrganizationGeographies, self).get_context_data(**kwargs)
         if not self.request.session.get('source_id'):
             messages.add_message(request, 
                                  messages.INFO, 
@@ -517,20 +520,18 @@ class OrganizationGeographies(FormSetView):
             return redirect('create-source')
         
         organizations = self.request.session['organizations']
-        organization_countries = [o['country_code'] for o in organizations]
         
         context['organizations'] = organizations
-        context['country_codes'] = organization_countries
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         return context
 
     def post(self, request, *args, **kwargs):
         organizations = self.request.session['organizations']
-        organization_countries = [o['country_code'] for o in organizations]
 
         OrganizationGeographyFormset = self.get_formset()
-        formset = OrganizationGeographyFormset(request.POST, 
-                                               country_codes=organization_countries)
+        formset = OrganizationGeographyFormset(request.POST)
+
+        
  
         if formset.is_valid():
             return self.formset_valid(formset)
@@ -601,3 +602,48 @@ def personalias_autocomplete(request):
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
 
+def geoname_autocomplete(request):
+    term = request.GET.get('q')
+    city_query = City.objects.filter(name_std__istartswith=term)
+    results = []
+    for city in city_query:
+        results.append({
+            'text': city.name + ' (city)',
+            'value': city.name,
+            'id': city.id,
+            'type': 'city'
+        })
+    country_query = Country.objects.filter(name__istartswith=term)
+    for country in country_query:
+        results.append({
+            'text': country.name + ' (country)',
+            'value': country.name,
+            'id': country.id,
+            'type': 'country'
+        })
+    region_query = Region.objects.filter(name_std__istartswith=term)
+    for region in region_query:
+        results.append({
+            'text': region.name + ' (region)',
+            'value': region.name,
+            'id': region.id,
+            'type': 'region'
+        })
+    subregion_query = Subregion.objects.filter(name_std__istartswith=term)
+    for subregion in subregion_query:
+        results.append({
+            'text': subregion.name + ' (subregion)',
+            'value': subregion.name,
+            'id': subregion.id,
+            'type': 'subregion'
+        })
+    district_query = District.objects.filter(name_std__istartswith=term)
+    for district in district_query:
+        results.append({
+            'text': district.name + ' (district)',
+            'value': district.name,
+            'id': district.id,
+            'type': 'district'
+        })
+    results.sort(key=lambda x:x['text'])
+    return HttpResponse(json.dumps(results),content_type='application/json')

@@ -34,10 +34,7 @@
                                     <label class="control-label">Name</label>
                                     <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
                                         {% if form.cleaned_data.name %}
-                                            <option value="">--------</option>
                                             <option value="{{ form.cleaned_data.name }}" selected=true>{{ form.cleaned_data.name_text }}</option>
-                                        {% else %}
-                                            <option value="" selected=true>--------</option>
                                         {% endif %}
                                     </select>
                                     {% if form.name.errors %}

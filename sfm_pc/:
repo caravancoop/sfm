@@ -15,7 +15,6 @@
     {{ formset.management_form }}
     {% for form in formset %}
         {% with form_id=forloop.counter0 %}
-        <div class="row">
             {% if form.geography_type.errors %}
             <div class="form-group has-error has-feedback">
             {% else %}
@@ -24,12 +23,12 @@
                 <div class="col-sm-4">
                     <label class="control-label">Geography type</label>
                     <select id="id_form-{{ form_id }}-geography_type" class="form-control" name="form-{{ form_id }}-geography_type">
-                        <option value="">--------</option>
+                        <option value="" selected="selected">--------</option>
                         {% for geo_type in form.fields.geography_type.choices %}
-                            {% if geo_type.0 == form.cleaned_data.geography_type %}
-                                <option value="{{ geo_type.0 }}" selected=true>{{ geo_type.1 }}</option>
+                            {% if geo_type == form.cleaned_data.geography_type.value %}
+                                <option value="{{ geo_type.id }}" selected=true>{{ geo_type.value }}</option>
                             {% else %}
-                                <option value="{{ geo_type.0 }}">{{ geo_type.1 }}</option>
+                                <option value="{{ geo_type.id }}">{{ geo_type.value }}</option>
                             {% endif %}
                         {% endfor %}
                     </select>
@@ -47,7 +46,7 @@
             {% endif %}
                 <div class="col-sm-4">
                     <label class="control-label">Name</label>
-                    <input type="text" name="form-{{ form_id }}-name" id="id_form-{{ form_id }}-name" value="{{ form.cleaned_data.name }}" class="form-control" />
+                    <input type="text" name="form-{{ form_id }}-name" id="id_form-{{ form_id }}-name" value="{{ form.cleaned_data.name.value }}" class="form-control" />
                     {% if form.name.errors %}
                         {% for error in form.name.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -63,8 +62,8 @@
                  <div class="col-sm-4">
                     <label class="control-label" for="id_form-{{ form_id }}-geoname">Geoname</label>
                     <select class="form-control" id="id_form-{{ form_id }}-geoname" name="form-{{ form_id }}-geoname">
-                        {% if form.cleaned_data.geoname %}
-                            <option value="{{ form.cleaned_data.geoname }}" selected=true>{{ form.cleaned_data.geoname_text }}</option>
+                        {% if form.cleaned_data.geoname.value %}
+                            <option value="{{ form.cleaned_data.geoname.value }}" selected=true>{{ form.cleaned_data.geoname.value }}</option>
                         {% endif %}
                     </select>
                      {% if form.geoname.errors %}
@@ -76,39 +75,6 @@
                 </div>
             </div>
             </div>
-        </div>
-        <div class="row">
-            {% if form.startdate.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <div class="col-sm-6">
-                    <label class="control-label" for="id_form-{{ form_id }}-startdate">Start date</label>
-                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-startdate" name="form-{{ form_id }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
-                    {% if form.startdate.errors %}
-                        {% for error in form.startdate.errors %}
-                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            </div> 
-            {% if form.enddate.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <div class="col-sm-6">
-                    <label class="control-label" for="id_form-{{ form_id }}-enddate">End date</label>
-                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-enddate" name="form-{{ form_id }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
-                    {% if form.enddate.errors %}
-                        {% for error in form.enddate.errors %}
-                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            </div> 
-        </div>
         {% endwith %}
     {% endfor %}
     <div class="row">
@@ -155,13 +121,8 @@ $(document).ready(function() {
         {% with form_id=forloop.counter0 %}
             geoname_field = '#id_form-' + {{ form_id }} + '-geoname';
             $(geoname_field).select2(geoname_opts);
-            $(geoname_field).on('select2:select', function(e) {
-                var value = e.params.data.text;
-                $(geoname_field + '_text').val(value);
-            });
         {% endwith %}
     {% endfor %}
-    $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
 });
 </script>
 

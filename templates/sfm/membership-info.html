@@ -22,21 +22,6 @@
                     <h3>{{ a_membership.person }}</h3>
                 {% endif %}
                 <h4>{{ a_membership.organization }}</h4>
-                       {% if form.person.errors %}
-                           {% for error in form.person.errors %}
-                               <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                           {% endfor %}
-                       {% endif %}
-                       {% if form.organization.errors %}
-                            {% for error in form.organization.errors %}
-                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                            {% endfor %}
-                        {% endif %}
-                        {% if form.first.errors %}
-                           {% for error in form.first.errors %}
-                               <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                           {% endfor %}
-                        {% endif %}
             <div class="row">
             <input type="hidden" name="form-{{ form_id }}-membership" id="id_form-{{ form_id }}-person" value="{{ a_membership.membership }}">
             {% endwith %}
@@ -49,8 +34,9 @@
                     <label class="control-label">Role</label>
                     <select id="id_form-{{ form_id }}-role" class="form-control" name="form-{{ form_id }}-role">
                         <option value="" selected="selected">--------</option>
-                        <option value="Commander">Commander</option>
-                        <option value="Head man">Head man</option>
+                        {% for role in roles %}
+                        <option value="{{ role.id }}">{{ role.value }}</option>
+                        {% endfor %}
                     </select>
                     {% if form.role.errors %}
                         {% for error in form.role.errors %}
@@ -69,9 +55,9 @@
                     <label class="control-label">Rank</label>
                     <select id="id_form-{{ form_id }}-rank" class="form-control" name="form-{{ form_id }}-rank">
                         <option value="" selected="selected">--------</option>
-                        <option value="General">General</option>
-                        <option value="Colonel">Colonel</option>
-                        <option value="Major">Major</option>
+                        {% for rank in ranks %}
+                        <option value="{{ rank.id }}">{{ rank.value }}</option>
+                        {% endfor %}
                     </select>
                     {% if form.rank.errors %}
                         {% for error in form.role.errors %}
@@ -105,12 +91,12 @@
             {% endif %}
                 <div class="col-sm-4">
                     <label class="control-label" for="id_form-{{ form_id }}-startcontext">Start context</label>
-                    <input type="text" id="id_form-{{ form_id }}-startcontext" class="form-control"  name="form-{{ form_id }}-startcontext" value="{{ form.cleaned_data.startcontext }}">
-                    {% if form.startcontext.errors %}
-                        {% for error in form.startcontext.errors %}
-                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    <select id="id_form-{{ form_id }}-startcontext" class="form-control" name="form-{{ form_id }}-startcontext">
+                        <option value="" selected="selected">--------</option>
+                        {% for context in contexts %}
+                        <option value="{{ context.id }}">{{ context.value }}</option>
                         {% endfor %}
-                    {% endif %}
+                    </select>
                 </div>
             </div>
             {% if form.realstart.errors %}
@@ -123,7 +109,7 @@
                     {% if form.cleaned_data.realstart %}
                         <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" checked>
                     {% else %}
-                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" checked>
+                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart">
                     {% endif %}
                     {% if form.realstart.errors %}
                         {% for error in form.realstart.errors %}
@@ -139,7 +125,12 @@
             {% endif %}
                 <div class="col-sm-4">
                     <label class="control-label" for="id_form-{{ form_id }}-endcontext">End context</label>
-                    <input type="text" id="id_form-{{ form_id }}-endcontext" class="form-control" name="form-{{ form_id }}-endcontext" value="{{ form.cleaned_data.endcontext }}">
+                    <select id="id_form-{{ form_id }}-endcontext" class="form-control" name="form-{{ form_id }}-endcontext">
+                        <option value="" selected="selected">--------</option>
+                        {% for context in contexts %}
+                        <option value="{{ context.id }}">{{ context.value }}</option>
+                        {% endfor %}
+                    </select>
                     {% if form.endcontext.errors %}
                         {% for error in form.endcontext.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -157,7 +148,7 @@
                     {% if form.cleaned_data.realend %}
                         <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realend" checked>
                     {% else %}
-                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realend" checked>
+                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realend">
                     {% endif %} 
                     {% if form.realend.errors %}
                         {% for error in form.realend.errors %}
@@ -219,7 +210,7 @@
 <script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-    $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
+    $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
 });
 </script>
 {% endblock %}
