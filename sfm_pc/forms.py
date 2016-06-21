@@ -57,9 +57,4 @@ class OrganizationGeographyForm(forms.Form):
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
     org = forms.CharField()
-
-    #def __init__(self, *args, **kwargs):
-    #    super().__init__(*args, **kwargs)
-        
-    #    cities_by_country = City.objects.filter(country__code__in=kwargs['country_codes'])
-    #    self.fields['geoname'].queryset = cities_by_country
+    geotype = forms.CharField()

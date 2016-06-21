@@ -122,6 +122,7 @@
                         <option value="{{ organization.id }}">{{ organization.name }}</option>
                     {% endfor %}
                 </select>
+                <input type="hidden" id="id_form-{{ form_id }}-geotype" name="form-{{ form_id }}-geotype" value="{{ form.cleaned_data.geotype }}">
                 {% if form.org.errors %}
                     {% for error in form.org.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -179,6 +180,7 @@ $(document).ready(function() {
             $(geoname_field).on('select2:select', function(e) {
                 var value = e.params.data.text;
                 $(geoname_field + '_text').val(value);
+                $('#id_form-' + {{ form_id }} + '-geotype').val(e.params.data['type']);
             });
         {% endwith %}
     {% endfor %}

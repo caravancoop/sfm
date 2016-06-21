@@ -22,8 +22,10 @@ from person.models import Person, PersonName, PersonAlias
 from person.models import Alias as PersonAliasObject
 from membershipperson.models import MembershipPerson, Role, Rank, Context
 from association.models import Association
-
-from cities.models import City, Country, Region, Subregion, District
+from emplacement.models import Emplacement
+from cities.models import Place, City, Country, Region, Subregion, District
+from geosite.models import Geosite
+from area.models import Area
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -536,15 +538,33 @@ class OrganizationGeographies(FormSetView):
         else:
             return self.formset_invalid(formset)
     
-    def form_valid(self, formset):
+    def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
-        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+        num_forms = 1 #int(formset.data['form-TOTAL_FORMS'][0])
         for i in range(0, num_forms):
             form_prefix = 'form-{0}-'.format(i)
             
             form_keys = [k for k in formset.data.keys() \
                              if k.startswith(form_prefix)]
- 
+            startdate = formset.data[form_prefix + 'startdate']
+            enddate = formset.data[form_prefix + 'enddate']
+            org_id = formset.data[form_prefix + 'org']
+            if formset.data[form_prefix + 'geography_type'] == 'Site':
+                site_data = {}
+                site_id = formset.data[form_prefix + 'geoname']
+                site_type = formset.data[form_prefix + 'geotype']
+                if site_type == 'subregion':
+                    site = Subregion.objects.get(id=site_id)
+                print(site.__dict__)
+                #site = Geosite.create(site_data)
+                #emp_data = {}
+                #Emplacement.create(emp_data)
+            else:
+                area_data = {}
+                print('Area')
+                #area = Area.create(area_data)
+                #assoc_data = {}
+                #Association.create(assoc_data)
         response = super().formset_valid(formset)
         
         return response
