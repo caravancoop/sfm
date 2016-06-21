@@ -60,6 +60,9 @@
                                         <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
                                     {% endfor %}
                                 </select>
+                                {% for alias in form.aliases %}
+                                    <input type="hidden" name="form-{{ form_id }}-alias_text" id="id_form-{{ form_id }}-alias_text" value="{{ alias.value }}" />
+                                {% endfor %}
                                 {% if form.alias.errors %}
                                     {% for error in form.alias.errors %}
                                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>

@@ -23,6 +23,7 @@ class SourceForm(forms.Form):
 
 class OrgForm(forms.Form):
     name = forms.CharField()
+    name_text = forms.CharField()
     classification = forms.ModelChoiceField(queryset=Classification.objects.all())
     alias = forms.CharField(required=False)
     foundingdate = ApproximateDateFormField(required=False)
