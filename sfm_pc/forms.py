@@ -23,11 +23,15 @@ class SourceForm(forms.Form):
 
 class OrgForm(forms.Form):
     name = forms.CharField()
-    name_text = forms.CharField()
     classification = forms.ModelChoiceField(queryset=Classification.objects.all())
     alias = forms.CharField(required=False)
     foundingdate = ApproximateDateFormField(required=False)
     realfounding = forms.BooleanField(required=False)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.empty_permitted = False
 
 class PersonForm(forms.Form):
     name = forms.CharField()

@@ -5,7 +5,7 @@
 {% block extra_head %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
   <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
- 
+
   <script src="{% static "js/select2.min.js" %}"></script>
 
 {% endblock %}
@@ -16,16 +16,16 @@
         <h2>Add a new source</h2>
     </div>
 </div>
-<div class="row">
-    <form method="post">
-        {% csrf_token %}
+<form method="post">
+    {% csrf_token %}
+    <div class="row">
         {% if form.title.errors or form.published_on.errors %}
             <div class="form-group has-error has-feedback">
         {% else %}
             <div class="form-group">
         {% endif %}
-            <div class="col-sm-6">
-                <label for="id_title" class="col-sm-2 control-label">Source title</label>
+            <div class="col-sm-9">
+                <label for="id_title" class="control-label">Source title</label>
                 <input type="text" class="form-control" id="id_title" name="title" value="{{ form.cleaned_data.title }}">
             {% if form.title.errors %}
                 {% for error in form.title.errors %}
@@ -33,8 +33,8 @@
                 {% endfor %}
             {% endif %}
             </div>
-            <div class="col-sm-6">
-                <label for="id_published_on" class="col-sm-2 control-label">Date published</label>
+            <div class="col-sm-3">
+                <label for="id_published_on" class="control-label">Date published</label>
                 <input type="text" class="form-control datepicker" id="id_published_on" name="published_on" value="{{ form.cleaned_data.published_on|date:"Y-m-d" }}">
             {% if form.published_on.errors %}
                 {% for error in form.published_on.errors %}
@@ -43,13 +43,15 @@
             {% endif %}
             </div>
         </div>
+    </div>
+    <div class="row">
         {% if form.publication.errors or form.publication.errors %}
             <div class="form-group has-error has-feedback">
         {% else %}
             <div class="form-group">
         {% endif %}
-            <label for="id_publication" class="col-sm-2 control-label">Publication</label>
             <div class="col-sm-6">
+            <label for="id_publication" class="control-label">Publication</label>
                 <select id="id_publication" class="form-control" name="publication">
                     <option value="None">---------</option>
                     <option value="{{ form.cleaned_data.publication }}" selected=true>{{ publication_title }}</option>
@@ -63,6 +65,7 @@
             {% endif %}
             </div>
             <div class="col-sm-6">
+                <label for="id_publication_country" class="control-label"></label>
                 <select id="id_publication_country" class="form-control" name="publication_country">
                     <option value="">--------</option>
                     {% for country in countries %}
@@ -75,22 +78,24 @@
                 </select>
             </div>
         </div>
+    </div>
+    <div class="row">
         {% if form.source_url.errors or form.archive_url.errors %}
             <div class="form-group has-error has-feedback">
         {% else %}
             <div class="form-group">
         {% endif %}
             <div class="col-sm-6">
-                <label for="id_source_url" class="col-sm-2 control-label">Source URL</label>
+                <label for="id_source_url" class="control-label">Source URL</label>
                 <input type="text" class="form-control" id="id_source_url" name="source_url" value="{{ form.cleaned_data.source_url }}">
-            {% if form.source_url.errors %}
-                {% for error in form.source_url.errors %}
-                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                {% endfor %}
-            {% endif %}
+                {% if form.source_url.errors %}
+                    {% for error in form.source_url.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
             </div>
             <div class="col-sm-6">
-                <label for="id_archive_url" class="col-sm-2 control-label">Archive URL</label>
+                <label for="id_archive_url" class="control-label">Archive URL</label>
                 <input type="text" class="form-control" id="id_archive_url" name="archive_url" value="{{ form.cleaned_data.archive_url }}">
             {% if form.archive_url.errors %}
                 {% for error in form.archive_url.errors %}
@@ -99,14 +104,16 @@
             {% endif %}
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="form-group">
             <div class="col-sm-2 col-sm-offset-10">
                 <br />
                 <button type="submit" class="btn btn-info">Next  <i class="fa fa-chevron-right"></i></button>
             </div>
         </div>
-    </form>
-</div>
+    </div>
+</form>
 
 {% endblock %}
 
