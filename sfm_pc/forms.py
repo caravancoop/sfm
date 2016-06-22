@@ -28,6 +28,11 @@ class OrgForm(forms.Form):
     alias = forms.CharField(required=False)
     foundingdate = ApproximateDateFormField(required=False)
     realfounding = forms.BooleanField(required=False)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.empty_permitted = False
 
 class PersonForm(forms.Form):
     name = forms.CharField()

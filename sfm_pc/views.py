@@ -125,15 +125,55 @@ class CreateOrgs(FormSetView):
         return context
 
     def post(self, request, *args, **kwargs):
+        
         OrgFormSet = self.get_formset()
-        formset = OrgFormSet(request.POST)
+        
+        management_keys = [
+            'form-MAX_NUM_FORMS', 
+            'form-MIN_NUM_FORMS', 
+            'form-INITIAL_FORMS', 
+            'form-TOTAL_FORMS', 
+            'form-FORMS_ADDED'
+        ]
+
+        form_data = {}
+        
+        for key, value in request.POST.items():
+            if 'alias' in key:
+                form_data[key] = request.POST.getlist(key)
+            else:
+                form_data[key] = request.POST.get(key)
+        
+        formset = OrgFormSet(form_data)
+        
         if formset.is_valid():
             return self.formset_valid(formset)
         else:
             return self.formset_invalid(formset)
     
+    def formset_invalid(self, formset):
+        response = super().formset_invalid(formset)
+        
+        for index, form in enumerate(formset.forms):
+            alias_ids = formset.data.get('form-{}-alias'.format(index))
+            if alias_ids:
+                for alias_id in alias_ids:
+                    try:
+                        org_alias = OrganizationAlias.objects.get(id=alias_id)
+                    except ValueError:
+                        org_alias = None
+                    
+                    if org_alias:
+                        try:
+                            form.aliases.append(org_alias)
+                        except AttributeError:
+                            form.aliases = [org_alias]
+            else:
+                form.aliases = None
+        
+        return response
+
     def formset_valid(self, formset):
-        response = super().formset_valid(formset)
         forms_added = int(formset.data['form-FORMS_ADDED'][0])     
         
         self.organizations = []
@@ -151,8 +191,6 @@ class CreateOrgs(FormSetView):
                                    for k in formset.data.keys() \
                                        if k.startswith(form_prefix)}
             
-            form = {k: formset.data.getlist(k) for k in form_key_mapper}
-
             name_id_key = 'form-{0}-name'.format(i)
             name_text_key = 'form-{0}-name_text'.format(i)
             
@@ -171,10 +209,7 @@ class CreateOrgs(FormSetView):
                 },
             }
            
-            if name_id == 'None' or not name_id:
-                return self.formset_invalid(formset)
-
-            elif name_id == '-1':
+            if name_id == '-1':
                 organization = Organization.create(org_info)      
             
             else:
@@ -184,10 +219,8 @@ class CreateOrgs(FormSetView):
             alias_id_key = 'form-{0}-alias'.format(i)
             alias_text_key = 'form-{0}-alias_text'.format(i)
             
-            aliases = formset.data.getlist(alias_text_key)
+            aliases = formset.data.get(alias_text_key)
             
-            form[alias_id_key] = []
-
             for alias in aliases:
                 
                 alias_obj, created = OrganizationAliasObject.objects.get_or_create(value=alias)
@@ -201,11 +234,8 @@ class CreateOrgs(FormSetView):
                 }
                 organization.update(alias_data)
                 
-                form[alias_id_key].append(alias_obj.id)
-            
             # Next do classification
             classification = formset.data.get(form_prefix + 'classification')
-            form[form_prefix + 'classification'] = [None]
             
             if classification:
                 
@@ -216,17 +246,13 @@ class CreateOrgs(FormSetView):
                     'sources': [source]
                 }
 
-                form[form_prefix + 'classification'] = [classification_obj.id]
-            
             # Now do dates
-            form[form_prefix + 'foundingdate'] = form[form_prefix + 'foundingdate'][0]
             realfounding = form_prefix + 'realfounding' in formset.data.keys()
-            form[form_prefix + 'realfounding'] = realfounding
 
             # Add to dict used to update org
             org_info.update({
                 'Organization_OrganizationFoundingDate': {
-                    'value': form[form_prefix + 'foundingdate'],
+                    'value': formset.data.get(form_prefix + 'foundingdate'),
                     'confidence': 1,
                     'sources': [source],
                 },
@@ -240,18 +266,14 @@ class CreateOrgs(FormSetView):
             # Now update org
             organization.update(org_info)
  
-            form[name_id_key] = organization.name.get_field().id
-
             self.organizations.append(organization)
-            
-            # rewrite keys
-            form = {form_key_mapper[k]: form[k] for k in form_key_mapper}
             
             actual_form_index += 1
         
         self.request.session['organizations'] = [{'id': o.id, 'name': o.name.get_value().value} \
                                                      for o in self.organizations]
         
+        response = super().formset_valid(formset)
         return response
 
 class CreatePeople(FormSetView):
@@ -525,6 +547,10 @@ class OrganizationGeographies(FormSetView):
         
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        
+        form = self.form_class()
+        context['geo_types'] = form.fields['geography_type'].choices
+        
         return context
 
     def post(self, request, *args, **kwargs):

@@ -2,6 +2,7 @@
 {% load viewcomplexfield %}
 {% load staticfiles %}
 {% load i18n %}
+{% load get_item %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
   <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
@@ -15,7 +16,9 @@
     <h2>Organizations</h2>
     <p>Describe any organizations found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
-    <form method="post" action="" id="org-form">
+</div>
+<div class="row">
+    <form method="post" action="" id="org-form" class="form-horizontal">
         {% csrf_token %}
         {{ formset.management_form }}
         <input type="hidden" value="0" name="form-FORMS_ADDED" id="id_form-FORMS_ADDED" />
@@ -24,105 +27,108 @@
             {% for form in formset %}
                 {% with form_id=forloop.counter0 %}
                     <div id="form-{{ form_id }}-wrapper">
-                        <div class="row">
-                            {% if form.name.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-4">
-                                    <label class="control-label">Organization name</label>
-                                    <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
-                                        {% if form.cleaned_data.name %}
-                                            <option value="{{ form.cleaned_data.name }}" selected=true>{{ form.cleaned_data.name_text }}</option>
-                                        {% endif %}
-                                    </select>
-                                    {% if form.name.errors %}
-                                        {% for error in form.name.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                    <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" value="{{ form.cleaned_data.name_text }}" />
-                                </div>
-                            </div>
-                            {% if form.alias.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-4">
-                                    <label class="control-label">Aliases</label>
-                                    <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
-                                    </select>
-                                    {% if form.alias.errors %}
-                                        {% for error in form.alias.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% if form.classification.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-4">
-                                    <label class="control-label">Classification </label>
-                                    <select id="id_form-{{ form_id }}-classification" class="form-control" name="form-{{ form_id }}-classification">
+                        {% if form.name.errors %}
+                            <div class="form-group has-error has-feedback">
+                        {% else %}
+                            <div class="form-group">
+                        {% endif %}
+                            <label class="col-sm-2 control-label">Organization name</label>
+                            <div class="col-sm-8">
+                                <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
                                         <option value="" selected="selected">--------</option>
-                                        {% for classification in classifications %}
-                                            {% if classification.id == form.cleaned_data.classification.id %}
-                                                <option value="{{ classification.id }}" selected="true">{{ classification.value }}</option>
-                                            {% else %}
-                                                <option value="{{ classification.id }}">{{ classification.value }}</option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                    {% if form.classification.errors %}
-                                        {% for error in form.classification.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
+                                    {% if form.cleaned_data.name %}
+                                        <option value="{{ form.cleaned_data.name }}" selected=true>{{ form.cleaned_data.name_text }}</option>
                                     {% endif %}
-                                </div>
+                                </select>
+                                {% if form.name.errors %}
+                                    {% for error in form.name.errors %}
+                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" value="{{ form.cleaned_data.name_text }}" />
+                            </div>
+                        </div>
+                        {% if form.alias.errors %}
+                            <div class="form-group has-error has-feedback">
+                        {% else %}
+                            <div class="form-group">
+                        {% endif %}
+                            <label class="col-sm-2 control-label">Aliases</label>
+                            <div class="col-sm-8">
+                                <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
+                                    {% for alias in form.aliases %}
+                                        <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% for alias in form.aliases %}
+                                    <input type="hidden" name="form-{{ form_id }}-alias_text" id="id_form-{{ form_id }}-alias_text" value="{{ alias.value }}" />
+                                {% endfor %}
+                                {% if form.alias.errors %}
+                                    {% for error in form.alias.errors %}
+                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if form.classification.errors %}
+                            <div class="form-group has-error has-feedback">
+                        {% else %}
+                            <div class="form-group">
+                        {% endif %}
+                            <label class="col-sm-2 control-label">Classification </label>
+                            <div class="col-sm-8">
+                                <select id="id_form-{{ form_id }}-classification" class="form-control" name="form-{{ form_id }}-classification">
+                                    <option value="" selected="selected">--------</option>
+                                    {% for classification in classifications %}
+                                        {% if classification.id == form.cleaned_data.classification.id %}
+                                            <option value="{{ classification.id }}" selected="true">{{ classification.value }}</option>
+                                        {% else %}
+                                            <option value="{{ classification.id }}">{{ classification.value }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                {% if form.classification.errors %}
+                                    {% for error in form.classification.errors %}
+                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                         </div>
                         <br />
-                        <div class="row">
-                            {% if form.foundingdate.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-8">
-                                    <label class="control-label" for="id_form-{{ form_id }}-foundingdate">Founding date</label>
-                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-foundingdate" name="form-{{ form_id }}-foundingdate" value="{{ form.cleaned_data.foundingdate|date:'Y-m-d' }}"/>
-                                    {% if form.foundingdate.errors %}
-                                        {% for error in form.foundingdate.errors %}
+                        {% if form.foundingdate.errors %}
+                            <div class="form-group has-error has-feedback">
+                        {% else %}
+                            <div class="form-group">
+                        {% endif %}
+                            <label class="col-sm-2 control-label" for="id_form-{{ form_id }}-foundingdate">Founding date</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-foundingdate" name="form-{{ form_id }}-foundingdate" value="{{ form.cleaned_data.foundingdate|date:'Y-m-d' }}"/>
+                                {% if form.foundingdate.errors %}
+                                    {% for error in form.foundingdate.errors %}
+                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if form.realfounding.errors %}
+                            <div class="form-group has-error has-feedback">
+                        {% else %}
+                            <div class="form-group">
+                        {% endif %}
+                            <div class="col-sm-offset-2 col-sm-8">
+                                <div class="checkbox">
+                                    <label for="id_form-{{ form_id }}-realfounding" class="control-label">
+                                        {% if form.cleaned_data.realfounding %}
+                                            <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" checked > Real founding date?
+                                        {% else %}
+                                            <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" > Real founding date?
+                                        {% endif %}
+                                    </label>
+                                    {% if form.realfounding.errors %}
+                                        {% for error in form.realfounding.errors %}
                                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                         {% endfor %}
                                     {% endif %}
-                                </div>
-                            </div>
-                            {% if form.realfounding.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-4">
-                                    <div class="checkbox">
-                                        <label class="control-label" for="id_form-{{ form_id }}-realfounding">Real?
-                                            {% if form.cleaned_data.realfounding %}
-                                                <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" class="form-control" checked>
-                                            {% else %}
-                                                <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" class="form-control">
-                                            {% endif %}    
-                                        </label>
-                                        {% if form.realfounding.errors %}
-                                            {% for error in form.realfounding.errors %}
-                                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -166,44 +172,46 @@
 <script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/EJS" id="formTemplate">
     <div id="form-<%= form_id %>-wrapper">
-        <div class="row">
-            <div class="form-group">
-                <div class="col-sm-4">
-                    <label class="control-label">Organization name</label>
-                    <select id="id_form-<%= form_id %>-name" class="form-control" name="form-<%= form_id %>-name">
-                        <option value="" selected="selected">--------</option>
-                    </select>
-                    <input type="hidden" name="form-<%= form_id %>-name_text" id="id_form-<%= form_id %>-name_text" />
-                </div>
-                <div class="col-sm-4">
-                    <label class="control-label">Aliases</label>
-                    <select id="id_form-<%= form_id %>-alias" class="form-control" name="form-<%= form_id %>-alias" multiple="multiple">
-                    </select>
-                </div>
-                <div class="col-sm-4">
-                    <label class="control-label">Classification</label>
-                    <select id="id_form-<%= form_id %>-classification" class="form-control" name="form-<%= form_id %>-classification">
-                        <option value="" selected="selected">--------</option>
-                        {% for classification in classifications %}
-                            <option value="{{ classification.id }}">{{ classification.value }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Organization name</label>
+            <div class="col-sm-8">
+                <select id="id_form-<%= form_id %>-name" class="form-control" name="form-<%= form_id %>-name">
+                    <option value="" selected="selected">--------</option>
+                </select>
+                <input type="hidden" name="form-<%= form_id %>-name_text" id="id_form-<%= form_id %>-name_text" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Aliases</label>
+            <div class="col-sm-8">
+                <select id="id_form-<%= form_id %>-alias" class="form-control" name="form-<%= form_id %>-alias" multiple="multiple">
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Classification</label>
+            <div class="col-sm-8">
+                <select id="id_form-<%= form_id %>-classification" class="form-control" name="form-<%= form_id %>-classification">
+                    <option value="" selected="selected">--------</option>
+                    {% for classification in classifications %}
+                        <option value="{{ classification.id }}">{{ classification.value }}</option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
         <br />
-        <div class="row">
-            <div class="form-group">
-                <div class="col-sm-8">
-                    <label class="control-label" for="id_form-<%= form_id %>-foundingdate">Founding date</label>
-                    <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-foundingdate" name="form-<%= form_id %>-foundingdate" />
-                </div>
-                <div class="col-sm-4">
-                    <div class="checkbox">
-                        <label class="control-label" for="id_form-<%= form_id %>-realfounding">Real?
-                            <input type="checkbox" class="form-control" id="id_form-<%= form_id %>-realfounding" name="form-<%= form_id %>-realfounding" />
-                        </label>
-                    </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="id_form-<%= form_id %>-foundingdate">Founding date</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-foundingdate" name="form-<%= form_id %>-foundingdate" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-8">
+                <div class="checkbox">
+                    <label class="control-label" for="id_form-<%= form_id %>-realfounding">
+                        <input type="checkbox" id="id_form-<%= form_id %>-realfounding" name="form-<%= form_id %>-realfounding" />Real founding date?
+                    </label>
                 </div>
             </div>
         </div>

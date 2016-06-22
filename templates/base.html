@@ -7,7 +7,7 @@
   <meta charset="UTF-8">
   <title>SFM Dashboard</title>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="{% static "css/style.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap.simplex.min.css" %}">
   <link rel="stylesheet" href="{% static "css/bootstrap-nav-wizard.css" %}">
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -44,7 +44,7 @@
         </div>
     </div>
 </nav>
-<section class="content">
+<section class="content container">
 {% if messages %}
     <div class="row">
         {% for message in messages %}
