@@ -65,4 +65,16 @@ class OrganizationGeographyForm(forms.Form):
     geotype = forms.CharField()
 
 class ViolationForm(forms.Form):
-    name = forms.CharField()
+    startdate = ApproximateDateFormField(required=False)
+    enddate = ApproximateDateFormField(required=False)
+    locationdescription = forms.CharField(required=False)
+    adminlevel1 = forms.CharField(required=False)
+    adminlevel2 = forms.CharField(required=False)
+    geoname = forms.CharField(required=False)
+    geonameid = forms.CharField(required=False)
+    location = forms.CharField(required=False)
+    description = forms.CharField(required=True)
+    perpetrator = forms.CharField(required=False)
+    org = forms.CharField(required=True)
+    vtype = forms.CharField(required=False)
+    # also has source and confidence

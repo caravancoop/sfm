@@ -435,7 +435,7 @@ class MembershipInfo(FormSetView):
     def get_context_data(self, **kwargs):
         context = super(MembershipInfo, self).get_context_data(**kwargs)
         if not self.request.session.get('source_id'):
-            messages.add_message(request, 
+            messages.add_message(self.request, 
                                  messages.INFO, 
                                  "Before adding memberships, please tell us about your source.",
                                  extra_tags='alert alert-info')
@@ -537,7 +537,7 @@ class OrganizationGeographies(FormSetView):
     def get_context_data(self, **kwargs):
         context = super(OrganizationGeographies, self).get_context_data(**kwargs)
         if not self.request.session.get('source_id'):
-            messages.add_message(request, 
+            messages.add_message(self.request, 
                                  messages.INFO, 
                                  "Before adding geographies, please tell us about your source.",
                                  extra_tags='alert alert-info')
@@ -780,7 +780,7 @@ class CreateViolations(FormSetView):
     def get_context_data(self, **kwargs):
         context = super(CreateViolations, self).get_context_data(**kwargs)
         if not self.request.session.get('source_id'):
-            messages.add_message(request, 
+            messages.add_message(self.request, 
                                  messages.INFO, 
                                  "Before adding events, please tell us about your source.",
                                  extra_tags='alert alert-info')
