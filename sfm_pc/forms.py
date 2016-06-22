@@ -15,14 +15,14 @@ from django.utils.translation import ugettext as _
 from django_date_extensions.fields import ApproximateDateFormField
 
 class SourceForm(forms.Form):
-    title = forms.CharField()
-    publication = forms.CharField()
-    published_on = forms.DateField()
-    source_url = forms.URLField()
-    archive_url = forms.URLField()
+    title = forms.CharField(error_messages={'required': _('Title is required')})
+    publication = forms.CharField(error_messages={'required': _('Publication is required')})
+    published_on = forms.DateField(error_messages={'required': _('Date published is required')})
+    source_url = forms.URLField(error_messages={'required': _('Source URL is required'), 'invalid': _('Source URL is invalid')})
+    archive_url = forms.URLField(error_messages={'required': _('Archive URL is required'), 'invalid': _('Archive URL is invalid')})
 
 class OrgForm(forms.Form):
-    name = forms.CharField()
+    name = forms.CharField(error_messages={'required': _('Name is required')})
     name_text = forms.CharField()
     classification = forms.ModelChoiceField(queryset=Classification.objects.all())
     alias = forms.CharField(required=False)
@@ -35,19 +35,24 @@ class OrgForm(forms.Form):
         self.empty_permitted = False
 
 class PersonForm(forms.Form):
-    name = forms.CharField()
+    name = forms.CharField(error_messages={'required': _('Name is required')})
     name_text = forms.CharField()
     alias = forms.CharField(required=False)
     deathdate = ApproximateDateFormField(required=False)
     orgs = forms.CharField() 
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.empty_permitted = False
 
 class PersonMembershipForm(forms.Form):
     membership = forms.ModelChoiceField(queryset=MembershipPerson.objects.all())
     role = forms.CharField(required=False)
-    title = forms.CharField(required=False)
+    title = forms.CharField(error_messages={'required': _('Title is required')})
     rank = forms.CharField(required=False)
-    realstart = forms.BooleanField(required = False) 
-    realend = forms.BooleanField(required = False)
+    realstart = forms.BooleanField(required=False) 
+    realend = forms.BooleanField(required=False)
     startcontext = forms.CharField(required=False)
     endcontext = forms.CharField(required=False)
     firstciteddate = ApproximateDateFormField(required=False)
@@ -55,14 +60,19 @@ class PersonMembershipForm(forms.Form):
     first = forms.BooleanField(required=False)
 
 class OrganizationGeographyForm(forms.Form):
-    geography_type = forms.ChoiceField(choices=(('Site','Site'),('Area','Area'),))
-    name = forms.CharField()
-    geoname = forms.CharField()
+    geography_type = forms.ChoiceField(choices=(('Site','Site'),('Area','Area'),), error_messages={'required': _('Geography type is required')})
+    name = forms.CharField(error_messages={'required': _('Name is required')})
+    geoname = forms.CharField(error_messages={'required': _('Geoname is required')})
     geoname_text = forms.CharField()
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
     org = forms.CharField()
     geotype = forms.CharField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.empty_permitted = False
 
 class ViolationForm(forms.Form):
     startdate = ApproximateDateFormField(required=False)
@@ -78,3 +88,5 @@ class ViolationForm(forms.Form):
     org = forms.CharField(required=True)
     vtype = forms.CharField(required=False)
     # also has source and confidence
+    
+

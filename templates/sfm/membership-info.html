@@ -12,28 +12,49 @@
 {% endblock %}
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
-<form method="post" action="" id="person-form">
+<div class="row">
+    <h2>Organization memberships</h2>
+    <p>Describe positions held by people in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <hr />
+</div>
+<form method="post" action="" id="person-form" class="form-horizontal">
     {% csrf_token %}
     {{ formset.management_form }}
     {% for form in formset %}
         {% with form_id=forloop.counter0 %}
+            {% if not forloop.first %}
+                <hr />
+            {% endif %}
+            <div class="col-sm-10 col-sm-offset-2">
             {% with a_membership=memberships|from_index:form_id %}
-                {% if a_membership.first %}
-                    <h3>{{ a_membership.person }}</h3>
-                {% endif %}
-                <h4>{{ a_membership.organization }}</h4>
-            <div class="row">
-            <input type="hidden" name="form-{{ form_id }}-membership" id="id_form-{{ form_id }}-person" value="{{ a_membership.membership }}">
+                <h3>{{ a_membership.person }} <small>{{ a_membership.organization }}</small></h3>
+                <input type="hidden" name="form-{{ form_id }}-membership" id="id_form-{{ form_id }}-person" value="{{ a_membership.membership }}">
             {% endwith %}
-            {% if form.role.errors %}
+            </div>
+            {% if form.title.errors %}
             <div class="form-group has-error has-feedback">
             {% else %}
             <div class="form-group">
             {% endif %}
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-title">Title</label>
+                <div class="col-sm-8">
+                   <input type="text" class="form-control" id="id_form-{{ form_id }}-title" name="form-{{ form_id }}-title" value="{{ form.cleaned_data.title }}" />
+                    {% if form.title.errors %}
+                       {% for error in form.title.errors %}
+                           <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                       {% endfor %}
+                   {% endif %}
+                </div>
+            </div>
+            {% if form.role.errors or form.rank.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <label class="control-label col-sm-2">Role & Rank</label>
                 <div class="col-sm-4">
-                    <label class="control-label">Role</label>
                     <select id="id_form-{{ form_id }}-role" class="form-control" name="form-{{ form_id }}-role">
-                        <option value="" selected="selected">--------</option>
+                        <option value="" selected="selected">-- Select a Role --</option>
                         {% for role in roles %}
                         <option value="{{ role.id }}">{{ role.value }}</option>
                         {% endfor %}
@@ -45,16 +66,9 @@
                     {% endif %}
                     <input type="hidden" name="form-{{ form_id }}-role-name_text" id="id_form-{{ form_id }}-role_text" />
                 </div>
-            </div>
-            {% if form.rank.errors %}
-            <div class="form-group has-error has-feedback">
-            {% else %}
-            <div class="form-group">
-            {% endif %}
                 <div class="col-sm-4">
-                    <label class="control-label">Rank</label>
                     <select id="id_form-{{ form_id }}-rank" class="form-control" name="form-{{ form_id }}-rank">
-                        <option value="" selected="selected">--------</option>
+                        <option value="" selected="selected">-- Select a Rank --</option>
                         {% for rank in ranks %}
                         <option value="{{ rank.id }}">{{ rank.value }}</option>
                         {% endfor %}
@@ -67,53 +81,31 @@
                     <input type="hidden" name="form-{{ form_id }}-rank-name_text" id="id_form-{{ form_id }}-rank_text" />
                 </div>
             </div>
-            {% if form.title.errors %}
-            <div class="form-group has-error has-feedback">
-            {% else %}
-            <div class="form-group">
-            {% endif %}
-                 <div class="col-sm-4">
-                    <label class="control-label" for="id_form-{{ form_id }}-title">Title</label>
-                    <input type="text" class="form-control" id="id_form-{{ form_id }}-title" name="form-{{ form_id }}-title" value="{{ form.cleaned_data.title }}" />
-                     {% if form.title.errors %}
-                        {% for error in form.title.errors %}
-                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            </div>
-            </div>
-            <div class="row">
             {% if form.startcontext.errors %}
             <div class="form-group has-error has-feedback">
             {% else %}
             <div class="form-group">
             {% endif %}
-                <div class="col-sm-4">
-                    <label class="control-label" for="id_form-{{ form_id }}-startcontext">Start context</label>
-                    <select id="id_form-{{ form_id }}-startcontext" class="form-control" name="form-{{ form_id }}-startcontext">
-                        <option value="" selected="selected">--------</option>
-                        {% for context in contexts %}
-                        <option value="{{ context.id }}">{{ context.value }}</option>
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startcontext">Start context</label>
+                <div class="col-sm-6">
+                   <input type="text" class="form-control" id="id_form-{{ form_id }}-startcontext" name="form-{{ form_id }}-startcontext" value="{{ form.cleaned_data.startcontext }}" />
+                    {% if form.startcontext.errors %}
+                        {% for error in form.startcontext.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                         {% endfor %}
-                    </select>
-                </div>
-            </div>
-            {% if form.realstart.errors %}
-            <div class="form-group has-error has-feedback">
-            {% else %}
-            <div class="form-group">
-            {% endif %}
-                <div class="col-sm-2">
-                    <label class="control-label" for="id_form-{{ form_id }}-realstart">Real?</label>
-                    {% if form.cleaned_data.realstart %}
-                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" checked>
-                    {% else %}
-                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart">
                     {% endif %}
+                </div>
+                <div class="col-sm-2">
+                    <label for="id_form-{{ form_id }}-realstart" class="checkbox-inline">
+                        {% if form.cleaned_data.realstart %}
+                            <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" checked > Real context?
+                        {% else %}
+                            <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" > Real context?
+                        {% endif %}
+                    </label>
                     {% if form.realstart.errors %}
                         {% for error in form.realstart.errors %}
-                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                         {% endfor %}
                     {% endif %}
                 </div>
@@ -123,84 +115,64 @@
             {% else %}
             <div class="form-group">
             {% endif %}
-                <div class="col-sm-4">
-                    <label class="control-label" for="id_form-{{ form_id }}-endcontext">End context</label>
-                    <select id="id_form-{{ form_id }}-endcontext" class="form-control" name="form-{{ form_id }}-endcontext">
-                        <option value="" selected="selected">--------</option>
-                        {% for context in contexts %}
-                        <option value="{{ context.id }}">{{ context.value }}</option>
-                        {% endfor %}
-                    </select>
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-endcontext">End context</label>
+                <div class="col-sm-6">
+                   <input type="text" class="form-control" id="id_form-{{ form_id }}-endcontext" name="form-{{ form_id }}-endcontext" value="{{ form.cleaned_data.endcontext }}" />
                     {% if form.endcontext.errors %}
                         {% for error in form.endcontext.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                         {% endfor %}
                     {% endif %}
                 </div>
-            </div>
-            {% if form.realend.errors %}
-            <div class="form-group has-error has-feedback">
-            {% else %}
-            <div class="form-group">
-            {% endif %}
                 <div class="col-sm-2">
-                    <label class="control-label" for="id_form-{{ form_id }}-realend">Real?</label>
-                    {% if form.cleaned_data.realend %}
-                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realend" checked>
-                    {% else %}
-                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realend">
-                    {% endif %} 
+                    <label for="id_form-{{ form_id }}-realend" class="checkbox-inline">
+                        {% if form.cleaned_data.realend %}
+                            <input type="checkbox" id="id_form-{{ form_id }}-realend" name="form-{{ form_id }}-realend" checked > Real context?
+                        {% else %}
+                            <input type="checkbox" id="id_form-{{ form_id }}-realend" name="form-{{ form_id }}-realend" > Real context?
+                        {% endif %}
+                    </label>
                     {% if form.realend.errors %}
                         {% for error in form.realend.errors %}
-                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                         {% endfor %}
                     {% endif %}
                 </div>
             </div>
-            </div>
-            <div class="row">
-                {% if form.firstciteddate.errors %}
-                    <div class="form-group has-error has-feedback">
-                {% else %}
-                    <div class="form-group">
-                {% endif %}
-                    <div class="col-sm-4">
-                        <label class="control-label" for="id_form-{{ form_id }}-firstciteddate">First cited date</label>
-                        <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-firstciteddate" name="form-{{ form_id }}-firstciteddate" value="{{ form.cleaned_data.firstciteddate|date:'Y-m-d' }}"/>
-                        {% if form.firstciteddate.errors %}
-                            {% for error in form.firstciteddate.errors %}
-                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                </div> 
-                {% if form.lastciteddate.errors %}
-                    <div class="form-group has-error has-feedback">
-                {% else %}
-                    <div class="form-group">
-                {% endif %}
-                    <div class="col-sm-4">
-                        <label class="control-label" for="id_form-{{ form_id }}-lastciteddate">Last cited date</label>
-                        <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-lastciteddate" name="form-{{ form_id }}-lastciteddate" value="{{ form.cleaned_data.lastciteddate|date:'Y-m-d' }}"/>
-                        {% if form.lastciteddate.errors %}
-                            {% for error in form.lastciteddate.errors %}
-                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                </div> 
- 
+            {% if form.firstciteddate.errors or form.lastcited.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-firstciteddate">Citation dates</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-firstciteddate" name="form-{{ form_id }}-firstciteddate" value="{{ form.cleaned_data.firstciteddate|date:'Y-m-d' }}" placeholder="First cited date" />
+                    {% if form.firstciteddate.errors %}
+                        {% for error in form.firstciteddate.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-lastciteddate" name="form-{{ form_id }}-lastciteddate" value="{{ form.cleaned_data.lastciteddate|date:'Y-m-d' }}" placeholder="Last cited date" />
+                    {% if form.lastciteddate.errors %}
+                        {% for error in form.lastciteddate.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
             </div>
         {% endwith %}
+        {% if not forloop.last %}
+            <br />
+        {% endif %}
     {% endfor %}
-    <div class="row">
         <div class="form-group submit">
             <div class="col-md-12">
                 <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
                 <button type="submit" class="btn sfm-btn-cancel" value="Skip">Skip</button>
             </div>
         </div>
-    </div>
 
 </form>
 

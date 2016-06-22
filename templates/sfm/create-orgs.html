@@ -133,14 +133,14 @@
                             </div>
                         </div>
                         {% if form_id > 0 %}
-                            <br />
-                            <div class="col-sm-12">
-                                <button id="remove_form-{{ form_id }}" type="button" class="remove-form btn btn-danger">
-                                    Remove Organization <i class="fa fa-minus"></i>
-                                </button>
+                            <div class="form-group">
+                                <div class="col-sm-10 col-sm-offset-2">
+                                    <button id="remove_form-{{ form_id }}" type="button" class="remove-form btn btn-danger">
+                                        Remove Organization <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
                             </div>
                         {% endif %}
-                        <br />
                         <hr>
                     </div>
                 {% endwith %}
@@ -216,14 +216,14 @@
             </div>
         </div>
         <% if (form_id > 0) { %>
-            <br />
-            <div class="col-sm-12">
-                <button id="remove_form-{{ form_id }}" href="javascript://" type="button" class="remove-form btn btn-danger">
-                    Remove Organization <i class="fa fa-minus"></i>
-                </button>
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                    <button id="remove_form-{{ form_id }}" href="javascript://" type="button" class="remove-form btn btn-danger">
+                        Remove Organization <i class="fa fa-minus"></i>
+                    </button>
+                </div>
             </div>
         <% } %>
-        <br />
         <hr />
     </div>
 </script>
