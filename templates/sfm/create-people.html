@@ -11,126 +11,129 @@
 {% endblock %}
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
-<div class="row"<div class="row">
+<div class="row">
     <h2>People</h2>
     <p>Describe any people found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
-    <form method="post" action="" id="person-form">
-        {% csrf_token %}
-        {{ formset.management_form }}
-        <input type="hidden" value="0" name="form-FORMS_ADDED" id="id_form-FORMS_ADDED" />
-        <div id="dynamic-form">
-        {% if formset.errors %}
-            {% for form in formset %}
-                {% with form_id=forloop.counter0 %}
-                    <div id="form-{{ form_id }}-wrapper">
-                        <div class="row">
-                            {% if form.name.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-4">
-                                    <label class="control-label">Name</label>
-                                    <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
-                                        {% if form.cleaned_data.name %}
-                                            <option value="{{ form.cleaned_data.name }}" selected=true>{{ form.cleaned_data.name_text }}</option>
-                                        {% endif %}
-                                    </select>
-                                    {% if form.name.errors %}
-                                        {% for error in form.name.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                    <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" value="{{ form.cleaned_data.name_text }}" />
-                                </div>
-                            </div>
-                            {% if form.alias.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-4">
-                                    <label class="control-label">Aliases</label>
-                                    <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
-                                    </select>
-                                    {% if form.alias.errors %}
-                                        {% for error in form.alias.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% if form.deathdate.errors %}
-                                <div class="form-group has-error has-feedback">
-                            {% else %}
-                                <div class="form-group">
-                            {% endif %}
-                                <div class="col-sm-4">
-                                    <label class="control-label" for="id_form-{{ form_id }}-deathdate">Date of death</label>
-                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-deathdate" name="form-{{ form_id }}-deathdate" value="{{ form.cleaned_data.deathdate|date:'Y-m-d' }}"/>
-                                    {% if form.deathdate.errors %}
-                                        {% for error in form.deathdate.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <br />
-                        <div class="row">
-                        {% if form.orgs.errors %}
-                            <div class="form-group hass-eror has-feedback">
+</div>
+<form method="post" action="" id="person-form">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <input type="hidden" value="0" name="form-FORMS_ADDED" id="id_form-FORMS_ADDED" />
+    <div id="dynamic-form">
+    {% if formset.errors %}
+        {% for form in formset %}
+            {% with form_id=forloop.counter0 %}
+                <div id="form-{{ form_id }}-wrapper">
+                    <div class="row">
+                        {% if form.name.errors %}
+                            <div class="form-group has-error has-feedback">
                         {% else %}
                             <div class="form-group">
                         {% endif %}
-                            <div class="col-sm-12">
-                                <label class="control-label" for="id_form-{{ form_id }}-orgs">Select the organizations this person is a member of: </label>
-                                <select id="id_form-{{ form_id }}-orgs" class="form-control orgs-field" name="form-{{ form_id }}-orgs" multiple="multiple">
-                                    {% for organization in organizations %}
-                                        <option value="{{ organization.id }}">{{ organization.name }}</option>
-                                    {% endfor %}
-                                </select>
-                                    {% if form.orgs.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> A person must belong to at least one organization.</span>
+                            <div class="col-sm-4">
+                                <label class="control-label">Name</label>
+                                <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
+                                    {% if form.cleaned_data.name %}
+                                        <option value="{{ form.cleaned_data.name }}" selected=true>{{ form.cleaned_data.name_text }}</option>
                                     {% endif %}
-                            </div>
+                                </select>
+                                {% if form.name.errors %}
+                                    {% for error in form.name.errors %}
+                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                    {% endfor %}
+                                {% endif %}
+                                <input type="hidden" name="form-{{ form_id }}-name_text" id="id_form-{{ form_id }}-name_text" value="{{ form.cleaned_data.name_text }}" />
                             </div>
                         </div>
-                        {% if form_id > 0 %}
-                            <br />
-                            <div class="col-sm-12">
-                                <button id="remove_form-{{ form_id }}" href="javascript://" class="remove-form btn btn-danger">
-                                    Remove Person <i class="fa fa-minus"></i>
-                                </button>
-                            </div>
+                        {% if form.alias.errors %}
+                            <div class="form-group has-error has-feedback">
+                        {% else %}
+                            <div class="form-group">
                         {% endif %}
-                        <br />
-                        <hr />
+                            <div class="col-sm-4">
+                                <label class="control-label">Aliases</label>
+                                <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
+                                </select>
+                                {% if form.alias.errors %}
+                                    {% for error in form.alias.errors %}
+                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if form.deathdate.errors %}
+                            <div class="form-group has-error has-feedback">
+                        {% else %}
+                            <div class="form-group">
+                        {% endif %}
+                            <div class="col-sm-4">
+                                <label class="control-label" for="id_form-{{ form_id }}-deathdate">Date of death</label>
+                                <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-deathdate" name="form-{{ form_id }}-deathdate" value="{{ form.cleaned_data.deathdate|date:'Y-m-d' }}"/>
+                                {% if form.deathdate.errors %}
+                                    {% for error in form.deathdate.errors %}
+                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                {% endwith %}
-            {% endfor %}
-        {% endif %}
-    </div>
-    <br />
-    <div class="row">
-        <div class="col-sm-12">
-            <button class="btn btn-info" href="javascript://" id="add-form">
-                Add person <i class="fa fa-plus"></i>
-            </button>
-        </div>
-    </div>
-    <br />
-    <div class="row">
-        <div class="form-group">
-            <div class="col-md-12">
-                <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
-                <button type="submit" class="btn sfm-btn-cancel" value="Skip">Skip</button>
-            </div>
-        </div>
-    </div>
-    </form>
+                    <br />
+                    <div class="row">
+                    {% if form.orgs.errors %}
+                        <div class="form-group hass-eror has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <div class="col-sm-12">
+                            <label class="control-label" for="id_form-{{ form_id }}-orgs">Select the organizations this person is a member of: </label>
+                            <select id="id_form-{{ form_id }}-orgs" class="form-control orgs-field" name="form-{{ form_id }}-orgs" multiple="multiple">
+                                {% for organization in organizations %}
+                                    <option value="{{ organization.id }}">{{ organization.name }}</option>
+                                {% endfor %}
+                            </select>
+                                {% if form.orgs.errors %}
+                                    <span class="help-block"><i class="fa fa-remove"> </i> A person must belong to at least one organization.</span>
+                                {% endif %}
+                        </div>
+                        </div>
+                    </div>
+                    {% if form_id > 0 %}
+                        <br />
+                        <div class="row">
+                            <div classs="form-group">
+                                <div class="col-sm-12">
+                                    <button id="remove_form-{{ form_id }}" href="javascript://" class="remove-form btn btn-danger">
+                                        Remove Person <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <hr />
+                </div>
+            {% endwith %}
+        {% endfor %}
+    {% endif %}
 </div>
+<br />
+<div class="row">
+    <div class="col-sm-12">
+        <button class="btn btn-info" href="javascript://" id="add-form">
+            Add person <i class="fa fa-plus"></i>
+        </button>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="form-group">
+        <div class="col-md-12">
+            <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
+            <button type="submit" class="btn sfm-btn-cancel" value="Skip">Skip</button>
+        </div>
+    </div>
+</div>
+</form>
 
 {% endblock %}
 
@@ -174,12 +177,16 @@
             </div>
         </div>
         <% if (form_id > 0) { %>
-            <br />
-            <div class="col-sm-2 pull-right">
-                <button id="remove_form-<%= form_id %>" href="javascript://" class="remove-form btn btn-danger">
-                    Remove Person <i class="fa fa-minus"></i>
-                </button>
+        <br />
+        <div class="row">
+            <div classs="form-group">
+                <div class="col-sm-12">
+                    <button id="remove_form-<%= form_id %>" href="javascript://" class="remove-form btn btn-danger">
+                        Remove Person <i class="fa fa-minus"></i>
+                    </button>
+                </div>
             </div>
+        </div>
         <% } %>
         <br />
         <hr>
