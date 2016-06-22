@@ -15,17 +15,15 @@
             </thead>
             <tbody>
                 {% for edit in edits %}
-                    {% if edit.content_type.name == 'source' %}
-                        <tr>
-                            <td>{{ edit.revision.user.username }}</td>
-                            {% spaceless %}
-                            <td>
-                                    {{ edit.object }}
-                            </td>
-                            {% endspaceless %}
-                            <td>{{ edit.revision.date_created }}</td>
-                        </tr>
-                    {% endif %}
+                    <tr>
+                        <td>{{ edit.revision.user.username }}</td>
+                        {% spaceless %}
+                        <td>
+                            <a href="{% url 'view-source' edit.object.id %}">{{ edit.object }}</a>
+                        </td>
+                        {% endspaceless %}
+                        <td>{{ edit.revision.date_created }}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>

@@ -2,12 +2,12 @@ import json
 from uuid import uuid4
 
 from django.views.generic.base import TemplateView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import FormView
 from django.forms import formset_factory
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib import messages
 
 from extra_views import FormSetView
@@ -32,7 +32,9 @@ class Dashboard(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Dashboard, self).get_context_data(**kwargs)
-        context['edits'] = sorted(Version.objects.get_unique(), 
+        
+        sources = Version.objects.filter(content_type__model='source').get_unique()
+        context['edits'] = sorted(sources, 
                                   key=lambda x: x.revision.date_created, 
                                   reverse=True)
 
@@ -40,6 +42,13 @@ class Dashboard(TemplateView):
             del self.request.session['source_id']
         
         return context
+
+def view_source(request, source_id):
+    try:
+        source = Source.objects.get(id=source_id)
+    except Source.DoesNotExist:
+        return HttpResponseNotFound()
+    return render(request, 'sfm/view-source.html', context={'source': source})
 
 class CreateSource(FormView):
     template_name = 'sfm/create-source.html'
@@ -221,18 +230,20 @@ class CreateOrgs(FormSetView):
             
             aliases = formset.data.get(alias_text_key)
             
-            for alias in aliases:
+            if aliases:
                 
-                alias_obj, created = OrganizationAliasObject.objects.get_or_create(value=alias)
+                for alias in aliases:
+                    
+                    alias_obj, created = OrganizationAliasObject.objects.get_or_create(value=alias)
 
-                alias_data = {
-                    'Organization_OrganizationAlias': {
-                        'value': alias_obj, 
-                        'confidence': 1,
-                        'sources': [source]
+                    alias_data = {
+                        'Organization_OrganizationAlias': {
+                            'value': alias_obj, 
+                            'confidence': 1,
+                            'sources': [source]
+                        }
                     }
-                }
-                organization.update(alias_data)
+                    organization.update(alias_data)
                 
             # Next do classification
             classification = formset.data.get(form_prefix + 'classification')
