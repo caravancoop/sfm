@@ -58,3 +58,6 @@ class OrganizationGeographyForm(forms.Form):
     enddate = ApproximateDateFormField(required=False)
     org = forms.CharField()
     geotype = forms.CharField()
+
+class ViolationForm(forms.Form):
+    name = forms.CharField()

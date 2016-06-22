@@ -14,7 +14,7 @@ from extra_views import FormSetView
 from reversion.models import Version
 
 from .forms import SourceForm, OrgForm, PersonForm, PersonMembershipForm, \
-    OrganizationGeographyForm
+    OrganizationGeographyForm, ViolationForm
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias as OrganizationAliasObject, Classification
@@ -25,7 +25,7 @@ from association.models import Association
 from emplacement.models import Emplacement
 from cities.models import Place, City, Country, Region, Subregion, District
 from geosite.models import Geosite
-from area.models import Area
+from area.models import Area, Code
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -508,7 +508,7 @@ class MembershipInfo(FormSetView):
 class OrganizationGeographies(FormSetView):
     template_name = 'sfm/organization-geo.html'
     form_class = OrganizationGeographyForm
-    success_url = '/create-events/'
+    success_url = '/create-violations/'
     extra = 1
     max_num = None
     
@@ -517,7 +517,7 @@ class OrganizationGeographies(FormSetView):
         if not self.request.session.get('source_id'):
             messages.add_message(request, 
                                  messages.INFO, 
-                                 "Before adding memberships, please tell us about your source.",
+                                 "Before adding geographies, please tell us about your source.",
                                  extra_tags='alert alert-info')
             return redirect('create-source')
         
@@ -587,7 +587,7 @@ class OrganizationGeographies(FormSetView):
                 code = None
                 geometry = None
             if formset.data[form_prefix + 'geography_type'] == 'Site':
-                get_site = Geosite.objects.filter(geositename__value=geo.name)
+                get_site = Geosite.objects.filter(geositegeonamed__value=geo.id)
                 if len(get_site) == 0:
                     site_data = {
                         'Geosite_GeositeName': {
@@ -666,8 +666,9 @@ class OrganizationGeographies(FormSetView):
                     }
                     Emplacement.create(emp_data)
             else:
-                get_area = Area.objects.filter(geoname__value = geo.name)
+                get_area = Area.objects.filter(areageonameid__value = geo.id)
                 if len(get_area) == 0:
+                    code_obj = Code.objects.create(value=code)
                     area_data = {
                         'Area_AreaName': {
                             'value': formset.data[form_prefix + 'name'],
@@ -679,8 +680,13 @@ class OrganizationGeographies(FormSetView):
                             'confidence': 1,
                             'source': [source]
                         },
+                        'Area_AreaGeonameId': {
+                            'value': geo.id,
+                            'confidence': 1,
+                            'source': [source]
+                        },
                         'Area_AreaCode': {
-                            'value': code,
+                            'value': code_obj,
                             'confidence': 1,
                             'source': [source]
                         },
@@ -693,7 +699,7 @@ class OrganizationGeographies(FormSetView):
                     area = Area.create(area_data)
                 else:
                     area = get_area[0]
-                get_assoc = Association.objects.filter(associationorganization__value=org_id).filter(associationsite__value=site.id)
+                get_assoc = Association.objects.filter(associationorganization__value=org_id).filter(associationarea__value=area.id)
                 if len(get_assoc) > 0:
                     # update dates?
                     # add sources
@@ -717,8 +723,8 @@ class OrganizationGeographies(FormSetView):
                             'confidence': 1,
                             'source': [source]
                         },
-                        'Association_AssociationSite': {
-                            'value': site,
+                        'Association_AssociationArea': {
+                            'value': area,
                             'confidence': 1,
                             'source': [source]
                         },
@@ -738,6 +744,34 @@ class OrganizationGeographies(FormSetView):
         
         return response
 
+class CreateViolations(FormSetView):
+    template_name = 'sfm/create-violations.html'
+    form_class = ViolationForm
+    success_url = '/entry-complete/'
+    extra = 1
+    max_num = None
+    
+    def get_context_data(self, **kwargs):
+        context = super(CreateViolations, self).get_context_data(**kwargs)
+        if not self.request.session.get('source_id'):
+            messages.add_message(request, 
+                                 messages.INFO, 
+                                 "Before adding events, please tell us about your source.",
+                                 extra_tags='alert alert-info')
+            return redirect('create-source')
+        
+        organizations = self.request.session['organizations']
+        
+        context['organizations'] = organizations
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        return context
+
+    def post(self, request, *args, **kwargs):
+        organizations = self.request.session['organizations']
+
+        ViolationFormset = self.get_formset()
+        formset = EventFormset(request.POST)
+ 
 def publications_autocomplete(request):
     term = request.GET.get('q')
     publications = Publication.objects.filter(title__icontains=term).all()

@@ -6,7 +6,7 @@ from django.contrib import admin
 from .views import Dashboard, CreateSource, CreateOrgs, CreatePeople, \
     MembershipInfo, publications_autocomplete, organizations_autocomplete, \
     aliases_autocomplete, people_autocomplete, personalias_autocomplete, \
-    geoname_autocomplete, OrganizationGeographies
+    geoname_autocomplete, OrganizationGeographies, CreateViolations
 
 urlpatterns = i18n_patterns(
     '',
@@ -23,6 +23,7 @@ urlpatterns = i18n_patterns(
     url(r'^create-people/', CreatePeople.as_view(), name="create-people"),
     url(r'^membership-info/', MembershipInfo.as_view(), name="membership-info"),
     url(r'^organization-geo/', OrganizationGeographies.as_view(), name="organization-geo"),
+    url(r'^create-violations/', CreateViolations.as_view(), name="create-violations"),
     url(r'^publications-autocomplete/', publications_autocomplete, name="publications-autocomplete"),
     url(r'^organizations-autocomplete/', organizations_autocomplete, name="organizations-autocomplete"),
     url(r'^aliases-autocomplete/', aliases_autocomplete, name="aliases-autocomplete"),
