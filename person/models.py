@@ -122,7 +122,7 @@ class PersonName(ComplexField):
 @sourced
 class PersonAlias(ComplexField):
     object_ref = models.ForeignKey('Person')
-    value = models.TextField(default=None, blank=True, null=True)
+    value = models.ForeignKey('Alias', default=None, blank=True, null=True)
     field_name = _("Aliases")
 
 class Alias(models.Model):

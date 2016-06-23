@@ -151,6 +151,7 @@ class OrganizationUpdate(TemplateView):
         context = super(OrganizationUpdate, self).get_context_data(**kwargs)
         context['title'] = "Organization"
         context['organization'] = Organization.objects.get(pk=context.get('pk'))
+        context['classifications'] = Classification.objects.all()
         
         return context
 
