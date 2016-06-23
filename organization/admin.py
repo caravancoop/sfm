@@ -10,23 +10,23 @@ class OrganizationAdmin(admin.ModelAdmin):
     pass
 
 
-class OrganizationNameAdmin(reversion.VersionAdmin):
+class OrganizationNameAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class OrganizationAliasAdmin(reversion.VersionAdmin):
+class OrganizationAliasAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class OrganizationClassificationAdmin(reversion.VersionAdmin):
+class OrganizationClassificationAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class OrganizationFoundingDateAdmin(reversion.VersionAdmin):
+class OrganizationFoundingDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class OrganizationRealFoundingAdmin(reversion.VersionAdmin):
+class OrganizationRealFoundingAdmin(reversion.admin.VersionAdmin):
     pass
 
 

@@ -1,12 +1,12 @@
 dj-database-url==0.3.0
-Django==1.8.3
+Django==1.9.7
 django-jsonview==0.5.0
 django-localeurl==2.0.2
-django-reversion==1.9.3
+django-reversion==2.0.4
 django-countries-plus==1.0.1
 django-cities==0.4.2
 django-languages-plus==0.1.5
-django-allauth==0.23.0
+django-allauth==0.25.2
 django-date-extensions==1.1.0
 django-leaflet==0.16.0
 psycopg2==2.6.1

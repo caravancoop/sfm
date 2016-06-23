@@ -9,7 +9,7 @@ class AreaAdmin(admin.ModelAdmin):
     pass
 
 
-class AreaNameAdmin(reversion.VersionAdmin):
+class AreaNameAdmin(reversion.admin.VersionAdmin):
     pass
 
 
@@ -17,11 +17,11 @@ class AreaGeometryAdmin(admin.ModelAdmin):
     pass
 
 
-class AreaCodeAdmin(reversion.VersionAdmin):
+class AreaCodeAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class AreaGeoNameAdmin(reversion.VersionAdmin):
+class AreaGeoNameAdmin(reversion.admin.VersionAdmin):
     pass
 
 

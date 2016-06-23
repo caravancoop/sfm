@@ -3,7 +3,12 @@
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
-        {{ source }}
+        <p><strong>Title: </strong>{{ source.title }}</p>
+        <p><strong>published on: </strong>{{ source.published_on }}</p>
+        <p><strong>publication: </strong>{{ source.publication.title }}</p>
+        <p><strong>publication country: </strong>{{ source.publication.country }}</p>
+        <p><strong>source url: </strong>{{ source.source_url }}</p>
+        <p><strong>archive url: </strong>{{ source.archive_url }}</p>
     </div>
 </div>
 

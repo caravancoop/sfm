@@ -4,7 +4,7 @@ import csv
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.contrib.admin.util import NestedObjects
+from django.contrib.admin.utils import NestedObjects
 from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.template.loader import render_to_string

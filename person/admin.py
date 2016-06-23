@@ -12,11 +12,11 @@ class PersonNameAdmin(admin.ModelAdmin):
     pass
 
 
-class PersonAliasAdmin(reversion.VersionAdmin):
+class PersonAliasAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class PersonDeathDateAdmin(reversion.VersionAdmin):
+class PersonDeathDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
