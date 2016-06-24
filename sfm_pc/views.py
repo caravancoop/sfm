@@ -45,9 +45,12 @@ class Dashboard(TemplateView):
             context['source_properties'] = [p for p in \
                                                 dir(context['edits'][0].object) \
                                                     if p.endswith('_related')]
-
-        if self.request.session.get('source_id'):
-            del self.request.session['source_id']
+        
+        session_keys = ['organizations', 'people', 'memberships', 'source_id']
+        
+        for session_key in session_keys:
+            if self.request.session.get(session_key):
+                del self.request.session[session_key]
         
         return context
 
@@ -786,8 +789,8 @@ class CreateViolations(FormSetView):
                                  extra_tags='alert alert-info')
             return redirect('create-source')
         
-        organizations = self.request.session['organizations']
-        people = self.request.session['people']
+        organizations = self.request.session.get('organizations')
+        people = self.request.session.get('people')
 
         context['types'] = Type.objects.all()
         context['people'] = people         
