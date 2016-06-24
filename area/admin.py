@@ -21,10 +21,10 @@ class AreaCodeAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class AreaGeoNameAdmin(reversion.admin.VersionAdmin):
+class AreaGeonameAdmin(reversion.admin.VersionAdmin):
     pass
 
-class AreaGeonameIdAdmin(reversion.VersionAdmin):
+class AreaGeonameIdAdmin(reversion.admin.VersionAdmin):
     pass
 
 class CodeAdmin(admin.ModelAdmin):
