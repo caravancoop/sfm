@@ -12,8 +12,8 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2>Violations</h2>
-    <p>Describe any violations found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <h2>Events</h2>
+    <p>Describe any events found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
     <form method="post" action="" id="person-form">
         {% csrf_token %}
