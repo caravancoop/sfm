@@ -787,7 +787,10 @@ class CreateViolations(FormSetView):
             return redirect('create-source')
         
         organizations = self.request.session['organizations']
-        
+        people = self.request.session['people']
+
+        context['types'] = Type.objects.all()
+        context['people'] = people         
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         return context
@@ -796,7 +799,7 @@ class CreateViolations(FormSetView):
         organizations = self.request.session['organizations']
 
         ViolationFormset = self.get_formset()
-        formset = EventFormset(request.POST)
+        formset = ViolationFormset(request.POST)
 
         if formset.is_valid():
             return self.formset_valid(formset)
@@ -814,15 +817,14 @@ class CreateViolations(FormSetView):
             startdate = formset.data[form_prefix + 'startdate']
             enddate = formset.data[form_prefix + 'enddate']
             locationdescription = formset.data[form_prefix + 'locationdescription']
-            geoname = formset.data[form_prefix + 'geoname']
-            geoname_text = formset.data[form_prefix + 'geoname_text']
+            geoid = formset.data[form_prefix + 'geoname']
             geotype = formset.data[form_prefix + 'geotype']
             description = formset.data[form_prefix + 'description']
-            perpetrators = formset.data[formset_prefix + 'perpetrators']
-            orgs = formset.data[formset_prefix + 'orgs']
-            vtype = formset.data[formset_prefix + 'vtype'] 
+            perpetrators = formset.data[form_prefix + 'perpetrators']
+            orgs = formset.data[form_prefix + 'orgs']
+            vtype = formset.data[form_prefix + 'vtype'] 
 
-            newtype, flag = Type.objects.get_or_create(value=vtype)
+            newtype, flag = Type.objects.get_or_create(id=vtype)
 
             if geotype == 'country':
                 geo = Country.objects.get(id=geoid)
@@ -851,60 +853,63 @@ class CreateViolations(FormSetView):
                 coords = geo.location
 
             violation_data = {
-                'confidence': 1,
-                'sources': [source], 
-                'ViolationDescription': {
+                'Violation_ViolationDescription': {
                    'value': description,
                    'sources': [source],
                    'confidence': 1
                 },
-                'ViolationLocationDescription': {
+                'Violation_ViolationLocationDescription': {
                     'value': locationdescription,
                     'sources': [source],
                     'confidence': 1
                 },
-                'ViolationType': {
+                'Violation_ViolationType': {
                     'value': newtype,
                     'sources': [source],
                     'confidence': 1
                 },
-                'ViolationPerpetrator': {
+                'Violation_ViolationPerpetrator': {
                     'value': Person.objects.get(id=perpetrators),
                     'sources': [source],
                     'confidence': 1
                 },
-                'ViolationPerpetratorOrganization': {
+                'Violation_ViolationPerpetratorOrganization': {
                     'value': Organization.objects.get(id=orgs),
                     'sources': [source],
                     'confidence': 1
                 },
-                'ViolationAdminLevel1': {
+                'Violation_ViolationAdminLevel1': {
                     'value': admin1,
                     'sources': [source],
                     'confidence': 1
                 },
-                'ViolationAdminLevel2': {
+                'Violation_ViolationAdminLevel2': {
                     'value': admin2,
                     'sources': [source],
                     'confidence': 1
                 },
-                'ViolationGeoname': {
+                'Violation_ViolationGeoname': {
                     'value': geo.name,
                     'sources': [source],
                     'confidence': 1
                 },
-                'ViolationGeonameId': {
+                'Violation_ViolationGeonameId': {
                     'value': geo.id,
                     'sources': [source],
                     'confidence': 1
                 },
-                'ViolationLocation': {
+                'Violation_ViolationLocation': {
                     'value': coords,
                     'sources': [source],
                     'confidence': 1
                 }
             }
             Violation.create(violation_data)
+        response = super().formset_valid(formset)
+        return response
+
+
+
 def publications_autocomplete(request):
     term = request.GET.get('q')
     publications = Publication.objects.filter(title__icontains=term).all()

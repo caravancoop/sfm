@@ -49,8 +49,14 @@
                             {% endif %}
                                 <div class="col-sm-12">
                                     <label class="control-label">Violation type</label>
-                                    <select id="id_form-{{ form_id }}-type" class="form-control" name="form-{{ form_id }}-type">
-                                        <!-- types go here -->
+                                    <select id="id_form-{{ form_id }}-vtype" class="form-control" name="form-{{ form_id }}-vtype">
+                                        {% for type in types %}
+                                            {% if type.id == form.cleaned_data.type.id %}
+                                                <option value="{{ type.id }}" selected="true">{{ type.code }}</option>
+                                            {% else %}
+                                                <option value="{{ type.id }}">{{ type.code }}</option>
+                                            {% endif %}
+                                        {% endfor %}
                                     </select>
                                     {% if form.type.errors %}
                                         {% for error in form.type.errors %}
@@ -224,8 +230,10 @@
         <div class="form-group">
         <div class="col-sm-12">
             <label class="control-label">Violation type</label>
-            <select id="id_form-<%= form_id %>-type" class="form-control" name="form-<%= form_id %>-type">
-                <!-- types go here -->
+            <select id="id_form-<%= form_id %>-vtype" class="form-control" name="form-<%= form_id %>-vtype">
+                {% for type in types %}
+                    <option value="{{ type.id }}">{{ type.code }}</option>
+                {% endfor %}
             </select>
         </div>
         </div>
@@ -281,8 +289,8 @@
         </div>
         <div class="form-group">
             <div class="col-sm-6">
-                <label class="control-label" for="id_form-{{ form_id }}-locationdescription">Location description</label>
-                <input type="text" name="form-{{ form_id }}-locationdescription" id="id_form-{{ form_id }}-locationdescription" class="form-control">
+                <label class="control-label" for="id_form-<%= form_id %>-locationdescription">Location description</label>
+                <input type="text" name="form-<%= form_id %>-locationdescription" id="id_form-<%= form_id %>-locationdescription" class="form-control">
             </div>
         </div>
     </div>
@@ -411,6 +419,7 @@
         var name_field = '#id_form-' + form_num + '-name';
         var alias_field = '#id_form-' + form_num + '-alias';
         var geoname_field =  '#id_form-' + form_num + '-geoname';
+        var geotype_field = '#id_form-' + form_num + '-geotype';
 
         $(geoname_field).select2(geoname_opts);
 
@@ -427,7 +436,7 @@
             if (isNaN($(geoname_field + ' :selected').attr('value'))) {
                 $(geoname_field + ' :selected').attr('value','-1');
             }
-            $('#id_form-' + form_num + '-geotype').val(e.params.data.type);
+            $(geotype_field).val(e.params.data.type);
         });
 
 
