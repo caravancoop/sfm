@@ -773,7 +773,7 @@ class OrganizationGeographies(FormSetView):
 class CreateViolations(FormSetView):
     template_name = 'sfm/create-violations.html'
     form_class = ViolationForm
-    success_url = '/entry-complete/'
+    success_url = '/confidences/'
     extra = 1
     max_num = None
     
