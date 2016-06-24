@@ -15,12 +15,12 @@ def render_versions(object_ref):
             if related.versioned:
                 versions = Version.objects.get_for_object(related)
 
-                versioned_types.append((related._meta.model_name, versions,))
+                versioned_types.append((related.field_name, versions,))
     
     versioned_types = sorted(versioned_types, key=lambda x: x[0])
-    context = {}
+    context = {'versions': []}
 
     for object_type, grouping in itertools.groupby(versioned_types, key=lambda x: x[0]):
-        context[object_type] = list(grouping)
+        context['versions'].append({object_type: list(grouping)})
 
     return context

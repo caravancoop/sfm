@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <form class="form form-horizontal">
+    <form class="form form-horizontal" method="POST">
         {% if form.name.errors %}
             <div class="form-group has-error has-feedback">
         {% else %}
@@ -43,7 +43,7 @@
                 <select id="id_form-{{ form_id }}-classification" class="form-control" name="form-{{ form_id }}-classification">
                     <option value="" selected="selected">--------</option>
                     {% for classification in classifications %}
-                        {% if classification.value == organization.classification.get_value %}
+                        {% if classification == organization.classification.get_value.value %}
                             <option value="{{ classification.id }}" selected="true">{{ classification.value }}</option>
                         {% else %}
                             <option value="{{ classification.id }}">{{ classification.value }}</option>

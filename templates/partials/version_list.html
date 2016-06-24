@@ -1,5 +1,40 @@
-{% for type_name, versions in organizationalias %}
+<div class="row">
+<hr />
+    <h2>Attribute Versions</h2>
+    <div class="col-sm-10 col-sm-offset-1">
     {% for version in versions %}
-        <p>{{ version }}</p>
+       {% for type_name, type_group in version.items %}
+           {% if forloop.first %}
+               <h4>{{ type_name }}</h4>
+               <table class="table table-condensed">
+                   <thead>
+                       <th>Value</th>
+                       <th>Confidence</th>
+                       <th>Date created</th>
+                       <th>User</th>
+                       <th>Sources</th>
+                   </thead>
+                   <tbody>
+           {% endif %}
+           {% for group, members in type_group %}
+               {% for member in members %}
+                   <tr>
+                       <td>{{ member.object.value }}</td>
+                       <td>{{ member.object.confidence }}</td>
+                       <td>{{ member.revision.date_created }}</td>
+                       <td>{{ member.revision.user }}</td>
+                       <td>
+                           {% for source in member.object.sources.all %}
+                               {{ source.title }}{% if not forloop.last %},{% endif %}
+                           {% endfor %}
+                       </td>
+                   </tr>
+               {% endfor %}
+           {% endfor %}
+               </tbody>
+           </table>
+                <hr />
+       {% endfor %}
     {% endfor %}
-{% endfor %}
+    </div>
+</div>

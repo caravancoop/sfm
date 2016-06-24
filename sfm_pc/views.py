@@ -225,12 +225,15 @@ class CreateOrgs(FormSetView):
                     'sources': [source]
                 },
             }
-           
-            if name_id == '-1':
-                organization = Organization.create(org_info)
             
-            else:
+            try:
                 organization = Organization.objects.get(id=name_id)
+                existing_sources = organization.organizationname_set.all()[0].sources.all()
+                
+                org_info["Organization_OrganizationName"]['sources'].extend(existing_sources)
+            
+            except (Organization.DoesNotExist, ValueError):
+                organization = Organization.create(org_info)
 
             # Save aliases first
             alias_id_key = 'form-{0}-alias'.format(i)
@@ -952,7 +955,7 @@ def people_autocomplete(request):
 
 def personalias_autocomplete(request):
     term = request.GET.get('q')
-    alias_query = PersonAlias.objects.filter(value__icontains=term)
+    alias_query = PersonAlias.objects.filter(value__value__icontains=term)
     results = []
     for alias in alias_query:
         results.append({

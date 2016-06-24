@@ -117,16 +117,12 @@ def organization_search(request):
     }))
 
 
-class OrganizationUpdate(TemplateView):
+class OrganizationUpdate(FormView):
     template_name = 'organization/edit.html'
 
     def post(self, request, *args, **kwargs):
         data = json.loads(request.POST.dict()['object'])
         
-        for field_name, field_data in data.items():
-            data[field_name]['sources'] = [Source.objects.first()]
-            data[field_name]['confidence'] = 'High'
-
         try:
             organization = Organization.objects.get(pk=kwargs.get('pk'))
         except Organization.DoesNotExist:
@@ -135,6 +131,7 @@ class OrganizationUpdate(TemplateView):
             return HttpResponse(msg, status=400)
 
         (errors, data) = organization.validate(data)
+        print(errors, data)
         if len(errors):
             return HttpResponse(
                 json.dumps({"success": False, "errors": errors}),
