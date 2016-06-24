@@ -773,7 +773,7 @@ class OrganizationGeographies(FormSetView):
 class CreateViolations(FormSetView):
     template_name = 'sfm/create-events.html'
     form_class = ViolationForm
-    success_url = '/confidences/'
+    success_url = '/'
     extra = 1
     max_num = None
     
@@ -978,8 +978,8 @@ def personalias_autocomplete(request):
     results = []
     for alias in alias_query:
         results.append({
-            'text': alias.value,
-            'id': alias.id
+            'text': alias.value.value,
+            'id': alias.value.id
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
 
