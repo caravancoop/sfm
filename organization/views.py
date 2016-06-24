@@ -4,16 +4,17 @@ from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
-from django.views.generic.edit import DeleteView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import DeleteView, FormView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 
-from .models import Organization, Classification
+from .models import Organization, OrganizationName, \
+    OrganizationAlias, Alias as OrganizationAliasObject, Classification
 from sfm_pc.utils import deleted_in_str
+from sfm_pc.forms import OrgForm
 from source.models import Source
 
 
@@ -120,37 +121,85 @@ def organization_search(request):
 
 class OrganizationUpdate(FormView):
     template_name = 'organization/edit.html'
+    form_class = OrgForm
+    success_url = '/'
+    sourced = True
 
     def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['object'])
         
-        try:
-            organization = Organization.objects.get(pk=kwargs.get('pk'))
-        except Organization.DoesNotExist:
-            msg = "This orgnanization does not exist, it should be created " \
-                  "before updating it."
-            return HttpResponse(msg, status=400)
+        form = OrgForm(request.POST)
+        
+        if not request.POST.get('source'):
+            self.sourced = False
+            return self.form_invalid(form)
+        else:
+            self.source = Source.objects.get(id=request.POST.get('source'))
+        
+        self.aliases = request.POST.getlist('alias')
 
-        (errors, data) = organization.validate(data)
-        print(errors, data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        organization = Organization.objects.get(pk=self.kwargs['pk'])
+        
+        org_info = {
+            'Organization_OrganizationName': {
+                'value': form.cleaned_data['name_text'],
+                'confidence': 1,
+                'source': list(set(list(organization.name.get_sources()) + [self.source]))
+            },
+            'Organization_OrganizationClassification': {
+                'value': form.cleaned_data['classification'],
+                'confidence': 1,
+                'source': list(set(list(organization.classification.get_sources()) + [self.source])),
+            },
+            'Organization_OrganizationFoundingDate': {
+                'value': form.cleaned_data['foundingdate'],
+                'confidence': 1,
+                'sources': list(set(list(organization.foundingdate.get_sources()) + [self.source])),
+            },
+            'Organization_OrganizationRealFounding': {
+                'value': form.cleaned_data['realfounding'],
+                'confidence': 1,
+                'sources': list(set(list(organization.realfounding.get_sources()) + [self.source])),
+            },
+        }
+        
+        organization.update(org_info)
+        
+        if self.aliases:
 
-        organization.update(data)
-        return HttpResponse(
-            json.dumps({"success": True}),
-            content_type="application/json"
-        )
+            aliases = OrganizationAlias.objects.filter(id__in=self.aliases)
+            organization.organizationalias_set = aliases
+            organization.save()
+
+        return response
 
     def get_context_data(self, **kwargs):
-        context = super(OrganizationUpdate, self).get_context_data(**kwargs)
-        context['title'] = "Organization"
-        context['organization'] = Organization.objects.get(pk=context.get('pk'))
+        context = super().get_context_data(**kwargs)
+        organization = Organization.objects.get(pk=self.kwargs['pk'])
+        
+        form_data = {
+            'name': organization.name.get_value(),
+            'classification': organization.classification.get_value(),
+            'alias': [i.get_value() for i in organization.aliases.get_list()],
+            'foundingdate': organization.foundingdate.get_value(),
+            'realfounding': organization.realfounding.get_value(),
+        }
+
+        context['form_data'] = form_data
+        context['title'] = 'Organization'
+        context['organization'] = organization
         context['classifications'] = Classification.objects.all()
         
+        if not self.sourced:
+            context['source_error'] = 'Please include the source for your changes'
+
         return context
 
 

@@ -6,7 +6,8 @@ from django.contrib import admin
 from .views import Dashboard, CreateSource, CreateOrgs, CreatePeople, \
     MembershipInfo, publications_autocomplete, organizations_autocomplete, \
     aliases_autocomplete, people_autocomplete, personalias_autocomplete, \
-    geoname_autocomplete, OrganizationGeographies, CreateViolations, view_source
+    geoname_autocomplete, OrganizationGeographies, CreateViolations, \
+    view_source, source_autocomplete
 
 urlpatterns = i18n_patterns(
     '',
@@ -18,19 +19,20 @@ urlpatterns = i18n_patterns(
     url(r'^translate/', include('translation.urls')),
     url(r'^version/', include('version.urls')),
     url(r'^source/', include('source.urls')),
-    url(r'^create-source/', CreateSource.as_view(), name="create-source"),
+    url(r'^create-source/$', CreateSource.as_view(), name="create-source"),
     url(r'^view-source/(?P<source_id>\d+)/$', view_source, name="view-source"),
-    url(r'^create-orgs/', CreateOrgs.as_view(), name="create-orgs"),
-    url(r'^create-people/', CreatePeople.as_view(), name="create-people"),
-    url(r'^membership-info/', MembershipInfo.as_view(), name="membership-info"),
-    url(r'^organization-geo/', OrganizationGeographies.as_view(), name="organization-geo"),
-    url(r'^create-violations/', CreateViolations.as_view(), name="create-violations"),
-    url(r'^publications-autocomplete/', publications_autocomplete, name="publications-autocomplete"),
-    url(r'^organizations-autocomplete/', organizations_autocomplete, name="organizations-autocomplete"),
-    url(r'^aliases-autocomplete/', aliases_autocomplete, name="aliases-autocomplete"),
-    url(r'^people-autocomplete/', people_autocomplete, name="people-autocomplete"),
-    url(r'^personalias-autocomplete/', personalias_autocomplete, name="personalias-autocomplete"),
-    url(r'^geoname-autocomplete/', geoname_autocomplete, name="geoname-autocomplete"),
+    url(r'^create-orgs/$', CreateOrgs.as_view(), name="create-orgs"),
+    url(r'^create-people/$', CreatePeople.as_view(), name="create-people"),
+    url(r'^membership-info/$', MembershipInfo.as_view(), name="membership-info"),
+    url(r'^organization-geo/$', OrganizationGeographies.as_view(), name="organization-geo"),
+    url(r'^create-violations/$', CreateViolations.as_view(), name="create-violations"),
+    url(r'^publications-autocomplete/$', publications_autocomplete, name="publications-autocomplete"),
+    url(r'^organizations-autocomplete/$', organizations_autocomplete, name="organizations-autocomplete"),
+    url(r'^aliases-autocomplete/$', aliases_autocomplete, name="aliases-autocomplete"),
+    url(r'^people-autocomplete/$', people_autocomplete, name="people-autocomplete"),
+    url(r'^personalias-autocomplete/$', personalias_autocomplete, name="personalias-autocomplete"),
+    url(r'^geoname-autocomplete/$', geoname_autocomplete, name="geoname-autocomplete"),
+    url(r'^source-autocomplete/$', source_autocomplete, name="source-autocomplete"),
     url(r'^area/', include('area.urls')),
     url(r'^association/', include('association.urls')),
     url(r'^geosite/', include('geosite.urls')),

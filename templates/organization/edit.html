@@ -1,4 +1,4 @@
-{% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
+{% extends "base.html" %}
 {% load viewcomplexfield %}
 {% load viewcomplexfielddate %}
 {% load viewcomplexfieldboolean %}
@@ -6,33 +6,80 @@
 {% load viewcomplexfieldlist %}
 {% load render_versions %}
 {% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+{% endblock %}
+
 {% block content %}
     <div class="row header">
         <div class="inner-title-wrapper">
             <h1 class="page-title">{% trans "Organization" %}</h1>
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <h4>Properties</h4>
-        </div>
-    </div>
 
-    <form class="form form-horizontal" method="POST">
+    <form class="form form-horizontal" method="POST" id="org-form">
+        {% csrf_token %}
+        {% if source_error %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label">Source for your changes</label>
+            <div class="col-sm-8">
+                <select id="id_source" class="form-control source-field" name="source">
+                    <option value="" selected="selected">--------</option>
+                </select>
+                {% if source_error %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{source_error}}</span>
+                {% endif %}
+            </div>
+        </div>
         {% if form.name.errors %}
             <div class="form-group has-error has-feedback">
         {% else %}
             <div class="form-group">
         {% endif %}
-                {% view_complex_field organization.name organization.id request.path %}
+            <label class="col-sm-2 control-label">Organization name</label>
+            <div class="col-sm-8">
+                <select id="id_name" class="form-control name-field" name="name">
+                        <option value="" selected="selected">--------</option>
+                    {% if form_data.name %}
+                        <option value="{{ form_data.name.id }}" selected=true>{{ form_data.name.value }}</option>
+                    {% endif %}
+                </select>
+                {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            <input type="hidden" name="name_text" id="id_name_text" value="{{ form_data.name.value }}" />
             </div>
+        </div>
         {% if form.alias.errors %}
             <div class="form-group has-error has-feedback">
         {% else %}
             <div class="form-group">
         {% endif %}
-                {% view_complex_field_list organization.aliases organization.id request.path %}
+            <label class="col-sm-2 control-label">Aliases</label>
+            <div class="col-sm-8">
+                <select id="id_alias" class="form-control alias-field" name="alias" multiple="multiple">
+                    {% for alias in form_data.alias %}
+                        <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
+                    {% endfor %}
+                </select>
+                {% for alias in form_data.alias %}
+                    <input type="hidden" name="alias_text" id="id_alias_text" value="{{ alias.value }}" />
+                {% endfor %}
+                {% if form.alias.errors %}
+                    {% for error in form.alias.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
             </div>
+        </div>
         {% if form.classification.errors %}
             <div class="form-group has-error has-feedback">
         {% else %}
@@ -40,10 +87,10 @@
         {% endif %}
             <label class="col-sm-2 control-label">Classification </label>
             <div class="col-sm-8">
-                <select id="id_form-{{ form_id }}-classification" class="form-control" name="form-{{ form_id }}-classification">
+                <select id="id_classification" class="form-control" name="classification">
                     <option value="" selected="selected">--------</option>
                     {% for classification in classifications %}
-                        {% if classification == organization.classification.get_value.value %}
+                        {% if classification.id == form_data.classification.id %}
                             <option value="{{ classification.id }}" selected="true">{{ classification.value }}</option>
                         {% else %}
                             <option value="{{ classification.id }}">{{ classification.value }}</option>
@@ -63,9 +110,9 @@
         {% else %}
             <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_form-{{ form_id }}-foundingdate">Founding date</label>
+            <label class="col-sm-2 control-label" for="id_foundingdate">Founding date</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-foundingdate" name="form-{{ form_id }}-foundingdate" value="{{ form.cleaned_data.foundingdate|date:'Y-m-d' }}"/>
+                <input type="text" class="form-control datepicker" id="id_foundingdate" name="foundingdate" value="{{ form_data.foundingdate.value|date:'Y-m-d' }}"/>
                 {% if form.foundingdate.errors %}
                     {% for error in form.foundingdate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -80,11 +127,11 @@
         {% endif %}
             <div class="col-sm-offset-2 col-sm-8">
                 <div class="checkbox">
-                    <label for="id_form-{{ form_id }}-realfounding" class="control-label">
-                        {% if form.cleaned_data.realfounding %}
-                            <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" checked > Real founding date?
+                    <label for="id_realfounding" class="control-label">
+                        {% if form_data.realfounding.value %}
+                            <input type="checkbox" id="id_realfounding" name="realfounding" checked > Real founding date?
                         {% else %}
-                            <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" > Real founding date?
+                            <input type="checkbox" id="id_realfounding" name="realfounding" > Real founding date?
                         {% endif %}
                     </label>
                     {% if form.realfounding.errors %}
@@ -95,15 +142,122 @@
                 </div>
             </div>
         </div>
+        <hr>
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <button class="btn sfm-btn-cancel col-sm-2" type="submit">Cancel</button>
+                <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
+            </div>
+        </div>
     </form>
 
-    <div class="row">
-        <div class="col-sm-12 col-md-12">
-            <button class="btn sfm-btn-cancel col-sm-2" type="submit">Cancel</button>
-            <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
-        </div>
-    </div>
 
     {% render_versions organization %}
 
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/select2.min.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+    var name_opts = {
+        ajax: {
+            url: "{% url 'organizations-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': -1,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+
+    var alias_opts = {
+        ajax: {
+            url: "{% url 'aliases-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': params.term,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+
+    var source_opts = {
+        ajax: {
+            url: "{% url 'source-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2
+    }
+    $(document).ready(function(e) {
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
+        $('.name-field').select2(name_opts);
+        $('.alias-field').select2(alias_opts);
+        $('.source-field').select2(source_opts);
+        $('.alias-field').on('select2:select', function(e){
+            var value = e.params.data.text;
+            var name = $(e.target).prop('name') + '_text';
+            var form_id = $(e.target).prop('name').split('-')[1]
+            var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
+            $('#org-form').append(hidden_input);
+        });
+
+        $('.alias-field').on('select2:unselect', function(e){
+            var value = e.params.data.text;
+            var inputs = $('#org-form').find('input[value="'+ value + '"]');
+            var form_id = $(e.target).prop('name').split('-')[1]
+
+            $.each(inputs, function(i, input){
+                if ($(input).data('form_id') == form_id){
+                    $(input).remove();
+                }
+            })
+        });
+
+        $('.name-field').on('select2:select', function(e){
+            var value = e.params.data.text;
+            $(name_field + '_text').val(value);
+            if (isNaN($(name_field + ' :selected').attr('value'))) {
+                $(name_field + ' :selected').attr('value','-1');
+            }
+        });
+    });
+
+</script>
 {% endblock %}

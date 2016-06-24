@@ -908,7 +908,21 @@ class CreateViolations(FormSetView):
         response = super().formset_valid(formset)
         return response
 
-
+def source_autocomplete(request):
+    term = request.GET.get('q')
+    sources = Source.objects.filter(title__icontains=term).all()
+    
+    results = []
+    for source in sources:
+        text = '{0} ({1} - {2})'.format(source.title,
+                                        source.publication.title,
+                                        source.publication.country)
+        results.append({
+            'text': text,
+            'id': str(source.id),
+        })
+    
+    return HttpResponse(json.dumps(results), content_type='application/json')
 
 def publications_autocomplete(request):
     term = request.GET.get('q')
