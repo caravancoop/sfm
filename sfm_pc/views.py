@@ -528,7 +528,7 @@ class MembershipInfo(FormSetView):
 class OrganizationGeographies(FormSetView):
     template_name = 'sfm/organization-geo.html'
     form_class = OrganizationGeographyForm
-    success_url = '/create-violations/'
+    success_url = '/create-events/'
     extra = 1
     max_num = None
     
@@ -771,7 +771,7 @@ class OrganizationGeographies(FormSetView):
         return response
 
 class CreateViolations(FormSetView):
-    template_name = 'sfm/create-violations.html'
+    template_name = 'sfm/create-events.html'
     form_class = ViolationForm
     success_url = '/confidences/'
     extra = 1
