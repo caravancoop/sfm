@@ -5,7 +5,7 @@ from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, FormView
 from django.contrib.admin.utils import NestedObjects
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
@@ -14,6 +14,7 @@ from django.db import DEFAULT_DB_ALIAS
 
 from .models import MembershipPerson, Role, Rank
 from sfm_pc.utils import deleted_in_str
+from sfm_pc.forms import PersonMembershipForm
 
 
 class MembershipPersonDelete(DeleteView):
@@ -118,34 +119,97 @@ def membership_person_search(request):
     }))
 
 
-class MembershipPersonUpdate(TemplateView):
+class MembershipPersonUpdate(FormView):
     template_name = 'membershipperson/edit.html'
+    form_class = PersonMembershipForm
+    success_url = '/'
+    sourced = True
 
     def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['object'])
-        try:
-            membership = MembershipPerson.objects.get(pk=kwargs.get('pk'))
-        except MembershipPerson.DoesNotExist:
-            msg = "This membership does not exist, it should be created " \
-                  "before updating it."
-            return HttpResponse(msg, status=400)
+        form = PersonMembershipForm(request.POST)
+        
+        if not request.POST.get('source'):
+            self.sourced = False
+            return self.form_invalid(form)
+        else:
+            self.source = Source.objects.get(id=request.POST.get('source'))
 
-        (errors, data) = membership.validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-        membership.update(data)
-        return HttpResponse(
-            json.dumps({"success": True}),
-            content_type="application/json"
-        )
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        membership = MembershipPerson.objects.get(pk=self.kwargs['pk'])
+        mem_info = {
+            'MembershipPerson_MembershipPersonRole' : {
+                'value': Role.objects.get(id=form.cleaned_data['role']),
+                'confidence': 1,
+                'source': list(set(list(membership.role.get_sources() + [self.source])))
+            },
+            'MembershipPerson_MembershipPersonTitle': {
+                'value': form.cleaned_data['title'],
+                'confidence': 1,
+                'source': list(set(list(membership.title.get_sources() + [self.source])))
+            },
+            'MembershipPerson_MembershipPersonRank': {
+                'value': Rank.objects.get(id=form.cleaned_data['rank']),
+                'confidence': 1,
+                'source': list(set(list(membership.rank.get_sources() + [self.source])))
+            },
+            'MembershipPerson_MembershipStartContext': {
+                'value': form.cleaned_data['startcontext'],
+                'confidence': 1,
+                'source': list(set(list(membership.startcontext.get_sources() + [self.source])))
+            },
+            'MembershipPerson_MembershipPersonRealStart': {
+                'value': form.cleaned_data['realstart'],
+                'confidence': 1,
+                'source': list(set(list(membership.realstart.get_sources() + [self.source])))
+            },
+            'MembershipPerson_MembershipEndContext': {
+                'value': form.cleaned_data['endcontext'],
+                'confidence': 1,
+                'source': list(set(list(membership.endcontext.get_sources() + [self.source])))
+            },
+            'MembershipPerson_MembershipRealEnd': {
+                'value': form.cleaned_data['realend'],
+                'confidence': 1,
+                'source': list(set(list(membership.realend.get_sources() + [self.source])))
+            },
+        }
+
+        membership.update(mem_info)
+
+        return response
 
     def get_context_data(self, **kwargs):
-        context = super(MembershipPersonUpdate, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        
+        membership = MembershipPerson.objects.get(pk=self.kwargs['pk'])
+
+        form_data = {
+            'title': membership.title.get_value(),
+            'role': membership.role.get_value(),
+            'rank': membership.rank.get_value(),
+            'realstart': membership.realstart.get_value(),
+            'realend': membership.realend.get_value(),
+            'startcontext': membership.startcontext.get_value(),
+            'endcontext': membership.endcontext.get_value(),
+            'firstciteddate': membership.firstciteddate.get_value(),
+            'lastciteddate': membership.lastciteddate.get_value(),
+        }
+        
+        context['form_data'] = form_data
         context['title'] = "Membership Person"
-        context['membership'] = MembershipPerson.objects.get(pk=context.get('pk'))
+        context['membership'] = membership
+        context['roles'] = Role.objects.all()
+        context['ranks'] = Rank.objects.all()
+
+        if not self.sourced:
+            context['source_error'] = 'Please include the source for your changes'
 
         return context
 

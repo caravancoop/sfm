@@ -1,83 +1,167 @@
-{% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
-{% load viewcomplexfield %}
-{% load viewcomplexfielddate %}
-{% load viewcomplexfieldboolean %}
-{% load viewcomplexfieldautocomplete %}
+{% extends "base.html" %}
 {% load i18n %}
+{% load render_versions %}
 {% block content %}
-  <div class="row header">
-    <div class="inner-title-wrapper">
-      <h1 class="page-title">{% trans "Person Membership" %}</h1>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm-12">
-      <h4>{% trans "Relations" %}</h4>
-    </div>
-  </div>
-
-  <form>
-    <div class="row">
-      <div class="form-group col-sm-5 complex-field">
-        {% view_complex_field_autocomplete membership.member membership.id "/person/name/autocomplete/" request.path %}
-      </div>
-      <div class="form-group col-sm-2">
-        <label>&nbsp;</label>
-        <div class="text-center">{% trans "With" %}</div>
-      </div>
-      <div class="form-group col-sm-5 complex-field">
-        {% view_complex_field_autocomplete membership.organization membership.id "/organization/name/autocomplete/" request.path %}
-      </div>
+    <div class="row header">
+        <div class="inner-title-wrapper">
+             <h1 class="page-title">{% trans "Person Membership" %}</h1>
+        </div>
     </div>
 
-    <div class="row">
-      <div class="col-sm-12">
-        <h4>{% trans "Properties" %}</h4>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_autocomplete membership.role membership.id "/membershipperson/role/autocomplete/" request.path %}
-      </div>
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field membership.title membership.id request.path %}
-      </div>
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_autocomplete membership.rank membership.id "/membershipperson/rank/autocomplete/" request.path %}
-      </div>
-    </div><!-- /.row-->
- 
-    <div class="row">
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_date membership.firstciteddate membership.id request.path %}
-      </div>
-      <div class="form-group col-sm-2 complex-field">
-        {% view_complex_field_boolean membership.realstart membership.id request.path %}
-      </div>
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_date membership.lastciteddate membership.id request.path %}
-      </div>
-      <div class="form-group col-sm-2 complex-field">
-        {% view_complex_field_boolean membership.realend membership.id request.path %}
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-sm-12">
-        {% for date in membership.date.get_list %}
-          <div class="form-group col-sm-3">
-            {% view_complex_field date membership.id request.path %}
-          </div>
-          <p>
-            {{ date.value }}
-            <a class="btn">Delete</a>
-          </p>
-        {% endfor %}
-      </div>
-    </div>
-  </form>
+    <form class="form form-horizontal" method="POST">
+        {% if source_error %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label">Source for your changes</label>
+            <div class="col-sm-8">
+                <select id="id_source" class="form-control source-field" name="source">
+                    <option value="" selected="selected">--------</option>
+                </select>
+                {% if source_error %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{source_error}}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% if form.title.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="control-label col-sm-2" for="id_title">Title</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="id_title" name="title" value="{{ form_data.title.value }}"/>
+                {% if form.title.errors %}
+                   {% for error in form.title.errors %}
+                       <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                   {% endfor %}
+               {% endif %}
+            </div>
+        </div>
+        {% if form.role.errors or form.rank.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="control-label col-sm-2">Role & Rank</label>
+            <div class="col-sm-4">
+                <select id="id_role" class="form-control" name="role">
+                    <option value="" selected="selected">-- Select a Role --</option>
+                    {% for role in roles %}
+                        {% if role = form_data.role %}
+                            <option value="{{ role.id }}" selected=true>{{ role.value }}</option>
+                        {% else %}
+                            <option value="{{ role.id }}">{{ role.value }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.role.errors %}
+                    {% for error in form.role.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="col-sm-4">
+                <select id="id_rank" class="form-control" name="rank">
+                    <option value="" selected="selected">-- Select a Rank --</option>
+                    {% for rank in ranks %}
+                        {% if rank = form_data.rank %}
+                            <option value="{{ rank.id }}" selected=true>{{ rank.value }}</option>
+                        {% else %}
+                            <option value="{{ rank.id }}">{{ rank.value }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.rank.errors %}
+                    {% for error in form.role.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% if form.startcontext.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="control-label col-sm-2" for="id_startcontext">Start context</label>
+            <div class="col-sm-6">
+               <input type="text" class="form-control" id="id_startcontext" name="startcontext" value="{{ form_data.startcontext }}" />
+                {% if form.startcontext.errors %}
+                    {% for error in form.startcontext.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="col-sm-2">
+                <label for="id_realstart" class="checkbox-inline">
+                    {% if form_data.realstart %}
+                        <input type="checkbox" id="id_realstart" name="realstart" checked > Real context?
+                    {% else %}
+                        <input type="checkbox" id="id_realstart" name="realstart" > Real context?
+                    {% endif %}
+                </label>
+                {% if form.realstart.errors %}
+                    {% for error in form.realstart.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% if form.endcontext.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="control-label col-sm-2" for="id_endcontext">End context</label>
+            <div class="col-sm-6">
+               <input type="text" class="form-control" id="id_endcontext" name="endcontext" value="{{ form_data.endcontext }}" />
+                {% if form.endcontext.errors %}
+                    {% for error in form.endcontext.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="col-sm-2">
+                <label for="id_realend" class="checkbox-inline">
+                    {% if form_data.realend %}
+                        <input type="checkbox" id="id_realend" name="realend" checked > Real context?
+                    {% else %}
+                        <input type="checkbox" id="id_realend" name="realend" > Real context?
+                    {% endif %}
+                </label>
+                {% if form.realend.errors %}
+                    {% for error in form.realend.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% if form.firstciteddate.errors or form.lastcited.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="control-label col-sm-2" for="id_firstciteddate">Citation dates</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control datepicker" id="id_firstciteddate" name="firstciteddate" value="{{ form_data.firstciteddate|date:'Y-m-d' }}" placeholder="First cited date" />
+                {% if form.firstciteddate.errors %}
+                    {% for error in form.firstciteddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="col-sm-4">
+                <input type="text" class="form-control datepicker" id="id_lastciteddate" name="lastciteddate" value="{{ form_data.lastciteddate|date:'Y-m-d' }}" placeholder="Last cited date" />
+                {% if form.lastciteddate.errors %}
+                    {% for error in form.lastciteddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </form>
 
   <div class="row">
     <div class="col-sm-12 col-md-12">
@@ -85,4 +169,5 @@
       <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
     </div>
   </div>
+    {% render_versions membership %}
 {% endblock %}
