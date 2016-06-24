@@ -10,15 +10,15 @@ class EmplacementAdmin(admin.ModelAdmin):
     pass
 
 
-class EmplacementStartDateAdmin(reversion.VersionAdmin):
+class EmplacementStartDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class EmplacementEndDateAdmin(reversion.VersionAdmin):
+class EmplacementEndDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class EmplacementOrganizationAdmin(reversion.VersionAdmin):
+class EmplacementOrganizationAdmin(reversion.admin.VersionAdmin):
     pass
 
 

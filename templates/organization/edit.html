@@ -3,63 +3,107 @@
 {% load viewcomplexfielddate %}
 {% load viewcomplexfieldboolean %}
 {% load viewcomplexfieldautocomplete %}
+{% load viewcomplexfieldlist %}
+{% load render_versions %}
 {% load i18n %}
 {% block content %}
-  <div class="row header">
-    <div class="inner-title-wrapper">
-      <h1 class="page-title">{% trans "Organization" %}</h1>
-      <div class="pull-right">
-        <a href="/organization/add/" class="btn sfm-btn-action"><i class="fa fa-plus"> Add New</i></a>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-sm-12">
-      <h4>Properties</h4>
-    </div>
-  </div>
-
-  <form>
-    <div class="row">
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field organization.name organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field organization.alias organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-4 complex-field">
-        <label for="Organization_OrganizationClassification">Classification</label>
-        <select class="form-control real-input" id="Organization_OrganizationClassification">
-            <option value="">--------</option>
-            <option value="Administrative">Administrative</option>
-            <option value="Command">Command</option>
-            <option value="Informal">Informal</option>
-            <option value="Organization/Administrative">Organization/Administrative</option>
-        </select>
-        <span class="error-message" data-em-target="Organization_OrganizationClassification"></span>
-      </div>
+    <div class="row header">
+        <div class="inner-title-wrapper">
+            <h1 class="page-title">{% trans "Organization" %}</h1>
+        </div>
     </div>
     <div class="row">
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_date organization.foundingdate organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-2 complex-field">
-        {% view_complex_field_boolean organization.realfounding organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_date organization.dissolutiondate organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-2 complex-field">
-        {% view_complex_field_boolean organization.realdissolution organization.id request.path %}
-      </div>
+        <div class="col-sm-12">
+            <h4>Properties</h4>
+        </div>
     </div>
-  </form>
 
-  <div class="row">
-    <div class="col-sm-12 col-md-12">
-      <button class="btn sfm-btn-cancel col-sm-2" type="submit">Cancel</button>
-      <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
+    <form class="form form-horizontal">
+        {% if form.name.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+                {% view_complex_field organization.name organization.id request.path %}
+            </div>
+        {% if form.alias.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+                {% view_complex_field_list organization.aliases organization.id request.path %}
+            </div>
+        {% if form.classification.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label">Classification </label>
+            <div class="col-sm-8">
+                <select id="id_form-{{ form_id }}-classification" class="form-control" name="form-{{ form_id }}-classification">
+                    <option value="" selected="selected">--------</option>
+                    {% for classification in classifications %}
+                        {% if classification.value == organization.classification.get_value %}
+                            <option value="{{ classification.id }}" selected="true">{{ classification.value }}</option>
+                        {% else %}
+                            <option value="{{ classification.id }}">{{ classification.value }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.classification.errors %}
+                    {% for error in form.classification.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <br />
+        {% if form.foundingdate.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_form-{{ form_id }}-foundingdate">Founding date</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-foundingdate" name="form-{{ form_id }}-foundingdate" value="{{ form.cleaned_data.foundingdate|date:'Y-m-d' }}"/>
+                {% if form.foundingdate.errors %}
+                    {% for error in form.foundingdate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% if form.realfounding.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <div class="col-sm-offset-2 col-sm-8">
+                <div class="checkbox">
+                    <label for="id_form-{{ form_id }}-realfounding" class="control-label">
+                        {% if form.cleaned_data.realfounding %}
+                            <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" checked > Real founding date?
+                        {% else %}
+                            <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" > Real founding date?
+                        {% endif %}
+                    </label>
+                    {% if form.realfounding.errors %}
+                        {% for error in form.realfounding.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <button class="btn sfm-btn-cancel col-sm-2" type="submit">Cancel</button>
+            <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
+        </div>
     </div>
-  </div>
+
+    {% render_versions organization %}
 
 {% endblock %}

@@ -14,63 +14,63 @@ class MembershipPersonAdmin(admin.ModelAdmin):
     pass
 
 
-class MembershipPersonMemberAdmin(reversion.VersionAdmin):
+class MembershipPersonMemberAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonOrganizationMemberAdmin(reversion.VersionAdmin):
+class MembershipPersonOrganizationMemberAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonOrganizationAdmin(reversion.VersionAdmin):
+class MembershipPersonOrganizationAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonRoleAdmin(reversion.VersionAdmin):
+class MembershipPersonRoleAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonTitleAdmin(reversion.VersionAdmin):
+class MembershipPersonTitleAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonRankAdmin(reversion.VersionAdmin):
+class MembershipPersonRankAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonFirstCitedDateAdmin(reversion.VersionAdmin):
+class MembershipPersonFirstCitedDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonLastCitedDateAdmin(reversion.VersionAdmin):
+class MembershipPersonLastCitedDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonRealStartAdmin(reversion.VersionAdmin):
+class MembershipPersonRealStartAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonRealEndAdmin(reversion.VersionAdmin):
+class MembershipPersonRealEndAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonStartContextAdmin(reversion.VersionAdmin):
+class MembershipPersonStartContextAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class MembershipPersonEndContextAdmin(reversion.VersionAdmin):
+class MembershipPersonEndContextAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class RoleAdmin(reversion.VersionAdmin):
+class RoleAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class RankAdmin(reversion.VersionAdmin):
+class RankAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class ContextAdmin(reversion.VersionAdmin):
+class ContextAdmin(reversion.admin.VersionAdmin):
     pass
 
 

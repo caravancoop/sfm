@@ -15,12 +15,12 @@ class Organization(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, OrganizationName)
-        self.aliases = ComplexFieldContainer(self, OrganizationAlias)
+        self.aliases = ComplexFieldListContainer(self, OrganizationAlias)
         self.classification = ComplexFieldContainer(self, OrganizationClassification)
         self.foundingdate = ComplexFieldContainer(self, OrganizationFoundingDate)
         self.realfounding = ComplexFieldContainer(self, OrganizationRealFounding)
 
-        self.complex_fields = [self.name, self.aliases, self.classification,
+        self.complex_fields = [self.name, self.classification,
                                self.foundingdate, self.realfounding]
 
         self.required_fields = [

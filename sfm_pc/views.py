@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
 from django.shortcuts import redirect, render
 from django.contrib import messages
+from django.utils.translation import get_language
 
 from extra_views import FormSetView
 from reversion.models import Version
@@ -18,8 +19,8 @@ from .forms import SourceForm, OrgForm, PersonForm, PersonMembershipForm, \
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias as OrganizationAliasObject, Classification
-from person.models import Person, PersonName, PersonAlias
-from person.models import Alias as PersonAliasObject
+from person.models import Person, PersonName, PersonAlias, \
+    Alias as PersonAliasObject
 from membershipperson.models import MembershipPerson, Role, Rank, Context
 from association.models import Association
 from emplacement.models import Emplacement
@@ -38,6 +39,12 @@ class Dashboard(TemplateView):
         context['edits'] = sorted(sources, 
                                   key=lambda x: x.revision.date_created, 
                                   reverse=True)
+        
+        if context['edits']:
+
+            context['source_properties'] = [p for p in \
+                                                dir(context['edits'][0].object) \
+                                                    if p.endswith('_related')]
 
         if self.request.session.get('source_id'):
             del self.request.session['source_id']
@@ -220,7 +227,7 @@ class CreateOrgs(FormSetView):
             }
            
             if name_id == '-1':
-                organization = Organization.create(org_info)      
+                organization = Organization.create(org_info)
             
             else:
                 organization = Organization.objects.get(id=name_id)
@@ -237,15 +244,12 @@ class CreateOrgs(FormSetView):
                     
                     alias_obj, created = OrganizationAliasObject.objects.get_or_create(value=alias)
 
-                    alias_data = {
-                        'Organization_OrganizationAlias': {
-                            'value': alias_obj, 
-                            'confidence': 1,
-                            'sources': [source]
-                        }
-                    }
-                    organization.update(alias_data)
-                
+                    oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
+                                                                              object_ref=organization,
+                                                                              lang=get_language())
+                    oa_obj.sources.add(source)
+                    oa_obj.save()
+
             # Next do classification
             classification = formset.data.get(form_prefix + 'classification')
             
@@ -326,7 +330,6 @@ class CreatePeople(FormSetView):
 
         source = Source.objects.get(id=self.request.session['source_id'])
 
-        form_data = {}
         for i in range(0,num_forms):
             first = True
 
@@ -335,8 +338,6 @@ class CreatePeople(FormSetView):
             form_keys = [k for k in formset.data.keys() \
                              if k.startswith(form_prefix)]
             
-            form = {k: formset.data.getlist(k) for k in form_keys}
-
             name_id_key = 'form-{0}-name'.format(i)
             name_text_key = 'form-{0}-name_text'.format(i)
             
@@ -364,22 +365,15 @@ class CreatePeople(FormSetView):
             
             aliases = formset.data.getlist(alias_text_key)
             
-            form[alias_id_key] = []
-
             for alias in aliases:
                 
                 alias_obj, created = PersonAliasObject.objects.get_or_create(value=alias)
 
-                alias_data = {
-                    'Person_PersonAlias': {
-                        'value': alias_obj.value, 
-                        'confidence': 1,
-                        'sources': [source],
-                    }
-                }
-                person.update(alias_data)
+                pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
+                                                                    value=alias_obj)
                 
-                form[alias_id_key].append(alias_obj.id)
+                pa_obj.sources.add(source)
+                pa_obj.save()
 
             date_key = 'form-{0}-deathdate'.format(i)
             deathdate = formset.data.get(date_key)
@@ -394,19 +388,8 @@ class CreatePeople(FormSetView):
                 }
                 person.update(death_data)
            
-            form[date_key] = deathdate
-
             self.people.append(person)
             
-            try:
-                del form[alias_text_key]
-            except KeyError:
-                pass
-
-            form[name_id_key] = person.name.get_field().id
-
-            form_data.update(form)
-
             orgs_key = 'form-{0}-orgs'.format(i)
             orgs = formset.data.getlist(orgs_key)
 
