@@ -26,6 +26,7 @@ from emplacement.models import Emplacement
 from cities.models import Place, City, Country, Region, Subregion, District
 from geosite.models import Geosite
 from area.models import Area, Code
+from violation.models import Violation, Type
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -555,7 +556,9 @@ class OrganizationGeographies(FormSetView):
             return redirect('create-source')
         
         organizations = self.request.session['organizations']
-        
+        people = self.request.session['people']
+  
+        context['people'] = people 
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         
@@ -577,7 +580,7 @@ class OrganizationGeographies(FormSetView):
     
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
-        num_forms = 1 #int(formset.data['form-TOTAL_FORMS'][0])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0]
         for i in range(0, num_forms):
             form_prefix = 'form-{0}-'.format(i)
             
@@ -624,7 +627,7 @@ class OrganizationGeographies(FormSetView):
                 code = None
                 geometry = None
             if formset.data[form_prefix + 'geography_type'] == 'Site':
-                get_site = Geosite.objects.filter(geositegeonamed__value=geo.id)
+                get_site = Geosite.objects.filter(geositegeonameid__value=geo.id)
                 if len(get_site) == 0:
                     site_data = {
                         'Geosite_GeositeName': {
@@ -661,8 +664,8 @@ class OrganizationGeographies(FormSetView):
                     site = Geosite.create(site_data)
                 else:
                     site = get_site[0]
-                get_emp = Emplacement.objects.filter(emplacementorganization__value=org_id).filter(emplacementsite__value=site.id)
-                if len(get_emp) > 0:
+                get_emp = Emplacement.objects.filter(emplacementorganization__value=org_id).filter(emplacementsite__value=site.id).first()
+                if get_emp:
                     # update dates?
                     # add sources
                     emp_data = {
@@ -677,7 +680,7 @@ class OrganizationGeographies(FormSetView):
                             'source': [source]
                         } 
                     } 
-                    Emplacement.update(emp_data)
+                    get_emp.update(emp_data)
                 else:
                     emp_data = {
                         'Emplacement_EmplacementOrganization': {
@@ -736,8 +739,8 @@ class OrganizationGeographies(FormSetView):
                     area = Area.create(area_data)
                 else:
                     area = get_area[0]
-                get_assoc = Association.objects.filter(associationorganization__value=org_id).filter(associationarea__value=area.id)
-                if len(get_assoc) > 0:
+                get_assoc = Association.objects.filter(associationorganization__value=org_id).filter(associationarea__value=area.id).first()
+                if get_assoc:
                     # update dates?
                     # add sources
                     assoc_data = {
@@ -752,7 +755,7 @@ class OrganizationGeographies(FormSetView):
                             'source': [source]
                         } 
                     } 
-                    Association.update(assoc_data)
+                    get_assoc.update(assoc_data)
                 else:
                     assoc_data = {
                         'Association_AssociationOrganization': {
@@ -808,7 +811,114 @@ class CreateViolations(FormSetView):
 
         ViolationFormset = self.get_formset()
         formset = EventFormset(request.POST)
- 
+
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
+
+    def formset_valid(self, formset):
+        source = Source.objects.get(id=self.request.session['source_id'])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+        for i in range(0, num_forms):
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+            startdate = formset.data[form_prefix + 'startdate']
+            enddate = formset.data[form_prefix + 'enddate']
+            locationdescription = formset.data[form_prefix + 'locationdescription']
+            geoname = formset.data[form_prefix + 'geoname']
+            geoname_text = formset.data[form_prefix + 'geoname_text']
+            geotype = formset.data[form_prefix + 'geotype']
+            description = formset.data[form_prefix + 'description']
+            perpetrators = formset.data[formset_prefix + 'perpetrators']
+            orgs = formset.data[formset_prefix + 'orgs']
+            vtype = formset.data[formset_prefix + 'vtype'] 
+
+            newtype, flag = Type.objects.get_or_create(value=vtype)
+
+            if geotype == 'country':
+                geo = Country.objects.get(id=geoid)
+                admin1 = None
+                admin2 = None
+                coords = None
+            elif geotype == 'region':
+                geo = Region.objects.get(id=geoid)
+                admin1 = geo.parent.name
+                admin2 = geo.parent.parent.name
+                coords = None
+            elif geotype == 'subregion':
+                geo = Subregion.objects.get(id=geoid)
+                admin1 = geo.parent.name
+                admin2 = geo.parent.parent.name
+                coords = None
+            elif geotype == 'city':
+                geo = City.objects.get(id=geoid)
+                admin1 = geo.parent.name
+                admin2 = geo.parent.parent.name
+                coords = geo.location
+            else:
+                geo = District.objects.get(id=geoid)
+                admin1 = geo.parent.name
+                admin2 = geo.parent.parent.name
+                coords = geo.location
+
+            violation_data = {
+                'confidence': 1,
+                'sources': [source], 
+                'ViolationDescription': {
+                   'value': description,
+                   'sources': [source],
+                   'confidence': 1
+                },
+                'ViolationLocationDescription': {
+                    'value': locationdescription,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'ViolationType': {
+                    'value': newtype,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'ViolationPerpetrator': {
+                    'value': Person.objects.get(id=perpetrators),
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'ViolationPerpetratorOrganization': {
+                    'value': Organization.objects.get(id=orgs),
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'ViolationAdminLevel1': {
+                    'value': admin1,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'ViolationAdminLevel2': {
+                    'value': admin2,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'ViolationGeoname': {
+                    'value': geo.name,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'ViolationGeonameId': {
+                    'value': geo.id,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'ViolationLocation': {
+                    'value': coords,
+                    'sources': [source],
+                    'confidence': 1
+                }
+            }
+            Violation.create(violation_data)
 def publications_autocomplete(request):
     term = request.GET.get('q')
     publications = Publication.objects.filter(title__icontains=term).all()

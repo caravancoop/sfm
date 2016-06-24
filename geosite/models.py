@@ -165,5 +165,5 @@ class GeositeGeoname(ComplexField):
 @sourced
 class GeositeGeonameId(ComplexField):
     object_ref = models.ForeignKey('Geosite')
-    value = models.TextField(default=None, blank=True, null=True)
+    value = models.IntegerField(default=None, blank=True, null=True)
     field_name = _("GeoName ID")
