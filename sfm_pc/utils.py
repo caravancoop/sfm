@@ -5,7 +5,6 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-
 class RequireLoginMiddleware(object):
 
     """
@@ -53,7 +52,6 @@ class RequireLoginMiddleware(object):
 
         # Explicitly return None for all non-matching requests
         return None
-
 
 def class_for_name(class_name, module_name="person.models"):
     if class_name == "Membershipperson":

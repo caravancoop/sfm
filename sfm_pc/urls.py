@@ -3,14 +3,14 @@ from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.views import logout_then_login
 from .views import Dashboard, CreateSource, CreateOrgs, CreatePeople, \
     MembershipInfo, publications_autocomplete, organizations_autocomplete, \
     aliases_autocomplete, people_autocomplete, personalias_autocomplete, \
     geoname_autocomplete, OrganizationGeographies, CreateViolations, \
-    view_source, source_autocomplete
+    view_source, source_autocomplete, search
 
 urlpatterns = i18n_patterns(
-    '',
     url(r'^composition/', include('composition.urls')),
     url(r'^organization/', include('organization.urls')),
     url(r'^membershipperson/', include('membershipperson.urls')),
@@ -38,6 +38,7 @@ urlpatterns = i18n_patterns(
     url(r'^geosite/', include('geosite.urls')),
     url(r'^emplacement/', include('emplacement.urls')),
     url(r'^violation/', include('violation.urls')),
+    url(r'^search/', search, name="search"),
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
@@ -48,5 +49,5 @@ urlpatterns = i18n_patterns(
     # Ajax calls
     url(r'^ajax/', include('ajax.urls')),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url': '/accounts/login'}),
+    url(r'^logout/$', logout_then_login, {'login_url': '/accounts/login'}),
 )

@@ -201,3 +201,4 @@ LEAFLET_CONFIG = {
     'MIN_ZOOM': 2,
     'MAX_ZOOM': 18,
 }
+

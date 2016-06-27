@@ -10,6 +10,7 @@ from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.utils.translation import get_language
 
 from .models import Organization, OrganizationName, \
     OrganizationAlias, Alias as OrganizationAliasObject, Classification
@@ -173,8 +174,27 @@ class OrganizationUpdate(FormView):
         organization.update(org_info)
         
         if self.aliases:
+            
+            aliases = []
 
-            aliases = OrganizationAlias.objects.filter(id__in=self.aliases)
+            for alias in self.aliases:
+            
+                try:
+                    # try to get an object based on ID
+                    oa_obj = OrganizationAlias.objects.get(id=alias)
+                    oa_obj.sources.add(self.source)
+                    oa_obj.save()
+
+                    aliases.append(oa_obj)
+                except ValueError:
+                    alias_obj, created = OrganizationAliasObject.objects.get_or_create(value=alias)
+
+                    oa_obj = OrganizationAlias.objects.create(value=alias_obj,
+                                                              object_ref=organization,
+                                                              lang=get_language())
+                    oa_obj.sources.add(self.source)
+                    oa_obj.save()
+
             organization.organizationalias_set = aliases
             organization.save()
 

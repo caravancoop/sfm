@@ -10,6 +10,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.utils.translation import get_language
+from django.db import connection
 
 from extra_views import FormSetView
 from reversion.models import Version
@@ -910,6 +911,22 @@ class CreateViolations(FormSetView):
             Violation.create(violation_data)
         response = super().formset_valid(formset)
         return response
+
+def search(request):
+    query = request.GET.get('q')
+    cursor = connection.cursor()
+    
+    cursor.execute(''' 
+        SELECT * FROM search_index
+        WHERE plainto_tsquery('english', %s) @@ content
+    ''', [query])
+
+    results = []
+    for result in cursor:
+        results.append(result)
+
+
+    return HttpResponse(results)
 
 def source_autocomplete(request):
     term = request.GET.get('q')

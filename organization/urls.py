@@ -4,8 +4,7 @@ from .views import (OrganizationCreate, OrganizationView, OrganizationUpdate,
                     classification_autocomplete, organization_autocomplete,
                     organization_search, OrganizationDelete, organization_csv)
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', OrganizationView.as_view(), name='organizations'),
     url(r'search/', organization_search, name='organization_search'),
     url(r'add/$', OrganizationCreate.as_view(), name="add_organization"),
@@ -18,4 +17,4 @@ urlpatterns = patterns(
         name="classification_autocomplete"),
     url(r'autocomplete', organization_autocomplete,
         name="organization_autocomplete"),
-)
+]

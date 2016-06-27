@@ -4,8 +4,7 @@ from .views import (MembershipPersonView, MembershipPersonCreate, MembershipPers
                     membership_person_search, rank_autocomplete, role_autocomplete,
                     MembershipPersonDelete, membership_person_csv)
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', MembershipPersonView.as_view(), name='membership'),
     url(r'search/', membership_person_search, name='membership_search'),
     url(r'csv/', membership_person_csv, name='membership_csv'),
@@ -16,4 +15,4 @@ urlpatterns = patterns(
     url(r'(?P<pk>\d+)/$', MembershipPersonUpdate.as_view(), name='edit_person'),
     url(r'rank/autocomplete/', rank_autocomplete, name='rank_autocomplete'),
     url(r'role/autocomplete/', role_autocomplete, name='role_autocomplete'),
-)
+]
