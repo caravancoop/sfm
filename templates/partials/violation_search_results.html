@@ -1,0 +1,26 @@
+<h3>Events</h3>
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Perpetrator</th>
+            <th>Perpetrator organization</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for object in objects %}
+            <tr>
+                <td>
+                    {{ object.perpetrator.name.get_value }}
+                </td>
+                <td>
+                    {{ object.perpetratororganization.name.get_value }}
+                </td>
+                <td>
+                    {{ object.description }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

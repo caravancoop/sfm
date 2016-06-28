@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <form class="form">
+            <div class="input-group">
+                <input type="text" class="form-control input-lg" placeholder="Search for..." name="q" {% if query %}value="{{ query }}{% endif %}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-lg" type="submit">Go!</button>
+                </span>
+            </div>
+            <div class="col-sm-4">
+                <h4>Filter by entity type</h4>
+                <div class="form-group">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="entity_type" value="Source" {% if 'Source' in filters %}checked=true{% endif %}> Sources
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="entity_type" value="Organization" {% if 'Organization' in filters %}checked=true{% endif %}> Organizations
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="entity_type" value="Person" {% if 'Person' in filters %}checked=true{% endif %}> People
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="entity_type" value="Violation" {% if 'Violation' in filters %}checked=true{% endif %}> Events
+                    </label>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <h4>Filter by location</h4>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <select id="location-filter" name="geoname_id" class="form-control"></select>
+                        <input type="hidden" name="geoname_type" />
+                    </div>
+                    <div class="col-sm-6">
+                        <select id="radius" name="radius" class="form-control">
+                            <option value="1">1km</option>
+                            <option value="5">5km</option>
+                            <option value="10" selected=true>10km</option>
+                            <option value="25">25km</option>
+                            <option value="50">50km</option>
+                            <option value="100">100km</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% if results %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h1>Results for &ldquo;{{ query }}&rdquo;</h1>
+            {% for result_type, objects in results.items %}
+                {% if result_type == 'Source' %}
+                    {% include 'partials/source_search_results.html' %}
+                {% elif result_type == 'Publication' %}
+                    {% include 'partials/publication_search_results.html' %}
+                {% elif result_type == 'Organization' %}
+                    {% include 'partials/organization_search_results.html' %}
+                {% elif result_type == 'Person' %}
+                    {% include 'partials/person_search_results.html' %}
+                {% elif result_type == 'Violation' %}
+                    {% include 'partials/violation_search_results.html' %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/select2.min.js" %}"></script>
+<script type="text/javascript">
+var geoname_opts = {
+    ajax: {
+        url: "{% url 'geoname-autocomplete' %}",
+        datType: 'json',
+        delay: 250,
+        data: function(params) {
+            return {
+                q: params.term,
+                types: ['city', 'district'],
+
+            };
+        },
+        cache: true,
+        processResults: function(data, params) {
+            if (data.length >= 1) {
+                return { results: data };
+            } else {
+                    return { results: [] };
+            }
+        }
+    },
+    escapeMarkup: function(markup){ return markup; },
+    minimumInputLength: 2
+};
+    $(document).ready(function(){
+        $('#location-filter').select2(geoname_opts);
+        $('#location-filter').on('select2:select', function(e){
+            var geo_type = e.params.data.type;
+            $('input[name="geoname_type"]').val(geo_type);
+        });
+    })
+
+</script>
+{% endblock %}

@@ -30,6 +30,22 @@ from geosite.models import Geosite
 from area.models import Area, Code
 from violation.models import Violation, Type
 
+SEARCH_CONTENT_TYPES = {
+    'Source': Source,
+    'Publication': Publication,
+    'Organization': Organization,
+    'Person': Person,
+    'Violation': Violation,
+}
+
+GEONAME_TYPES = {
+    'country': (Country, 'name',),
+    'city': (City, 'name_std',),
+    'district': (District, 'name_std',),
+    'region': (Region, 'name_std',),
+    'subregion': (Subregion, 'name_std',),
+}
+
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
 
@@ -590,6 +606,7 @@ class OrganizationGeographies(FormSetView):
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+        
         for i in range(0, num_forms):
             form_prefix = 'form-{0}-'.format(i)
             
@@ -600,6 +617,7 @@ class OrganizationGeographies(FormSetView):
             org_id = formset.data[form_prefix + 'org']
             geoid = formset.data[form_prefix + 'geoname']
             geotype = formset.data[form_prefix + 'geotype']
+            
             if geotype == 'country':
                 geo = Country.objects.get(id=geoid)
                 admin1 = None
@@ -607,6 +625,7 @@ class OrganizationGeographies(FormSetView):
                 coords = None
                 code = geo.code
                 geometry = None 
+            
             elif geotype == 'region':
                 geo = Region.objects.get(id=geoid)
                 admin1 = geo.parent.name
@@ -614,6 +633,7 @@ class OrganizationGeographies(FormSetView):
                 coords = None
                 code = geo.code
                 geometry = None
+            
             elif geotype == 'subregion':
                 geo = Subregion.objects.get(id=geoid)
                 admin1 = geo.parent.name
@@ -621,6 +641,7 @@ class OrganizationGeographies(FormSetView):
                 coords = None
                 code = geo.code
                 geometry = None
+            
             elif geotype == 'city':
                 geo = City.objects.get(id=geoid)
                 admin1 = geo.parent.name
@@ -628,6 +649,7 @@ class OrganizationGeographies(FormSetView):
                 coords = geo.location
                 code = None
                 geometry = None
+            
             else:
                 geo = District.objects.get(id=geoid)
                 admin1 = geo.parent.name
@@ -635,6 +657,7 @@ class OrganizationGeographies(FormSetView):
                 coords = geo.location
                 code = None
                 geometry = None
+            
             if formset.data[form_prefix + 'geography_type'] == 'Site':
                 get_site = Geosite.objects.filter(geositegeonameid__value=geo.id)
                 if len(get_site) == 0:
@@ -937,21 +960,86 @@ class CreateViolations(FormSetView):
         response = super().formset_valid(formset)
         return response
 
+
 def search(request):
     query = request.GET.get('q')
-    cursor = connection.cursor()
+    filters = request.GET.getlist('entity_type')
+    location = request.GET.get('geoname_id')
+    radius = request.GET.get('radius')
+    geoname_type = request.GET.get('geoname_type')
+
+    results = {}
+    select = ''' 
+        SELECT DISTINCT ON(content_type, object_ref_id) 
+          content_type,
+          value_type,
+          object_ref_id
+        FROM search_index
+        WHERE 1=1 
+    '''
     
-    cursor.execute(''' 
-        SELECT * FROM search_index
-        WHERE plainto_tsquery('english', %s) @@ content
-    ''', [query])
+    params = []
 
-    results = []
+    
+    if query:
+        
+        select = ''' 
+            {select}
+            AND plainto_tsquery('english', %s) @@ content
+        '''.format(select)
+        
+        params = [query]
+
+    if filters:
+        filts = ' OR '.join(["content_type = '{}'".format(f) for f in filters])
+        select = ''' 
+            {select}
+            AND ({filts})
+        '''.format(select=select, filts=filts)
+    
+    if location and radius and geoname_type:
+
+        # TODO: Make this work for areas once we have them
+        model, _ = GEONAME_TYPES[geoname_type]
+        geoname_obj = model.objects.get(id=location).location
+        select = ''' 
+            {select}
+            AND ST_Intersects(ST_Buffer_Meters(ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), {radius}), site)
+        '''.format(select=select,
+                   lon=geoname_obj.x,
+                   lat=geoname_obj.y,
+                   radius=(int(radius) * 1000))
+
+    select = ''' 
+        {select} 
+        ORDER BY content_type, object_ref_id
+    '''.format(select=select)
+        
+    cursor = connection.cursor()
+        
+    cursor.execute(select, params)
+    
+    result_types = {}
+    
     for result in cursor:
-        results.append(result)
+        content_type, value_type, object_ref_id = result
+        
+        try:
+            result_types[content_type].append(object_ref_id)
+        except KeyError:
+            result_types[content_type] = [object_ref_id]
 
+    for content_type, objects in result_types.items():
+        model = SEARCH_CONTENT_TYPES[content_type]
+        results[content_type] = model.objects.filter(id__in=objects)
+    
+    context = {
+        'results': results, 
+        'query': query, 
+        'filters': filters,
+    }
 
-    return HttpResponse(results)
+    return render(request, 'sfm/search.html', context)
 
 def source_autocomplete(request):
     term = request.GET.get('q')
@@ -1030,46 +1118,25 @@ def personalias_autocomplete(request):
 
 def geoname_autocomplete(request):
     term = request.GET.get('q')
-    city_query = City.objects.filter(name_std__istartswith=term)
+    types = request.GET.getlist('types')
+
+    if not types:
+        types = request.GET.getlist('types[]', GEONAME_TYPES.keys())
+    
     results = []
-    for city in city_query:
-        results.append({
-            'text': city.name + ' (city)',
-            'value': city.name,
-            'id': city.id,
-            'type': 'city'
-        })
-    country_query = Country.objects.filter(name__istartswith=term)
-    for country in country_query:
-        results.append({
-            'text': country.name + ' (country)',
-            'value': country.name,
-            'id': country.id,
-            'type': 'country'
-        })
-    region_query = Region.objects.filter(name_std__istartswith=term)
-    for region in region_query:
-        results.append({
-            'text': region.name + ' (region)',
-            'value': region.name,
-            'id': region.id,
-            'type': 'region'
-        })
-    subregion_query = Subregion.objects.filter(name_std__istartswith=term)
-    for subregion in subregion_query:
-        results.append({
-            'text': subregion.name + ' (subregion)',
-            'value': subregion.name,
-            'id': subregion.id,
-            'type': 'subregion'
-        })
-    district_query = District.objects.filter(name_std__istartswith=term)
-    for district in district_query:
-        results.append({
-            'text': district.name + ' (district)',
-            'value': district.name,
-            'id': district.id,
-            'type': 'district'
-        })
+    for geo_type in types:
+        model, field = GEONAME_TYPES[geo_type]
+        
+        query_kwargs = {'{}__istartswith'.format(field): term}
+        
+        for result in model.objects.filter(**query_kwargs):
+            value = getattr(result, field)
+            results.append({
+                'text': '{0} ({1})'.format(value, geo_type),
+                'value': value,
+                'id': result.id,
+                'type': geo_type,
+            })
+
     results.sort(key=lambda x:x['text'])
     return HttpResponse(json.dumps(results),content_type='application/json')

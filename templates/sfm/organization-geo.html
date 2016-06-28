@@ -280,7 +280,7 @@ function addForm(e){
     $('.datepicker').datepicker('destroy');
     $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
 
-    var form_count = $('#dynamic-form').children().length;
+    var form_count = $('#dynamic-form-wrapper').children().length;
     $('#id_form-TOTAL_FORMS').val(form_count);
 
     var forms_added = parseInt($('#id_form-FORMS_ADDED').val()) + 1;

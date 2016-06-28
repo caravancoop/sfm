@@ -1,0 +1,30 @@
+<h3>People</h3>
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Aliases</th>
+            <th>Organizations</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for object in objects %}
+            <tr>
+                <td>
+                    {{ object.name }}
+                </td>
+                <td>
+                    {% for alias in object.personalias_set.all %}
+                        {{ alias.value }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for membership in object.membershippersonmember_set.all %}
+                        {{ membership.object_ref.organization.get_value }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
