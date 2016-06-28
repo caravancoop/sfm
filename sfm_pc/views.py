@@ -129,15 +129,19 @@ class CreateOrgs(FormSetView):
     extra = 1
     max_num = None
 
-    def get_context_data(self, **kwargs):
+    def dispatch(self, *args, **kwargs):
         # Redirect to source creation page if no source in session
         if not self.request.session.get('source_id'):
             messages.add_message(self.request, 
                                  messages.INFO, 
                                  "Before adding an organization, please tell us about your source.",
                                  extra_tags='alert alert-info')
-            return redirect('create-source')
+            return redirect('/create-source/')
+        else:
+            return super(CreateOrgs, self).dispatch(*args, **kwargs)
 
+
+    def get_context_data(self, **kwargs):
         context = super(CreateOrgs, self).get_context_data(**kwargs)
         context['classifications'] = Classification.objects.all()
 
@@ -306,15 +310,19 @@ class CreatePeople(FormSetView):
     extra = 1
     max_num = None
 
-    def get_context_data(self, **kwargs):
-        context = super(CreatePeople, self).get_context_data(**kwargs)
-        
+    def dispatch(self, *args, **kwargs):
+        # Redirect to source creation page if no source in session
         if not self.request.session.get('source_id'):
             messages.add_message(self.request, 
                                  messages.INFO, 
-                                 "Before adding people, please tell us about your source.",
+                                 "Before adding a person, please tell us about your source.",
                                  extra_tags='alert alert-info')
-            return redirect('create-source')
+            return redirect('/create-source/')
+        else:
+            return super(CreatePeople, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CreatePeople, self).get_context_data(**kwargs)
         
         context['organizations'] = self.request.session['organizations']
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
@@ -434,14 +442,19 @@ class MembershipInfo(FormSetView):
     extra = 0
     max_num = None
 
-    def get_context_data(self, **kwargs):
-        context = super(MembershipInfo, self).get_context_data(**kwargs)
+    def dispatch(self, *args, **kwargs):
+        # Redirect to source creation page if no source in session
         if not self.request.session.get('source_id'):
             messages.add_message(self.request, 
                                  messages.INFO, 
                                  "Before adding memberships, please tell us about your source.",
                                  extra_tags='alert alert-info')
-            return redirect('create-source')
+            return redirect('/create-source/')
+        else:
+            return super(MembershipInfo, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MembershipInfo, self).get_context_data(**kwargs)
         
         context['organizations'] = self.request.session['organizations']
         context['people'] = self.request.session['people']
@@ -535,15 +548,21 @@ class OrganizationGeographies(FormSetView):
     success_url = '/create-events/'
     extra = 1
     max_num = None
-    
-    def get_context_data(self, **kwargs):
-        context = super(OrganizationGeographies, self).get_context_data(**kwargs)
+
+    def dispatch(self, *args, **kwargs):
+        # Redirect to source creation page if no source in session
         if not self.request.session.get('source_id'):
             messages.add_message(self.request, 
                                  messages.INFO, 
                                  "Before adding geographies, please tell us about your source.",
                                  extra_tags='alert alert-info')
-            return redirect('create-source')
+            return redirect('/create-source/')
+        else:
+            return super(OrganizationGeographies, self).dispatch(*args, **kwargs)
+
+   
+    def get_context_data(self, **kwargs):
+        context = super(OrganizationGeographies, self).get_context_data(**kwargs)
         
         organizations = self.request.session['organizations']
         people = self.request.session['people']
@@ -780,15 +799,21 @@ class CreateViolations(FormSetView):
     success_url = '/'
     extra = 1
     max_num = None
-    
-    def get_context_data(self, **kwargs):
-        context = super(CreateViolations, self).get_context_data(**kwargs)
+
+    def dispatch(self, *args, **kwargs):
+        # Redirect to source creation page if no source in session
         if not self.request.session.get('source_id'):
             messages.add_message(self.request, 
                                  messages.INFO, 
-                                 "Before adding events, please tell us about your source.",
+                                 "Before adding an event, please tell us about your source.",
                                  extra_tags='alert alert-info')
-            return redirect('create-source')
+            return redirect('/create-source/')
+        else:
+            return super(CreateViolations, self).dispatch(*args, **kwargs)
+
+   
+    def get_context_data(self, **kwargs):
+        context = super(CreateViolations, self).get_context_data(**kwargs)
         
         organizations = self.request.session.get('organizations')
         people = self.request.session.get('people')
