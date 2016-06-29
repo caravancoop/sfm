@@ -4,7 +4,7 @@ from .views import (ViolationCreate, ViolationUpdate, ViolationView, violation_s
                     violation_csv, ViolationDelete)
 
 urlpatterns = [
-    url(r'add/$', ViolationCreate.as_view(), name='add_violation'),
+    url(r'^create/$', ViolationCreate.as_view(), name="create-event"),
     url(r'search/', violation_search, name='violation_search'),
     url(r'csv/', violation_csv, name='violation_csv'),
     url(r'delete/(?P<pk>\d+)/$',

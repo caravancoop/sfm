@@ -4,16 +4,167 @@ from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
+from django.contrib import messages
 from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.core.urlresolvers import reverse_lazy
 
-from .models import Violation, Type
+from extra_views import FormSetView
+from cities.models import Place, City, Country, Region, Subregion, District
+
+from violation.models import Violation, Type
 from source.models import Source
-from .forms import ZoneForm
+from person.models import Person
+from organization.models import Organization
+from violation.forms import ZoneForm, ViolationForm
 from sfm_pc.utils import deleted_in_str
+
+class ViolationCreate(FormSetView):
+    template_name = 'violation/create.html'
+    form_class = ViolationForm
+    success_url = reverse_lazy('dashboard')
+    extra = 1
+    max_num = None
+
+    def dispatch(self, *args, **kwargs):
+        # Redirect to source creation page if no source in session
+        if not self.request.session.get('source_id'):
+            messages.add_message(self.request, 
+                                 messages.INFO, 
+                                 "Before adding an event, please tell us about your source.",
+                                 extra_tags='alert alert-info')
+            return redirect(reverse_lazy('create-source'))
+        else:
+            return super().dispatch(*args, **kwargs)
+
+   
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        organizations = self.request.session.get('organizations')
+        people = self.request.session.get('people')
+
+        context['types'] = Type.objects.all()
+        context['people'] = people         
+        context['organizations'] = organizations
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        return context
+
+    def post(self, request, *args, **kwargs):
+        organizations = self.request.session['organizations']
+
+        ViolationFormset = self.get_formset()
+        formset = ViolationFormset(request.POST)
+
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
+
+    def formset_valid(self, formset):
+        source = Source.objects.get(id=self.request.session['source_id'])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+        for i in range(0, num_forms):
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+            startdate = formset.data[form_prefix + 'startdate']
+            enddate = formset.data[form_prefix + 'enddate']
+            locationdescription = formset.data[form_prefix + 'locationdescription']
+            geoid = formset.data[form_prefix + 'geoname']
+            geotype = formset.data[form_prefix + 'geotype']
+            description = formset.data[form_prefix + 'description']
+            perpetrators = formset.data[form_prefix + 'perpetrators']
+            orgs = formset.data[form_prefix + 'orgs']
+            vtype = formset.data[form_prefix + 'vtype'] 
+
+            newtype, flag = Type.objects.get_or_create(id=vtype)
+
+            if geotype == 'country':
+                geo = Country.objects.get(id=geoid)
+                admin1 = None
+                admin2 = None
+                coords = None
+            elif geotype == 'region':
+                geo = Region.objects.get(id=geoid)
+                admin1 = geo.parent.name
+                admin2 = geo.parent.parent.name
+                coords = None
+            elif geotype == 'subregion':
+                geo = Subregion.objects.get(id=geoid)
+                admin1 = geo.parent.name
+                admin2 = geo.parent.parent.name
+                coords = None
+            elif geotype == 'city':
+                geo = City.objects.get(id=geoid)
+                admin1 = geo.parent.name
+                admin2 = geo.parent.parent.name
+                coords = geo.location
+            else:
+                geo = District.objects.get(id=geoid)
+                admin1 = geo.parent.name
+                admin2 = geo.parent.parent.name
+                coords = geo.location
+
+            violation_data = {
+                'Violation_ViolationDescription': {
+                   'value': description,
+                   'sources': [source],
+                   'confidence': 1
+                },
+                'Violation_ViolationLocationDescription': {
+                    'value': locationdescription,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationType': {
+                    'value': newtype,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationPerpetrator': {
+                    'value': Person.objects.get(id=perpetrators),
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationPerpetratorOrganization': {
+                    'value': Organization.objects.get(id=orgs),
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationAdminLevel1': {
+                    'value': admin1,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationAdminLevel2': {
+                    'value': admin2,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationGeoname': {
+                    'value': geo.name,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationGeonameId': {
+                    'value': geo.id,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationLocation': {
+                    'value': coords,
+                    'sources': [source],
+                    'confidence': 1
+                }
+            }
+            Violation.create(violation_data)
+        response = super().formset_valid(formset)
+        return response
 
 
 class ViolationDelete(DeleteView):
@@ -151,33 +302,5 @@ class ViolationUpdate(TemplateView):
         context['violation'] = violation
         data = {"value": violation.location.get_value().value}
         context['point'] = ZoneForm(data)
-
-        return context
-
-
-class ViolationCreate(TemplateView):
-    template_name = 'violation/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        data = json.loads(request.POST.dict()['object'])
-        (errors, data) = Violation().validate(data)
-
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-        violation = Violation.create(data)
-
-        return HttpResponse(json.dumps({"success": True, "id": violation.id}),
-                            content_type="application/json")
-
-    def get_context_data(self, **kwargs):
-        context = super(ViolationCreate, self).get_context_data(**kwargs)
-        context['violation'] = Violation()
-        context['violationtypes'] = Type.objects.all()
-        context['sources'] = Source.objects.all()
-        context['point'] = ZoneForm()
 
         return context

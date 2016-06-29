@@ -4,11 +4,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
-from .views import Dashboard, CreateSource, CreateOrgs, CreatePeople, \
-    MembershipInfo, publications_autocomplete, organizations_autocomplete, \
-    aliases_autocomplete, people_autocomplete, personalias_autocomplete, \
-    geoname_autocomplete, OrganizationGeographies, CreateViolations, \
-    view_source, source_autocomplete, search
+from sfm_pc.views import Dashboard, geoname_autocomplete, search
 
 urlpatterns = i18n_patterns(
     url(r'^composition/', include('composition.urls')),
@@ -19,26 +15,14 @@ urlpatterns = i18n_patterns(
     url(r'^translate/', include('translation.urls')),
     url(r'^version/', include('version.urls')),
     url(r'^source/', include('source.urls')),
-    url(r'^create-source/$', CreateSource.as_view(), name="create-source"),
-    url(r'^view-source/(?P<source_id>\d+)/$', view_source, name="view-source"),
-    url(r'^create-orgs/$', CreateOrgs.as_view(), name="create-orgs"),
-    url(r'^create-people/$', CreatePeople.as_view(), name="create-people"),
-    url(r'^membership-info/$', MembershipInfo.as_view(), name="membership-info"),
-    url(r'^organization-geo/$', OrganizationGeographies.as_view(), name="organization-geo"),
-    url(r'^create-events/$', CreateViolations.as_view(), name="create-events"),
-    url(r'^publications-autocomplete/$', publications_autocomplete, name="publications-autocomplete"),
-    url(r'^organizations-autocomplete/$', organizations_autocomplete, name="organizations-autocomplete"),
-    url(r'^aliases-autocomplete/$', aliases_autocomplete, name="aliases-autocomplete"),
-    url(r'^people-autocomplete/$', people_autocomplete, name="people-autocomplete"),
-    url(r'^personalias-autocomplete/$', personalias_autocomplete, name="personalias-autocomplete"),
-    url(r'^geoname-autocomplete/$', geoname_autocomplete, name="geoname-autocomplete"),
-    url(r'^source-autocomplete/$', source_autocomplete, name="source-autocomplete"),
     url(r'^area/', include('area.urls')),
     url(r'^association/', include('association.urls')),
     url(r'^geosite/', include('geosite.urls')),
     url(r'^emplacement/', include('emplacement.urls')),
     url(r'^violation/', include('violation.urls')),
     url(r'^search/', search, name="search"),
+    
+    url(r'^geoname-autocomplete/$', geoname_autocomplete, name="geoname-autocomplete"),
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),

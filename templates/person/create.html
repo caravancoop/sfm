@@ -196,7 +196,7 @@
     var form_num = 0;
     var name_opts = {
         ajax: {
-            url: "{% url 'people-autocomplete' %}",
+            url: "{% url 'person-autocomplete' %}",
             datType: 'json',
             delay: 250,
             data: function(params) {
@@ -220,7 +220,7 @@
 
     var alias_opts = {
         ajax: {
-            url: "{% url 'personalias-autocomplete' %}",
+            url: "{% url 'person-alias-autocomplete' %}",
             datType: 'json',
             delay: 250,
             data: function(params) {
