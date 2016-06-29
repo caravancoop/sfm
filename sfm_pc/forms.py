@@ -85,4 +85,6 @@ class ViolationForm(forms.Form):
     orgs = forms.CharField(required=False)
     vtype = forms.CharField(required=False)
     geotype = forms.CharField(required=False)
-    # also has source and confidence
+
+class ConfidenceForm(forms.Form):
+    dummy = forms.CharField(required=False) 

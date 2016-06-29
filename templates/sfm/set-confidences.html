@@ -1,0 +1,45 @@
+<html>
+<head><title>Dummy</title></head>
+<body>
+dummheit
+
+dunkelheit
+
+finsternis
+
+tenebres
+{% for update in updated_fields %}
+    {% for type_name, type_group in update.items %}
+       {% if forloop.first %}
+           <h4>{{ type_name }}</h4>
+           <table class="table table-condensed">
+               <thead>
+                   <th>Value</th>
+                   <th>Date created</th>
+                   <th>User</th>
+                   <th>Sources</th>
+                   <th>Confidence</th>
+               </thead>
+               <tbody>
+       {% endif %}
+       {% for group, members in type_group %}
+           {% for member in members %}
+               <tr>
+                   <td>{{ member.object.value }}</td>
+                   <td>{{ member.revision.date_created }}</td>
+                   <td>{{ member.revision.user }}</td>
+                   <td>
+                       {% for source in member.object.sources.all %}
+                           {{ source.title }}{% if not forloop.last %},{% endif %}
+                       {% endfor %}
+                   </td>
+                   <td>{{ member.object.confidence }}</td>
+               </tr>
+           {% endfor %}
+       {% endfor %}
+           </tbody>
+       </table>
+            <hr />
+   {% endfor %}
+{% endfor %}
+</body>

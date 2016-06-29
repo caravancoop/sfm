@@ -16,7 +16,7 @@ from extra_views import FormSetView
 from reversion.models import Version
 
 from .forms import SourceForm, OrgForm, PersonForm, PersonMembershipForm, \
-    OrganizationGeographyForm, ViolationForm
+    OrganizationGeographyForm, ViolationForm, ConfidenceForm
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias as OrganizationAliasObject, Classification
@@ -796,7 +796,7 @@ class OrganizationGeographies(FormSetView):
 class CreateViolations(FormSetView):
     template_name = 'sfm/create-events.html'
     form_class = ViolationForm
-    success_url = '/'
+    success_url = '/set-confidences'
     extra = 1
     max_num = None
 
@@ -936,6 +936,45 @@ class CreateViolations(FormSetView):
             Violation.create(violation_data)
         response = super().formset_valid(formset)
         return response
+
+class SetConfidences(FormView):
+    template_name = 'sfm/set-confidences.html'
+    form_class = ConfidenceForm
+    success_url = '/set-confidences/'
+    
+    def get_context_data(self, **kwargs):
+        context = super(SetConfidences, self).get_context_data(**kwargs)
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        context['people'] = self.request.session['people']
+        context['organizations'] = self.request.session['organizations']
+        updated_fields = []
+        for organization in context['organizations']: 
+            complex_fields = [f for f in dir(organization) if f.endswith('_set')]
+            for field in complex_fields:
+                for related in getattr(organization, field).all():
+                    if related.source == context['source']:
+                        if related.versioned:
+                            versions = Version.objects.get_for_object(related)
+                            latest_version = versions.revisionget_previous_by_date_created()
+                            updated_fields.append(latest_version)
+                            print(latest_version)
+                            #if latest_version.source == context['source']:
+                            #    prev_version = versions.revision.get_previous_by_dated_created()
+                            #    print(prev_version)
+        context['updated_fields'] = updated_fields 
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        response = super(SetConfidences, self).form_valid(form)
+
 
 def search(request):
     query = request.GET.get('q')

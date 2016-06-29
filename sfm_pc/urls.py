@@ -8,7 +8,7 @@ from .views import Dashboard, CreateSource, CreateOrgs, CreatePeople, \
     MembershipInfo, publications_autocomplete, organizations_autocomplete, \
     aliases_autocomplete, people_autocomplete, personalias_autocomplete, \
     geoname_autocomplete, OrganizationGeographies, CreateViolations, \
-    view_source, source_autocomplete, search
+    view_source, source_autocomplete, search, SetConfidences
 
 urlpatterns = i18n_patterns(
     url(r'^composition/', include('composition.urls')),
@@ -26,6 +26,7 @@ urlpatterns = i18n_patterns(
     url(r'^membership-info/$', MembershipInfo.as_view(), name="membership-info"),
     url(r'^organization-geo/$', OrganizationGeographies.as_view(), name="organization-geo"),
     url(r'^create-events/$', CreateViolations.as_view(), name="create-events"),
+    url(r'^set-confidences/$', SetConfidences.as_view(), name="set-confidences"),
     url(r'^publications-autocomplete/$', publications_autocomplete, name="publications-autocomplete"),
     url(r'^organizations-autocomplete/$', organizations_autocomplete, name="organizations-autocomplete"),
     url(r'^aliases-autocomplete/$', aliases_autocomplete, name="aliases-autocomplete"),
