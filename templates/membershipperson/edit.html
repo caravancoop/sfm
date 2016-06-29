@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load render_versions %}
+{% load static %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+{% endblock %}
 {% block content %}
     <div class="row header">
         <div class="inner-title-wrapper">
@@ -9,6 +14,8 @@
     </div>
 
     <form class="form form-horizontal" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="membership" value="{{ membership.id }}" />
         {% if source_error %}
             <div class="form-group has-error has-feedback">
         {% else %}
@@ -87,7 +94,7 @@
         {% endif %}
             <label class="control-label col-sm-2" for="id_startcontext">Start context</label>
             <div class="col-sm-6">
-               <input type="text" class="form-control" id="id_startcontext" name="startcontext" value="{{ form_data.startcontext }}" />
+                <input type="text" class="form-control" id="id_startcontext" name="startcontext" {% if form_data.startcontext %}value="{{ form_data.startcontext }}"{% endif %} />
                 {% if form.startcontext.errors %}
                     {% for error in form.startcontext.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -116,7 +123,7 @@
         {% endif %}
             <label class="control-label col-sm-2" for="id_endcontext">End context</label>
             <div class="col-sm-6">
-               <input type="text" class="form-control" id="id_endcontext" name="endcontext" value="{{ form_data.endcontext }}" />
+               <input type="text" class="form-control" id="id_endcontext" name="endcontext" {% if form_data.endcontext %}value="{{ form_data.endcontext }}"{% endif %} />
                 {% if form.endcontext.errors %}
                     {% for error in form.endcontext.errors %}
                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -161,13 +168,47 @@
                 {% endif %}
             </div>
         </div>
-    </form>
-
   <div class="row">
     <div class="col-sm-12 col-md-12">
       <button class="btn sfm-btn-cancel col-sm-2" type="submit">Cancel</button>
       <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
     </div>
   </div>
+    </form>
+
     {% render_versions membership %}
+
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/select2.min.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+    var source_opts = {
+        ajax: {
+            url: "{% url 'source-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': -1,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2
+    }
+
+    $(document).ready(function(){
+        $('#id_source').select2(source_opts);
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
+    })
+</script>
 {% endblock %}

@@ -11,6 +11,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.core.urlresolvers import reverse_lazy
+from django.utils.translation import get_language
 
 from extra_views import FormSetView
 from cities.models import Place, City, Country, Region, Subregion, District
@@ -196,6 +197,20 @@ class ViolationView(TemplateView):
 
         return context
 
+def violation_type_autocomplete(request):
+    term = request.GET.get('q')
+    types = ViolationType.objects.filter(value__code__icontains=term)\
+                                 .filter(lang=get_language()).all()
+
+    results = []
+    for violation_type in types:
+        results.append({
+            'text': violation_type.get_value(),
+            'id': violation_type.id,
+        })
+
+    return HttpResponse(json.dumps(results), content_type='application/json')
+
 
 def violation_csv(request):
     response = HttpResponse(content_type='text/csv')
@@ -222,53 +237,6 @@ def violation_csv(request):
         ])
 
     return response
-
-
-def violation_search(request):
-    terms = request.GET.dict()
-
-    page = int(terms.get('page', 1))
-    violation_query = Violation.search(terms)
-
-    keys = ['startdate', 'enddate', 'geoname', 'perpetrator', 'organization']
-
-    paginator = Paginator(violation_query, 15)
-    try:
-        violation_page = paginator.page(page)
-    except PageNotAnInteger:
-        violation_page = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        violation_page = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    violations = [
-        {
-            "id": violation.id,
-            "startdate": str(violation.startdate.get_value().value),
-            "enddate": str(violation.enddate.get_value().value),
-            "geoname": str(violation.geoname.get_value().value),
-            "perpetrator": str(violation.perpetrator.get_value().value),
-            "organization": str(violation.perpetratororganization.get_value().value),
-        }
-        for violation in violation_page
-    ]
-
-    html_paginator = render_to_string(
-        'paginator.html',
-        {'actual': page, 'min': page - 5, 'max': page + 5,
-         'paginator': violation_page,
-         'pages': range(1, paginator.num_pages + 1)}
-    )
-
-    return HttpResponse(json.dumps({
-        'success': True,
-        'keys': keys,
-        'objects': violations,
-        'paginator': html_paginator,
-        'result_number': len(violation_query)
-    }))
-
 
 class ViolationUpdate(TemplateView):
     template_name = 'violation/edit.html'

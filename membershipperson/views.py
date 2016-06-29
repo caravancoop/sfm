@@ -131,11 +131,12 @@ class MembershipPersonCreate(FormSetView):
 class MembershipPersonUpdate(FormView):
     template_name = 'membershipperson/edit.html'
     form_class = MembershipPersonForm
-    success_url = '/'
+    success_url = reverse_lazy('dashboard')
     sourced = True
 
     def post(self, request, *args, **kwargs):
-        form = PersonMembershipForm(request.POST)
+        print(request.POST)
+        form = self.form_class(request.POST)
         
         if not request.POST.get('source'):
             self.sourced = False
@@ -152,21 +153,12 @@ class MembershipPersonUpdate(FormView):
         response = super().form_valid(form)
 
         membership = MembershipPerson.objects.get(pk=self.kwargs['pk'])
+        
         mem_info = {
-            'MembershipPerson_MembershipPersonRole' : {
-                'value': Role.objects.get(id=form.cleaned_data['role']),
-                'confidence': 1,
-                'source': list(set(list(membership.role.get_sources() + [self.source])))
-            },
             'MembershipPerson_MembershipPersonTitle': {
                 'value': form.cleaned_data['title'],
                 'confidence': 1,
                 'source': list(set(list(membership.title.get_sources() + [self.source])))
-            },
-            'MembershipPerson_MembershipPersonRank': {
-                'value': Rank.objects.get(id=form.cleaned_data['rank']),
-                'confidence': 1,
-                'source': list(set(list(membership.rank.get_sources() + [self.source])))
             },
             'MembershipPerson_MembershipStartContext': {
                 'value': form.cleaned_data['startcontext'],
@@ -189,6 +181,20 @@ class MembershipPersonUpdate(FormView):
                 'source': list(set(list(membership.realend.get_sources() + [self.source])))
             },
         }
+        
+        if form.cleaned_data.get('role'):
+            mem_info['MembershipPerson_MembershipPersonRole'] = {
+                'value': Role.objects.get(id=form.cleaned_data['role']),
+                'confidence': 1,
+                'source': list(set(list(membership.role.get_sources() + [self.source])))
+            }
+
+        if form.cleaned_data.get('rank'):
+            mem_info['MembershipPerson_MembershipPersonRank'] = {
+                'value': Rank.objects.get(id=form.cleaned_data['rank']),
+                'confidence': 1,
+                'source': list(set(list(membership.rank.get_sources() + [self.source])))
+            }
 
         membership.update(mem_info)
 
@@ -208,7 +214,7 @@ class MembershipPersonUpdate(FormView):
             'startcontext': membership.startcontext.get_value(),
             'endcontext': membership.endcontext.get_value(),
             'firstciteddate': membership.firstciteddate.get_value(),
-            'lastciteddate': membership.lastciteddate.get_value(),
+            'lastciteddate': membership.lastciteddate.get_value()
         }
         
         context['form_data'] = form_data

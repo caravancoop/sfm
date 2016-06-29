@@ -147,10 +147,12 @@ class ViolationPerpetratorOrganization(ComplexField):
 
 @versioned
 @sourced
+@translated
 class ViolationType(ComplexField):
-    object_ref = models.ForeignKey('Violation')
+    object_ref = models.ForeignKey('Violation', null=True)
     value = models.ForeignKey('Type', default=None, blank=True, null=True)
-
+    
+    field_name = _("Event Type")
 
 class Type(models.Model):
     code = models.TextField()
