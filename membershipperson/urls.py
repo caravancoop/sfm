@@ -6,8 +6,8 @@ from membershipperson.views import MembershipPersonCreate, \
 
 urlpatterns = [
     url(r'^create/$', MembershipPersonCreate.as_view(), name="create-membership"),
-    url(r'csv/', membership_person_csv, name='membership_csv'),
-    url(r'(?P<pk>\d+)/$', MembershipPersonUpdate.as_view(), name='edit_person'),
-    url(r'rank/autocomplete/', rank_autocomplete, name='rank_autocomplete'),
-    url(r'role/autocomplete/', role_autocomplete, name='role_autocomplete'),
+    url(r'csv/', membership_person_csv, name='membership-csv'),
+    url(r'(?P<pk>\d+)/$', MembershipPersonUpdate.as_view(), name='edit-membership'),
+    url(r'rank/autocomplete/', rank_autocomplete, name='rank-autocomplete'),
+    url(r'role/autocomplete/', role_autocomplete, name='role-autocomplete'),
 ]

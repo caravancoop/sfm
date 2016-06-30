@@ -12,6 +12,8 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.core.urlresolvers import reverse_lazy
+from django.utils.translation import ugettext as _
+from django.utils.translation import get_language
 
 from extra_views import FormSetView
 
@@ -104,7 +106,8 @@ class PersonCreate(FormSetView):
                 alias_obj, created = Alias.objects.get_or_create(value=alias)
 
                 pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
-                                                                    value=alias_obj)
+                                                                    value=alias_obj,
+                                                                    lang=get_language())
                 
                 pa_obj.sources.add(source)
                 pa_obj.save()
@@ -193,7 +196,8 @@ class PersonUpdate(FormView):
         response = super().form_valid(form)
         
         person = Person.objects.get(pk=self.kwargs['pk'])
-
+        
+        # TODO: This needs to actually save
         person_info = {
             'Person_PersonName': {
                 'value': form.cleaned_data['name_text'],
@@ -202,19 +206,24 @@ class PersonUpdate(FormView):
             }
         }
 
+        return response
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         person = Person.objects.get(pk=self.kwargs['pk'])
         
         form_data = {
             'name': person.name.get_value(),
-            'alias': [i.get_value() for i in person.alias.get_list()],
+            'aliases': [i.get_value() for i in person.aliases.get_list()],
         }
-
+        
         context['form_data'] = form_data
         context['title'] = _('Person')
         context['person'] = person
-        
+        context['memberships'] = MembershipPerson.objects.filter(
+            membershippersonmember__value=person
+        ).filter(membershippersonorganization__value__isnull=False)
+
         if not self.sourced:
             context['source_error'] = 'Please include the source for your changes'
 

@@ -105,7 +105,7 @@ class PersonName(ComplexField):
 class PersonAlias(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.ForeignKey('Alias', default=None, blank=True, null=True)
-    field_name = _("Aliases")
+    field_name = _("Alias")
 
 class Alias(models.Model):
     value = models.TextField()
