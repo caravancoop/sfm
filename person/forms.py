@@ -9,7 +9,6 @@ class PersonForm(forms.Form):
     name = forms.CharField(error_messages={'required': _('Name is required')})
     name_text = forms.CharField()
     alias = forms.CharField(required=False)
-    deathdate = ApproximateDateFormField(required=False)
     orgs = forms.CharField() 
     
     def __init__(self, *args, **kwargs):

@@ -6,7 +6,8 @@ from django.db.models import Max
 from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import versioned, translated, sourced
-from complex_fields.models import ComplexField, ComplexFieldContainer
+from complex_fields.models import ComplexField, ComplexFieldContainer, \
+    ComplexFieldListContainer
 from complex_fields.base_models import BaseModel
 
 
@@ -14,9 +15,8 @@ class Person(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
-        self.alias = ComplexFieldContainer(self, PersonAlias)
-        self.deathdate = ComplexFieldContainer(self, PersonDeathDate)
-        self.complex_fields = [self.name, self.alias, self.deathdate]
+        self.aliases = ComplexFieldListContainer(self, PersonAlias)
+        self.complex_fields = [self.name]
 
         self.required_fields = [
             "Person_PersonName",
@@ -55,24 +55,6 @@ class Person(models.Model, BaseModel):
         alias_val = terms.get('alias')
         if alias_val:
             person_query = person_query.filter(personalias__value__icontains=alias_val)
-
-        deathdate_year = terms.get('deathdate_year')
-        if deathdate_year:
-            person_query = person_query.filter(
-                persondeathdate__value__startswith=deathdate_year
-            )
-
-        deathdate_month = terms.get('deathdate_month')
-        if deathdate_month:
-            person_query = person_query.filter(
-                persondeathdate__value__contains="-" + deathdate_month + "-"
-            )
-
-        deathdate_day = terms.get('deathdate_day')
-        if deathdate_day:
-            person_query = person_query.filter(
-                persondeathdate__value__endswith=deathdate_day
-            )
 
         role = terms.get('role_membership')
         if role:
@@ -131,9 +113,3 @@ class Alias(models.Model):
     def __str__(self):
         return self.value
 
-@versioned
-@sourced
-class PersonDeathDate(ComplexField):
-    object_ref = models.ForeignKey('Person')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Death date")

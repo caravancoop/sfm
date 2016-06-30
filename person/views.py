@@ -6,7 +6,7 @@ from datetime import date
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, FormView
 from django.views.generic.base import TemplateView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
@@ -109,19 +109,6 @@ class PersonCreate(FormSetView):
                 pa_obj.sources.add(source)
                 pa_obj.save()
 
-            date_key = 'form-{0}-deathdate'.format(i)
-            deathdate = formset.data.get(date_key)
-
-            if deathdate:
-                death_data = {
-                    'Person_PersonDeathDate': {
-                        'value': deathdate,
-                        'confidence': 1,
-                        'sources': [source],
-                    }
-                }
-                person.update(death_data)
-           
             self.people.append(person)
             
             orgs_key = 'form-{0}-orgs'.format(i)
@@ -176,38 +163,61 @@ def alias_autocomplete(request):
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
 
-class PersonUpdate(TemplateView):
+class PersonUpdate(FormView):
     template_name = 'person/edit.html'
+    form_class = PersonForm
+    success_url = reverse_lazy('dashboard')
+    sourced = True
 
     def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['object'])
-        try:
-            person = Person.objects.get(pk=kwargs.get('pk'))
-        except Person.DoesNotExist:
-            msg = "This person does not exist, it should be created " \
-                  "before updating it."
-            return HttpResponse(msg, status=400)
 
-        (errors, data) = person.validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
+        form = PersonForm(request.POST)
 
-        person.update(data)
-        return HttpResponse(
-            json.dumps({"success": True, "id": person.id}),
-            content_type="application/json"
-        )
+        if not request.POST.get('source'):
+            self.sourced = False
+            return self.form_invalid(form)
+        
+        self.aliases = request.POST.getlist('alias')
+
+        if form.is_valid():
+            return self.form_valid()
+        else:
+            return self.form_invalid()
+    
+    def sources_list(self, obj, attribute):
+        sources = [s for s in getattr(obj, attribute).get_sources()] \
+                      + [self.source]
+        return list(set(s for s in sources))
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        person = Person.objects.get(pk=self.kwargs['pk'])
+
+        person_info = {
+            'Person_PersonName': {
+                'value': form.cleaned_data['name_text'],
+                'confidence': 1,
+                'sources': self.sources_list(person, 'name'),
+            }
+        }
 
     def get_context_data(self, **kwargs):
-        context = super(PersonUpdate, self).get_context_data(**kwargs)
-        context['title'] = "Person"
-        context['person'] = Person.objects.get(pk=context.get('pk'))
-        context['memberships'] = MembershipPerson.objects.filter(
-            membershippersonmember__value=context['person']
-        ).filter(membershippersonorganization__value__isnull=False)
+        context = super().get_context_data(**kwargs)
+        person = Person.objects.get(pk=self.kwargs['pk'])
+        
+        form_data = {
+            'name': person.name.get_value(),
+            'alias': [i.get_value() for i in person.alias.get_list()],
+        }
+
+        context['form_data'] = form_data
+        context['title'] = _('Person')
+        context['person'] = person
+        
+        if not self.sourced:
+            context['source_error'] = 'Please include the source for your changes'
+
 
         return context
 

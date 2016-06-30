@@ -10,8 +10,6 @@ class OrganizationForm(forms.Form):
     name_text = forms.CharField()
     classification = forms.ModelChoiceField(queryset=Classification.objects.all())
     alias = forms.CharField(required=False)
-    foundingdate = ApproximateDateFormField(required=False)
-    realfounding = forms.BooleanField(required=False)
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

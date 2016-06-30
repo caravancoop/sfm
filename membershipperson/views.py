@@ -81,43 +81,43 @@ class MembershipPersonCreate(FormSetView):
                 mem_data['MembershipPerson_MembershipPersonRole'] = {
                     'value': Role.objects.get(id=formset.data[form_prefix + 'role']),
                     'confidence': 1,
-                    'source': [source]
+                    'sources': [source]
                 }
             if formset.data[form_prefix + 'title']:
                 mem_data['MembershipPerson_MembershipPersonTitle'] = {
                     'value': formset.data[form_prefix + 'title'],
                     'confidence': 1,
-                    'source': [source]
+                    'sources': [source]
                 }
             if formset.data[form_prefix + 'rank']:
                 mem_data['MembershipPerson_MembershipPersonRank'] = {
                     'value': Rank.objects.get(id=formset.data[form_prefix + 'rank']),
                     'confidence': 1,
-                    'source': [source]
+                    'sources': [source]
                 }
             if formset.data[form_prefix + 'startcontext']:
                 mem_data['MembershipPerson_MembershipStartContext'] = {
                     'value': formset.data[form_prefix + 'startcontext'],
                     'confidence': 1,
-                    'source': [source]
+                    'sources': [source]
                 }
             if formset.data.get(form_prefix + 'realstart'):
                 mem_data['MembershipPerson_MembershipPersonRealStart'] = {
                     'value': formset.data[form_prefix + 'realstart'],
                     'confidence': 1,
-                    'source': [source]
+                    'sources': [source]
                 }
             if formset.data[form_prefix + 'endcontext']:
                 mem_data['MembershipPerson_MembershipEndContext'] = {
                     'value': formset.data[form_prefix + 'endcontext'],
                     'confidence': 1,
-                    'source': [source]
+                    'sources': [source]
                 }
             if formset.data.get(form_prefix + 'realend'):
                 mem_data['MembershipPerson_MembershipRealEnd'] = {
                     'value': formset.data[form_prefix + 'realend'],
                     'confidence': 1,
-                    'source': [source]
+                    'sources': [source]
                 }
             membership.update(mem_data)
  
@@ -135,7 +135,6 @@ class MembershipPersonUpdate(FormView):
     sourced = True
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
         form = self.form_class(request.POST)
         
         if not request.POST.get('source'):
@@ -149,6 +148,11 @@ class MembershipPersonUpdate(FormView):
         else:
             return self.form_invalid(form)
     
+    def sources_list(self, obj, attribute):
+        sources = [s for s in getattr(obj, attribute).get_sources()] \
+                      + [self.source]
+        return list(set(s for s in sources))
+
     def form_valid(self, form):
         response = super().form_valid(form)
 
@@ -158,27 +162,27 @@ class MembershipPersonUpdate(FormView):
             'MembershipPerson_MembershipPersonTitle': {
                 'value': form.cleaned_data['title'],
                 'confidence': 1,
-                'source': list(set(list(membership.title.get_sources() + [self.source])))
+                'sources': self.sources_list(membership, 'title')
             },
             'MembershipPerson_MembershipStartContext': {
                 'value': form.cleaned_data['startcontext'],
                 'confidence': 1,
-                'source': list(set(list(membership.startcontext.get_sources() + [self.source])))
+                'sources': self.sources_list(membership, 'startcontext')
             },
             'MembershipPerson_MembershipPersonRealStart': {
                 'value': form.cleaned_data['realstart'],
                 'confidence': 1,
-                'source': list(set(list(membership.realstart.get_sources() + [self.source])))
+                'sources': self.sources_list(membership, 'realstart')
             },
             'MembershipPerson_MembershipEndContext': {
                 'value': form.cleaned_data['endcontext'],
                 'confidence': 1,
-                'source': list(set(list(membership.endcontext.get_sources() + [self.source])))
+                'sources': self.sources_list(membership, 'endcontext')
             },
             'MembershipPerson_MembershipRealEnd': {
                 'value': form.cleaned_data['realend'],
                 'confidence': 1,
-                'source': list(set(list(membership.realend.get_sources() + [self.source])))
+                'sources': self.sources_list(membership, 'realend')
             },
         }
         
@@ -186,14 +190,14 @@ class MembershipPersonUpdate(FormView):
             mem_info['MembershipPerson_MembershipPersonRole'] = {
                 'value': Role.objects.get(id=form.cleaned_data['role']),
                 'confidence': 1,
-                'source': list(set(list(membership.role.get_sources() + [self.source])))
+                'sources': self.sources_list(membership, 'role')
             }
 
         if form.cleaned_data.get('rank'):
             mem_info['MembershipPerson_MembershipPersonRank'] = {
                 'value': Rank.objects.get(id=form.cleaned_data['rank']),
                 'confidence': 1,
-                'source': list(set(list(membership.rank.get_sources() + [self.source])))
+                'sources': self.sources_list(membership, 'role')
             }
 
         membership.update(mem_info)

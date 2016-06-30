@@ -62,21 +62,6 @@
                                 {% endif %}
                             </div>
                         </div>
-                        {% if form.deathdate.errors %}
-                            <div class="form-group has-error has-feedback">
-                        {% else %}
-                            <div class="form-group">
-                        {% endif %}
-                            <div class="col-sm-4">
-                                <label class="control-label" for="id_form-{{ form_id }}-deathdate">Date of death</label>
-                                <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-deathdate" name="form-{{ form_id }}-deathdate" value="{{ form.cleaned_data.deathdate|date:'Y-m-d' }}"/>
-                                {% if form.deathdate.errors %}
-                                    {% for error in form.deathdate.errors %}
-                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                        </div>
                     </div>
                     <br />
                     <div class="row">
@@ -156,10 +141,6 @@
                     <label class="control-label">Aliases</label>
                     <select id="id_form-<%= form_id %>-alias" class="form-control" name="form-<%= form_id %>-alias" multiple="multiple">
                     </select>
-                </div>
-                <div class="col-sm-4">
-                    <label class="control-label" for="id_form-<%= form_id %>-deathdate">Death date</label>
-                    <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-deathdate" name="form-<%= form_id %>-deathdate" />
                 </div>
             </div>
         </div>
@@ -244,7 +225,6 @@
 
     $(document).ready(function(e) {
         {% if formset.errors %}
-            $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
             $('.name-field').select2(name_opts);
             $('.alias-field').select2(alias_opts);
         {% else %}
@@ -314,9 +294,6 @@
             var value = e.params.data.text;
             $(name_field + '_text').val(value);
         });
-
-        $('.datepicker').datepicker('destroy');
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
 
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-TOTAL_FORMS').val(form_count);

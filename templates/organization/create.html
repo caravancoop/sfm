@@ -95,43 +95,6 @@
                             </div>
                         </div>
                         <br />
-                        {% if form.foundingdate.errors %}
-                            <div class="form-group has-error has-feedback">
-                        {% else %}
-                            <div class="form-group">
-                        {% endif %}
-                            <label class="col-sm-2 control-label" for="id_form-{{ form_id }}-foundingdate">Founding date</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-foundingdate" name="form-{{ form_id }}-foundingdate" value="{{ form.cleaned_data.foundingdate|date:'Y-m-d' }}"/>
-                                {% if form.foundingdate.errors %}
-                                    {% for error in form.foundingdate.errors %}
-                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% if form.realfounding.errors %}
-                            <div class="form-group has-error has-feedback">
-                        {% else %}
-                            <div class="form-group">
-                        {% endif %}
-                            <div class="col-sm-offset-2 col-sm-8">
-                                <div class="checkbox">
-                                    <label for="id_form-{{ form_id }}-realfounding" class="control-label">
-                                        {% if form.cleaned_data.realfounding %}
-                                            <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" checked > Real founding date?
-                                        {% else %}
-                                            <input type="checkbox" id="id_form-{{ form_id }}-realfounding" name="form-{{ form_id }}-realfounding" > Real founding date?
-                                        {% endif %}
-                                    </label>
-                                    {% if form.realfounding.errors %}
-                                        {% for error in form.realfounding.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
                         {% if form_id > 0 %}
                             <div class="form-group">
                                 <div class="col-sm-10 col-sm-offset-2">
@@ -157,7 +120,7 @@
         <div class="form-group">
             <div class="col-md-12">
                 <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
-                <a class="btn btn-default" href="{% url 'create-events' %}">Skip</a>
+                <a class="btn btn-default" href="{% url 'create-event' %}">Skip</a>
             </div>
         </div>
     </div>
@@ -200,21 +163,6 @@
             </div>
         </div>
         <br />
-        <div class="form-group">
-            <label class="col-sm-2 control-label" for="id_form-<%= form_id %>-foundingdate">Founding date</label>
-            <div class="col-sm-8">
-                <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-foundingdate" name="form-<%= form_id %>-foundingdate" />
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-8">
-                <div class="checkbox">
-                    <label class="control-label" for="id_form-<%= form_id %>-realfounding">
-                        <input type="checkbox" id="id_form-<%= form_id %>-realfounding" name="form-<%= form_id %>-realfounding" />Real founding date?
-                    </label>
-                </div>
-            </div>
-        </div>
         <% if (form_id > 0) { %>
             <div class="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
@@ -279,7 +227,6 @@
 
     $(document).ready(function(e) {
         {% if formset.errors %}
-            $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
             $('.name-field').select2(name_opts);
             $('.alias-field').select2(alias_opts);
         {% else %}
@@ -351,9 +298,6 @@
                 $(name_field + ' :selected').attr('value','-1');
             }
         });
-
-        $('.datepicker').datepicker('destroy');
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
 
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-TOTAL_FORMS').val(form_count);

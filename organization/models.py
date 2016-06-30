@@ -17,11 +17,8 @@ class Organization(models.Model, BaseModel):
         self.name = ComplexFieldContainer(self, OrganizationName)
         self.aliases = ComplexFieldListContainer(self, OrganizationAlias)
         self.classification = ComplexFieldContainer(self, OrganizationClassification)
-        self.foundingdate = ComplexFieldContainer(self, OrganizationFoundingDate)
-        self.realfounding = ComplexFieldContainer(self, OrganizationRealFounding)
 
-        self.complex_fields = [self.name, self.classification,
-                               self.foundingdate, self.realfounding]
+        self.complex_fields = [self.name, self.classification]
 
         self.required_fields = [
             "Organization_OrganizationName",
@@ -58,24 +55,6 @@ class Organization(models.Model, BaseModel):
         alias_val = terms.get('alias')
         if alias_val:
             orgs_query = orgs_query.filter(organizationalias__value__icontains=alias_val)
-
-        foundingdate_year = terms.get('founding_year')
-        if foundingdate_year:
-            orgs_query = orgs_query.filter(
-                organizationfoundingdate__value__startswith=foundingdate_year
-            )
-
-        foundingdate_month = terms.get('founding_month')
-        if foundingdate_month:
-            orgs_query = orgs_query.filter(
-                organizationfoundingdate__value__contains="-" + foundingdate_month + "-"
-            )
-
-        foundingdate_day = terms.get('founding_day')
-        if foundingdate_day:
-            orgs_query = orgs_query.filter(
-                organizationfoundingdate__value__endswith=foundingdate_day
-            )
 
         classification = terms.get('classification')
         if classification:
@@ -140,20 +119,6 @@ class OrganizationClassification(ComplexField):
                               null=True)
     field_name = _("Classification")
 
-
-@versioned
-@sourced
-class OrganizationFoundingDate(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Date of creation")
-
-@versioned
-@sourced_optional
-class OrganizationRealFounding(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = models.BooleanField(default=False)
-    field_name = _("Real creation")
 
 class Classification(models.Model):
     value = models.TextField()

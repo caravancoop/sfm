@@ -53,7 +53,7 @@ class Dashboard(TemplateView):
             context['source_properties'] = [p for p in \
                                                 dir(context['edits'][0].object) \
                                                     if p.endswith('_related')]
-        
+            
         session_keys = ['organizations', 'people', 'memberships', 'source_id']
         
         for session_key in session_keys:

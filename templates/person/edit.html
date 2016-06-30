@@ -1,7 +1,6 @@
 {% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
 {% load viewcomplexfield %}
 {% load i18n %}
-{% load viewcomplexfielddate %}
 {% block content %}
   <div class="row header">
     <div class="inner-title-wrapper">
@@ -22,9 +21,6 @@
       <div class="form-group col-sm-4 complex-field">
         {% view_complex_field person.alias person.id request.path %}
       </div>
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_date person.deathdate person.id request.path %}
-      </div>
     </form>
   </div><!-- /.row-->
 
@@ -38,8 +34,8 @@
   <form>
     <div class="form-group dropdown col-sm-4">
       <label>{% trans "Role" %}
-      
-      
+
+
         <a class="modalBox" href="#" data-target="#complexFieldModal" data-toggle="modal" data-remote="{% url 'add_membership' %}"><i class="fa fa-plus"></i>{% trans "Add New" %}</a>
       </label>
       <select id="people_edit_membership">

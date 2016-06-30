@@ -178,23 +178,6 @@ class OrganizationCreate(FormSetView):
                     'sources': [source]
                 }
 
-            # Now do dates
-            realfounding = form_prefix + 'realfounding' in formset.data.keys()
-
-            # Add to dict used to update org
-            org_info.update({
-                'Organization_OrganizationFoundingDate': {
-                    'value': formset.data.get(form_prefix + 'foundingdate'),
-                    'confidence': 1,
-                    'sources': [source],
-                },
-                'Organization_OrganizationRealFounding': {
-                    'value': realfounding,
-                    'confidence': 1,
-                    'sources': [source],
-                },
-            })
-            
             # Now update org
             organization.update(org_info)
  
@@ -233,6 +216,11 @@ class OrganizationUpdate(FormView):
         else:
             return self.form_invalid(form)
     
+    def sources_list(self, obj, attribute):
+        sources = [s for s in getattr(obj, attribute).get_sources()] \
+                      + [self.source]
+        return list(set(s for s in sources))
+    
     def form_valid(self, form):
         response = super().form_valid(form)
         
@@ -242,22 +230,12 @@ class OrganizationUpdate(FormView):
             'Organization_OrganizationName': {
                 'value': form.cleaned_data['name_text'],
                 'confidence': 1,
-                'source': list(set(list(organization.name.get_sources()) + [self.source]))
+                'sources': self.sources_list(organization, 'name'),
             },
             'Organization_OrganizationClassification': {
                 'value': form.cleaned_data['classification'],
                 'confidence': 1,
-                'source': list(set(list(organization.classification.get_sources()) + [self.source])),
-            },
-            'Organization_OrganizationFoundingDate': {
-                'value': form.cleaned_data['foundingdate'],
-                'confidence': 1,
-                'sources': list(set(list(organization.foundingdate.get_sources()) + [self.source])),
-            },
-            'Organization_OrganizationRealFounding': {
-                'value': form.cleaned_data['realfounding'],
-                'confidence': 1,
-                'sources': list(set(list(organization.realfounding.get_sources()) + [self.source])),
+                'sources': self.sources_list(organization, 'classification'),
             },
         }
         
@@ -298,8 +276,6 @@ class OrganizationUpdate(FormView):
             'name': organization.name.get_value(),
             'classification': organization.classification.get_value(),
             'alias': [i.get_value() for i in organization.aliases.get_list()],
-            'foundingdate': organization.foundingdate.get_value(),
-            'realfounding': organization.realfounding.get_value(),
         }
 
         context['form_data'] = form_data
@@ -442,32 +418,32 @@ class OrganizationCreateGeography(FormSetView):
                         'Geosite_GeositeName': {
                             'value': formset.data[form_prefix + 'name'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Geosite_GeositeGeoname': {
                             'value': geo.name,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Geosite_GeositeGeonameId': {
                             'value': geo.id,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Geosite_GeositeAdminLevel1': {
                             'value': admin1,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Geosite_GeositeAdminLevel2': {
                             'value': admin2,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Geosite_GeositeCoordinates': {
                             'value': coords,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         }
                     }
                     site = Geosite.create(site_data)
@@ -481,12 +457,12 @@ class OrganizationCreateGeography(FormSetView):
                         'Emplacement_EmplacementStartDate': {
                             'value': formset.data[form_prefix + 'startdate'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Emplacement_EmplacementEndDate': {
                             'value': formset.data[form_prefix + 'enddate'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         } 
                     } 
                     get_emp.update(emp_data)
@@ -495,22 +471,22 @@ class OrganizationCreateGeography(FormSetView):
                         'Emplacement_EmplacementOrganization': {
                             'value': Organization.objects.get(id=org_id),
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Emplacement_EmplacementSite': {
                             'value': site,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Emplacement_EmplacementStartDate': {
                             'value': formset.data[form_prefix + 'startdate'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Emplacement_EmplacementEndDate': {
                             'value': formset.data[form_prefix + 'enddate'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         }
                     }
                     Emplacement.create(emp_data)
@@ -522,27 +498,27 @@ class OrganizationCreateGeography(FormSetView):
                         'Area_AreaName': {
                             'value': formset.data[form_prefix + 'name'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Area_AreaGeoname': {
                             'value': geo.name,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Area_AreaGeonameId': {
                             'value': geo.id,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Area_AreaCode': {
                             'value': code_obj,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Area_AreaGeometry': {
                             'value': geometry,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         }
                     }
                     area = Area.create(area_data)
@@ -556,12 +532,12 @@ class OrganizationCreateGeography(FormSetView):
                         'Association_AssociationStartDate': {
                             'value': formset.data[form_prefix + 'startdate'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Association_AssociationEndDate': {
                             'value': formset.data[form_prefix + 'enddate'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         } 
                     } 
                     get_assoc.update(assoc_data)
@@ -570,22 +546,22 @@ class OrganizationCreateGeography(FormSetView):
                         'Association_AssociationOrganization': {
                             'value': Organization.objects.get(id=org_id),
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Association_AssociationArea': {
                             'value': area,
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Association_AssociationStartDate': {
                             'value': formset.data[form_prefix + 'startdate'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         },
                         'Association_AssociationEndDate': {
                             'value': formset.data[form_prefix + 'enddate'],
                             'confidence': 1,
-                            'source': [source]
+                            'sources': [source]
                         }
                     }
                     Association.create(assoc_data)
@@ -634,8 +610,6 @@ def organization_csv(request):
             organization.name.get_value(),
             organization.alias.get_value(),
             organization.classification.get_value(),
-            repr(organization.foundingdate.get_value()),
-            organization.realfounding.get_value(),
         ])
 
     return response

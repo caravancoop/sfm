@@ -100,43 +100,6 @@
             </div>
         </div>
         <br />
-        {% if form.foundingdate.errors %}
-            <div class="form-group has-error has-feedback">
-        {% else %}
-            <div class="form-group">
-        {% endif %}
-            <label class="col-sm-2 control-label" for="id_foundingdate">Founding date</label>
-            <div class="col-sm-8">
-                <input type="text" class="form-control datepicker" id="id_foundingdate" name="foundingdate" value="{{ form_data.foundingdate.value|date:'Y-m-d' }}"/>
-                {% if form.foundingdate.errors %}
-                    {% for error in form.foundingdate.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-        {% if form.realfounding.errors %}
-            <div class="form-group has-error has-feedback">
-        {% else %}
-            <div class="form-group">
-        {% endif %}
-            <div class="col-sm-offset-2 col-sm-8">
-                <div class="checkbox">
-                    <label for="id_realfounding" class="control-label">
-                        {% if form_data.realfounding.value %}
-                            <input type="checkbox" id="id_realfounding" name="realfounding" checked > Real founding date?
-                        {% else %}
-                            <input type="checkbox" id="id_realfounding" name="realfounding" > Real founding date?
-                        {% endif %}
-                    </label>
-                    {% if form.realfounding.errors %}
-                        {% for error in form.realfounding.errors %}
-                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
         <hr>
         <div class="row">
             <div class="col-sm-12 col-md-12">
