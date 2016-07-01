@@ -16,7 +16,8 @@ from django.utils.translation import get_language
 from extra_views import FormSetView
 from cities.models import Place, City, Country, Region, Subregion, District
 
-from violation.models import Violation, Type
+from violation.models import Violation, Type, ViolationType, \
+    ViolationPerpetrator, ViolationPerpetratorOrganization
 from source.models import Source
 from person.models import Person
 from organization.models import Organization
@@ -47,8 +48,8 @@ class ViolationCreate(FormSetView):
         
         organizations = self.request.session.get('organizations')
         people = self.request.session.get('people')
-
-        context['types'] = Type.objects.all()
+        
+        context['types'] = ViolationType.objects.filter(lang=get_language())
         context['people'] = people         
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
@@ -59,6 +60,8 @@ class ViolationCreate(FormSetView):
 
         ViolationFormset = self.get_formset()
         formset = ViolationFormset(request.POST)
+        
+        print(request.POST)
 
         if formset.is_valid():
             return self.formset_valid(formset)
@@ -79,11 +82,9 @@ class ViolationCreate(FormSetView):
             geoid = formset.data[form_prefix + 'geoname']
             geotype = formset.data[form_prefix + 'geotype']
             description = formset.data[form_prefix + 'description']
-            perpetrators = formset.data[form_prefix + 'perpetrators']
-            orgs = formset.data[form_prefix + 'orgs']
-            vtype = formset.data[form_prefix + 'vtype'] 
-
-            newtype, flag = Type.objects.get_or_create(id=vtype)
+            perpetrators = formset.data.getlist(form_prefix + 'perpetrators')
+            orgs = formset.data.getlist(form_prefix + 'orgs')
+            vtypes = formset.data.getlist(form_prefix + 'vtype')
 
             if geotype == 'country':
                 geo = Country.objects.get(id=geoid)
@@ -122,21 +123,6 @@ class ViolationCreate(FormSetView):
                     'sources': [source],
                     'confidence': 1
                 },
-                'Violation_ViolationType': {
-                    'value': newtype,
-                    'sources': [source],
-                    'confidence': 1
-                },
-                'Violation_ViolationPerpetrator': {
-                    'value': Person.objects.get(id=perpetrators),
-                    'sources': [source],
-                    'confidence': 1
-                },
-                'Violation_ViolationPerpetratorOrganization': {
-                    'value': Organization.objects.get(id=orgs),
-                    'sources': [source],
-                    'confidence': 1
-                },
                 'Violation_ViolationAdminLevel1': {
                     'value': admin1,
                     'sources': [source],
@@ -163,7 +149,37 @@ class ViolationCreate(FormSetView):
                     'confidence': 1
                 }
             }
-            Violation.create(violation_data)
+            violation = Violation.create(violation_data)
+            
+            if vtypes:
+                for vtype in vtypes:
+                    type_obj = Type.objects.get(id=vtype)
+                    vt_obj, created = ViolationType.objects.get_or_create(value=type_obj,
+                                                                          object_ref=violation,
+                                                                          lang=get_language())
+                    vt_obj.sources.add(source)
+                    vt_obj.save()
+
+            if perpetrators:
+                for perpetrator in perpetrators:
+                    
+                    perp = Person.objects.get(id=perpetrator)
+                    vp_obj, created = ViolationPerpetrator.objects.get_or_create(value=perp,
+                                                                                 object_ref=violation)
+
+                    vp_obj.sources.add(source)
+                    vp_obj.save()
+            
+            if orgs:
+                for org in orgs:
+                    
+                    organization = Organization.objects.get(id=org)
+                    vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
+                                                                                              object_ref=violation)
+
+                    vpo_obj.sources.add(source)
+                    vpo_obj.save()
+
         response = super().formset_valid(formset)
         return response
 

@@ -5,7 +5,6 @@
 {% load get_item %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
-  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
   <style>
     .dynamic-form { margin: 10px 0; }
   </style>
@@ -132,7 +131,6 @@
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
 <script src="{% static "js/ejs_production.js" %}"></script>
-<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/EJS" id="formTemplate">
     <div id="form-<%= form_id %>-wrapper">
         <div class="form-group">
@@ -203,7 +201,7 @@
 
     var alias_opts = {
         ajax: {
-            url: "{% url 'org-aliases-autocomplete' %}",
+            url: "{% url 'org-alias-autocomplete' %}",
             datType: 'json',
             delay: 250,
             data: function(params) {

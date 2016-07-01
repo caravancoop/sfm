@@ -2,22 +2,26 @@
 <table class="table table-condensed">
     <thead>
         <tr>
+            <th>Description</th>
             <th>Perpetrator</th>
             <th>Perpetrator organization</th>
-            <th>Description</th>
         </tr>
     </thead>
     <tbody>
         {% for object in objects %}
             <tr>
                 <td>
-                    {{ object.perpetrator.name.get_value }}
+                    {{ object.description.get_value.value }}
                 </td>
                 <td>
-                    {{ object.perpetratororganization.name.get_value }}
+                    {% for perpetrator in object.perpetrator.get_list %}
+                        {{ perpetrator.get_value.value.name.get_value.value }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
                 </td>
                 <td>
-                    {{ object.description }}
+                    {% for organization in object.perpetratororganization.get_list %}
+                        {{ organization.get_value.value.name.get_value.value }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
                 </td>
             </tr>
         {% endfor %}

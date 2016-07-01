@@ -13,6 +13,6 @@ urlpatterns = [
     url(r'name/autocomplete', 
         organization_autocomplete,
         name="organization-autocomplete"),
-    url(r'^alias/autocomplete/$', alias_autocomplete, name="org-aliases-autocomplete"),
+    url(r'^alias/autocomplete/$', alias_autocomplete, name="org-alias-autocomplete"),
     url(r'^create/geography/$', OrganizationCreateGeography.as_view(), name="create-geography"),
 ]

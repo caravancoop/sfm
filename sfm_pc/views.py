@@ -89,7 +89,7 @@ def search(request):
         select = ''' 
             {select}
             AND plainto_tsquery('english', %s) @@ content
-        '''.format(select)
+        '''.format(select=select)
         
         params = [query]
 
@@ -100,17 +100,18 @@ def search(request):
             AND ({filts})
         '''.format(select=select, filts=filts)
     
+    geoname_obj = None
     if location and radius and geoname_type:
 
         # TODO: Make this work for areas once we have them
         model, _ = GEONAME_TYPES[geoname_type]
-        geoname_obj = model.objects.get(id=location).location
+        geoname_obj = model.objects.get(id=location)
         select = ''' 
             {select}
             AND ST_Intersects(ST_Buffer_Meters(ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), {radius}), site)
         '''.format(select=select,
-                   lon=geoname_obj.x,
-                   lat=geoname_obj.y,
+                   lon=geoname_obj.location.x,
+                   lat=geoname_obj.location.y,
                    radius=(int(radius) * 1000))
 
     select = ''' 
@@ -140,6 +141,10 @@ def search(request):
         'results': results, 
         'query': query, 
         'filters': filters,
+        'radius': radius,
+        'geoname': geoname_obj,
+        'geoname_type': geoname_type,
+        'radius_choices': ['1','5','10','25','50','100'],
     }
 
     return render(request, 'sfm/search.html', context)

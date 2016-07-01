@@ -201,7 +201,7 @@ class OrganizationUpdate(FormView):
 
     def post(self, request, *args, **kwargs):
         
-        form = OrgForm(request.POST)
+        form = self.form_class(request.POST)
         
         if not request.POST.get('source'):
             self.sourced = False
@@ -210,7 +210,7 @@ class OrganizationUpdate(FormView):
             self.source = Source.objects.get(id=request.POST.get('source'))
         
         self.aliases = request.POST.getlist('alias')
-
+        
         if form.is_valid():
             return self.form_valid(form)
         else:

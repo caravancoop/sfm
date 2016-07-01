@@ -9,7 +9,11 @@
 {% block content %}
     <div class="row header">
         <div class="inner-title-wrapper">
-             <h1 class="page-title">{% trans "Person Membership" %}</h1>
+             <h1 class="page-title">
+                 {{ membership.member.get_value }}
+                 <br />
+                 <small>member of {{ membership.organization.get_value }}</small>
+             </h1>
         </div>
     </div>
 

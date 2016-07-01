@@ -33,22 +33,18 @@ class Violation(models.Model, BaseModel):
         self.geonameid = ComplexFieldContainer(self, ViolationGeonameId)
         self.location = ComplexFieldContainer(self, ViolationLocation)
         self.description = ComplexFieldContainer(self, ViolationDescription)
-        self.perpetrator = ComplexFieldContainer(self, ViolationPerpetrator)
-        self.perpetratororganization = ComplexFieldContainer(
+        self.perpetrator = ComplexFieldListContainer(self, ViolationPerpetrator)
+        self.perpetratororganization = ComplexFieldListContainer(
             self, ViolationPerpetratorOrganization
         )
 
         self.complex_fields = [self.startdate, self.enddate, self.locationdescription,
                                self.adminlevel1, self.adminlevel2, self.geoname,
-                               self.geonameid, self.location, self.description,
-                               self.perpetrator, self.perpetratororganization]
+                               self.geonameid, self.location, self.description]
 
         self.required_fields = []
 
         self.types = ComplexFieldListContainer(self, ViolationType)
-        self.sources = models.ManyToManyField(Source)
-        self.confidence = models.CharField(max_length=1, default=1,
-                                           choices=CONFIDENCE_LEVELS)
 
     def validate(self, dict_values):
         errors = {}
@@ -156,3 +152,6 @@ class ViolationType(ComplexField):
 
 class Type(models.Model):
     code = models.TextField()
+
+    def __str__(self):
+        return self.code

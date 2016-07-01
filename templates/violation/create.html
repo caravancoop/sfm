@@ -47,12 +47,12 @@
                     {% endif %}
                             <label class="control-label col-sm-2">Violation type</label>
                             <div class="col-sm-8">
-                                <select id="id_form-{{ form_id }}-vtype" class="form-control" name="form-{{ form_id }}-vtype">
+                                <select id="id_form-{{ form_id }}-vtype" class="form-control violation-type" name="form-{{ form_id }}-vtype" multiple=true>
                                     {% for type in types %}
                                         {% if type.id == form.cleaned_data.type.id %}
-                                            <option value="{{ type.id }}" selected="true">{{ type.code }}</option>
+                                            <option value="{{ type.id }}" selected="true">{{ type.value.code }}</option>
                                         {% else %}
-                                            <option value="{{ type.id }}">{{ type.code }}</option>
+                                            <option value="{{ type.id }}">{{ type.value.code }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>
@@ -93,7 +93,7 @@
                     {% endif %}
                             <label class="control-label col-sm-2" for="id_form-{{ form_id }}-orgs">Select the organization(s) that perpetrated this violation: </label>
                             <div class="col-sm-8">
-                                <select id="id_form-{{ form_id }}-orgs" class="form-control" name="form-{{ form_id }}-orgs">
+                                <select id="id_form-{{ form_id }}-orgs" class="form-control" name="form-{{ form_id }}-orgs" multiple=true>
                                     {% for organization in organizations %}
                                         <option value="{{ organization.id }}">{{ organization.name }}</option>
                                     {% endfor %}
@@ -112,7 +112,7 @@
                     {% endif %}
                         <label class="control-label col-sm-2" for="id_form-{{ form_id }}-perpetrators">Select the person(s) that perpetrated this violation: </label>
                         <div class="col-sm-8">
-                            <select id="id_form-{{ form_id }}-perpetrators" class="form-control" name="form-{{ form_id }}-perpetrators">
+                            <select id="id_form-{{ form_id }}-perpetrators" class="form-control" name="form-{{ form_id }}-perpetrators" multiple=true>
                                 {% for person in people %}
                                     <option value="{{ person.id }}">{{ person.name }}</option>
                                 {% endfor %}
@@ -206,9 +206,9 @@
     <div class="form-group">
         <label class="control-label col-sm-2">Violation type</label>
         <div class="col-sm-8">
-            <select id="id_form-<%= form_id %>-vtype" class="form-control" name="form-<%= form_id %>-vtype">
+            <select id="id_form-<%= form_id %>-vtype" class="form-control violation-type" name="form-<%= form_id %>-vtype" multiple=true>
                 {% for type in types %}
-                    <option value="{{ type.id }}">{{ type.code }}</option>
+                    <option value="{{ type.id }}">{{ type.value.code }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -226,7 +226,7 @@
     <div class="form-group">
         <label class="control-label col-sm-2" for="id_form-<%= form_id %>-orgs">Select the organization(s) that perpetrated this violation: </label>
         <div class="col-sm-8">
-            <select id="id_form-<%= form_id %>-orgs" class="form-control" name="form-<%= form_id %>-orgs">
+            <select id="id_form-<%= form_id %>-orgs" class="form-control" name="form-<%= form_id %>-orgs" multiple=true>
                 {% for organization in organizations %}
                     <option value="{{ organization.id }}">{{ organization.name }}</option>
                 {% endfor %}
@@ -236,7 +236,7 @@
     <div class="form-group">
         <label class="control-label col-sm-2" for="id_form-<%= form_id %>-perpetrators">Select the person(s) that perpetrated this violation: </label>
         <div class="col-sm-8">
-            <select id="id_form-<%= form_id %>-perpetrators" class="form-control" name="form-<%= form_id %>-perpetrators">
+            <select id="id_form-<%= form_id %>-perpetrators" class="form-control" name="form-<%= form_id %>-perpetrators" multiple=true>
                 {% for person in people  %}
                     <option value="{{ person.id }}">{{ person.name }}</option>
                 {% endfor %}
@@ -346,6 +346,7 @@
             $('.name-field').select2(name_opts);
             $('.alias-field').select2(alias_opts);
             $('.geoname-field').select2(geoname_opts);
+            $('.violation-type').select2()
         {% else %}
             addForm(null);
         {% endif %}
@@ -384,9 +385,10 @@
         var alias_field = '#id_form-' + form_num + '-alias';
         var geoname_field =  '#id_form-' + form_num + '-geoname';
         var geotype_field = '#id_form-' + form_num + '-geotype';
+        var violation_field = '#id_form-' + form_num + '-vtype';
 
         $(geoname_field).select2(geoname_opts);
-
+        $(violation_field).select2();
 
         $(name_field).select2(name_opts);
 

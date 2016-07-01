@@ -4,8 +4,7 @@
 {% load static %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
-  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
 {% endblock %}
 
 {% block content %}
@@ -65,9 +64,6 @@
                         <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
                     {% endfor %}
                 </select>
-                {% for alias in form_data.alias %}
-                    <input type="hidden" name="alias_text" id="id_alias_text" value="{{ alias.value }}" />
-                {% endfor %}
                 {% if form.alias.errors %}
                     {% for error in form.alias.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -115,11 +111,10 @@
 {% endblock %}
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
-<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/javascript">
     var name_opts = {
         ajax: {
-            url: "{% url 'organizations-autocomplete' %}",
+            url: "{% url 'organization-autocomplete' %}",
             datType: 'json',
             delay: 250,
             data: function(params) {
@@ -143,7 +138,7 @@
 
     var alias_opts = {
         ajax: {
-            url: "{% url 'aliases-autocomplete' %}",
+            url: "{% url 'org-alias-autocomplete' %}",
             datType: 'json',
             delay: 250,
             data: function(params) {
@@ -184,7 +179,6 @@
         minimumInputLength: 2
     }
     $(document).ready(function(e) {
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
         $('.name-field').select2(name_opts);
         $('.alias-field').select2(alias_opts);
         $('.source-field').select2(source_opts);

@@ -63,7 +63,7 @@ class Command(BaseCommand):
                   JOIN source_source AS s
                     ON sp.id = s.publication_id
                   UNION
-                  SELECT
+                  SELECT DISTINCT ON(o.object_ref_id, o.id)
                     to_tsvector('english', o.value) AS content,
                     'Organization' AS content_type,
                     'organizationname' AS value_type,
@@ -103,7 +103,7 @@ class Command(BaseCommand):
                   ) AS area
                     ON o.object_ref_id = area.value_id
                   UNION
-                  SELECT
+                  SELECT DISTINCT ON(oa.object_ref_id, oa.id)
                     to_tsvector('english', a.value) AS content,
                     'Organization' AS content_type,
                     'organizationalias' AS value_type,
@@ -145,7 +145,7 @@ class Command(BaseCommand):
                   ) AS area
                     ON oa.object_ref_id = area.value_id
                   UNION
-                  SELECT
+                  SELECT DISTINCT ON(pn.object_ref_id, pn.id)
                     to_tsvector('english', pn.value) AS content,
                     'Person' AS content_type,
                     'personname' AS value_type,
@@ -201,7 +201,7 @@ class Command(BaseCommand):
                   ) AS area
                     ON pn.object_ref_id = area.value_id
                   UNION
-                  SELECT
+                  SELECT DISTINCT ON(pa.object_ref_id, pa.id)
                     to_tsvector('english', a.value) AS content,
                     'Person' AS content_type,
                     'personalias' AS value_type,
