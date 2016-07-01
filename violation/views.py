@@ -22,7 +22,7 @@ from source.models import Source
 from person.models import Person
 from organization.models import Organization
 from violation.forms import ZoneForm, ViolationForm
-from sfm_pc.utils import deleted_in_str
+from sfm_pc.utils import deleted_in_str, get_geoname_by_id
 
 class ViolationCreate(FormSetView):
     template_name = 'violation/create.html'
@@ -61,8 +61,6 @@ class ViolationCreate(FormSetView):
         ViolationFormset = self.get_formset()
         formset = ViolationFormset(request.POST)
         
-        print(request.POST)
-
         if formset.is_valid():
             return self.formset_valid(formset)
         else:
@@ -85,32 +83,12 @@ class ViolationCreate(FormSetView):
             perpetrators = formset.data.getlist(form_prefix + 'perpetrators')
             orgs = formset.data.getlist(form_prefix + 'orgs')
             vtypes = formset.data.getlist(form_prefix + 'vtype')
-
-            if geotype == 'country':
-                geo = Country.objects.get(id=geoid)
-                admin1 = None
-                admin2 = None
-                coords = None
-            elif geotype == 'region':
-                geo = Region.objects.get(id=geoid)
-                admin1 = geo.parent.name
-                admin2 = geo.parent.parent.name
-                coords = None
-            elif geotype == 'subregion':
-                geo = Subregion.objects.get(id=geoid)
-                admin1 = geo.parent.name
-                admin2 = geo.parent.parent.name
-                coords = None
-            elif geotype == 'city':
-                geo = City.objects.get(id=geoid)
-                admin1 = geo.parent.name
-                admin2 = geo.parent.parent.name
-                coords = geo.location
-            else:
-                geo = District.objects.get(id=geoid)
-                admin1 = geo.parent.name
-                admin2 = geo.parent.parent.name
-                coords = geo.location
+            
+            geo = get_geoname_by_id(geoid)
+            parent = geo.parent
+            admin1 = parent.name
+            admin2 = parent.parent.name
+            coords = getattr(geo, 'location')
 
             violation_data = {
                 'Violation_ViolationDescription': {
@@ -145,6 +123,16 @@ class ViolationCreate(FormSetView):
                 },
                 'Violation_ViolationLocation': {
                     'value': coords,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationStartDate': {
+                    'value': startdate,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationEndDate': {
+                    'value': enddate,
                     'sources': [source],
                     'confidence': 1
                 }
@@ -196,6 +184,117 @@ class ViolationUpdate(FormView):
         if not request.POST.get('source'):
             self.sourced = False
             return self.form_invalid(form)
+        else:
+            self.source = Source.objects.get(id=request.POST.get('source'))
+    
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def sources_list(self, obj, attribute):
+        sources = [s for s in getattr(obj, attribute).get_sources()] \
+                      + [self.source]
+        return list(set(s for s in sources))
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        violation = Violation.objects.get(pk=self.kwargs['pk'])
+        startdate = form.cleaned_data['startdate']
+        enddate = form.cleaned_data['enddate']
+        locationdescription = form.cleaned_data['locationdescription']
+        geoid = form.cleaned_data['geoname']
+        description = form.cleaned_data['description']
+        perpetrators = form.data.getlist('perpetrators')
+        orgs = form.data.getlist('orgs')
+        vtypes = form.data.getlist('vtype')
+        
+        geo = get_geoname_by_id(geoid)
+        parent = geo.parent
+        admin1 = parent.name
+        admin2 = parent.parent.name
+        coords = getattr(geo, 'location')
+
+        violation_data = {
+            'Violation_ViolationDescription': {
+               'value': description,
+               'sources': self.sources_list(violation, 'description'),
+               'confidence': 1
+            },
+            'Violation_ViolationLocationDescription': {
+                'value': locationdescription,
+                'sources': self.sources_list(violation, 'locationdescription'),
+                'confidence': 1
+            },
+            'Violation_ViolationAdminLevel1': {
+                'value': admin1,
+                'sources': self.sources_list(violation, 'adminlevel1'),
+                'confidence': 1
+            },
+            'Violation_ViolationAdminLevel2': {
+                'value': admin2,
+                'sources': self.sources_list(violation, 'adminlevel2'),
+                'confidence': 1
+            },
+            'Violation_ViolationGeoname': {
+                'value': geo.name,
+                'sources': self.sources_list(violation, 'geoname'),
+                'confidence': 1
+            },
+            'Violation_ViolationGeonameId': {
+                'value': geo.id,
+                'sources': self.sources_list(violation, 'geonameid'),
+                'confidence': 1
+            },
+            'Violation_ViolationLocation': {
+                'value': coords,
+                'sources': self.sources_list(violation, 'location'),
+                'confidence': 1
+            },
+            'Violation_ViolationStartDate': {
+                'value': startdate,
+                'sources': self.sources_list(violation, 'startdate'),
+                'confidence': 1
+            },
+            'Violation_ViolationEndDate': {
+                'value': enddate,
+                'sources': self.sources_list(violation, 'enddate'),
+                'confidence': 1
+            }
+        }
+        violation.update(violation_data)
+        
+        if vtypes:
+            for vtype in vtypes:
+                type_obj = Type.objects.get(id=vtype)
+                vt_obj, created = ViolationType.objects.get_or_create(value=type_obj,
+                                                                      object_ref=violation,
+                                                                      lang=get_language())
+                vt_obj.sources.add(self.source)
+                vt_obj.save()
+
+        if perpetrators:
+            for perpetrator in perpetrators:
+                
+                perp = Person.objects.get(id=perpetrator)
+                vp_obj, created = ViolationPerpetrator.objects.get_or_create(value=perp,
+                                                                             object_ref=violation)
+
+                vp_obj.sources.add(self.source)
+                vp_obj.save()
+        
+        if orgs:
+            for org in orgs:
+                
+                organization = Organization.objects.get(id=org)
+                vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
+                                                                                          object_ref=violation)
+
+                vpo_obj.sources.add(self.source)
+                vpo_obj.save()
+        
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -203,12 +302,15 @@ class ViolationUpdate(FormView):
         context['violation'] = violation
         context['types'] = ViolationType.objects.filter(lang=get_language())
         context['violation_types'] = []
+
         for violation_type in violation.types.get_list():
             context['violation_types'].append(violation_type.get_value().value.id)
 
         if not self.sourced:
             context['source_error'] = 'Please include the source for your changes'
-
+        
+        context['geoname'] = get_geoname_by_id(violation.geonameid.get_value().value)
+        
         return context
 
 

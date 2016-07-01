@@ -17,6 +17,17 @@ Create a database:
     export DATABASE_URL=postgis://localhost/sfm-db
     ./manage.py migrate --noinput
 
+Load static data:
+
+    ./manage.py loaddata violation_types
+    ./manage.py cities --import=all
+    ./manage.py update_countries_plus
+
+Create search index and 
+
+    ./manage.py make_search_index
+    ./manage.py make_geoname_lookup
+
 Create an admin user:
 
     ./manage.py createsuperuser

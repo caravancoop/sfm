@@ -179,13 +179,15 @@ class PersonUpdate(FormView):
         if not request.POST.get('source'):
             self.sourced = False
             return self.form_invalid(form)
+        else:
+            self.source = Source.objects.get(id=request.POST.get('source'))
         
         self.aliases = request.POST.getlist('alias')
 
         if form.is_valid():
-            return self.form_valid()
+            return self.form_valid(form)
         else:
-            return self.form_invalid()
+            return self.form_invalid(form)
     
     def sources_list(self, obj, attribute):
         sources = [s for s in getattr(obj, attribute).get_sources()] \
@@ -197,7 +199,6 @@ class PersonUpdate(FormView):
         
         person = Person.objects.get(pk=self.kwargs['pk'])
         
-        # TODO: This needs to actually save
         person_info = {
             'Person_PersonName': {
                 'value': form.cleaned_data['name_text'],
@@ -205,6 +206,20 @@ class PersonUpdate(FormView):
                 'sources': self.sources_list(person, 'name'),
             }
         }
+        
+        person.update(person_info)
+
+        if self.aliases:
+            for alias in self.aliases:
+                
+                alias_obj, created = Alias.objects.get_or_create(value=alias)
+
+                pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
+                                                                    value=alias_obj,
+                                                                    lang=get_language())
+                
+                pa_obj.sources.add(source)
+                pa_obj.save()
 
         return response
 

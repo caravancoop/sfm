@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+{% endblock %}
 {% block content %}
     <div class="inner-title-wrapper row header">
         <div class="inner-title-wrapper">
@@ -9,6 +13,22 @@
     </div>
 
     <form method="POST" class="form form-horizontal">
+        {% csrf_token %}
+        {% if source_error %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+                <label class="col-sm-2 control-label">Source for your changes</label>
+                <div class="col-sm-8">
+                    <select id="id_source" class="form-control" name="source">
+                        <option value="" selected="selected">--------</option>
+                    </select>
+                    {% if source_error %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{source_error}}</span>
+                    {% endif %}
+                </div>
+            </div>
         {% if form.description.errors %}
             <div class="form-group has-error has-feedback">
         {% else %}
@@ -54,7 +74,7 @@
         {% endif %}
                 <label class="control-label col-sm-2" for="id_startdate">Start & end dates</label>
                 <div class="col-sm-4">
-                    <input type="text" class="form-control datepicker" id="id_startdate" name="startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
+                    <input type="text" class="form-control datepicker" id="id_startdate" name="startdate" value="{{ violation.startdate.get_value }}"/>
                     {% if form.startdate.errors %}
                         {% for error in form.startdate.errors %}
                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -62,7 +82,7 @@
                     {% endif %}
                 </div>
                 <div class="col-sm-4">
-                    <input type="text" class="form-control datepicker" id="id_enddate" name="enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
+                    <input type="text" class="form-control datepicker" id="id_enddate" name="enddate" value="{{ violation.enddate.get_value }}"/>
                     {% if form.enddate.errors %}
                         {% for error in form.enddate.errors %}
                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -116,8 +136,8 @@
                 <label class="control-label col-sm-2" for="id_geoname">Location</label>
                 <div class="col-sm-8">
                     <select class="form-control" class="geoname-field" id="id_geoname" name="geoname">
-                        {% if form.cleaned_data.geoname %}
-                            <option value="{{ form.cleaned_data.geoname }}" selected=true>{{ form.cleaned_data.geoname_text }}</option>
+                        {% if geoname %}
+                            <option value="{{ geoname.id }}" selected=true>{{ geoname.name }}</option>
                         {% endif %}
                     </select>
                     {% if form.geoname.errors %}
@@ -125,8 +145,6 @@
                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                        {% endfor %}
                     {% endif %}
-                    <input type="hidden" name="geoname_text" id="id_geoname_text" value="{{ form.cleaned_data.geoname_text }}" />
-                    <input type="hidden" name="geotype" id="id_geotype" value="{{ form.cleaned_data.geotype }}" />
                 </div>
             </div>
         {% if form.locationdescription.errors %}
@@ -136,7 +154,7 @@
         {% endif %}
                 <label class="control-label col-sm-2" for="id_locationdescription">Location description</label>
                 <div class="col-sm-8">
-                    <input type="text" name="locationdescription" id="id_locationdescription" class="form-control" value="{{ form.cleaned_data.locationdescription }}" />
+                    <input type="text" name="locationdescription" id="id_locationdescription" class="form-control" value="{{ violation.locationdescription.get_value }}" />
                 </div>
             </div>
 
@@ -150,4 +168,138 @@
 
 
 
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/select2.min.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+    var geoname_opts = {
+        ajax: {
+            url: "{% url 'geoname-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return { results: [] };
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2
+    };
+
+    var perp_opts = {
+        ajax: {
+            url: "{% url 'person-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': -1,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+
+    var org_opts = {
+        ajax: {
+            url: "{% url 'organization-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': params.term,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+    var source_opts = {
+        ajax: {
+            url: "{% url 'source-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2
+    }
+
+    $(document).ready(function(){
+        $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
+        $('#id_vtype').select2();
+        $('#id_perpetrators').select2(perp_opts);
+        $('#id_orgs').select2(org_opts);
+        $('#id_geoname').select2(geoname_opts);
+        $('#id_source').select2(source_opts);
+
+        $('#id_orgs').on('select2:select', function(e){
+            var value = e.params.data.text;
+            var name = $(e.target).prop('name') + '_text';
+            var hidden_input = '<input type="hidden" value="' + value + '" name="' + name + '" />';
+            $('form').append(hidden_input);
+        });
+
+        $('#id_orgs').on('select2:unselect', function(e){
+            var value = e.params.data.text;
+            var inputs = $('form').find('input[value="'+ value + '"]');
+
+            $.each(inputs, function(i, input){
+                $(input).remove();
+            })
+        });
+
+        $('#id_perpetrators').on('select2:select', function(e){
+            var value = e.params.data.text;
+            var name = $(e.target).prop('name') + '_text';
+            var hidden_input = '<input type="hidden" value="' + value + '" name="' + name + '" />';
+            $('form').append(hidden_input);
+        });
+
+        $('#id_perpetrators').on('select2:unselect', function(e){
+            var value = e.params.data.text;
+            var inputs = $('form').find('input[value="'+ value + '"]');
+
+            $.each(inputs, function(i, input){
+                $(input).remove();
+            })
+        });
+    })
+
+</script>
 {% endblock %}

@@ -94,7 +94,7 @@
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-orgs" class="form-control" name="form-{{ form_id }}-orgs" multiple=true>
                                     {% for organization in organizations %}
-                                        <option value="{{ organization.id }}">{{ organization.name }}</option>
+                                        <option value="{{ organization.id }}" selected=true>{{ organization.name }}</option>
                                     {% endfor %}
                                 </select>
                                 {% if form.orgs.errors %}
@@ -113,7 +113,7 @@
                         <div class="col-sm-8">
                             <select id="id_form-{{ form_id }}-perpetrators" class="form-control" name="form-{{ form_id }}-perpetrators" multiple=true>
                                 {% for person in people %}
-                                    <option value="{{ person.id }}">{{ person.name }}</option>
+                                    <option value="{{ person.id }}" selected=true>{{ person.name }}</option>
                                 {% endfor %}
                             </select>
                             {% if form.perpetrators.errors %}
@@ -227,7 +227,7 @@
         <div class="col-sm-8">
             <select id="id_form-<%= form_id %>-orgs" class="form-control" name="form-<%= form_id %>-orgs" multiple=true>
                 {% for organization in organizations %}
-                    <option value="{{ organization.id }}">{{ organization.name }}</option>
+                    <option value="{{ organization.id }}" selected=true>{{ organization.name }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -237,7 +237,7 @@
         <div class="col-sm-8">
             <select id="id_form-<%= form_id %>-perpetrators" class="form-control" name="form-<%= form_id %>-perpetrators" multiple=true>
                 {% for person in people  %}
-                    <option value="{{ person.id }}">{{ person.name }}</option>
+                    <option value="{{ person.id }}" selected=true>{{ person.name }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -271,7 +271,7 @@
 </script>
 <script type="text/javascript">
     var form_num = 0;
-    var name_opts = {
+    var perp_opts = {
         ajax: {
             url: "{% url 'person-autocomplete' %}",
             datType: 'json',
@@ -295,9 +295,9 @@
         tags: true
     }
 
-    var alias_opts = {
+    var org_opts = {
         ajax: {
-            url: "{% url 'person-alias-autocomplete' %}",
+            url: "{% url 'organization-autocomplete' %}",
             datType: 'json',
             delay: 250,
             data: function(params) {
@@ -342,8 +342,8 @@
     $(document).ready(function(e) {
         {% if formset.errors %}
             $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
-            $('.name-field').select2(name_opts);
-            $('.alias-field').select2(alias_opts);
+            $('.perpetrator-field').select2(perp_opts);
+            $('.org-field').select2(org_opts);
             $('.geoname-field').select2(geoname_opts);
             $('.violation-type').select2()
         {% else %}
@@ -380,8 +380,8 @@
         var form_guts = template.render({'form_id': form_num});
         $('#dynamic-form').append(form_guts);
 
-        var name_field = '#id_form-' + form_num + '-name';
-        var alias_field = '#id_form-' + form_num + '-alias';
+        var perp_field = '#id_form-' + form_num + '-perpetrators';
+        var org_field = '#id_form-' + form_num + '-orgs';
         var geoname_field =  '#id_form-' + form_num + '-geoname';
         var geotype_field = '#id_form-' + form_num + '-geotype';
         var violation_field = '#id_form-' + form_num + '-vtype';
@@ -389,9 +389,9 @@
         $(geoname_field).select2(geoname_opts);
         $(violation_field).select2();
 
-        $(name_field).select2(name_opts);
+        $(perp_field).select2(perp_opts);
 
-        $(alias_field).select2(alias_opts);
+        $(org_field).select2(org_opts);
 
         $('#remove_form-' +  form_num).on('click', deleteForm);
 
@@ -405,7 +405,7 @@
         });
 
 
-        $(alias_field).on('select2:select', function(e){
+        $(org_field).on('select2:select', function(e){
             var value = e.params.data.text;
             var name = $(e.target).prop('name') + '_text';
             var form_id = $(e.target).prop('name').split('-')[1]
@@ -413,7 +413,7 @@
             $('#person-form').append(hidden_input);
         });
 
-        $(alias_field).on('select2:unselect', function(e){
+        $(org_field).on('select2:unselect', function(e){
             var value = e.params.data.text;
             var inputs = $('#person-form').find('input[value="'+ value + '"]');
             var form_id = $(e.target).prop('name').split('-')[1]
@@ -425,9 +425,24 @@
             })
         });
 
-        $(name_field).on('select2:select', function(e){
+        $(perp_field).on('select2:select', function(e){
             var value = e.params.data.text;
-            $(name_field + '_text').val(value);
+            var name = $(e.target).prop('name') + '_text';
+            var form_id = $(e.target).prop('name').split('-')[1]
+            var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
+            $('#person-form').append(hidden_input);
+        });
+
+        $(perp_field).on('select2:unselect', function(e){
+            var value = e.params.data.text;
+            var inputs = $('#person-form').find('input[value="'+ value + '"]');
+            var form_id = $(e.target).prop('name').split('-')[1]
+
+            $.each(inputs, function(i, input){
+                if ($(input).data('form_id') == form_id){
+                    $(input).remove();
+                }
+            })
         });
 
         $('.datepicker').datepicker('destroy');
