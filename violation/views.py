@@ -5,7 +5,7 @@ from datetime import date
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, FormView
 from django.views.generic.base import TemplateView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
@@ -183,6 +183,34 @@ class ViolationCreate(FormSetView):
         response = super().formset_valid(formset)
         return response
 
+class ViolationUpdate(FormView):
+    template_name = 'violation/edit.html'
+    form_class = ViolationForm
+    success_url = reverse_lazy('dashboard')
+    sourced = True
+
+    def post(self, request, *args, **kwargs):
+
+        form = self.form_class(request.POST)
+
+        if not request.POST.get('source'):
+            self.sourced = False
+            return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        violation = Violation.objects.get(pk=self.kwargs['pk'])
+        context['violation'] = violation
+        context['types'] = ViolationType.objects.filter(lang=get_language())
+        context['violation_types'] = []
+        for violation_type in violation.types.get_list():
+            context['violation_types'].append(violation_type.get_value().value.id)
+
+        if not self.sourced:
+            context['source_error'] = 'Please include the source for your changes'
+
+        return context
+
 
 class ViolationDelete(DeleteView):
     model = Violation
@@ -254,37 +282,3 @@ def violation_csv(request):
 
     return response
 
-class ViolationUpdate(TemplateView):
-    template_name = 'violation/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['object'])
-        try:
-            violation = Violation.objects.get(pk=kwargs.get('pk'))
-        except Violation.DoesNotExist:
-            msg = "This violation does not exist, it should be created " \
-                  "before updating it."
-            return HttpResponse(msg, status=400)
-
-        (errors, data) = violation.validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        violation.update(data)
-
-        return HttpResponse(
-            json.dumps({"success": True}),
-            content_type="application/json"
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super(ViolationUpdate, self).get_context_data(**kwargs)
-        violation = Violation.objects.get(pk=context.get('pk'))
-        context['violation'] = violation
-        data = {"value": violation.location.get_value().value}
-        context['point'] = ZoneForm(data)
-
-        return context
