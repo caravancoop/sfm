@@ -4,7 +4,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
-from sfm_pc.views import Dashboard, geoname_autocomplete, search
+from sfm_pc.views import Dashboard, geoname_autocomplete, search, SetConfidence
 
 urlpatterns = i18n_patterns(
     url(r'^composition/', include('composition.urls')),
@@ -23,7 +23,8 @@ urlpatterns = i18n_patterns(
     url(r'^search/', search, name="search"),
     
     url(r'^geoname-autocomplete/$', geoname_autocomplete, name="geoname-autocomplete"),
-
+    
+    url(r'^set-confidence/$', SetConfidence.as_view(), name='set-confidence'),
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
 

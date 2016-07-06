@@ -6,7 +6,8 @@ register = template.Library()
 
 @register.inclusion_tag('partials/version_list.html')
 def render_versions(object_ref):
-    complex_fields = [f for f in dir(object_ref) if f.endswith('_set')]
+    complex_fields = [f for f in dir(object_ref) \
+                          if f.endswith('_set')]
     
     versioned_types = []
 

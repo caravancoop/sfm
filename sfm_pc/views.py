@@ -20,6 +20,9 @@ from organization.models import Organization
 from person.models import Person
 from cities.models import Place, City, Country, Region, Subregion, District
 from violation.models import Violation
+from sfm_pc.templatetags.render_from_source import get_relations, \
+    get_relation_attributes
+from complex_fields.models import CONFIDENCE_LEVELS
 
 SEARCH_CONTENT_TYPES = {
     'Source': Source,
@@ -41,7 +44,7 @@ class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
 
     def get_context_data(self, **kwargs):
-        context = super(Dashboard, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         
         sources = Version.objects.filter(content_type__model='source').get_unique()
         context['edits'] = sorted(sources, 
@@ -49,10 +52,8 @@ class Dashboard(TemplateView):
                                   reverse=True)
         
         if context['edits']:
-
-            context['source_properties'] = [p for p in \
-                                                dir(context['edits'][0].object) \
-                                                    if p.endswith('_related')]
+            
+            context['source_properties'] = get_relations(context['edits'][0].object)
             
         session_keys = ['organizations', 'people', 'memberships', 'source_id']
         
@@ -62,7 +63,42 @@ class Dashboard(TemplateView):
         
         return context
 
+class SetConfidence(TemplateView):
+    template_name = 'sfm/set-confidences.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        try:
+            source_id = self.request.session['source_id']
+        except KeyError:
+            source_id = self.request.GET['source_id']
 
+        source = Source.objects.get(id=source_id)
+        context['source'] = source
+        context['relations'] = []
+        
+        relation_properties = get_relations(context['source'])
+        
+        for rel_prop in relation_properties:
+            props = getattr(source, rel_prop).all()
+            if props:
+                for prop in props:
+                    attributes = get_relation_attributes(prop)
+                    versions = Version.objects.get_for_object(prop)
+                    
+                    for version in versions:
+                        print(version.revision.user)
+                        print(json.loads(version.serialized_data)[0]['fields']['sources'])
+
+                    context['relations'].append(attributes)
+        
+        context['relations'] = sorted(context['relations'], 
+                                      key=lambda x: x['object_ref_object_name'])
+
+        context['confidence_choices'] = CONFIDENCE_LEVELS
+
+        return context
 
 def search(request):
     query = request.GET.get('q')

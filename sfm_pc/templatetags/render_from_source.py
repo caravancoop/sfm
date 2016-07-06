@@ -3,20 +3,34 @@ from django.utils.translation import get_language
 
 register = template.Library()
 
+def get_relations(source):
+    return [p for p in dir(source) if p.endswith('_related')]
+
+def get_relation_attributes(relation):
+
+    return  {
+        'lang': get_language(),
+        'object_ref_model_name': relation.object_ref._meta.model_name,
+        'object_ref_object_name': relation.object_ref._meta.object_name,
+        'relation_object_name': relation._meta.object_name,
+        'object_ref_id': relation.object_ref_id,
+        'property': relation._meta.verbose_name.title(),
+        'value': relation.value,
+        'confidence': relation.confidence,
+        'sources': relation.sources.all(),
+    }
+
+
 @register.filter
 def render_from_source(source, attribute):
     html = ''
-    if getattr(source, attribute).all():
-        for prop in getattr(source, attribute).all():
+    
+    props = getattr(source, attribute).all()
+
+    if props:
+        for prop in props:
             
-            attributes = {
-                'lang': get_language(),
-                'object_ref_model_name': prop.object_ref._meta.model_name,
-                'object_ref_object_name': prop.object_ref._meta.object_name,
-                'object_ref_id': prop.object_ref_id,
-                'property': prop._meta.verbose_name.title(),
-                'value': prop.value,
-            }
+            attributes = get_relation_attributes(prop)
             
             html += ''' 
                 <tr>
@@ -25,4 +39,5 @@ def render_from_source(source, attribute):
                     <td>{value}</td>
                 </tr>
             '''.format(**attributes)
+
     return html
