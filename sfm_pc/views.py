@@ -11,6 +11,7 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.utils.translation import get_language
 from django.db import connection
+from django.core.urlresolvers import reverse_lazy
 
 from reversion.models import Version
 from extra_views import FormSetView
@@ -82,15 +83,12 @@ class SetConfidence(TemplateView):
         
         for rel_prop in relation_properties:
             props = getattr(source, rel_prop).all()
+            
             if props:
                 for prop in props:
                     attributes = get_relation_attributes(prop)
-                    versions = Version.objects.get_for_object(prop)
-                    
-                    for version in versions:
-                        print(version.revision.user)
-                        print(json.loads(version.serialized_data)[0]['fields']['sources'])
-
+                    attributes['additional_sources'] = prop.sources.exclude(id=source_id)
+                    attributes['relation_id'] = prop.id
                     context['relations'].append(attributes)
         
         context['relations'] = sorted(context['relations'], 
@@ -99,6 +97,10 @@ class SetConfidence(TemplateView):
         context['confidence_choices'] = CONFIDENCE_LEVELS
 
         return context
+    
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        return redirect(reverse_lazy('dashboard'))
 
 def search(request):
     query = request.GET.get('q')
