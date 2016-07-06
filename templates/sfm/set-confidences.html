@@ -16,7 +16,7 @@
                     <tr>
                         <td>
                             <div class="form-group">
-                                <select class="form-control" name="confidence-{{ relation.relation_object_name }}-{{ relation.relation_id }}">
+                                <select class="form-control" name="confidence-{{ relation.relation_label }}-{{ relation.relation_id }}-{{ relation.object_ref_object_name}}-{{ relation.object_ref_id }}">
                                     {% for value, name in confidence_choices %}
                                         {% if relation.confidence == value %}
                                             <option value="{{ value }}" selected=true>{{ name }}</option>
@@ -30,10 +30,19 @@
                         <td>{{ relation.property }}</td>
                         <td>{{ relation.value }}</td>
                         <td>
+                            {% if relation.additional_sources %}
+                            <table class="table table-condensed">
                             {% for source in relation.additional_sources %}
-                                <a href="{{ source.source_url }}">{{ source.title }}</a>
-                                (<a href="{{ source.archive_url }}">Archive</a>){% if not forloop.last %}<br /> {% endif %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ source.source.source_url }}">{{ source.source.title }}</a>
+                                    </td>
+                                    <td> {{ source.user.username }}</td>
+                                    <td><a href="{{ source.source.archive_url }}">Archive</a></td>
+                                </tr>
                             {% endfor %}
+                            </table>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

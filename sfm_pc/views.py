@@ -24,6 +24,7 @@ from violation.models import Violation
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
 from complex_fields.models import CONFIDENCE_LEVELS
+from sfm_pc.utils import import_class
 
 SEARCH_CONTENT_TYPES = {
     'Source': Source,
@@ -87,7 +88,21 @@ class SetConfidence(TemplateView):
             if props:
                 for prop in props:
                     attributes = get_relation_attributes(prop)
-                    attributes['additional_sources'] = prop.sources.exclude(id=source_id)
+                    
+                    additional_sources = prop.sources.exclude(id=source_id)
+                    for s in additional_sources:
+                        revision = Version.objects.get_for_object(s).first()
+                        
+                        user_data = {
+                            'user': revision.revision.user,
+                            'source': s
+                        }
+
+                        try:
+                            attributes['additional_sources'].append(user_data)
+                        except KeyError:
+                            attributes['additional_sources'] = [user_data]
+
                     attributes['relation_id'] = prop.id
                     context['relations'].append(attributes)
         
@@ -99,7 +114,26 @@ class SetConfidence(TemplateView):
         return context
     
     def post(self, request, *args, **kwargs):
-        print(request.POST)
+        
+        confidence_keys = [k for k in request.POST.keys() if k.startswith('confidence-')]
+        
+        updates = {}
+        for key in confidence_keys:
+            relation_label, relation_id, object_ref_object, object_ref_id = key.rsplit('-', 3)
+            app_name, relation_object = relation_label.replace('confidence-', '').split('.')
+
+            import_path = '{app_name}.models.{obj}'
+
+            relation_path = import_path.format(app_name=app_name,
+                                               obj=relation_object)
+            relation_model = import_class(relation_path)
+            relation_instance = relation_model.objects.get(id=relation_id)
+            
+            confidence = int(request.POST[key])
+            if relation_instance.confidence != confidence:
+                relation_instance.confidence = confidence
+                relation_instance.save()
+
         return redirect(reverse_lazy('dashboard'))
 
 def search(request):

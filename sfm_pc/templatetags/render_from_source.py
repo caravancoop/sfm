@@ -13,6 +13,7 @@ def get_relation_attributes(relation):
         'object_ref_model_name': relation.object_ref._meta.model_name,
         'object_ref_object_name': relation.object_ref._meta.object_name,
         'relation_object_name': relation._meta.object_name,
+        'relation_label': relation._meta.label,
         'object_ref_id': relation.object_ref_id,
         'property': relation._meta.verbose_name.title(),
         'value': relation.value,

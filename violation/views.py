@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import get_language
+from django.shortcuts import redirect
 
 from extra_views import FormSetView
 from cities.models import Place, City, Country, Region, Subregion, District
@@ -27,7 +28,7 @@ from sfm_pc.utils import deleted_in_str, get_geoname_by_id
 class ViolationCreate(FormSetView):
     template_name = 'violation/create.html'
     form_class = ViolationForm
-    success_url = reverse_lazy('dashboard')
+    success_url = reverse_lazy('set-confidence')
     extra = 1
     max_num = None
 
