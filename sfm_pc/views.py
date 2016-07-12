@@ -237,7 +237,7 @@ def geoname_autocomplete(request):
         for result in model.objects.filter(**query_kwargs):
             value = getattr(result, field)
             results.append({
-                'text': '{0} ({1})'.format(value, geo_type),
+                'text': '{0} ({1}, {2})'.format(value, result.id, geo_type),
                 'value': value,
                 'id': result.id,
                 'type': geo_type,
