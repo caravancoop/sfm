@@ -125,7 +125,20 @@
     </div>
     </form>
 </div>
-
+<div id="delete-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Are you sure you want to delete this form?</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="delete-confirm">Yes</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 {% endblock %}
 
 {% block extra_js %}
@@ -164,7 +177,7 @@
         <% if (form_id > 0) { %>
             <div class="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
-                    <button id="remove_form-{{ form_id }}" href="javascript://" type="button" class="remove-form btn btn-danger">
+                    <button id="remove_form-<%= form_id %>" href="javascript://" type="button" class="remove-form btn btn-danger">
                         Remove Organization <i class="fa fa-minus"></i>
                     </button>
                 </div>
@@ -238,12 +251,49 @@
         $('.remove-form').on('click', deleteForm);
     });
 
+    function QueryStringToJSON(querystring) {
+        var pairs = querystring.split('&');
+
+        var result = {};
+        $.each(pairs, function(i, pair) {
+            pair = pair.split('=');
+            result[pair[0]] = decodeURIComponent(pair[1] || '');
+        });
+
+        return JSON.parse(JSON.stringify(result));
+    }
+
+    function removeForm(wrapper_id){
+        $(wrapper_id).remove();
+    }
+
     function deleteForm(e){
         e.preventDefault();
         var form_id = $(e.target).prop('id').split('-')[1];
 
         var wrapper_id = '#form-' + form_id + '-wrapper';
-        $(wrapper_id).remove();
+
+        var serialized = $(wrapper_id).find(':input').serialize();
+        var form_obj = QueryStringToJSON(serialized);
+
+        var values = '';
+        $.each(form_obj, function(key, value){
+            values += value;
+        });
+
+        if(values !== ''){
+            $('#delete-confirm').data('wrapper_id', wrapper_id);
+            $('#delete-confirm').off();
+            $('#delete-modal').modal();
+            $('#delete-confirm').on('click', function(e){
+                e.preventDefault();
+                var wrapper_id = $(e.target).data('wrapper_id');
+                removeForm(wrapper_id);
+                $('#delete-modal').modal('hide');
+            })
+        } else {
+            removeForm(wrapper_id);
+        }
 
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-TOTAL_FORMS').val(form_count);
