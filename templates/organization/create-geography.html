@@ -225,7 +225,7 @@
         <% } else { %>
             <div class="col-sm-10 col-sm-offset-2">
         <% }%>
-            <h5><%= value %>, <%= country %> <small>(Geoname ID: <%= id %>, <%= code %>)</small></h5>
+            <h5><%= value %> <small>(Geoname ID: <%= id %>, <%= code %>)</small></h5>
         </div>
     </div>
 </script>
@@ -299,6 +299,10 @@ function addForm(e){
             $(geoname_field + ' :selected').attr('value','-1');
         }
         $(field_prefix + '-geotype').val(e.params.data.type);
+    });
+
+    $(".select2-selection").on("focus", function () {
+        $(this).parent().parent().prev().select2("open");
     });
 
     $('.datepicker').datepicker('destroy');

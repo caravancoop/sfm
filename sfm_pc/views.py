@@ -36,11 +36,11 @@ SEARCH_CONTENT_TYPES = {
 }
 
 GEONAME_TYPES = {
-    'country': (Country, 'name', 'Country',),
-    'city': (City, 'name_std', None, ),
-    'district': (District, 'name_std', 'PPLX',),
-    'region': (Region, 'name_std', 'ADM1',),
-    'subregion': (Subregion, 'name_std', 'ADM2',),
+    'country': (Country, 'Country',),
+    'city': (City, None, ),
+    'district': (District, 'PPLX',),
+    'region': (Region, 'ADM1',),
+    'subregion': (Subregion, 'ADM2',),
 }
 
 class Dashboard(TemplateView):
@@ -177,7 +177,7 @@ def search(request):
     if location and radius and geoname_type:
 
         # TODO: Make this work for areas once we have them
-        model, _, _ = GEONAME_TYPES[geoname_type]
+        model, _ = GEONAME_TYPES[geoname_type]
         geoname_obj = model.objects.get(id=location)
         select = ''' 
             {select}
@@ -231,12 +231,17 @@ def geoname_autocomplete(request):
     
     results = []
     for geo_type in types:
-        model, field, code = GEONAME_TYPES[geo_type]
+        model, code = GEONAME_TYPES[geo_type]
         
-        query_kwargs = {'{}__istartswith'.format(field): term}
+        query_kwargs = {'name__istartswith': term}
         
         for result in model.objects.filter(**query_kwargs):
-            value = getattr(result, field)
+            
+            hierarchy = result.hierarchy
+            hierarchy.reverse()
+
+            value = ', '.join(m.name for m in hierarchy)
+
             map_image = None
 
             if hasattr(result, 'location'):
@@ -246,10 +251,6 @@ def geoname_autocomplete(request):
                                                                                          latlng,
                                                                                          settings.GOOGLE_MAPS_KEY)
             
-            country = None
-            if hasattr(result, 'country'):
-                country = result.country.name
-            
             if geo_type == 'city':
                 code = result.kind
 
@@ -258,7 +259,6 @@ def geoname_autocomplete(request):
                 'value': value,
                 'id': result.id,
                 'type': geo_type,
-                'country': country,
                 'map_image': map_image,
                 'code': code,
             })
