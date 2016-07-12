@@ -193,7 +193,6 @@ class OrganizationCreate(FormSetView):
         return response
 
 
-
 class OrganizationUpdate(FormView):
     template_name = 'organization/edit.html'
     form_class = OrganizationForm
@@ -271,7 +270,10 @@ class OrganizationUpdate(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
         organization = Organization.objects.get(pk=self.kwargs['pk'])
+        
+        source = Source.objects.filter(id=self.request.GET.get('source_id')).first()
         
         form_data = {
             'name': organization.name.get_value(),
@@ -283,10 +285,11 @@ class OrganizationUpdate(FormView):
         context['title'] = 'Organization'
         context['organization'] = organization
         context['classifications'] = Classification.objects.all()
-        
+        context['source'] = source
+
         if not self.sourced:
             context['source_error'] = 'Please include the source for your changes'
-
+        
         return context
 
 def organization_autocomplete(request):

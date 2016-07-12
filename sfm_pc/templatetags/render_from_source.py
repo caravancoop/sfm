@@ -32,10 +32,11 @@ def render_from_source(source, attribute):
         for prop in props:
             
             attributes = get_relation_attributes(prop)
-            
+            attributes['source_id'] = source.id
+
             html += ''' 
                 <tr>
-                    <td><a href="/{lang}/{object_ref_model_name}/edit/{object_ref_id}/">{object_ref_object_name}</a></td>
+                    <td><a href="/{lang}/{object_ref_model_name}/edit/{object_ref_id}/?source_id={source_id}">{object_ref_object_name}</a></td>
                     <td>{property}</td>
                     <td>{value}</td>
                 </tr>

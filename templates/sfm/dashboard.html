@@ -29,7 +29,11 @@
                         {% endspaceless %}
                         <td>{{ edit.revision.date_created }}</td>
                     </tr>
-                    <tr style="display:none;">
+                    {% if edit.object.id == source_id %}
+                        <tr>
+                    {% else %}
+                        <tr style="display:none;">
+                    {% endif %}
                         <td colspan=4>
                             <table class="table table-condensed">
                                 <thead>

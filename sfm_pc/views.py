@@ -64,6 +64,10 @@ class Dashboard(TemplateView):
             if self.request.session.get(session_key):
                 del self.request.session[session_key]
         
+        context['source_id'] = self.request.GET.get('source_id')
+        if context['source_id']:
+            context['source_id'] = int(context['source_id'])
+
         return context
 
 class SetConfidence(TemplateView):

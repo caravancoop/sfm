@@ -24,7 +24,11 @@
             <label class="col-sm-2 control-label">Source for your changes</label>
             <div class="col-sm-8">
                 <select id="id_source" class="form-control source-field" name="source">
-                    <option value="" selected="selected">--------</option>
+                    {% if source %}
+                        <option value="{{ source.id }}" selected="selected">{{ source.title }} ({{ source.publication.title }} , {{ source.published_on }})</option>
+                    {% else %}
+                        <option value="" selected="selected">--------</option>
+                    {% endif %}
                 </select>
                 {% if source_error %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{source_error}}</span>
@@ -99,7 +103,7 @@
         <hr>
         <div class="row">
             <div class="col-sm-12 col-md-12">
-                <button class="btn sfm-btn-cancel col-sm-2" type="submit">Cancel</button>
+                <a href="{% url 'dashboard' %}?source_id={{ source.id }}" class="btn btn-info sfm-btn-cancel col-sm-2" type="submit">Cancel</a>
                 <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
             </div>
         </div>
