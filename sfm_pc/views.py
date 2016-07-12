@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.utils.translation import get_language
 from django.db import connection
 from django.core.urlresolvers import reverse_lazy
+from django.conf import settings
 
 from reversion.models import Version
 from extra_views import FormSetView
@@ -35,11 +36,11 @@ SEARCH_CONTENT_TYPES = {
 }
 
 GEONAME_TYPES = {
-    'country': (Country, 'name',),
-    'city': (City, 'name_std',),
-    'district': (District, 'name_std',),
-    'region': (Region, 'name_std',),
-    'subregion': (Subregion, 'name_std',),
+    'country': (Country, 'name', 'Country',),
+    'city': (City, 'name_std', None, ),
+    'district': (District, 'name_std', 'PPLX',),
+    'region': (Region, 'name_std', 'ADM1',),
+    'subregion': (Subregion, 'name_std', 'ADM2',),
 }
 
 class Dashboard(TemplateView):
@@ -176,7 +177,7 @@ def search(request):
     if location and radius and geoname_type:
 
         # TODO: Make this work for areas once we have them
-        model, _ = GEONAME_TYPES[geoname_type]
+        model, _, _ = GEONAME_TYPES[geoname_type]
         geoname_obj = model.objects.get(id=location)
         select = ''' 
             {select}
@@ -230,17 +231,36 @@ def geoname_autocomplete(request):
     
     results = []
     for geo_type in types:
-        model, field = GEONAME_TYPES[geo_type]
+        model, field, code = GEONAME_TYPES[geo_type]
         
         query_kwargs = {'{}__istartswith'.format(field): term}
         
         for result in model.objects.filter(**query_kwargs):
             value = getattr(result, field)
+            map_image = None
+
+            if hasattr(result, 'location'):
+                latlng = '{0},{1}'.format(result.location.y, result.location.x)
+                map_image = 'https://maps.googleapis.com/maps/api/staticmap'
+                map_image = '{0}?center={1}&zoom=10&size=100x100&key={2}&scale=2'.format(map_image,
+                                                                                         latlng,
+                                                                                         settings.GOOGLE_MAPS_KEY)
+            
+            country = None
+            if hasattr(result, 'country'):
+                country = result.country.name
+            
+            if geo_type == 'city':
+                code = result.kind
+
             results.append({
-                'text': '{0} ({1}, {2})'.format(value, result.id, geo_type),
+                'text': '{0} (GeonameID: {1}, {2})'.format(value, result.id, code),
                 'value': value,
                 'id': result.id,
                 'type': geo_type,
+                'country': country,
+                'map_image': map_image,
+                'code': code,
             })
 
     results.sort(key=lambda x:x['text'])

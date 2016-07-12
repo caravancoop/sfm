@@ -269,6 +269,24 @@
     <hr />
 </div>
 </script>
+
+<script type="textEJS" id="geonameResult">
+    <div class="row">
+        <% if(map_image) { %>
+            <div class="col-sm-2">
+                <img src="<%= map_image %>" height=100 width=100 />
+            </div>
+        <% } %>
+        <% if (map_image) { %>
+            <div class="col-sm-10">
+        <% } else { %>
+            <div class="col-sm-10 col-sm-offset-2">
+        <% }%>
+            <h5><%= value %>, <%= country %> <small>(Geoname ID: <%= id %>, <%= code %>)</small></h5>
+        </div>
+    </div>
+</script>
+
 <script type="text/javascript">
     var form_num = 0;
     var perp_opts = {
@@ -336,7 +354,15 @@
             }
         },
         escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2
+        minimumInputLength: 2,
+        templateResult: function(data){
+            if (data.loading){
+                return data.text;
+            }
+            console.log(data)
+            var template = new EJS({'text': $('#geonameResult').html()});
+            return template.render(data);
+        }
     };
 
     $(document).ready(function(e) {

@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.utils.translation import get_language
 from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import redirect
 
 from extra_views import FormSetView
 from cities.models import Place, City, Country, Region, Subregion, District
