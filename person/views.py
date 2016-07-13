@@ -23,24 +23,14 @@ from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, Role
 from sfm_pc.utils import deleted_in_str
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
-class PersonCreate(FormSetView):
+class PersonCreate(BaseFormSetView):
     template_name = 'person/create.html'
     form_class = PersonForm
     success_url = reverse_lazy('create-membership')
     extra = 1
     max_num = None
-
-    def dispatch(self, *args, **kwargs):
-        # Redirect to source creation page if no source in session
-        if not self.request.session.get('source_id'):
-            messages.add_message(self.request, 
-                                 messages.INFO, 
-                                 "Before adding a person, please tell us about your source.",
-                                 extra_tags='alert alert-info')
-            return redirect(reverse_lazy('create-source'))
-        else:
-            return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -48,14 +38,6 @@ class PersonCreate(FormSetView):
         context['organizations'] = self.request.session['organizations']
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         return context
-
-    def post(self, request, *args, **kwargs):
-        PersonFormSet = self.get_formset()
-        formset = PersonFormSet(request.POST)       
-        if formset.is_valid():
-            return self.formset_valid(formset)
-        else:
-            return self.formset_invalid(formset)
 
     def formset_valid(self, formset):
         response = super().formset_valid(formset)
@@ -166,7 +148,7 @@ def alias_autocomplete(request):
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
 
-class PersonUpdate(FormView):
+class PersonUpdate(BaseUpdateView):
     template_name = 'person/edit.html'
     form_class = PersonForm
     success_url = reverse_lazy('dashboard')
@@ -174,26 +156,12 @@ class PersonUpdate(FormView):
 
     def post(self, request, *args, **kwargs):
 
-        form = PersonForm(request.POST)
-
-        if not request.POST.get('source'):
-            self.sourced = False
-            return self.form_invalid(form)
-        else:
-            self.source = Source.objects.get(id=request.POST.get('source'))
+        self.checkSource(request)
         
         self.aliases = request.POST.getlist('alias')
 
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+        self.validateForm()
     
-    def sources_list(self, obj, attribute):
-        sources = [s for s in getattr(obj, attribute).get_sources()] \
-                      + [self.source]
-        return list(set(s for s in sources))
-
     def form_valid(self, form):
         response = super().form_valid(form)
         
@@ -203,7 +171,7 @@ class PersonUpdate(FormView):
             'Person_PersonName': {
                 'value': form.cleaned_data['name_text'],
                 'confidence': 1,
-                'sources': self.sources_list(person, 'name'),
+                'sources': self.sourcesList(person, 'name'),
             }
         }
         
@@ -234,10 +202,11 @@ class PersonUpdate(FormView):
         
         context['form_data'] = form_data
         context['title'] = _('Person')
-        context['person'] = person
+        context['source_object'] = person
         context['memberships'] = MembershipPerson.objects.filter(
             membershippersonmember__value=person
         ).filter(membershippersonorganization__value__isnull=False)
+        context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
 
         if not self.sourced:
             context['source_error'] = 'Please include the source for your changes'

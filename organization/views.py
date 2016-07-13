@@ -26,26 +26,15 @@ from association.models import Association
 from organization.forms import OrganizationForm, OrganizationGeographyForm
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias as OrganizationAliasObject, Classification
-from sfm_pc.utils import deleted_in_str
+from sfm_pc.utils import deleted_in_str, get_geoname_by_id
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
-class OrganizationCreate(FormSetView):
+class OrganizationCreate(BaseFormSetView):
     template_name = 'organization/create.html'
     form_class = OrganizationForm
     success_url = reverse_lazy('create-people')
     extra = 1
     max_num = None
-
-    def dispatch(self, *args, **kwargs):
-        # Redirect to source creation page if no source in session
-        if not self.request.session.get('source_id'):
-            messages.add_message(self.request, 
-                                 messages.INFO, 
-                                 "Before adding an organization, please tell us about your source.",
-                                 extra_tags='alert alert-info')
-            return redirect(reverse_lazy('create-source'))
-        else:
-            return super().dispatch(*args, **kwargs)
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -56,8 +45,6 @@ class OrganizationCreate(FormSetView):
         return context
 
     def post(self, request, *args, **kwargs):
-        
-        OrgFormSet = self.get_formset()
         
         management_keys = [
             'form-MAX_NUM_FORMS', 
@@ -75,12 +62,9 @@ class OrganizationCreate(FormSetView):
             else:
                 form_data[key] = request.POST.get(key)
         
-        formset = OrgFormSet(form_data)
+        self.initFormset(form_data)
         
-        if formset.is_valid():
-            return self.formset_valid(formset)
-        else:
-            return self.formset_invalid(formset)
+        self.validateFormset()
     
     def formset_invalid(self, formset):
         response = super().formset_invalid(formset)
@@ -193,33 +177,19 @@ class OrganizationCreate(FormSetView):
         return response
 
 
-class OrganizationUpdate(FormView):
+class OrganizationUpdate(BaseUpdateView):
     template_name = 'organization/edit.html'
     form_class = OrganizationForm
     success_url = reverse_lazy('dashboard')
     sourced = True
 
     def post(self, request, *args, **kwargs):
-        
-        form = self.form_class(request.POST)
-        
-        if not request.POST.get('source'):
-            self.sourced = False
-            return self.form_invalid(form)
-        else:
-            self.source = Source.objects.get(id=request.POST.get('source'))
+
+        self.checkSource(request)
         
         self.aliases = request.POST.getlist('alias')
         
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-    
-    def sources_list(self, obj, attribute):
-        sources = [s for s in getattr(obj, attribute).get_sources()] \
-                      + [self.source]
-        return list(set(s for s in sources))
+        self.validateForm(request.POST)
     
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -230,12 +200,12 @@ class OrganizationUpdate(FormView):
             'Organization_OrganizationName': {
                 'value': form.cleaned_data['name_text'],
                 'confidence': 1,
-                'sources': self.sources_list(organization, 'name'),
+                'sources': self.sourcesList(organization, 'name'),
             },
             'Organization_OrganizationClassification': {
                 'value': form.cleaned_data['classification'],
                 'confidence': 1,
-                'sources': self.sources_list(organization, 'classification'),
+                'sources': self.sourcesList(organization, 'classification'),
             },
         }
         
@@ -273,7 +243,6 @@ class OrganizationUpdate(FormView):
         
         organization = Organization.objects.get(pk=self.kwargs['pk'])
         
-        source = Source.objects.filter(id=self.request.GET.get('source_id')).first()
         
         form_data = {
             'name': organization.name.get_value(),
@@ -283,9 +252,10 @@ class OrganizationUpdate(FormView):
 
         context['form_data'] = form_data
         context['title'] = 'Organization'
-        context['organization'] = organization
+        context['source_object'] = organization
         context['classifications'] = Classification.objects.all()
-        context['source'] = source
+        context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
+ 
 
         if not self.sourced:
             context['source_error'] = 'Please include the source for your changes'
@@ -315,23 +285,12 @@ def alias_autocomplete(request):
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
 
-class OrganizationCreateGeography(FormSetView):
+class OrganizationCreateGeography(BaseFormSetView):
     template_name = 'organization/create-geography.html'
     form_class = OrganizationGeographyForm
     success_url = reverse_lazy('create-event')
     extra = 1
     max_num = None
-
-    def dispatch(self, *args, **kwargs):
-        # Redirect to source creation page if no source in session
-        if not self.request.session.get('source_id'):
-            messages.add_message(self.request, 
-                                 messages.INFO, 
-                                 "Before adding geographies, please tell us about your source.",
-                                 extra_tags='alert alert-info')
-            return redirect('/create-source/')
-        else:
-            return super().dispatch(*args, **kwargs)
 
    
     def get_context_data(self, **kwargs):
@@ -350,15 +309,8 @@ class OrganizationCreateGeography(FormSetView):
         return context
 
     def post(self, request, *args, **kwargs):
-        organizations = self.request.session['organizations']
-
-        OrganizationGeographyFormset = self.get_formset()
-        formset = OrganizationGeographyFormset(request.POST)
- 
-        if formset.is_valid():
-            return self.formset_valid(formset)
-        else:
-            return self.formset_invalid(formset)
+        self.initFormset(request)
+        self.validateFormset()
     
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
@@ -375,49 +327,17 @@ class OrganizationCreateGeography(FormSetView):
             geoid = formset.data[form_prefix + 'geoname']
             geotype = formset.data[form_prefix + 'geotype']
             
-            if geotype == 'country':
-                geo = Country.objects.get(id=geoid)
-                admin1 = None
-                admin2 = None
-                coords = None
-                code = geo.code
-                geometry = None 
-            
-            elif geotype == 'region':
-                geo = Region.objects.get(id=geoid)
-                admin1 = geo.parent.name
-                admin2 = geo.parent.parent.name
-                coords = None
-                code = geo.code
-                geometry = None
-            
-            elif geotype == 'subregion':
-                geo = Subregion.objects.get(id=geoid)
-                admin1 = geo.parent.name
-                admin2 = geo.parent.parent.name
-                coords = None
-                code = geo.code
-                geometry = None
-            
-            elif geotype == 'city':
-                geo = City.objects.get(id=geoid)
-                admin1 = geo.parent.name
-                admin2 = geo.parent.parent.name
-                coords = geo.location
-                code = None
-                geometry = None
-            
-            else:
-                geo = District.objects.get(id=geoid)
-                admin1 = geo.parent.name
-                admin2 = geo.parent.parent.name
-                coords = geo.location
-                code = None
-                geometry = None
+            geo = get_geoname_by_id(geoid)
+            parent = geo.parent
+            admin1 = parent.name
+            admin2 = parent.parent.name
+            coords = getattr(geo, 'location')
             
             if formset.data[form_prefix + 'geography_type'] == 'Site':
-                get_site = Geosite.objects.filter(geositegeonameid__value=geo.id)
-                if len(get_site) == 0:
+                
+                site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.id)
+                
+                if created:
                     site_data = {
                         'Geosite_GeositeName': {
                             'value': formset.data[form_prefix + 'name'],
@@ -450,54 +370,52 @@ class OrganizationCreateGeography(FormSetView):
                             'sources': [source]
                         }
                     }
-                    site = Geosite.create(site_data)
-                else:
-                    site = get_site[0]
-                get_emp = Emplacement.objects.filter(emplacementorganization__value=org_id).filter(emplacementsite__value=site.id).first()
-                if get_emp:
-                    # update dates?
-                    # add sources
-                    emp_data = {
-                        'Emplacement_EmplacementStartDate': {
-                            'value': formset.data[form_prefix + 'startdate'],
-                            'confidence': 1,
-                            'sources': [source]
-                        },
-                        'Emplacement_EmplacementEndDate': {
-                            'value': formset.data[form_prefix + 'enddate'],
-                            'confidence': 1,
-                            'sources': [source]
-                        } 
-                    } 
-                    get_emp.update(emp_data)
-                else:
-                    emp_data = {
-                        'Emplacement_EmplacementOrganization': {
-                            'value': Organization.objects.get(id=org_id),
-                            'confidence': 1,
-                            'sources': [source]
-                        },
-                        'Emplacement_EmplacementSite': {
-                            'value': site,
-                            'confidence': 1,
-                            'sources': [source]
-                        },
-                        'Emplacement_EmplacementStartDate': {
-                            'value': formset.data[form_prefix + 'startdate'],
-                            'confidence': 1,
-                            'sources': [source]
-                        },
-                        'Emplacement_EmplacementEndDate': {
-                            'value': formset.data[form_prefix + 'enddate'],
-                            'confidence': 1,
-                            'sources': [source]
-                        }
+                    site = Geosite.update(site_data)
+                
+                emp, created = Emplacement.objects.get_or_create(emplacementorganization__value=org_id,
+                                                                 emplacementsite__value=site.id)
+                emp_data = {
+                    'Emplacement_EmplacementStartDate': {
+                        'value': formset.data[form_prefix + 'startdate'],
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Emplacement_EmplacementEndDate': {
+                        'value': formset.data[form_prefix + 'enddate'],
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Emplacement_EmplacementOrganization': {
+                        'value': Organization.objects.get(id=org_id),
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Emplacement_EmplacementSite': {
+                        'value': site,
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Emplacement_EmplacementStartDate': {
+                        'value': formset.data[form_prefix + 'startdate'],
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Emplacement_EmplacementEndDate': {
+                        'value': formset.data[form_prefix + 'enddate'],
+                        'confidence': 1,
+                        'sources': [source]
                     }
-                    Emplacement.create(emp_data)
+                }
+                emp.update(emp_data)
+            
             else:
-                get_area = Area.objects.filter(areageonameid__value = geo.id)
-                if len(get_area) == 0:
-                    code_obj = Code.objects.create(value=code)
+                
+                area, created = Area.objects.get_or_create(areageonameid__value=geo.id)
+                
+                if created:
+                    
+                    code_obj, created = Code.objects.get_or_create(value=code)
+                    
                     area_data = {
                         'Area_AreaName': {
                             'value': formset.data[form_prefix + 'name'],
@@ -525,50 +443,44 @@ class OrganizationCreateGeography(FormSetView):
                             'sources': [source]
                         }
                     }
-                    area = Area.create(area_data)
-                else:
-                    area = get_area[0]
-                get_assoc = Association.objects.filter(associationorganization__value=org_id).filter(associationarea__value=area.id).first()
-                if get_assoc:
-                    # update dates?
-                    # add sources
-                    assoc_data = {
-                        'Association_AssociationStartDate': {
-                            'value': formset.data[form_prefix + 'startdate'],
-                            'confidence': 1,
-                            'sources': [source]
-                        },
-                        'Association_AssociationEndDate': {
-                            'value': formset.data[form_prefix + 'enddate'],
-                            'confidence': 1,
-                            'sources': [source]
-                        } 
-                    } 
-                    get_assoc.update(assoc_data)
-                else:
-                    assoc_data = {
-                        'Association_AssociationOrganization': {
-                            'value': Organization.objects.get(id=org_id),
-                            'confidence': 1,
-                            'sources': [source]
-                        },
-                        'Association_AssociationArea': {
-                            'value': area,
-                            'confidence': 1,
-                            'sources': [source]
-                        },
-                        'Association_AssociationStartDate': {
-                            'value': formset.data[form_prefix + 'startdate'],
-                            'confidence': 1,
-                            'sources': [source]
-                        },
-                        'Association_AssociationEndDate': {
-                            'value': formset.data[form_prefix + 'enddate'],
-                            'confidence': 1,
-                            'sources': [source]
-                        }
+                    area = Area.update(area_data)
+                
+                assoc, created = Association.objects.get_or_create(associationorganization__value=org_id).filter(associationarea__value=area.id)
+                
+                assoc_data = {
+                    'Association_AssociationStartDate': {
+                        'value': formset.data[form_prefix + 'startdate'],
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Association_AssociationEndDate': {
+                        'value': formset.data[form_prefix + 'enddate'],
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Association_AssociationOrganization': {
+                        'value': Organization.objects.get(id=org_id),
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Association_AssociationArea': {
+                        'value': area,
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Association_AssociationStartDate': {
+                        'value': formset.data[form_prefix + 'startdate'],
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Association_AssociationEndDate': {
+                        'value': formset.data[form_prefix + 'enddate'],
+                        'confidence': 1,
+                        'sources': [source]
                     }
-                    Association.create(assoc_data)
+                }
+                Association.update(assoc_data)
+        
         response = super().formset_valid(formset)
         
         return response

@@ -1,84 +1,53 @@
-{% extends "base.html" %}
+{% extends "sfm/base_edit_template.html" %}
 {% load i18n %}
 {% load render_versions %}
 {% load static %}
 {% block extra_head %}
     <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
 {% endblock %}
-{% block content %}
-    <div class="row header">
-        <div class="inner-title-wrapper">
-            <h1 class="page-title">{% trans "Person" %}</h1>
+{% block form_guts %}
+    {% if form.name.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+        <label class="col-sm-2 control-label">Person name</label>
+        <div class="col-sm-8">
+            <select id="id_name" class="form-control" name="name">
+                    <option value="" selected="selected">--------</option>
+                {% if form_data.name %}
+                    <option value="{{ form_data.name.id }}" selected=true>{{ form_data.name.value }}</option>
+                {% endif %}
+            </select>
+            {% if form.name.errors %}
+                {% for error in form.name.errors %}
+                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% endfor %}
+            {% endif %}
+        <input type="hidden" name="name_text" id="id_name_text" value="{{ form_data.name.value }}" />
         </div>
     </div>
-
-    <form class="form form-horizontal" method="POST" id="person-form">
-        {% csrf_token %}
-        {% if source_error %}
-            <div class="form-group has-error has-feedback">
-        {% else %}
-            <div class="form-group">
-        {% endif %}
-                <label class="col-sm-2 control-label">Source for your changes</label>
-                <div class="col-sm-8">
-                    <select id="id_source" class="form-control" name="source">
-                        <option value="" selected="selected">--------</option>
-                    </select>
-                    {% if source_error %}
-                        <span class="help-block"><i class="fa fa-remove"> </i> {{source_error}}</span>
-                    {% endif %}
-                </div>
-            </div>
-        {% if form.name.errors %}
-            <div class="form-group has-error has-feedback">
-        {% else %}
-            <div class="form-group">
-        {% endif %}
-            <label class="col-sm-2 control-label">Person name</label>
-            <div class="col-sm-8">
-                <select id="id_name" class="form-control" name="name">
-                        <option value="" selected="selected">--------</option>
-                    {% if form_data.name %}
-                        <option value="{{ form_data.name.id }}" selected=true>{{ form_data.name.value }}</option>
-                    {% endif %}
-                </select>
-                {% if form.name.errors %}
-                    {% for error in form.name.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            <input type="hidden" name="name_text" id="id_name_text" value="{{ form_data.name.value }}" />
-            </div>
-        </div>
-        {% if form.alias.errors %}
-            <div class="form-group has-error has-feedback">
-        {% else %}
-            <div class="form-group">
-        {% endif %}
-            <label class="col-sm-2 control-label">Aliases</label>
-            <div class="col-sm-8">
-                <select id="id_alias" class="form-control" name="alias" multiple="multiple">
-                    {% for alias in form_data.aliases %}
-                        <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.alias.errors %}
-                    {% for error in form.alias.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
+    {% if form.alias.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
         <div class="form-group">
-            <div class="col-sm-12 col-md-12">
-                <button class="btn sfm-btn-default" type="submit">Cancel</button>
-                <button class="btn  pull-right sfm-btn-action addObject" type="submit">Save</button>
-            </div>
+    {% endif %}
+        <label class="col-sm-2 control-label">Aliases</label>
+        <div class="col-sm-8">
+            <select id="id_alias" class="form-control" name="alias" multiple="multiple">
+                {% for alias in form_data.aliases %}
+                    <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
+                {% endfor %}
+            </select>
+            {% if form.alias.errors %}
+                {% for error in form.alias.errors %}
+                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% endfor %}
+            {% endif %}
         </div>
-
-    </form>
-    <hr />
-
+    </div>
+{% endblock %}
+{% block after_form %}
     <div class="row">
         <h3>{% trans "Memberships" %}</h3>
         <div class="col-sm-10 col-sm-offset-1">
@@ -106,10 +75,8 @@
             </div>
         </div>
     </div>
-
-    {% render_versions person %}
-
 {% endblock %}
+
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
 <script type="text/javascript">
