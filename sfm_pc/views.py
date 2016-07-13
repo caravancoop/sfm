@@ -117,7 +117,8 @@ class SetConfidence(TemplateView):
                     except KeyError:
                         context['relations'][prop.object_ref] = [attributes]
         
-        context['relations'] = OrderedDict(sorted(context['relations'].items(), key=lambda x: x[0]))
+        context['relations'] = OrderedDict(sorted(context['relations'].items(), 
+                                           key=lambda x: x[0]._meta.object_name))
 
         context['confidence_choices'] = CONFIDENCE_LEVELS
 
