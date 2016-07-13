@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+<style>
+.submit { margin-top: 10px; }
+</style>
+{% endblock %}
+{% block content %}
+{% include 'partials/nav-wizard.html' %}
+<form method="post" action="" id="person-form">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+        {% with form_id=forloop.counter0 %}
+            {% if form.geography_type.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label">Geography type</label>
+                    <select id="id_form-{{ form_id }}-geography_type" class="form-control" name="form-{{ form_id }}-geography_type">
+                        <option value="" selected="selected">--------</option>
+                        {% for geo_type in form.fields.geography_type.choices %}
+                            {% if geo_type == form.cleaned_data.geography_type.value %}
+                                <option value="{{ geo_type.id }}" selected=true>{{ geo_type.value }}</option>
+                            {% else %}
+                                <option value="{{ geo_type.id }}">{{ geo_type.value }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.geography_type.errors %}
+                        {% for error in form.geography_type.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.name.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <div class="col-sm-4">
+                    <label class="control-label">Name</label>
+                    <input type="text" name="form-{{ form_id }}-name" id="id_form-{{ form_id }}-name" value="{{ form.cleaned_data.name.value }}" class="form-control" />
+                    {% if form.name.errors %}
+                        {% for error in form.name.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.geoname.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                 <div class="col-sm-4">
+                    <label class="control-label" for="id_form-{{ form_id }}-geoname">Geoname</label>
+                    <select class="form-control" id="id_form-{{ form_id }}-geoname" name="form-{{ form_id }}-geoname">
+                        {% if form.cleaned_data.geoname.value %}
+                            <option value="{{ form.cleaned_data.geoname.value }}" selected=true>{{ form.cleaned_data.geoname.value }}</option>
+                        {% endif %}
+                    </select>
+                     {% if form.geoname.errors %}
+                        {% for error in form.geoname.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                    <input type="hidden" name="form-{{ form_id }}-geoname_text" id="id_form-{{ form_id }}-geoname_text" value="{{ form.cleaned_data.geoname_text }}" /> 
+                </div>
+            </div>
+            </div>
+        {% endwith %}
+    {% endfor %}
+    <div class="row">
+        <div class="form-group submit">
+            <div class="col-md-12">
+                <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
+                <button type="submit" class="btn sfm-btn-cancel" value="Skip">Skip</button>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "js/select2.min.js" %}"></script>
+<script src="{% static "js/ejs_production.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+var geoname_opts = {
+    ajax: {
+        url: "{% url 'geoname-autocomplete' %}",
+        datType: 'json',
+        delay: 250,
+        data: function(params) {
+            return { q: params.term };
+        },
+        cache: true,
+        processResults: function(data, params) {
+            if (data.length >= 1) {
+                return { results: data };
+            } else {
+                    return { results: [] };
+            }
+        }
+    },
+    escapeMarkup: function(markup){ return markup; },
+    minimumInputLength: 2
+};
+$(document).ready(function() {
+    var geoname_field;
+    {% for form in formset %}
+        {% with form_id=forloop.counter0 %}
+            geoname_field = '#id_form-' + {{ form_id }} + '-geoname';
+            $(geoname_field).select2(geoname_opts);
+        {% endwith %}
+    {% endfor %}
+});
+</script>
+
+{% endblock %}

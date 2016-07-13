@@ -5,16 +5,239 @@ from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import DeleteView
-from django.contrib.admin.util import NestedObjects
+from django.views.generic.edit import DeleteView, FormView
+from django.contrib.admin.utils import NestedObjects
+from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.core.urlresolvers import reverse_lazy
 
-from .models import MembershipPerson, Role, Rank
+from extra_views import FormSetView
+
+from membershipperson.models import MembershipPerson, Role, Rank, Context
+from membershipperson.forms import MembershipPersonForm
+from source.models import Source
 from sfm_pc.utils import deleted_in_str
 
+class MembershipPersonCreate(FormSetView):
+    template_name = 'membershipperson/create.html'
+    form_class = MembershipPersonForm
+    success_url = reverse_lazy('create-geography')
+    extra = 0
+    max_num = None
+
+    def dispatch(self, *args, **kwargs):
+        # Redirect to source creation page if no source in session
+        if not self.request.session.get('source_id'):
+            messages.add_message(self.request, 
+                                 messages.INFO, 
+                                 "Before adding memberships, please tell us about your source.",
+                                 extra_tags='alert alert-info')
+            return redirect(reverse_lazy('create-source'))
+        else:
+            return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        context['organizations'] = self.request.session['organizations']
+        context['people'] = self.request.session['people']
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        context['memberships'] = self.request.session['memberships']
+        context['roles'] = [{'id': r.id, 'value': r.value} for r in Role.objects.all()]
+        context['ranks'] = [{'id': r.id, 'value': r.value} for r in Rank.objects.all()]
+        context['contexts'] = [{'id': c.id, 'value': c.value} for c in Context.objects.all()]
+        return context
+
+    def get_initial(self):
+        data = []
+        for i in self.request.session['memberships']:
+            data.append({})
+        return data
+
+    def post(self, request, *args, **kwargs):
+        PersonMembershipFormSet = self.get_formset()
+        formset = PersonMembershipFormSet(request.POST)
+
+ 
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
+
+    def formset_valid(self, formset):
+        source = Source.objects.get(id=self.request.session['source_id'])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+        for i in range(0, num_forms):
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+            membership = MembershipPerson.objects.get(id=formset.data[form_prefix + 'membership'])
+            mem_data = {}
+            if formset.data[form_prefix + 'role']:
+                mem_data['MembershipPerson_MembershipPersonRole'] = {
+                    'value': Role.objects.get(id=formset.data[form_prefix + 'role']),
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            if formset.data[form_prefix + 'title']:
+                mem_data['MembershipPerson_MembershipPersonTitle'] = {
+                    'value': formset.data[form_prefix + 'title'],
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            if formset.data[form_prefix + 'rank']:
+                mem_data['MembershipPerson_MembershipPersonRank'] = {
+                    'value': Rank.objects.get(id=formset.data[form_prefix + 'rank']),
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            if formset.data[form_prefix + 'startcontext']:
+                mem_data['MembershipPerson_MembershipStartContext'] = {
+                    'value': formset.data[form_prefix + 'startcontext'],
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            if formset.data.get(form_prefix + 'realstart'):
+                mem_data['MembershipPerson_MembershipPersonRealStart'] = {
+                    'value': formset.data[form_prefix + 'realstart'],
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            if formset.data[form_prefix + 'endcontext']:
+                mem_data['MembershipPerson_MembershipEndContext'] = {
+                    'value': formset.data[form_prefix + 'endcontext'],
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            if formset.data.get(form_prefix + 'realend'):
+                mem_data['MembershipPerson_MembershipRealEnd'] = {
+                    'value': formset.data[form_prefix + 'realend'],
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            membership.update(mem_data)
+ 
+        response = super().formset_valid(formset)
+        return response
+
+    def formset_invalid(self, formset):
+        response = super().formset_invalid(formset)
+        return response
+
+class MembershipPersonUpdate(FormView):
+    template_name = 'membershipperson/edit.html'
+    form_class = MembershipPersonForm
+    success_url = reverse_lazy('dashboard')
+    sourced = True
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        
+        if not request.POST.get('source'):
+            self.sourced = False
+            return self.form_invalid(form)
+        else:
+            self.source = Source.objects.get(id=request.POST.get('source'))
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+    
+    def sources_list(self, obj, attribute):
+        sources = [s for s in getattr(obj, attribute).get_sources()] \
+                      + [self.source]
+        return list(set(s for s in sources))
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        membership = MembershipPerson.objects.get(pk=self.kwargs['pk'])
+        
+        mem_info = {
+            'MembershipPerson_MembershipPersonTitle': {
+                'value': form.cleaned_data['title'],
+                'confidence': 1,
+                'sources': self.sources_list(membership, 'title')
+            },
+            'MembershipPerson_MembershipStartContext': {
+                'value': form.cleaned_data['startcontext'],
+                'confidence': 1,
+                'sources': self.sources_list(membership, 'startcontext')
+            },
+            'MembershipPerson_MembershipPersonRealStart': {
+                'value': form.cleaned_data['realstart'],
+                'confidence': 1,
+                'sources': self.sources_list(membership, 'realstart')
+            },
+            'MembershipPerson_MembershipEndContext': {
+                'value': form.cleaned_data['endcontext'],
+                'confidence': 1,
+                'sources': self.sources_list(membership, 'endcontext')
+            },
+            'MembershipPerson_MembershipRealEnd': {
+                'value': form.cleaned_data['realend'],
+                'confidence': 1,
+                'sources': self.sources_list(membership, 'realend')
+            },
+        }
+        
+        if form.cleaned_data.get('role'):
+            mem_info['MembershipPerson_MembershipPersonRole'] = {
+                'value': Role.objects.get(id=form.cleaned_data['role']),
+                'confidence': 1,
+                'sources': self.sources_list(membership, 'role')
+            }
+
+        if form.cleaned_data.get('rank'):
+            mem_info['MembershipPerson_MembershipPersonRank'] = {
+                'value': Rank.objects.get(id=form.cleaned_data['rank']),
+                'confidence': 1,
+                'sources': self.sources_list(membership, 'role')
+            }
+
+        membership.update(mem_info)
+
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        membership = MembershipPerson.objects.get(pk=self.kwargs['pk'])
+
+        form_data = {
+            'title': membership.title.get_value(),
+            'role': membership.role.get_value(),
+            'rank': membership.rank.get_value(),
+            'realstart': membership.realstart.get_value(),
+            'realend': membership.realend.get_value(),
+            'startcontext': membership.startcontext.get_value(),
+            'endcontext': membership.endcontext.get_value(),
+            'firstciteddate': membership.firstciteddate.get_value(),
+            'lastciteddate': membership.lastciteddate.get_value()
+        }
+        
+        context['form_data'] = form_data
+        context['title'] = "Membership Person"
+        context['membership'] = membership
+        context['roles'] = Role.objects.all()
+        context['ranks'] = Rank.objects.all()
+
+        if not self.sourced:
+            context['source_error'] = 'Please include the source for your changes'
+
+        return context
+
+#############################################
+###                                       ###
+### Below here are currently unused views ###
+### which we'll probably need eventually  ###
+###                                       ###
+#############################################
 
 class MembershipPersonDelete(DeleteView):
     model = MembershipPerson
@@ -32,21 +255,6 @@ class MembershipPersonDelete(DeleteView):
         obj = super(MembershipPersonDelete, self).get_object()
 
         return obj
-
-
-class MembershipPersonView(TemplateView):
-    template_name = 'membershipperson/search.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(MembershipPersonView, self).get_context_data(**kwargs)
-
-        context['roles'] = Role.objects.all()
-        context['ranks'] = Rank.objects.all()
-        context['year_range'] = range(1950, date.today().year + 1)
-        context['day_range'] = range(1, 32)
-
-        return context
-
 
 def membership_person_csv(request):
     response = HttpResponse(content_type='text/csv')
@@ -69,112 +277,6 @@ def membership_person_csv(request):
         ])
 
     return response
-
-
-def membership_person_search(request):
-    terms = request.GET.dict()
-
-    membership_query = MembershipPerson.search(terms)
-
-    page = int(terms.get('page', 1))
-
-    keys = ['role', 'title', 'rank', 'firstciteddate', 'lastciteddate']
-
-    paginator = Paginator(membership_query, 15)
-    try:
-        membership_page = paginator.page(page)
-    except PageNotAnInteger:
-        membership_page = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        membership_page = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    memberships = [
-        {
-            "id": membership.id,
-            "role": str(membership.role.get_value()),
-            "title": str(membership.title.get_value()),
-            "rank": str(membership.rank.get_value()),
-            "firstciteddate": str(membership.firstciteddate.get_value()),
-            "lastciteddate": str(membership.lastciteddate.get_value()),
-        }
-        for membership in membership_page
-    ]
-
-    html_paginator = render_to_string(
-        'paginator.html',
-        {'actual': page, 'min': page - 5, 'max': page + 5,
-         'paginator': membership_page,
-         'pages': range(1, paginator.num_pages + 1)}
-    )
-
-    return HttpResponse(json.dumps({
-        'success': True,
-        'keys': keys,
-        'objects': memberships,
-        'paginator': html_paginator,
-        'result_number': len(membership_query)
-    }))
-
-
-class MembershipPersonUpdate(TemplateView):
-    template_name = 'membershipperson/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['object'])
-        try:
-            membership = MembershipPerson.objects.get(pk=kwargs.get('pk'))
-        except MembershipPerson.DoesNotExist:
-            msg = "This membership does not exist, it should be created " \
-                  "before updating it."
-            return HttpResponse(msg, status=400)
-
-        (errors, data) = membership.validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-        membership.update(data)
-        return HttpResponse(
-            json.dumps({"success": True}),
-            content_type="application/json"
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super(MembershipPersonUpdate, self).get_context_data(**kwargs)
-        context['title'] = "Membership Person"
-        context['membership'] = MembershipPerson.objects.get(pk=context.get('pk'))
-
-        return context
-
-
-class MembershipPersonCreate(TemplateView):
-    template_name = 'membershipperson/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        data = json.loads(request.POST.dict()['object'])
-        (errors, data) = MembershipPerson().validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        membership = MembershipPerson.create(data)
-
-        return HttpResponse(json.dumps({"success": True, "id": membership.id}),
-                            content_type="application/json")
-
-    def get_context_data(self, **kwargs):
-        context = super(MembershipPersonCreate, self).get_context_data(**kwargs)
-        context['membership'] = MembershipPerson()
-        context['roles'] = Role.objects.all()
-        context['ranks'] = Rank.objects.all()
-
-        return context
 
 
 def rank_autocomplete(request):

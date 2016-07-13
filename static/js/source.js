@@ -74,7 +74,7 @@ var source = (function(){
     render:function(){
       object = this.objects[this.actualObject];
       this.$sourceList.find('li').empty(); //delete old list
-      
+
       for(var i = 0; i < object[this.fieldStr]['sources'].length; i++){
         if(object[this.fieldStr]['sources'][i]){
           var confidenceString;
@@ -87,7 +87,7 @@ var source = (function(){
         }
       }
       if(object[this.fieldStr]['confidence']){
-        this.$confLvl.val(object[this.fieldStr]['confidence']); 
+        this.$confLvl.val(object[this.fieldStr]['confidence']);
         $('select').selectpicker('refresh');
       }
     },
@@ -178,7 +178,7 @@ var source = (function(){
         postData[input.id]['value'] = input.value;
       });
 
-      console.log(postData);
+      console.log('postData', postData);
 
       if(this.$mdObjId === 0){
         this.$mdObjId = "add";

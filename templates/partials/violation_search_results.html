@@ -1,0 +1,30 @@
+<h3>Events</h3>
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Perpetrator</th>
+            <th>Perpetrator organization</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for object in objects %}
+            <tr>
+                <td>
+                    {{ object.description.get_value.value }}
+                </td>
+                <td>
+                    {% for perpetrator in object.perpetrator.get_list %}
+                        {{ perpetrator.get_value.value.name.get_value.value }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for organization in object.perpetratororganization.get_list %}
+                        {{ organization.get_value.value.name.get_value.value }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

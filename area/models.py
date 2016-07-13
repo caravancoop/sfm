@@ -14,7 +14,7 @@ class Area(models.Model, BaseModel):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, AreaName)
         self.code = ComplexFieldContainer(self, AreaCode)
-        self.geoname = ComplexFieldContainer(self, AreaGeoName)
+        self.geoname = ComplexFieldContainer(self, AreaGeoname)
         self.geometry = ComplexFieldContainer(self, AreaGeometry)
 
         self.complex_fields = [self.name, self.code, self.geoname, self.geometry]
@@ -142,11 +142,17 @@ class AreaCode(ComplexField):
 
 @versioned
 @sourced
-class AreaGeoName(ComplexField):
+class AreaGeoname(ComplexField):
+    object_ref = models.ForeignKey('Area')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Geoname name")
+
+@versioned
+@sourced
+class AreaGeonameId(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.IntegerField(default=None, blank=True, null=True)
-    field_name = _("GeoName ID")
-
+    field_name = _("Geoname id")
 
 class Code(models.Model):
     value = models.TextField()

@@ -1,0 +1,28 @@
+<h3>Organizations</h3>
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Aliases</th>
+            <th>Classification</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for object in objects %}
+            <tr>
+                <td>
+                    {{ object.name }}
+                </td>
+                <td>
+                    {% for alias in object.aliases.get_list %}
+                        {{ alias }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {{ object.classification }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

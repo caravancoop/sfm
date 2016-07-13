@@ -6,7 +6,7 @@ from django.db.models import Max
 from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import versioned, translated, sourced, sourced_optional
-from complex_fields.models import ComplexField, ComplexFieldContainer
+from complex_fields.models import ComplexField, ComplexFieldContainer, ComplexFieldListContainer
 from complex_fields.base_models import BaseModel
 
 
@@ -15,16 +15,10 @@ class Organization(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, OrganizationName)
-        self.alias = ComplexFieldContainer(self, OrganizationAlias)
+        self.aliases = ComplexFieldListContainer(self, OrganizationAlias)
         self.classification = ComplexFieldContainer(self, OrganizationClassification)
-        self.foundingdate = ComplexFieldContainer(self, OrganizationFoundingDate)
-        self.dissolutiondate = ComplexFieldContainer(self, OrganizationDissolutionDate)
-        self.realfounding = ComplexFieldContainer(self, OrganizationRealFounding)
-        self.realdissolution = ComplexFieldContainer(self, OrganizationRealDissolution)
 
-        self.complex_fields = [self.name, self.alias, self.classification,
-                               self.foundingdate, self.dissolutiondate,
-                               self.realfounding, self.realdissolution]
+        self.complex_fields = [self.name, self.classification]
 
         self.required_fields = [
             "Organization_OrganizationName",
@@ -61,42 +55,6 @@ class Organization(models.Model, BaseModel):
         alias_val = terms.get('alias')
         if alias_val:
             orgs_query = orgs_query.filter(organizationalias__value__icontains=alias_val)
-
-        foundingdate_year = terms.get('founding_year')
-        if foundingdate_year:
-            orgs_query = orgs_query.filter(
-                organizationfoundingdate__value__startswith=foundingdate_year
-            )
-
-        foundingdate_month = terms.get('founding_month')
-        if foundingdate_month:
-            orgs_query = orgs_query.filter(
-                organizationfoundingdate__value__contains="-" + foundingdate_month + "-"
-            )
-
-        foundingdate_day = terms.get('founding_day')
-        if foundingdate_day:
-            orgs_query = orgs_query.filter(
-                organizationfoundingdate__value__endswith=foundingdate_day
-            )
-
-        dissolutiondate_year = terms.get('dissolution_year')
-        if dissolutiondate_year:
-            orgs_query = orgs_query.filter(
-                organizationdissolutiondate__value__startswith=dissolutiondate_year
-            )
-
-        dissolutiondate_month = terms.get('dissolution_month')
-        if dissolutiondate_month:
-            orgs_query = orgs_query.filter(
-                organizationdissolutiondate__value__contains="-" + dissolutiondate_month + "-"
-            )
-
-        dissolutiondate_day = terms.get('dissolution_day')
-        if dissolutiondate_day:
-            orgs_query = orgs_query.filter(
-                organizationdissolutiondate__value__endswith=dissolutiondate_day
-            )
 
         classification = terms.get('classification')
         if classification:
@@ -138,15 +96,20 @@ class OrganizationName(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
-
 @translated
 @versioned
 @sourced
 class OrganizationAlias(ComplexField):
     object_ref = models.ForeignKey('Organization')
-    value = models.TextField(default=None, blank=True, null=True)
+    value = models.ForeignKey('Alias', default=None, blank=True, null=True)
+    
     field_name = _("Alias")
 
+class Alias(models.Model):
+    value = models.TextField()
+    
+    def __str__(self):
+        return self.value
 
 @versioned
 @sourced
@@ -155,38 +118,6 @@ class OrganizationClassification(ComplexField):
     value = models.ForeignKey('Classification', default=None, blank=True,
                               null=True)
     field_name = _("Classification")
-
-
-@versioned
-@sourced
-class OrganizationFoundingDate(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Date of creation")
-
-
-@versioned
-@sourced
-class OrganizationDissolutionDate(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Date of disbandment")
-
-
-@versioned
-@sourced_optional
-class OrganizationRealFounding(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = models.BooleanField(default=False)
-    field_name = _("Real creation")
-
-
-@versioned
-@sourced_optional
-class OrganizationRealDissolution(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = models.BooleanField(default=False)
-    field_name = _("Real dissolution")
 
 
 class Classification(models.Model):

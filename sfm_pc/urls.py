@@ -1,15 +1,12 @@
-
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
-from .views import *
-from person.views import *
-
+from django.contrib.auth.views import logout_then_login
+from sfm_pc.views import Dashboard, geoname_autocomplete, search, SetConfidence
 
 urlpatterns = i18n_patterns(
-    '',
     url(r'^composition/', include('composition.urls')),
     url(r'^organization/', include('organization.urls')),
     url(r'^membershipperson/', include('membershipperson.urls')),
@@ -23,7 +20,11 @@ urlpatterns = i18n_patterns(
     url(r'^geosite/', include('geosite.urls')),
     url(r'^emplacement/', include('emplacement.urls')),
     url(r'^violation/', include('violation.urls')),
-
+    url(r'^search/', search, name="search"),
+    
+    url(r'^geoname-autocomplete/$', geoname_autocomplete, name="geoname-autocomplete"),
+    
+    url(r'^set-confidence/$', SetConfidence.as_view(), name='set-confidence'),
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
 
@@ -33,5 +34,5 @@ urlpatterns = i18n_patterns(
     # Ajax calls
     url(r'^ajax/', include('ajax.urls')),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url': '/accounts/login'}),
+    url(r'^logout/$', logout_then_login, {'login_url': '/accounts/login'}),
 )

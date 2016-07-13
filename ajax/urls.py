@@ -5,7 +5,7 @@ from django.conf.urls import patterns, url
 
 from .views import test
 
-urlpatterns = patterns('',
-                       url(r'^person/(?P<artist_id>\d+)/test/',
-                           test, name='json_test'),
-                       )
+urlpatterns = [
+    url(r'^person/(?P<artist_id>\d+)/test/',
+        test, name='json_test'),
+]

@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from django.forms import ModelForm
-from .models import Person
+from django import forms
+from django.utils.translation import ugettext as _
+
+from django_date_extensions.fields import ApproximateDateFormField
 
 
-class PersonForm(ModelForm):
-
+class PersonForm(forms.Form):
+    name = forms.CharField(error_messages={'required': _('Name is required')})
+    name_text = forms.CharField()
+    alias = forms.CharField(required=False)
+    orgs = forms.CharField() 
+    
     def __init__(self, *args, **kwargs):
-        super(PersonForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-    class Meta:
-        model = Person
-        fields = '__all__'
+        self.empty_permitted = False

@@ -1,57 +1,219 @@
-{% extends request.is_ajax|yesno:"base_modal.html,base.html" %}
-{% load viewcomplexfield %}
-{% load viewcomplexfielddate %}
-{% load viewcomplexfieldboolean %}
-{% load viewcomplexfieldautocomplete %}
+{% extends "base.html" %}
+{% load render_versions %}
 {% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+{% endblock %}
+
 {% block content %}
-  <div class="row header">
-    <div class="inner-title-wrapper">
-      <h1 class="page-title">{% trans "Organization" %}</h1>
-      <div class="pull-right">
-        <a href="/organization/add/" class="btn sfm-btn-action"><i class="fa fa-plus"> Add New</i></a>
-      </div>
+    <div class="row header">
+        <div class="inner-title-wrapper">
+            <h1 class="page-title">{% trans "Organization" %}</h1>
+        </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-sm-12">
-      <h4>Properties</h4>
-    </div>
-  </div>
 
-  <form>
-    <div class="row">
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field organization.name organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field organization.alias organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_autocomplete organization.classification organization.id "/organization/classification/autocomplete/" request.path %}
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_date organization.foundingdate organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-2 complex-field">
-        {% view_complex_field_boolean organization.realfounding organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-4 complex-field">
-        {% view_complex_field_date organization.dissolutiondate organization.id request.path %}
-      </div>
-      <div class="form-group col-sm-2 complex-field">
-        {% view_complex_field_boolean organization.realdissolution organization.id request.path %}
-      </div>
-    </div>
-  </form>
+    <form class="form form-horizontal" method="POST" id="org-form">
+        {% csrf_token %}
+        {% if source_error %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label">Source for your changes</label>
+            <div class="col-sm-8">
+                <select id="id_source" class="form-control source-field" name="source">
+                    {% if source %}
+                        <option value="{{ source.id }}" selected="selected">{{ source.title }} ({{ source.publication.title }} , {{ source.published_on }})</option>
+                    {% else %}
+                        <option value="" selected="selected">--------</option>
+                    {% endif %}
+                </select>
+                {% if source_error %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{source_error}}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% if form.name.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label">Organization name</label>
+            <div class="col-sm-8">
+                <select id="id_name" class="form-control name-field" name="name">
+                        <option value="" selected="selected">--------</option>
+                    {% if form_data.name %}
+                        <option value="{{ form_data.name.id }}" selected=true>{{ form_data.name.value }}</option>
+                    {% endif %}
+                </select>
+                {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            <input type="hidden" name="name_text" id="id_name_text" value="{{ form_data.name.value }}" />
+            </div>
+        </div>
+        {% if form.alias.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label">Aliases</label>
+            <div class="col-sm-8">
+                <select id="id_alias" class="form-control alias-field" name="alias" multiple="multiple">
+                    {% for alias in form_data.alias %}
+                        <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.alias.errors %}
+                    {% for error in form.alias.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% if form.classification.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label">Classification </label>
+            <div class="col-sm-8">
+                <select id="id_classification" class="form-control" name="classification">
+                    <option value="" selected="selected">--------</option>
+                    {% for classification in classifications %}
+                        {% if classification.id == form_data.classification.id %}
+                            <option value="{{ classification.id }}" selected="true">{{ classification.value }}</option>
+                        {% else %}
+                            <option value="{{ classification.id }}">{{ classification.value }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.classification.errors %}
+                    {% for error in form.classification.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <br />
+        <hr>
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <a href="{% url 'dashboard' %}?source_id={{ source.id }}" class="btn btn-info sfm-btn-cancel col-sm-2" type="submit">Cancel</a>
+                <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
+            </div>
+        </div>
+    </form>
 
-  <div class="row">
-    <div class="col-sm-12 col-md-12">
-      <button class="btn sfm-btn-cancel col-sm-2" type="submit">Cancel</button>
-      <button class="btn col-sm-2 pull-right sfm-btn-action addObject" type="submit">Save</button>
-    </div>
-  </div>
 
+    {% render_versions organization %}
+
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/select2.min.js" %}"></script>
+<script type="text/javascript">
+    var name_opts = {
+        ajax: {
+            url: "{% url 'organization-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': -1,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+
+    var alias_opts = {
+        ajax: {
+            url: "{% url 'org-alias-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': params.term,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
+
+    var source_opts = {
+        ajax: {
+            url: "{% url 'source-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2
+    }
+    $(document).ready(function(e) {
+        $('.name-field').select2(name_opts);
+        $('.alias-field').select2(alias_opts);
+        $('.source-field').select2(source_opts);
+        $('.alias-field').on('select2:select', function(e){
+            var value = e.params.data.text;
+            var name = $(e.target).prop('name') + '_text';
+            var form_id = $(e.target).prop('name').split('-')[1]
+            var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
+            $('#org-form').append(hidden_input);
+        });
+
+        $('.alias-field').on('select2:unselect', function(e){
+            var value = e.params.data.text;
+            var inputs = $('#org-form').find('input[value="'+ value + '"]');
+            var form_id = $(e.target).prop('name').split('-')[1]
+
+            $.each(inputs, function(i, input){
+                if ($(input).data('form_id') == form_id){
+                    $(input).remove();
+                }
+            })
+        });
+
+        $('.name-field').on('select2:select', function(e){
+            var value = e.params.data.text;
+            $(name_field + '_text').val(value);
+            if (isNaN($(name_field + ' :selected').attr('value'))) {
+                $(name_field + ' :selected').attr('value','-1');
+            }
+        });
+    });
+
+</script>
 {% endblock %}

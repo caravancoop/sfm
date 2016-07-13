@@ -3,17 +3,316 @@ import csv
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.contrib.admin.util import NestedObjects
-from django.views.generic.edit import DeleteView
+from django.contrib.admin.utils import NestedObjects
+from django.contrib import messages
+from django.views.generic.edit import DeleteView, FormView
 from django.views.generic.base import TemplateView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.core.urlresolvers import reverse_lazy
+from django.utils.translation import get_language
+from django.shortcuts import redirect
 
-from .models import Violation, Type
+from extra_views import FormSetView
+from cities.models import Place, City, Country, Region, Subregion, District
+
+from violation.models import Violation, Type, ViolationType, \
+    ViolationPerpetrator, ViolationPerpetratorOrganization
 from source.models import Source
-from .forms import ZoneForm
-from sfm_pc.utils import deleted_in_str
+from person.models import Person
+from organization.models import Organization
+from violation.forms import ZoneForm, ViolationForm
+from sfm_pc.utils import deleted_in_str, get_geoname_by_id
+
+class ViolationCreate(FormSetView):
+    template_name = 'violation/create.html'
+    form_class = ViolationForm
+    success_url = reverse_lazy('set-confidence')
+    extra = 1
+    max_num = None
+
+    def dispatch(self, *args, **kwargs):
+        # Redirect to source creation page if no source in session
+        if not self.request.session.get('source_id'):
+            messages.add_message(self.request, 
+                                 messages.INFO, 
+                                 "Before adding an event, please tell us about your source.",
+                                 extra_tags='alert alert-info')
+            return redirect(reverse_lazy('create-source'))
+        else:
+            return super().dispatch(*args, **kwargs)
+
+   
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        organizations = self.request.session.get('organizations')
+        people = self.request.session.get('people')
+        
+        context['types'] = ViolationType.objects.filter(lang=get_language())
+        context['people'] = people         
+        context['organizations'] = organizations
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        return context
+
+    def post(self, request, *args, **kwargs):
+        organizations = self.request.session['organizations']
+
+        ViolationFormset = self.get_formset()
+        formset = ViolationFormset(request.POST)
+        
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
+
+    def formset_valid(self, formset):
+        source = Source.objects.get(id=self.request.session['source_id'])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+        for i in range(0, num_forms):
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+            startdate = formset.data[form_prefix + 'startdate']
+            enddate = formset.data[form_prefix + 'enddate']
+            locationdescription = formset.data[form_prefix + 'locationdescription']
+            geoid = formset.data[form_prefix + 'geoname']
+            geotype = formset.data[form_prefix + 'geotype']
+            description = formset.data[form_prefix + 'description']
+            perpetrators = formset.data.getlist(form_prefix + 'perpetrators')
+            orgs = formset.data.getlist(form_prefix + 'orgs')
+            vtypes = formset.data.getlist(form_prefix + 'vtype')
+            
+            geo = get_geoname_by_id(geoid)
+            parent = geo.parent
+            admin1 = parent.name
+            admin2 = parent.parent.name
+            coords = getattr(geo, 'location')
+
+            violation_data = {
+                'Violation_ViolationDescription': {
+                   'value': description,
+                   'sources': [source],
+                   'confidence': 1
+                },
+                'Violation_ViolationLocationDescription': {
+                    'value': locationdescription,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationAdminLevel1': {
+                    'value': admin1,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationAdminLevel2': {
+                    'value': admin2,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationGeoname': {
+                    'value': geo.name,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationGeonameId': {
+                    'value': geo.id,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationLocation': {
+                    'value': coords,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationStartDate': {
+                    'value': startdate,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationEndDate': {
+                    'value': enddate,
+                    'sources': [source],
+                    'confidence': 1
+                }
+            }
+            violation = Violation.create(violation_data)
+            
+            if vtypes:
+                for vtype in vtypes:
+                    type_obj = Type.objects.get(id=vtype)
+                    vt_obj, created = ViolationType.objects.get_or_create(value=type_obj,
+                                                                          object_ref=violation,
+                                                                          lang=get_language())
+                    vt_obj.sources.add(source)
+                    vt_obj.save()
+
+            if perpetrators:
+                for perpetrator in perpetrators:
+                    
+                    perp = Person.objects.get(id=perpetrator)
+                    vp_obj, created = ViolationPerpetrator.objects.get_or_create(value=perp,
+                                                                                 object_ref=violation)
+
+                    vp_obj.sources.add(source)
+                    vp_obj.save()
+            
+            if orgs:
+                for org in orgs:
+                    
+                    organization = Organization.objects.get(id=org)
+                    vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
+                                                                                              object_ref=violation)
+
+                    vpo_obj.sources.add(source)
+                    vpo_obj.save()
+
+        response = super().formset_valid(formset)
+        return response
+
+class ViolationUpdate(FormView):
+    template_name = 'violation/edit.html'
+    form_class = ViolationForm
+    success_url = reverse_lazy('dashboard')
+    sourced = True
+
+    def post(self, request, *args, **kwargs):
+
+        form = self.form_class(request.POST)
+
+        if not request.POST.get('source'):
+            self.sourced = False
+            return self.form_invalid(form)
+        else:
+            self.source = Source.objects.get(id=request.POST.get('source'))
+    
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def sources_list(self, obj, attribute):
+        sources = [s for s in getattr(obj, attribute).get_sources()] \
+                      + [self.source]
+        return list(set(s for s in sources))
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        violation = Violation.objects.get(pk=self.kwargs['pk'])
+        startdate = form.cleaned_data['startdate']
+        enddate = form.cleaned_data['enddate']
+        locationdescription = form.cleaned_data['locationdescription']
+        geoid = form.cleaned_data['geoname']
+        description = form.cleaned_data['description']
+        perpetrators = form.data.getlist('perpetrators')
+        orgs = form.data.getlist('orgs')
+        vtypes = form.data.getlist('vtype')
+        
+        geo = get_geoname_by_id(geoid)
+        parent = geo.parent
+        admin1 = parent.name
+        admin2 = parent.parent.name
+        coords = getattr(geo, 'location')
+
+        violation_data = {
+            'Violation_ViolationDescription': {
+               'value': description,
+               'sources': self.sources_list(violation, 'description'),
+               'confidence': 1
+            },
+            'Violation_ViolationLocationDescription': {
+                'value': locationdescription,
+                'sources': self.sources_list(violation, 'locationdescription'),
+                'confidence': 1
+            },
+            'Violation_ViolationAdminLevel1': {
+                'value': admin1,
+                'sources': self.sources_list(violation, 'adminlevel1'),
+                'confidence': 1
+            },
+            'Violation_ViolationAdminLevel2': {
+                'value': admin2,
+                'sources': self.sources_list(violation, 'adminlevel2'),
+                'confidence': 1
+            },
+            'Violation_ViolationGeoname': {
+                'value': geo.name,
+                'sources': self.sources_list(violation, 'geoname'),
+                'confidence': 1
+            },
+            'Violation_ViolationGeonameId': {
+                'value': geo.id,
+                'sources': self.sources_list(violation, 'geonameid'),
+                'confidence': 1
+            },
+            'Violation_ViolationLocation': {
+                'value': coords,
+                'sources': self.sources_list(violation, 'location'),
+                'confidence': 1
+            },
+            'Violation_ViolationStartDate': {
+                'value': startdate,
+                'sources': self.sources_list(violation, 'startdate'),
+                'confidence': 1
+            },
+            'Violation_ViolationEndDate': {
+                'value': enddate,
+                'sources': self.sources_list(violation, 'enddate'),
+                'confidence': 1
+            }
+        }
+        violation.update(violation_data)
+        
+        if vtypes:
+            for vtype in vtypes:
+                type_obj = Type.objects.get(id=vtype)
+                vt_obj, created = ViolationType.objects.get_or_create(value=type_obj,
+                                                                      object_ref=violation,
+                                                                      lang=get_language())
+                vt_obj.sources.add(self.source)
+                vt_obj.save()
+
+        if perpetrators:
+            for perpetrator in perpetrators:
+                
+                perp = Person.objects.get(id=perpetrator)
+                vp_obj, created = ViolationPerpetrator.objects.get_or_create(value=perp,
+                                                                             object_ref=violation)
+
+                vp_obj.sources.add(self.source)
+                vp_obj.save()
+        
+        if orgs:
+            for org in orgs:
+                
+                organization = Organization.objects.get(id=org)
+                vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
+                                                                                          object_ref=violation)
+
+                vpo_obj.sources.add(self.source)
+                vpo_obj.save()
+        
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        violation = Violation.objects.get(pk=self.kwargs['pk'])
+        context['violation'] = violation
+        context['types'] = ViolationType.objects.filter(lang=get_language())
+        context['violation_types'] = []
+
+        for violation_type in violation.types.get_list():
+            context['violation_types'].append(violation_type.get_value().value.id)
+
+        if not self.sourced:
+            context['source_error'] = 'Please include the source for your changes'
+        
+        context['geoname'] = get_geoname_by_id(violation.geonameid.get_value().value)
+        
+        return context
 
 
 class ViolationDelete(DeleteView):
@@ -45,6 +344,20 @@ class ViolationView(TemplateView):
 
         return context
 
+def violation_type_autocomplete(request):
+    term = request.GET.get('q')
+    types = ViolationType.objects.filter(value__code__icontains=term)\
+                                 .filter(lang=get_language()).all()
+
+    results = []
+    for violation_type in types:
+        results.append({
+            'text': violation_type.get_value(),
+            'id': violation_type.id,
+        })
+
+    return HttpResponse(json.dumps(results), content_type='application/json')
+
 
 def violation_csv(request):
     response = HttpResponse(content_type='text/csv')
@@ -72,112 +385,3 @@ def violation_csv(request):
 
     return response
 
-
-def violation_search(request):
-    terms = request.GET.dict()
-
-    page = int(terms.get('page', 1))
-    violation_query = Violation.search(terms)
-
-    keys = ['startdate', 'enddate', 'geoname', 'perpetrator', 'organization']
-
-    paginator = Paginator(violation_query, 15)
-    try:
-        violation_page = paginator.page(page)
-    except PageNotAnInteger:
-        violation_page = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        violation_page = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    violations = [
-        {
-            "id": violation.id,
-            "startdate": str(violation.startdate.get_value().value),
-            "enddate": str(violation.enddate.get_value().value),
-            "geoname": str(violation.geoname.get_value().value),
-            "perpetrator": str(violation.perpetrator.get_value().value),
-            "organization": str(violation.perpetratororganization.get_value().value),
-        }
-        for violation in violation_page
-    ]
-
-    html_paginator = render_to_string(
-        'paginator.html',
-        {'actual': page, 'min': page - 5, 'max': page + 5,
-         'paginator': violation_page,
-         'pages': range(1, paginator.num_pages + 1)}
-    )
-
-    return HttpResponse(json.dumps({
-        'success': True,
-        'keys': keys,
-        'objects': violations,
-        'paginator': html_paginator,
-        'result_number': len(violation_query)
-    }))
-
-
-class ViolationUpdate(TemplateView):
-    template_name = 'violation/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['object'])
-        try:
-            violation = Violation.objects.get(pk=kwargs.get('pk'))
-        except Violation.DoesNotExist:
-            msg = "This violation does not exist, it should be created " \
-                  "before updating it."
-            return HttpResponse(msg, status=400)
-
-        (errors, data) = violation.validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        violation.update(data)
-
-        return HttpResponse(
-            json.dumps({"success": True}),
-            content_type="application/json"
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super(ViolationUpdate, self).get_context_data(**kwargs)
-        violation = Violation.objects.get(pk=context.get('pk'))
-        context['violation'] = violation
-        data = {"value": violation.location.get_value().value}
-        context['point'] = ZoneForm(data)
-
-        return context
-
-
-class ViolationCreate(TemplateView):
-    template_name = 'violation/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        data = json.loads(request.POST.dict()['object'])
-        (errors, data) = Violation().validate(data)
-
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-        violation = Violation.create(data)
-
-        return HttpResponse(json.dumps({"success": True, "id": violation.id}),
-                            content_type="application/json")
-
-    def get_context_data(self, **kwargs):
-        context = super(ViolationCreate, self).get_context_data(**kwargs)
-        context['violation'] = Violation()
-        context['violationtypes'] = Type.objects.all()
-        context['sources'] = Source.objects.all()
-        context['point'] = ZoneForm()
-
-        return context

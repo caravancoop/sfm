@@ -11,27 +11,27 @@ class GeositeAdmin(admin.ModelAdmin):
     pass
 
 
-class GeositeNameAdmin(reversion.VersionAdmin):
+class GeositeNameAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class GeositeAdminLevel1Admin(reversion.VersionAdmin):
+class GeositeAdminLevel1Admin(reversion.admin.VersionAdmin):
     pass
 
 
-class GeositeAdminLevel2Admin(reversion.VersionAdmin):
+class GeositeAdminLevel2Admin(reversion.admin.VersionAdmin):
     pass
 
 
-class GeositeCoordinatesAdmin(reversion.VersionAdmin):
+class GeositeCoordinatesAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class GeositeGeonameAdmin(reversion.VersionAdmin):
+class GeositeGeonameAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class GeositeGeonameIdAdmin(reversion.VersionAdmin):
+class GeositeGeonameIdAdmin(reversion.admin.VersionAdmin):
     pass
 
 admin.site.register(Geosite, GeositeAdmin)

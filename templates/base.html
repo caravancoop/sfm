@@ -6,12 +6,13 @@
 <head>
   <meta charset="UTF-8">
   <title>SFM Dashboard</title>
-  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="{% static "css/style.css" %}">
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="{% static "css/bootstrap.simplex.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-nav-wizard.css" %}">
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <script src="{% static "js/jquery-1.10.2.js" %}"></script>
+  {% block extra_head %}{% endblock %}
 </head>
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 <body class="{% if LANGUAGE_BIDI %}rtl{% endif %}">
@@ -19,8 +20,40 @@
     window.CSRF_TOKEN = "{{ csrf_token }}";
     window.LANG = "{{ LANGUAGE_CODE }}";
   </script>
-  {% include "sidebar.html" %}
-<section class="content">
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'dashboard' %}">Security Force Monitor</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="{% url 'create-source' %}">Add new source</a></li>
+                <li><a href="{% url 'search' %}">Search</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/logout/">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<section class="content container">
+{% if messages %}
+    <div class="row">
+        {% for message in messages %}
+        <div {% if message.tags %}class="{{ message.tags }}"{% endif %} role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
   {% block content %}{% endblock %}
 </section>
 <!--  TABLE ROW TEMPLATES -->
@@ -61,40 +94,9 @@
 </div>
 <!--  END SOURCE TEMPLATE -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.4/js/bootstrap-select.min.js"></script>
-  <script src="{% static "js/module-controller.js" %}"></script>
-  <script src="{% static "js/source.js" %}"></script>
   <script src="{% static "js/language.js" %}"></script>
   <script src="{% static "js/version.js" %}"></script>
-  <script src="{% static "js/date.js" %}"></script>
-  <script src="{% static "js/autocomplete.js" %}"></script>
-  <script src="{% static "js/modal.js" %}"></script>
-  <script>
-  $(document).ready(function() {
-    $('select').selectpicker('show');
-  });
-
-  $('body').on('hidden.bs.modal', '.modal', function () {
-    $(this).removeData('bs.modal');
-  });
-  //qiuck fix for action btn menu
-  $(function () {
-    $('.input-actions').on('mouseleave click', function(){
-      $btn_id = $(this).closest('.popover').attr('id');
-      $('[aria-describedby=' + $btn_id+']').trigger("click");
-    });
-
-    $('[data-toggle="popover"]').popover({
-      container: 'body',
-        html: true,
-        content: function () {
-            var clone = $($(this).data('popover-content')).clone(true).removeClass('hide');
-            return clone;
-        }
-    });
-  });
-
-  </script>
+  {% block extra_js %}{% endblock %}
 
 </body>
 

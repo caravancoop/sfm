@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+    <form class="form" method="POST">
+        {% csrf_token %}
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Confidence</th>
+                    <th>Field</th>
+                    <th>Value</th>
+                    <th>Additional Sources</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for relation in relations %}
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <select class="form-control" name="confidence-{{ relation.relation_label }}-{{ relation.relation_id }}-{{ relation.object_ref_object_name}}-{{ relation.object_ref_id }}">
+                                    {% for value, name in confidence_choices %}
+                                        {% if relation.confidence == value %}
+                                            <option value="{{ value }}" selected=true>{{ name }}</option>
+                                        {% else %}
+                                            <option value="{{ value }}">{{ name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                        <td>{{ relation.property }}</td>
+                        <td>{{ relation.value }}</td>
+                        <td>
+                            {% if relation.additional_sources %}
+                            <table class="table table-condensed">
+                            {% for source in relation.additional_sources %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ source.source.source_url }}">{{ source.source.title }}</a>
+                                    </td>
+                                    <td> {{ source.user.username }}</td>
+                                    <td><a href="{{ source.source.archive_url }}">Archive</a></td>
+                                </tr>
+                            {% endfor %}
+                            </table>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="form-group">
+            <div class="col-md-12">
+                <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

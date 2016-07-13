@@ -5,7 +5,6 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-
 class RequireLoginMiddleware(object):
 
     """
@@ -54,7 +53,6 @@ class RequireLoginMiddleware(object):
         # Explicitly return None for all non-matching requests
         return None
 
-
 def class_for_name(class_name, module_name="person.models"):
     if class_name == "Membershipperson":
         class_name = "MembershipPerson"
@@ -65,6 +63,17 @@ def class_for_name(class_name, module_name="person.models"):
     class_ = getattr(module, class_name)
     return class_
 
+def get_geoname_by_id(geoname_id):
+    from django.db import connection
+    from sfm_pc.views import GEONAME_TYPES
+
+    c = connection.cursor()
+    c.execute('SELECT id, geoname_type FROM geonames_lookup WHERE id = %s', [geoname_id])
+    
+    row = c.fetchone()
+    
+    geo_type, _ = GEONAME_TYPES[row[1]]
+    return geo_type.objects.get(id=row[0])
 
 def deleted_in_str(objects):
     index = 0
@@ -84,3 +93,9 @@ def deleted_in_str(objects):
         index += 1
 
     return objects
+
+def import_class(cl):
+    d = cl.rfind('.')
+    classname = cl[d+1:len(cl)]
+    m = __import__(cl[0:d], globals(), locals(), [classname])
+    return getattr(m, classname)

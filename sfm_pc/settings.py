@@ -18,18 +18,11 @@ from django.utils.translation import ugettext_lazy as _
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '!idj#^u1j+m7%(9&n)7koobtz1jb-=aao73e0b@uhdj5p*h$g9')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+try:
+    from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
+        SECRET_KEY, DEBUG, ALLOWED_HOSTS
+except ImportError as e:
+    raise Exception('DATABASE_URL, GOOGLE_MAPS_KEY, SECRET_KEY, ALLOWED_HOSTS and DEBUG must be defined in settings_local.py')
 
 # Application definition
 
@@ -48,6 +41,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'languages_plus',
     'countries_plus',
+    'cities',
     'reversion',
     'leaflet',
     'complex_fields',
@@ -107,7 +101,6 @@ WSGI_APPLICATION = 'sfm_pc.wsgi.application'
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 # Parse database configuration from $DATABASE_URL
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgis://sfm-user:password@localhost/sfm-db')
 DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
@@ -167,6 +160,7 @@ LOGIN_REQUIRED_URLS_EXCEPTIONS = (
 )
 
 LOGIN_URL = reverse_lazy('account_login')
+LOGIN_REDIRECT_URL = '/'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
@@ -199,3 +193,4 @@ LEAFLET_CONFIG = {
     'MIN_ZOOM': 2,
     'MAX_ZOOM': 18,
 }
+

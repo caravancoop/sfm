@@ -1,11 +1,71 @@
 {% extends "base.html" %}
 {% load viewcomplexfield %}
 {% load i18n %}
+{% load render_from_source %}
 {% block content %}
-<section class="content">
-  <div class="inner-title-wrapper row header">
-    <h3 class="page-title">{% trans "Dashboard" %}</h3>
-  </div>
-</section>
+<div class="row">
+    <div class="col-sm-12">
+        <h4>Recent Entries</h4>
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Editor</th>
+                    <th>Source added</th>
+                    <th>Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for edit in edits %}
+                    <tr>
+                        <td>
+                            <a href="javascript://" class="toggle-detail"><i class="fa fa-plus-square"> </i></a>
+                        </td>
+                        <td>{{ edit.revision.user.username }}</td>
+                        {% spaceless %}
+                        <td>
+                            {{ edit.object.title }}
+                        </td>
+                        {% endspaceless %}
+                        <td>{{ edit.revision.date_created }}</td>
+                    </tr>
+                    {% if edit.object.id == source_id %}
+                        <tr>
+                    {% else %}
+                        <tr style="display:none;">
+                    {% endif %}
+                        <td colspan=4>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <th>Class</th>
+                                    <th>Property</th>
+                                    <th>Value</th>
+                                </thead>
+                                <tbody>
+                                    {% for prop in source_properties %}
+                                        {{ edit.object|render_from_source:prop|safe }}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.toggle-detail').on('click', function(e){
+            if($(e.target).closest('tr').next().is(':visible')){
+                $(e.target).closest('tr').next().hide();
+            } else {
+                $(e.target).closest('tr').next().show();
+            };
+        })
+    })
+</script>
 {% endblock %}

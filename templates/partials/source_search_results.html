@@ -1,0 +1,30 @@
+<h3>Sources</h3>
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Publication date</th>
+            <th>Publication</th>
+            <th>Publication country</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for object in objects %}
+            <tr>
+                <td>
+                    {{ object.title }}
+                </td>
+                <td>
+                    {{ object.publication.date }}
+                </td>
+                <td>
+                    {{ object.publication.title }}
+                </td>
+                <td>
+                    {{ object.publication.country }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

@@ -10,3 +10,4 @@ bin/
 db.sqlite3
 env/
 node_modules/
+settings_local.py

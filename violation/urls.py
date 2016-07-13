@@ -1,16 +1,15 @@
 from django.conf.urls import patterns, url
 
-from .views import (ViolationCreate, ViolationUpdate, ViolationView, violation_search,
-                    violation_csv, ViolationDelete)
+from violation.views import ViolationCreate, ViolationUpdate, \
+    violation_csv, ViolationDelete, violation_type_autocomplete
 
-urlpatterns = patterns(
-    '',
-    url(r'add/$', ViolationCreate.as_view(), name='add_violation'),
-    url(r'search/', violation_search, name='violation_search'),
+urlpatterns = [
+    url(r'^create/$', ViolationCreate.as_view(), name="create-event"),
     url(r'csv/', violation_csv, name='violation_csv'),
     url(r'delete/(?P<pk>\d+)/$',
         ViolationDelete.as_view(success_url="/violation/"),
         name='delete_violation'),
     url(r'(?P<pk>\d+)/$', ViolationUpdate.as_view(), name='edit_violation'),
-    url(r'^$', ViolationView.as_view(), name='violation'),
-)
+    url(r'type/autocomplete/$', violation_type_autocomplete, name='violation-type-autocomplete'),
+    
+]

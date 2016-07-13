@@ -11,23 +11,23 @@ class CompositionAdmin(admin.ModelAdmin):
     pass
 
 
-class CompositionParentAdmin(reversion.VersionAdmin):
+class CompositionParentAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class CompositionChildAdmin(reversion.VersionAdmin):
+class CompositionChildAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class CompositionStartDateAdmin(reversion.VersionAdmin):
+class CompositionStartDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class CompositionEndDateAdmin(reversion.VersionAdmin):
+class CompositionEndDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class CompositionClassificationAdmin(reversion.VersionAdmin):
+class CompositionClassificationAdmin(reversion.admin.VersionAdmin):
     pass
 
 admin.site.register(Composition, CompositionAdmin)

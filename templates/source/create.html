@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load viewcomplexfield %}
+{% load i18n %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+
+  <script src="{% static "js/select2.min.js" %}"></script>
+
+{% endblock %}
+{% block content %}
+{% include 'partials/nav-wizard.html' %}
+<div class="row">
+    <h2>Add a new source</h2>
+    <p>Describe where you are getting your information</p>
+    <hr />
+</div>
+<form method="post" class="form-horizontal">
+    {% csrf_token %}
+    {% if form.title.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+        <label for="id_title" class="control-label col-sm-2">Source title</label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" id="id_title" name="title" value="{{ form.cleaned_data.title }}">
+        {% if form.title.errors %}
+            {% for error in form.title.errors %}
+            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+            {% endfor %}
+        {% endif %}
+        </div>
+    </div>
+    {% if form.published_on.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+        <label for="id_published_on" class="control-label col-sm-2">Date published</label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control datepicker" id="id_published_on" name="published_on" value="{{ form.cleaned_data.published_on|date:"Y-m-d" }}">
+        {% if form.published_on.errors %}
+            {% for error in form.published_on.errors %}
+            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+            {% endfor %}
+        {% endif %}
+        </div>
+    </div>
+    {% if form.publication.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+            <label for="id_publication" class="control-label col-sm-2">Publication</label>
+            <div class="col-sm-8">
+                <select id="id_publication" class="form-control" name="publication">
+                    <option value="None">---------</option>
+                    <option value="{{ form.cleaned_data.publication }}" selected=true>{{ publication_title }}</option>
+                </select>
+                <input type="hidden" name="publication_title" id="id_publication_title" value="{{ publication_title }}">
+                <input type="hidden" name="publication_uuid" id="id_publication_uuid" value="{{ form.cleaned_data.publication }}">
+            {% if form.publication.errors %}
+                {% for error in form.publication.errors %}
+                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% endfor %}
+            {% endif %}
+            </div>
+        </div>
+    {% if form.publication_country.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+        <label for="id_publication_country" class="control-label col-sm-2"></label>
+        <div class="col-sm-8">
+            <select id="id_publication_country" class="form-control" name="publication_country">
+                <option value="">--------</option>
+                {% for country in countries %}
+                    {% if country.name == publication_country %}
+                        <option value="{{ country.name }}" selected=selected>{{ country.name }}</option>
+                    {% else %}
+                        <option value="{{ country.name }}">{{ country.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    {% if form.source_url.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+            <label for="id_source_url" class="control-label col-sm-2">Source URL</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="id_source_url" name="source_url" value="{{ form.cleaned_data.source_url }}">
+                {% if form.source_url.errors %}
+                    {% for error in form.source_url.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    {% if form.source_url.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+        <label for="id_archive_url" class="control-label col-sm-2">Archive URL</label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" id="id_archive_url" name="archive_url" value="{{ form.cleaned_data.archive_url }}">
+        {% if form.archive_url.errors %}
+            {% for error in form.archive_url.errors %}
+            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+            {% endfor %}
+        {% endif %}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2 col-sm-offset-10">
+            <br />
+            <button type="submit" class="btn btn-info">Next  <i class="fa fa-chevron-right"></i></button>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+    $(document).ready(function(e){
+        $('#id_publication').select2({
+            ajax: {
+                url: "{% url 'publications-autocomplete' %}",
+                datType: 'json',
+                delay: 250,
+                data: function(params){
+                    return {
+                        q: params.term,
+                    };
+                },
+                processResults: function(data, params){
+                    if (data.length >= 1){
+                        return {
+                            results: data,
+                        }
+                    } else {
+                        return {results: [{
+                                    'id': "{{ publication_uuid }}",
+                                    'text': params.term,
+                                    'country': null}]}
+                    }
+                },
+                cache: true
+            },
+            escapeMarkup: function(markup){ return markup; },
+            minimumInputLength: 2,
+            tags: true
+        });
+        $('#id_publication_country').select2();
+        $('#id_publication').on('select2:select', function(e){
+            $('#id_publication_title').val(e.params.data.text);
+            if(e.params.data.country){
+                var country_option = $('#id_publication_country').val(e.params.data.country);
+                country_option.trigger('change');
+            }
+        });
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
+    });
+</script>
+{% endblock %}
