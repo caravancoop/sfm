@@ -23,7 +23,7 @@ class BaseFormSetView(FormSetView):
 
     def post(self, request, *args, **kwargs):
         self.initFormset(request.POST)
-        self.validateFormSet()
+        return self.validateFormSet()
 
     def initFormset(self, form_data):
         Formset = self.get_formset()

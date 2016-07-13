@@ -64,7 +64,7 @@ class OrganizationCreate(BaseFormSetView):
         
         self.initFormset(form_data)
         
-        self.validateFormset()
+        return self.validateFormSet()
     
     def formset_invalid(self, formset):
         response = super().formset_invalid(formset)
@@ -172,8 +172,8 @@ class OrganizationCreate(BaseFormSetView):
         
         self.request.session['organizations'] = [{'id': o.id, 'name': o.name.get_value().value} \
                                                      for o in self.organizations]
-        
         response = super().formset_valid(formset)
+        
         return response
 
 
@@ -308,10 +308,6 @@ class OrganizationCreateGeography(BaseFormSetView):
         
         return context
 
-    def post(self, request, *args, **kwargs):
-        self.initFormset(request)
-        self.validateFormset()
-    
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
@@ -370,7 +366,7 @@ class OrganizationCreateGeography(BaseFormSetView):
                             'sources': [source]
                         }
                     }
-                    site = Geosite.update(site_data)
+                    site.update(site_data)
                 
                 emp, created = Emplacement.objects.get_or_create(emplacementorganization__value=org_id,
                                                                  emplacementsite__value=site.id)
@@ -443,7 +439,7 @@ class OrganizationCreateGeography(BaseFormSetView):
                             'sources': [source]
                         }
                     }
-                    area = Area.update(area_data)
+                    area.update(area_data)
                 
                 assoc, created = Association.objects.get_or_create(associationorganization__value=org_id).filter(associationarea__value=area.id)
                 
@@ -479,7 +475,7 @@ class OrganizationCreateGeography(BaseFormSetView):
                         'sources': [source]
                     }
                 }
-                Association.update(assoc_data)
+                assoc.update(assoc_data)
         
         response = super().formset_valid(formset)
         
