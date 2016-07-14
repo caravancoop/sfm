@@ -32,7 +32,7 @@ from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 class OrganizationCreate(BaseFormSetView):
     template_name = 'organization/create.html'
     form_class = OrganizationForm
-    success_url = reverse_lazy('create-people')
+    success_url = reverse_lazy('create-person')
     extra = 1
     max_num = None
 

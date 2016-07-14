@@ -130,7 +130,18 @@ class ViolationCreate(FormSetView):
             if perpetrators:
                 for perpetrator in perpetrators:
                     
-                    perp = Person.objects.get(id=perpetrator)
+                    try:
+                        perp = Person.objects.get(id=perpetrator)
+                    except (Person.DoesNotExist, ValueError):
+                        info = {
+                            'Person_PersonName': {
+                                'value': perpetrator,
+                                'confidence': 1,
+                                'sources': [source],
+                            }
+                        }
+                        perp = Person.create(info)
+                    
                     vp_obj, created = ViolationPerpetrator.objects.get_or_create(value=perp,
                                                                                  object_ref=violation)
 
@@ -140,7 +151,18 @@ class ViolationCreate(FormSetView):
             if orgs:
                 for org in orgs:
                     
-                    organization = Organization.objects.get(id=org)
+                    try:
+                        organization = Organization.objects.get(id=org)
+                    except (Organization.DoesNotExist, ValueError):
+                        info = {
+                            'Organization_OrganizationName': {
+                                'value': org,
+                                'confidence': 1,
+                                'sources': [source],
+                            }
+                        }
+                        organization = Organization.create(info)
+
                     vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
                                                                                               object_ref=violation)
 
