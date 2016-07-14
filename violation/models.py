@@ -61,6 +61,9 @@ class Violation(models.Model, BaseModel):
         errors.update(base_errors)
 
         return (errors, values)
+        
+    def get_value(self):
+        return self.description.get_value()
 
 @versioned
 @sourced

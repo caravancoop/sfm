@@ -12,39 +12,46 @@
                 </tr>
             </thead>
             <tbody>
-                {% for relation in relations %}
+                {% for relation_type, relation_attributes in relations.items %}
                     <tr>
-                        <td>
-                            <div class="form-group">
-                                <select class="form-control" name="confidence-{{ relation.relation_label }}-{{ relation.relation_id }}-{{ relation.object_ref_object_name}}-{{ relation.object_ref_id }}">
-                                    {% for value, name in confidence_choices %}
-                                        {% if relation.confidence == value %}
-                                            <option value="{{ value }}" selected=true>{{ name }}</option>
-                                        {% else %}
-                                            <option value="{{ value }}">{{ name }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </td>
-                        <td>{{ relation.property }}</td>
-                        <td>{{ relation.value }}</td>
-                        <td>
-                            {% if relation.additional_sources %}
-                            <table class="table table-condensed">
-                            {% for source in relation.additional_sources %}
-                                <tr>
-                                    <td>
-                                        <a href="{{ source.source.source_url }}">{{ source.source.title }}</a>
-                                    </td>
-                                    <td> {{ source.user.username }}</td>
-                                    <td><a href="{{ source.source.archive_url }}">Archive</a></td>
-                                </tr>
-                            {% endfor %}
-                            </table>
-                            {% endif %}
+                        <td colspan=4>
+                            <h4>{{ relation_attributes.title }}</h4>
                         </td>
                     </tr>
+                    {% for relation in relation_attributes.attributes %}
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <select class="form-control" name="confidence-{{ relation.relation_label }}-{{ relation.relation_id }}-{{ relation.object_ref_object_name}}-{{ relation.object_ref_id }}">
+                                        {% for value, name in confidence_choices %}
+                                            {% if relation.confidence == value %}
+                                                <option value="{{ value }}" selected=true>{{ name }}</option>
+                                            {% else %}
+                                                <option value="{{ value }}">{{ name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </td>
+                            <td>{{ relation.property }}</td>
+                            <td>{{ relation.value }}</td>
+                            <td>
+                                {% if relation.additional_sources %}
+                                <table class="table table-condensed">
+                                {% for source in relation.additional_sources %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ source.source.source_url }}">{{ source.source.title }}</a>
+                                        </td>
+                                        <td> {{ source.user.username }}</td>
+                                        <td><a href="{{ source.source.archive_url }}">Archive</a></td>
+                                    </tr>
+                                {% endfor %}
+                                </table>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>

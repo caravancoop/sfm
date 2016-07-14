@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% block extra_head %}
+{% load render_versions %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
   <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
 {% endblock %}
@@ -22,7 +23,11 @@
                 <label class="col-sm-2 control-label">Source for your changes</label>
                 <div class="col-sm-8">
                     <select id="id_source" class="form-control" name="source">
+                    {% if source %}
+                        <option value="{{ source.id }}" selected="selected">{{ source.title }} ({{ source.publication.title }} , {{ source.published_on }})</option>
+                    {% else %}
                         <option value="" selected="selected">--------</option>
+                    {% endif %}
                     </select>
                     {% if source_error %}
                         <span class="help-block"><i class="fa fa-remove"> </i> {{source_error}}</span>
@@ -166,6 +171,7 @@
         </div>
     </form>
 
+    {% render_versions violation %}
 
 
 {% endblock %}

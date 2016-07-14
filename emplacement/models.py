@@ -44,6 +44,10 @@ class Emplacement(models.Model, BaseModel):
         errors.update(base_errors)
 
         return (errors, values)
+    
+    def get_value(self):
+        return '{0} ({1})'.format(self.organization.get_value(), 
+                                  self.site.get_value())
 
     @classmethod
     def search(cls, terms):

@@ -73,6 +73,10 @@ class MembershipPerson(models.Model, BaseModel):
         errors.update(base_errors)
 
         return (errors, values)
+    
+    def get_value(self):
+        return '{0} member of {1}'.format(self.member.get_value(),
+                                          self.organization.get_value())
 
     @classmethod
     def create(cls, dict_values, lang=get_language()):

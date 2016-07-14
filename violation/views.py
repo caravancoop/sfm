@@ -24,6 +24,7 @@ from person.models import Person
 from organization.models import Organization
 from violation.forms import ZoneForm, ViolationForm
 from sfm_pc.utils import deleted_in_str, get_geoname_by_id
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
 class ViolationCreate(FormSetView):
     template_name = 'violation/create.html'
@@ -31,18 +32,6 @@ class ViolationCreate(FormSetView):
     success_url = reverse_lazy('set-confidence')
     extra = 1
     max_num = None
-
-    def dispatch(self, *args, **kwargs):
-        # Redirect to source creation page if no source in session
-        if not self.request.session.get('source_id'):
-            messages.add_message(self.request, 
-                                 messages.INFO, 
-                                 "Before adding an event, please tell us about your source.",
-                                 extra_tags='alert alert-info')
-            return redirect(reverse_lazy('create-source'))
-        else:
-            return super().dispatch(*args, **kwargs)
-
    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -55,17 +44,6 @@ class ViolationCreate(FormSetView):
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         return context
-
-    def post(self, request, *args, **kwargs):
-        organizations = self.request.session['organizations']
-
-        ViolationFormset = self.get_formset()
-        formset = ViolationFormset(request.POST)
-        
-        if formset.is_valid():
-            return self.formset_valid(formset)
-        else:
-            return self.formset_invalid(formset)
 
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
@@ -172,32 +150,12 @@ class ViolationCreate(FormSetView):
         response = super().formset_valid(formset)
         return response
 
-class ViolationUpdate(FormView):
+class ViolationUpdate(BaseUpdateView):
     template_name = 'violation/edit.html'
     form_class = ViolationForm
     success_url = reverse_lazy('dashboard')
     sourced = True
-
-    def post(self, request, *args, **kwargs):
-
-        form = self.form_class(request.POST)
-
-        if not request.POST.get('source'):
-            self.sourced = False
-            return self.form_invalid(form)
-        else:
-            self.source = Source.objects.get(id=request.POST.get('source'))
     
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def sources_list(self, obj, attribute):
-        sources = [s for s in getattr(obj, attribute).get_sources()] \
-                      + [self.source]
-        return list(set(s for s in sources))
-
     def form_valid(self, form):
         response = super().form_valid(form)
         
@@ -220,47 +178,47 @@ class ViolationUpdate(FormView):
         violation_data = {
             'Violation_ViolationDescription': {
                'value': description,
-               'sources': self.sources_list(violation, 'description'),
+               'sources': self.sourcesList(violation, 'description'),
                'confidence': 1
             },
             'Violation_ViolationLocationDescription': {
                 'value': locationdescription,
-                'sources': self.sources_list(violation, 'locationdescription'),
+                'sources': self.sourcesList(violation, 'locationdescription'),
                 'confidence': 1
             },
             'Violation_ViolationAdminLevel1': {
                 'value': admin1,
-                'sources': self.sources_list(violation, 'adminlevel1'),
+                'sources': self.sourcesList(violation, 'adminlevel1'),
                 'confidence': 1
             },
             'Violation_ViolationAdminLevel2': {
                 'value': admin2,
-                'sources': self.sources_list(violation, 'adminlevel2'),
+                'sources': self.sourcesList(violation, 'adminlevel2'),
                 'confidence': 1
             },
             'Violation_ViolationGeoname': {
                 'value': geo.name,
-                'sources': self.sources_list(violation, 'geoname'),
+                'sources': self.sourcesList(violation, 'geoname'),
                 'confidence': 1
             },
             'Violation_ViolationGeonameId': {
                 'value': geo.id,
-                'sources': self.sources_list(violation, 'geonameid'),
+                'sources': self.sourcesList(violation, 'geonameid'),
                 'confidence': 1
             },
             'Violation_ViolationLocation': {
                 'value': coords,
-                'sources': self.sources_list(violation, 'location'),
+                'sources': self.sourcesList(violation, 'location'),
                 'confidence': 1
             },
             'Violation_ViolationStartDate': {
                 'value': startdate,
-                'sources': self.sources_list(violation, 'startdate'),
+                'sources': self.sourcesList(violation, 'startdate'),
                 'confidence': 1
             },
             'Violation_ViolationEndDate': {
                 'value': enddate,
-                'sources': self.sources_list(violation, 'enddate'),
+                'sources': self.sourcesList(violation, 'enddate'),
                 'confidence': 1
             }
         }
@@ -311,7 +269,8 @@ class ViolationUpdate(FormView):
             context['source_error'] = 'Please include the source for your changes'
         
         context['geoname'] = get_geoname_by_id(violation.geonameid.get_value().value)
-        
+        context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
+
         return context
 
 

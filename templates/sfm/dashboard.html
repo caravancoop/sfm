@@ -13,6 +13,7 @@
                     <th>Editor</th>
                     <th>Source added</th>
                     <th>Updated</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -28,6 +29,7 @@
                         </td>
                         {% endspaceless %}
                         <td>{{ edit.revision.date_created }}</td>
+                        <td><a href="{% url 'set-confidence' %}?source_id={{ edit.object.id }}">Set confidences</a></td>
                     </tr>
                     {% if edit.object.id == source_id %}
                         <tr>

@@ -1,5 +1,6 @@
 import json
 from uuid import uuid4
+from collections import OrderedDict
 
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse, HttpResponseNotFound
@@ -83,7 +84,7 @@ class SetConfidence(TemplateView):
 
         source = Source.objects.get(id=source_id)
         context['source'] = source
-        context['relations'] = []
+        context['relations'] = OrderedDict()
         
         relation_properties = get_relations(context['source'])
         
@@ -92,6 +93,7 @@ class SetConfidence(TemplateView):
             
             if props:
                 for prop in props:
+                    
                     attributes = get_relation_attributes(prop)
                     
                     additional_sources = prop.sources.exclude(id=source_id)
@@ -109,10 +111,21 @@ class SetConfidence(TemplateView):
                             attributes['additional_sources'] = [user_data]
 
                     attributes['relation_id'] = prop.id
-                    context['relations'].append(attributes)
+                    
+                    title = '{0} ({1})'.format(prop.object_ref._meta.object_name, 
+                                               prop.object_ref.get_value())
+                    
+                    try:
+                        context['relations'][prop.object_ref]['attributes'].append(attributes)
+                        context['relations'][prop.object_ref]['title'] = title
+                    except KeyError:
+                        context['relations'][prop.object_ref] = {
+                            'attributes': [attributes],
+                            'title': title,
+                        }
         
-        context['relations'] = sorted(context['relations'], 
-                                      key=lambda x: x['object_ref_object_name'])
+        context['relations'] = OrderedDict(sorted(context['relations'].items(), 
+                                           key=lambda x: x[0]._meta.object_name))
 
         context['confidence_choices'] = CONFIDENCE_LEVELS
 

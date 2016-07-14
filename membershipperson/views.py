@@ -20,24 +20,14 @@ from membershipperson.models import MembershipPerson, Role, Rank, Context
 from membershipperson.forms import MembershipPersonForm
 from source.models import Source
 from sfm_pc.utils import deleted_in_str
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
-class MembershipPersonCreate(FormSetView):
+class MembershipPersonCreate(BaseFormSetView):
     template_name = 'membershipperson/create.html'
     form_class = MembershipPersonForm
     success_url = reverse_lazy('create-geography')
     extra = 0
     max_num = None
-
-    def dispatch(self, *args, **kwargs):
-        # Redirect to source creation page if no source in session
-        if not self.request.session.get('source_id'):
-            messages.add_message(self.request, 
-                                 messages.INFO, 
-                                 "Before adding memberships, please tell us about your source.",
-                                 extra_tags='alert alert-info')
-            return redirect(reverse_lazy('create-source'))
-        else:
-            return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -56,16 +46,6 @@ class MembershipPersonCreate(FormSetView):
         for i in self.request.session['memberships']:
             data.append({})
         return data
-
-    def post(self, request, *args, **kwargs):
-        PersonMembershipFormSet = self.get_formset()
-        formset = PersonMembershipFormSet(request.POST)
-
- 
-        if formset.is_valid():
-            return self.formset_valid(formset)
-        else:
-            return self.formset_invalid(formset)
 
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
@@ -124,35 +104,16 @@ class MembershipPersonCreate(FormSetView):
         response = super().formset_valid(formset)
         return response
 
-    def formset_invalid(self, formset):
-        response = super().formset_invalid(formset)
-        return response
-
-class MembershipPersonUpdate(FormView):
+class MembershipPersonUpdate(BaseUpdateView):
     template_name = 'membershipperson/edit.html'
     form_class = MembershipPersonForm
     success_url = reverse_lazy('dashboard')
     sourced = True
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        
-        if not request.POST.get('source'):
-            self.sourced = False
-            return self.form_invalid(form)
-        else:
-            self.source = Source.objects.get(id=request.POST.get('source'))
-
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+        self.checkSource(request)
+        self.validateForm()
     
-    def sources_list(self, obj, attribute):
-        sources = [s for s in getattr(obj, attribute).get_sources()] \
-                      + [self.source]
-        return list(set(s for s in sources))
-
     def form_valid(self, form):
         response = super().form_valid(form)
 
@@ -162,27 +123,27 @@ class MembershipPersonUpdate(FormView):
             'MembershipPerson_MembershipPersonTitle': {
                 'value': form.cleaned_data['title'],
                 'confidence': 1,
-                'sources': self.sources_list(membership, 'title')
+                'sources': self.sourcesList(membership, 'title')
             },
             'MembershipPerson_MembershipStartContext': {
                 'value': form.cleaned_data['startcontext'],
                 'confidence': 1,
-                'sources': self.sources_list(membership, 'startcontext')
+                'sources': self.sourcesList(membership, 'startcontext')
             },
             'MembershipPerson_MembershipPersonRealStart': {
                 'value': form.cleaned_data['realstart'],
                 'confidence': 1,
-                'sources': self.sources_list(membership, 'realstart')
+                'sources': self.sourcesList(membership, 'realstart')
             },
             'MembershipPerson_MembershipEndContext': {
                 'value': form.cleaned_data['endcontext'],
                 'confidence': 1,
-                'sources': self.sources_list(membership, 'endcontext')
+                'sources': self.sourcesList(membership, 'endcontext')
             },
             'MembershipPerson_MembershipRealEnd': {
                 'value': form.cleaned_data['realend'],
                 'confidence': 1,
-                'sources': self.sources_list(membership, 'realend')
+                'sources': self.sourcesList(membership, 'realend')
             },
         }
         
@@ -190,14 +151,14 @@ class MembershipPersonUpdate(FormView):
             mem_info['MembershipPerson_MembershipPersonRole'] = {
                 'value': Role.objects.get(id=form.cleaned_data['role']),
                 'confidence': 1,
-                'sources': self.sources_list(membership, 'role')
+                'sources': self.sourcesList(membership, 'role')
             }
 
         if form.cleaned_data.get('rank'):
             mem_info['MembershipPerson_MembershipPersonRank'] = {
                 'value': Rank.objects.get(id=form.cleaned_data['rank']),
                 'confidence': 1,
-                'sources': self.sources_list(membership, 'role')
+                'sources': self.sourcesList(membership, 'role')
             }
 
         membership.update(mem_info)
@@ -223,9 +184,10 @@ class MembershipPersonUpdate(FormView):
         
         context['form_data'] = form_data
         context['title'] = "Membership Person"
-        context['membership'] = membership
+        context['source_object'] = membership
         context['roles'] = Role.objects.all()
         context['ranks'] = Rank.objects.all()
+        context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
 
         if not self.sourced:
             context['source_error'] = 'Please include the source for your changes'
