@@ -32,7 +32,7 @@ from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 class OrganizationCreate(BaseFormSetView):
     template_name = 'organization/create.html'
     form_class = OrganizationForm
-    success_url = reverse_lazy('create-person')
+    success_url = reverse_lazy('create-composition')
     extra = 1
     max_num = None
 
@@ -46,14 +46,6 @@ class OrganizationCreate(BaseFormSetView):
 
     def post(self, request, *args, **kwargs):
         
-        management_keys = [
-            'form-MAX_NUM_FORMS', 
-            'form-MIN_NUM_FORMS', 
-            'form-INITIAL_FORMS', 
-            'form-TOTAL_FORMS', 
-            'form-FORMS_ADDED'
-        ]
-
         form_data = {}
         
         for key, value in request.POST.items():

@@ -10,10 +10,74 @@ from django.views.generic.base import TemplateView
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 
-from organization.models import Classification
-from composition.models import Composition
+from composition.models import Composition, Classification
+from composition.forms import CompositionForm
 from sfm_pc.utils import deleted_in_str
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
+class CompositionCreate(BaseFormSetView):
+    template_name = 'composition/edit.html'
+    form_class = CompositionForm
+    success_url = reverse_lazy('create-person')
+    extra = 1
+    max_num = None
+    
+    def get_context_data(self, **kwargs):
+        
+        # For each organization added, we need to have the ability to
+        # add several relationships. Maybe wrap formset loop in
+        # template in outer loop that loops through Organizations
+        # added?
+
+        context = super().get_context_data(**kwargs)
+        
+        context['classifications'] = Classification.objects.all()
+        context['relationship_types'] = self.form_class().fields['relationship_type'].choices
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        context['organizations'] = self.request.session['organizations']
+
+        return context
+
+    def formset_valid(self, formset):
+        
+        response = super().formset_valid(formset)
+        return response
+
+
+class CompositionUpdate(TemplateView):
+    template_name = 'composition/edit.html'
+
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.POST.dict()['object'])
+        try:
+            composition = Composition.objects.get(pk=kwargs.get('pk'))
+        except Composition.DoesNotExist:
+            msg = "This composition does not exist, it should be created " \
+                  "before updating it."
+            return HttpResponse(msg, status=400)
+
+        (errors, data) = composition.validate(data)
+        if len(errors):
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
+        composition.update(data)
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(CompositionUpdate, self).get_context_data(**kwargs)
+        context['composition'] = Composition.objects.get(pk=context.get('pk'))
+
+        return context
+
+########################
+## Unused views below ##
+########################
 
 class CompositionDelete(DeleteView):
     model = Composition
@@ -66,106 +130,3 @@ def composition_csv(request):
 
     return response
 
-
-def composition_search(request):
-    terms = request.GET.dict()
-
-    composition_query = Composition.search(terms)
-
-    page = int(terms.get('page', 1))
-
-    keys = ['parent', 'child', 'classification', 'startdate', 'enddate']
-
-    paginator = Paginator(composition_query, 15)
-    try:
-        composition_page = paginator.page(page)
-    except PageNotAnInteger:
-        composition_page = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        composition_page = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    compositions = [
-        {
-            "id": composition.id,
-            "parent": str(composition.parent.get_value()),
-            "child": str(composition.child.get_value()),
-            "classification": str(composition.classification.get_value()),
-            "startdate": str(composition.startdate.get_value()),
-            "enddate": str(composition.enddate.get_value()),
-        }
-        for composition in composition_page
-    ]
-
-    html_paginator = render_to_string(
-        'paginator.html',
-        {'actual': page, 'min': page - 5, 'max': page + 5,
-         'paginator': composition_page,
-         'pages': range(1, paginator.num_pages + 1)}
-    )
-
-    return HttpResponse(json.dumps({
-        'success': True,
-        'keys': keys,
-        'objects': compositions,
-        'paginator': html_paginator,
-        'result_number': len(composition_query)
-    }))
-
-
-class CompositionUpdate(TemplateView):
-    template_name = 'composition/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['object'])
-        try:
-            composition = Composition.objects.get(pk=kwargs.get('pk'))
-        except Composition.DoesNotExist:
-            msg = "This composition does not exist, it should be created " \
-                  "before updating it."
-            return HttpResponse(msg, status=400)
-
-        (errors, data) = composition.validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        composition.update(data)
-        return HttpResponse(
-            json.dumps({"success": True}),
-            content_type="application/json"
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super(CompositionUpdate, self).get_context_data(**kwargs)
-        context['composition'] = Composition.objects.get(pk=context.get('pk'))
-
-        return context
-
-
-class CompositionCreate(TemplateView):
-    template_name = 'composition/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        data = json.loads(request.POST.dict()['object'])
-        (errors, data) = Composition().validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        composition = Composition.create(data)
-
-        return HttpResponse(json.dumps({"success": True, "id": composition.id}),
-                            content_type="application/json")
-
-    def get_context_data(self, **kwargs):
-        context = super(CompositionCreate, self).get_context_data(**kwargs)
-        context['composition'] = Composition()
-
-        return context

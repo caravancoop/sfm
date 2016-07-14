@@ -5,7 +5,7 @@ from django.db.models import Max
 
 from django_date_extensions.fields import ApproximateDateField
 
-from organization.models import Organization, Classification
+from organization.models import Organization
 from complex_fields.model_decorators import versioned, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
@@ -163,6 +163,12 @@ class CompositionEndDate(ComplexField):
 @sourced
 class CompositionClassification(ComplexField):
     object_ref = models.ForeignKey(Composition)
-    value = models.ForeignKey(Classification, default=None, blank=True,
+    value = models.ForeignKey("Classification", default=None, blank=True,
                               null=True)
     field_name = _("Classification")
+
+class Classification(models.Model):
+    value = models.TextField()
+
+    def __str__(self):
+        return self.value
