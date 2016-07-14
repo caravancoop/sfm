@@ -183,7 +183,7 @@ class MembershipPersonUpdate(BaseUpdateView):
         }
         
         context['form_data'] = form_data
-        context['title'] = "Membership Person"
+        context['title'] = _("Membership Person")
         context['source_object'] = membership
         context['roles'] = Role.objects.all()
         context['ranks'] = Rank.objects.all()

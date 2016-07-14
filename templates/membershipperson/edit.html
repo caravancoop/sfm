@@ -7,9 +7,9 @@
 {% endblock %}
 {% block form_title %}
     <h1 class="page-title">
-        {{ membership.member.get_value }}
+        {{ source_object.member.get_value }}
         <br />
-        <small>member of {{ membership.organization.get_value }}</small>
+        <small>member of {{ source_object.organization.get_value }}</small>
     </h1>
 {% endblock %}
 {% block form_guts %}

@@ -64,7 +64,7 @@
                     <tbody>
                         {% for member in memberships %}
                         <tr>
-                            <td><a href="{% url 'edit-membership' pk=member.id %}">{{ member.organization.get_value }}</a></td>
+                            <td><a href="{% url 'edit-membership' pk=member.id %}?source_id={{ source.id }}">{{ member.organization.get_value }}</a></td>
                             <td>{{ member.title.get_value }}</td>
                             <td>{{ member.role.get_value.value }}</td>
                             <td>{{ member.rank.get_value.value }}</td>
