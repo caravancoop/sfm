@@ -111,11 +111,18 @@ class SetConfidence(TemplateView):
                             attributes['additional_sources'] = [user_data]
 
                     attributes['relation_id'] = prop.id
-
+                    
+                    title = '{0} ({1})'.format(prop.object_ref._meta.object_name, 
+                                               prop.object_ref.get_value())
+                    
                     try:
-                        context['relations'][prop.object_ref].append(attributes)
+                        context['relations'][prop.object_ref]['attributes'].append(attributes)
+                        context['relations'][prop.object_ref]['title'] = title
                     except KeyError:
-                        context['relations'][prop.object_ref] = [attributes]
+                        context['relations'][prop.object_ref] = {
+                            'attributes': [attributes],
+                            'title': title,
+                        }
         
         context['relations'] = OrderedDict(sorted(context['relations'].items(), 
                                            key=lambda x: x[0]._meta.object_name))

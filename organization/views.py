@@ -93,7 +93,7 @@ class OrganizationCreate(BaseFormSetView):
         
         self.organizations = []
         
-        source = Source.objects.get(id=self.request.session['source_id'])
+        self.source = Source.objects.get(id=self.request.session['source_id'])
 
         actual_form_index = 0
         
@@ -120,15 +120,15 @@ class OrganizationCreate(BaseFormSetView):
                 'Organization_OrganizationName': {
                     'value': name_text, 
                     'confidence': 1,
-                    'sources': [source]
+                    'sources': [self.source]
                 },
             }
             
             try:
                 organization = Organization.objects.get(id=name_id)
-                existing_sources = organization.organizationname_set.all()[0].sources.all()
+                sources = self.sourcesList(organization, 'name')
                 
-                org_info["Organization_OrganizationName"]['sources'].extend(existing_sources)
+                org_info["Organization_OrganizationName"]['sources'] = sources
             
             except (Organization.DoesNotExist, ValueError):
                 organization = Organization.create(org_info)
@@ -148,7 +148,7 @@ class OrganizationCreate(BaseFormSetView):
                     oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
                                                                               object_ref=organization,
                                                                               lang=get_language())
-                    oa_obj.sources.add(source)
+                    oa_obj.sources.add(self.source)
                     oa_obj.save()
 
             # Next do classification
@@ -160,7 +160,7 @@ class OrganizationCreate(BaseFormSetView):
                 org_info['Organization_OrganizationClassification'] = {
                     'value': classification_obj,
                     'confidence': 1,
-                    'sources': [source]
+                    'sources': [self.source]
                 }
 
             # Now update org

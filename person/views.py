@@ -46,7 +46,7 @@ class PersonCreate(BaseFormSetView):
         self.people = []
         self.memberships = []
 
-        source = Source.objects.get(id=self.request.session['source_id'])
+        self.source = Source.objects.get(id=self.request.session['source_id'])
 
         for i in range(0,num_forms):
             first = True
@@ -61,23 +61,26 @@ class PersonCreate(BaseFormSetView):
             
             name_id = formset.data[name_id_key]
             name_text = formset.data[name_text_key]
+            
+            person_info = {
+                'Person_PersonName': {
+                    'value': name_text,
+                    'confidence': 1,
+                    'sources': [self.source],
+                }
+            }
            
             if name_id == 'None':
                 return self.formset_invalid(formset)
 
             elif name_id == '-1':
-                person_info = {
-                    'Person_PersonName': {
-                        'value': name_text, 
-                        'confidence': 1,
-                        'sources': [source],
-                    },
-                }
                 
                 person = Person.create(person_info)      
             else:
                 person = Person.objects.get(id=name_id)
-            
+                person_info['Person_PersonName']['sources'] = self.sourcesList(person, 'name')
+                person.update(person_info)
+
             alias_id_key = 'form-{0}-alias'.format(i)
             alias_text_key = 'form-{0}-alias_text'.format(i)
             
@@ -91,7 +94,7 @@ class PersonCreate(BaseFormSetView):
                                                                     value=alias_obj,
                                                                     lang=get_language())
                 
-                pa_obj.sources.add(source)
+                pa_obj.sources.add(self.source)
                 pa_obj.save()
 
             self.people.append(person)
@@ -104,12 +107,12 @@ class PersonCreate(BaseFormSetView):
                     'MembershipPerson_MembershipPersonMember': {
                         'value': person,
                         'confidence': 1,
-                        'sources': [source],
+                        'sources': [self.source],
                     },
                     'MembershipPerson_MembershipPersonOrganization': { 
                         'value': Organization.objects.get(id=org),
                         'confidence': 1,
-                        'sources': [source],
+                        'sources': [self.source],
                     }
                 }
                 membership = MembershipPerson.create(mem_data)

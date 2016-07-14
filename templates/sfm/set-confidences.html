@@ -12,13 +12,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for relation_type, relation_list in relations.items %}
+                {% for relation_type, relation_attributes in relations.items %}
                     <tr>
                         <td colspan=4>
-                            <h4>{{ relation_type }}</h4>
+                            <h4>{{ relation_attributes.title }}</h4>
                         </td>
                     </tr>
-                    {% for relation in relation_list %}
+                    {% for relation in relation_attributes.attributes %}
                         <tr>
                             <td>
                                 <div class="form-group">

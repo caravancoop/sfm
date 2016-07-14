@@ -8,7 +8,14 @@ from extra_views import FormSetView
 
 from source.models import Source
 
-class BaseFormSetView(FormSetView):
+class UtilityMixin(object):
+    def sourcesList(self, obj, attribute):
+        sources = [s for s in getattr(obj, attribute).get_sources()] \
+                      + [self.source]
+        return list(set(s for s in sources))
+    
+
+class BaseFormSetView(FormSetView, UtilityMixin):
     
     def dispatch(self, *args, **kwargs):
         # Redirect to source creation page if no source in session
@@ -36,7 +43,7 @@ class BaseFormSetView(FormSetView):
             return self.formset_invalid(self.formset)
 
 
-class BaseUpdateView(FormView):
+class BaseUpdateView(FormView, UtilityMixin):
     
     def post(self, request, *args, **kwargs):
         self.checkSource(request)
@@ -58,9 +65,5 @@ class BaseUpdateView(FormView):
         else:
             return self.form_invalid(self.form)
     
-    def sourcesList(self, obj, attribute):
-        sources = [s for s in getattr(obj, attribute).get_sources()] \
-                      + [self.source]
-        return list(set(s for s in sources))
 
 
