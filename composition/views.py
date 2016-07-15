@@ -9,26 +9,36 @@ from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import redirect
 
+from source.models import Source
+from organization.models import Organization
 from composition.models import Composition, Classification
 from composition.forms import CompositionForm
 from sfm_pc.utils import deleted_in_str
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
 class CompositionCreate(BaseFormSetView):
-    template_name = 'composition/edit.html'
+    template_name = 'composition/create.html'
     form_class = CompositionForm
     success_url = reverse_lazy('create-person')
-    extra = 1
+    extra = 0
     max_num = None
     
+    def get_initial(self):
+        data = []
+        for i in self.request.session['organizations']:
+            data.append({})
+        return data
+
+    def get(self, request, *args, **kwargs):
+        if len(request.session['organizations']) == 1:
+            return redirect(reverse_lazy('create-person'))
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         
-        # For each organization added, we need to have the ability to
-        # add several relationships. Maybe wrap formset loop in
-        # template in outer loop that loops through Organizations
-        # added?
-
         context = super().get_context_data(**kwargs)
         
         context['classifications'] = Classification.objects.all()
@@ -39,7 +49,59 @@ class CompositionCreate(BaseFormSetView):
         return context
 
     def formset_valid(self, formset):
+        source = Source.objects.get(id=self.request.session['source_id'])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
         
+        for i in range(0, num_forms):
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+            
+            composition_info = {}
+
+            organization_id = formset.data[form_prefix + 'organization']
+            organization = Organization.objects.get(id=organization_id)
+            
+            rel_type = formset.data[form_prefix + 'relationship_type']
+            if rel_type == 'child':
+                composition_info['Composition_CompositionChild'] = {
+                    'value': organization,
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            elif rel_type == 'parent':
+                composition_info['Composition_CompositionParent'] = {
+                    'value': organization,
+                    'confidence': 1,
+                    'sources': [source]
+                }
+
+            if formset.data.get(form_prefix + 'startdate'):
+                composition_info['Composition_CompositionStartDate'] = {
+                    'value': formset.data[form_prefix + 'startdate'],
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            
+            if formset.data.get(form_prefix + 'enddate'):
+                composition_info['Composition_CompositionEndDate'] = {
+                    'value': formset.data[form_prefix + 'enddate'],
+                    'confidence': 1,
+                    'sources': [source]
+                }
+
+            classification_id = formset.data[form_prefix + 'classification']
+            classification = Classification.objects.get(id=classification_id)
+
+            composition_info['Composition_CompositionClassification'] = {
+                'value': classification,
+                'confidence': 1,
+                'sources': [source]
+            }
+
+            composition = Composition.create(composition_info)
+            
         response = super().formset_valid(formset)
         return response
 

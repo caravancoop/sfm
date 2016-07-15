@@ -261,7 +261,7 @@ var geoname_opts = {
 };
 $(document).ready(function() {
     {% if formset.errors %}
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
         $('.geoname-field').select2(geoname_opts);
     {% else %}
         addForm(null);
@@ -306,7 +306,7 @@ function addForm(e){
     });
 
     $('.datepicker').datepicker('destroy');
-    $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
+    $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
 
     var form_count = $('#dynamic-form-wrapper').children().length;
     $('#id_form-TOTAL_FORMS').val(form_count);

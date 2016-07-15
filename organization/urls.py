@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 from organization.views import OrganizationCreate, OrganizationUpdate, \
     organization_autocomplete, organization_csv, alias_autocomplete, \
-    OrganizationCreateGeography
+    OrganizationCreateGeography, classification_autocomplete
 
 urlpatterns = [
     url(r'^create/$', 
@@ -14,5 +14,8 @@ urlpatterns = [
         organization_autocomplete,
         name="organization-autocomplete"),
     url(r'^alias/autocomplete/$', alias_autocomplete, name="org-alias-autocomplete"),
+    url(r'^classification/autocomplete/$', 
+        classification_autocomplete, 
+        name="org-classification-autocomplete"),
     url(r'^create/geography/$', OrganizationCreateGeography.as_view(), name="create-geography"),
 ]

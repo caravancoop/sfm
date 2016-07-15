@@ -25,7 +25,8 @@ from area.models import Area
 from association.models import Association
 from organization.forms import OrganizationForm, OrganizationGeographyForm
 from organization.models import Organization, OrganizationName, \
-    OrganizationAlias, Alias as OrganizationAliasObject, Classification
+    OrganizationAlias, Alias as OrganizationAliasObject, \
+    Classification
 from sfm_pc.utils import deleted_in_str, get_geoname_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
@@ -38,7 +39,6 @@ class OrganizationCreate(BaseFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['classifications'] = Classification.objects.all()
 
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         
@@ -77,7 +77,7 @@ class OrganizationCreate(BaseFormSetView):
                             form.aliases = [org_alias]
             else:
                 form.aliases = None
-        
+        print(formset)
         return response
 
     def formset_valid(self, formset):
@@ -145,15 +145,18 @@ class OrganizationCreate(BaseFormSetView):
 
             # Next do classification
             classification = formset.data.get(form_prefix + 'classification')
+            class_text = formset.data.get(form_prefix + 'classification_text')
             
-            if classification:
-                
+            try:
                 classification_obj = Classification.objects.get(id=classification)
-                org_info['Organization_OrganizationClassification'] = {
-                    'value': classification_obj,
-                    'confidence': 1,
-                    'sources': [self.source]
-                }
+            except Classification.DoesNotExist:
+                classification_obj = Classification.objects.create(value=class_text)
+            
+            org_info['Organization_OrganizationClassification'] = {
+                'value': classification_obj,
+                'confidence': 1,
+                'sources': [self.source]
+            }
 
             # Now update org
             organization.update(org_info)
@@ -245,7 +248,6 @@ class OrganizationUpdate(BaseUpdateView):
         context['form_data'] = form_data
         context['title'] = 'Organization'
         context['source_object'] = organization
-        context['classifications'] = Classification.objects.all()
         context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
  
 
@@ -253,6 +255,19 @@ class OrganizationUpdate(BaseUpdateView):
             context['source_error'] = 'Please include the source for your changes'
         
         return context
+
+def classification_autocomplete(request):
+    term = request.GET.get('q')
+    classifications = Classification.objects.filter(value__icontains=term).all()
+    
+    results = []
+    for classification in classifications:
+        results.append({
+            'text': classification.value,
+            'id': classification.id,
+        })
+
+    return HttpResponse(json.dumps(results), content_type='application/json')
 
 def organization_autocomplete(request):
     term = request.GET.get('q')
@@ -518,16 +533,3 @@ def organization_csv(request):
 
     return response
 
-def classification_autocomplete(request):
-    data = request.GET.dict()['term']
-
-    classifications = Classification.objects.filter(
-        value__icontains=data
-    )
-
-    classifications = [
-        {"value": classif.id, "label": _(classif.value)}
-        for classif in classifications
-    ]
-
-    return HttpResponse(json.dumps(classifications))

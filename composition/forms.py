@@ -13,7 +13,3 @@ class CompositionForm(forms.Form):
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.empty_permitted = False

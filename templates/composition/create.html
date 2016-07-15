@@ -3,10 +3,7 @@
 {% load i18n %}
 {% load get_item %}
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
-  <style>
-    .dynamic-form { margin: 10px 0; }
-  </style>
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
 {% endblock %}
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
@@ -19,102 +16,110 @@
     <form method="post" action="" id="org-form" class="form-horizontal">
         {% csrf_token %}
         {{ formset.management_form }}
-        <div id="dynamic-form">
-            {% if formset.errors %}
-                {% for form in formset %}
-                    {% with form_id=forloop.counter0 %}
-                        <div id="form-{{ form_id }}-wrapper">
-                        {% if form.relationship_type.errors %}
-                            <div class="form-group has-error has-feedback">
-                        {% else %}
-                            <div class="form-group">
-                        {% endif %}
-                                <label class="col-sm-2 control-label">Relationship type</label>
-                                <div class="col-sm-8">
-                                    <select id="id_form-{{ form_id }}-relationship_type" class="form-control" name="form-{{ form_id }}-relationship_type">
-                                        {% for type in relationship_types %}
-                                            {% if form.cleaned_data.relationship_type == type %}
-                                                <option value="{{ type.0 }}" selected=true>{{ type.1 }}</option>
-                                            {% else %}
-                                                <option value="{{ type.0 }}">{{ type.1 }}</option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                    {% if form.relationship_type.errors %}
-                                        {% for error in form.relationship_type.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
+        {% for form in formset %}
+            {% with organization=organizations|from_index:forloop.counter0 %}
+                <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-organization" />
+                <h4>Relationships for {{ organization.name }}</h4>
+                <div id="form-{{ forloop.counter0 }}-wrapper">
+                {% if form.relationship_type.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="col-sm-2 control-label">Relationship type</label>
+                        <div class="col-sm-8">
+                            <select id="id_form-{{ forloop.counter0 }}-relationship_type" class="form-control" name="form-{{ forloop.counter0 }}-relationship_type">
+                                {% for type in relationship_types %}
+                                    {% if form.cleaned_data.relationship_type == type %}
+                                        <option value="{{ type.0 }}" selected=true>{{ type.1 }}</option>
+                                    {% else %}
+                                        <option value="{{ type.0 }}">{{ type.1 }}</option>
                                     {% endif %}
-                                </div>
-                            </div>
-                        {% if form.related_organization.errors %}
-                            <div class="form-group has-error has-feedback">
-                        {% else %}
-                            <div class="form-group">
-                        {% endif %}
-                                <label class="col-sm-2 control-label">Related organization</label>
-                                <div class="col-sm-8">
-                                    <select id="id_form-{{ form_id }}-related_organization" class="form-control organization-field" name="form-{{ form_id }}-related_organization">
-                                            <option value="" selected="selected">--------</option>
-                                        {% if form.cleaned_data.related_organization %}
-                                            <option value="{{ form.cleaned_data.related_organization }}" selected=true>{{ form.cleaned_data.related_organization }}</option>
-                                        {% endif %}
-                                    </select>
-                                    {% if form.related_organization.errors %}
-                                        {% for error in form.related_organization.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% if form.classification.errors %}
-                            <div class="form-group has-error has-feedback">
-                        {% else %}
-                            <div class="form-group">
-                        {% endif %}
-                                <label class="col-sm-2 control-label">Relationship classification</label>
-                                <div class="col-sm-8">
-                                    <select id="id_form-{{ form_id }}-classification" class="form-control classification-field" name="form-{{ form_id }}-classification">
-                                            <option value="" selected="selected">--------</option>
-                                        {% if form.cleaned_data.classification %}
-                                            <option value="{{ form.cleaned_data.classification }}" selected=true>{{ form.cleaned_data.classification }}</option>
-                                        {% endif %}
-                                    </select>
-                                    {% if form.classification.errors %}
-                                        {% for error in form.classification.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% if form.startdate.errors or form.enddate.errors %}
-                            <div class="form-group has-error has-feedback">
-                        {% else %}
-                            <div class="form-group">
-                        {% endif %}
-                                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startdate">Start & end dates</label>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-startdate" name="form-{{ form_id }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
-                                    {% if form.startdate.errors %}
-                                        {% for error in form.startdate.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-enddate" name="form-{{ form_id }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
-                                    {% if form.enddate.errors %}
-                                        {% for error in form.enddate.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            </div>
+                                {% endfor %}
+                            </select>
+                            {% if form.relationship_type.errors %}
+                                {% for error in form.relationship_type.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
                         </div>
-                    {% endwith %}
-                {% endfor %}
-            {% endif %}
-        </div>
+                    </div>
+                {% if form.related_organization.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="col-sm-2 control-label">Related organization</label>
+                        <div class="col-sm-8">
+                            <select id="id_form-{{ forloop.counter0 }}-related_organization" class="form-control organization-field" name="form-{{ forloop.counter0 }}-related_organization">
+                                <option value="" selected="selected">--------</option>
+                                {% for org in organizations %}
+                                    {% if org.id != organization.id %}
+                                        {% if form.cleaned_data.related_organization.id == org.id %}
+                                            <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
+                                        {% else %}
+                                            <option value="{{ org.id }}">{{ org.name }}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.related_organization.errors %}
+                                {% for error in form.related_organization.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% if form.classification.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="col-sm-2 control-label">Relationship classification</label>
+                        <div class="col-sm-8">
+                            <select id="id_form-{{ forloop.counter0 }}-classification" class="form-control classification-field" name="form-{{ forloop.counter0 }}-classification">
+                                    <option value="" selected="selected">--------</option>
+                                {% for classification in classifications %}
+                                    {% if form.cleaned_data.classification.id == classification.id %}
+                                        <option value="{{ classification.id }}" selected=true>{{ classification.value }}</option>
+                                    {% else %}
+                                        <option value="{{ classification.id }}">{{ classification.value }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.classification.errors %}
+                                {% for error in form.classification.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% if form.startdate.errors or form.enddate.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-startdate">Start & end dates</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-startdate" name="form-{{ forloop.counter0 }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
+                            {% if form.startdate.errors %}
+                                {% for error in form.startdate.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-enddate" name="form-{{ forloop.counter0 }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
+                            {% if form.enddate.errors %}
+                                {% for error in form.enddate.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
         <div class="row">
             <div class="form-group">
                 <div class="col-md-12">
@@ -126,4 +131,12 @@
     </form>
 </div>
 
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+    $(document).ready(function(e){
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: '0d'});
+    })
+</script>
 {% endblock %}
