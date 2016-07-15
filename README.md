@@ -20,6 +20,7 @@ Create a database:
 Load static data:
 
     ./manage.py loaddata violation_types
+    ./manage.py loaddata classification_types
     ./manage.py cities --import=all
     ./manage.py update_countries_plus
 
