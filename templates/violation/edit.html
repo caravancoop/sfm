@@ -267,7 +267,7 @@
     }
 
     $(document).ready(function(){
-        $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
+        $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy", endDate: "0d"});
         $('#id_vtype').select2();
         $('#id_perpetrators').select2(perp_opts);
         $('#id_orgs').select2(org_opts);

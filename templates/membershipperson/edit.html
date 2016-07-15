@@ -181,7 +181,7 @@
 
     $(document).ready(function(){
         $('#id_source').select2(source_opts);
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
     })
 </script>
 {% endblock %}

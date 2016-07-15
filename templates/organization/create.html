@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load viewcomplexfield %}
 {% load staticfiles %}
 {% load i18n %}
 {% load get_item %}
@@ -76,16 +75,12 @@
                         {% endif %}
                             <label class="col-sm-2 control-label">Classification </label>
                             <div class="col-sm-8">
-                                <select id="id_form-{{ form_id }}-classification" class="form-control" name="form-{{ form_id }}-classification">
-                                    <option value="" selected="selected">--------</option>
-                                    {% for classification in classifications %}
-                                        {% if classification.id == form.cleaned_data.classification.id %}
-                                            <option value="{{ classification.id }}" selected="true">{{ classification.value }}</option>
-                                        {% else %}
-                                            <option value="{{ classification.id }}">{{ classification.value }}</option>
-                                        {% endif %}
-                                    {% endfor %}
+                                <select id="id_form-{{ form_id }}-classification" class="form-control class-field" name="form-{{ form_id }}-classification">
+                                    {% if form.cleaned_data.classification %}
+                                        <option value="{{ form.cleaned_data.classification }}" selected=true>{{ form.cleaned_data.classification_text }}</option>
+                                    {% endif %}
                                 </select>
+                                <input type="hidden" name="form-{{ form_id }}-classification_text" id="id_form-{{ form_id }}-classification_text" />
                                 {% if form.classification.errors %}
                                     {% for error in form.classification.errors %}
                                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -165,12 +160,9 @@
         <div class="form-group">
             <label class="col-sm-2 control-label">Classification</label>
             <div class="col-sm-8">
-                <select id="id_form-<%= form_id %>-classification" class="form-control" name="form-<%= form_id %>-classification">
-                    <option value="" selected="selected">--------</option>
-                    {% for classification in classifications %}
-                        <option value="{{ classification.id }}">{{ classification.value }}</option>
-                    {% endfor %}
+                <select id="id_form-<%= form_id %>-classification" class="form-control class-field" name="form-<%= form_id %>-classification">
                 </select>
+                <input type="hidden" name="form-<%= form_id %>-classification_text" id="id_form-<%= form_id %>-classification_text" />
             </div>
         </div>
         <br />
@@ -188,6 +180,29 @@
 </script>
 <script type="text/javascript">
     var form_num = 0;
+    var class_opts = {
+        ajax: {
+            url: "{% url 'org-classification-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': -1,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
     var name_opts = {
         ajax: {
             url: "{% url 'organization-autocomplete' %}",
@@ -240,6 +255,7 @@
         {% if formset.errors %}
             $('.name-field').select2(name_opts);
             $('.alias-field').select2(alias_opts);
+            $('.class-field').select2(class_opts);
         {% else %}
             addForm(null);
         {% endif %}
@@ -311,10 +327,13 @@
 
         var name_field = '#id_form-' + form_num + '-name';
         var alias_field = '#id_form-' + form_num + '-alias';
+        var class_field = '#id_form-' + form_num + '-classification';
 
         $(name_field).select2(name_opts);
 
         $(alias_field).select2(alias_opts);
+
+        $(class_field).select2(class_opts);
 
         $('#remove_form-' +  form_num).on('click', deleteForm);
 
@@ -344,6 +363,14 @@
             $(name_field + '_text').val(value);
             if (isNaN($(name_field + ' :selected').attr('value'))) {
                 $(name_field + ' :selected').attr('value','-1');
+            }
+        });
+
+        $(class_field).on('select2:select', function(e){
+            var value = e.params.data.text;
+            $(class_field + '_text').val(value);
+            if (isNaN($(class_field + ' :selected').attr('value'))) {
+                $(class_field + ' :selected').attr('value','-1');
             }
         });
 

@@ -8,7 +8,8 @@ from organization.models import Classification
 class OrganizationForm(forms.Form):
     name = forms.CharField(error_messages={'required': _('Name is required')})
     name_text = forms.CharField()
-    classification = forms.ModelChoiceField(queryset=Classification.objects.all())
+    classification = forms.CharField(error_messages={'required': _('Classification is required')})
+    classification_text = forms.CharField()
     alias = forms.CharField(required=False)
     
     def __init__(self, *args, **kwargs):

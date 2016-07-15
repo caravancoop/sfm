@@ -367,7 +367,7 @@
 
     $(document).ready(function(e) {
         {% if formset.errors %}
-            $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy"});
+            $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy", endDate: "0d"});
             $('.perpetrator-field').select2(perp_opts);
             $('.org-field').select2(org_opts);
             $('.geoname-field').select2(geoname_opts);
@@ -472,7 +472,7 @@
         });
 
         $('.datepicker').datepicker('destroy');
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd"});
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
 
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-TOTAL_FORMS').val(form_count);

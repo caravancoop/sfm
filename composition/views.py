@@ -9,11 +9,137 @@ from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import redirect
 
-from organization.models import Classification
-from composition.models import Composition
+from source.models import Source
+from organization.models import Organization
+from composition.models import Composition, Classification
+from composition.forms import CompositionForm
 from sfm_pc.utils import deleted_in_str
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
+class CompositionCreate(BaseFormSetView):
+    template_name = 'composition/create.html'
+    form_class = CompositionForm
+    success_url = reverse_lazy('create-person')
+    extra = 0
+    max_num = None
+    
+    def get_initial(self):
+        data = []
+        for i in self.request.session['organizations']:
+            data.append({})
+        return data
+
+    def get(self, request, *args, **kwargs):
+        if len(request.session['organizations']) == 1:
+            return redirect(reverse_lazy('create-person'))
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        
+        context = super().get_context_data(**kwargs)
+        
+        context['classifications'] = Classification.objects.all()
+        context['relationship_types'] = self.form_class().fields['relationship_type'].choices
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        context['organizations'] = self.request.session['organizations']
+
+        return context
+
+    def formset_valid(self, formset):
+        source = Source.objects.get(id=self.request.session['source_id'])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+        
+        for i in range(0, num_forms):
+            form_prefix = 'form-{0}-'.format(i)
+            
+            form_keys = [k for k in formset.data.keys() \
+                             if k.startswith(form_prefix)]
+            
+            composition_info = {}
+
+            organization_id = formset.data[form_prefix + 'organization']
+            organization = Organization.objects.get(id=organization_id)
+            
+            rel_type = formset.data[form_prefix + 'relationship_type']
+            if rel_type == 'child':
+                composition_info['Composition_CompositionChild'] = {
+                    'value': organization,
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            elif rel_type == 'parent':
+                composition_info['Composition_CompositionParent'] = {
+                    'value': organization,
+                    'confidence': 1,
+                    'sources': [source]
+                }
+
+            if formset.data.get(form_prefix + 'startdate'):
+                composition_info['Composition_CompositionStartDate'] = {
+                    'value': formset.data[form_prefix + 'startdate'],
+                    'confidence': 1,
+                    'sources': [source]
+                }
+            
+            if formset.data.get(form_prefix + 'enddate'):
+                composition_info['Composition_CompositionEndDate'] = {
+                    'value': formset.data[form_prefix + 'enddate'],
+                    'confidence': 1,
+                    'sources': [source]
+                }
+
+            classification_id = formset.data[form_prefix + 'classification']
+            classification = Classification.objects.get(id=classification_id)
+
+            composition_info['Composition_CompositionClassification'] = {
+                'value': classification,
+                'confidence': 1,
+                'sources': [source]
+            }
+
+            composition = Composition.create(composition_info)
+            
+        response = super().formset_valid(formset)
+        return response
+
+
+class CompositionUpdate(TemplateView):
+    template_name = 'composition/edit.html'
+
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.POST.dict()['object'])
+        try:
+            composition = Composition.objects.get(pk=kwargs.get('pk'))
+        except Composition.DoesNotExist:
+            msg = "This composition does not exist, it should be created " \
+                  "before updating it."
+            return HttpResponse(msg, status=400)
+
+        (errors, data) = composition.validate(data)
+        if len(errors):
+            return HttpResponse(
+                json.dumps({"success": False, "errors": errors}),
+                content_type="application/json"
+            )
+
+        composition.update(data)
+        return HttpResponse(
+            json.dumps({"success": True}),
+            content_type="application/json"
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(CompositionUpdate, self).get_context_data(**kwargs)
+        context['composition'] = Composition.objects.get(pk=context.get('pk'))
+
+        return context
+
+########################
+## Unused views below ##
+########################
 
 class CompositionDelete(DeleteView):
     model = Composition
@@ -66,106 +192,3 @@ def composition_csv(request):
 
     return response
 
-
-def composition_search(request):
-    terms = request.GET.dict()
-
-    composition_query = Composition.search(terms)
-
-    page = int(terms.get('page', 1))
-
-    keys = ['parent', 'child', 'classification', 'startdate', 'enddate']
-
-    paginator = Paginator(composition_query, 15)
-    try:
-        composition_page = paginator.page(page)
-    except PageNotAnInteger:
-        composition_page = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        composition_page = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    compositions = [
-        {
-            "id": composition.id,
-            "parent": str(composition.parent.get_value()),
-            "child": str(composition.child.get_value()),
-            "classification": str(composition.classification.get_value()),
-            "startdate": str(composition.startdate.get_value()),
-            "enddate": str(composition.enddate.get_value()),
-        }
-        for composition in composition_page
-    ]
-
-    html_paginator = render_to_string(
-        'paginator.html',
-        {'actual': page, 'min': page - 5, 'max': page + 5,
-         'paginator': composition_page,
-         'pages': range(1, paginator.num_pages + 1)}
-    )
-
-    return HttpResponse(json.dumps({
-        'success': True,
-        'keys': keys,
-        'objects': compositions,
-        'paginator': html_paginator,
-        'result_number': len(composition_query)
-    }))
-
-
-class CompositionUpdate(TemplateView):
-    template_name = 'composition/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['object'])
-        try:
-            composition = Composition.objects.get(pk=kwargs.get('pk'))
-        except Composition.DoesNotExist:
-            msg = "This composition does not exist, it should be created " \
-                  "before updating it."
-            return HttpResponse(msg, status=400)
-
-        (errors, data) = composition.validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        composition.update(data)
-        return HttpResponse(
-            json.dumps({"success": True}),
-            content_type="application/json"
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super(CompositionUpdate, self).get_context_data(**kwargs)
-        context['composition'] = Composition.objects.get(pk=context.get('pk'))
-
-        return context
-
-
-class CompositionCreate(TemplateView):
-    template_name = 'composition/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        data = json.loads(request.POST.dict()['object'])
-        (errors, data) = Composition().validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        composition = Composition.create(data)
-
-        return HttpResponse(json.dumps({"success": True, "id": composition.id}),
-                            content_type="application/json")
-
-    def get_context_data(self, **kwargs):
-        context = super(CompositionCreate, self).get_context_data(**kwargs)
-        context['composition'] = Composition()
-
-        return context
