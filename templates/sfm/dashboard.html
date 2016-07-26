@@ -36,12 +36,13 @@
                     {% else %}
                         <tr style="display:none;">
                     {% endif %}
-                        <td colspan=4>
+                        <td colspan=5>
                             <table class="table table-condensed">
                                 <thead>
                                     <th>Class</th>
                                     <th>Property</th>
                                     <th>Value</th>
+                                    <th>Confidence</th>
                                 </thead>
                                 <tbody>
                                     {% for prop in source_properties %}

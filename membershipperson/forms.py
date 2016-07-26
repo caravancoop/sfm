@@ -8,7 +8,7 @@ from membershipperson.models import MembershipPerson
 class MembershipPersonForm(forms.Form):
     membership = forms.ModelChoiceField(queryset=MembershipPerson.objects.all())
     role = forms.CharField(required=False)
-    title = forms.CharField(error_messages={'required': _('Title is required')})
+    title = forms.CharField(required=False)
     rank = forms.CharField(required=False)
     realstart = forms.BooleanField(required=False) 
     realend = forms.BooleanField(required=False)

@@ -54,6 +54,8 @@ class OrganizationCreate(BaseFormSetView):
             else:
                 form_data[key] = request.POST.get(key)
         
+        print(request.POST)
+
         self.initFormset(form_data)
         
         return self.validateFormSet()
@@ -77,7 +79,7 @@ class OrganizationCreate(BaseFormSetView):
                             form.aliases = [org_alias]
             else:
                 form.aliases = None
-        print(formset)
+        
         return response
 
     def formset_valid(self, formset):

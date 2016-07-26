@@ -196,6 +196,7 @@
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
+        selectOnClose: true,
         tags: true
     }
 
@@ -292,7 +293,10 @@
 
         $(name_field).on('select2:select', function(e){
             var value = e.params.data.text;
+            $(name_field + ' :selected').prop('selected', false);
             $(name_field + '_text').val(value);
+            $(name_field + ' :selected').attr('value', e.params.data.id);
+            $(name_field + ' :selected').text(value);
         });
 
         var form_count = $('#dynamic-form').children().length;

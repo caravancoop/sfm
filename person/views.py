@@ -38,6 +38,28 @@ class PersonCreate(BaseFormSetView):
         context['organizations'] = self.request.session['organizations']
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         return context
+    
+    def formset_invalid(self, formset):
+        response = super().formset_invalid(formset)
+
+        for index, form in enumerate(formset.forms):
+            alias_ids = formset.data.get('form-{}-alias'.format(index))
+            if alias_ids:
+                for alias_id in alias_ids:
+                    try:
+                        person_alias = PersonAlias.objects.get(id=alias_id)
+                    except ValueError:
+                        person_alias = None
+                    
+                    if person_alias:
+                        try:
+                            form.aliases.append(org_alias)
+                        except AttributeError:
+                            form.aliases = [org_alias]
+            else:
+                form.aliases = None
+        
+        return response
 
     def formset_valid(self, formset):
         response = super().formset_valid(formset)
@@ -47,7 +69,7 @@ class PersonCreate(BaseFormSetView):
         self.memberships = []
 
         self.source = Source.objects.get(id=self.request.session['source_id'])
-
+        
         for i in range(0,num_forms):
             first = True
 

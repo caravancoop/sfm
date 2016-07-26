@@ -201,6 +201,7 @@
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
+        selectOnClose: true,
         tags: true
     }
     var name_opts = {
@@ -224,6 +225,7 @@
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
+        selectOnClose: true,
         tags: true
     }
 
@@ -342,7 +344,6 @@
             var name = $(e.target).prop('name') + '_text';
             var form_id = $(e.target).prop('name').split('-')[1]
             var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
-            // serious issues here
             $('#org-form').append(hidden_input);
         });
 
@@ -360,18 +361,18 @@
 
         $(name_field).on('select2:select', function(e){
             var value = e.params.data.text;
+            $(name_field).find(':selected').prop('selected', false);
             $(name_field + '_text').val(value);
-            if (isNaN($(name_field + ' :selected').attr('value'))) {
-                $(name_field + ' :selected').attr('value','-1');
-            }
+            $(name_field + ' :selected').attr('value', e.params.data.id);
+            $(name_field + ' :selected').text(value);
         });
 
         $(class_field).on('select2:select', function(e){
             var value = e.params.data.text;
+            $(class_field).find(':selected').prop('selected', false);
             $(class_field + '_text').val(value);
-            if (isNaN($(class_field + ' :selected').attr('value'))) {
-                $(class_field + ' :selected').attr('value','-1');
-            }
+            $(class_field + ' :selected').attr('value', e.params.data.id);
+            $(class_field + ' :selected').text(value);
         });
 
         var form_count = $('#dynamic-form').children().length;

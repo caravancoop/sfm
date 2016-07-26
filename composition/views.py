@@ -59,24 +59,7 @@ class CompositionCreate(BaseFormSetView):
                              if k.startswith(form_prefix)]
             
             composition_info = {}
-
-            organization_id = formset.data[form_prefix + 'organization']
-            organization = Organization.objects.get(id=organization_id)
             
-            rel_type = formset.data[form_prefix + 'relationship_type']
-            if rel_type == 'child':
-                composition_info['Composition_CompositionChild'] = {
-                    'value': organization,
-                    'confidence': 1,
-                    'sources': [source]
-                }
-            elif rel_type == 'parent':
-                composition_info['Composition_CompositionParent'] = {
-                    'value': organization,
-                    'confidence': 1,
-                    'sources': [source]
-                }
-
             if formset.data.get(form_prefix + 'startdate'):
                 composition_info['Composition_CompositionStartDate'] = {
                     'value': formset.data[form_prefix + 'startdate'],
@@ -90,7 +73,7 @@ class CompositionCreate(BaseFormSetView):
                     'confidence': 1,
                     'sources': [source]
                 }
-
+            
             classification_id = formset.data[form_prefix + 'classification']
             classification = Classification.objects.get(id=classification_id)
 
@@ -100,7 +83,61 @@ class CompositionCreate(BaseFormSetView):
                 'sources': [source]
             }
 
-            composition = Composition.create(composition_info)
+            organization_id = formset.data[form_prefix + 'organization']
+            organization = Organization.objects.get(id=organization_id)
+            
+            related_organization_id = formset.data[form_prefix + 'related_organization']
+            related_organization = Organization.objects.get(id=related_organization_id)
+
+            rel_type = formset.data[form_prefix + 'relationship_type']
+            if rel_type == 'child':
+                
+                composition, created = Composition.objects.get_or_create(compositionparent__value=related_organization,
+                                                                         compositionchild__value=organization)
+                
+                if created:
+                    sources = [source]
+
+                else:
+                    self.source = source
+                    sources = self.sourcesList(composition, 'child')
+
+                composition_info['Composition_CompositionChild'] = {
+                    'value': organization,
+                    'confidence': 1,
+                    'sources': sources
+                }
+                composition_info['Composition_CompositionParent'] = {
+                    'value': related_organization,
+                    'confidence': 1,
+                    'sources': sources
+                }
+                
+
+            elif rel_type == 'parent':
+                
+                composition, created = Composition.objects.get_or_create(compositionchild__value=related_organization,
+                                                                         compositionparent__value=organization)
+                
+                if created:
+                    sources = [source]
+
+                else:
+                    self.source = source
+                    sources = self.sourcesList(composition, 'parent')
+
+                composition_info['Composition_CompositionParent'] = {
+                    'value': organization,
+                    'confidence': 1,
+                    'sources': [source]
+                }
+                composition_info['Composition_CompositionChild'] = {
+                    'value': related_organization,
+                    'confidence': 1,
+                    'sources': [source]
+                }
+
+            composition.update(composition_info)
             
         response = super().formset_valid(formset)
         return response
