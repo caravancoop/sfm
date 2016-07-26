@@ -106,15 +106,18 @@
     </div>
     <div class="row">
         <div class="col-sm-12" id="manage-forms">
-            <button id="add-form" type="button" class="btn btn-info">Add organization <i class="fa fa-plus"></i></button>
+            <button id="add-form" type="button" class="btn btn-default">Add organization <i class="fa fa-plus"></i></button>
         </div>
     </div>
     <br />
     <div class="row">
         <div class="form-group">
             <div class="col-md-12">
-                <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
-                <a class="btn btn-default" href="{% url 'create-event' %}">Skip</a>
+                <button type="submit" class="btn pull-right btn-success" value="Submit">Continue</button>
+                <div class="btn-group" role="group">
+                    <a class="btn btn-info" href="{% url 'create-source' %}">Go back</a>
+                    <a class="btn btn-info" href="{% url 'create-event' %}">Skip</a>
+                </div>
             </div>
         </div>
     </div>

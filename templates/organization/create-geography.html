@@ -134,14 +134,19 @@
     </div>
     <div class="form-group">
         <div class="col-sm-12" id="manage-forms">
-            <button id="add-form" type="button" class="btn btn-info">Add geography <i class="fa fa-plus"></i></button>
+            <button id="add-form" type="button" class="btn btn-default">Add geography <i class="fa fa-plus"></i></button>
         </div>
     </div>
     <br />
     <div class="form-group submit">
         <div class="col-sm-12">
-            <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
-            <a class="btn btn-default" href="{% url 'create-event' %}">Skip</a>
+            <button type="submit" class="pull-right btn btn-success" value="Submit">Continue</button>
+            {% if organizations|length > 1 %}
+                <a class="btn btn-info" href="{% url 'create-composition' %}">Go back</a>
+            {% else %}
+                <a class="btn btn-info" href="{% url 'create-person' %}">Go back</a>
+            {% endif %}
+            <a class="btn btn-info" href="{% url 'create-event' %}">Skip</a>
         </div>
     </div>
 

@@ -172,7 +172,7 @@
 <br />
 <div class="row">
     <div class="col-sm-12">
-        <button class="btn btn-info" href="javascript://" id="add-form">
+        <button class="btn btn-default" id="add-form">
             Add violation <i class="fa fa-plus"></i>
         </button>
     </div>
@@ -181,8 +181,9 @@
 <div class="row">
     <div class="form-group">
         <div class="col-md-12">
-            <button type="submit" class="pull-right btn sfm-btn-action" value="Submit">Continue</button>
-             <a class="btn btn-default" href="/confidences/">Skip</a>
+            <button type="submit" class="pull-right btn btn-success">Continue</button>
+            <a class="btn btn-info" href="{% url 'create-geography' %}">Go back</a>
+            <a class="btn btn-info" href="{% url 'set-confidence' %}">Skip</a>
         </div>
     </div>
 </div>
