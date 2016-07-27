@@ -25,8 +25,7 @@ from area.models import Area
 from association.models import Association
 from organization.forms import OrganizationForm, OrganizationGeographyForm
 from organization.models import Organization, OrganizationName, \
-    OrganizationAlias, Alias as OrganizationAliasObject, \
-    Classification
+    OrganizationAlias, Alias, OrganizationClassification, Classification
 from sfm_pc.utils import deleted_in_str, get_geoname_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
@@ -49,13 +48,11 @@ class OrganizationCreate(BaseFormSetView):
         form_data = {}
         
         for key, value in request.POST.items():
-            if 'alias' in key:
+            if 'alias' in key or 'classification' in key:
                 form_data[key] = request.POST.getlist(key)
             else:
                 form_data[key] = request.POST.get(key)
         
-        print(request.POST)
-
         self.initFormset(form_data)
         
         return self.validateFormSet()
@@ -65,20 +62,16 @@ class OrganizationCreate(BaseFormSetView):
         
         for index, form in enumerate(formset.forms):
             alias_ids = formset.data.get('form-{}-alias'.format(index))
+            classification_ids = formset.data.get('form-{}-classification'.format(index))
+            
+            form.aliases = []
+            form.classifications = []
+
             if alias_ids:
-                for alias_id in alias_ids:
-                    try:
-                        org_alias = OrganizationAlias.objects.get(id=alias_id)
-                    except ValueError:
-                        org_alias = None
-                    
-                    if org_alias:
-                        try:
-                            form.aliases.append(org_alias)
-                        except AttributeError:
-                            form.aliases = [org_alias]
-            else:
-                form.aliases = None
+                form.aliases = OrganizationAlias.objects.filter(id__in=alias_ids)
+
+            if classification_ids:
+                form.classifications = OrganizationClassification.objects.filter(id__in=classification_ids)
         
         return response
 
@@ -128,16 +121,14 @@ class OrganizationCreate(BaseFormSetView):
                 organization = Organization.create(org_info)
 
             # Save aliases first
-            alias_id_key = 'form-{0}-alias'.format(i)
-            alias_text_key = 'form-{0}-alias_text'.format(i)
             
-            aliases = formset.data.get(alias_text_key)
+            aliases = formset.data.get(form_prefix + 'alias_text')
             
             if aliases:
                 
                 for alias in aliases:
                     
-                    alias_obj, created = OrganizationAliasObject.objects.get_or_create(value=alias)
+                    alias_obj, created = Alias.objects.get_or_create(value=alias)
 
                     oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
                                                                               object_ref=organization,
@@ -145,24 +136,21 @@ class OrganizationCreate(BaseFormSetView):
                     oa_obj.sources.add(self.source)
                     oa_obj.save()
 
-            # Next do classification
-            classification = formset.data.get(form_prefix + 'classification')
-            class_text = formset.data.get(form_prefix + 'classification_text')
+            # Next do classifications
             
-            try:
-                classification_obj = Classification.objects.get(id=classification)
-            except Classification.DoesNotExist:
-                classification_obj = Classification.objects.create(value=class_text)
+            classifications = formset.data.get(form_prefix + 'classification_text')
             
-            org_info['Organization_OrganizationClassification'] = {
-                'value': classification_obj,
-                'confidence': 1,
-                'sources': [self.source]
-            }
+            if classifications:
+                for classification in classifications:
+                    
+                    class_obj, created = Classification.objects.get_or_create(value=classification)
+                    
+                    oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
+                                                                                       object_ref=organization,
+                                                                                       lang=get_language())
+                    oc_obj.sources.add(self.source)
+                    oc_obj.save()
 
-            # Now update org
-            organization.update(org_info)
- 
             self.organizations.append(organization)
             
             actual_form_index += 1
@@ -222,7 +210,7 @@ class OrganizationUpdate(BaseUpdateView):
 
                     aliases.append(oa_obj)
                 except ValueError:
-                    alias_obj, created = OrganizationAliasObject.objects.get_or_create(value=alias)
+                    alias_obj, created = Alias.objects.get_or_create(value=alias)
 
                     oa_obj = OrganizationAlias.objects.create(value=alias_obj,
                                                               object_ref=organization,

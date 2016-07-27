@@ -46,22 +46,6 @@ class Violation(models.Model, BaseModel):
 
         self.types = ComplexFieldListContainer(self, ViolationType)
 
-    def validate(self, dict_values):
-        errors = {}
-
-        start = dict_values['Violation_ViolationStartDate']
-        end = dict_values['Violation_ViolationEndDate']
-        if (start and start.get('value') and end and end.get('value') and
-                start.get('value') >= end.get('value')):
-            errors['Violation_ViolationStartDate'] = _(
-                "The start date must be before the end date"
-            )
-
-        (base_errors, values) = super().validate(dict_values)
-        errors.update(base_errors)
-
-        return (errors, values)
-        
     def get_value(self):
         return self.description.get_value()
 

@@ -55,7 +55,7 @@
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
                                     {% for alias in form.aliases %}
-                                        <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
+                                        <option value="{{ alias.id }}" selected=true>{{ alias.get_value }}</option>
                                     {% endfor %}
                                 </select>
                                 {% for alias in form.aliases %}
@@ -75,12 +75,14 @@
                         {% endif %}
                             <label class="col-sm-2 control-label">Classification </label>
                             <div class="col-sm-8">
-                                <select id="id_form-{{ form_id }}-classification" class="form-control class-field" name="form-{{ form_id }}-classification">
-                                    {% if form.cleaned_data.classification %}
-                                        <option value="{{ form.cleaned_data.classification }}" selected=true>{{ form.cleaned_data.classification_text }}</option>
-                                    {% endif %}
+                                <select id="id_form-{{ form_id }}-classification" class="form-control class-field" name="form-{{ form_id }}-classification" multiple="multiple">
+                                    {% for classification in form.classifications %}
+                                        <option value="{{ classification.id }}" selected=true>{{ classification.get_value }}</option>
+                                    {% endfor %}
                                 </select>
-                                <input type="hidden" name="form-{{ form_id }}-classification_text" id="id_form-{{ form_id }}-classification_text" />
+                                {% for classification in form.classifications %}
+                                    <input type="hidden" value="{{ classification.get_value }}" name="form-{{ form_id }}-classification_text" id="id_form-{{ form_id }}-classification_text" />
+                                {% endfor %}
                                 {% if form.classification.errors %}
                                     {% for error in form.classification.errors %}
                                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -163,9 +165,8 @@
         <div class="form-group">
             <label class="col-sm-2 control-label">Classification</label>
             <div class="col-sm-8">
-                <select id="id_form-<%= form_id %>-classification" class="form-control class-field" name="form-<%= form_id %>-classification">
+                <select id="id_form-<%= form_id %>-classification" class="form-control class-field" name="form-<%= form_id %>-classification" multiple="multiple">
                 </select>
-                <input type="hidden" name="form-<%= form_id %>-classification_text" id="id_form-<%= form_id %>-classification_text" />
             </div>
         </div>
         <br />
@@ -197,7 +198,7 @@
                     return { results: data };
                 } else {
                     return {results: [{
-                                'id': -1,
+                                'id': params.term,
                                 'text': params.term }]};
                 }
             }
@@ -322,6 +323,27 @@
         form_num --;
     }
 
+    function multipleSelect(e){
+        var value = e.params.data.text;
+        var name = $(e.target).prop('name') + '_text';
+        var form_id = $(e.target).prop('name').split('-')[1]
+        var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
+        $('#org-form').append(hidden_input);
+    }
+
+    function multipleUnSelect(e){
+        var value = e.params.data.text;
+        var inputs = $('#org-form').find('input[value="'+ value + '"]');
+        var form_id = $(e.target).prop('name').split('-')[1]
+
+        $.each(inputs, function(i, input){
+            if ($(input).data('form_id') == form_id){
+                $(input).remove();
+            }
+        })
+
+    }
+
     function addForm(e){
         if (e){
             e.preventDefault();
@@ -342,25 +364,9 @@
 
         $('#remove_form-' +  form_num).on('click', deleteForm);
 
-        $(alias_field).on('select2:select', function(e){
-            var value = e.params.data.text;
-            var name = $(e.target).prop('name') + '_text';
-            var form_id = $(e.target).prop('name').split('-')[1]
-            var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
-            $('#org-form').append(hidden_input);
-        });
+        $(alias_field).on('select2:select', multipleSelect);
 
-        $(alias_field).on('select2:unselect', function(e){
-            var value = e.params.data.text;
-            var inputs = $('#org-form').find('input[value="'+ value + '"]');
-            var form_id = $(e.target).prop('name').split('-')[1]
-
-            $.each(inputs, function(i, input){
-                if ($(input).data('form_id') == form_id){
-                    $(input).remove();
-                }
-            })
-        });
+        $(alias_field).on('select2:unselect', multipleUnSelect);
 
         $(name_field).on('select2:select', function(e){
             var value = e.params.data.text;
@@ -370,13 +376,8 @@
             $(name_field + ' :selected').text(value);
         });
 
-        $(class_field).on('select2:select', function(e){
-            var value = e.params.data.text;
-            $(class_field).find(':selected').prop('selected', false);
-            $(class_field + '_text').val(value);
-            $(class_field + ' :selected').attr('value', e.params.data.id);
-            $(class_field + ' :selected').text(value);
-        });
+        $(class_field).on('select2:select', multipleSelect);
+        $(class_field).on('select2:unselect', multipleUnSelect);
 
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-TOTAL_FORMS').val(form_count);

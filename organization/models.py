@@ -16,9 +16,9 @@ class Organization(models.Model, BaseModel):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, OrganizationName)
         self.aliases = ComplexFieldListContainer(self, OrganizationAlias)
-        self.classification = ComplexFieldContainer(self, OrganizationClassification)
+        self.classification = ComplexFieldListContainer(self, OrganizationClassification)
 
-        self.complex_fields = [self.name, self.classification]
+        self.complex_fields = [self.name]
 
         self.required_fields = [
             "Organization_OrganizationName",
@@ -29,64 +29,6 @@ class Organization(models.Model, BaseModel):
 
     def __str__(self):
         return str(self.name)
-
-    @classmethod
-    def search(cls, terms):
-        order_by = terms.get('orderby')
-        if not order_by:
-            order_by = 'organizationname__value'
-
-        direction = terms.get('direction')
-        if not direction:
-            direction = 'ASC'
-
-        dirsym = ''
-        if direction == 'DESC':
-            dirsym = '-'
-
-        orgs_query = (Organization.objects
-                      .annotate(Max(order_by))
-                      .order_by(dirsym + order_by + "__max"))
-
-        name = terms.get('name')
-        if name:
-            orgs_query = orgs_query.filter(organizationname__value__icontains=name)
-
-        alias_val = terms.get('alias')
-        if alias_val:
-            orgs_query = orgs_query.filter(organizationalias__value__icontains=alias_val)
-
-        classification = terms.get('classification')
-        if classification:
-            orgs_query = orgs_query.filter(organizationclassification__value_id=classification)
-
-        latitude = terms.get('latitude')
-        longitude = terms.get('longitude')
-        if latitude and longitude:
-            try:
-                latitude = float(latitude)
-                longitude = float(longitude)
-            except ValueError:
-                latitude = 0
-                longitude = 0
-
-            point = geos.Point(latitude, longitude)
-            radius = terms.get('radius')
-            if radius:
-                try:
-                    radius = float(radius)
-                except ValueError:
-                    radius = 0
-                orgs_query = orgs_query.filter(
-                    associationorganization__object_ref__associationarea__value__areageometry__value__dwithin=(point, radius)
-                )
-            else:
-                orgs_query = orgs_query.filter(
-                    associationorganization__object_ref__associationarea__value__areageometry__value__bbcontains=point
-                )
-
-        return orgs_query
-
 
 @translated
 @versioned
