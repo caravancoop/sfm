@@ -12,6 +12,7 @@ from cities.models import Country
 from source.models import Source, Publication
 from source.forms import SourceForm
 
+
 class SourceCreate(FormView):
     template_name = 'source/create.html'
     form_class = SourceForm
@@ -65,10 +66,9 @@ class SourceCreate(FormView):
        
         source, created = Source.objects.get_or_create(title=form.cleaned_data['title'],
                                                        source_url=form.cleaned_data['source_url'],
-                                                       archive_url=form.cleaned_data['archive_url'],
                                                        publication=self.publication,
                                                        published_on=form.cleaned_data['published_on'])
-
+        
         self.request.session['source_id'] = source.id
         return response
 
@@ -130,3 +130,4 @@ def get_sources(request, object_type, object_id, field_name):
     }
 
     return HttpResponse(json.dumps(sources_json))
+

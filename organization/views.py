@@ -231,7 +231,7 @@ class OrganizationUpdate(BaseUpdateView):
         
         form_data = {
             'name': organization.name.get_value(),
-            'classification': organization.classification.get_value(),
+            'classification': [i.get_value() for i in organization.classification.get_list()],
             'alias': [i.get_value() for i in organization.aliases.get_list()],
         }
 
