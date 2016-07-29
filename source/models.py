@@ -21,7 +21,7 @@ class Source(models.Model):
     title = models.TextField()
     publication = models.ForeignKey(Publication, null=True)
     published_on = models.DateField()
-    source_url = models.URLField()
+    source_url = models.URLField(null=True)
     archive_url = models.URLField(null=True)
 
     def __str__(self):
