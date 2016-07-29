@@ -17,3 +17,5 @@ django-extra-views==0.7.1
 # @see https://devcenter.heroku.com/articles/getting-started-with-django#requirements-txt
 dj-static==0.0.6
 gunicorn==19.0.0
+
+google-api-python-client==1.5.1
