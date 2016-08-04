@@ -3,6 +3,8 @@ import json
 from collections import OrderedDict
 import re
 from uuid import uuid4
+from datetime import datetime
+import csv
 
 import httplib2
 
@@ -13,14 +15,17 @@ import datefinder
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import models, transaction
+from django.core.exceptions import ObjectDoesNotExist
 
 from cities.models import Country
 
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName
-from sfm_pc.utils import import_class
+from sfm_pc.utils import import_class, get_geoname_by_id
 from sfm_pc.base_views import UtilityMixin
+from geosite.models import Geosite
+from emplacement.models import Emplacement
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
@@ -39,6 +44,12 @@ class Command(UtilityMixin, BaseCommand):
             dest='doc_id',
             default='16cRBkrnXE5iGm8JXD7LSqbeFOg_anhVp2YAzYTRYDgU',
             help='Import data from specified Google Drive Document'
+        )
+        parser.add_argument(
+            '--entity_types',
+            dest='entity_types',
+            default='organization,person,event',
+            help='Comma separated list of entity types to import'
         )
     
     def get_credentials(self):
@@ -75,7 +86,7 @@ class Command(UtilityMixin, BaseCommand):
             sheet_mapping[title] = sheet_data['values']
 
         org_sheets = {title: data for title, data in sheet_mapping.items() \
-                          if 'organization' in title.lower()}
+                          if 'organization' in title.lower() or 'mopol' in title.lower()}
         
         person_sheets = {title: data for title, data in sheet_mapping.items() \
                             if 'person' in title.lower()}
@@ -83,17 +94,197 @@ class Command(UtilityMixin, BaseCommand):
         event_sheets = {title: data for title, data in sheet_mapping.items() \
                             if 'event' in title.lower()}
         
+        all_sheets = {
+            'organization': org_sheets,
+            'person': person_sheets,
+            'event': event_sheets,
+        }
         
-        for title, sheet in org_sheets.items():
-        
-            self.stdout.write(self.style.SUCCESS('Creating organizations from {} ... '.format(title)))
+        for entity_type in options['entity_types'].split(','):
             
-            # Skip header row
-            for row in sheet[1:]:
-                if row:
-                    self.create_organization(row)
-        raise
-        # self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(options['doc_id'])))
+            sheets = all_sheets[entity_type]
+            
+            for title, sheet in sheets.items():
+            
+                self.stdout.write(self.style.SUCCESS('Creating {0}s from {1} ... '.format(entity_type, title)))
+                
+                self.current_sheet = title
+
+                # Skip header row
+                for index, row in enumerate(sheet[1:]):
+                    if row:
+                        self.current_row = index
+                        getattr(self, 'create_{}'.format(entity_type))(row)
+        
+        self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(options['doc_id'])))
+    
+    def log_error(self, message):
+        log_message = message + ' (context: Sheet {0}, Row {1})'.format(self.current_sheet, self.current_row)
+        self.stdout.write(self.style.ERROR(log_message))
+        
+        if not os.path.isfile('errors.csv'):
+            with open('errors.csv', 'w') as f:
+                header = ['timestamp', 'sheet', 'row', 'message']
+                writer = csv.writer(f)
+                writer.writerow(header)
+
+        with open('errors.csv', 'a') as f:
+            writer = csv.writer(f)
+            writer.writerow([datetime.now().isoformat(), 
+                             self.current_sheet, 
+                             self.current_row, 
+                             message])
+
+    def create_organization(self, org_data):
+        organization = None
+        
+        org_positions = {
+            'Name': {
+                'value': 14,
+                'confidence': 16,
+                'source': 15
+            },
+            'Alias': {
+                'value': 17,
+                'confidence': 19,
+                'source': 18,
+            },
+            'Classification': {
+                'value': 21,
+                'confidence': 23,
+                'source': 22,
+            },
+        }
+        
+        composition_positions = {
+            'Parent': {
+                'value': 1,
+                'confidence': 3,
+                'source': 2,
+            },
+            'StartDate': {
+                'value': 7,
+                'confidence': 9,
+                'source': 8,
+            },
+            'EndDate': {
+                'value': 10,
+                'confidence': 12,
+                'source': 11,
+            },
+            'Classification': {
+                'value': 4,
+                'confidence': 6,
+                'source': 5,
+            },
+        }
+        
+        area_positions = {
+            'Geoname': {
+                'value': 45,
+                'confidence': 48,
+                'source': 47,
+            },
+            'GeonameId': {
+                'value': 46,
+                'confidence': 48,
+                'source': 47,
+            },
+        }
+        
+        site_positions = {
+            'Geoname': {
+                'value': 27,
+                'confidence': 30,
+                'source': 29,
+            },
+            'GeonameId': {
+                'value': 28,
+                'confidence': 30,
+                'source': 29,
+            },
+        }
+        
+        association_positions = {
+            'StartDate': {
+                'value': 49,
+                'confidence': 51,
+                'source': 50
+            },
+            'EndDate': {
+                'value': 52,
+                'confidence': 54,
+                'source': 53,
+            }
+        }
+
+        # Need to get or create name first
+
+        try:
+            name_value = org_data[org_positions['Name']['value']]
+            confidence = org_data[org_positions['Name']['confidence']].strip().lower()
+            source = org_data[org_positions['Name']['source']]
+        except IndexError:
+            self.log_error('Row seems to be empty')
+            return None
+        
+        if confidence and source:
+            
+            try:
+                confidence = CONFIDENCE_MAP[confidence]
+            except KeyError:
+                confidence = None
+            
+            sources = self.create_sources(source)
+            self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
+            
+            if confidence and sources:
+                
+                org_info = {
+                    'Organization_OrganizationName': {
+                        'value': name_value,
+                        'confidence': confidence,
+                        'sources': sources
+                    }
+                }
+                
+                try:
+                    organization = Organization.objects.get(organizationname__value=name_value)
+                    sources = self.sourcesList(organization, 'name')
+                    org_info["Organization_OrganizationName"]['sources'] = sources
+                    
+                except Organization.DoesNotExist:
+                    organization = Organization.create(org_info)
+
+                aliases = self.make_relation('Alias', 
+                                             org_positions['Alias'], 
+                                             org_data, 
+                                             organization)
+                
+                classification = self.make_relation('Classification',
+                                                    org_positions['Classification'],
+                                                    org_data,
+                                                    organization)
+                
+                # Create Geographies
+                site_geoname_id = org_data[site_positions['GeonameId']['value']]
+
+                if site_geoname_id:
+                    
+                    emplacement = self.make_emplacement(site_geoname_id, 
+                                                        org_data, 
+                                                        organization)
+                
+
+                self.stdout.write(self.style.SUCCESS('Created {}'.format(organization.get_value())))
+
+            else:
+                self.log_error('{} did not have a confidence or source'.format(name_value))
+        
+        else:
+            self.log_error('{} did not have a confidence or source'.format(name_value))
+        
+        return organization
     
     def make_relation(self, 
                       field_name, 
@@ -104,10 +295,13 @@ class Command(UtilityMixin, BaseCommand):
         value_position = positions['value']
         confidence_position = positions['confidence']
         source_position = positions['source']
-
-        value = data[value_position]
-        confidence = CONFIDENCE_MAP.get(data[confidence_position])
-        source = self.create_sources(data[source_position])
+        
+        try:
+            value = data[value_position]
+            confidence = CONFIDENCE_MAP.get(data[confidence_position])
+            source = self.create_sources(data[source_position])
+        except IndexError:
+            self.log_error('Row seems to be empty')
         
         app_name = instance._meta.model_name
         model_name = instance._meta.object_name
@@ -143,11 +337,125 @@ class Command(UtilityMixin, BaseCommand):
 
             return relation_instance
         
-        # else:
-            # TODO dump out errors
+        else:
+            message = '{field_name} from {app_name}.{model_name} did not have a confidence or source'.format(field_name=field_name,
+                                                                                                             app_name=app_name,
+                                                                                                             model_name=model_name)
+            self.log_error(message)
         
         return None
         
+    def make_emplacement(self, 
+                         geoname_id, 
+                         org_data, 
+                         organization):
+        
+        positions = {
+            'Geoname': {
+                'confidence': 30,
+                'source': 29,
+            },
+            'AdminLevel1': {
+                'confidence': 34,
+                'source': 33,
+            }
+        }
+
+        relation_positions = {
+            'StartDate': {
+                'value': 36,
+                'confidence': 38,
+                'source': 37,
+            },
+            'EndDate': {
+                'value': 40,
+                'confidence': 42,
+                'source': 41,
+            }
+        }
+        
+        geo = get_geoname_by_id(geoname_id)
+        
+        if geo:
+            parent = geo.parent
+            admin1 = parent.name
+            coords = getattr(geo, 'location', None)
+
+            site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.id)
+
+            site_data = {}
+
+            geoname_confidence = CONFIDENCE_MAP[org_data[positions['Geoname']['confidence']].lower()]
+            geoname_sources = self.create_sources(org_data[positions['Geoname']['source']])
+            
+            if geoname_confidence and geoname_sources:
+
+                site_data['Geosite_GeositeName'] = {
+                    'value': geo.name,
+                    'confidence': geoname_confidence,
+                    'sources': geoname_sources,
+                }
+                site_data['Geosite_GeositeGeoname'] = {
+                    'value': geo.name,
+                    'confidence': geoname_confidence,
+                    'sources': geoname_sources,
+                }
+                site_data['Geosite_GeositeGeonameId'] = {
+                    'value': geo.id,
+                    'confidence': geoname_confidence,
+                    'sources': geoname_sources,
+                }
+                site_data['Geosite_GeositeCoordinates'] = {
+                    'value': coords,
+                    'confidence': geoname_confidence,
+                    'sources': geoname_sources,
+                }
+            
+            else:
+                self.log_error('Geoname {} did not have source or confidence'.format(geo.name))
+
+            admin1_confidence = CONFIDENCE_MAP[org_data[positions['AdminLevel1']['confidence']].lower()]
+            admin1_sources = self.create_sources(org_data[positions['AdminLevel1']['source']])
+            
+            if admin1_confidence and admin1_sources:
+
+                site_data['Geosite_GeositeAdminLevel1'] = {
+                    'value': admin1,
+                    'confidence': admin1_confidence,
+                    'sources': admin1_sources,
+                }
+            
+            else:
+                self.log_error('AdminLevel1 {} did not have source or confidence'.format(admin1))
+            
+            site.update(site_data)
+            
+            emplacement, created = Emplacement.objects.get_or_create(emplacementorganization__value=organization.id,
+                                                                     emplacementsite__value=site.id)
+            
+            for field_name, positions in relation_positions.items():
+                
+                self.make_relation(field_name, 
+                                   positions, 
+                                   org_data, 
+                                   emplacement)
+            emp_data = {
+                'Emplacement_EmplacementOrganization': {
+                    'value': organization,
+                    'confidence': geoname_confidence,
+                    'sources': geoname_sources,
+                },
+                'Emplacement_EmplacementSite': {
+                    'value': site,
+                    'confidence': geoname_confidence,
+                    'sources': geoname_sources,
+                },
+            }
+            
+            emplacement.update(emp_data)
+        
+        else:
+            self.log_error('Could not find GeonameID {}'.format(geoname_id))
 
     def create_sources(self, sources_string):
         
@@ -158,6 +466,7 @@ class Command(UtilityMixin, BaseCommand):
             try:
                 dates = next(datefinder.find_dates(source, index=True))
             except StopIteration:
+                self.log_error('Unable to parse published on date from source string: {}'.format(source))
                 continue
             
             dates, indices = dates
@@ -170,6 +479,7 @@ class Command(UtilityMixin, BaseCommand):
             try:
                 source_title, pub_title = before_date.split('.', 1)
             except ValueError:
+                self.log_error('Unable to parse source title and publication title from source string: {}'.format(source))
                 continue
             
             pub_country = None
@@ -183,6 +493,7 @@ class Command(UtilityMixin, BaseCommand):
             try:
                 country = Country.objects.get(name=pub_country)
             except Country.DoesNotExist:
+                self.log_error('Unable to parse publication country from source string: {}'.format(source))
                 continue
 
             # Source URL and archive URL (if they exist) should be after the date.
@@ -211,83 +522,64 @@ class Command(UtilityMixin, BaseCommand):
 
         return sources
 
-    def create_organization(self, org_data):
-        # Name, Aliases, Classification
-        organization = None
-
-        field_positions = {
-            'Name': {
-                'value': 14,
-                'confidence': 16,
-                'source': 15
-            },
-            'Alias': {
-                'value': 17,
-                'confidence': 19,
-                'source': 18,
-            },
-            'Classification': {
-                'value': 21,
-                'confidence': 23,
-                'source': 22,
-            },
-        }
-        
-        # Need to get or create name first
-        name_value = org_data[field_positions['Name']['value']]
-        confidence = org_data[field_positions['Name']['confidence']].strip().lower()
-        source = org_data[field_positions['Name']['source']]
-        
-        if confidence and source:
-            
-            try:
-                confidence = CONFIDENCE_MAP[confidence]
-            except KeyError:
-                confidence = None
-            
-            sources = self.create_sources(source)
-            self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
-            
-            if confidence and sources:
-                
-                org_info = {
-                    'Organization_OrganizationName': {
-                        'value': name_value,
-                        'confidence': confidence,
-                        'sources': sources
-                    }
-                }
-                
-                try:
-                    organization = Organization.objects.get(organizationname__value=name_value)
-                    sources = self.sourcesList(organization, 'name')
-                    org_info["Organization_OrganizationName"]['sources'] = sources
-                    
-                except Organization.DoesNotExist:
-                    organization = Organization.create(org_info)
-
-                aliases = self.make_relation('Alias', 
-                                             field_positions['Alias'], 
-                                             org_data, 
-                                             organization)
-                
-                classification = self.make_relation('Classification',
-                                                    field_positions['Classification'],
-                                                    org_data,
-                                                    organization)
-            
-                self.stdout.write(self.style.SUCCESS('Created {}'.format(organization.get_value())))
-
-            else:
-                self.stdout.write(self.style.ERROR('Skipping {}'.format(name_value)))
-        
-        else:
-            self.stdout.write(self.style.ERROR('Skipping {}'.format(name_value)))
-        
-        return organization
 
     def create_person(self, person_dict):
-        pass
+        person = None
+
+        person_field_positions = {
+            'Name': {
+                'value': 1,
+                'confidence': 3,
+                'source': 2,
+            },
+            'Alias': {
+                'value': 4,
+                'confidence': 6,
+                'source': 5,
+            },
+        }
+        membership_field_positions = {
+            'Organization': {
+                'value': 7,
+                'confidence': 9,
+                'source': 8,
+            },
+            'Role': {
+                'value': 10,
+                'confidence': 12,
+                'source': 11,
+            },
+            'Title': {
+                'value': 13,
+                'confidence': 15,
+                'source': 14,
+            },
+            'Rank': {
+                'value': 16,
+                'confidence': 18,
+                'source': 17,
+            },
+            'FirstCitedDate': {
+                'value': 19,
+                'confidence': 21,
+                'source': 20,
+            },
+            'StartContext': {
+                'value': 23,
+                'confidence': 25,
+                'source': 24,
+            },
+            'LastCitedDate': {
+                'value': 26,
+                'confidence': 28,
+                'source': 27,
+            },
+            'EndContext': {
+                'value': 30,
+                'confidence': 32,
+                'source': 31,
+            },
+        }
 
     def create_event(self, event_dict):
         pass

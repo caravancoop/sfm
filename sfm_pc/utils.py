@@ -72,8 +72,12 @@ def get_geoname_by_id(geoname_id):
     
     row = c.fetchone()
     
-    geo_type, _ = GEONAME_TYPES[row[1]]
-    return geo_type.objects.get(id=row[0])
+    if row:
+        
+        geo_type, _ = GEONAME_TYPES[row[1]]
+        return geo_type.objects.get(id=row[0])
+    
+    return None
 
 def deleted_in_str(objects):
     index = 0
