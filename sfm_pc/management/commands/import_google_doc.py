@@ -1,6 +1,8 @@
 import os
 import json
 from collections import OrderedDict
+import re
+from uuid import uuid4
 
 import httplib2
 
@@ -12,6 +14,7 @@ import datefinder
 from django.core.management.base import BaseCommand, CommandError
 from django.db import models, transaction
 
+from cities.models import Country
 
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
@@ -47,7 +50,7 @@ class Command(UtilityMixin, BaseCommand):
                                                                        SCOPES)
         return credentials
     
-    @transaction.atomic
+    # @transaction.atomic
     def handle(self, *args, **options):
         
         credentials = self.get_credentials()
@@ -94,17 +97,17 @@ class Command(UtilityMixin, BaseCommand):
     
     def make_relation(self, 
                       field_name, 
-                      postions, 
+                      positions, 
                       data,
                       instance):
 
-        value_position = positions[field_name]['value']
-        confidence_position = positions[field_name]['confidence']
-        source_position = positions[field_name]['source']
+        value_position = positions['value']
+        confidence_position = positions['confidence']
+        source_position = positions['source']
 
         value = data[value_position]
         confidence = CONFIDENCE_MAP.get(data[confidence_position])
-        source = self.create_source(data[source_position])
+        source = self.create_sources(data[source_position])
         
         app_name = instance._meta.model_name
         model_name = instance._meta.object_name
@@ -148,8 +151,7 @@ class Command(UtilityMixin, BaseCommand):
 
     def create_sources(self, sources_string):
         
-        # TODO: Maybe finding index of date string in source will give
-        # us orientation to find other parts
+        sources = []
         
         for source in sources_string.split(';'):
             
@@ -162,6 +164,9 @@ class Command(UtilityMixin, BaseCommand):
             
             before_date, after_date = source[:indices[0]], source[indices[1]:]
             
+            # Source title, publication title and publication country should be
+            # before the date. If not, skip it
+
             try:
                 source_title, pub_title = before_date.split('.', 1)
             except ValueError:
@@ -174,18 +179,35 @@ class Command(UtilityMixin, BaseCommand):
                 last_paren = pub_title.find(')')
                 pub_country = pub_title[first_paren + 1:last_paren]
                 pub_title = pub_title[:first_paren]
+            
+            try:
+                country = Country.objects.get(name=pub_country)
+            except Country.DoesNotExist:
+                continue
 
-            print('source_title', source_title)
-            print('pub_title', pub_title)
-            print('pub_country', pub_country)
-            print('\n')
-        
-        sources = []
+            # Source URL and archive URL (if they exist) should be after the date.
+            
+            source_url = None
+            urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', after_date)
 
-        # parts = source_string.split(';')
-
-        # if len(parts) >= 1:
-        #     print(parts)
+            if urls:
+                source_url = urls[0]
+            
+            try:
+                publication = Publication.objects.get(title=pub_title.strip(),
+                                                      country=pub_country.strip())
+            except Publication.DoesNotExist:
+                publication_id = str(uuid4())
+                publication = Publication.objects.create(title=pub_title.strip(),
+                                                         id=publication_id,
+                                                         country=pub_country.strip())
+            
+            source, created = Source.objects.get_or_create(title=source_title.strip(),
+                                                           source_url=source_url,
+                                                           publication=publication,
+                                                           published_on=dates)
+            
+            sources.append(source)
 
         return sources
 
@@ -206,7 +228,7 @@ class Command(UtilityMixin, BaseCommand):
             },
             'Classification': {
                 'value': 21,
-                'condfidence': 23,
+                'confidence': 23,
                 'source': 22,
             },
         }
@@ -222,44 +244,42 @@ class Command(UtilityMixin, BaseCommand):
                 confidence = CONFIDENCE_MAP[confidence]
             except KeyError:
                 confidence = None
-
-            sources = [self.create_sources(source)]
+            
+            sources = self.create_sources(source)
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
             
-            print('confidence', confidence, 'source', sources)
+            if confidence and sources:
+                
+                org_info = {
+                    'Organization_OrganizationName': {
+                        'value': name_value,
+                        'confidence': confidence,
+                        'sources': sources
+                    }
+                }
+                
+                try:
+                    organization = Organization.objects.get(organizationname__value=name_value)
+                    sources = self.sourcesList(organization, 'name')
+                    org_info["Organization_OrganizationName"]['sources'] = sources
+                    
+                except Organization.DoesNotExist:
+                    organization = Organization.create(org_info)
+
+                aliases = self.make_relation('Alias', 
+                                             field_positions['Alias'], 
+                                             org_data, 
+                                             organization)
+                
+                classification = self.make_relation('Classification',
+                                                    field_positions['Classification'],
+                                                    org_data,
+                                                    organization)
             
-            # if confidence and sources:
-            #     
-            #     org_info = {
-            #         'Organization_OrganizationName': {
-            #             'value': name_value,
-            #             'confidence': confidence,
-            #             'sources': sources
-            #         }
-            #     }
-            #     
-            #     try:
-            #         organization = Organization.objects.get(organizationname__value=name_value)
-            #         sources = self.sourcesList(organization, 'name')
-            #         org_info["Organization_OrganizationName"]['sources'] = sources
-            #         
-            #     except Organization.DoesNotExist:
-            #         organization = Organization.create(org_info)
+                self.stdout.write(self.style.SUCCESS('Created {}'.format(organization.get_value())))
 
-            #     aliases = self.make_relation('Alias', 
-            #                                  field_positions['Alias'], 
-            #                                  org_data, 
-            #                                  organization)
-            #     
-            #     classification = self.make_relation('Classification',
-            #                                         field_positions['Classification'],
-            #                                         org_data,
-            #                                         organization)
-            # 
-            #     self.stdout.write(self.style.SUCCESS('Created {}'.format(organization.get_value())))
-
-            # else:
-            #     self.stdout.write(self.style.ERROR('Skipping {}'.format(name_value)))
+            else:
+                self.stdout.write(self.style.ERROR('Skipping {}'.format(name_value)))
         
         else:
             self.stdout.write(self.style.ERROR('Skipping {}'.format(name_value)))

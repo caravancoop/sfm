@@ -49,14 +49,16 @@ class Source(models.Model):
         return sources
 
 def archive_source_url(source):
-    wayback_host = 'http://web.archive.org'
-    save_url = '{0}/save/{1}'.format(wayback_host, source.source_url)
-    archived = requests.get(save_url)
-    source.archive_url = '{0}{1}'.format(wayback_host, 
-                                         archived.headers['Content-Location'])
-    source.save()
+    
+    if source.source_url:
+        wayback_host = 'http://web.archive.org'
+        save_url = '{0}/save/{1}'.format(wayback_host, source.source_url)
+        archived = requests.get(save_url)
+        source.archive_url = '{0}{1}'.format(wayback_host, 
+                                             archived.headers['Content-Location'])
+        source.save()
 
-@receiver(post_save, sender=Source)
+#@receiver(post_save, sender=Source)
 def get_archived_url(sender, **kwargs):
     
     source = kwargs['instance']
