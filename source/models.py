@@ -9,8 +9,8 @@ from django.dispatch import receiver
 
 class Publication(models.Model):
     id = models.UUIDField(primary_key=True)
-    title = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
+    title = models.TextField()
+    country = models.CharField(max_length=255, null=True)
     
     def __str__(self):
         if self.title is None:
@@ -21,8 +21,8 @@ class Source(models.Model):
     title = models.TextField()
     publication = models.ForeignKey(Publication, null=True)
     published_on = models.DateField()
-    source_url = models.URLField(null=True)
-    archive_url = models.URLField(null=True)
+    source_url = models.URLField(max_length=1000, null=True)
+    archive_url = models.URLField(max_length=1000, null=True)
 
     def __str__(self):
         if self.title is None:
