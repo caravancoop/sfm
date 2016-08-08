@@ -35,6 +35,9 @@ from emplacement.models import Emplacement
 from area.models import Area
 from association.models import Association
 from composition.models import Composition
+from person.models import Person
+from membershipperson.models import MembershipPerson
+from violation.models import Violation
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
@@ -98,7 +101,7 @@ class Command(UtilityMixin, BaseCommand):
                           if 'organization' in title.lower() or 'mopol' in title.lower()}
         
         person_sheets = {title: data for title, data in sheet_mapping.items() \
-                            if 'person' in title.lower()}
+                            if 'people' in title.lower()}
         
         event_sheets = {title: data for title, data in sheet_mapping.items() \
                             if 'event' in title.lower()}
@@ -109,6 +112,8 @@ class Command(UtilityMixin, BaseCommand):
             'event': event_sheets,
         }
         
+        skippers = ['Organizations (Military)', 'Play Copy of Events']
+
         for entity_type in options['entity_types'].split(','):
             
             sheets = all_sheets[entity_type]
@@ -119,7 +124,7 @@ class Command(UtilityMixin, BaseCommand):
                 
                 self.current_sheet = title
                 
-                if not 'military' in title.lower():
+                if not title in skippers:
 
                     # Skip header row
                     for index, row in enumerate(sheet[1:]):
@@ -251,8 +256,10 @@ class Command(UtilityMixin, BaseCommand):
                 try:
                     organization = Organization.objects.get(organizationname__value=name_value)
                     sources = self.sourcesList(organization, 'name')
-                    org_info["Organization_OrganizationName"]['sources'] = sources
+                    org_info["Organization_OrganizationName"]['sources'] += sources
                     
+                    organization.update(org_info)
+
                 except Organization.DoesNotExist:
                     organization = Organization.create(org_info)
 
@@ -381,88 +388,117 @@ class Command(UtilityMixin, BaseCommand):
                       field_name, 
                       positions, 
                       data,
-                      instance):
+                      instance,
+                      required=False,
+                      confidence_required=True):
 
         value_position = positions['value']
-        confidence_position = positions['confidence']
+        
+        try:
+            confidence_position = positions['confidence']
+        except KeyError:
+            confidence_position = None
+
+            if confidence_required:
+                self.log_error('No confidence for {}'.format(field_name))
+                return None
+        
         source_position = positions['source']
         
         try:
             value = data[value_position]
         except IndexError:
+            value = None
+        
+        if required and not value:
             self.log_error('No {0} information for {1}'.format(field_name, instance.get_value()))
             return None
         
-        try:
-            confidence = self.get_confidence(data[confidence_position])
-        except (KeyError, IndexError):
-            self.log_error('No confidence for {}'.format(field_name))
-            return None
-        
-        sources = self.create_sources(data[source_position])
-
-        app_name = instance._meta.model_name
-        model_name = instance._meta.object_name
-
-        if sources and confidence:
-            import_path = '{app_name}.models.{model_name}{field_name}'
-
-            relation_path = import_path.format(app_name=app_name,
-                                               model_name=model_name,
-                                               field_name=field_name)
-
-            relation_model = import_class(relation_path)
+        elif value:
+            try:
+                confidence = self.get_confidence(data[confidence_position])
+            except (KeyError, IndexError, TypeError):
+                confidence = None
+                if confidence_required:
+                    self.log_error('No confidence for {}'.format(field_name))
+                    return None
             
-            if isinstance(relation_model._meta.get_field('value'), models.ForeignKey):
-                value_rel_path = '{app_name}.models.{field_name}'.format(app_name=app_name,
-                                                                         field_name=field_name)
-                value_model = import_class(value_rel_path)
-               
-                value_objects = []
-                for value_text in value.split(';'):
-                    value_obj, created = value_model.objects.get_or_create(value=value_text)
-                    
-                    relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
-                                                                                      object_ref=instance,
-                                                                                      lang='en')
-            
-            elif isinstance(relation_model._meta.get_field('value'), ApproximateDateField):
-                value = dateparser(value)
+            sources = self.create_sources(data[source_position])
+
+            app_name = instance._meta.model_name
+            model_name = instance._meta.object_name
+
+            if sources and confidence:
+                import_path = '{app_name}.models.{model_name}{field_name}'
+
+                relation_path = import_path.format(app_name=app_name,
+                                                   model_name=model_name,
+                                                   field_name=field_name)
+
+                relation_model = import_class(relation_path)
                 
-                if value:
-                    relation_instance, created = relation_model.objects.get_or_create(value=value.strftime('%Y-%m-%d'), 
+                if isinstance(relation_model._meta.get_field('value'), models.ForeignKey):
+                    value_rel_path_fmt = '{app_name}.models.{field_name}'
+                    value_rel_path = value_rel_path_fmt.format(app_name=app_name,
+                                                               field_name=field_name)
+
+                    try:
+                        value_model = import_class(value_rel_path)
+                    except AttributeError:
+                        value_rel_path = value_rel_path_fmt.format(app_name=app_name,
+                                                                   field_name='Context')
+                        value_model = import_class(value_rel_path)
+                   
+                    value_objects = []
+                    for value_text in value.split(';'):
+                        value_obj, created = value_model.objects.get_or_create(value=value_text)
+                        
+                        relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
+                                                                                          object_ref=instance,
+                                                                                          lang='en')
+                
+                elif isinstance(relation_model._meta.get_field('value'), ApproximateDateField):
+                    parsed_value = dateparser(value)
+                    
+                    if parsed_value:
+                        relation_instance, created = relation_model.objects.get_or_create(value=parsed_value.strftime('%Y-%m-%d'), 
+                                                                                          object_ref=instance,
+                                                                                          lang='en')
+                    else:
+                        self.log_error('Expected a date for {app_name}.models.{field_name} but got {value}'.format(app_name=app_name,
+                                                                                                                   field_name=field_name,
+                                                                                                                   value=value))
+                        return None
+
+                else:
+                    relation_instance, created = relation_model.objects.get_or_create(value=value, 
                                                                                       object_ref=instance,
                                                                                       lang='en')
-                else:
-                    self.log_error('Expected a date for {app_name}.models.{field_name} but got {value}'.format(app_name=app_name,
-                                                                                                               field_name=field_name,
-                                                                                                               value=value))
-
-            else:
-                relation_instance, created = relation_model.objects.get_or_create(value=value, 
-                                                                                  object_ref=instance,
-                                                                                  lang='en')
-            
-            for source in sources:
-                relation_instance.sources.add(source)
+                
+                for source in sources:
+                    relation_instance.sources.add(source)
+                
+                relation_instance.confidence = confidence
                 relation_instance.save()
+                
+                print(relation_instance)
 
-            return relation_instance
-        
-        else:
-            missing = []
-            if not confidence:
-                missing.append('confidence')
-            if not sources:
-                missing.append('sources')
+                return relation_instance
             
-            message = '{field_name} from {app_name}.{model_name} does not have {missing}'.format(field_name=field_name,
-                                                                                                 app_name=app_name,
-                                                                                                 model_name=model_name,
-                                                                                                 missing=', '.join(missing))
-            self.log_error(message)
-        
-        return None
+            else:
+                missing = []
+                if not confidence:
+                    missing.append('confidence')
+                if not sources:
+                    missing.append('sources')
+                
+                message = '{field_name} from {app_name}.{model_name} does not have {missing}'.format(field_name=field_name,
+                                                                                                     app_name=app_name,
+                                                                                                     model_name=model_name,
+                                                                                                     missing=', '.join(missing))
+                self.log_error(message)
+            
+            return None
     
     def make_area(self, geoname_id, org_data, organization):
         positions = {
@@ -750,10 +786,10 @@ class Command(UtilityMixin, BaseCommand):
         return sources
 
 
-    def create_person(self, person_dict):
+    def create_person(self, person_data):
         person = None
 
-        person_field_positions = {
+        person_positions = {
             'Name': {
                 'value': 1,
                 'confidence': 3,
@@ -765,7 +801,7 @@ class Command(UtilityMixin, BaseCommand):
                 'source': 5,
             },
         }
-        membership_field_positions = {
+        membership_positions = {
             'Organization': {
                 'value': 7,
                 'confidence': 9,
@@ -807,6 +843,250 @@ class Command(UtilityMixin, BaseCommand):
                 'source': 31,
             },
         }
+        
+        try:
+            name_value = person_data[person_positions['Name']['value']]
+            confidence = person_data[person_positions['Name']['confidence']]
+            source = person_data[person_positions['Name']['source']]
+        except IndexError:
+            self.log_error('Row seems to be empty')
+            return None
+        
+        if confidence and source:
+            
+            try:
+                confidence = self.get_confidence(confidence)
+            except KeyError:
+                confidence = None
+            
+            sources = self.create_sources(source)
+            self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
+            
+            if confidence and sources:
+                
+                person_info = {
+                    'Person_PersonName': {
+                        'value': name_value,
+                        'confidence': confidence,
+                        'sources': sources
+                    }
+                }
+                
+                try:
+                    person = Person.objects.get(personname__value=name_value)
+                    sources = self.sourcesList(person, 'name')
+                    person_info["Person_PersonName"]['sources'] += sources
+                    person.update(person_info)
+                    
+                except Person.DoesNotExist:
+                    person = Person.create(person_info)
+                
+                aliases = self.make_relation('Alias', 
+                                             person_positions['Alias'], 
+                                             person_data, 
+                                             person)
+                
+                # Make membership objects
+                try:
+                    organization_name = person_data[membership_positions['Organization']['value']]
+                except IndexError:
+                    self.log_error('Row seems to be empty')
+                    return None
+                
+                try:
+                    confidence = self.get_confidence(person_data[membership_positions['Organization']['confidence']])
+                except (KeyError, IndexError):
+                    self.log_error('Person {0} as a member of {1} has no confidence'.format(name_value, organization_name))
+                    return None
+                
+                try:
+                    sources = self.create_sources(person_data[membership_positions['Organization']['source']])
+                except (KeyError, IndexError):
+                    self.log_error('Person {0} as a member of {1} has no sources'.format(name_value, organization_name))
+                    return None
+                
+                org_info = {
+                    'Organization_OrganizationName': {
+                        'value': organization_name, 
+                        'confidence': confidence,
+                        'sources': sources,
+                    },
+                }
+                
+                try:
+                    organization = Organization.objects.get(organizationname__value=organization_name)
+                    organization.update(org_info)
+                except Organization.DoesNotExist:
+                    organization = Organization.create(org_info)
 
-    def create_event(self, event_dict):
-        pass
+                membership_data = {
+                    'MembershipPerson_MembershipPersonMember': {
+                        'value': person,
+                        'confidence': confidence,
+                        'sources': sources,
+                    },
+                    'MembershipPerson_MembershipPersonOrganization': { 
+                        'value': organization,
+                        'confidence': confidence,
+                        'sources': sources,
+                    }
+                }
+                
+                try:
+                    membership = MembershipPerson.objects.get(membershippersonmember__value=person,
+                                                              membershippersonorganization__value=organization)
+                    sources = set(self.sourcesList(membership, 'member') + \
+                                  self.sourcesList(membership, 'organization'))
+                    membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
+                    membership.update(membership_data)
+
+                except MembershipPerson.DoesNotExist:
+                    membership = MembershipPerson.create(membership_data)
+                
+                self.make_relation('Role', 
+                                   membership_positions['Role'], 
+                                   person_data, 
+                                   membership)
+                
+                self.make_relation('Title', 
+                                   membership_positions['Title'], 
+                                   person_data, 
+                                   membership)
+                
+                self.make_relation('Rank', 
+                                   membership_positions['Rank'], 
+                                   person_data, 
+                                   membership)
+                
+                self.make_relation('FirstCitedDate', 
+                                   membership_positions['FirstCitedDate'], 
+                                   person_data, 
+                                   membership)
+                
+                self.make_relation('StartContext', 
+                                   membership_positions['StartContext'], 
+                                   person_data, 
+                                   membership)
+                
+                self.make_relation('LastCitedDate', 
+                                   membership_positions['LastCitedDate'], 
+                                   person_data, 
+                                   membership)
+                
+                self.make_relation('EndContext', 
+                                   membership_positions['EndContext'], 
+                                   person_data, 
+                                   membership)
+                
+                self.stdout.write(self.style.SUCCESS('Created {}'.format(person.get_value())))
+
+            else:
+                self.log_error('{} did not have a confidence or source'.format(name_value))
+
+    def create_event(self, event_data):
+        positions = {
+            'StartDate': {
+                'value': 1,
+                'source': 14,
+                'model_field': 'violationstartdate',
+            },
+            'EndDate': {
+                'value': 2,
+                'source': 14,
+                'model_field': 'violationenddate',
+            },
+            'LocationDescription': {
+                'value': 3,
+                'source': 14,
+                'model_field': 'violationlocationdescription',
+            },
+            'Type': {
+                'value': 9,
+                'source': 14,
+                'model_field': 'violationtype',
+            },
+            'Description': {
+                'value': 10,
+                'source': 14,
+                'model_field': 'violationdescription',
+            },
+        }
+        
+        geoname_positions = {
+            'GeonameId': {
+                'value': 5,
+                'source': 14,
+            }
+        }
+
+        data = {}
+        for field_name, values in positions.items():
+            if event_data[values['value']] and \
+                'Date' not in field_name and 'Type' not in field_name:
+                data[values['model_field'] + '__value'] = event_data[values['value']]
+                
+        # TODO: Sorta works. Gotta get dates going though
+        if data:
+            violation, created = Violation.objects.get_or_create(**data)
+        else:
+            for violation in Violation.objects.filter(**data):
+                violation.delete()
+        
+        self.make_relation('StartDate', 
+                           positions['StartDate'], 
+                           event_data, 
+                           violation,
+                           confidence_required=False)
+        
+        self.make_relation('EndDate', 
+                           positions['EndDate'], 
+                           event_data, 
+                           violation,
+                           confidence_required=False)
+        
+        self.make_relation('LocationDescription', 
+                           positions['LocationDescription'], 
+                           event_data, 
+                           violation,
+                           confidence_required=False)
+        
+        self.make_relation('Type', 
+                           positions['Type'], 
+                           event_data, 
+                           violation,
+                           confidence_required=False)
+        
+        self.make_relation('Description', 
+                           positions['Description'], 
+                           event_data, 
+                           violation,
+                           confidence_required=False)
+        
+        # Make geoname stuff
+        
+        try:
+            geoname_id = event_data[positions['GeonameId']['value']]
+        except IndexError:
+            geoname_id = None
+
+        if geoname_id:
+            
+            try:
+                geo = get_geoname_by_id(geoname_id)
+            except DataError:
+                self.log_error('Geoname ID for Site does not seem valid: {}'.format(geoname_id))
+                geo = None
+
+            if geo:
+                parent = geo.parent
+                admin1 = parent.name
+                admin2 = parent.parent.name
+                coords = getattr(geo, 'location', None)
+                
+                event_info = {
+                    'Violation_ViolationAdminLevel1': {
+                        'value': admin1,
+                        'confidence': 1,
+                        'sources': 
+                    }
+                }
