@@ -37,7 +37,7 @@ from association.models import Association
 from composition.models import Composition
 from person.models import Person
 from membershipperson.models import MembershipPerson
-from violation.models import Violation
+from violation.models import Violation, Type
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
@@ -418,12 +418,16 @@ class Command(UtilityMixin, BaseCommand):
             try:
                 confidence = self.get_confidence(data[confidence_position])
             except (KeyError, IndexError, TypeError):
-                confidence = None
+                confidence = 1
                 if confidence_required:
                     self.log_error('No confidence for {}'.format(field_name))
                     return None
             
-            sources = self.create_sources(data[source_position])
+            try:
+                sources = self.create_sources(data[source_position])
+            except IndexError:
+                self.log_error('No source for {}'.format(field_name))
+                return None
 
             app_name = instance._meta.model_name
             model_name = instance._meta.object_name
@@ -451,7 +455,11 @@ class Command(UtilityMixin, BaseCommand):
                    
                     value_objects = []
                     for value_text in value.split(';'):
-                        value_obj, created = value_model.objects.get_or_create(value=value_text)
+                        
+                        if value_model == Type:
+                            value_obj, created = value_model.objects.get_or_create(code=value_text)
+                        else:
+                            value_obj, created = value_model.objects.get_or_create(value=value_text)
                         
                         relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
                                                                                           object_ref=instance,
@@ -481,13 +489,11 @@ class Command(UtilityMixin, BaseCommand):
                 relation_instance.confidence = confidence
                 relation_instance.save()
                 
-                print(relation_instance)
-
                 return relation_instance
             
             else:
                 missing = []
-                if not confidence:
+                if not confidence and confidence_required:
                     missing.append('confidence')
                 if not sources:
                     missing.append('sources')
@@ -756,7 +762,7 @@ class Command(UtilityMixin, BaseCommand):
                     pub_country = pub_country.strip()
                     country = Country.objects.get(name=pub_country)
                 except (Country.DoesNotExist, AttributeError):
-                    self.log_error('Unable to parse publication country from source string: {}'.format(source))
+                    # self.log_error('Unable to parse publication country from source string: {}'.format(source))
                     pub_country = None
 
                 # Source URL and archive URL (if they exist) should be after the date.
@@ -1010,19 +1016,16 @@ class Command(UtilityMixin, BaseCommand):
                 'source': 14,
                 'model_field': 'violationdescription',
             },
-        }
-        
-        geoname_positions = {
             'GeonameId': {
                 'value': 5,
                 'source': 14,
-            }
+            },
         }
 
         data = {}
+        skippers = ['StartDate', 'EndDate', 'GeonameId', 'Type']
         for field_name, values in positions.items():
-            if event_data[values['value']] and \
-                'Date' not in field_name and 'Type' not in field_name:
+            if event_data[values['value']] and field_name not in skippers:
                 data[values['model_field'] + '__value'] = event_data[values['value']]
                 
         # TODO: Sorta works. Gotta get dates going though
@@ -1083,10 +1086,39 @@ class Command(UtilityMixin, BaseCommand):
                 admin2 = parent.parent.name
                 coords = getattr(geo, 'location', None)
                 
+                sources = self.create_sources(event_data[positions['GeonameId']['source']])
+
                 event_info = {
                     'Violation_ViolationAdminLevel1': {
                         'value': admin1,
                         'confidence': 1,
-                        'sources': 
-                    }
+                        'sources': sources
+                    },
+                    'Violation_ViolationAdminLevel1': {
+                        'value': admin1,
+                        'sources': sources,
+                        'confidence': 1
+                    },
+                    'Violation_ViolationAdminLevel2': {
+                        'value': admin2,
+                        'sources': sources,
+                        'confidence': 1
+                    },
+                    'Violation_ViolationGeoname': {
+                        'value': geo.name,
+                        'sources': sources,
+                        'confidence': 1
+                    },
+                    'Violation_ViolationGeonameId': {
+                        'value': geo.id,
+                        'sources': sources,
+                        'confidence': 1
+                    },
+                    'Violation_ViolationLocation': {
+                        'value': coords,
+                        'sources': sources,
+                        'confidence': 1
+                    },
                 }
+
+                violation.update(event_info)
