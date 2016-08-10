@@ -17,6 +17,7 @@ class Area(models.Model, BaseModel):
         self.geoname = ComplexFieldContainer(self, AreaGeoname)
         self.geonameid = ComplexFieldContainer(self, AreaGeonameId)
         self.geometry = ComplexFieldContainer(self, AreaGeometry)
+        self.division_id = ComplexFieldContainer(self, AreaDivisionId)
 
         self.complex_fields = [self.name, self.code, self.geoname, self.geometry]
 
@@ -168,3 +169,10 @@ class Code(models.Model):
 
     def __str__(self):
         return self.value
+
+@versioned
+@sourced
+class AreaDivisionId(ComplexField):
+    object_ref = models.ForeignKey('Area')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Division ID")

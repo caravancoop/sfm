@@ -20,6 +20,7 @@ class Geosite(models.Model, BaseModel):
         self.coordinates = ComplexFieldContainer(self, GeositeCoordinates)
         self.geoname = ComplexFieldContainer(self, GeositeGeoname)
         self.geonameid = ComplexFieldContainer(self, GeositeGeonameId)
+        self.division_id = ComplexFieldContainer(self, GeositeDivisionId)
 
         self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
                                self.coordinates, self.geoname, self.geonameid]
@@ -167,3 +168,10 @@ class GeositeGeonameId(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.IntegerField(default=None, blank=True, null=True)
     field_name = _("GeoName ID")
+
+@versioned
+@sourced
+class GeositeDivisionId(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Division ID")

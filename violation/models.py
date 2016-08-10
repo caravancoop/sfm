@@ -33,6 +33,7 @@ class Violation(models.Model, BaseModel):
         self.adminlevel2 = ComplexFieldContainer(self, ViolationAdminLevel2)
         self.geoname = ComplexFieldContainer(self, ViolationGeoname)
         self.geonameid = ComplexFieldContainer(self, ViolationGeonameId)
+        self.division_id = ComplexFieldContainer(self, ViolationDivisionId)
         self.location = ComplexFieldContainer(self, ViolationLocation)
         self.description = ComplexFieldContainer(self, ViolationDescription)
         self.perpetrator = ComplexFieldListContainer(self, ViolationPerpetrator)
@@ -100,6 +101,13 @@ class ViolationGeonameId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("GeoName ID")
+
+@versioned
+@sourced
+class ViolationDivisionId(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Division ID")
 
 @versioned
 @sourced

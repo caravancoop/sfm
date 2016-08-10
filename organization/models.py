@@ -75,3 +75,7 @@ class OrganizationDivisionId(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.TextField(default=None, blank=True, null=True)
 
+    field_name = _("Division ID")
+
+    def __str__(self):
+        return self.value

@@ -16,6 +16,8 @@ class Person(models.Model, BaseModel):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
         self.aliases = ComplexFieldListContainer(self, PersonAlias)
+        self.division_id = ComplexFieldContainer(self, PersonDivisionId)
+        
         self.complex_fields = [self.name]
 
         self.required_fields = [
@@ -113,3 +115,10 @@ class Alias(models.Model):
     def __str__(self):
         return self.value
 
+@versioned
+@sourced
+class PersonDivisionId(ComplexField):
+    object_ref = models.ForeignKey('Person')
+    value = models.TextField(default=None, blank=True, null=True)
+
+    field_name = _('Division ID')
