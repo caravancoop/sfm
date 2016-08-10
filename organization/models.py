@@ -19,7 +19,7 @@ class Organization(models.Model, BaseModel):
         self.classification = ComplexFieldListContainer(self, OrganizationClassification)
         self.division_id = ComplexFieldContainer(self, OrganizationDivisionId)
 
-        self.complex_fields = [self.name]
+        self.complex_fields = [self.name, self.division_id]
 
         self.required_fields = [
             "Organization_OrganizationName",

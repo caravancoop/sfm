@@ -23,7 +23,8 @@ class Geosite(models.Model, BaseModel):
         self.division_id = ComplexFieldContainer(self, GeositeDivisionId)
 
         self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
-                               self.coordinates, self.geoname, self.geonameid]
+                               self.coordinates, self.geoname, self.geonameid, 
+                               self.division_id]
 
         self.required_fields = ["Geosite_GeositeName"]
 

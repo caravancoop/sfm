@@ -18,7 +18,7 @@ class Person(models.Model, BaseModel):
         self.aliases = ComplexFieldListContainer(self, PersonAlias)
         self.division_id = ComplexFieldContainer(self, PersonDivisionId)
         
-        self.complex_fields = [self.name]
+        self.complex_fields = [self.name, self.division_id]
 
         self.required_fields = [
             "Person_PersonName",

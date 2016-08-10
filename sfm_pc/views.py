@@ -282,3 +282,15 @@ def geoname_autocomplete(request):
 
     results.sort(key=lambda x:x['text'])
     return HttpResponse(json.dumps(results),content_type='application/json')
+
+def division_autocomplete(request):
+    term = request.GET.get('q')
+    countries = Country.objects.filter(name__icontains=term)
+
+    results = []
+    for country in countries:
+        results.append({
+            'text': '{0} (ocd-division/country:{1})'.format(str(country.name), country.code.lower()),
+            'id': 'ocd-division/country:{}'.format(country.code.lower()),
+        })
+    return HttpResponse(json.dumps(results), content_type='application/json')

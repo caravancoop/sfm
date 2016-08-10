@@ -19,7 +19,8 @@ class Area(models.Model, BaseModel):
         self.geometry = ComplexFieldContainer(self, AreaGeometry)
         self.division_id = ComplexFieldContainer(self, AreaDivisionId)
 
-        self.complex_fields = [self.name, self.code, self.geoname, self.geometry]
+        self.complex_fields = [self.name, self.code, self.geoname, 
+                               self.geometry, self.division_id]
 
         self.required_fields = [
             "Area_AreaName",

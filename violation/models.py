@@ -43,7 +43,8 @@ class Violation(models.Model, BaseModel):
 
         self.complex_fields = [self.startdate, self.enddate, self.locationdescription,
                                self.adminlevel1, self.adminlevel2, self.geoname,
-                               self.geonameid, self.location, self.description]
+                               self.geonameid, self.location, self.description, 
+                               self.division_id]
 
         self.required_fields = []
 
