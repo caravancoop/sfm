@@ -9,8 +9,8 @@ from django.dispatch import receiver
 
 class Publication(models.Model):
     id = models.UUIDField(primary_key=True)
-    title = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
+    title = models.TextField()
+    country = models.CharField(max_length=255, null=True)
     
     def __str__(self):
         if self.title is None:
@@ -21,8 +21,8 @@ class Source(models.Model):
     title = models.TextField()
     publication = models.ForeignKey(Publication, null=True)
     published_on = models.DateField()
-    source_url = models.URLField(null=True)
-    archive_url = models.URLField(null=True)
+    source_url = models.URLField(max_length=1000, null=True)
+    archive_url = models.URLField(max_length=1000, null=True)
 
     def __str__(self):
         if self.title is None:
@@ -49,14 +49,16 @@ class Source(models.Model):
         return sources
 
 def archive_source_url(source):
-    wayback_host = 'http://web.archive.org'
-    save_url = '{0}/save/{1}'.format(wayback_host, source.source_url)
-    archived = requests.get(save_url)
-    source.archive_url = '{0}{1}'.format(wayback_host, 
-                                         archived.headers['Content-Location'])
-    source.save()
+    
+    if source.source_url:
+        wayback_host = 'http://web.archive.org'
+        save_url = '{0}/save/{1}'.format(wayback_host, source.source_url)
+        archived = requests.get(save_url)
+        source.archive_url = '{0}{1}'.format(wayback_host, 
+                                             archived.headers['Content-Location'])
+        source.save()
 
-@receiver(post_save, sender=Source)
+#@receiver(post_save, sender=Source)
 def get_archived_url(sender, **kwargs):
     
     source = kwargs['instance']

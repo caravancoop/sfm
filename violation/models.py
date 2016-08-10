@@ -20,6 +20,8 @@ CONFIDENCE_LEVELS = (
 
 
 class Violation(models.Model, BaseModel):
+    confidence_required = False
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, ViolationStartDate)
@@ -55,15 +57,14 @@ class ViolationStartDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Start date")
-
+    
 @versioned
 @sourced
 class ViolationEndDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("End date")
-
-
+    
 @translated
 @versioned
 @sourced
@@ -71,7 +72,7 @@ class ViolationLocationDescription(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Location description")
-
+    
 @versioned
 @sourced
 class ViolationAdminLevel1(ComplexField):

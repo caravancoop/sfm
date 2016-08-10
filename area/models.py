@@ -15,6 +15,7 @@ class Area(models.Model, BaseModel):
         self.name = ComplexFieldContainer(self, AreaName)
         self.code = ComplexFieldContainer(self, AreaCode)
         self.geoname = ComplexFieldContainer(self, AreaGeoname)
+        self.geonameid = ComplexFieldContainer(self, AreaGeonameId)
         self.geometry = ComplexFieldContainer(self, AreaGeometry)
 
         self.complex_fields = [self.name, self.code, self.geoname, self.geometry]

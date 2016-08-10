@@ -9,10 +9,13 @@ from extra_views import FormSetView
 from source.models import Source
 
 class UtilityMixin(object):
+    
+    source = None
+
     def sourcesList(self, obj, attribute):
         sources = [s for s in getattr(obj, attribute).get_sources()] \
                       + [self.source]
-        return list(set(s for s in sources))
+        return list(set(s for s in sources if s))
     
 
 class BaseFormSetView(FormSetView, UtilityMixin):
