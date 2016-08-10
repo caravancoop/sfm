@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from violation.views import ViolationCreate, ViolationUpdate, \
     violation_csv, ViolationDelete, violation_type_autocomplete

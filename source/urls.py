@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from source.views import get_sources, SourceCreate, source_autocomplete, \
     publication_autocomplete, view_source

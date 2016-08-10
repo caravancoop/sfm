@@ -17,6 +17,7 @@ class Organization(models.Model, BaseModel):
         self.name = ComplexFieldContainer(self, OrganizationName)
         self.aliases = ComplexFieldListContainer(self, OrganizationAlias)
         self.classification = ComplexFieldListContainer(self, OrganizationClassification)
+        self.division_id = ComplexFieldContainer(self, OrganizationDivisionId)
 
         self.complex_fields = [self.name]
 
@@ -67,3 +68,10 @@ class Classification(models.Model):
 
     def __str__(self):
         return self.value
+
+@versioned
+@sourced
+class OrganizationDivisionId(ComplexField):
+    object_ref = models.ForeignKey('Organization')
+    value = models.TextField(default=None, blank=True, null=True)
+

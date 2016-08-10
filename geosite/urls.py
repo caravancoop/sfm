@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .views import (SiteCreate, SiteUpdate, SiteView, site_search, site_autocomplete,
                     geosite_csv, GeositeDelete)
