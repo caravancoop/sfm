@@ -25,6 +25,8 @@ from dateparser import parse as dateparser
 
 from cities.models import Country
 
+import reversion
+
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName
@@ -332,9 +334,10 @@ class Command(UtilityMixin, BaseCommand):
                             
                         except Organization.DoesNotExist:
                             parent_organization = Organization.create(parent_org_info)
-
-                        composition, created = Composition.objects.get_or_create(compositionparent__value=parent_organization,
-                                                                                 compositionchild__value=organization)
+                        
+                        with reversion.create_revision():
+                            composition, created = Composition.objects.get_or_create(compositionparent__value=parent_organization,
+                                                                                     compositionchild__value=organization)
                         
                         comp_info = {
                             'Composition_CompositionParent': {
@@ -407,6 +410,7 @@ class Command(UtilityMixin, BaseCommand):
         
         try:
             value = data[value_position]
+            value = value.strip()
         except IndexError:
             value = None
         
@@ -486,8 +490,9 @@ class Command(UtilityMixin, BaseCommand):
                 for source in sources:
                     relation_instance.sources.add(source)
                 
-                relation_instance.confidence = confidence
-                relation_instance.save()
+                with reversion.create_revision():
+                    relation_instance.confidence = confidence
+                    relation_instance.save()
                 
                 return relation_instance
             
@@ -730,9 +735,13 @@ class Command(UtilityMixin, BaseCommand):
                 continue
             
             date, indices = date_indices
-            while date > datetime.now():
+            now = datetime.now()
+            today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            
+            while date > now or date == today:
                 try:
                     date_indices = next(date_gen)
+                    date, indices = date_indices
                 except StopIteration:
                     self.log_error('Unable to parse published on date from source string: {}'.format(source))
                     date = None
@@ -743,7 +752,7 @@ class Command(UtilityMixin, BaseCommand):
                 
                 # Source title, publication title and publication country should be
                 # before the date. If not, skip it
-
+                
                 try:
                     source_title, pub_title = before_date.split('.', 1)
                 except ValueError:
