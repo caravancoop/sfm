@@ -55,6 +55,8 @@ class ViolationStartDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Start date")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -62,6 +64,8 @@ class ViolationEndDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("End date")
+    
+    confidence_required = False
 
 
 @translated
@@ -71,6 +75,8 @@ class ViolationLocationDescription(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Location description")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -78,6 +84,8 @@ class ViolationAdminLevel1(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 1")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -85,6 +93,8 @@ class ViolationAdminLevel2(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 2")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -92,6 +102,8 @@ class ViolationGeoname(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("GeoName name")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -99,6 +111,8 @@ class ViolationGeonameId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("GeoName ID")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -106,6 +120,8 @@ class ViolationLocation(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.PointField(default=None, blank=True, null=True)
     field_name = _("Location")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -113,6 +129,8 @@ class ViolationDescription(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Description")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -120,6 +138,8 @@ class ViolationPerpetrator(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Person, default=None, blank=True, null=True)
     field_name = _("Perpetrator")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -127,6 +147,8 @@ class ViolationPerpetratorOrganization(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Organization, default=None, blank=True, null=True)
     field_name = _("Perpetrator Organization")
+    
+    confidence_required = False
 
 @versioned
 @sourced
@@ -136,6 +158,8 @@ class ViolationType(ComplexField):
     value = models.ForeignKey('Type', default=None, blank=True, null=True)
     
     field_name = _("Event Type")
+    
+    confidence_required = False
 
 class Type(models.Model):
     code = models.TextField()
