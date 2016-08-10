@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from person.views import PersonCreate, person_autocomplete, \
     alias_autocomplete, PersonUpdate

@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from organization.views import OrganizationCreate, OrganizationUpdate, \
     organization_autocomplete, organization_csv, alias_autocomplete, \

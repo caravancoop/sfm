@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .views import CompositionView, CompositionCreate, CompositionUpdate, \
     CompositionDelete, composition_csv

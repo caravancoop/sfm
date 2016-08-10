@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .views import (AreaCreate, AreaUpdate, AreaView, area_search,
                     area_autocomplete, code_autocomplete, area_csv, AreaDelete)

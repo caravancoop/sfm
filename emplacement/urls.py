@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .views import (EmplacementCreate, EmplacementUpdate, EmplacementView,
                     emplacement_search, emplacement_csv, EmplacementDelete)

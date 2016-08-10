@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from membershipperson.views import MembershipPersonCreate, \
     MembershipPersonUpdate, rank_autocomplete, role_autocomplete, \
