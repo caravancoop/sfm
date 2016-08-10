@@ -150,6 +150,10 @@ class OrganizationCreate(BaseFormSetView):
                                                                                        lang=get_language())
                     oc_obj.sources.add(self.source)
                     oc_obj.save()
+            
+            # Now get division ID
+
+            division_id = formset.data.get(form_prefix + 'division_id')
 
             self.organizations.append(organization)
             
@@ -279,6 +283,18 @@ def alias_autocomplete(request):
         results.append({
             'text': alias.value.value,
             'id': alias.id
+        })
+    return HttpResponse(json.dumps(results), content_type='application/json')
+
+def division_autocomplete(request):
+    term = request.GET.get('q')
+    countries = Country.objects.filter(name__icontains=term)
+
+    results = []
+    for country in countries:
+        results.append({
+            'text': str(country.name),
+            'id': country.id,
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
 

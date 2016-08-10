@@ -90,6 +90,26 @@
                                 {% endif %}
                             </div>
                         </div>
+                        {% if form.division_id.errors %}
+                            <div class="form-group has-error has-feedback">
+                        {% else %}
+                            <div class="form-group">
+                        {% endif %}
+                            <label class="col-sm-2 control-label">Division identifier</label>
+                            <div class="col-sm-8">
+                                <select id="id_form-{{ form_id }}-division_id" class="form-control division_id-field" name="form-{{ form_id }}-division_id">
+                                        <option value="" selected="selected">--------</option>
+                                    {% if form.cleaned_data.division_id %}
+                                        <option value="{{ form.cleaned_data.division_id }}" selected=true>{{ form.cleaned_data.division_id }}</option>
+                                    {% endif %}
+                                </select>
+                                {% if form.division_id.errors %}
+                                    {% for error in form.division_id.errors %}
+                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
                         <br />
                         {% if form_id > 0 %}
                             <div class="form-group">
@@ -166,6 +186,14 @@
             <label class="col-sm-2 control-label">Classification</label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-classification" class="form-control class-field" name="form-<%= form_id %>-classification" multiple="multiple">
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Division identifier</label>
+            <div class="col-sm-8">
+                <select id="id_form-<%= form_id %>-division_id" class="form-control" name="form-<%= form_id %>-division_id">
+                    <option value="" selected="selected">--------</option>
                 </select>
             </div>
         </div>
@@ -257,11 +285,37 @@
         tags: true
     }
 
+    var division_opts = {
+        ajax: {
+            url: "{% url 'division-id-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': params.term,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        selectOnClose: true,
+        tags: true
+    }
+
     $(document).ready(function(e) {
         {% if formset.errors %}
             $('.name-field').select2(name_opts);
             $('.alias-field').select2(alias_opts);
             $('.class-field').select2(class_opts);
+            $('.division_id-field').select2(division_opts);
         {% else %}
             addForm(null);
         {% endif %}
@@ -355,12 +409,15 @@
         var name_field = '#id_form-' + form_num + '-name';
         var alias_field = '#id_form-' + form_num + '-alias';
         var class_field = '#id_form-' + form_num + '-classification';
+        var division_field = '#id_form-' + form_num + '-division_id';
 
         $(name_field).select2(name_opts);
 
         $(alias_field).select2(alias_opts);
 
         $(class_field).select2(class_opts);
+
+        $(division_field).select2(division_opts);
 
         $('#remove_form-' +  form_num).on('click', deleteForm);
 
@@ -378,6 +435,14 @@
 
         $(class_field).on('select2:select', multipleSelect);
         $(class_field).on('select2:unselect', multipleUnSelect);
+
+        $(division_field).on('select2:select', function(e){
+            var value = e.params.data.text;
+            $(division_field).find(':selected').prop('selected', false);
+            $(division_field + ' :selected').attr('value', e.params.data.id);
+            $(division_field + ' :selected').text(value);
+        });
+
 
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-TOTAL_FORMS').val(form_count);
