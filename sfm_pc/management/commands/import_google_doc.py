@@ -279,7 +279,7 @@ class Command(UtilityMixin, BaseCommand):
                 try:
                     site_geoname_id = org_data[site_positions['GeonameId']['value']]
                 except IndexError:
-                    self.log_error('No Site Geoname info for {}'.format(organization.name))
+                    # self.log_error('No Site Geoname info for {}'.format(organization.name))
                     site_geoname_id = None
 
                 if site_geoname_id:
@@ -292,7 +292,7 @@ class Command(UtilityMixin, BaseCommand):
                 try:
                     area_geoname_id = org_data[area_positions['GeonameId']['value']]
                 except IndexError:
-                    self.log_error('No Area Geoname info for {}'.format(organization.name))
+                    # self.log_error('No Area Geoname info for {}'.format(organization.name))
                     area_geoname_id = None
 
                 if area_geoname_id:
@@ -392,8 +392,7 @@ class Command(UtilityMixin, BaseCommand):
                       positions, 
                       data,
                       instance,
-                      required=False,
-                      confidence_required=True):
+                      required=False):
 
         value_position = positions['value']
         
@@ -401,8 +400,8 @@ class Command(UtilityMixin, BaseCommand):
             confidence_position = positions['confidence']
         except KeyError:
             confidence_position = None
-
-            if confidence_required:
+            
+            if instance.confidence_required:
                 self.log_error('No confidence for {}'.format(field_name))
                 return None
         
@@ -423,7 +422,7 @@ class Command(UtilityMixin, BaseCommand):
                 confidence = self.get_confidence(data[confidence_position])
             except (KeyError, IndexError, TypeError):
                 confidence = 1
-                if confidence_required:
+                if instance.confidence_required:
                     self.log_error('No confidence for {}'.format(field_name))
                     return None
             
@@ -498,7 +497,7 @@ class Command(UtilityMixin, BaseCommand):
             
             else:
                 missing = []
-                if not confidence and confidence_required:
+                if not confidence and instance.confidence_required:
                     missing.append('confidence')
                 if not sources:
                     missing.append('sources')
@@ -1037,42 +1036,38 @@ class Command(UtilityMixin, BaseCommand):
             if event_data[values['value']] and field_name not in skippers:
                 data[values['model_field'] + '__value'] = event_data[values['value']]
                 
-        # TODO: Sorta works. Gotta get dates going though
         if data:
             violation, created = Violation.objects.get_or_create(**data)
         else:
             for violation in Violation.objects.filter(**data):
                 violation.delete()
         
+        self.stdout.write(self.style.SUCCESS('Working on {}'.format(person.get_value())))
+        
         self.make_relation('StartDate', 
                            positions['StartDate'], 
                            event_data, 
-                           violation,
-                           confidence_required=False)
+                           violation)
         
         self.make_relation('EndDate', 
                            positions['EndDate'], 
                            event_data, 
-                           violation,
-                           confidence_required=False)
+                           violation)
         
         self.make_relation('LocationDescription', 
                            positions['LocationDescription'], 
                            event_data, 
-                           violation,
-                           confidence_required=False)
+                           violation)
         
         self.make_relation('Type', 
                            positions['Type'], 
                            event_data, 
-                           violation,
-                           confidence_required=False)
+                           violation)
         
         self.make_relation('Description', 
                            positions['Description'], 
                            event_data, 
-                           violation,
-                           confidence_required=False)
+                           violation)
         
         # Make geoname stuff
         
@@ -1131,3 +1126,5 @@ class Command(UtilityMixin, BaseCommand):
                 }
 
                 violation.update(event_info)
+                
+                self.stdout.write(self.style.SUCCESS('Created {}'.format(person.get_value())))
