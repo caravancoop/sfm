@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 
 from extra_views import FormSetView
-from cities.models import Place, City, Country, Region, Subregion, District
+from cities.models import City, Country, Region, Subregion, District
 
 from source.models import Source
 from geosite.models import Geosite
@@ -86,29 +86,36 @@ class OrganizationCreate(BaseFormSetView):
         
         for i in range(0, forms_added):
 
-            form_prefix = 'form-{0}-'.format(i)
-            actual_form_prefix = 'form-{0}-'.format(actual_form_index)
+            form_prefix = 'form-{}-'.format(i)
+            actual_form_prefix = 'form-{}-'.format(actual_form_index)
 
             form_key_mapper = {k: k.replace(str(i), str(actual_form_index)) \
                                    for k in formset.data.keys() \
                                        if k.startswith(form_prefix)}
             
-            name_id_key = 'form-{0}-name'.format(i)
-            name_text_key = 'form-{0}-name_text'.format(i)
-            
+            name_id_key = 'form-{}-name'.format(i)
+            name_text_key = 'form-{}-name_text'.format(i)
+            division_id_key = 'form-{}-division_id'.format(i)
+
             try:
                 name_id = formset.data[name_id_key]
             except MultiValueDictKeyError:
                 continue
             
             name_text = formset.data[name_text_key]
-            
+            division_id = formset.data[division_id_key]
+
             org_info = {
                 'Organization_OrganizationName': {
                     'value': name_text, 
                     'confidence': 1,
                     'sources': [self.source]
                 },
+                'Organization_OrganizationDivisionId': {
+                    'value': division_id,
+                    'confidence': 1,
+                    'sources': [self.source],
+                }
             }
             
             try:
@@ -120,6 +127,8 @@ class OrganizationCreate(BaseFormSetView):
             except (Organization.DoesNotExist, ValueError):
                 organization = Organization.create(org_info)
 
+            organization.update(org_info)
+            
             # Save aliases first
             
             aliases = formset.data.get(form_prefix + 'alias_text')
@@ -150,9 +159,9 @@ class OrganizationCreate(BaseFormSetView):
                                                                                        lang=get_language())
                     oc_obj.sources.add(self.source)
                     oc_obj.save()
-
-            self.organizations.append(organization)
             
+            self.organizations.append(organization)
+
             actual_form_index += 1
         
         self.request.session['organizations'] = [{'id': o.id, 'name': o.name.get_value().value} \
@@ -173,6 +182,7 @@ class OrganizationUpdate(BaseUpdateView):
         self.checkSource(request)
         
         self.aliases = request.POST.getlist('alias')
+        self.classifications = request.POST.getlist('classification')
         
         self.validateForm(request.POST)
     
@@ -187,10 +197,10 @@ class OrganizationUpdate(BaseUpdateView):
                 'confidence': 1,
                 'sources': self.sourcesList(organization, 'name'),
             },
-            'Organization_OrganizationClassification': {
-                'value': form.cleaned_data['classification'],
+            'Organization_OrganizationDivisionId': {
+                'value': form.cleaned_data['division_id'],
                 'confidence': 1,
-                'sources': self.sourcesList(organization, 'classification'),
+                'sources': self.sourcesList(organization, 'division_id'),
             },
         }
         
@@ -218,7 +228,27 @@ class OrganizationUpdate(BaseUpdateView):
                     oa_obj.sources.add(self.source)
                     oa_obj.save()
 
+                    aliases.append(oa_obj)
+
             organization.organizationalias_set = aliases
+            organization.save()
+        
+        if self.classifications:
+            
+            classifications = []
+            for classification in self.classifications:
+            
+                class_obj, created = Classification.objects.get_or_create(value=classification)
+                
+                oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
+                                                                                   object_ref=organization,
+                                                                                   lang=get_language())
+                oc_obj.sources.add(self.source)
+                oc_obj.save()
+
+                classifications.append(oc_obj)
+            
+            organization.organizationclassification_set = classifications
             organization.save()
 
         return response
@@ -233,6 +263,7 @@ class OrganizationUpdate(BaseUpdateView):
             'name': organization.name.get_value(),
             'classification': [i.get_value() for i in organization.classification.get_list()],
             'alias': [i.get_value() for i in organization.aliases.get_list()],
+            'division_id': organization.division_id.get_value(),
         }
 
         context['form_data'] = form_data
@@ -282,13 +313,14 @@ def alias_autocomplete(request):
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
 
+
 class OrganizationCreateGeography(BaseFormSetView):
     template_name = 'organization/create-geography.html'
     form_class = OrganizationGeographyForm
     success_url = reverse_lazy('create-event')
     extra = 1
     max_num = None
-
+    required_session_data = ['organizations', 'people']
    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -326,10 +358,20 @@ class OrganizationCreateGeography(BaseFormSetView):
             admin2 = parent.parent.name
             coords = getattr(geo, 'location')
             
+            if isinstance(geo, Country):
+                country_code = geo.code.lower()
+            elif isinstance(geo, Region):
+                country_code = geo.country.code.lower()
+            elif isinstance(geo, Subregion) or isinstance(geo, City):
+                country_code = geo.region.country.code.lower()
+            
+            division_id = 'ocd-division/country:{}'.format(country_code)
+            
             if formset.data[form_prefix + 'geography_type'] == 'Site':
                 
                 site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.id)
                 
+
                 site_data = {
                     'Geosite_GeositeName': {
                         'value': formset.data[form_prefix + 'name'],
@@ -343,6 +385,11 @@ class OrganizationCreateGeography(BaseFormSetView):
                     },
                     'Geosite_GeositeGeonameId': {
                         'value': geo.id,
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Geosite_GeositeDivisionId': {
+                        'value': division_id,
                         'confidence': 1,
                         'sources': [source]
                     },
@@ -416,6 +463,11 @@ class OrganizationCreateGeography(BaseFormSetView):
                         },
                         'Area_AreaGeonameId': {
                             'value': geo.id,
+                            'confidence': 1,
+                            'sources': [source]
+                        },
+                        'Area_AreaDivisionId': {
+                            'value': division_id,
                             'confidence': 1,
                             'sources': [source]
                         },

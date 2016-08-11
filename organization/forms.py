@@ -11,7 +11,8 @@ class OrganizationForm(forms.Form):
     classification = forms.CharField(error_messages={'required': _('Classification is required')})
     classification_text = forms.CharField()
     alias = forms.CharField(required=False)
-    
+    division_id = forms.CharField(error_messages={'required': _('Division ID is required')})
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

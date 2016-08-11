@@ -19,7 +19,7 @@ class Organization(models.Model, BaseModel):
         self.classification = ComplexFieldListContainer(self, OrganizationClassification)
         self.division_id = ComplexFieldContainer(self, OrganizationDivisionId)
 
-        self.complex_fields = [self.name]
+        self.complex_fields = [self.name, self.division_id]
 
         self.required_fields = [
             "Organization_OrganizationName",
@@ -75,3 +75,7 @@ class OrganizationDivisionId(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.TextField(default=None, blank=True, null=True)
 
+    field_name = _("Division ID")
+
+    def __str__(self):
+        return self.value

@@ -100,10 +100,11 @@ class SetConfidence(TemplateView):
                     for s in additional_sources:
                         revision = Version.objects.get_for_object(s).first()
                         
-                        user_data = {
-                            'user': revision.revision.user,
-                            'source': s
-                        }
+                        user_data = {}
+                        
+                        if revision:
+                            user_data['user'] = revision.revision.user
+                            user_data['source'] = s
 
                         try:
                             attributes['additional_sources'].append(user_data)
@@ -282,3 +283,15 @@ def geoname_autocomplete(request):
 
     results.sort(key=lambda x:x['text'])
     return HttpResponse(json.dumps(results),content_type='application/json')
+
+def division_autocomplete(request):
+    term = request.GET.get('q')
+    countries = Country.objects.filter(name__icontains=term)
+
+    results = []
+    for country in countries:
+        results.append({
+            'text': '{0} (ocd-division/country:{1})'.format(str(country.name), country.code.lower()),
+            'id': 'ocd-division/country:{}'.format(country.code.lower()),
+        })
+    return HttpResponse(json.dumps(results), content_type='application/json')

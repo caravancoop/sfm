@@ -80,13 +80,20 @@ class PersonCreate(BaseFormSetView):
             
             name_id_key = 'form-{0}-name'.format(i)
             name_text_key = 'form-{0}-name_text'.format(i)
+            division_id_key = 'form-{}-division_id'.format(i)
             
             name_id = formset.data[name_id_key]
             name_text = formset.data[name_text_key]
-            
+            division_id = formset.data[division_id_key]
+
             person_info = {
                 'Person_PersonName': {
                     'value': name_text,
+                    'confidence': 1,
+                    'sources': [self.source],
+                },
+                'Person_PersonDivisionId': {
+                    'value': division_id,
                     'confidence': 1,
                     'sources': [self.source],
                 }
@@ -197,6 +204,11 @@ class PersonUpdate(BaseUpdateView):
                 'value': form.cleaned_data['name_text'],
                 'confidence': 1,
                 'sources': self.sourcesList(person, 'name'),
+            },
+            'Person_PersonDivisionId': {
+                'value': form.cleaned_data['division_id'],
+                'confidence': 1,
+                'sources': [self.sourcesList(person, 'division_id')]
             }
         }
         
@@ -223,6 +235,7 @@ class PersonUpdate(BaseUpdateView):
         form_data = {
             'name': person.name.get_value(),
             'aliases': [i.get_value() for i in person.aliases.get_list()],
+            'division_id': person.division_id.get_value(),
         }
         
         context['form_data'] = form_data

@@ -68,6 +68,15 @@ class ViolationCreate(FormSetView):
             admin1 = parent.name
             admin2 = parent.parent.name
             coords = getattr(geo, 'location')
+            
+            if isinstance(geo, Country):
+                country_code = geo.code.lower()
+            elif isinstance(geo, Region):
+                country_code = geo.country.code.lower()
+            elif isinstance(geo, Subregion) or isinstance(geo, City):
+                country_code = geo.region.country.code.lower()
+            
+            division_id = 'ocd-division/country:{}'.format(country_code)
 
             violation_data = {
                 'Violation_ViolationDescription': {
@@ -97,6 +106,11 @@ class ViolationCreate(FormSetView):
                 },
                 'Violation_ViolationGeonameId': {
                     'value': geo.id,
+                    'sources': [source],
+                    'confidence': 1
+                },
+                'Violation_ViolationDivisionId': {
+                    'value': division_id,
                     'sources': [source],
                     'confidence': 1
                 },
