@@ -25,7 +25,7 @@ from django_date_extensions.fields import ApproximateDateField
 
 from dateparser import parse as dateparser
 
-from cities.models import Country
+from cities.models import Country, City, Region, Subregion
 
 import reversion
 
@@ -67,6 +67,12 @@ class Command(UtilityMixin, BaseCommand):
             default='organization,person,event',
             help='Comma separated list of entity types to import'
         )
+        parser.add_argument(
+            '--country_code',
+            dest='country_code',
+            default='ng',
+            help='Two letter ISO code for the country that the Google Sheets are about'
+        )
     
     def get_credentials(self):
         
@@ -80,6 +86,7 @@ class Command(UtilityMixin, BaseCommand):
     # @transaction.atomic
     def handle(self, *args, **options):
         
+        # Get a handle on the "user" that will be doing the work
         importer_user = settings.IMPORTER_USER
         try:
             self.user = User.objects.create_user(importer_user['username'], 
@@ -87,6 +94,9 @@ class Command(UtilityMixin, BaseCommand):
                                                  password=importer_user['password'])
         except IntegrityError:
             self.user = User.objects.get(username=importer_user['username'])
+
+        # Set the country code for the work
+        self.country_code = options['country_code']
 
         credentials = self.get_credentials()
         
@@ -180,10 +190,10 @@ class Command(UtilityMixin, BaseCommand):
                 'source': 18,
             },
             'Classification': {
-                'value': 21,
-                'confidence': 23,
-                'source': 22,
-            },
+                'value': 22,
+                'confidence': 24,
+                'source': 23,
+            }
         }
         
         composition_positions = {
@@ -262,6 +272,11 @@ class Command(UtilityMixin, BaseCommand):
                         'value': name_value,
                         'confidence': confidence,
                         'sources': sources
+                    },
+                    'Organization_OrganizationDivisionId': {
+                        'value': 'ocd-division/country:{}'.format(self.country_code),
+                        'confidence': confidence,
+                        'sources': sources,
                     }
                 }
                 
@@ -285,6 +300,7 @@ class Command(UtilityMixin, BaseCommand):
                                                     org_data,
                                                     organization)
                 
+
                 # Create Emplacements
                 try:
                     site_geoname_id = org_data[site_positions['GeonameId']['value']]
@@ -561,6 +577,15 @@ class Command(UtilityMixin, BaseCommand):
 
         if geo:
             
+            if isinstance(geo, Country):
+                country_code = geo.code.lower()
+            elif isinstance(geo, Region):
+                country_code = geo.country.code.lower()
+            elif isinstance(geo, Subregion) or isinstance(geo, City):
+                country_code = geo.region.country.code.lower()
+            
+            division_id = 'ocd-division/country:{}'.format(country_code)
+
             try:
                 area_confidence = self.get_confidence(org_data[positions['Geoname']['confidence']])
             except (IndexError, KeyError):
@@ -592,6 +617,11 @@ class Command(UtilityMixin, BaseCommand):
                 },
                 'Area_AreaGeonameId': {
                     'value': geo.id,
+                    'confidence': area_confidence,
+                    'sources': area_sources
+                },
+                'Area_AreaGeonameId': {
+                    'value': division_id,
                     'confidence': area_confidence,
                     'sources': area_sources
                 },
@@ -652,6 +682,15 @@ class Command(UtilityMixin, BaseCommand):
             admin1 = parent.name
             coords = getattr(geo, 'location', None)
             
+            if isinstance(geo, Country):
+                country_code = geo.code.lower()
+            elif isinstance(geo, Region):
+                country_code = geo.country.code.lower()
+            elif isinstance(geo, Subregion) or isinstance(geo, City):
+                country_code = geo.region.country.code.lower()
+            
+            division_id = 'ocd-division/country:{}'.format(country_code)
+            
             with reversion.create_revision():
                 site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.id)
                 reversion.set_user(self.user)
@@ -675,6 +714,11 @@ class Command(UtilityMixin, BaseCommand):
                 }
                 site_data['Geosite_GeositeGeonameId'] = {
                     'value': geo.id,
+                    'confidence': geoname_confidence,
+                    'sources': geoname_sources,
+                }
+                site_data['Geosite_GeositeDivisionId'] = {
+                    'value': division_id,
                     'confidence': geoname_confidence,
                     'sources': geoname_sources,
                 }
@@ -823,7 +867,8 @@ class Command(UtilityMixin, BaseCommand):
                 source, created = Source.objects.get_or_create(title=source_title.strip(),
                                                                source_url=source_url,
                                                                publication=publication,
-                                                               published_on=date)
+                                                               published_on=date,
+                                                               user=self.user)
                 
                 sources.append(source)
 
@@ -913,6 +958,11 @@ class Command(UtilityMixin, BaseCommand):
                         'value': name_value,
                         'confidence': confidence,
                         'sources': sources
+                    },
+                    'Person_PersonDivisionId': {
+                        'value': 'ocd-division/country:{}'.format(self.country_code),
+                        'confidence': confidence,
+                        'sources': sources,
                     }
                 }
                 
@@ -1060,22 +1110,11 @@ class Command(UtilityMixin, BaseCommand):
             },
         }
 
-        data = {}
-        skippers = ['StartDate', 'EndDate', 'GeonameId', 'Type']
-        for field_name, values in positions.items():
-            if event_data[values['value']] and field_name not in skippers:
-                data[values['model_field'] + '__value'] = event_data[values['value']]
-                
-        if data:
-            with reversion.create_revision():
-                violation, created = Violation.objects.get_or_create(**data)
-                reversion.set_user(self.user)
-        else:
-            for violation in Violation.objects.filter(**data):
-                violation.delete()
-        
-        self.stdout.write(self.style.SUCCESS('Working on {}'.format(person.get_value())))
-        
+        with reversion.create_revision():
+            violation = Violation()
+            violation.save()
+            reversion.set_user(self.user)
+
         self.make_relation('StartDate', 
                            positions['StartDate'], 
                            event_data, 
@@ -1119,8 +1158,17 @@ class Command(UtilityMixin, BaseCommand):
             if geo:
                 parent = geo.parent
                 admin1 = parent.name
-                admin2 = parent.parent.name
+                admin2 = getattr(parent.parent, 'name', None)
                 coords = getattr(geo, 'location', None)
+                
+                if isinstance(geo, Country):
+                    country_code = geo.code.lower()
+                elif isinstance(geo, Region):
+                    country_code = geo.country.code.lower()
+                elif isinstance(geo, Subregion) or isinstance(geo, City):
+                    country_code = geo.region.country.code.lower()
+                
+                division_id = 'ocd-division/country:{}'.format(country_code)
                 
                 sources = self.create_sources(event_data[positions['GeonameId']['source']])
 
@@ -1150,6 +1198,11 @@ class Command(UtilityMixin, BaseCommand):
                         'sources': sources,
                         'confidence': 1
                     },
+                    'Violation_ViolationDivisionId': {
+                        'value': division_id,
+                        'sources': sources,
+                        'confidence': 1
+                    },
                     'Violation_ViolationLocation': {
                         'value': coords,
                         'sources': sources,
@@ -1159,4 +1212,3 @@ class Command(UtilityMixin, BaseCommand):
 
                 violation.update(event_info)
                 
-                self.stdout.write(self.style.SUCCESS('Created {}'.format(person.get_value())))

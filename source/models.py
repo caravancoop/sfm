@@ -5,6 +5,7 @@ import requests
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.auth.models import User
 
 
 class Publication(models.Model):
@@ -23,6 +24,11 @@ class Source(models.Model):
     published_on = models.DateField()
     source_url = models.URLField(max_length=1000, null=True)
     archive_url = models.URLField(max_length=1000, null=True)
+    
+    date_updated = models.DateTimeField(auto_now=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    user = models.ForeignKey(User)
 
     def __str__(self):
         if self.title is None:

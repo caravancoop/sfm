@@ -14,6 +14,7 @@ from django.utils.translation import get_language
 from django.db import connection
 from django.core.urlresolvers import reverse_lazy
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from reversion.models import Version
 from extra_views import FormSetView
@@ -26,7 +27,7 @@ from violation.models import Violation
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
 from complex_fields.models import CONFIDENCE_LEVELS
-from sfm_pc.utils import import_class
+from sfm_pc.utils import import_class, get_geoname_by_id
 
 SEARCH_CONTENT_TYPES = {
     'Source': Source,
@@ -50,24 +51,89 @@ class Dashboard(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        sources = Version.objects.filter(content_type__model='source').get_unique()
-        context['edits'] = sorted(sources, 
-                                  key=lambda x: x.revision.id, 
-                                  reverse=True)
+        source_count_q = 'SELECT COUNT(*) AS count, user_id FROM source_source'
+
+        c = connection.cursor()
+        c.execute('{} GROUP BY user_id'.format(source_count_q), [])
         
-        if context['edits']:
+        for row in c:
+            context['count_by_user'] = {
+                User.objects.get(id=row[1]): {
+                    'all_source_count': row[0],
+                },
+            }
+
+        c.execute('''
+            {} WHERE age(now(), date_added) <= make_interval(weeks := 1) 
+               GROUP BY user_id
+        '''.format(source_count_q), [])
+        
+        for row in c:
+            context['count_by_user'][User.objects.get(id=row[1])]['last_week_count'] = row[0]
+        
+        c.execute('''
+            {} WHERE age(now(), date_added) <= make_interval(months := 1) 
+               GROUP BY user_id
+        '''.format(source_count_q), [])
+
+        for row in c:
+            context['count_by_user'][User.objects.get(id=row[1])]['last_month_count'] = row[0]
+        
+        entity_type_counts = ''' 
+            SELECT COUNT(*), d.value 
+            FROM {0}_{0} AS o 
+            JOIN {0}_{0}divisionid AS d 
+              ON o.id = d.object_ref_id 
+            GROUP BY d.value
+        '''
+        
+        context['counts'] = {}
+
+        for entity_type in ['organization', 'person', 'violation']:
+            c.execute(entity_type_counts.format(entity_type), [])
             
-            context['source_properties'] = get_relations(context['edits'][0].object)
-            
-        session_keys = ['organizations', 'people', 'memberships', 'source_id']
+            for row in c:
+
+                try:
+                    context['counts'][row[1]][entity_type] = row[0]
+                except KeyError:
+                    context['counts'][row[1]] = {entity_type: row[0]}
         
-        for session_key in session_keys:
-            if self.request.session.get(session_key):
-                del self.request.session[session_key]
+        c.execute(''' 
+            SELECT g.value, array_agg(o.object_ref_id)
+            FROM emplacement_emplacementorganization AS o 
+            JOIN emplacement_emplacement AS e 
+              ON o.object_ref_id = e.id 
+            JOIN emplacement_emplacementsite AS s 
+              ON e.id = s.object_ref_id 
+            JOIN geosite_geosite AS gs 
+              ON s.value_id = gs.id 
+            JOIN geosite_geositegeonameid AS g 
+              ON gs.id = g.object_ref_id 
+            GROUP BY g.value 
+            HAVING(COUNT(*)>1) 
+            ORDER BY COUNT(*) DESC
+            LIMIT 5
+        ''', [])
         
-        context['source_id'] = self.request.GET.get('source_id')
-        if context['source_id']:
-            context['source_id'] = int(context['source_id'])
+        context['org_geo_counts'] = OrderedDict()
+        for row in c:
+            context['org_geo_counts'][get_geoname_by_id(row[0])] = [Organization.objects.get(id=i) for i in row[1]]
+        
+        c.execute(''' 
+            SELECT g.value, array_agg(v.id) 
+            FROM violation_violation AS v 
+            JOIN violation_violationgeonameid AS g 
+              ON v.id = g.object_ref_id
+            GROUP BY g.value 
+            HAVING(COUNT(*)>1) 
+            ORDER BY COUNT(*) DESC 
+            LIMIT 5;
+        ''')
+        
+        context['event_geo_counts'] = OrderedDict()
+        for row in c:
+            context['event_geo_counts'][get_geoname_by_id(row[0])] = [Violation.objects.get(id=i) for i in row[1]]
 
         return context
 
