@@ -4,6 +4,15 @@ GOOGLE_MAPS_KEY='KEY FROM GOOGLE'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY='super duper secret'
 
+IMPORTER_USER = {
+    'username': 'importer',
+    'password': 'super secret',
+    'email': 'importer@importer.com',
+    'first_name': 'Imp',
+    'last_name': 'Orter',
+    'is_staff': False,
+}
+
 DEBUG = True
 
 ALLOWED_HOSTS = []

@@ -52,7 +52,7 @@ class Dashboard(TemplateView):
         
         sources = Version.objects.filter(content_type__model='source').get_unique()
         context['edits'] = sorted(sources, 
-                                  key=lambda x: x.revision.date_created, 
+                                  key=lambda x: x.revision.id, 
                                   reverse=True)
         
         if context['edits']:

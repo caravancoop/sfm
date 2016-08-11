@@ -1,5 +1,5 @@
 dj-database-url==0.3.0
-Django==1.10
+Django<1.10
 django-jsonview==0.5.0
 django-localeurl==2.0.2
 django-reversion==2.0.4
@@ -13,7 +13,7 @@ django-leaflet==0.16.0
 psycopg2==2.6.1
 django-extra-views==0.7.1
 
--e git+https://github.com/caravancoop/complex_fields.git#egg=complex_fields
+-e git+https://github.com/security-force-monitor/complex_fields.git#egg=django-complex-fields
 
 # @see https://devcenter.heroku.com/articles/getting-started-with-django#requirements-txt
 dj-static==0.0.6

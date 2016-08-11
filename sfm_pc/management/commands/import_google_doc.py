@@ -14,10 +14,12 @@ from apiclient.discovery import build
 import datefinder
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db import models, transaction
+from django.db import models, transaction, IntegrityError
 from django.db.utils import DataError
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.text import slugify
+from django.contrib.auth.models import User
+from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -78,6 +80,14 @@ class Command(UtilityMixin, BaseCommand):
     # @transaction.atomic
     def handle(self, *args, **options):
         
+        importer_user = settings.IMPORTER_USER
+        try:
+            self.user = User.objects.create_user(importer_user['username'], 
+                                                 email=importer_user['email'], 
+                                                 password=importer_user['password'])
+        except IntegrityError:
+            self.user = User.objects.get(username=importer_user['username'])
+
         credentials = self.get_credentials()
         
         http = credentials.authorize(httplib2.Http())
@@ -338,6 +348,7 @@ class Command(UtilityMixin, BaseCommand):
                         with reversion.create_revision():
                             composition, created = Composition.objects.get_or_create(compositionparent__value=parent_organization,
                                                                                      compositionchild__value=organization)
+                            reversion.set_user(self.user)
                         
                         comp_info = {
                             'Composition_CompositionParent': {
@@ -459,22 +470,30 @@ class Command(UtilityMixin, BaseCommand):
                     value_objects = []
                     for value_text in value.split(';'):
                         
-                        if value_model == Type:
-                            value_obj, created = value_model.objects.get_or_create(code=value_text)
-                        else:
-                            value_obj, created = value_model.objects.get_or_create(value=value_text)
-                        
-                        relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
-                                                                                          object_ref=instance,
-                                                                                          lang='en')
+                            if value_model == Type:
+                                with reversion.create_revision():
+                                    value_obj, created = value_model.objects.get_or_create(code=value_text)
+                                    reversion.set_user(self.user)
+                            else:
+                                with reversion.create_revision():
+                                    value_obj, created = value_model.objects.get_or_create(value=value_text)
+                                    reversion.set_user(self.user)
+                            
+                            with reversion.create_revision():
+                                relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
+                                                                                                  object_ref=instance,
+                                                                                                  lang='en')
+                                reversion.set_user(self.user)
                 
                 elif isinstance(relation_model._meta.get_field('value'), ApproximateDateField):
                     parsed_value = dateparser(value)
                     
                     if parsed_value:
-                        relation_instance, created = relation_model.objects.get_or_create(value=parsed_value.strftime('%Y-%m-%d'), 
-                                                                                          object_ref=instance,
-                                                                                          lang='en')
+                        with reversion.create_revision():
+                            relation_instance, created = relation_model.objects.get_or_create(value=parsed_value.strftime('%Y-%m-%d'), 
+                                                                                              object_ref=instance,
+                                                                                              lang='en')
+                            reversion.set_user(self.user)
                     else:
                         self.log_error('Expected a date for {app_name}.models.{field_name} but got {value}'.format(app_name=app_name,
                                                                                                                    field_name=field_name,
@@ -482,9 +501,11 @@ class Command(UtilityMixin, BaseCommand):
                         return None
 
                 else:
-                    relation_instance, created = relation_model.objects.get_or_create(value=value, 
-                                                                                      object_ref=instance,
-                                                                                      lang='en')
+                    with reversion.create_revision():
+                        relation_instance, created = relation_model.objects.get_or_create(value=value, 
+                                                                                          object_ref=instance,
+                                                                                          lang='en')
+                        reversion.set_user(self.user)
                 
                 for source in sources:
                     relation_instance.sources.add(source)
@@ -492,7 +513,8 @@ class Command(UtilityMixin, BaseCommand):
                 with reversion.create_revision():
                     relation_instance.confidence = confidence
                     relation_instance.save()
-                
+                    reversion.set_user(self.user)
+
                 return relation_instance
             
             else:
@@ -550,9 +572,11 @@ class Command(UtilityMixin, BaseCommand):
             except IndexError:
                 self.log_error('Geoname for Area for {} does not have source'.format(organization.name))
                 return None
-
-            area, created = Area.objects.get_or_create(areageonameid__value=geo.id,
-                                                       areageoname__value=geo.name)
+            
+            with reversion.create_revision():
+                area, created = Area.objects.get_or_create(areageonameid__value=geo.id,
+                                                           areageoname__value=geo.name)
+                reversion.set_user(self.user)
             
 
             area_info = {
@@ -575,8 +599,10 @@ class Command(UtilityMixin, BaseCommand):
             
             area.update(area_info)
 
-            assoc, created = Association.objects.get_or_create(associationorganization__value=organization.id,
-                                                               associationarea__value=area.id)
+            with reversion.create_revision():
+                assoc, created = Association.objects.get_or_create(associationorganization__value=organization.id,
+                                                                   associationarea__value=area.id)
+                reversion.set_user(self.user)
             
             for field_name, positions in relation_positions.items():
                 
@@ -625,8 +651,10 @@ class Command(UtilityMixin, BaseCommand):
             parent = geo.parent
             admin1 = parent.name
             coords = getattr(geo, 'location', None)
-
-            site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.id)
+            
+            with reversion.create_revision():
+                site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.id)
+                reversion.set_user(self.user)
 
             site_data = {}
 
@@ -692,8 +720,10 @@ class Command(UtilityMixin, BaseCommand):
             
             site.update(site_data)
             
-            emplacement, created = Emplacement.objects.get_or_create(emplacementorganization__value=organization.id,
-                                                                     emplacementsite__value=site.id)
+            with reversion.create_revision():
+                emplacement, created = Emplacement.objects.get_or_create(emplacementorganization__value=organization.id,
+                                                                         emplacementsite__value=site.id)
+                reversion.set_user(self.user)
             
             for field_name, positions in relation_positions.items():
                 
@@ -1037,7 +1067,9 @@ class Command(UtilityMixin, BaseCommand):
                 data[values['model_field'] + '__value'] = event_data[values['value']]
                 
         if data:
-            violation, created = Violation.objects.get_or_create(**data)
+            with reversion.create_revision():
+                violation, created = Violation.objects.get_or_create(**data)
+                reversion.set_user(self.user)
         else:
             for violation in Violation.objects.filter(**data):
                 violation.delete()

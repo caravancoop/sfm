@@ -20,9 +20,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
-        SECRET_KEY, DEBUG, ALLOWED_HOSTS
+        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER
 except ImportError as e:
-    raise Exception('DATABASE_URL, GOOGLE_MAPS_KEY, SECRET_KEY, ALLOWED_HOSTS and DEBUG must be defined in settings_local.py')
+    raise Exception('DATABASE_URL, GOOGLE_MAPS_KEY, SECRET_KEY, ALLOWED_HOSTS, IMPORTER_USER and DEBUG must be defined in settings_local.py')
 
 # Application definition
 
