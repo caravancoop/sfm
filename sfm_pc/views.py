@@ -100,10 +100,11 @@ class SetConfidence(TemplateView):
                     for s in additional_sources:
                         revision = Version.objects.get_for_object(s).first()
                         
-                        user_data = {
-                            'user': revision.revision.user,
-                            'source': s
-                        }
+                        user_data = {}
+                        
+                        if revision:
+                            user_data['user'] = revision.revision.user
+                            user_data['source'] = s
 
                         try:
                             attributes['additional_sources'].append(user_data)

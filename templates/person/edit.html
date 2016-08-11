@@ -46,6 +46,26 @@
             {% endif %}
         </div>
     </div>
+    {% if form.division_id.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+        <label class="col-sm-2 control-label">Division identifier</label>
+        <div class="col-sm-8">
+            <select id="id_division_id" class="form-control division-field" name="division_id">
+                    <option value="" selected="selected">--------</option>
+                {% if form_data.division_id %}
+                    <option value="{{ form_data.division_id.value }}" selected=true>{{ form_data.division_id.value }}</option>
+                {% endif %}
+            </select>
+            {% if form.division_id.errors %}
+                {% for error in form.division_id.errors %}
+                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
 {% block after_form %}
     <div class="row">
@@ -146,10 +166,34 @@
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2
     }
+    var division_opts = {
+        ajax: {
+            url: "{% url 'division-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': params.term,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        tags: true
+    }
     $(document).ready(function(e) {
         $('#id_name').select2(name_opts);
         $('#id_alias').select2(alias_opts);
         $('#id_source').select2(source_opts);
+        $('#id_division_id').select2(division_opts);
         $('#id_alias').on('select2:select', function(e){
             var value = e.params.data.text;
             var name = $(e.target).prop('name') + '_text';
@@ -172,10 +216,17 @@
 
         $('#id_name').on('select2:select', function(e){
             var value = e.params.data.text;
-            $(name_field + '_text').val(value);
-            if (isNaN($(name_field + ' :selected').attr('value'))) {
-                $(name_field + ' :selected').attr('value','-1');
-            }
+            $('#id_name').find(':selected').prop('selected', false);
+            $('#id_name_text').val(value);
+            $('#id_name:selected').attr('value', e.params.data.id);
+            $('#id_name:selected').text(value);
+        });
+
+        $('#id_division_id').on('select2:select', function(e){
+            var value = e.params.data.text;
+            $('#id_division_id').find(':selected').prop('selected', false);
+            $('#id_division_id:selected').attr('value', e.params.data.id);
+            $('#id_division_id:selected').text(value);
         });
     });
 

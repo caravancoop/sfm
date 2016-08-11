@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 
 from extra_views import FormSetView
-from cities.models import Place, City, Country, Region, Subregion, District
+from cities.models import City, Country, Region, Subregion, District
 
 from source.models import Source
 from geosite.models import Geosite
@@ -320,7 +320,7 @@ class OrganizationCreateGeography(BaseFormSetView):
     success_url = reverse_lazy('create-event')
     extra = 1
     max_num = None
-
+    required_session_data = ['organizations', 'people']
    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -358,10 +358,20 @@ class OrganizationCreateGeography(BaseFormSetView):
             admin2 = parent.parent.name
             coords = getattr(geo, 'location')
             
+            if isinstance(geo, Country):
+                country_code = geo.code.lower()
+            elif isinstance(geo, Region):
+                country_code = geo.country.code.lower()
+            elif isinstance(geo, Subregion) or isinstance(geo, City):
+                country_code = geo.region.country.code.lower()
+            
+            division_id = 'ocd-division/country:{}'.format(country_code)
+            
             if formset.data[form_prefix + 'geography_type'] == 'Site':
                 
                 site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.id)
                 
+
                 site_data = {
                     'Geosite_GeositeName': {
                         'value': formset.data[form_prefix + 'name'],
@@ -375,6 +385,11 @@ class OrganizationCreateGeography(BaseFormSetView):
                     },
                     'Geosite_GeositeGeonameId': {
                         'value': geo.id,
+                        'confidence': 1,
+                        'sources': [source]
+                    },
+                    'Geosite_GeositeDivisionId': {
+                        'value': division_id,
                         'confidence': 1,
                         'sources': [source]
                     },
@@ -448,6 +463,11 @@ class OrganizationCreateGeography(BaseFormSetView):
                         },
                         'Area_AreaGeonameId': {
                             'value': geo.id,
+                            'confidence': 1,
+                            'sources': [source]
+                        },
+                        'Area_AreaDivisionId': {
+                            'value': division_id,
                             'confidence': 1,
                             'sources': [source]
                         },
