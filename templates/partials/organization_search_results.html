@@ -19,7 +19,9 @@
                     {% endfor %}
                 </td>
                 <td>
-                    {{ object.classification }}
+                    {% for classification in object.classification.get_list %}
+                        {{ classification }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
                 </td>
             </tr>
         {% endfor %}
