@@ -41,7 +41,8 @@ from association.models import Association
 from composition.models import Composition
 from person.models import Person
 from membershipperson.models import MembershipPerson
-from violation.models import Violation, Type
+from violation.models import Violation, Type, ViolationPerpetrator, \
+    ViolationPerpetratorOrganization
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
@@ -1108,6 +1109,18 @@ class Command(UtilityMixin, BaseCommand):
                 'value': 5,
                 'source': 14,
             },
+            'Perpetrator': {
+                'value': 11,
+                'source': 14
+            },
+            'PerpetratorOrganization': {
+                'value': 12,
+                'source': 14
+            },
+            'PerpetratorClassification': {
+                'value': 13,
+                'source': 14
+            }
         }
 
         with reversion.create_revision():
@@ -1139,6 +1152,12 @@ class Command(UtilityMixin, BaseCommand):
                            positions['Description'], 
                            event_data, 
                            violation)
+       
+        try:
+            sources = self.create_sources(event_data[positions['GeonameId']['source']])
+        except IndexError:
+            self.log_error('Row seems to be blank')
+            return None
         
         # Make geoname stuff
         
@@ -1170,8 +1189,6 @@ class Command(UtilityMixin, BaseCommand):
                 
                 division_id = 'ocd-division/country:{}'.format(country_code)
                 
-                sources = self.create_sources(event_data[positions['GeonameId']['source']])
-
                 event_info = {
                     'Violation_ViolationAdminLevel1': {
                         'value': admin1,
@@ -1211,4 +1228,70 @@ class Command(UtilityMixin, BaseCommand):
                 }
 
                 violation.update(event_info)
+        
+        # Record perpetrators
+        
+        try:
+            perpetrator = event_data[positions['Perpetrator']['value']]
+        except IndexError:
+            perpetrator = None
+
+        if perpetrator:
+            
+            perps = perpetrator.split(';')
+            for perp in perps:
+                try:
+                    person = Person.objects.get(personname__value=perp)
+                except Person.DoesNotExist:
+                    person_info = {
+                        'Person_PersonName': {
+                            'value': perp,
+                            'confidence': 1,
+                            'sources': sources,
+                        }
+                    }
+                    person = Person.create(person_info)
+
+                vp, created = ViolationPerpetrator.objects.get_or_create(value=person,
+                                                                         object_ref=violation)
+                with reversion.create_revision():
+                    for source in sources:
+                        vp.sources.add(source)
+                    vp.save()
+                    reversion.set_user(self.user)
                 
+
+
+        try:
+            perp_org = event_data[positions['PerpetratorOrganization']['value']]
+        except IndexError:
+            perp_org = None
+
+        if perp_org:
+            for org in perp_org.split(';'):
+                
+                try:
+                    organization = Organization.objects.get(id=org)
+                except (Organization.DoesNotExist, ValueError):
+                    info = {
+                        'Organization_OrganizationName': {
+                            'value': org,
+                            'confidence': 1,
+                            'sources': sources,
+                        }
+                    }
+                    organization = Organization.create(info)
+
+                vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
+                                                                                          object_ref=violation)
+                
+                with reversion.create_revision():
+                    for source in sources:
+                        vpo_obj.sources.add(source)
+                    vpo_obj.save()
+                    reversion.set_user(self.user)
+        
+        self.make_relation('PerpetratorClassification', 
+                           positions['PerpetratorClassification'], 
+                           event_data, 
+                           violation)

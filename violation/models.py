@@ -40,6 +40,11 @@ class Violation(models.Model, BaseModel):
         self.perpetratororganization = ComplexFieldListContainer(
             self, ViolationPerpetratorOrganization
         )
+        self.perpetratorclassification = ComplexFieldContainer(
+            self, ViolationPerpetratorClassification
+        )
+        
+        self.types = ComplexFieldListContainer(self, ViolationType)
 
         self.complex_fields = [self.startdate, self.enddate, self.locationdescription,
                                self.adminlevel1, self.adminlevel2, self.geoname,
@@ -48,7 +53,6 @@ class Violation(models.Model, BaseModel):
 
         self.required_fields = []
 
-        self.types = ComplexFieldListContainer(self, ViolationType)
 
     def get_value(self):
         return self.description.get_value()
@@ -152,3 +156,18 @@ class Type(models.Model):
 
     def __str__(self):
         return self.code
+
+@versioned
+@sourced
+@translated
+class ViolationPerpetratorClassification(ComplexField):
+    object_ref = models.ForeignKey('Violation', null=True)
+    value = models.ForeignKey('PerpetratorClassification', default=None, blank=True, null=True)
+    
+    field_name = _("Event Perpetrator Classification")
+
+class PerpetratorClassification(models.Model):
+    value = models.TextField()
+
+    def __str__(self):
+        return self.value
