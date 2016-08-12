@@ -134,7 +134,7 @@ class Command(UtilityMixin, BaseCommand):
             'event': event_sheets,
         }
         
-        skippers = ['Organizations (Military)', 'Play Copy of Events']
+        skippers = ['Play Copy of Events']
 
         for entity_type in options['entity_types'].split(','):
             
