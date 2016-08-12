@@ -91,7 +91,7 @@
                         <td><a target="_blank" href="http://geonames.org/{{geoname.id}}">{{ geoname.name }}</a></td>
                         <td>
                             {% for event in event_list %}
-                                <a href="{% url 'edit_violation' event.id %}">
+                                <a href="{% url 'detail_violation' event.id %}">
                                     {% if event.description != '' %}
                                         {{ event.description|truncatewords:15 }}
                                     {% else %}

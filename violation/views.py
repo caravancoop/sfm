@@ -6,13 +6,14 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
 from django.views.generic.edit import DeleteView, FormView
-from django.views.generic.base import TemplateView
+from django.views.generic import TemplateView, DetailView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import get_language
 from django.shortcuts import redirect
+from django.conf import settings
 
 from extra_views import FormSetView
 from cities.models import Place, City, Country, Region, Subregion, District
@@ -25,6 +26,22 @@ from organization.models import Organization
 from violation.forms import ZoneForm, ViolationForm
 from sfm_pc.utils import deleted_in_str, get_geoname_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
+
+class ViolationDetail(DetailView):
+    model = Violation
+    template_name = 'violation/detail.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['location'] = None
+
+        if context['violation'].location.get_value():
+            location = context['violation'].location.get_value()
+            if location.value:
+                context['location'] = location.value
+
+        return context
 
 class ViolationCreate(FormSetView):
     template_name = 'violation/create.html'

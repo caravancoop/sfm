@@ -11,7 +11,7 @@
         {% for object in objects %}
             <tr>
                 <td>
-                    {{ object.name }}
+                    <a href="{% url 'detail-person' object.id %}">{{ object.name }}</a>
                 </td>
                 <td>
                     {% for alias in object.personalias_set.all %}
@@ -20,7 +20,9 @@
                 </td>
                 <td>
                     {% for membership in object.membershippersonmember_set.all %}
-                        {{ membership.object_ref.organization.get_value }}{% if not forloop.last %}, {% endif %}
+                        <a href="{% url 'detail_organization' membership.object_ref.organization.get_value.value.id %}">
+                            {{ membership.object_ref.organization.get_value }}
+                        </a>{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                 </td>
             </tr>

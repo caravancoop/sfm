@@ -38,6 +38,9 @@ class PersonDetail(DetailView):
             context['memberships'].append(membership.object_ref)
 
         context['events'] = []
+        events = context['person'].violationperpetrator_set.all()
+        for event in events:
+            context['events'].append(event.object_ref)
 
         return context
 

@@ -46,7 +46,12 @@ class OrganizationDetail(DetailView):
         for event in events:
             context['events'].append(event.object_ref)
         
-        print(context)
+        context['sites'] = []
+        emplacements = context['organization'].emplacementorganization_set.all()
+        for emplacement in emplacements:
+            if emplacement.object_ref.site.get_value().value.geonameid.get_value():
+                context['sites'].append(emplacement.object_ref.site.get_value().value)
+        
         return context
 
 class OrganizationCreate(BaseFormSetView):

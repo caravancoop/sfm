@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% if location %}
+    {% block extra_head %}
+         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    {% endblock %}
+{% endif %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12">
+            {% if violation.perpetratorclassification.get_value %}
+                <p>
+                    <span class="label label-default">
+                        {{ violation.perpetratorclassification.get_value }}
+                    </span>
+                </p>
+            {% endif %}
+            <h1 class="page-title">
+                Event
+                {% if violation.geoname %}
+                    in <strong>{{ violation.geoname }}</strong>
+                {% endif %}
+                {% if violation.startdate and violation.enddate %}
+                    between <strong>{{ violation.startdate }}</strong> and <strong>{{ violation.enddate }}</strong>
+                {% elif violation.startdate %}
+                    starting <strong>{{ violation.startdate }}</strong>
+                {% elif violation.enddate %}
+                    ending <strong>{{ violation.enddate }}</strong>
+                {% endif %}
+            </h1>
+        </div>
+    </div>
+    <div class="row">
+        {% if location %}
+            <div class="col-sm-8">
+        {% else %}
+            <div class="col-sm-12">
+        {% endif %}
+            <p id="description">
+                {{ violation.description }}
+            </p>
+        </div>
+        {% if location %}
+            <div class="col-sm-4">
+                <div id="geoname_map" style="height:180px;"></div>
+                <h3>{{ violation.geoname }} <br /><small>{{ violation.division_id}}</small></h3>
+            </div>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if violation.violationperpetrator_set.all %}
+                <h3>Perpetrators</h3>
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Aliases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for person in violation.violationperpetrator_set.all %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'detail-person' person.value.id %}">
+                                        {{ person.value.get_value }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% for alias in person.value.aliases.get_list %}
+                                        {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if violation.violationperpetratororganization_set.all %}
+                <h3>Perpetrator organizations</h3>
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Aliases</th>
+                            <th>Classification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for organization in violation.violationperpetratororganization_set.all %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'detail_organization' organization.value.id %}">
+                                        {{ organization.value.get_value }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% for alias in organization.value.aliases.get_list %}
+                                        {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for classification in organization.value.classification.get_list %}
+                                        {{ classification.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                    {% endfor %}
+
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% if location %}
+    {% block extra_js %}
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                var center_x = {{ location.x }};
+                var center_y = {{ location.y }};
+                var map = L.map('geoname_map').setView([center_y, center_x], 10);
+                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            { attribution: attribution, detectRetina: true }).addTo(map);
+                var marker = L.marker([center_y, center_x]).addTo(map);
+            })
+        </script>
+    {% endblock %}
+{% endif %}
