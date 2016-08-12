@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-{% load viewcomplexfield %}
 {% load i18n %}
-{% load render_from_source %}
 {% block content %}
 <div class="row">
     <div class="col-sm-6">
@@ -107,17 +105,4 @@
     </div>
 </div>
 
-{% endblock %}
-{% block extra_js %}
-<script type="text/javascript">
-    $(document).ready(function(){
-        $('.toggle-detail').on('click', function(e){
-            if($(e.target).closest('tr').next().is(':visible')){
-                $(e.target).closest('tr').next().hide();
-            } else {
-                $(e.target).closest('tr').next().show();
-            };
-        })
-    })
-</script>
 {% endblock %}

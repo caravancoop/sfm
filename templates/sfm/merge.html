@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        {% if entity_type == 'organization' %}
+            {% include 'partials/organization_merge.html' %}
+        {% elif entity_type == 'person' %}
+            {% include 'partials/person_merge.html' %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -2,6 +2,7 @@
 <table class="table table-condensed">
     <thead>
         <tr>
+            <th></th>
             <th>Description</th>
             <th>Perpetrator</th>
             <th>Perpetrator organization</th>
@@ -11,7 +12,23 @@
         {% for object in objects %}
             <tr>
                 <td>
-                    {{ object.description.get_value.value }}
+                    <a href="{% url 'detail_violation' object.id %}">
+                        Event
+                        {% if object.geoname %}
+                            in {{ object.geoname }}
+                        {% endif %}
+                        {% if object.startdate and object.enddate %}
+                            between {{ object.startdate }} and {{ object.enddate }}
+                        {% elif object.startdate %}
+                            starting {{ object.startdate }}
+                        {% elif object.enddate %}
+                            ending {{ object.enddate }}
+                        {% endif %}
+                    </a>
+
+                </td>
+                <td>
+                    {{ object.description.get_value.value|truncatewords:50 }}
                 </td>
                 <td>
                     {% for perpetrator in object.perpetrator.get_list %}

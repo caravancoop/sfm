@@ -88,3 +88,6 @@ class ViolationForm(forms.Form):
 
 class ConfidenceForm(forms.Form):
     dummy = forms.CharField(required=False) 
+
+class MergeForm(forms.Form):
+    canonical_record = forms.CharField()
