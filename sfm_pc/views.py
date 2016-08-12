@@ -275,6 +275,12 @@ def search(request):
         {select} 
         ORDER BY content_type, object_ref_id
     '''.format(select=select)
+
+    if not query:
+        select = ''' 
+            {select}
+            LIMIT 100
+        '''.format(select=select)
         
     cursor = connection.cursor()
         

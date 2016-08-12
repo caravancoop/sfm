@@ -6,7 +6,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
 from django.views.generic.edit import DeleteView, FormView
-from django.views.generic.base import TemplateView
+from django.views.generic import TemplateView, DetailView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
@@ -28,6 +28,26 @@ from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias, OrganizationClassification, Classification
 from sfm_pc.utils import deleted_in_str, get_geoname_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
+
+class OrganizationDetail(DetailView):
+    model = Organization
+    template_name = 'organization/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        context['members'] = []
+        memberships = context['organization'].membershippersonorganization_set.all()
+        for membership in memberships:
+            context['members'].append(membership.object_ref)
+        
+        context['events'] = []
+        events = context['organization'].violationperpetratororganization_set.all()
+        for event in events:
+            context['events'].append(event.object_ref)
+        
+        print(context)
+        return context
 
 class OrganizationCreate(BaseFormSetView):
     template_name = 'organization/create.html'

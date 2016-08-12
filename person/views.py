@@ -25,6 +25,22 @@ from membershipperson.models import MembershipPerson, Role
 from sfm_pc.utils import deleted_in_str
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
+class PersonDetail(DetailView):
+    model = Person
+    template_name = 'person/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['memberships'] = []
+        memberships = context['person'].membershippersonmember_set.all()
+        for membership in memberships:
+            context['memberships'].append(membership.object_ref)
+
+        context['events'] = []
+
+        return context
+
 class PersonCreate(BaseFormSetView):
     template_name = 'person/create.html'
     form_class = PersonForm

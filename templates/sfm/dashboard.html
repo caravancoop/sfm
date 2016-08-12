@@ -68,7 +68,7 @@
                         <td><a target="_blank" href="http://geonames.org/{{geoname.id}}">{{ geoname.name }}</a></td>
                         <td>
                             {% for org in org_list %}
-                                <a href="{% url 'edit_organization' org.id %}">{{ org.name }}</a>{% if not forloop.last %}<br /> {% endif %}
+                                <a href="{% url 'detail_organization' org.id %}">{{ org.name }}</a>{% if not forloop.last %}<br /> {% endif %}
                             {% endfor %}
                         </td>
                     </tr>
