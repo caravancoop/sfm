@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-{% load viewcomplexfield %}
 {% load i18n %}
-{% load render_from_source %}
 {% block content %}
 <div class="row">
     <div class="col-sm-6">
@@ -68,7 +66,7 @@
                         <td><a target="_blank" href="http://geonames.org/{{geoname.id}}">{{ geoname.name }}</a></td>
                         <td>
                             {% for org in org_list %}
-                                <a href="{% url 'edit_organization' org.id %}">{{ org.name }}</a>{% if not forloop.last %}<br /> {% endif %}
+                                <a href="{% url 'detail_organization' org.id %}">{{ org.name }}</a>{% if not forloop.last %}<br /> {% endif %}
                             {% endfor %}
                         </td>
                     </tr>
@@ -91,7 +89,7 @@
                         <td><a target="_blank" href="http://geonames.org/{{geoname.id}}">{{ geoname.name }}</a></td>
                         <td>
                             {% for event in event_list %}
-                                <a href="{% url 'edit_violation' event.id %}">
+                                <a href="{% url 'detail_violation' event.id %}">
                                     {% if event.description != '' %}
                                         {{ event.description|truncatewords:15 }}
                                     {% else %}
@@ -107,17 +105,4 @@
     </div>
 </div>
 
-{% endblock %}
-{% block extra_js %}
-<script type="text/javascript">
-    $(document).ready(function(){
-        $('.toggle-detail').on('click', function(e){
-            if($(e.target).closest('tr').next().is(':visible')){
-                $(e.target).closest('tr').next().hide();
-            } else {
-                $(e.target).closest('tr').next().show();
-            };
-        })
-    })
-</script>
 {% endblock %}

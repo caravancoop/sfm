@@ -259,7 +259,6 @@ var geoname_opts = {
         if (data.loading){
             return data.text;
         }
-        console.log(data)
         var template = new EJS({'text': $('#geonameResult').html()});
         return template.render(data);
     }

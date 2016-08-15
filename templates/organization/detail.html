@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% if sites %}
+    {% block extra_head %}
+         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    {% endblock %}
+{% endif %}
+
+{% block content %}
+    <div class="row">
+        {% if sites %}
+            <div class="col-sm-8">
+        {% else %}
+            <div class="col-sm-12">
+        {% endif %}
+            {% if organization.classification.get_list %}
+                <p>
+                {% for classification in organization.classification.get_list %}
+                    <span class="label label-default">{{ classification.get_value }}</span>&nbsp;
+                {% endfor %}
+                </p>
+            {% endif %}
+            <h1 class="page-title">
+                {{ organization.name.get_value }}
+                <small>
+                    <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">Edit</a>
+                </small>
+            </h1>
+            {% if organization.aliases.get_list %}
+                <p>
+                    {% for alias in organization.aliases.get_list %}
+                    <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
+                    {% endfor %}
+                </p>
+            {% endif %}
+        </div>
+        {% if sites %}
+            <div class="col-sm-4">
+                <div id="geoname_map" style="height:180px;"></div>
+                {% for site in sites %}
+                    <h3>
+                        {{ site.geoname }}
+                        <small>
+                            {{ site.adminlevel1 }}
+                            {% if site.adminlevel2.get_value %}
+                                , {{ site.adminlevel2.get_value }}
+                            {% endif %}
+                        </small>
+                    </h3>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if members %}
+                <h3>Members</h3>
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Rank</th>
+                            <th>Role</th>
+                            <th>Title</th>
+                            <th>Start date</th>
+                            <th>End date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'detail-person' member.member.get_value.value.id %}">
+                                        {{ member.member.get_value }}
+                                    </a>
+                                </td>
+                                <td>{{ member.rank.get_value }}</td>
+                                <td>{{ member.role.get_value }}</td>
+                                <td>{{ member.title.get_value|default:"" }}</td>
+                                <td>{{ member.firstciteddate }}</td>
+                                <td>{{ member.lastciteddate }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if events %}
+                <h3>Events</h3>
+                {% for event in events %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <p>
+                                <a href="{% url 'detail_violation' event.id %}">
+                                    Event
+                                    {% if event.geoname %}
+                                        in <strong>{{ event.geoname }}</strong>
+                                    {% endif %}
+                                    {% if event.startdate and event.enddate %}
+                                        between <strong>{{ event.startdate }}</strong> and <strong>{{ event.enddate }}</strong>
+                                    {% elif event.startdate %}
+                                        starting <strong>{{ event.startdate }}</strong>
+                                    {% elif event.enddate %}
+                                        ending <strong>{{ event.enddate }}</strong>
+                                    {% endif %}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="col-sm-12">
+                            <p>{{ event.description.get_value|truncatewords:50 }}</p>
+                        </div>
+                    </div>
+                    {% if not forloop.last %}
+                    <hr />
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% if sites %}
+    {% block extra_js %}
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                var center_x = {{ sites.0.coordinates.get_value.value.x }};
+                var center_y = {{ sites.0.coordinates.get_value.value.y }};
+                var map = L.map('geoname_map').setView([center_y, center_x], 10);
+                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            { attribution: attribution, detectRetina: true }).addTo(map);
+                var markers = L.featureGroup();
+                {% for site in sites %}
+                    markers.addLayer(
+                        L.marker([{{ site.coordinates.get_value.value.y }},{{ site.coordinates.get_value.value.x }}])
+                    );
+                {% endfor %}
+                markers.addTo(map);
+                map.fitBounds(markers.getBounds(), {'maxZoom': 11});
+            })
+        </script>
+    {% endblock %}
+{% endif %}

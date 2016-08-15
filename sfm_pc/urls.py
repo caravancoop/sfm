@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
 from sfm_pc.views import Dashboard, geoname_autocomplete, division_autocomplete, \
-    search, SetConfidence
+    search, SetConfidence, EntityMergeView
 
 urlpatterns = i18n_patterns(
     url(r'^composition/', include('composition.urls')),
@@ -29,6 +29,9 @@ urlpatterns = i18n_patterns(
     url(r'^set-confidence/$', SetConfidence.as_view(), name='set-confidence'),
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
+    
+    # Merge entities
+    url(r'^merge/$', EntityMergeView.as_view(), name='merge'),
 
     # Admin panel
     url(r'^admin/', include(admin.site.urls)),

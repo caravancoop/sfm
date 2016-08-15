@@ -7,7 +7,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
 from django.views.generic.edit import DeleteView, FormView
-from django.views.generic.base import TemplateView
+from django.views.generic import TemplateView, DetailView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
@@ -24,6 +24,25 @@ from source.models import Source
 from membershipperson.models import MembershipPerson, Role
 from sfm_pc.utils import deleted_in_str
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
+
+class PersonDetail(DetailView):
+    model = Person
+    template_name = 'person/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['memberships'] = []
+        memberships = context['person'].membershippersonmember_set.all()
+        for membership in memberships:
+            context['memberships'].append(membership.object_ref)
+
+        context['events'] = []
+        events = context['person'].violationperpetrator_set.all()
+        for event in events:
+            context['events'].append(event.object_ref)
+
+        return context
 
 class PersonCreate(BaseFormSetView):
     template_name = 'person/create.html'

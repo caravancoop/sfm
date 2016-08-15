@@ -1,0 +1,43 @@
+<h3>People</h3>
+<form class="form" method="POST">
+    {% csrf_token %}
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th>Select canonical record</th>
+                <th>Name</th>
+                <th>Aliases</th>
+                <th>Organizations</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in objects %}
+                <tr>
+                    <td>
+                        <div class="checkbox">
+                            <label>
+                                <input type="radio" name="canonical_record" value="{{ object.id }}">
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="{% url 'detail-person' object.id %}">{{ object.name }}</a>
+                    </td>
+                    <td>
+                        {% for alias in object.personalias_set.all %}
+                            {{ alias.value }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for membership in object.membershippersonmember_set.all %}
+                            <a href="{% url 'detail_organization' membership.object_ref.organization.get_value.value.id %}">
+                                {{ membership.object_ref.organization.get_value }}
+                            </a>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-success">Save</button>
+</form>

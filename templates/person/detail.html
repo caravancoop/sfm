@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="page-title">
+                {{ person.name.get_value }}
+            </h1>
+            {% if person.aliases.get_list %}
+                <p>
+                    {% for alias in person.aliases.get_list %}
+                    <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
+                    {% endfor %}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if memberships %}
+                <h3>Memberships</h3>
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Organization</th>
+                            <th>Rank</th>
+                            <th>Role</th>
+                            <th>Title</th>
+                            <th>Start date</th>
+                            <th>End date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in memberships %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'detail_organization' member.organization.get_value.value.id %}">
+                                        {{ member.organization.get_value }}
+                                    </a>
+                                </td>
+                                <td>{{ member.rank.get_value }}</td>
+                                <td>{{ member.role.get_value }}</td>
+                                <td>{{ member.title.get_value|default:"" }}</td>
+                                <td>{{ member.firstciteddate }}</td>
+                                <td>{{ member.lastciteddate }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if events %}
+                <h3>Events</h3>
+                {% for event in events %}
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <p>{{ event.description.get_value }}</p>
+                        </div>
+                        <div class="col-sm-4"></div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}
