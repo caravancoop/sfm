@@ -132,7 +132,7 @@
                 var center_y = {{ sites.0.coordinates.get_value.value.y }};
                 var map = L.map('geoname_map').setView([center_y, center_x], 10);
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
-                L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             { attribution: attribution, detectRetina: true }).addTo(map);
                 var markers = L.featureGroup();
                 {% for site in sites %}
