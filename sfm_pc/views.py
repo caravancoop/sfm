@@ -24,11 +24,13 @@ from organization.models import Organization, OrganizationAlias, Alias as OAlias
 from person.models import Person, PersonAlias, Alias as PAlias
 from cities.models import Place, City, Country, Region, Subregion, District
 from violation.models import Violation
+from membershipperson.models import MembershipPerson
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
 from complex_fields.models import CONFIDENCE_LEVELS
 from sfm_pc.utils import import_class, get_geoname_by_id
 from sfm_pc.forms import MergeForm
+from sfm_pc.base_views import UtilityMixin
 
 SEARCH_CONTENT_TYPES = {
     'Source': Source,
@@ -222,11 +224,11 @@ class SetConfidence(TemplateView):
 
         return redirect(reverse_lazy('dashboard'))
 
-class EntityMergeView(FormView):
+class EntityMergeView(FormView, UtilityMixin):
     template_name = 'sfm/merge.html'
     form_class = MergeForm
     success_url = reverse_lazy('search')
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
@@ -238,7 +240,6 @@ class EntityMergeView(FormView):
         elif context['entity_type'] == 'person':
             context['objects'] = Person.objects.filter(id__in=entity_ids)
         
-        print(context)
         return context
     
     def form_valid(self, form):
@@ -248,10 +249,14 @@ class EntityMergeView(FormView):
         entity_type = self.request.GET['entity_type']
         
         canonical_record_id = form.cleaned_data['canonical_record']
+
         sub_entity_ids = [i for i in entity_ids if i != canonical_record_id]
 
         if entity_type == 'organization':
             canonical_record = Organization.objects.get(id=canonical_record_id)
+            
+            redirect_url = reverse_lazy('detail_organization', args=[canonical_record_id])
+
             other_records = Organization.objects.filter(id__in=sub_entity_ids)
 
             for record in other_records:
@@ -300,27 +305,55 @@ class EntityMergeView(FormView):
             canonical_record = Person.objects.get(id=canonical_record_id)
             other_records = Person.objects.filter(id__in=sub_entity_ids)
 
+            redirect_url = reverse_lazy('detail-person', args=[canonical_record_id])
+            
             for record in other_records:
-                new_alias, created = PAlias.objects.get_or_create(value=record.name.value)
+                new_alias, created = PAlias.objects.get_or_create(value=record.name.get_value().value)
                 palias, created = PersonAlias.objects.get_or_create(value=new_alias,
                                                                           object_ref=canonical_record,
                                                                           lang=get_language())
-                canonical_record.organizationalias_set.add(palias)
+                canonical_record.personalias_set.add(palias)
                 
                 for alias in record.personalias_set.all():
                     canonical_record.personalias_set.add(alias)
+                
+                canonical_member_orgs = set()
+                for membership in canonical_record.membershippersonmember_set.all():
+                    for member_org in membership.object_ref.membershippersonorganization_set.all():
+                        canonical_member_orgs.add(member_org.value)
 
+                
+                record_member_orgs = set()
                 for membership in record.membershippersonmember_set.all():
-                    canonical_record.add(membership)
+                    for member_org in membership.object_ref.membershippersonorganization_set.all():
+                        record_member_orgs.add(member_org.value)
+                
+                new_orgs = record_member_orgs - canonical_member_orgs
+
+                for new_org in new_orgs:
+                    mem_data = {
+                        'MembershipPerson_MembershipPersonMember': {
+                            'value': canonical_record,
+                            'confidence': 1,
+                            'sources': self.sourcesList(canonical_record, 'name'),
+                        },
+                        'MembershipPerson_MembershipPersonOrganization': { 
+                            'value': new_org,
+                            'confidence': 1,
+                            'sources': self.sourcesList(new_org, 'name'),
+                        }
+                    }
+                    MembershipPerson.create(mem_data)
+
 
                 for violation in record.violationperpetrator_set.all():
-                    canonical_record.add(violation)
+                    canonical_record.violationperpetrator_set.add(violation)
                 
                 record.delete()
 
             canonical_record.save()
-
-        return response
+        
+        return redirect(redirect_url)
 
 def search(request):
     query = request.GET.get('q')
