@@ -72,7 +72,7 @@ class Dashboard(TemplateView):
         '''.format(source_count_q), [])
         
         for row in c:
-            user = User.objects.get(row[1])
+            user = User.objects.get(id=row[1])
             try:
                 context['count_by_user'][user]['last_week_count'] = row[0]
             except KeyError:
