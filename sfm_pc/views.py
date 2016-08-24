@@ -72,7 +72,11 @@ class Dashboard(TemplateView):
         '''.format(source_count_q), [])
         
         for row in c:
-            context['count_by_user'][User.objects.get(id=row[1])]['last_week_count'] = row[0]
+            user = User.objects.get(row[1])
+            try:
+                context['count_by_user'][user]['last_week_count'] = row[0]
+            except KeyError:
+                context['count_by_user'][user] = {'last_week_count': row[0]}
         
         c.execute('''
             {} WHERE age(now(), date_added) <= make_interval(months := 1) 
@@ -80,7 +84,11 @@ class Dashboard(TemplateView):
         '''.format(source_count_q), [])
 
         for row in c:
-            context['count_by_user'][User.objects.get(id=row[1])]['last_month_count'] = row[0]
+            user = User.objects.get(id=row[1])
+            try:
+                context['count_by_user'][user]['last_month_count'] = row[0]
+            except KeyError:
+                context['count_by_user'][user] = {'last_month_count': row[0]}
         
         entity_type_counts = ''' 
             SELECT COUNT(*), d.value 
