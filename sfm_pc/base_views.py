@@ -96,3 +96,15 @@ class PaginatedList(ListView):
         
         return context
 
+    def get_queryset(self):
+        order_by_field = self.request.GET.get('order_by')
+        
+        if order_by_field:
+            order_by = self.orderby_lookup.get(order_by_field)
+            
+            if order_by:
+                return self.model.objects.order_by(order_by)
+        
+        return self.model.objects.all()
+
+

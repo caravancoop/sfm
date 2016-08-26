@@ -1,51 +1,5 @@
 <h3>Events</h3>
-<table class="table table-condensed">
-    <thead>
-        <tr>
-            <th></th>
-            <th>Description</th>
-            <th>Perpetrator</th>
-            <th>Perpetrator organization</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for object in objects %}
-            <tr>
-                <td>
-                    <a href="{% url 'detail_violation' object.id %}">
-                        Event
-                        {% if object.geoname %}
-                            in {{ object.geoname }}
-                        {% endif %}
-                        {% if object.startdate and object.enddate %}
-                            between {{ object.startdate }} and {{ object.enddate }}
-                        {% elif object.startdate %}
-                            starting {{ object.startdate }}
-                        {% elif object.enddate %}
-                            ending {{ object.enddate }}
-                        {% endif %}
-                    </a>
-
-                </td>
-                <td>
-                    {{ object.description.get_value.value|truncatewords:50 }}
-                </td>
-                <td>
-                    {% for perpetrator in object.perpetrator.get_list %}
-                        <a href="{% url 'detail-person' perpetrator.get_value.value.id %}">
-                            {{ perpetrator.get_value.value.name.get_value.value }}
-                        </a>{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </td>
-                <td>
-                    {% for organization in object.perpetratororganization.get_list %}
-                        <a href="{% url 'detail_organization' organization.get_value.value.id %}">
-                            {{ organization.get_value.value.name.get_value.value }}
-                        </a>{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% with object_list=objects %}
+    {% include 'partials/violation_list_table.html' %}
+{% endwith %}
 

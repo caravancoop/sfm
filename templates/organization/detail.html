@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load render_versions %}
 {% if sites %}
     {% block extra_head %}
          <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
@@ -121,6 +122,7 @@
             {% endif %}
         </div>
     </div>
+    {% render_versions organization %}
 {% endblock %}
 
 {% if sites %}

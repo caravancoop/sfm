@@ -2,8 +2,8 @@
 {% load tablesort %}
 
 {% block object_table %}
-    {% with sortable='True' merge='False' %}
-    {% include 'partials/organization_list_table.html' %}
+    {% with sortable='True' %}
+        {% include 'partials/violation_list_table.html' %}
     {% endwith %}
 {% endblock %}
 

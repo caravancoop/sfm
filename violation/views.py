@@ -25,7 +25,7 @@ from person.models import Person
 from organization.models import Organization
 from violation.forms import ZoneForm, ViolationForm
 from sfm_pc.utils import deleted_in_str, get_geoname_by_id
-from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 class ViolationDetail(DetailView):
     model = Violation
@@ -42,6 +42,18 @@ class ViolationDetail(DetailView):
                 context['location'] = location.value
 
         return context
+
+class ViolationList(PaginatedList):
+    model = Violation
+    template_name = 'violation/list.html'
+    orderby_lookup = {
+        'start_date': 'violationstartdate__value',
+        'end_date': 'violationenddate__value',
+        'geoname': 'violationgeoname__value',
+        'classification': 'violationperpetratorclassification__value__value',
+    }
+
+
 
 class ViolationCreate(FormSetView):
     template_name = 'violation/create.html'

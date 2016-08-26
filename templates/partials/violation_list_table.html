@@ -1,0 +1,98 @@
+{% load tablesort %}
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th>
+                    Start Date
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='start_date' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>
+                    End Date
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='end_date' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>Description</th>
+                <th>Violation types</th>
+                <th>
+                    Geoname
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='geoname' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>Organizations</th>
+                <th>
+                    Organization classification
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='classification' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <td>
+                        {% if object.startdate.get_value %}
+                            {{ object.startdate.get_value }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if object.enddate.get_value %}
+                            {{ object.enddate.get_value }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'detail_violation' object.id %}">
+                        {% if object.description.get_value %}
+                            {{ object.description.get_value|truncatewords:25 }}
+                        {% else %}
+                            View Detail
+                        {% endif %}
+                        </a>
+                    </td>
+                    <td>
+                        {% for violation_type in object.types.get_list %}
+                            {{ violation_type.get_value }}
+                            {% if not forloop.last %}<br />{% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if object.geoname.get_value and object.geonameid.get_value %}
+                            <a target="_blank" href="http://geonames.org/{{ object.geonameid.get_value }}">
+                                {{ object.geoname.get_value }}
+                            </a> &nbsp;
+                        {% endif %}
+                        {% if object.adminlevel1.get_value %}
+                            ({{ object.adminlevel1.get_value }})
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% for organization in object.violationperpetratororganization_set.all %}
+                            <a href="{% url 'detail_organization' organization.value.id %}">
+                                {{ organization.value.name.get_value }}
+                            </a>
+                            {% if not forloop.last %}<br />{% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for classification in object.violationperpetratorclassification_set.all %}
+                            {{ classification.value.value }}
+                            {% if not forloop.last %}<br />{% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+

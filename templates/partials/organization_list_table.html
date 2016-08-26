@@ -1,0 +1,119 @@
+{% load tablesort %}
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                {% if merge == 'True' %}
+                    <th>Select records to merge</th>
+                {% endif %}
+                {% if canonical == 'True' %}
+                    <th>Select canonical record</th>
+                {% endif %}
+                <th>
+                    Name
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='name' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>
+                    Parent
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='parent' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>
+                    Site Geoname
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='geoname' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>
+                    Admin 1 Geoname
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='admin1' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>
+                    Classification
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='classification' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+                {% if object.name.get_value %}
+                    <tr>
+                        {% if merge == 'True' %}
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" class="organization_ids" data-entity_id="{{object.id}}">
+                                    </label>
+                                </div>
+                            </td>
+                        {% endif %}
+                        {% if canonical == 'True' %}
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="radio" name="canonical_record" value="{{ object.id }}">
+                                    </label>
+                                </div>
+                            </td>
+                        {% endif %}
+                        <td>
+                            <a href="{% url 'detail_organization' object.id %}">{{ object.name.get_value }}</a>
+                        </td>
+                        <td>
+                            {% for comp in object.parent_organization.all %}
+                                {% with parent=comp.object_ref.parent.get_value %}
+                                    <a href="{% url 'detail_organization' parent.value.id %}">{{ parent.value.name.get_value }}</a>
+                                {% endwith %}
+                                {% if not forloop.last %}<br />{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for emplacement in object.emplacementorganization_set.all %}
+                                {% with site=emplacement.object_ref.site.get_value.value %}
+                                    {% if site.geoname.get_value %}
+                                        <a target="_blank" href="http://geonames.org/{{ site.geonameid.get_value }}">{{ site.geoname.get_value }}</a>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for emplacement in object.emplacementorganization_set.all %}
+                                {% with site=emplacement.object_ref.site.get_value.value %}
+                                    {% if site.adminlevel1.get_value %}
+                                        {{ site.adminlevel1.get_value }}
+                                    {% endif %}
+                                {% endwith %}
+                                {% if not forloop.last %}<br />{% endif %}
+                            {% endfor %}
+
+                        </td>
+                        <td>
+                            {% for classification in object.classification.get_list %}
+                                {% if classification.get_value %}
+                                    {{ classification.get_value.value.value }}
+                                {% endif %}
+                                {% if not forloop.last %}<br />{% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+

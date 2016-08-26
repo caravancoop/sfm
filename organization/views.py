@@ -53,24 +53,16 @@ class OrganizationDetail(DetailView):
         
         return context
 
-ORDERBY_LOOKUP = {
-    'name': 'organizationname__value',
-    'parent': 'parent_organization__object_ref__compositionparent__value__organizationname__value',
-    'geoname': 'emplacementorganization__object_ref__emplacementsite__value__geositegeoname__value',
-    'admin1': 'emplacementorganization__object_ref__emplacementsite__value__geositeadminlevel1__value',
-    'classification': 'organizationclassification__value__value'
-}
-
 class OrganizationList(PaginatedList):
     model = Organization
     template_name = 'organization/list.html'
-
-    def get_queryset(self):
-        order_by_field = self.request.GET.get('order_by')
-        if order_by_field:
-            order_by = ORDERBY_LOOKUP[order_by_field]
-            return Organization.objects.order_by(order_by)
-        return Organization.objects.all()
+    orderby_lookup = {
+        'name': 'organizationname__value',
+        'parent': 'parent_organization__object_ref__compositionparent__value__organizationname__value',
+        'geoname': 'emplacementorganization__object_ref__emplacementsite__value__geositegeoname__value',
+        'admin1': 'emplacementorganization__object_ref__emplacementsite__value__geositeadminlevel1__value',
+        'classification': 'organizationclassification__value__value'
+    }
 
 class OrganizationCreate(BaseFormSetView):
     template_name = 'organization/create.html'

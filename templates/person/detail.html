@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
-
+{% load render_versions %}
 {% block content %}
     <div class="row">
         <div class="col-sm-12">
             <h1 class="page-title">
                 {{ person.name.get_value }}
+                <small>
+                    <a href="{% url 'edit-person' person.id %}" class="btn btn-default">Edit</a>
+                </small>
             </h1>
             {% if person.aliases.get_list %}
                 <p>
@@ -67,6 +70,7 @@
             {% endif %}
         </div>
     </div>
+    {% render_versions person %}
 {% endblock %}
 
 {% block extra_js %}

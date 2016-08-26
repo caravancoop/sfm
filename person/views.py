@@ -44,20 +44,12 @@ class PersonDetail(DetailView):
 
         return context
 
-ORDERBY_LOOKUP = {
-    'name': 'personname__value',
-}
-
 class PersonList(PaginatedList):
-    model = Organization
+    model = Person
     template_name = 'person/list.html'
-
-    def get_queryset(self):
-        order_by_field = self.request.GET.get('order_by')
-        if order_by_field:
-            order_by = ORDERBY_LOOKUP[order_by_field]
-            return Person.objects.order_by(order_by)
-        return Person.objects.all()
+    orderby_lookup = {
+        'name': 'personname__value',
+    }
 
 class PersonCreate(BaseFormSetView):
     template_name = 'person/create.html'

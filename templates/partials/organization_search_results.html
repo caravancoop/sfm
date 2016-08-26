@@ -2,39 +2,6 @@
     Organizations
     <button class="pull-right btn btn-default merge" data-entity_type="organization">Merge selected</button>
 </h3>
-<table class="table table-condensed">
-    <thead>
-        <tr>
-            <th>Select records to merge</th>
-            <th>Name</th>
-            <th>Aliases</th>
-            <th>Classification</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for object in objects %}
-            <tr>
-                <td>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" class="organization_ids" data-entity_id="{{object.id}}">
-                        </label>
-                    </div>
-                </td>
-                <td>
-                    <a href="{% url 'detail_organization' object.id %}">{{ object.name }}</a>
-                </td>
-                <td>
-                    {% for alias in object.aliases.get_list %}
-                        {{ alias }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </td>
-                <td>
-                    {% for classification in object.classification.get_list %}
-                        {{ classification }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% with merge='True' object_list=objects sortable='False' %}
+    {% include 'partials/organization_list_table.html' %}
+{% endwith %}

@@ -18,9 +18,6 @@
                 <h4>Filter by entity type</h4>
                 <div class="form-group">
                     <label class="checkbox-inline">
-                        <input type="checkbox" name="entity_type" value="Source" {% if 'Source' in filters %}checked=true{% endif %}> Sources
-                    </label>
-                    <label class="checkbox-inline">
                         <input type="checkbox" name="entity_type" value="Organization" {% if 'Organization' in filters %}checked=true{% endif %}> Organizations
                     </label>
                     <label class="checkbox-inline">
@@ -65,11 +62,7 @@
             <h1>Results for &ldquo;{{ query }}&rdquo;</h1>
             {% endif %}
             {% for result_type, objects in results.items %}
-                {% if result_type == 'Source' %}
-                    {% include 'partials/source_search_results.html' %}
-                {% elif result_type == 'Publication' %}
-                    {% include 'partials/publication_search_results.html' %}
-                {% elif result_type == 'Organization' %}
+                {% if result_type == 'Organization' %}
                     {% include 'partials/organization_search_results.html' %}
                 {% elif result_type == 'Person' %}
                     {% include 'partials/person_search_results.html' %}

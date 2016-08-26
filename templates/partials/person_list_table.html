@@ -1,0 +1,67 @@
+{% load tablesort %}
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                {% if merge == 'True' %}
+                    <th>Select records to merge</th>
+                {% endif %}
+                {% if canonical == 'True' %}
+                    <th>Select canonical record</th>
+                {% endif %}
+                <th>
+                    Name
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-person' %}?{% query_transform request order_by='name' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>Aliases</th>
+                <th>Organizations</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+                {% if object.name.get_value %}
+                    <tr>
+                        {% if merge == 'True' %}
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" class="person_ids" data-entity_id="{{object.id}}">
+                                    </label>
+                                </div>
+                            </td>
+                        {% endif %}
+                        {% if canonical == 'True' %}
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="radio" name="canonical_record" value="{{ object.id }}">
+                                    </label>
+                                </div>
+                            </td>
+                        {% endif %}
+                        <td>
+                            <a href="{% url 'detail-person' object.id %}">{{ object.name.get_value }}</a>
+                        </td>
+                        <td>
+                            {% for alias in object.personalias_set.all %}
+                                {{ alias.value.value }}
+                                {% if not forloop.last %}<br />{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for membership in object.membershippersonmember_set.all %}
+                                {% for organization in membership.object_ref.membershippersonorganization_set.all %}
+                                    <a href="{% url 'detail_organization' organization.value.id %}">{{ organization.value.name.get_value }}</a>
+                                {% endfor %}
+                                {% if not forloop.last %}<br />{% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+

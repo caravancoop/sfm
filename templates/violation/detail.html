@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load render_versions %}
 
 {% if location %}
     {% block extra_head %}
@@ -23,16 +24,20 @@
                 {% if violation.geoname %}
                     in <strong>{{ violation.geoname }}</strong>
                 {% endif %}
-                {% if violation.startdate and violation.enddate %}
-                    between <strong>{{ violation.startdate }}</strong> and <strong>{{ violation.enddate }}</strong>
-                {% elif violation.startdate %}
-                    starting <strong>{{ violation.startdate }}</strong>
-                {% elif violation.enddate %}
-                    ending <strong>{{ violation.enddate }}</strong>
+                {% if violation.startdate.get_value and violation.enddate.get_value %}
+                    between <strong>{{ violation.startdate.get_value }}</strong> and <strong>{{ violation.enddate.get_value }}</strong>
+                {% elif violation.startdate.get_value %}
+                    starting <strong>{{ violation.startdate.get_value }}</strong>
+                {% elif violation.enddate.get_value %}
+                    ending <strong>{{ violation.enddate.get_value }}</strong>
                 {% endif %}
+                <small>
+                    <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">Edit</a>
+                </small>
             </h1>
         </div>
     </div>
+    <hr />
     <div class="row">
         {% if location %}
             <div class="col-sm-8">
@@ -119,6 +124,9 @@
             {% endif %}
         </div>
     </div>
+
+    {% render_versions violation %}
+
 {% endblock %}
 
 {% if location %}

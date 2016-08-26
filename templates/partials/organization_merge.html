@@ -1,41 +1,8 @@
 <h3>Organizations</h3>
 <form class="form" method="POST">
     {% csrf_token %}
-    <table class="table table-condensed">
-        <thead>
-            <tr>
-                <th>Select canonical record</th>
-                <th>Name</th>
-                <th>Aliases</th>
-                <th>Classification</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for object in objects %}
-                <tr>
-                    <td>
-                        <div class="checkbox">
-                            <label>
-                                <input type="radio" name="canonical_record" value="{{ object.id }}">
-                            </label>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="{% url 'detail_organization' object.id %}">{{ object.name }}</a>
-                    </td>
-                    <td>
-                        {% for alias in object.aliases.get_list %}
-                            {{ alias }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {% for classification in object.classification.get_list %}
-                            {{ classification }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% with canonical='True' sortable='False' object_list=objects %}
+    {% include 'partials/organization_list_table.html' %}
+    {% endwith %}
     <button type="submit" class="btn btn-success">Save</button>
 </form>
