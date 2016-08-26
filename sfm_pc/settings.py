@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'cities',
     'reversion',
     'leaflet',
+    'bootstrap_pagination',
     'complex_fields',
     'sfm_pc',
     'organization',

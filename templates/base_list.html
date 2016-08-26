@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load bootstrap_pagination %}
+
+{% block content %}
+    {% block object_table %}{% endblock %}
+    {% bootstrap_paginate object_list range=10 %}
+{% endblock %}
+

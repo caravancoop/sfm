@@ -35,11 +35,11 @@
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li><a href="{% url 'create-source' %}">Add new source</a></li>
-                <li><a href="{% url 'search' %}">Search</a></li>
+                <li><a href="{% url 'list-organization' %}">Organizations</a></li>
+                <li><a href="{% url 'list-person' %}">People</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/logout/">Logout</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </div>
     </div>

@@ -3,6 +3,8 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 from django.views.generic.edit import FormView
+from django.views.generic import ListView
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from extra_views import FormSetView
 
@@ -77,4 +79,20 @@ class BaseUpdateView(FormView, UtilityMixin):
             return self.form_invalid(self.form)
     
 
+class PaginatedList(ListView):
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        paginator = Paginator(context['object_list'], 25)
+
+        page = self.request.GET.get('page')
+        try:
+            context['object_list'] = paginator.page(page)
+        except PageNotAnInteger:
+            context['object_list'] = paginator.page(1)
+        except EmptyPage:
+            context['object_list'] = paginator.page(paginator.num_pages)
+        
+        return context
 

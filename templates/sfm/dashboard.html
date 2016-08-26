@@ -2,6 +2,29 @@
 {% load i18n %}
 {% block content %}
 <div class="row">
+    <div class="col-sm-12">
+        <div class="jumbotron">
+            <form action='{% url 'search' %}' method='GET'>
+                <div class="input-group input-group-lg">
+                    <input type="text" class="form-control" placeholder="Search for organizations, people and events" name="q">
+                    <input type='hidden' name='entity_type' value='Organization' />
+                    <input type='hidden' name='entity_type' value='Person' />
+                    <input type='hidden' name='entity_type' value='Violation' />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> Search</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12 text-center">
+        <a href="{% url 'create-source' %}" class="btn btn-lg btn-primary">Add new source</a>
+    </div>
+</div>
+<hr />
+<div class="row">
     <div class="col-sm-6">
         <h4>Entity counts</h4>
         <table class="table table-condensed">
@@ -50,59 +73,5 @@
     </div>
 </div>
 <hr />
-<div class="row">
-    <div class="col-sm-4">
-        <h4>Organizations by geography</h4>
-        <table class="table table-condensed">
-            <thead>
-                <tr>
-                    <th>Geoname</th>
-                    <th>Organizations</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for geoname, org_list in org_geo_counts.items %}
-                    <tr>
-                        <td><a target="_blank" href="http://geonames.org/{{geoname.id}}">{{ geoname.name }}</a></td>
-                        <td>
-                            {% for org in org_list %}
-                                <a href="{% url 'detail_organization' org.id %}">{{ org.name }}</a>{% if not forloop.last %}<br /> {% endif %}
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="col-sm-8">
-        <h4>Events by geography</h4>
-        <table class="table table-condensed">
-            <thead>
-                <tr>
-                    <th>Geoname</th>
-                    <th>Events</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for geoname, event_list in event_geo_counts.items %}
-                    <tr>
-                        <td><a target="_blank" href="http://geonames.org/{{geoname.id}}">{{ geoname.name }}</a></td>
-                        <td>
-                            {% for event in event_list %}
-                                <a href="{% url 'detail_violation' event.id %}">
-                                    {% if event.description != '' %}
-                                        {{ event.description|truncatewords:15 }}
-                                    {% else %}
-                                        Event
-                                    {% endif %}
-                                </a>{% if not forloop.last %}<br /> {% endif %}
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
 
 {% endblock %}

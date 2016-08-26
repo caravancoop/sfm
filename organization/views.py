@@ -2,11 +2,10 @@ import json
 import csv
 from datetime import date
 
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
 from django.views.generic.edit import DeleteView, FormView
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView, DetailView, ListView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
@@ -27,7 +26,7 @@ from organization.forms import OrganizationForm, OrganizationGeographyForm
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias, OrganizationClassification, Classification
 from sfm_pc.utils import deleted_in_str, get_geoname_by_id
-from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 class OrganizationDetail(DetailView):
     model = Organization
@@ -53,6 +52,25 @@ class OrganizationDetail(DetailView):
                 context['sites'].append(emplacement.object_ref.site.get_value().value)
         
         return context
+
+ORDERBY_LOOKUP = {
+    'name': 'organizationname__value',
+    'parent': 'parent_organization__object_ref__compositionparent__value__organizationname__value',
+    'geoname': 'emplacementorganization__object_ref__emplacementsite__value__geositegeoname__value',
+    'admin1': 'emplacementorganization__object_ref__emplacementsite__value__geositeadminlevel1__value',
+    'classification': 'organizationclassification__value__value'
+}
+
+class OrganizationList(PaginatedList):
+    model = Organization
+    template_name = 'organization/list.html'
+
+    def get_queryset(self):
+        order_by_field = self.request.GET.get('order_by')
+        if order_by_field:
+            order_by = ORDERBY_LOOKUP[order_by_field]
+            return Organization.objects.order_by(order_by)
+        return Organization.objects.all()
 
 class OrganizationCreate(BaseFormSetView):
     template_name = 'organization/create.html'

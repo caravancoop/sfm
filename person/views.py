@@ -23,7 +23,7 @@ from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, Role
 from sfm_pc.utils import deleted_in_str
-from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 class PersonDetail(DetailView):
     model = Person
@@ -43,6 +43,21 @@ class PersonDetail(DetailView):
             context['events'].append(event.object_ref)
 
         return context
+
+ORDERBY_LOOKUP = {
+    'name': 'personname__value',
+}
+
+class PersonList(PaginatedList):
+    model = Organization
+    template_name = 'person/list.html'
+
+    def get_queryset(self):
+        order_by_field = self.request.GET.get('order_by')
+        if order_by_field:
+            order_by = ORDERBY_LOOKUP[order_by_field]
+            return Person.objects.order_by(order_by)
+        return Person.objects.all()
 
 class PersonCreate(BaseFormSetView):
     template_name = 'person/create.html'
