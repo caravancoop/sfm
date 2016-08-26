@@ -29,6 +29,9 @@ class Source(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
     user = models.ForeignKey(User)
+    
+    page_number = models.CharField(max_length=255, null=True)
+    accessed_on = models.DateField(null=True)
 
     def __str__(self):
         if self.title is None:

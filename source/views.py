@@ -63,11 +63,12 @@ class SourceCreate(FormView):
         
         self.publication = publication
 
-       
         source, created = Source.objects.get_or_create(title=form.cleaned_data['title'],
                                                        source_url=form.cleaned_data['source_url'],
                                                        publication=self.publication,
                                                        published_on=form.cleaned_data['published_on'],
+                                                       page_number=form.cleaned_data['page_number'],
+                                                       accessed_on=form.cleaned_data['accessed_on'],
                                                        user=self.request.user)
         
         self.request.session['source_id'] = source.id
