@@ -3,7 +3,7 @@
 ## Development
 
     mkvirtualenv sfm
-    git clone git@github.com:caravancoop/sfm.git
+    git clone git@github.com:security-force-monitor/sfm-cms.git
     cd sfm/sfm_pc
 
 Install the requirements:
