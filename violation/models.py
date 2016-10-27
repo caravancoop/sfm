@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
 from django.db.models import Max
@@ -21,6 +23,9 @@ CONFIDENCE_LEVELS = (
 
 class Violation(models.Model, BaseModel):
     confidence_required = False
+    uuid = models.UUIDField(default=uuid.uuid4, 
+                            editable=False, 
+                            db_index=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
