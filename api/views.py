@@ -1,5 +1,8 @@
 from django.http import JsonResponse
 from django.views.generic import TemplateView
+from django.db import connection
+
+from violation.models import Violation
 
 class JSONResponseMixin(object):
     def render_to_json_response(self, context, **response_kwargs):
@@ -47,6 +50,7 @@ class CountryMapView(JSONAPIView):
 class CountryEventsView(JSONAPIView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
         return context
 
 class EventDetailView(JSONAPIView):
@@ -91,4 +95,17 @@ class EventDetailView(JSONAPIView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        violation = ''' 
+            SELECT 
+              vv.uuid,
+              vvsd.value AS start_date,
+              vved.value AS end_date
+            FROM violation_violation AS vv
+            JOIN violation_violationstartdate AS vvsd
+              ON vv.id = vvsd.
+        '''
+
+        cursor = connection.cursor()
+
         return context
