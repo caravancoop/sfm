@@ -28,23 +28,6 @@ class Emplacement(models.Model, BaseModel):
             "Emplacement_EmplacementSite",
         ]
 
-    def validate(self, dict_values, lang=get_language()):
-        errors = {}
-
-        start = dict_values.get("Emplacement_EmplacementStartDate")
-        end = dict_values.get("Emplacement_EmplacementEndDate")
-        if (start and start.get("value") != "" and
-                end and end.get("value") != "" and
-                start.get("value") >= end.get("value")):
-            errors['Emplacement_EmplacementStartDate'] = _(
-                "The start date must be before the end date"
-            )
-
-        (base_errors, values) = super().validate(dict_values)
-        errors.update(base_errors)
-
-        return (errors, values)
-    
     def get_value(self):
         return '{0} ({1})'.format(self.organization.get_value(), 
                                   self.site.get_value())
