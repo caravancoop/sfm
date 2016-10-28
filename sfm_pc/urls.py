@@ -41,6 +41,9 @@ urlpatterns = i18n_patterns(
     url(r'^accounts/', include('allauth.urls')),
     url(r'^logout/$', logout_then_login, {'login_url': '/accounts/login'}, name="logout"),
     
+)
+
+urlpatterns += (
     # API endpoints
     url(r'^api/', include('api.urls')),
 )

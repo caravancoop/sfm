@@ -59,7 +59,8 @@ class Command(UtilityMixin, BaseCommand):
         parser.add_argument(
             '--doc_id',
             dest='doc_id',
-            default='16cRBkrnXE5iGm8JXD7LSqbeFOg_anhVp2YAzYTRYDgU',
+            #default='16cRBkrnXE5iGm8JXD7LSqbeFOg_anhVp2YAzYTRYDgU',
+            default='1EyS55ZkqqkpeYsNKDuIzgUOV-n8TJr5yoEa2Z6a4Duk',
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(
@@ -1271,7 +1272,7 @@ class Command(UtilityMixin, BaseCommand):
             for org in perp_org.split(';'):
                 
                 try:
-                    organization = Organization.objects.get(id=org)
+                    organization = Organization.objects.get(organizationname__value=org)
                 except (Organization.DoesNotExist, ValueError):
                     info = {
                         'Organization_OrganizationName': {

@@ -10,6 +10,6 @@ urlpatterns = [
     url(r'^countries/(?P<id>\w+).txt$', CountryTxtView.as_view(), name="country-txt"),
     url(r'^countries/(?P<id>\w+)/map/$', CountryMapView.as_view(), name="country-map"),
     url(r'^countries/(?P<id>\w+)/events/$', CountryEventsView.as_view(), name="country-events"),
-    url(r'^event/(?P<id>\w+)/$', EventDetailView.as_view(), name="event-detail"),
+    url(r'^events/(?P<id>\S+)/$', EventDetailView.as_view(), name="event-detail"),
     
 ]
