@@ -191,7 +191,8 @@ LEAFLET_CONFIG = {
 }
 CITIES_FILES = {
     'city': {
-       'filenames': ['NG.zip', 'MX.zip', 'EG.zip'],
+       # 'filenames': ['NG.zip', 'MX.zip', 'EG.zip'],
+       'filenames': ['NG.zip'],
        'urls':     ['http://download.geonames.org/export/dump/'+'{filename}']
     },
 }

@@ -1110,6 +1110,10 @@ class Command(UtilityMixin, BaseCommand):
                 'value': 5,
                 'source': 14,
             },
+            'AdminLevel1': {
+                'value': 7,
+                'source': 14,
+            },
             'Perpetrator': {
                 'value': 11,
                 'source': 14
@@ -1153,6 +1157,11 @@ class Command(UtilityMixin, BaseCommand):
                            positions['Description'], 
                            event_data, 
                            violation)
+        
+        self.make_relation('AdminLevel1', 
+                           positions['AdminLevel1'], 
+                           event_data, 
+                           violation)
        
         try:
             sources = self.create_sources(event_data[positions['GeonameId']['source']])
@@ -1177,7 +1186,6 @@ class Command(UtilityMixin, BaseCommand):
 
             if geo:
                 parent = geo.parent
-                admin1 = parent.name
                 admin2 = getattr(parent.parent, 'name', None)
                 coords = getattr(geo, 'location', None)
                 
@@ -1191,16 +1199,6 @@ class Command(UtilityMixin, BaseCommand):
                 division_id = 'ocd-division/country:{}'.format(country_code)
                 
                 event_info = {
-                    'Violation_ViolationAdminLevel1': {
-                        'value': admin1,
-                        'confidence': 1,
-                        'sources': sources
-                    },
-                    'Violation_ViolationAdminLevel1': {
-                        'value': admin1,
-                        'sources': sources,
-                        'confidence': 1
-                    },
                     'Violation_ViolationAdminLevel2': {
                         'value': admin2,
                         'sources': sources,

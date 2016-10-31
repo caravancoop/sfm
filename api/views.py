@@ -22,6 +22,57 @@ class JSONResponseMixin(object):
 class JSONAPIView(JSONResponseMixin, TemplateView):
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
+        
+    def makeFeature(self, geometry, properties):
+        feature = {
+            'type': 'Feature',
+            'id': properties['id'],
+            'properties': properties,
+            'geometry': geometry
+        }
+
+        return feature
+    
+    def makeOrganization(self, properties, relationships=True):
+        
+        if relationships:
+            properties['parents'] = [c for c in list(set(properties['parents'])) if c]
+            properties['children'] = [c for c in list(set(properties['children'])) if c]
+
+        event_count = ''' 
+            SELECT COUNT(*) AS count
+            FROM violation
+            WHERE perpetrator_organization_id = %s
+        '''
+
+        cursor = connection.cursor()
+        cursor.execute(event_count, [properties['id']])
+        
+        properties['event_count'] = cursor.fetchone()[0]
+
+        return properties
+
+    def makeEvent(self, properties):
+        properties['classification'] = list(set(properties['classification']))
+
+        perp_class = [c for c in list(set(properties['perpetrator_classification'])) if c]
+        if perp_class:
+            properties['perpetrator_classification'] = perp_class
+        else:
+            properties['perpetrator_classification'] = None
+
+        perp_org_ids = []
+        perp_orgs = []
+        for org in properties['perpetrator_organization']:
+            if org['id'] not in perp_org_ids:
+                structured_org = self.makeOrganization(org, relationships=False)
+                
+                perp_orgs.append(structured_org)
+                perp_org_ids.append(org['id'])
+
+        properties['perpetrator_organization'] = perp_orgs
+        return properties
+
 
 class CountryListView(JSONAPIView):
     def get_context_data(self, **kwargs):
@@ -48,6 +99,7 @@ class CountryTxtView(JSONAPIView):
 class CountryMapView(JSONAPIView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         return context
 
 class CountryEventsView(JSONAPIView):
@@ -99,6 +151,9 @@ class EventDetailView(JSONAPIView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        event = {}
+        nearby = []
+
         event = ''' 
             SELECT 
               v.id,
@@ -110,7 +165,7 @@ class EventDetailView(JSONAPIView):
               MAX(v.geoname) AS geoname,
               MAX(v.geoname_id) AS geoname_id,
               MAX(v.division_id) AS division_id,
-              MAX(v.location) AS location,
+              ST_ASGeoJSON(MAX(v.location))::json AS location,
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
               array_agg(v.perpetrator_classification) AS perpetrator_classification,
@@ -121,46 +176,48 @@ class EventDetailView(JSONAPIView):
               ON v.perpetrator_id = p.id
             LEFT JOIN organization AS o
               ON v.perpetrator_organization_id = o.id
-            LEFT JOIN emplacement AS e
-              ON o.id = e.organization_id
-            LEFT JOIN geosite AS g
-              ON e.site_id = g.id
             WHERE v.id = %s
             GROUP BY v.id
+        ''' 
+        
+        nearby = '''
+              SELECT 
+                o.id, 
+                MAX(o.name) AS name,
+                array_agg(DISTINCT o.alias) AS other_names,
+                array_agg(DISTINCT parent.parent_id) AS parents,
+                array_agg(DISTINCT child.child_id) AS children
+              FROM violation AS v
+              JOIN geosite AS g
+                ON  ST_Intersects(ST_Buffer_Meters(v.location, 35000), g.coordinates)
+              JOIN emplacement AS e
+                ON g.id = e.site_id
+              JOIN organization AS o
+                ON e.organization_id = o.id
+              LEFT JOIN composition AS parent
+                ON o.id = parent.child_id
+              LEFT JOIN composition AS child
+                ON o.id = child.parent_id
+              WHERE v.id = %s
+                AND v.perpetrator_organization_id != e.organization_id
+              GROUP BY o.id
         '''
 
         cursor = connection.cursor()
         
         cursor.execute(event, [kwargs['id']])
-        
         columns = [c[0] for c in cursor.description]
-        
-        # response = OrderedDict([
-        #     ('id', kwargs['id']), 
-        #     ('division_id', None),
-        #     ('start_date, None'),
-        #     ('end_date', None), ])
-
-        # for event in cursor:
-
-
         events = [OrderedDict(zip(columns, r)) for r in cursor]
         
-        # for uuid, event_group in itertools.groupby(events, key=lambda x: x['id']):
-        #     group = list(event_group)
-        # 
-        # perpetrator_name = [r['perpetrator_name'] for r in group if r['perpetrator_name']]
-        # perpetrator_classifications = list(set(r['perpetrator_classification'] for r in group))
-        # violation_types = list(set([r['violation_type'] for r in group]))
+        if events:
+            event = self.makeEvent(events[0])
+            
+            cursor.execute(nearby, [kwargs['id']])
+            columns = [c[0] for c in cursor.description]
+            nearby = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
+            
+            event['organizations_nearby'] = nearby
 
-        # resp = group[0]
-        # del resp['violation_type']
-        # del resp['perpetrator_classification']
-        # resp['classification'] = violation_types
-        # resp['perpetrator_classification'] = perpetrator_classifications
-        # 
-        # context.update(resp)
-        
-        context['events'] = events
+        context.update(event)
 
         return context
