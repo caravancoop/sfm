@@ -16,15 +16,26 @@ class JSONResponseMixin(object):
         )
 
     def get_data(self, context):
-        del context['view']
+        try:
+            del context['view']
+        except (KeyError, TypeError):
+            pass
         # Make sure things are JSON serializable
         return context
 
 class JSONAPIView(JSONResponseMixin, TemplateView):
+    safe = True
     def render_to_response(self, context, **response_kwargs):
+        response_kwargs.update({'safe': self.safe})
         return self.render_to_json_response(context, **response_kwargs)
         
     def makeFeature(self, geometry, properties):
+        
+        try:
+            del properties['location']
+        except KeyError:
+            pass
+        
         feature = {
             'type': 'Feature',
             'id': properties['id'],
@@ -72,7 +83,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         perp_org_ids = []
         perp_orgs = []
         for org in properties['perpetrator_organization']:
-            if org['id'] not in perp_org_ids:
+            if org and org['id'] not in perp_org_ids:
                 structured_org = self.makeOrganization(org, relationships=False)
                 
                 perp_orgs.append(structured_org)
@@ -107,56 +118,98 @@ class CountryTxtView(JSONAPIView):
 class CountryMapView(JSONAPIView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        country_code = kwargs['id']
+        division_id = 'ocd-division/country:{}'.format(country_code)
+        
+        # TODO: Add some error handling for poorly formatted requests
+        when = self.request.GET['at']
+        bbox = self.request.GET.get('bbox')
+        classification = self.request.GET.get('classification__in')
+        
+        if bbox:
+            south, west, north, east = bbox.split(',')
+
+        if classification:
+            classifications = classification.split(',')
+        
+        organizations = ''' 
+            SELECT 
+              o.id, 
+              MAX(o.name) AS name,
+              array_agg(DISTINCT o.alias) AS other_names
+            FROM organization AS o
+            WHERE o.division_id = %s
+              AND (
+                o.first_cited::date <= %s OR
+                o.last_cited::date >= %s
+              )
+            GROUP BY o.id
+        '''
+        
+        cursor = connection.cursor()
+        
+        cursor.execute(organizations, [division_id, when, when])
+        columns = [c[0] for c in cursor.description]
+        
+        organizations = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
+        
+        context['organizations'] = organizations
 
         return context
 
 class CountryEventsView(JSONAPIView):
+    
+    safe = False
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        country_code = kwargs['id']
+        division_id = 'ocd-division/country:{}'.format(country_code)
         
+        events = ''' 
+            SELECT 
+              v.id,
+              MAX(v.start_date) AS start_date,
+              MAX(v.end_date) AS end_date,
+              MAX(v.location_description) AS location_description,
+              MAX(v.admin_level_1) AS admin_level_1,
+              MAX(v.admin_level_2) AS admin_level_2,
+              MAX(v.geoname) AS geoname,
+              MAX(v.geoname_id) AS geoname_id,
+              MAX(v.division_id) AS division_id,
+              ST_ASGeoJSON(MAX(v.location))::json AS location,
+              MAX(v.description) AS description,
+              MAX(p.name) AS perpetrator_name,
+              array_agg(v.perpetrator_classification) AS perpetrator_classification,
+              array_agg(v.violation_type) AS classification,
+              json_agg(row_to_json(o.*)) AS perpetrator_organization
+            FROM violation AS v
+            LEFT JOIN person AS p
+              ON v.perpetrator_id = p.id
+            LEFT JOIN organization AS o
+              ON v.perpetrator_organization_id = o.id
+            WHERE v.division_id = %s
+            GROUP BY v.id
+        ''' 
+        
+        cursor = connection.cursor()
+        
+        cursor.execute(events, [division_id])
+        columns = [c[0] for c in cursor.description]
+        
+        events = []
+        
+        for event in cursor:
+            event = OrderedDict(zip(columns, event))
+            event = self.makeEvent(event)
+            feature = self.makeFeature(event['location'], event)
+            events.append(feature)
 
-        return context
+        return events
 
 class EventDetailView(JSONAPIView):
-    """ 
-    {
-      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-      "division_id": "ocd-division/country:ng",
-      "start_date": "2010-01-01",
-      "end_date": null,
-      "location": "...",
-      "geonames_name": "Aba North",
-      "admin_level_1_geonames_name": "Abia",
-      "classification": [
-        "Torture",
-        "Disappearance"
-      ],
-      "description": "...",
-      "perpetrator_name": "Terry Guerrier",
-      "perpetrator_organization": {
-        "id": "42bb1cff-eed5-4458-a9b4-b00bad09f615",
-        "name": "Brigade 1",
-        "other_names": [
-          "Power Rangers"
-        ]
-      },
-      "organizations_nearby": [
-        {
-          "id": "123e4567-e89b-12d3-a456-426655440000",
-          "name": "Brigade 2",
-          "other_names": [
-            "The Planeteers"
-          ],
-          "root_id": "98185305-7ac0-4f7d-b354-efb052d1d3f1",
-          "root_name": "Nigerian Army",
-          "person_name": "Michael Maris",
-          "events_count": 12
-        },
-        ...
-      ]
-    }
-    """
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
