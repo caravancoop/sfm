@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 from django import forms
 
-from cities.models import City
-
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationName, \
     Classification, Alias

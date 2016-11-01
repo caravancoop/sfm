@@ -1,9 +1,11 @@
 import re
 import importlib
+from collections import namedtuple
 
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 
 class RequireLoginMiddleware(object):
 
@@ -64,20 +66,89 @@ def class_for_name(class_name, module_name="person.models"):
     return class_
 
 def get_geoname_by_id(geoname_id):
-    from django.db import connection
-    from sfm_pc.views import GEONAME_TYPES
+    
+    geoname = None
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM geonames WHERE geonameid = %s', [geoname_id])
+    
+    columns = [c[0] for c in cursor.description]
+    results_tuple = namedtuple('Geoname', columns)
 
-    c = connection.cursor()
-    c.execute('SELECT id, geoname_type FROM geonames_lookup WHERE id = %s', [geoname_id])
-    
-    row = c.fetchone()
-    
+    row = cursor.fetchone()
+
     if row:
+        geoname = results_tuple(*row)
         
-        geo_type, _ = GEONAME_TYPES[row[1]]
-        return geo_type.objects.get(id=row[0])
+    return geoname
+
+def get_hierarchy_by_id(geoname_id):
+    hierarchy = ''' 
+        WITH RECURSIVE children AS (
+          SELECT 
+            gn.geonameid,
+            gn.name,
+            gn.feature_code,
+            NULL::INT AS child_id, 
+            NULL::VARCHAR AS child_name 
+          FROM geonames AS gn 
+          WHERE geonameid = %s 
+          UNION 
+          SELECT 
+            g.geonameid, 
+            g.name,
+            g.feature_code,
+            h.child_id::INT AS child_id, 
+            children.name AS child_name 
+          FROM geonames AS g 
+          JOIN geonames_hierarchy AS h 
+            ON g.geonameid = h.parent_id 
+          JOIN children 
+            ON children.geonameid = h.child_id
+        ) SELECT * FROM children;
+    '''
+
+    cursor = connection.cursor()
+    cursor.execute(hierarchy, [geoname_id])
     
-    return None
+    columns = [c[0] for c in cursor.description]
+    results_tuple = namedtuple('Geoname', columns)
+
+    hierarchy = [results_tuple(*r) for r in cursor]
+    
+    return hierarchy
+
+def get_org_hierarchy_by_id(org_id):
+    hierarchy = ''' 
+        WITH RECURSIVE children AS (
+          SELECT 
+            o.*,
+            NULL::VARCHAR AS child_id, 
+            NULL::VARCHAR AS child_name 
+          FROM organization As o 
+          WHERE id = %s 
+          UNION 
+          SELECT 
+            o.*,
+            h.child_id::VARCHAR AS child_id, 
+            children.name AS child_name 
+          FROM organization AS o 
+          JOIN composition AS h 
+            ON o.id = h.parent_id 
+          JOIN children 
+            ON children.id = h.child_id
+        ) SELECT * FROM children;
+    '''
+    
+    cursor = connection.cursor()
+    cursor.execute(hierarchy, [org_id])
+    
+    columns = [c[0] for c in cursor.description]
+    results_tuple = namedtuple('Organization', columns)
+
+    hierarchy = [results_tuple(*r) for r in cursor]
+    
+    return hierarchy
+
 
 def deleted_in_str(objects):
     index = 0

@@ -25,7 +25,7 @@ Load static data:
 ./manage.py loaddata classification_types
 
 # Load Geonames data
-./manage.py cities --import=all
+./manage.py import_geonames
 ./manage.py update_countries_plus
 ```
 
@@ -34,7 +34,6 @@ Create search index and
 # Create Materialized Views for global search and looking up a Geoname object
 # based upon a geoname id 
 ./manage.py make_search_index
-./manage.py make_geoname_lookup
 
 Create an admin user:
 

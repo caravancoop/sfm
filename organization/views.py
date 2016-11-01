@@ -15,7 +15,6 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 
 from extra_views import FormSetView
-from cities.models import City, Country, Region, Subregion, District
 
 from source.models import Source
 from geosite.models import Geosite
@@ -388,17 +387,20 @@ class OrganizationCreateGeography(BaseFormSetView):
             geotype = formset.data[form_prefix + 'geotype']
             
             geo = get_geoname_by_id(geoid)
-            parent = geo.parent
-            admin1 = parent.name
-            admin2 = parent.parent.name
-            coords = getattr(geo, 'location')
+            hierarchy = get_hierarchy_by_id(geoid)
             
-            if isinstance(geo, Country):
-                country_code = geo.code.lower()
-            elif isinstance(geo, Region):
-                country_code = geo.country.code.lower()
-            elif isinstance(geo, Subregion) or isinstance(geo, City):
-                country_code = geo.region.country.code.lower()
+            admin1 = None
+            admin2 = None
+
+            if hierarchy:
+                for member in hierarchy:
+                    if member.feature_code == 'ADM1':
+                        admin1 = member.name
+                    elif member.feature_code == 'ADM2':
+                        admin2 = member.name
+            
+            coords = getattr(geo, 'location')
+            country_code = geo.country_code.lower()
             
             division_id = 'ocd-division/country:{}'.format(country_code)
             

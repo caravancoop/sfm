@@ -1,6 +1,6 @@
 import json
 from uuid import uuid4
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse, HttpResponseNotFound
@@ -22,7 +22,6 @@ from extra_views import FormSetView
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, Alias as OAlias
 from person.models import Person, PersonAlias, Alias as PAlias
-from cities.models import Place, City, Country, Region, Subregion, District
 from violation.models import Violation
 from membershipperson.models import MembershipPerson
 from sfm_pc.templatetags.render_from_source import get_relations, \
@@ -38,14 +37,6 @@ SEARCH_CONTENT_TYPES = {
     'Organization': Organization,
     'Person': Person,
     'Violation': Violation,
-}
-
-GEONAME_TYPES = {
-    'country': (Country, 'Country',),
-    'city': (City, None, ),
-    'district': (District, 'PPLX',),
-    'region': (Region, 'ADM1',),
-    'subregion': (Subregion, 'ADM2',),
 }
 
 class Dashboard(TemplateView):
@@ -399,18 +390,16 @@ def search(request):
             AND ({filts})
         '''.format(select=select, filts=filts)
     
-    geoname_obj = None
-    if location and radius and geoname_type:
+    geoname = None
+    if location and radius:
 
         # TODO: Make this work for areas once we have them
-        model, _ = GEONAME_TYPES[geoname_type]
-        geoname_obj = model.objects.get(id=location)
+        geoname = get_geoname_by_id(location)
         select = ''' 
             {select}
-            AND ST_Intersects(ST_Buffer_Meters(ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), {radius}), site)
+            AND ST_Intersects(ST_Buffer_Meters({location}, 4326), {radius}), site)
         '''.format(select=select,
-                   lon=geoname_obj.location.x,
-                   lat=geoname_obj.location.y,
+                   location=geoname.location,
                    radius=(int(radius) * 1000))
 
     select = ''' 
@@ -447,8 +436,7 @@ def search(request):
         'query': query, 
         'filters': filters,
         'radius': radius,
-        'geoname': geoname_obj,
-        'geoname_type': geoname_type,
+        'geoname': geoname,
         'radius_choices': ['1','5','10','25','50','100'],
     }
 
@@ -456,44 +444,37 @@ def search(request):
 
 def geoname_autocomplete(request):
     term = request.GET.get('q')
-    types = request.GET.getlist('types')
+    
+    cursor = connection.cursor()
+    cursor.execute('''
+        SELECT * FROM geonames 
+        WHERE plainto_tsquery('english', %s) @@ search_index
+    ''', [term])
+    
+    columns = [c[0] for c in cursor.description]
+    results_tuple = namedtuple('Geoname', columns)
 
-    if not types:
-        types = request.GET.getlist('types[]', GEONAME_TYPES.keys())
+    search_results = [results_tuple(*r) for r in cursor]
     
     results = []
-    for geo_type in types:
-        model, code = GEONAME_TYPES[geo_type]
+
+    for result in search_results:
         
-        query_kwargs = {'name__istartswith': term}
-        
-        for result in model.objects.filter(**query_kwargs):
-            
-            hierarchy = result.hierarchy
-            hierarchy.reverse()
+        map_image = None
 
-            value = ', '.join(m.name for m in hierarchy)
-
-            map_image = None
-
-            if hasattr(result, 'location'):
-                latlng = '{0},{1}'.format(result.location.y, result.location.x)
-                map_image = 'https://maps.googleapis.com/maps/api/staticmap'
-                map_image = '{0}?center={1}&zoom=10&size=100x100&key={2}&scale=2'.format(map_image,
-                                                                                         latlng,
-                                                                                         settings.GOOGLE_MAPS_KEY)
-            
-            if geo_type == 'city':
-                code = result.kind
-
-            results.append({
-                'text': '{0} (GeonameID: {1}, {2})'.format(value, result.id, code),
-                'value': value,
-                'id': result.id,
-                'type': geo_type,
-                'map_image': map_image,
-                'code': code,
-            })
+        if hasattr(result, 'location'):
+            latlng = '{0},{1}'.format(result.latitude, result.longitude)
+            map_image = 'https://maps.googleapis.com/maps/api/staticmap'
+            map_image = '{0}?center={1}&zoom=10&size=100x100&key={2}&scale=2'.format(map_image,
+                                                                                     latlng,
+                                                                                     settings.GOOGLE_MAPS_KEY)
+        results.append({
+            'text': '{0} (GeonameID: {1}, {2})'.format(result.name, result.geonameid, result.feature_code),
+            'value': result.name,
+            'id': result.geonameid,
+            'map_image': map_image,
+            'code': result.feature_code,
+        })
 
     results.sort(key=lambda x:x['text'])
     return HttpResponse(json.dumps(results),content_type='application/json')

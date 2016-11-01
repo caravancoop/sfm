@@ -25,14 +25,14 @@ from django_date_extensions.fields import ApproximateDateField
 
 from dateparser import parse as dateparser
 
-from cities.models import Country, City, Region, Subregion
-
 import reversion
+
+from countries_plus.models import Country
 
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName
-from sfm_pc.utils import import_class, get_geoname_by_id
+from sfm_pc.utils import import_class, get_geoname_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import UtilityMixin
 from geosite.models import Geosite
 from emplacement.models import Emplacement
@@ -576,15 +576,10 @@ class Command(UtilityMixin, BaseCommand):
         except DataError:
             self.log_error('Geoname ID for Area does not seem valid: {}'.format(geoname_id))
             geo = None
+        
 
         if geo:
-            
-            if isinstance(geo, Country):
-                country_code = geo.code.lower()
-            elif isinstance(geo, Region):
-                country_code = geo.country.code.lower()
-            elif isinstance(geo, Subregion) or isinstance(geo, City):
-                country_code = geo.region.country.code.lower()
+            country_code = geo.country_code.lower()
             
             division_id = 'ocd-division/country:{}'.format(country_code)
 
@@ -680,21 +675,25 @@ class Command(UtilityMixin, BaseCommand):
             geo = None
         
         if geo:
-            parent = geo.parent
-            admin1 = parent.name
-            coords = getattr(geo, 'location', None)
             
-            if isinstance(geo, Country):
-                country_code = geo.code.lower()
-            elif isinstance(geo, Region):
-                country_code = geo.country.code.lower()
-            elif isinstance(geo, Subregion) or isinstance(geo, City):
-                country_code = geo.region.country.code.lower()
+            hierarchy = get_hierarchy_by_id(geo.geonameid)
+            
+            admin1 = None
+            admin2 = None
+
+            if hierarchy:
+                for member in hierarchy:
+                    if member.feature_code == 'ADM1':
+                        admin1 = member.name
+                    elif member.feature_code == 'ADM2':
+                        admin2 = member.name
+            
+            country_code = geo.country_code.lower()
             
             division_id = 'ocd-division/country:{}'.format(country_code)
             
             with reversion.create_revision():
-                site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.id)
+                site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.geonameid)
                 reversion.set_user(self.user)
 
             site_data = {}
@@ -715,7 +714,7 @@ class Command(UtilityMixin, BaseCommand):
                     'sources': geoname_sources,
                 }
                 site_data['Geosite_GeositeGeonameId'] = {
-                    'value': geo.id,
+                    'value': geo.geonameid,
                     'confidence': geoname_confidence,
                     'sources': geoname_sources,
                 }
@@ -725,7 +724,7 @@ class Command(UtilityMixin, BaseCommand):
                     'sources': geoname_sources,
                 }
                 site_data['Geosite_GeositeCoordinates'] = {
-                    'value': coords,
+                    'value': geo.location,
                     'confidence': geoname_confidence,
                     'sources': geoname_sources,
                 }
@@ -1183,18 +1182,22 @@ class Command(UtilityMixin, BaseCommand):
             except DataError:
                 self.log_error('Geoname ID for Site does not seem valid: {}'.format(geoname_id))
                 geo = None
+            
 
             if geo:
-                parent = geo.parent
-                admin2 = getattr(parent.parent, 'name', None)
-                coords = getattr(geo, 'location', None)
+                hierarchy = get_hierarchy_by_id(geo.geonameid)
                 
-                if isinstance(geo, Country):
-                    country_code = geo.code.lower()
-                elif isinstance(geo, Region):
-                    country_code = geo.country.code.lower()
-                elif isinstance(geo, Subregion) or isinstance(geo, City):
-                    country_code = geo.region.country.code.lower()
+                admin1 = None
+                admin2 = None
+
+                if hierarchy:
+                    for member in hierarchy:
+                        if member.feature_code == 'ADM1':
+                            admin1 = member.name
+                        elif member.feature_code == 'ADM2':
+                            admin2 = member.name
+                
+                country_code = geo.country_code.lower()
                 
                 division_id = 'ocd-division/country:{}'.format(country_code)
                 
@@ -1210,7 +1213,7 @@ class Command(UtilityMixin, BaseCommand):
                         'confidence': 1
                     },
                     'Violation_ViolationGeonameId': {
-                        'value': geo.id,
+                        'value': geo.geonameid,
                         'sources': sources,
                         'confidence': 1
                     },
@@ -1220,7 +1223,7 @@ class Command(UtilityMixin, BaseCommand):
                         'confidence': 1
                     },
                     'Violation_ViolationLocation': {
-                        'value': coords,
+                        'value': geo.location,
                         'sources': sources,
                         'confidence': 1
                     },

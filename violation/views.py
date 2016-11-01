@@ -16,7 +16,6 @@ from django.shortcuts import redirect
 from django.conf import settings
 
 from extra_views import FormSetView
-from cities.models import Place, City, Country, Region, Subregion, District
 
 from violation.models import Violation, Type, ViolationType, \
     ViolationPerpetrator, ViolationPerpetratorOrganization
@@ -24,7 +23,7 @@ from source.models import Source
 from person.models import Person
 from organization.models import Organization
 from violation.forms import ZoneForm, ViolationForm
-from sfm_pc.utils import deleted_in_str, get_geoname_by_id
+from sfm_pc.utils import deleted_in_str, get_geoname_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 class ViolationDetail(DetailView):
@@ -93,20 +92,22 @@ class ViolationCreate(FormSetView):
             vtypes = formset.data.getlist(form_prefix + 'vtype')
             
             geo = get_geoname_by_id(geoid)
-            parent = geo.parent
-            admin1 = parent.name
-            admin2 = parent.parent.name
-            coords = getattr(geo, 'location')
+            hierarchy = get_hierarchy_by_id(geoid)
             
-            if isinstance(geo, Country):
-                country_code = geo.code.lower()
-            elif isinstance(geo, Region):
-                country_code = geo.country.code.lower()
-            elif isinstance(geo, Subregion) or isinstance(geo, City):
-                country_code = geo.region.country.code.lower()
+            admin1 = None
+            admin2 = None
+
+            if hierarchy:
+                for member in hierarchy:
+                    if member.feature_code == 'ADM1':
+                        admin1 = member.name
+                    elif member.feature_code == 'ADM2':
+                        admin2 = member.name
+            
+            country_code = geo.country_code.lower()
             
             division_id = 'ocd-division/country:{}'.format(country_code)
-
+            
             violation_data = {
                 'Violation_ViolationDescription': {
                    'value': description,
@@ -144,7 +145,7 @@ class ViolationCreate(FormSetView):
                     'confidence': 1
                 },
                 'Violation_ViolationLocation': {
-                    'value': coords,
+                    'value': geo.location,
                     'sources': [source],
                     'confidence': 1
                 },

@@ -41,7 +41,6 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'languages_plus',
     'countries_plus',
-    'cities',
     'reversion',
     'leaflet',
     'bootstrap_pagination',
@@ -189,10 +188,7 @@ LEAFLET_CONFIG = {
     'MIN_ZOOM': 2,
     'MAX_ZOOM': 18,
 }
-CITIES_FILES = {
-    'city': {
-       # 'filenames': ['NG.zip', 'MX.zip', 'EG.zip'],
-       'filenames': ['NG.zip'],
-       'urls':     ['http://download.geonames.org/export/dump/'+'{filename}']
-    },
+GEONAMES_FILES = {
+   'filenames': ['NG.zip', 'MX.zip'],
+   'url':     'http://download.geonames.org/export/dump/{filename}'
 }

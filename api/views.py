@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 from django.db import connection
 
 from violation.models import Violation
+from sfm_pc.utils import get_org_hierarchy_by_id
 
 class JSONResponseMixin(object):
     def render_to_json_response(self, context, **response_kwargs):
@@ -36,8 +37,15 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
     def makeOrganization(self, properties, relationships=True):
         
         if relationships:
-            properties['parents'] = [c for c in list(set(properties['parents'])) if c]
-            properties['children'] = [c for c in list(set(properties['children'])) if c]
+            hierarchy = get_org_hierarchy_by_id(properties['id'])
+            
+            properties['root_name'] = None
+            properties['root_id'] = None
+
+            if hierarchy:
+                top = hierarchy[-1]
+                properties['root_name'] = top.name
+                properties['root_id'] = top.id
 
         event_count = ''' 
             SELECT COUNT(*) AS count
@@ -106,6 +114,8 @@ class CountryEventsView(JSONAPIView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        
+
         return context
 
 class EventDetailView(JSONAPIView):
@@ -184,9 +194,7 @@ class EventDetailView(JSONAPIView):
               SELECT 
                 o.id, 
                 MAX(o.name) AS name,
-                array_agg(DISTINCT o.alias) AS other_names,
-                array_agg(DISTINCT parent.parent_id) AS parents,
-                array_agg(DISTINCT child.child_id) AS children
+                array_agg(DISTINCT o.alias) AS other_names
               FROM violation AS v
               JOIN geosite AS g
                 ON  ST_Intersects(ST_Buffer_Meters(v.location, 35000), g.coordinates)
@@ -194,10 +202,6 @@ class EventDetailView(JSONAPIView):
                 ON g.id = e.site_id
               JOIN organization AS o
                 ON e.organization_id = o.id
-              LEFT JOIN composition AS parent
-                ON o.id = parent.child_id
-              LEFT JOIN composition AS child
-                ON o.id = child.parent_id
               WHERE v.id = %s
                 AND v.perpetrator_organization_id != e.organization_id
               GROUP BY o.id

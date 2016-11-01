@@ -7,8 +7,6 @@ from django.core.urlresolvers import reverse_lazy
 
 from complex_fields.models import ComplexFieldContainer
 
-from cities.models import Country
-
 from source.models import Source, Publication
 from source.forms import SourceForm
 
