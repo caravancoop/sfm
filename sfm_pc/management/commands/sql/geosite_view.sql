@@ -7,7 +7,10 @@ CREATE OR REPLACE VIEW geosite AS
     ggo.value AS geoname,
     ggni.value AS geoname_id,
     ggc.value AS coordinates,
-    ggd.value AS division_id
+    ggd.value AS division_id,
+    ggfc.value AS first_cited,
+    gglc.value AS last_cited,
+    ggoe.value AS open_ended
   FROM geosite_geosite AS gg
   LEFT JOIN geosite_geositename AS ggn
     ON gg.id = ggn.object_ref_id
@@ -23,3 +26,9 @@ CREATE OR REPLACE VIEW geosite AS
     ON gg.id = ggc.object_ref_id
   LEFT JOIN geosite_geositedivisionid AS ggd
     ON gg.id = ggd.object_ref_id
+  LEFT JOIN geosite_geositefirstcited AS ggfc
+    ON gg.id = ggfc.object_ref_id
+  LEFT JOIN geosite_geositelastcited AS gglc
+    ON gg.id = gglc.object_ref_id
+  LEFT JOIN geosite_geositeopenended AS ggoe
+    ON gg.id = ggoe.object_ref_id

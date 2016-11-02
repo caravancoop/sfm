@@ -2,6 +2,8 @@ import json
 
 from django.contrib.gis.db import models
 
+from django_date_extensions.fields import ApproximateDateField
+
 from django.utils.translation import ugettext as _
 from django.db.models import Max
 from django.contrib.gis import geos
@@ -21,6 +23,11 @@ class Geosite(models.Model, BaseModel):
         self.geoname = ComplexFieldContainer(self, GeositeGeoname)
         self.geonameid = ComplexFieldContainer(self, GeositeGeonameId)
         self.division_id = ComplexFieldContainer(self, GeositeDivisionId)
+        
+        self.first_cited = ComplexFieldContainer(self, GeositeFirstCited)
+        self.last_cited = ComplexFieldContainer(self, GeositeLastCited)
+        
+        self.open_ended = ComplexFieldContainer(self, GeositeOpenEnded)
 
         self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
                                self.coordinates, self.geoname, self.geonameid, 
@@ -90,3 +97,23 @@ class GeositeDivisionId(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Division ID")
+
+@versioned
+@sourced
+class GeositeFirstCited(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("First cited")
+
+@versioned
+@sourced
+class GeositeLastCited(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("Last cited")
+
+@versioned
+class GeositeOpenEnded(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = models.NullBooleanField(default=None, blank=True, null=True)
+    field_name = _("Open ended")

@@ -3,6 +3,8 @@ from django.utils.translation import ugettext as _
 from django.contrib.gis import geos
 from django.db.models import Max
 
+from django_date_extensions.fields import ApproximateDateField
+
 from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
 from complex_fields.models import ComplexField, ComplexFieldContainer
@@ -18,6 +20,9 @@ class Area(models.Model, BaseModel):
         self.geonameid = ComplexFieldContainer(self, AreaGeonameId)
         self.geometry = ComplexFieldContainer(self, AreaGeometry)
         self.division_id = ComplexFieldContainer(self, AreaDivisionId)
+        
+        self.first_cited = ComplexFieldContainer(self, AreaFirstCited)
+        self.last_cited = ComplexFieldContainer(self, AreaLastCited)
 
         self.complex_fields = [self.name, self.code, self.geoname, 
                                self.geometry, self.division_id]
@@ -101,3 +106,17 @@ class AreaDivisionId(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Division ID")
+
+@versioned
+@sourced
+class AreaFirstCited(ComplexField):
+    object_ref = models.ForeignKey('Area')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("First cited")
+
+@versioned
+@sourced
+class AreaLastCited(ComplexField):
+    object_ref = models.ForeignKey('Area')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("Last cited")

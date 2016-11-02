@@ -139,6 +139,19 @@ class Command(BaseCommand):
     def importHierarchy(self):
         self.downloadFile('hierarchy.zip')
         
+        with psycopg2.connect(DB_CONN_STR) as conn:
+            with conn.cursor() as curs:
+                curs.execute('''
+                    DROP TABLE IF EXISTS geonames_hierarchy
+                ''')
+                curs.execute(''' 
+                    CREATE TABLE geonames_hierarchy (
+                      parent_id INTEGER,
+                      child_id INTEGER,
+                      feature_code VARCHAR
+                    )
+                ''')
+
         with zipfile.ZipFile(os.path.join(self.data_directory, 'hierarchy.zip')) as zf:
             zf.extract('hierarchy.txt', path=os.path.join(self.data_directory))
 

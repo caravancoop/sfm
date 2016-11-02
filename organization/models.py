@@ -24,9 +24,6 @@ class Organization(models.Model, BaseModel):
         self.aliases = ComplexFieldListContainer(self, OrganizationAlias)
         self.classification = ComplexFieldListContainer(self, OrganizationClassification)
         self.division_id = ComplexFieldContainer(self, OrganizationDivisionId)
-        
-        self.first_cited = ComplexFieldContainer(self, OrganizationFirstCited)
-        self.last_cited = ComplexFieldContainer(self, OrganizationLastCited)
 
         self.complex_fields = [self.name, self.division_id]
 
@@ -89,24 +86,3 @@ class OrganizationDivisionId(ComplexField):
     def __str__(self):
         return self.value
 
-@versioned
-@sourced
-class OrganizationFirstCited(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-
-    field_name = _("First cited")
-
-    def __str__(self):
-        return self.value
-
-@versioned
-@sourced
-class OrganizationLastCited(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-
-    field_name = _("Last cited")
-
-    def __str__(self):
-        return self.value

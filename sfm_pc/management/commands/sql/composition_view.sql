@@ -5,7 +5,8 @@ CREATE OR REPLACE VIEW composition AS
     ooc.uuid AS child_id,
     ccsd.value AS start_date,
     cced.value AS end_date,
-    cls.value AS classification
+    cls.value AS classification,
+    ccoe.value AS open_ended
   FROM composition_composition AS cc
   LEFT JOIN composition_compositionparent AS ccp
     ON cc.id = ccp.object_ref_id
@@ -23,3 +24,5 @@ CREATE OR REPLACE VIEW composition AS
     ON cc.id = ccf.object_ref_id
   LEFT JOIN composition_classification AS cls
     ON ccf.value_id = cls.id
+  LEFT JOIN composition_compositionopenended AS ccoe
+    ON cc.id = ccoe.object_ref_id

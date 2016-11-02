@@ -19,6 +19,8 @@ class Composition(models.Model, BaseModel):
         self.startdate = ComplexFieldContainer(self, CompositionStartDate)
         self.enddate = ComplexFieldContainer(self, CompositionEndDate)
         self.classification = ComplexFieldContainer(self, CompositionClassification)
+        
+        self.open_ended = ComplexFieldContainer(self, CompositionOpenEnded)
 
         self.complex_fields = [self.parent, self.child, self.startdate,
                                self.enddate, self.classification]
@@ -76,3 +78,9 @@ class Classification(models.Model):
 
     def __str__(self):
         return self.value
+
+@versioned
+class CompositionOpenEnded(ComplexField):
+    object_ref = models.ForeignKey(Composition)
+    value = models.NullBooleanField(default=None, blank=True, null=True)
+    field_name = _("Open ended")
