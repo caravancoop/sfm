@@ -60,8 +60,8 @@ class Command(UtilityMixin, BaseCommand):
             '--doc_id',
             dest='doc_id',
             #default='16cRBkrnXE5iGm8JXD7LSqbeFOg_anhVp2YAzYTRYDgU',
-            default='1EyS55ZkqqkpeYsNKDuIzgUOV-n8TJr5yoEa2Z6a4Duk',
-            #default='1bK1pLB3IEXhoPoOMPA1hWWsitgzHlXHrzhh3tRW0iHs',
+            #default='1EyS55ZkqqkpeYsNKDuIzgUOV-n8TJr5yoEa2Z6a4Duk',
+            default='1bK1pLB3IEXhoPoOMPA1hWWsitgzHlXHrzhh3tRW0iHs',
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(

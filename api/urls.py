@@ -1,7 +1,8 @@
 from django.conf.urls import url
 
 from api.views import CountryListView, CountryDetailView, CountryZipView, \
-    CountryTxtView, CountryMapView, CountryEventsView, EventDetailView
+    CountryTxtView, CountryMapView, CountryEventsView, EventDetailView, \
+    GeonameAutoView, OrganizationSearchView
 
 urlpatterns = [
     url(r'^countries/$', CountryListView.as_view(), name="country-list"),
@@ -10,6 +11,8 @@ urlpatterns = [
     url(r'^countries/(?P<id>\w+).txt$', CountryTxtView.as_view(), name="country-txt"),
     url(r'^countries/(?P<id>\w+)/map/$', CountryMapView.as_view(), name="country-map"),
     url(r'^countries/(?P<id>\w+)/events/$', CountryEventsView.as_view(), name="country-events"),
+    url(r'^countries/(?P<id>\w+)/autocomplete/geonames_id/$', GeonameAutoView.as_view(), name="geoname-auto"),
+    url(r'^countries/(?P<id>\w+)/search/organizations/$', OrganizationSearchView.as_view(), name="organization-search"),
     url(r'^events/(?P<id>\S+)/$', EventDetailView.as_view(), name="event-detail"),
     
 ]
