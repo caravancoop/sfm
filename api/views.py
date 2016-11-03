@@ -184,7 +184,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               o.id,
               a.name,
               a.geoname AS geonames_name,
-              a.geoname_id,
+              a.geonameid,
               a.geometry
             FROM organization AS o
             JOIN association AS ass
@@ -274,6 +274,11 @@ class OrganizationSearchView(JSONAPIView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        country_code = kwargs['id']
+        division_id = 'ocd-division/country:{}'.format(country_code)
+        
+        query_term = self.request.GET['q']
+
         organizations = '''
             SELECT 
               o.id, 
@@ -291,8 +296,20 @@ class OrganizationSearchView(JSONAPIView):
               ON o.id = e.organization_id
             JOIN geosite as g
               ON e.site_id = g.id
-            GROUP BY o.id
+            WHERE plainto_tsquery('english', %s) @@ si.content
+              AND si.content_type = 'Organization'
+              AND o.division_id = %s
         '''
+        
+        organizations = '{} GROUP BY o.id'.format(organizations)
+        
+        cursor = connection.cursor()
+        cursor.execute(organizations, [query_term, division_id])
+        columns = [c[0] for c in cursor.description]
+        
+        organizations = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
+        
+        context['results'] = organizations
 
         return context
 
