@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import itertools
 import json
+from datetime import datetime
 
 from django.http import JsonResponse, HttpResponse
 from django.views.generic import TemplateView
@@ -8,6 +9,28 @@ from django.db import connection
 
 from violation.models import Violation
 from sfm_pc.utils import get_org_hierarchy_by_id
+
+OPERATOR_LOOKUP = {
+    'lte': '<=',
+    'gte': '>=',
+    'eq': '=',
+}
+
+class ValidationError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+def dateValidator(value):
+    try:
+        datetime.strptime(value, '%Y-%m-%d')
+    except ValueError:
+        raise ValidationError('Incorrect date format. Should be YYYY-MM-DD.')
+
+def integerValidator(value):
+    try:
+        int(value)
+    except ValueError:
+        raise ValidationError('{} is not an integer'.format(value))
 
 class JSONResponseMixin(object):
     def render_to_json_response(self, context, **response_kwargs):
@@ -28,11 +51,12 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
     safe = True
     
     def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
         errors = []
+        self.wheres = []
+        self.order_bys = []
 
         filter_fields = list(getattr(self, 'filter_fields', {}).keys())
-        order_by_fields = getattr(self, 'order_by_fields', [])
+        order_by_fields = list(getattr(self, 'order_by_fields', {}).keys())
         required_params = getattr(self, 'required_params', [])
         optional_params = getattr(self, 'optional_params', [])
 
@@ -53,18 +77,53 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 field, operator = query_param.split('__')
             except ValueError:
                 field = query_param
-                operator = '='
+                operator = 'eq'
 
             if field not in valid_params:
                 errors.append("'{}' is not a valid query parameter".format(query_param))
             
             elif not self.checkOperator(field, operator):
-                errors.append("'{0}' is not a valid operator for '{1}'".format(operator, field))
+                errors.append("Invalid operator for '{1}'".format(operator, field))
+
+            elif field in filter_fields:
+                
+                value = self.request.GET[query_param]
+                
+                validator = self.filter_fields[field]['validator']
+                
+                if validator:
+                    try:
+                        validator(value)
+                        self.wheres.append((field, operator, value,))
+                    except ValidationError as e:
+                        errors.append("Value for '{0}' is not valid: {1}".format(field, e.message))
+            
+            elif field == 'o':
+                value = self.request.GET['o']
+                if value not in order_by_fields:
+                    errors.append("Cannot order by '{}'".format(value))
+                else:
+                    sort_order = 'ASC'
+                    
+                    if value.startswith('-'):
+                        sort_order = 'DESC'
+                        value = value.strip('-')
+
+                    self.order_bys.append((value, sort_order,))
+
+            elif field == 'p':
+                value = self.request.GET['p']
+                try:
+                    int(value)
+                except ValueError:
+                    errors.append("'{}' is not a valid page number")
         
         if errors:
             response = HttpResponse(json.dumps({'errors': errors}), 
                                     content_type='application/json')
             response.status_code = 400
+        else:
+            response = super().dispatch(request, *args, **kwargs)
 
         return response
     
@@ -72,7 +131,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         if field in self.filter_fields:
             if operator not in self.filter_fields[field]['operators']:
                 return False
-        elif operator != '=':
+        elif operator != 'eq':
             return False
         
         return True
@@ -230,47 +289,107 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
         properties['perpetrator_organization'] = perp_orgs
         return properties
+    
+    def makeWhereClauses(self):
+        where_clauses = []
 
+        for field, operator, value in self.wheres:
+            operator = OPERATOR_LOOKUP[operator]
+            
+            if self.filter_fields.get(field):
+                db_field = self.filter_fields[field]['field']
+            
+                clause = '{0} {1} %s'.format(db_field, operator)
+                where_clauses.append((clause, value,))
+        
+        return where_clauses
+        
+    def makeOrderBy(self):
+        order_bys = []
+
+        for field, sort_order in self.order_bys:
+            db_field = self.order_by_fields[field]['field']
+            order_bys.append('{0} {1}'.format(db_field, sort_order))
+
+        return order_bys
 
 class OrganizationSearchView(JSONAPIView):
     
+    page_count = 20
+
     filter_fields = {
         'date_first_cited': {
             'field': 'start_date', 
             'operators': ['gte', 'lte'],
+            'validator': dateValidator,
         },
         'date_last_cited': {
             'field': 'end_date',
             'operators': ['gte', 'lte'],
+            'validator': dateValidator,
         },
         'classification': {
             'field': 'classification',
             'operators': ['in'],
+            'validator': None,
         },
         'geonames_id': {
             'field': 'geoname_id',
-            'operators': [],
+            'operators': ['eq'],
+            'validator': integerValidator,
         },
         'events_count': {
             'field': 'events_count',
-            'operators': ['gte', 'lte',]
-        }
+            'operators': ['gte', 'lte',],
+            'validator': integerValidator,
+        },
     }
     
-    order_by_fields = [
-        'name',
-        'date_first_cited',
-        'date_last_cited',
-        'events_count',
-        '-name',
-        '-date_first_cited',
-        '-date_last_cited',
-        '-events_count',
-    ]
+    order_by_fields = {
+        'name': {'field': 'name'},
+        'date_first_cited': {'field': 'start_date'},
+        'date_last_cited': {'field': 'end_date'},
+        # 'events_count': {},
+        '-name': {'field': 'name'},
+        '-date_first_cited': {'field': 'start_date'},
+        '-date_last_cited': {'field': 'end_date'},
+        # '-events_count',
+    }
     
     required_params = ['q']
     optional_params = ['o', 'p']
 
+    def appendWhereClauses(self, query, query_args):
+        where_clauses = self.makeWhereClauses()
+        
+        for clause, value in where_clauses:
+            query = '{0} AND {1}'.format(query, clause)
+            query_args.append(value)
+        
+        return query, query_args
+
+    def getFacets(self, base_query, query_args):
+        
+        facets_counts = '''
+            SELECT 
+              o.classification AS facet,
+              COUNT(*) AS facet_count
+            {}
+        '''.format(base_query)
+        
+        facets_counts, query_args = self.appendWhereClauses(facets_counts, query_args)
+
+        facets_counts = '{} GROUP BY o.classification'.format(facets_counts)
+        
+        cursor = connection.cursor()
+        cursor.execute(facets_counts, query_args)
+        
+        facets_counts = [r for r in cursor]
+        
+        count = sum(f[1] for f in facets_counts)
+        
+        return count, facets_counts
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
@@ -278,15 +397,10 @@ class OrganizationSearchView(JSONAPIView):
         division_id = 'ocd-division/country:{}'.format(country_code)
         
         query_term = self.request.GET['q']
-
-        organizations = '''
-            SELECT 
-              o.id, 
-              MAX(o.name) AS name,
-              array_agg(DISTINCT o.alias) AS other_names,
-              ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
-              MAX(e.start_date) AS start_date,
-              MAX(e.end_date) AS end_date
+        
+        query_args = [query_term, division_id]
+        
+        base_query = ''' 
             FROM organization AS o
             JOIN organization_organization AS oo
               ON o.id = oo.uuid
@@ -301,10 +415,45 @@ class OrganizationSearchView(JSONAPIView):
               AND o.division_id = %s
         '''
         
-        organizations = '{} GROUP BY o.id'.format(organizations)
+        count, facets_counts = self.getFacets(base_query, query_args)
         
+        context['count'] = count
+        context['facets'] = facets_counts
+        
+        query_args = [query_term, division_id]
+
+        organizations = '''
+            SELECT 
+              o.id, 
+              MAX(o.name) AS name,
+              array_agg(DISTINCT o.alias) AS other_names,
+              ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
+              MAX(e.start_date) AS start_date,
+              MAX(e.end_date) AS end_date
+            {}
+        '''.format(base_query)
+        
+        organizations, query_args = self.appendWhereClauses(organizations, query_args)
+        
+        organizations = '{} GROUP BY o.id'.format(organizations)
+
+        order_by = self.makeOrderBy()
+        
+        if order_by:
+            order_by = ', '.join(order_by)
+            organizations = '{0} ORDER BY {1}'.format(organizations, order_by)
+        
+        organizations = '{0} LIMIT {1}'.format(organizations, self.page_count)
+
+        if self.request.GET.get('p'):
+            page = self.request.GET.get('p')
+            
+            if int(page) >= 1:
+                offset = (int(page) - 1) * self.page_count
+                organizations = '{0} OFFSET {1}'.format(organizations, offset)
+
         cursor = connection.cursor()
-        cursor.execute(organizations, [query_term, division_id])
+        cursor.execute(organizations, query_args)
         columns = [c[0] for c in cursor.description]
         
         organizations = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
@@ -322,6 +471,7 @@ class GeonameAutoView(JSONAPIView):
         'classification': {
             'field': 'classification',
             'operators': ['in'],
+            'validator': None,
         },
     }
 
@@ -396,6 +546,7 @@ class CountryMapView(JSONAPIView):
         'classification': {
             'field': 'classification',
             'operators': ['in'],
+            'validator': None,
         },
     }
 
