@@ -60,8 +60,7 @@ class Command(UtilityMixin, BaseCommand):
             '--doc_id',
             dest='doc_id',
             #default='16cRBkrnXE5iGm8JXD7LSqbeFOg_anhVp2YAzYTRYDgU',
-            #default='1EyS55ZkqqkpeYsNKDuIzgUOV-n8TJr5yoEa2Z6a4Duk',
-            default='1bK1pLB3IEXhoPoOMPA1hWWsitgzHlXHrzhh3tRW0iHs',
+            default='1EyS55ZkqqkpeYsNKDuIzgUOV-n8TJr5yoEa2Z6a4Duk',
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(
@@ -183,75 +182,55 @@ class Command(UtilityMixin, BaseCommand):
         
         org_positions = {
             'Name': {
-                'value': 1,
-                'confidence': 3,
-                'source': 2,
+                'value': 14,
+                'confidence': 16,
+                'source': 15
             },
             'Alias': {
-                'value': 4,
-                'confidence': 6,
-                'source': 5,
-            },
-            'Classification': {
-                'value': 7,
-                'confidence': 9,
-                'source': 8,
-            },
-            'DivisionId': {
-                'value': 10,
-                'confidence': None,
-                'source': None,
-            },
-        }
-        
-        composition_positions = {
-            'Parent': {
-                'value': 11,
-                'confidence': 13,
-                'source': 12,
-            },
-            'StartDate': {
                 'value': 17,
                 'confidence': 19,
                 'source': 18,
             },
+            'Classification': {
+                'value': 22,
+                'confidence': 24,
+                'source': 23,
+            }
+        }
+        
+        composition_positions = {
+            'Parent': {
+                'value': 1,
+                'confidence': 3,
+                'source': 2,
+            },
+            'StartDate': {
+                'value': 7,
+                'confidence': 9,
+                'source': 8,
+            },
             'EndDate': {
-                'value': 20,
-                'confidence': 22,
-                'source': 21,
+                'value': 10,
+                'confidence': 12,
+                'source': 11,
             },
             'Classification': {
-                'value': 14,
-                'confidence': 16,
-                'source': 15,
-            },
-            'OpenEnded': {
-                'value': 23,
-                'confidence': None,
-                'source': None,
+                'value': 4,
+                'confidence': 6,
+                'source': 5,
             },
         }
         
         area_positions = {
             'Geoname': {
-                'value': 44,
-                'confidence': 47,
-                'source': 46,
+                'value': 45,
+                'confidence': 48,
+                'source': 47,
             },
             'GeonameId': {
-                'value': 45,
-                'confidence': 47,
-                'source': 46,
-            },
-            'FirstCited': {
-                'value': 48,
-                'confidence': 50,
-                'source': 49,
-            },
-            'LastCited': {
-                'value': 51,
-                'confidence': 53,
-                'source': 52,
+                'value': 46,
+                'confidence': 48,
+                'source': 47,
             },
         }
         
@@ -266,21 +245,6 @@ class Command(UtilityMixin, BaseCommand):
                 'confidence': 30,
                 'source': 29,
             },
-            'FirstCited': {
-                'value': 45,
-                'confidence': 48,
-                'source': 47,
-            },
-            'LastCited': {
-                'value': 46,
-                'confidence': 48,
-                'source': 47,
-            },
-            'OpenEnded': {
-                'value': 43,
-                'confidence': None,
-                'source': None,
-            }
         }
         
         # Need to get or create name first
@@ -404,8 +368,6 @@ class Command(UtilityMixin, BaseCommand):
                                                                                      compositionchild__value=organization)
                             reversion.set_user(self.user)
                         
-                        open_ended = org_data[composition_positions['OpenEnded']['value']]
-
                         comp_info = {
                             'Composition_CompositionParent': {
                                 'value': parent_organization,
@@ -417,11 +379,7 @@ class Command(UtilityMixin, BaseCommand):
                                 'confidence': parent_confidence,
                                 'sources': parent_sources,
                             },
-                            'Composition_CompositionOpenEnded': {
-                                'value': open_ended,
-                            },
                         }
-
                         composition.update(comp_info)
 
                         self.make_relation('StartDate', 
@@ -694,11 +652,6 @@ class Command(UtilityMixin, BaseCommand):
             'AdminLevel1': {
                 'confidence': 34,
                 'source': 33,
-            },
-            'OpenEnded': {
-                'value': 43,
-                'confidence': None,
-                'source': None,
             }
         }
 
@@ -712,7 +665,7 @@ class Command(UtilityMixin, BaseCommand):
                 'value': 40,
                 'confidence': 42,
                 'source': 41,
-            },
+            }
         }
         
         try:
@@ -748,7 +701,6 @@ class Command(UtilityMixin, BaseCommand):
             geoname_confidence = self.get_confidence(org_data[positions['Geoname']['confidence']])
             geoname_sources = self.create_sources(org_data[positions['Geoname']['source']])
             
-
             if geoname_confidence and geoname_sources:
 
                 site_data['Geosite_GeositeName'] = {
@@ -810,19 +762,6 @@ class Command(UtilityMixin, BaseCommand):
                     missing.append('sources')
             
                 self.log_error('AdminLevel1 {0} did not have {1}'.format(admin1, ', '.join(missing)))
-            
-            site_openended = org_data[positions['OpenEnded']['value']]
-            
-            if site_openended == 'Y':
-                site_openended = True
-            elif site_openended == 'N':
-                site_openended = False
-            else:
-                site_openended = None
-            
-            site_data['Geosite_GeositeOpenEnded'] = {
-                'value': site_openended,
-            }
             
             site.update(site_data)
             
@@ -954,44 +893,44 @@ class Command(UtilityMixin, BaseCommand):
         }
         membership_positions = {
             'Organization': {
-                'value': 8,
-                'confidence': 10,
-                'source': 9,
+                'value': 7,
+                'confidence': 9,
+                'source': 8,
             },
             'Role': {
-                'value': 11,
-                'confidence': 13,
-                'source': 12,
+                'value': 10,
+                'confidence': 12,
+                'source': 11,
             },
             'Title': {
-                'value': 14,
-                'confidence': 16,
-                'source': 15,
+                'value': 13,
+                'confidence': 15,
+                'source': 14,
             },
             'Rank': {
-                'value': 17,
-                'confidence': 19,
-                'source': 18,
+                'value': 16,
+                'confidence': 18,
+                'source': 17,
             },
             'FirstCitedDate': {
-                'value': 20,
-                'confidence': 22,
-                'source': 21,
+                'value': 19,
+                'confidence': 21,
+                'source': 20,
             },
             'StartContext': {
-                'value': 24,
-                'confidence': 26,
-                'source': 25,
+                'value': 23,
+                'confidence': 25,
+                'source': 24,
             },
             'LastCitedDate': {
-                'value': 27,
-                'confidence': 29,
-                'source': 28,
+                'value': 26,
+                'confidence': 28,
+                'source': 27,
             },
             'EndContext': {
-                'value': 31,
-                'confidence': 33,
-                'source': 32,
+                'value': 30,
+                'confidence': 32,
+                'source': 31,
             },
         }
         

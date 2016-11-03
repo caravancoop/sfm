@@ -1,7 +1,8 @@
 from collections import OrderedDict
 import itertools
+import json
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.generic import TemplateView
 from django.db import connection
 
@@ -25,6 +26,57 @@ class JSONResponseMixin(object):
 
 class JSONAPIView(JSONResponseMixin, TemplateView):
     safe = True
+    
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        errors = []
+
+        filter_fields = list(getattr(self, 'filter_fields', {}).keys())
+        order_by_fields = getattr(self, 'order_by_fields', [])
+        required_params = getattr(self, 'required_params', [])
+        optional_params = getattr(self, 'optional_params', [])
+
+        valid_params = required_params + filter_fields + order_by_fields + optional_params
+        
+        incoming_params = list(self.request.GET.keys())
+        
+        missing = set(required_params) - set(incoming_params)
+
+        if missing:
+            if len(missing) > 1:
+                errors.append("{} are required fields".format(', '.join(missing)))
+            else:
+                errors.append('{} is a required field'.format(list(missing)[0]))
+
+        for query_param in self.request.GET.keys():
+            try:
+                field, operator = query_param.split('__')
+            except ValueError:
+                field = query_param
+                operator = '='
+
+            if field not in valid_params:
+                errors.append("'{}' is not a valid query parameter".format(query_param))
+            
+            elif not self.checkOperator(field, operator):
+                errors.append("'{0}' is not a valid operator for '{1}'".format(operator, field))
+        
+        if errors:
+            response = HttpResponse(json.dumps({'errors': errors}), 
+                                    content_type='application/json')
+            response.status_code = 400
+
+        return response
+    
+    def checkOperator(self, field, operator):
+        if field in self.filter_fields:
+            if operator not in self.filter_fields[field]['operators']:
+                return False
+        elif operator != '=':
+            return False
+        
+        return True
+
     def render_to_response(self, context, **response_kwargs):
         response_kwargs.update({'safe': self.safe})
         return self.render_to_json_response(context, **response_kwargs)
@@ -179,7 +231,46 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         properties['perpetrator_organization'] = perp_orgs
         return properties
 
+
 class OrganizationSearchView(JSONAPIView):
+    
+    filter_fields = {
+        'date_first_cited': {
+            'field': 'start_date', 
+            'operators': ['gte', 'lte'],
+        },
+        'date_last_cited': {
+            'field': 'end_date',
+            'operators': ['gte', 'lte'],
+        },
+        'classification': {
+            'field': 'classification',
+            'operators': ['in'],
+        },
+        'geonames_id': {
+            'field': 'geoname_id',
+            'operators': [],
+        },
+        'events_count': {
+            'field': 'events_count',
+            'operators': ['gte', 'lte',]
+        }
+    }
+    
+    order_by_fields = [
+        'name',
+        'date_first_cited',
+        'date_last_cited',
+        'events_count',
+        '-name',
+        '-date_first_cited',
+        '-date_last_cited',
+        '-events_count',
+    ]
+    
+    required_params = ['q']
+    optional_params = ['o', 'p']
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
@@ -192,12 +283,15 @@ class OrganizationSearchView(JSONAPIView):
               MAX(e.start_date) AS start_date,
               MAX(e.end_date) AS end_date
             FROM organization AS o
+            JOIN organization_organization AS oo
+              ON o.id = oo.uuid
+            JOIN search_index AS si
+              ON oo.id = si.id
             JOIN emplacement AS e
               ON o.id = e.organization_id
             JOIN geosite as g
               ON e.site_id = g.id
-            WHERE o.division_id = %s
-              AND (e.start_date <= %s OR e.end_date >= %s)
+            GROUP BY o.id
         '''
 
         return context
@@ -205,6 +299,14 @@ class OrganizationSearchView(JSONAPIView):
 class GeonameAutoView(JSONAPIView):
     
     safe = False
+    required_params = ['q']
+    optional_params = ['bbox']
+    filter_fields = {
+        'classification': {
+            'field': 'classification',
+            'operators': ['in'],
+        },
+    }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -270,6 +372,16 @@ class CountryTxtView(JSONAPIView):
         return context
 
 class CountryMapView(JSONAPIView):
+    
+    required_params = ['at']
+    optional_params = ['bbox']
+    filter_fields = {
+        'classification': {
+            'field': 'classification',
+            'operators': ['in'],
+        },
+    }
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
