@@ -49,6 +49,8 @@ class OrganizationSearchView(JSONAPIView):
     
     required_params = ['q']
     optional_params = ['o', 'p']
+    
+    facet_fields = ['classification']
 
     def get_context_data(self, **kwargs):
         context = {}
@@ -60,35 +62,33 @@ class OrganizationSearchView(JSONAPIView):
         
         query_args = [query_term, division_id]
         
+        # Create last half of query so counts and main query are working with
+        # the same joins
         base_query = ''' 
             FROM organization AS o
             JOIN organization_organization AS oo
               ON o.id = oo.uuid
             JOIN search_index AS si
-              ON oo.id = si.id
-            JOIN emplacement AS e
+              ON oo.id = si.object_ref_id
+            LEFT JOIN emplacement AS e
               ON o.id = e.organization_id
-            JOIN geosite as g
+            LEFT JOIN geosite as g
               ON e.site_id = g.id
+            LEFT JOIN violation AS v
+              ON o.id = v.perpetrator_organization_id
             WHERE plainto_tsquery('english', %s) @@ si.content
               AND si.content_type = 'Organization'
               AND o.division_id = %s
         '''
         
-        facets_counts = '''
-            SELECT 
-              TRIM(o.classification) AS facet,
-              COUNT(*) AS facet_count
-            {}
-        '''.format(base_query)
+        context['count'] = 0
+        context['facets'] = {}
+
+        for facet, count, facet_count in self.retrieveFacetsCounts(base_query, query_args):
+            context['count'] = count
+            context['facets'][facet] = facet_count
         
-        count, facets_counts = self.getFacets(facets_counts, 
-                                              query_args, 
-                                              'classification')
-        
-        context['count'] = count
-        context['facets'] = facets_counts
-        
+        # Reinitialize query params so we can re-run the query with limit / offset
         query_args = [query_term, division_id]
 
         organizations = '''
@@ -98,7 +98,8 @@ class OrganizationSearchView(JSONAPIView):
               array_agg(DISTINCT TRIM(o.alias)) AS other_names,
               ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
               MAX(e.start_date) AS start_date,
-              MAX(e.end_date) AS end_date
+              MAX(e.end_date) AS end_date,
+              COUNT(DISTINCT v.id) AS events_count
             {}
         '''.format(base_query)
         
@@ -106,21 +107,8 @@ class OrganizationSearchView(JSONAPIView):
         
         organizations = '{} GROUP BY o.id'.format(organizations)
 
-        order_by = self.makeOrderBy()
+        organizations = self.orderPaginate(organizations)
         
-        if order_by:
-            order_by = ', '.join(order_by)
-            organizations = '{0} ORDER BY {1}'.format(organizations, order_by)
-        
-        organizations = '{0} LIMIT {1}'.format(organizations, self.page_count)
-
-        if self.request.GET.get('p'):
-            page = self.request.GET.get('p')
-            
-            if int(page) >= 1:
-                offset = (int(page) - 1) * self.page_count
-                organizations = '{0} OFFSET {1}'.format(organizations, offset)
-
         cursor = connection.cursor()
         cursor.execute(organizations, query_args)
         columns = [c[0] for c in cursor.description]
@@ -177,6 +165,7 @@ class PeopleSearchView(JSONAPIView):
     
     required_params = ['q']
     optional_params = ['o', 'p']
+    facet_fields = ['rank', 'role']
 
     def get_context_data(self, **kwargs):
         context = {}
@@ -188,64 +177,46 @@ class PeopleSearchView(JSONAPIView):
         
         query_args = [query_term, division_id]
         
-        people = '''
-            SELECT 
-              id, name, other_names, event_count, current_membership[1]
-            FROM (
-            SELECT
-              p.id,
-              MAX(p.name) AS name,
-              array_agg(DISTINCT TRIM(p.alias)) AS other_names,
-              COUNT(v.*) AS event_count,
-              array_agg(row_to_json(cm.*)) AS current_membership
+        base_query = '''
             FROM person AS p
             JOIN person_person AS pp
               ON p.id = pp.uuid
             JOIN search_index AS si
-              ON pp.id = si.id
-            LEFT JOIN (
-              SELECT DISTINCT ON (member_id) 
-                mp.member_id,
-                row_to_json(o.*) AS organization,
-                mp.role,
-                mp.rank
-              FROM membershipperson AS mp
-              JOIN (
-                SELECT DISTINCT ON (o.id)
-                  o.*,
-                  json_build_object('type', 'Feature', 
-                                    'id', g.id, 
-                                    'properties', json_build_object('location', g.name, 
-                                                                    'geonames_name', g.geoname,
-                                                                    'admin_level_1_geonames_name', g.admin_level_1),
-                                    'geometry', ST_AsGeoJSON(g.coordinates)::json) AS site_present
-                  FROM organization AS o
-                  JOIN emplacement AS e
-                    ON o.id = e.organization_id
-                  JOIN geosite AS g
-                    ON e.site_id = g.id
-                  ORDER BY o.id, e.end_date DESC, e.start_date DESC
-              ) AS o
-                ON mp.organization_id = o.id
-              ORDER BY member_id, 
-                       last_cited DESC, 
-                       first_cited DESC
-            ) AS cm
-              ON p.id = cm.member_id
+              ON pp.id = si.object_ref_id
             LEFT JOIN violation AS v
               ON p.id = v.perpetrator_id
+            LEFT JOIN membershipperson AS mp
+              ON p.id = mp.member_id
             WHERE si.content_type = 'Person'
               AND plainto_tsquery('english', %s) @@ si.content
               AND p.division_id = %s
-            GROUP BY p.id
-            ) AS s
         '''
         
+        context['count'] = 0
+        context['facets'] = {}
+
+        for facet, count, facet_count in self.retrieveFacetsCounts(base_query, query_args):
+            context['count'] = count
+            context['facets'][facet] = facet_count
+
+        people = ''' 
+            SELECT
+              p.id,
+              MAX(p.name) AS name,
+              array_agg(DISTINCT TRIM(p.alias)) AS other_names,
+              COUNT(DISTINCT v.id) AS events_count
+              {}
+        '''.format(base_query)
+        
+        people = '{} GROUP BY p.id'.format(people)
+        
+        people = self.orderPaginate(people)
+
         cursor = connection.cursor()
         cursor.execute(people, query_args)
         columns = [c[0] for c in cursor.description]
         
-        context['results'] = [OrderedDict(zip(columns, r)) for r in cursor]
+        context['results'] = [self.makePerson(OrderedDict(zip(columns, r))) for r in cursor]
 
         return context
 
