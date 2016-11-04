@@ -811,18 +811,22 @@ class Command(UtilityMixin, BaseCommand):
             
                 self.log_error('AdminLevel1 {0} did not have {1}'.format(admin1, ', '.join(missing)))
             
-            site_openended = org_data[positions['OpenEnded']['value']]
-            
-            if site_openended == 'Y':
-                site_openended = True
-            elif site_openended == 'N':
-                site_openended = False
-            else:
+            try:
+                site_openended = org_data[positions['OpenEnded']['value']]
+            except IndexError:
                 site_openended = None
-            
-            site_data['Geosite_GeositeOpenEnded'] = {
-                'value': site_openended,
-            }
+
+            if site_openended:
+                if site_openended == 'Y':
+                    site_openended = True
+                elif site_openended == 'N':
+                    site_openended = False
+                else:
+                    site_openended = None
+                
+                site_data['Geosite_GeositeOpenEnded'] = {
+                    'value': site_openended,
+                }
             
             site.update(site_data)
             
