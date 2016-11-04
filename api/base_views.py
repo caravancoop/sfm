@@ -401,14 +401,15 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
         return order_bys
     
-    def appendWhereClauses(self, query, query_args):
+    def appendWhereClauses(self, query):
         where_clauses = self.makeWhereClauses()
         
+        these_args = []
         for clause, value in where_clauses:
             query = '{0} AND {1}'.format(query, clause)
-            query_args.append(value)
+            these_args.append(value)
         
-        return query, query_args
+        return query, these_args
 
     def getFacets(self, 
                   query, 
@@ -430,7 +431,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         return facets_counts
     
     def retrieveFacetsCounts(self, base_query, query_args):
-        
+
         for facet in self.facet_fields:
             
             facets_counts = '''
@@ -440,17 +441,21 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 {1}
             '''.format(facet, base_query)
             
-            facets_counts, query_args = self.appendWhereClauses(facets_counts, query_args)
+            facets_counts, this_facet_args = self.appendWhereClauses(facets_counts)
             
+            this_facet_args = query_args + this_facet_args
+
             facets_counts = self.getFacets(facets_counts, facet)
             
             cursor = connection.cursor()
-            cursor.execute(facets_counts, query_args)
+            cursor.execute(facets_counts, this_facet_args)
             
             facets_counts = [r for r in cursor]
             
             count = int(sum(f[0] for f in facets_counts))
             
+            this_facet_args = []
+
             yield facet, count, facets_counts
     
     def orderPaginate(self, query):

@@ -8,17 +8,17 @@ class OrganizationSearchView(JSONAPIView):
     
     filter_fields = {
         'date_first_cited': {
-            'field': 'start_date', 
+            'field': 'e.start_date', 
             'operators': ['gte', 'lte'],
             'validator': dateValidator,
         },
         'date_last_cited': {
-            'field': 'end_date',
+            'field': 'e.end_date',
             'operators': ['gte', 'lte'],
             'validator': dateValidator,
         },
         'classification': {
-            'field': 'classification',
+            'field': 'o.classification',
             'operators': ['in'],
             'validator': None,
         },
@@ -36,12 +36,12 @@ class OrganizationSearchView(JSONAPIView):
     
     order_by_fields = {
         'name': {'field': 'name'},
-        'date_first_cited': {'field': 'start_date'},
-        'date_last_cited': {'field': 'end_date'},
+        'date_first_cited': {'field': 'date_first_cited'},
+        'date_last_cited': {'field': 'date_last_cited'},
         # 'events_count': {},
         '-name': {'field': 'name'},
-        '-date_first_cited': {'field': 'start_date'},
-        '-date_last_cited': {'field': 'end_date'},
+        '-date_first_cited': {'field': 'date_first_cited'},
+        '-date_last_cited': {'field': 'date_last_cited'},
         # '-events_count',
     }
     
@@ -95,20 +95,22 @@ class OrganizationSearchView(JSONAPIView):
               MAX(o.name) AS name,
               array_agg(DISTINCT TRIM(o.alias)) AS other_names,
               ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
-              MAX(e.start_date) AS start_date,
-              MAX(e.end_date) AS end_date,
+              MAX(e.start_date) AS date_first_cited,
+              MAX(e.end_date) AS date_last_cited,
               COUNT(DISTINCT v.id) AS events_count
             {}
         '''.format(base_query)
         
-        organizations, query_args = self.appendWhereClauses(organizations, query_args)
+        organizations, new_args = self.appendWhereClauses(organizations)
         
+        new_args = query_args + new_args
+
         organizations = '{} GROUP BY o.id'.format(organizations)
 
         organizations = self.orderPaginate(organizations)
         
         cursor = connection.cursor()
-        cursor.execute(organizations, query_args)
+        cursor.execute(organizations, new_args)
         columns = [c[0] for c in cursor.description]
         
         organizations = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
@@ -121,12 +123,12 @@ class PeopleSearchView(JSONAPIView):
     
     filter_fields = {
         'date_first_cited': {
-            'field': 'start_date', 
+            'field': 'mp.first_cited', 
             'operators': ['gte', 'lte'],
             'validator': dateValidator,
         },
         'date_last_cited': {
-            'field': 'end_date',
+            'field': 'mp.last_cited',
             'operators': ['gte', 'lte'],
             'validator': dateValidator,
         },
@@ -206,14 +208,19 @@ class PeopleSearchView(JSONAPIView):
               {}
         '''.format(base_query)
         
-        people, query_args = self.appendWhereClauses(people, query_args)
+        people, new_args = self.appendWhereClauses(people)
         
+        new_args = query_args + new_args
+
         people = '{} GROUP BY p.id'.format(people)
         
         people = self.orderPaginate(people)
+        
+        print(people)
+        print(new_args)
 
         cursor = connection.cursor()
-        cursor.execute(people, query_args)
+        cursor.execute(people, new_args)
         columns = [c[0] for c in cursor.description]
         
         context['results'] = [self.makePerson(OrderedDict(zip(columns, r))) for r in cursor]
@@ -306,15 +313,17 @@ class EventSearchView(JSONAPIView):
             {}
         ''' .format(base_query)
         
-        events, query_args = self.appendWhereClauses(events, query_args)
+        events, new_args = self.appendWhereClauses(events)
         
+        new_args = query_args + new_args
+
         events = '{} GROUP BY v.id'.format(events)
         
         events = self.orderPaginate(events)
         
         cursor = connection.cursor()
         
-        cursor.execute(events, query_args)
+        cursor.execute(events, new_args)
         columns = [c[0] for c in cursor.description]
         events = [self.makeEvent(OrderedDict(zip(columns, r))) for r in cursor]
         
