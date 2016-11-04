@@ -11,6 +11,7 @@ OPERATOR_LOOKUP = {
     'lte': '<=',
     'gte': '>=',
     'eq': '=',
+    'in': 'IN',
 }
 
 class ValidationError(Exception):
@@ -46,7 +47,8 @@ class JSONResponseMixin(object):
 
 class JSONAPIView(JSONResponseMixin, TemplateView):
     safe = True
-    
+    page_count = 20
+
     def dispatch(self, request, *args, **kwargs):
         errors = []
         self.wheres = []
@@ -94,6 +96,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                         self.wheres.append((field, operator, value,))
                     except ValidationError as e:
                         errors.append("Value for '{0}' is not valid: {1}".format(field, e.message))
+                else:
+                    self.wheres.append((field, operator, value,))
             
             elif field == 'o':
                 value = self.request.GET['o']
@@ -256,36 +260,6 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         return properties
     
     def makePerson(self, properties):
-        ''' 
-        "membership_present": {
-          "organization": {
-            "id": "42bb1cff-eed5-4458-a9b4-b00bad09f615",
-            "name": "Brigade 1"
-          },
-          "role": "Commander",
-          "title": "Captain of the Watch",
-          "rank": "Captain",
-          "site_present": {
-            "type": "Feature",
-            "id": "5947d0de-626d-495f-9c31-eb2ca5afdb6b",
-            "properties": {
-              "location": "Aba North, Abia",
-              "geonames_name": "Aba North",
-              "admin_level_1_geonames_name": "Abia"
-            },
-            "geometry": GeoJSON
-          }
-        },
-        "membership_former": {
-          "organization": {
-            "id": "123e4567-e89b-12d3-a456-426655440000",
-            "name": "Brigade 2"
-          },
-          "role": "Commander",
-          "title": "Captain of the Guard",
-          "rank": "Captain"
-        }
-        '''
         
         properties['membership_present'] = None
         properties['membership_former'] = None
@@ -370,7 +344,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         return properties
 
     def makeEvent(self, properties):
-        properties['classification'] = list(set(properties['classification']))
+        properties['violation_types'] = list(set(properties['violation_types']))
 
         perp_class = [c for c in list(set(properties['perpetrator_classification'])) if c]
         if perp_class:
@@ -388,6 +362,16 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 perp_org_ids.append(org['id'])
 
         properties['perpetrator_organization'] = perp_orgs
+        
+        site_ids = []
+        sites = []
+        if properties.get('sites_nearby'):
+            for site in properties['sites_nearby']:
+                if site['id'] not in site_ids:
+                    sites.append(site)
+                    site_ids.append(site['id'])
+        
+            properties['sites_nearby'] = sites
         return properties
     
     def makeWhereClauses(self):
@@ -400,6 +384,10 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 db_field = self.filter_fields[field]['field']
             
                 clause = '{0} {1} %s'.format(db_field, operator)
+
+                if operator == 'IN':
+                    value = tuple(v for v in value.split(','))
+
                 where_clauses.append((clause, value,))
         
         return where_clauses
@@ -448,8 +436,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             facets_counts = '''
                 SELECT 
                   TRIM({0}) AS facet,
-                  COUNT(DISTINCT uuid) AS facet_count,
-                  uuid AS id
+                  COUNT(DISTINCT uuid) AS facet_count
                 {1}
             '''.format(facet, base_query)
             

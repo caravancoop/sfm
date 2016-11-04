@@ -6,8 +6,6 @@ from api.base_views import JSONAPIView, dateValidator, integerValidator
 
 class OrganizationSearchView(JSONAPIView):
     
-    page_count = 20
-
     filter_fields = {
         'date_first_cited': {
             'field': 'start_date', 
@@ -121,8 +119,6 @@ class OrganizationSearchView(JSONAPIView):
 
 class PeopleSearchView(JSONAPIView):
     
-    page_count = 20
-
     filter_fields = {
         'date_first_cited': {
             'field': 'start_date', 
@@ -199,6 +195,8 @@ class PeopleSearchView(JSONAPIView):
             context['count'] = count
             context['facets'][facet] = facet_count
 
+        query_args = [query_term, division_id]
+        
         people = ''' 
             SELECT
               p.id,
@@ -207,6 +205,8 @@ class PeopleSearchView(JSONAPIView):
               COUNT(DISTINCT v.id) AS events_count
               {}
         '''.format(base_query)
+        
+        people, query_args = self.appendWhereClauses(people, query_args)
         
         people = '{} GROUP BY p.id'.format(people)
         
@@ -217,6 +217,108 @@ class PeopleSearchView(JSONAPIView):
         columns = [c[0] for c in cursor.description]
         
         context['results'] = [self.makePerson(OrderedDict(zip(columns, r))) for r in cursor]
+
+        return context
+
+class EventSearchView(JSONAPIView):
+    filter_fields = {
+        'start_date': {
+            'field': 'start_date', 
+            'operators': ['gte', 'lte'],
+            'validator': dateValidator,
+        },
+        'geonames_id': {
+            'field': 'geoname_id',
+            'operators': ['eq'],
+            'validator': integerValidator,
+        },
+        'violation_type': {
+            'field': 'violation_type',
+            'operators': ['in'],
+            'validator': None,
+        },
+    }
+    
+    order_by_fields = {
+        'start_date': {'field': 'start_date'},
+        # 'events_count': {},
+        '-start_date': {'field': 'start_date'},
+        # '-events_count',
+    }
+    
+    required_params = ['q']
+    optional_params = ['o', 'p']
+    facet_fields = ['violation_type']
+    
+    def get_context_data(self, **kwargs):
+        context = {}
+        
+        country_code = kwargs['id']
+        division_id = 'ocd-division/country:{}'.format(country_code)
+        
+        query_term = self.request.GET['q']
+        
+        query_args = [query_term, division_id]
+
+        base_query = '''
+            FROM violation AS v
+            JOIN violation_violation AS vv
+              ON v.id = vv.uuid
+            JOIN search_index AS si
+              ON vv.id = si.object_ref_id
+            LEFT JOIN person AS p
+              ON v.perpetrator_id = p.id
+            LEFT JOIN organization AS o
+              ON v.perpetrator_organization_id = o.id
+            LEFT JOIN geosite AS g
+              ON ST_Intersects(ST_Buffer_Meters(v.location, 35000), g.coordinates)
+            WHERE si.content_type = 'Violation'
+              AND plainto_tsquery('english', %s) @@ si.content
+              AND v.division_id = %s
+        ''' 
+        
+        context['count'] = 0
+        context['facets'] = {}
+
+        for facet, count, facet_count in self.retrieveFacetsCounts(base_query, query_args):
+            context['count'] = count
+            context['facets'][facet] = facet_count
+
+        query_args = [query_term, division_id]
+        
+        events = ''' 
+            SELECT 
+              v.id,
+              MAX(v.start_date) AS start_date,
+              MAX(v.end_date) AS end_date,
+              MAX(v.location_description) AS location_description,
+              MAX(v.admin_level_1) AS admin_level_1,
+              MAX(v.admin_level_2) AS admin_level_2,
+              MAX(v.geoname) AS geoname,
+              MAX(v.geoname_id) AS geoname_id,
+              MAX(p.name) AS perpetrator_name,
+              array_agg(DISTINCT TRIM(v.perpetrator_classification)) AS perpetrator_classification,
+              array_agg(DISTINCT TRIM(v.violation_type)) AS violation_types,
+              array_agg(row_to_json(o.*)) AS perpetrator_organization,
+              array_agg(json_build_object('name', g.name,
+                                          'id', g.id,
+                                          'geometry', ST_AsGeoJSON(g.coordinates)::json)) AS sites_nearby
+            {}
+        ''' .format(base_query)
+        
+        events, query_args = self.appendWhereClauses(events, query_args)
+        
+        events = '{} GROUP BY v.id'.format(events)
+        
+        events = self.orderPaginate(events)
+        
+        cursor = connection.cursor()
+        
+        cursor.execute(events, query_args)
+        columns = [c[0] for c in cursor.description]
+        events = [self.makeEvent(OrderedDict(zip(columns, r))) for r in cursor]
+        
+        context['results'] = events
 
         return context
 
