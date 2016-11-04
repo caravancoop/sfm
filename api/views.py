@@ -426,7 +426,7 @@ class CountryMapView(JSONAPIView):
             SELECT 
               o.id, 
               MAX(o.name) AS name,
-              array_agg(DISTINCT o.alias) AS other_names,
+              array_agg(DISTINCT TRIM(o.alias)) AS other_names,
               ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
               MAX(e.start_date) AS start_date,
               MAX(e.end_date) AS end_date
@@ -436,7 +436,7 @@ class CountryMapView(JSONAPIView):
             JOIN geosite as g
               ON e.site_id = g.id
             WHERE o.division_id = %s
-              AND (e.start_date <= %s OR e.end_date >= %s)
+              AND (e.start_date <= %s AND e.end_date >= %s)
         '''
         
         args = [division_id, when, when]
@@ -474,7 +474,7 @@ class CountryMapView(JSONAPIView):
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
               array_agg(v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(v.violation_type) AS classification,
+              array_agg(v.violation_type) AS violation_types,
               json_agg(row_to_json(o.*)) AS perpetrator_organization
             FROM violation AS v
             LEFT JOIN person AS p
@@ -482,7 +482,7 @@ class CountryMapView(JSONAPIView):
             LEFT JOIN organization AS o
               ON v.perpetrator_organization_id = o.id
             WHERE v.division_id = %s
-              AND (v.start_date <= %s OR v.end_date >= %s)
+              AND (v.start_date <= %s AND v.end_date >= %s)
         '''
         
         args = [division_id, when, when]
@@ -534,10 +534,9 @@ class CountryEventsView(JSONAPIView):
               MAX(v.geoname_id) AS geoname_id,
               MAX(v.division_id) AS division_id,
               ST_ASGeoJSON(MAX(v.location))::json AS location,
-              MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
               array_agg(v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(v.violation_type) AS classification,
+              array_agg(v.violation_type) AS violation_types,
               json_agg(row_to_json(o.*)) AS perpetrator_organization
             FROM violation AS v
             LEFT JOIN person AS p
@@ -586,7 +585,7 @@ class EventDetailView(JSONAPIView):
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
               array_agg(v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(v.violation_type) AS classification,
+              array_agg(v.violation_type) AS violation_types,
               json_agg(row_to_json(o.*)) AS perpetrator_organization
             FROM violation AS v
             LEFT JOIN person AS p
@@ -601,7 +600,7 @@ class EventDetailView(JSONAPIView):
               SELECT 
                 o.id, 
                 MAX(o.name) AS name,
-                array_agg(DISTINCT o.alias) AS other_names
+                array_agg(DISTINCT TRIM(o.alias)) AS other_names
               FROM violation AS v
               JOIN geosite AS g
                 ON  ST_Intersects(ST_Buffer_Meters(v.location, 35000), g.coordinates)

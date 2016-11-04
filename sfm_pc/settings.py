@@ -160,6 +160,7 @@ LOGIN_REQUIRED_URLS_EXCEPTIONS = (
     r'.*/login(.*)$',
     r'.*/logout(.*)$',
     r'.*/admin(.*)$',
+    r'.*/api(.*)$',
 )
 
 LOGIN_URL = reverse_lazy('account_login')
