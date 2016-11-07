@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from .models import (Geosite, GeositeName, GeositeAdminLevel1,
                      GeositeAdminLevel2, GeositeCoordinates,
-                     GeositeGeoname, GeositeGeonameId)
+                     GeositeOSMName, GeositeOSMId)
 
 
 class GeositeAdmin(admin.ModelAdmin):
@@ -27,11 +27,11 @@ class GeositeCoordinatesAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class GeositeGeonameAdmin(reversion.admin.VersionAdmin):
+class GeositeOSMNameAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class GeositeGeonameIdAdmin(reversion.admin.VersionAdmin):
+class GeositeOSMIdAdmin(reversion.admin.VersionAdmin):
     pass
 
 admin.site.register(Geosite, GeositeAdmin)
@@ -39,5 +39,5 @@ admin.site.register(GeositeName, GeositeNameAdmin)
 admin.site.register(GeositeAdminLevel1, GeositeAdminLevel1Admin)
 admin.site.register(GeositeAdminLevel2, GeositeAdminLevel2Admin)
 admin.site.register(GeositeCoordinates, GeositeCoordinatesAdmin)
-admin.site.register(GeositeGeoname, GeositeGeonameAdmin)
-admin.site.register(GeositeGeonameId, GeositeGeonameIdAdmin)
+admin.site.register(GeositeOSMName, GeositeOSMNameAdmin)
+admin.site.register(GeositeOSMId, GeositeOSMIdAdmin)

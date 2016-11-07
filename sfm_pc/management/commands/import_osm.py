@@ -109,11 +109,18 @@ class Command(BaseCommand):
         
         if error:
             self.stdout.write(self.style.ERROR(error.decode('utf-8')))
+        
+        for table in osm_tables:
+            if table != 'planet_osm_point':
+                self.executeTransaction('DROP TABLE {}'.format(table))
+            else:
+                self.executeTransaction('ALTER TABLE planet_osm_point RENAME TO osm_points')
+
     
     def importBoundaries(self, country):
         
         create = ''' 
-            CREATE TABLE raw_osm_boundaries (
+            CREATE TABLE osm_boundaries (
                 id BIGINT,
                 localname VARCHAR,
                 hierarchy VARCHAR[],
@@ -123,15 +130,15 @@ class Command(BaseCommand):
             )
         '''
         
-        self.executeTransaction('DROP TABLE IF EXISTS raw_osm_boundaries')
+        self.executeTransaction('DROP TABLE IF EXISTS osm_boundaries')
         self.executeTransaction(create)
         
-        self.executeTransaction("SELECT AddGeometryColumn ('public','raw_osm_boundaries','geometry',4326,'MULTIPOLYGON',2)")
+        self.executeTransaction("SELECT AddGeometryColumn ('public','osm_boundaries','geometry',4326,'MULTIPOLYGON',2)")
 
         file_path = os.path.join(self.data_directory, '{}.zip'.format(country['country']))
         
         insert_sql = ''' 
-            INSERT INTO raw_osm_boundaries (
+            INSERT INTO osm_boundaries (
               id,
               localname,
               hierarchy,
@@ -179,12 +186,12 @@ class Command(BaseCommand):
                         self.executeTransaction(sa.text(insert_sql), inserts)
                         count += 10000
                         inserts = []
-                        self.stdout.write(self.style.SUCCESS('Inserted {}'.format(count)))
+                        self.stdout.write(self.style.SUCCESS('Inserted {} boundaries'.format(count)))
 
             if inserts:
                 count += len(inserts)
                 self.executeTransaction(sa.text(insert_sql), inserts)
-                self.stdout.write(self.style.SUCCESS('Inserted {}'.format(count)))
+                self.stdout.write(self.style.SUCCESS('Inserted {} boundaries'.format(count)))
         
 
     def downloadPBFs(self, country):
