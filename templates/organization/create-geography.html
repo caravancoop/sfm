@@ -82,24 +82,24 @@
                                 {% endif %}
                             </div>
                         </div>
-                    {% if form.geoname.errors %}
+                    {% if form.osmname.errors %}
                         <div class="form-group has-error has-feedback">
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-geoname">Geoname</label>
+                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-osmname">OSM Name</label>
                             <div class="col-sm-8">
-                                <select class="form-control" class="geoname-field" id="id_form-{{ form_id }}-geoname" name="form-{{ form_id }}-geoname">
-                                    {% if form.cleaned_data.geoname %}
-                                        <option value="{{ form.cleaned_data.geoname }}" selected=true>{{ form.cleaned_data.geoname_text }}</option>
+                                <select class="form-control" class="osmname-field" id="id_form-{{ form_id }}-osmname" name="form-{{ form_id }}-osmname">
+                                    {% if form.cleaned_data.osmname %}
+                                        <option value="{{ form.cleaned_data.osmname }}" selected=true>{{ form.cleaned_data.osmname_text }}</option>
                                     {% endif %}
                                 </select>
-                                {% if form.geoname.errors %}
-                                   {% for error in form.geoname.errors %}
+                                {% if form.osmname.errors %}
+                                   {% for error in form.osmname.errors %}
                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                    {% endfor %}
                                 {% endif %}
-                                <input type="hidden" name="form-{{ form_id }}-geoname_text" id="id_form-{{ form_id }}-geoname_text" value="{{ form.cleaned_data.geoname_text }}" />
+                                <input type="hidden" name="form-{{ form_id }}-osmname_text" id="id_form-{{ form_id }}-osmname_text" value="{{ form.cleaned_data.osmname_text }}" />
                                 <input type="hidden" name="form-{{ form_id }}-geotype" id="id_form-{{ form_id }}-geotype" value="{{ form.cleaned_data.geotype }}" />
                             </div>
                         </div>
@@ -188,10 +188,10 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-geoname">Geoname</label>
+            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-osmname">OSM Name</label>
             <div class="col-sm-8">
-                <select class="form-control" id="id_form-<%= form_id %>-geoname" name="form-<%= form_id %>-geoname"></select>
-                <input type="hidden" name="form-<%= form_id %>-geoname_text" id="id_form-<%= form_id %>-geoname_text" />
+                <select class="form-control" id="id_form-<%= form_id %>-osmname" name="form-<%= form_id %>-osmname"></select>
+                <input type="hidden" name="form-<%= form_id %>-osmname_text" id="id_form-<%= form_id %>-osmname_text" />
                 <input type="hidden" name="form-<%= form_id %>-geotype" id="id_form-<%= form_id %>-geotype" />
             </div>
         </div>
@@ -218,7 +218,7 @@
         <hr />
     </div>
 </script>
-<script type="textEJS" id="geonameResult">
+<script type="textEJS" id="osmnameResult">
     <div class="row">
         <% if(map_image) { %>
             <div class="col-sm-2">
@@ -230,15 +230,15 @@
         <% } else { %>
             <div class="col-sm-10 col-sm-offset-2">
         <% }%>
-            <h5><%= value %> <small>(Geoname ID: <%= id %>, <%= code %>)</small></h5>
+            <h5><%= value %> <small>(OSM ID: <%= id %>, <%= code %>)</small></h5>
         </div>
     </div>
 </script>
 <script type="text/javascript">
 var form_num = 0;
-var geoname_opts = {
+var osmname_opts = {
     ajax: {
-        url: "{% url 'geoname-autocomplete' %}",
+        url: "{% url 'osmname-autocomplete' %}",
         datType: 'json',
         delay: 250,
         data: function(params) {
@@ -259,14 +259,14 @@ var geoname_opts = {
         if (data.loading){
             return data.text;
         }
-        var template = new EJS({'text': $('#geonameResult').html()});
+        var template = new EJS({'text': $('#osmnameResult').html()});
         return template.render(data);
     }
 };
 $(document).ready(function() {
     {% if formset.errors %}
         $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
-        $('.geoname-field').select2(geoname_opts);
+        $('.osmname-field').select2(osmname_opts);
     {% else %}
         addForm(null);
     {% endif %}
@@ -290,17 +290,17 @@ function addForm(e){
     $('#dynamic-form-wrapper').append(form_guts);
 
     var field_prefix = '#id_form-' + form_num
-    var geoname_field =  field_prefix + '-geoname';
+    var osmname_field =  field_prefix + '-osmname';
 
-    $(geoname_field).select2(geoname_opts);
+    $(osmname_field).select2(osmname_opts);
 
     $('#remove_form-' +  form_num).on('click', deleteForm);
 
-    $(geoname_field).on('select2:select', function(e){
+    $(osmname_field).on('select2:select', function(e){
         var value = e.params.data.text;
-        $(geoname_field + '_text').val(value);
-        if (isNaN($(geoname_field + ' :selected').attr('value'))) {
-            $(geoname_field + ' :selected').attr('value','-1');
+        $(osmname_field + '_text').val(value);
+        if (isNaN($(osmname_field + ' :selected').attr('value'))) {
+            $(oamname_field + ' :selected').attr('value','-1');
         }
         $(field_prefix + '-geotype').val(e.params.data.type);
     });

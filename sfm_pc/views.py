@@ -27,7 +27,7 @@ from membershipperson.models import MembershipPerson
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
 from complex_fields.models import CONFIDENCE_LEVELS
-from sfm_pc.utils import import_class, get_geoname_by_id
+from sfm_pc.utils import import_class, get_osm_by_id
 from sfm_pc.forms import MergeForm
 from sfm_pc.base_views import UtilityMixin
 
@@ -110,7 +110,7 @@ class Dashboard(TemplateView):
               ON e.id = s.object_ref_id 
             JOIN geosite_geosite AS gs 
               ON s.value_id = gs.id 
-            JOIN geosite_geositegeonameid AS g 
+            JOIN geosite_geositeosmid AS g 
               ON gs.id = g.object_ref_id 
             GROUP BY g.value 
             HAVING(COUNT(*)>1) 
@@ -120,12 +120,12 @@ class Dashboard(TemplateView):
         
         context['org_geo_counts'] = OrderedDict()
         for row in c:
-            context['org_geo_counts'][get_geoname_by_id(row[0])] = [Organization.objects.get(id=i) for i in row[1]]
+            context['org_geo_counts'][get_osm_by_id(row[0])] = [Organization.objects.get(id=i) for i in row[1]]
         
         c.execute(''' 
             SELECT g.value, array_agg(v.id) 
             FROM violation_violation AS v 
-            JOIN violation_violationgeonameid AS g 
+            JOIN violation_violationosmid AS g 
               ON v.id = g.object_ref_id
             GROUP BY g.value 
             HAVING(COUNT(*)>1) 
@@ -135,7 +135,7 @@ class Dashboard(TemplateView):
         
         context['event_geo_counts'] = OrderedDict()
         for row in c:
-            context['event_geo_counts'][get_geoname_by_id(row[0])] = [Violation.objects.get(id=i) for i in row[1]]
+            context['event_geo_counts'][get_osm_by_id(row[0])] = [Violation.objects.get(id=i) for i in row[1]]
 
         return context
 
@@ -357,9 +357,8 @@ class EntityMergeView(FormView, UtilityMixin):
 def search(request):
     query = request.GET.get('q')
     filters = request.GET.getlist('entity_type')
-    location = request.GET.get('geoname_id')
+    location = request.GET.get('osm_id')
     radius = request.GET.get('radius')
-    geoname_type = request.GET.get('geoname_type')
 
     results = {}
     select = ''' 
@@ -390,16 +389,16 @@ def search(request):
             AND ({filts})
         '''.format(select=select, filts=filts)
     
-    geoname = None
+    osm = None
     if location and radius:
 
         # TODO: Make this work for areas once we have them
-        geoname = get_geoname_by_id(location)
+        osm = get_osm_by_id(location)
         select = ''' 
             {select}
             AND ST_Intersects(ST_Buffer_Meters({location}, 4326), {radius}), site)
         '''.format(select=select,
-                   location=geoname.location,
+                   location=osm.geometry,
                    radius=(int(radius) * 1000))
 
     select = ''' 
@@ -436,23 +435,27 @@ def search(request):
         'query': query, 
         'filters': filters,
         'radius': radius,
-        'geoname': geoname,
+        'osm': osm,
         'radius_choices': ['1','5','10','25','50','100'],
     }
 
     return render(request, 'sfm/search.html', context)
 
-def geoname_autocomplete(request):
+def osm_autocomplete(request):
     term = request.GET.get('q')
     
     cursor = connection.cursor()
     cursor.execute('''
-        SELECT * FROM geonames 
+        SELECT 
+          *,
+          ST_X(ST_Centroid(geometry)) AS longitude,
+          ST_Y(ST_Centroid(geometry)) AS latitude
+        FROM osm_data 
         WHERE plainto_tsquery('english', %s) @@ search_index
     ''', [term])
     
     columns = [c[0] for c in cursor.description]
-    results_tuple = namedtuple('Geoname', columns)
+    results_tuple = namedtuple('OSMFeature', columns)
 
     search_results = [results_tuple(*r) for r in cursor]
     
@@ -461,21 +464,20 @@ def geoname_autocomplete(request):
     for result in search_results:
         
         map_image = None
-
-        if hasattr(result, 'location'):
+        
+        if hasattr(result, 'geometry'):
             latlng = '{0},{1}'.format(result.latitude, result.longitude)
             map_image = 'https://maps.googleapis.com/maps/api/staticmap'
             map_image = '{0}?center={1}&zoom=10&size=100x100&key={2}&scale=2'.format(map_image,
                                                                                      latlng,
                                                                                      settings.GOOGLE_MAPS_KEY)
         results.append({
-            'text': '{0} (GeonameID: {1}, {2})'.format(result.name, result.geonameid, result.feature_code),
+            'text': '{0} (OSM ID: {1})'.format(result.name, result.id),
             'value': result.name,
-            'id': result.geonameid,
+            'id': result.id,
             'map_image': map_image,
-            'code': result.feature_code,
         })
-
+        
     results.sort(key=lambda x:x['text'])
     return HttpResponse(json.dumps(results),content_type='application/json')
 

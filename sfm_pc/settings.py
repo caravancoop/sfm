@@ -194,5 +194,6 @@ OSM_DATA = [
         'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
         'osm_id': '192787',
         'boundary_url': 'https://osm.wno-edv-service.de/boundaries/exportBoundaries',
+        'country_code': 'ng',
     }
 ]

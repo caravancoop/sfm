@@ -65,53 +65,45 @@ def class_for_name(class_name, module_name="person.models"):
     class_ = getattr(module, class_name)
     return class_
 
-def get_geoname_by_id(geoname_id):
+def get_osm_by_id(osm_id):
     
-    geoname = None
+    osm_feature = None
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM geonames WHERE geonameid = %s', [geoname_id])
+    cursor.execute('SELECT * FROM osm_data WHERE id = %s', [osm_id])
     
     columns = [c[0] for c in cursor.description]
-    results_tuple = namedtuple('Geoname', columns)
+    results_tuple = namedtuple('OSMFeature', columns)
 
     row = cursor.fetchone()
 
     if row:
-        geoname = results_tuple(*row)
+        osm_feature = results_tuple(*row)
         
-    return geoname
+    return osm_feature
 
-def get_hierarchy_by_id(geoname_id):
+def get_hierarchy_by_id(osm_id):
     hierarchy = ''' 
-        WITH RECURSIVE children AS (
-          SELECT 
-            gn.geonameid,
-            gn.name,
-            gn.feature_code,
-            NULL::INT AS child_id, 
-            NULL::VARCHAR AS child_name 
-          FROM geonames AS gn 
-          WHERE geonameid = %s 
-          UNION 
-          SELECT 
-            g.geonameid, 
-            g.name,
-            g.feature_code,
-            h.child_id::INT AS child_id, 
-            children.name AS child_name 
-          FROM geonames AS g 
-          JOIN geonames_hierarchy AS h 
-            ON g.geonameid = h.parent_id 
-          JOIN children 
-            ON children.geonameid = h.child_id
-        ) SELECT * FROM children;
+        SELECT parents.*
+        FROM osm_data AS parents
+        JOIN (
+          SELECT
+            UNNEST(hierarchy) AS h_id,
+            localname,
+            tags,
+            admin_level,
+            name,
+            geometry
+          FROM osm_data
+          WHERE id = %s
+        ) AS child
+          ON parents.id = child.h_id::integer
     '''
 
     cursor = connection.cursor()
-    cursor.execute(hierarchy, [geoname_id])
+    cursor.execute(hierarchy, [osm_id])
     
     columns = [c[0] for c in cursor.description]
-    results_tuple = namedtuple('Geoname', columns)
+    results_tuple = namedtuple('OSMFeature', columns)
 
     hierarchy = [results_tuple(*r) for r in cursor]
     

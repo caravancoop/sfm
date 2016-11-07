@@ -38,10 +38,10 @@
         </div>
         {% if sites %}
             <div class="col-sm-4">
-                <div id="geoname_map" style="height:180px;"></div>
+                <div id="osm_map" style="height:180px;"></div>
                 {% for site in sites %}
                     <h3>
-                        {{ site.geoname }}
+                        {{ site.osmname }}
                         <small>
                             {{ site.adminlevel1 }}
                             {% if site.adminlevel2.get_value %}
@@ -98,8 +98,8 @@
                             <p>
                                 <a href="{% url 'detail_violation' event.id %}">
                                     Event
-                                    {% if event.geoname %}
-                                        in <strong>{{ event.geoname }}</strong>
+                                    {% if event.osmname %}
+                                        in <strong>{{ event.osmname }}</strong>
                                     {% endif %}
                                     {% if event.startdate and event.enddate %}
                                         between <strong>{{ event.startdate }}</strong> and <strong>{{ event.enddate }}</strong>
@@ -132,7 +132,7 @@
             $(document).ready(function(){
                 var center_x = {{ sites.0.coordinates.get_value.value.x }};
                 var center_y = {{ sites.0.coordinates.get_value.value.y }};
-                var map = L.map('geoname_map').setView([center_y, center_x], 10);
+                var map = L.map('osm_map').setView([center_y, center_x], 10);
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             { attribution: attribution, detectRetina: true }).addTo(map);

@@ -74,12 +74,82 @@ class Command(BaseCommand):
                 self.downloadBoundaries(country)
 
             if import_only:
-                # self.importPBF(country)
+                self.importPBF(country)
                 self.importBoundaries(country)
-    
-    def transform(self):
-        pass
+        
+            self.createCombinedTable()
+        
+    def makeSearchIndex(self):
+        alter = ''' 
+            ALTER TABLE osm_data ADD COLUMN search_index tsvector
+        '''
+        
+        self.executeTransaction(alter)
 
+        search = ''' 
+            UPDATE osm_data SET
+              search_index = s.search
+            FROM (
+              SELECT
+                id,
+                to_tsvector('english', COALESCE(name, '')) AS search
+              FROM osm_data
+            ) AS s
+            WHERE osm_data.id = s.id
+        '''
+        
+        self.executeTransaction(search)
+
+    def createCombinedTable(self, country):
+        
+        create = ''' 
+            CREATE TABLE osm_data AS
+              SELECT 
+                *,
+                'boundary'::VARCHAR AS feature_type
+              FROM osm_boundaries
+              UNION
+              SELECT
+                osm_id,
+                name AS localname,
+                NULL::VARCHAR[] AS hierarchy,
+                NULL::jsonb AS tags,
+                admin_level::integer,
+                name AS name,
+                ST_Transform(way, 4326) AS geometry,
+                country_code,
+                'point'::VARCHAR AS feature_type,
+              FROM osm_points
+              WHERE place IS NOT NULL
+        '''
+        
+        self.executeTransaction('DROP TABLE IF NOT EXISTS osm_data')
+        self.executeTransaction(sa.text(create), country['country_code'])
+        
+        update = ''' 
+            UPDATE osm_data SET
+              hierarchy = s.hierarchy
+            FROM (
+              SELECT 
+                (array_append(array_agg(b.id ORDER BY b.admin_level DESC), 0::bigint))[2:10] AS hierarchy,
+                a.id
+              FROM osm_data AS a
+              JOIN (
+                SELECT 
+                  id, 
+                  geometry, 
+                  admin_level 
+                FROM osm_data
+                WHERE feature_type = 'boundary'
+              ) AS b
+                ON ST_Within(a.geometry, b.geometry)
+              GROUP BY a.id
+            ) AS s
+            WHERE osm_data.id = s.id
+        '''
+
+        self.executeTransaction(update)
+        
     def importPBF(self, country):
         
         DB_NAME = settings.DATABASES['default']['NAME']
@@ -115,6 +185,9 @@ class Command(BaseCommand):
                 self.executeTransaction('DROP TABLE {}'.format(table))
             else:
                 self.executeTransaction('ALTER TABLE planet_osm_point RENAME TO osm_points')
+                self.executeTranscation('ALTER TABLE osm_points ADD COLUMN country_code VARCHAR')
+                self.executeTransaction(sa.text('UPDATE osm_points SET country_code = :code'), code=country['country_code'])
+
 
     
     def importBoundaries(self, country):
@@ -126,7 +199,8 @@ class Command(BaseCommand):
                 hierarchy VARCHAR[],
                 tags JSONB,
                 admin_level INTEGER,
-                name VARCHAR
+                name VARCHAR,
+                country_code VARCHAR
             )
         '''
         
@@ -145,7 +219,8 @@ class Command(BaseCommand):
               tags,
               admin_level,
               name,
-              geometry
+              geometry,
+              country_code
             ) 
               SELECT
                 :id,
@@ -154,7 +229,8 @@ class Command(BaseCommand):
                 :tags,
                 :admin_level,
                 :name,
-                ST_SetSRID(ST_GeomFromGeoJSON(:geometry), 4326)
+                ST_SetSRID(ST_GeomFromGeoJSON(:geometry), 4326),
+                :country_code
         '''
         
         inserts = []
@@ -178,6 +254,7 @@ class Command(BaseCommand):
                         'tags': json.dumps(feature['properties']['tags']),
                         'admin_level': feature['properties']['admin_level'],
                         'name': feature['properties']['name'],
+                        'country_code': country['country_code'],
                     }
                     
                     inserts.append(insert)
