@@ -20,8 +20,8 @@ class Geosite(models.Model, BaseModel):
         self.adminlevel1 = ComplexFieldContainer(self, GeositeAdminLevel1)
         self.adminlevel2 = ComplexFieldContainer(self, GeositeAdminLevel2)
         self.coordinates = ComplexFieldContainer(self, GeositeCoordinates)
-        self.geoname = ComplexFieldContainer(self, GeositeGeoname)
-        self.geonameid = ComplexFieldContainer(self, GeositeGeonameId)
+        self.osmname = ComplexFieldContainer(self, GeositeOSMName)
+        self.osmid = ComplexFieldContainer(self, GeositeOSMId)
         self.division_id = ComplexFieldContainer(self, GeositeDivisionId)
         
         self.first_cited = ComplexFieldContainer(self, GeositeFirstCited)
@@ -30,7 +30,7 @@ class Geosite(models.Model, BaseModel):
         self.open_ended = ComplexFieldContainer(self, GeositeOpenEnded)
 
         self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
-                               self.coordinates, self.geoname, self.geonameid, 
+                               self.coordinates, self.osmname, self.osmid, 
                                self.division_id]
 
         self.required_fields = ["Geosite_GeositeName"]
@@ -78,18 +78,18 @@ class GeositeCoordinates(ComplexField):
 
 @versioned
 @sourced
-class GeositeGeoname(ComplexField):
+class GeositeOSMName(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("GeoName name")
+    field_name = _("OSM name")
 
 
 @versioned
 @sourced
-class GeositeGeonameId(ComplexField):
+class GeositeOSMId(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.IntegerField(default=None, blank=True, null=True)
-    field_name = _("GeoName ID")
+    field_name = _("OSM ID")
 
 @versioned
 @sourced

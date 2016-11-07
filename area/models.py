@@ -16,15 +16,15 @@ class Area(models.Model, BaseModel):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, AreaName)
         self.code = ComplexFieldContainer(self, AreaCode)
-        self.geoname = ComplexFieldContainer(self, AreaGeoname)
-        self.geonameid = ComplexFieldContainer(self, AreaGeonameId)
+        self.osmname = ComplexFieldContainer(self, AreaOSMName)
+        self.osmid = ComplexFieldContainer(self, AreaOSMId)
         self.geometry = ComplexFieldContainer(self, AreaGeometry)
         self.division_id = ComplexFieldContainer(self, AreaDivisionId)
         
         self.first_cited = ComplexFieldContainer(self, AreaFirstCited)
         self.last_cited = ComplexFieldContainer(self, AreaLastCited)
 
-        self.complex_fields = [self.name, self.code, self.geoname, 
+        self.complex_fields = [self.name, self.code, self.osmname, 
                                self.geometry, self.division_id]
 
         self.required_fields = [
@@ -74,17 +74,17 @@ class AreaCode(ComplexField):
 
 @versioned
 @sourced
-class AreaGeoname(ComplexField):
+class AreaOSMName(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Geoname name")
+    field_name = _("OSM name")
 
 @versioned
 @sourced
-class AreaGeonameId(ComplexField):
+class AreaOSMId(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.IntegerField(default=None, blank=True, null=True)
-    field_name = _("Geoname id")
+    field_name = _("OSM ID")
 
 class Code(models.Model):
     value = models.TextField()

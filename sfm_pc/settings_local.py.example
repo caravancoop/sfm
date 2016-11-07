@@ -16,3 +16,5 @@ IMPORTER_USER = {
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+OSM_API_KEY = ''
