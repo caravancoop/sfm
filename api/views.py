@@ -216,9 +216,6 @@ class PeopleSearchView(JSONAPIView):
         
         people = self.orderPaginate(people)
         
-        print(people)
-        print(new_args)
-
         cursor = connection.cursor()
         cursor.execute(people, new_args)
         columns = [c[0] for c in cursor.description]
