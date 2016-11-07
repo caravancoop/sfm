@@ -1,5 +1,12 @@
 # Security Force Monitor: Backend
 
+## OS Level dependencies
+
+* Python 3.5
+* PostgreSQL 9.4+ 
+* PostGIS
+* osm2pgsql
+
 ## Development
 
     mkvirtualenv sfm
