@@ -402,7 +402,7 @@ def search(request):
         osm = get_osm_by_id(location)
         select = ''' 
             {select}
-            AND ST_Intersects(ST_Buffer_Meters({location}, {radius}), site)
+            AND ST_Intersects(ST_Buffer_Meters('{location}', {radius}), site)
         '''.format(select=select,
                    location=osm.geometry,
                    radius=(int(radius) * 1000))
