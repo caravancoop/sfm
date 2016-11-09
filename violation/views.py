@@ -145,7 +145,7 @@ class ViolationCreate(FormSetView):
                     'confidence': 1
                 },
                 'Violation_ViolationLocation': {
-                    'value': geo.location,
+                    'value': geo.geometry,
                     'sources': [source],
                     'confidence': 1
                 },
@@ -221,6 +221,12 @@ class ViolationUpdate(BaseUpdateView):
     form_class = ViolationForm
     success_url = reverse_lazy('dashboard')
     sourced = True
+    
+    def post(self, request, *args, **kwargs):
+
+        self.checkSource(request)
+        
+        return self.validateForm()
     
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -327,6 +333,10 @@ class ViolationUpdate(BaseUpdateView):
 
                 vpo_obj.sources.add(self.source)
                 vpo_obj.save()
+        
+        messages.add_message(self.request, 
+                             messages.INFO, 
+                             'Event saved!')
         
         return response
 

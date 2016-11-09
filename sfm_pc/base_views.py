@@ -76,6 +76,7 @@ class BaseUpdateView(FormView, UtilityMixin):
         if self.form.is_valid():
             return self.form_valid(self.form)
         else:
+            print(self.form.errors)
             return self.form_invalid(self.form)
     
 

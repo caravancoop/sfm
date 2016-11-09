@@ -50,7 +50,7 @@
                     {% endif %}
                             <label class="control-label col-sm-2">Geography type</label>
                             <div class="col-sm-8">
-                                <select id="id_form-{{ form_id }}-geography_type" class="form-control" name="form-{{ form_id }}-geography_type">
+                                <select id="id_form-{{ form_id }}-geography_type" class="geography-type form-control" name="form-{{ form_id }}-geography_type">
                                     <option value="">--------</option>
                                     {% for geo_type in form.fields.geography_type.choices %}
                                         {% if geo_type.0 == form.cleaned_data.geography_type %}
@@ -173,7 +173,7 @@
         <div class="form-group">
             <label class="control-label col-sm-2">Geography type</label>
             <div class="col-sm-8">
-                <select id="id_form-<%= form_id %>-geography_type" class="form-control" name="form-<%= form_id %>-geography_type">
+                <select id="id_form-<%= form_id %>-geography_type" class="geography-type form-control" name="form-<%= form_id %>-geography_type">
                     <option value="">--------</option>
                     {% for geo_type in geo_types %}
                         <option value="{{ geo_type.0 }}">{{ geo_type.1 }}</option>
@@ -230,7 +230,7 @@
         <% } else { %>
             <div class="col-sm-10 col-sm-offset-2">
         <% }%>
-            <h5><%= value %> <small>(OSM ID: <%= id %>, <%= code %>)</small></h5>
+            <h5><%= value %> <small>(OSM ID: <%= id %>, Admin level <%= admin_level %>)</small></h5>
         </div>
     </div>
 </script>
@@ -242,7 +242,21 @@ var osm_opts = {
         datType: 'json',
         delay: 250,
         data: function(params) {
-            return { q: params.term };
+            var selected_type = $(this).parent().parent().parent().find('select.geography-type').val();
+            var geo_type = null
+
+            if (selected_type == 'Site'){
+                geo_type = 'point';
+            } else if (selected_type == 'Area'){
+                geo_type = 'boundary';
+            }
+
+            var qparams = {q: params.term}
+
+            if (geo_type){
+                qparams['geo_type'] = geo_type;
+            }
+            return qparams;
         },
         cache: true,
         processResults: function(data, params) {
@@ -266,7 +280,7 @@ var osm_opts = {
 $(document).ready(function() {
     {% if formset.errors %}
         $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
-        $('.osmname-field').select2(osmname_opts);
+        $('.osm_id-field').select2(osm_opts);
     {% else %}
         addForm(null);
     {% endif %}
@@ -292,12 +306,12 @@ function addForm(e){
     var field_prefix = '#id_form-' + form_num
     var osmname_field =  field_prefix + '-osm_id';
 
-    $(osmname_field).select2(osmname_opts);
+    $(osmname_field).select2(osm_opts);
 
     $('#remove_form-' +  form_num).on('click', deleteForm);
 
     $(osmname_field).on('select2:select', function(e){
-        var value = e.params.data.text;
+        var value = e.params.data.value;
         $(osmname_field + '_text').val(value);
         if (isNaN($(osmname_field + ' :selected').attr('value'))) {
             $(oamname_field + ' :selected').attr('value','-1');

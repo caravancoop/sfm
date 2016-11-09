@@ -19,12 +19,12 @@ from extra_views import FormSetView
 from source.models import Source
 from geosite.models import Geosite
 from emplacement.models import Emplacement
-from area.models import Area
+from area.models import Area, Code
 from association.models import Association
 from organization.forms import OrganizationForm, OrganizationGeographyForm
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias, OrganizationClassification, Classification
-from sfm_pc.utils import deleted_in_str, get_osm_by_id
+from sfm_pc.utils import deleted_in_str, get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 class OrganizationDetail(DetailView):
@@ -218,7 +218,7 @@ class OrganizationUpdate(BaseUpdateView):
         self.aliases = request.POST.getlist('alias')
         self.classifications = request.POST.getlist('classification')
         
-        self.validateForm(request.POST)
+        return self.validateForm()
     
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -284,7 +284,11 @@ class OrganizationUpdate(BaseUpdateView):
             
             organization.organizationclassification_set = classifications
             organization.save()
-
+        
+        messages.add_message(self.request, 
+                             messages.INFO, 
+                             'Organization {} saved!'.format(form.cleaned_data['name_text']))
+        
         return response
 
     def get_context_data(self, **kwargs):
@@ -485,8 +489,6 @@ class OrganizationCreateGeography(BaseFormSetView):
                 
                 if created:
                     
-                    code_obj, created = Code.objects.get_or_create(value=code)
-                    
                     area_data = {
                         'Area_AreaName': {
                             'value': formset.data[form_prefix + 'name'],
@@ -508,13 +510,8 @@ class OrganizationCreateGeography(BaseFormSetView):
                             'confidence': 1,
                             'sources': [source]
                         },
-                        'Area_AreaCode': {
-                            'value': code_obj,
-                            'confidence': 1,
-                            'sources': [source]
-                        },
                         'Area_AreaGeometry': {
-                            'value': geometry,
+                            'value': geo.geometry,
                             'confidence': 1,
                             'sources': [source]
                         }

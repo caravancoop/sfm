@@ -19,6 +19,8 @@ from django.contrib.auth.models import User
 from reversion.models import Version
 from extra_views import FormSetView
 
+from countries_plus.models import Country
+
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, Alias as OAlias
 from person.models import Person, PersonAlias, Alias as PAlias
@@ -120,7 +122,9 @@ class Dashboard(TemplateView):
         
         context['org_geo_counts'] = OrderedDict()
         for row in c:
-            context['org_geo_counts'][get_osm_by_id(row[0])] = [Organization.objects.get(id=i) for i in row[1]]
+            osm_feature = get_osm_by_id(row[0])
+            organizations = [Organization.objects.get(id=i) for i in row[1]]
+            context['org_geo_counts'][osm_feature.id] = organizations
         
         c.execute(''' 
             SELECT g.value, array_agg(v.id) 
@@ -135,7 +139,9 @@ class Dashboard(TemplateView):
         
         context['event_geo_counts'] = OrderedDict()
         for row in c:
-            context['event_geo_counts'][get_osm_by_id(row[0])] = [Violation.objects.get(id=i) for i in row[1]]
+            osm_feature = get_osm_by_id(row[0])
+            violations = [Violation.objects.get(id=i) for i in row[1]]
+            context['event_geo_counts'][osm_feature.id] = violations
 
         return context
 
@@ -396,7 +402,7 @@ def search(request):
         osm = get_osm_by_id(location)
         select = ''' 
             {select}
-            AND ST_Intersects(ST_Buffer_Meters({location}, 4326), {radius}), site)
+            AND ST_Intersects(ST_Buffer_Meters({location}, {radius}), site)
         '''.format(select=select,
                    location=osm.geometry,
                    radius=(int(radius) * 1000))
@@ -443,16 +449,25 @@ def search(request):
 
 def osm_autocomplete(request):
     term = request.GET.get('q')
+    geo_type = request.GET.get('geo_type')
     
-    cursor = connection.cursor()
-    cursor.execute('''
+    q_args = [term]
+    
+    query = '''
         SELECT 
           *,
           ST_X(ST_Centroid(geometry)) AS longitude,
           ST_Y(ST_Centroid(geometry)) AS latitude
         FROM osm_data 
         WHERE plainto_tsquery('english', %s) @@ search_index
-    ''', [term])
+    '''
+    
+    if geo_type:
+        query = '{} AND feature_type = %s'.format(query)
+        q_args.append(geo_type)
+
+    cursor = connection.cursor()
+    cursor.execute(query, q_args)
     
     columns = [c[0] for c in cursor.description]
     results_tuple = namedtuple('OSMFeature', columns)
@@ -460,7 +475,7 @@ def osm_autocomplete(request):
     search_results = [results_tuple(*r) for r in cursor]
     
     results = []
-
+    
     for result in search_results:
         
         map_image = None
@@ -476,8 +491,10 @@ def osm_autocomplete(request):
             'value': result.name,
             'id': result.id,
             'map_image': map_image,
+            'type': result.feature_type,
+            'admin_level': result.admin_level,
         })
-        
+    
     results.sort(key=lambda x:x['text'])
     return HttpResponse(json.dumps(results),content_type='application/json')
 
@@ -488,7 +505,7 @@ def division_autocomplete(request):
     results = []
     for country in countries:
         results.append({
-            'text': '{0} (ocd-division/country:{1})'.format(str(country.name), country.code.lower()),
-            'id': 'ocd-division/country:{}'.format(country.code.lower()),
+            'text': '{0} (ocd-division/country:{1})'.format(str(country.name), country.iso.lower()),
+            'id': 'ocd-division/country:{}'.format(country.iso.lower()),
         })
     return HttpResponse(json.dumps(results), content_type='application/json')

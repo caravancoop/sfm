@@ -7,6 +7,8 @@ from django.core.urlresolvers import reverse_lazy
 
 from complex_fields.models import ComplexFieldContainer
 
+from countries_plus.models import Country
+
 from source.models import Source, Publication
 from source.forms import SourceForm
 
@@ -78,9 +80,17 @@ def source_autocomplete(request):
     
     results = []
     for source in sources:
+        
+        publication_title = ''
+        publication_country = ''
+
+        if source.publication:
+            publication_title = source.publication.title
+            publication_country = source.publication.country
+
         text = '{0} ({1} - {2})'.format(source.title,
-                                        source.publication.title,
-                                        source.publication.country)
+                                        publication_title,
+                                        publication_country)
         results.append({
             'text': text,
             'id': str(source.id),

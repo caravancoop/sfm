@@ -218,7 +218,7 @@ class PersonUpdate(BaseUpdateView):
         
         self.aliases = request.POST.getlist('alias')
 
-        self.validateForm()
+        return self.validateForm()
     
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -234,7 +234,7 @@ class PersonUpdate(BaseUpdateView):
             'Person_PersonDivisionId': {
                 'value': form.cleaned_data['division_id'],
                 'confidence': 1,
-                'sources': [self.sourcesList(person, 'division_id')]
+                'sources': self.sourcesList(person, 'division_id')
             }
         }
         
@@ -249,8 +249,12 @@ class PersonUpdate(BaseUpdateView):
                                                                     value=alias_obj,
                                                                     lang=get_language())
                 
-                pa_obj.sources.add(source)
+                pa_obj.sources.add(self.source)
                 pa_obj.save()
+        
+        messages.add_message(self.request, 
+                             messages.INFO, 
+                             'Person {} saved!'.format(form.cleaned_data['name_text']))
 
         return response
 

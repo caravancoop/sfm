@@ -96,7 +96,7 @@
                             {% for emplacement in object.emplacementorganization_set.all %}
                                 {% with site=emplacement.object_ref.site.get_value.value %}
                                     {% if site.adminlevel1.get_value %}
-                                        {{ site.adminlevel1.get_value }}
+                                        <a target="_blank" href="https://www.openstreetmap.org/search?query={{ site.adminlevel1.get_value }}">{{ site.adminlevel1.get_value }}</a>
                                     {% endif %}
                                 {% endwith %}
                                 {% if not forloop.last %}<br />{% endif %}

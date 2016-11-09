@@ -133,23 +133,25 @@
                 {% endif %}
             </div>
         </div>
-        {% if form.geoname.errors %}
+        {% if form.osm_id.errors %}
             <div class="form-group has-error has-feedback">
         {% else %}
             <div class="form-group">
         {% endif %}
-                <label class="control-label col-sm-2" for="id_geoname">Location</label>
+                <label class="control-label col-sm-2" for="id_osm_id">Location</label>
                 <div class="col-sm-8">
-                    <select class="form-control" class="geoname-field" id="id_geoname" name="geoname">
-                        {% if geoname %}
-                            <option value="{{ geoname.id }}" selected=true>{{ geoname.name }}</option>
+                    <select class="form-control" class="osm_id-field" id="id_osm_id" name="osm_id">
+                        {% if osm %}
+                            <option value="{{ osm.id }}" selected=true>{{ osm.name }}</option>
                         {% endif %}
                     </select>
-                    {% if form.geoname.errors %}
-                       {% for error in form.geoname.errors %}
+                    {% if form.osm_id.errors %}
+                       {% for error in form.osm_id.errors %}
                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                        {% endfor %}
                     {% endif %}
+                    <input type="hidden" name="osm_id_text" id="id_osm_id_text" value="{{ osm.name }}" />
+                    <input type="hidden" name="geotype" id="id_geotype" value="{{ osm.feature_type }}" />
                 </div>
             </div>
         {% if form.locationdescription.errors %}
@@ -176,9 +178,9 @@
 <script src="{% static "js/select2.min.js" %}"></script>
 <script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/javascript">
-    var geoname_opts = {
+    var osm_opts = {
         ajax: {
-            url: "{% url 'geoname-autocomplete' %}",
+            url: "{% url 'osm-autocomplete' %}",
             datType: 'json',
             delay: 250,
             data: function(params) {
@@ -263,45 +265,43 @@
         minimumInputLength: 2
     }
 
+    function multipleSelect(e){
+        var value = e.params.data.text;
+        var name = $(e.target).prop('name') + '_text';
+        var form_id = $(e.target).prop('name').split('-')[1]
+        var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
+        $('#org-form').append(hidden_input);
+    }
+
+    function multipleUnSelect(e){
+        var value = e.params.data.text;
+        var inputs = $('#org-form').find('input[value="'+ value + '"]');
+        var form_id = $(e.target).prop('name').split('-')[1]
+
+        $.each(inputs, function(i, input){
+            if ($(input).data('form_id') == form_id){
+                $(input).remove();
+            }
+        })
+
+    }
+
     $(document).ready(function(){
         $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy", endDate: "0d"});
         $('#id_vtype').select2();
         $('#id_perpetrators').select2(perp_opts);
         $('#id_orgs').select2(org_opts);
-        $('#id_geoname').select2(geoname_opts);
+        $('#id_osm_id').select2(osm_opts);
         $('#id_source').select2(source_opts);
 
-        $('#id_orgs').on('select2:select', function(e){
-            var value = e.params.data.text;
-            var name = $(e.target).prop('name') + '_text';
-            var hidden_input = '<input type="hidden" value="' + value + '" name="' + name + '" />';
-            $('form').append(hidden_input);
-        });
+        $('#id_osm_id').on('select2:select', multipleSelect);
+        $('#id_osm_id').on('select2:select', multipleUnSelect);
 
-        $('#id_orgs').on('select2:unselect', function(e){
-            var value = e.params.data.text;
-            var inputs = $('form').find('input[value="'+ value + '"]');
+        $('#id_orgs').on('select2:select', multipleSelect);
+        $('#id_orgs').on('select2:unselect', multipleUnSelect);
 
-            $.each(inputs, function(i, input){
-                $(input).remove();
-            })
-        });
-
-        $('#id_perpetrators').on('select2:select', function(e){
-            var value = e.params.data.text;
-            var name = $(e.target).prop('name') + '_text';
-            var hidden_input = '<input type="hidden" value="' + value + '" name="' + name + '" />';
-            $('form').append(hidden_input);
-        });
-
-        $('#id_perpetrators').on('select2:unselect', function(e){
-            var value = e.params.data.text;
-            var inputs = $('form').find('input[value="'+ value + '"]');
-
-            $.each(inputs, function(i, input){
-                $(input).remove();
-            })
-        });
+        $('#id_perpetrators').on('select2:select', multipleSelect);
+        $('#id_perpetrators').on('select2:unselect', multipleUnSelect);
     })
 
 </script>

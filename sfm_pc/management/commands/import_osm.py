@@ -84,9 +84,36 @@ class Command(BaseCommand):
             self.createCombinedTable(country)
         
     def createCombinedTable(self, country):
+        self.makeDataTable()
         self.makeRawTable(country)
         self.findNewRecords(country)
         self.insertNewRecords(country)
+        
+    def makeDataTable(self):
+        create = ''' 
+            CREATE TABLE IF NOT EXISTS osm_data (
+                id BIGINT,
+                localname VARCHAR,
+                hierarchy VARCHAR[],
+                tags JSONB,
+                admin_level INTEGER,
+                name VARCHAR,
+                country_code VARCHAR,
+                feature_type VARCHAR,
+                search_index tsvector,
+                PRIMARY KEY (id)
+            )
+        '''
+        
+        self.executeTransaction(sa.text(create))
+        
+        self.executeTransaction("""
+            SELECT AddGeometryColumn ('public', 'osm_data', 'geometry', 4326, 'GEOMETRY', 2)
+        """, raise_exc=False)
+        
+        self.executeTransaction("""
+            CREATE INDEX ON osm_data USING GIST (geometry)
+        """, raise_exc=False)
     
     def makeRawTable(self, country):
         create = '''
@@ -147,30 +174,6 @@ class Command(BaseCommand):
         self.executeTransaction(insert)
 
     def insertNewRecords(self, country):
-        create = ''' 
-            CREATE TABLE IF NOT EXISTS osm_data (
-                id BIGINT,
-                localname VARCHAR,
-                hierarchy VARCHAR[],
-                tags JSONB,
-                admin_level INTEGER,
-                name VARCHAR,
-                country_code VARCHAR,
-                feature_type VARCHAR,
-                search_index tsvector,
-                PRIMARY KEY (id)
-            )
-        '''
-        
-        self.executeTransaction(sa.text(create))
-        
-        self.executeTransaction("""
-            SELECT AddGeometryColumn ('public', 'osm_data', 'geometry', 4326, 'GEOMETRY', 2)
-        """, raise_exc=False)
-        
-        self.executeTransaction("""
-            CREATE INDEX ON osm_data USING GIST (geometry)
-        """, raise_exc=False)
         
         update_data = ''' 
             INSERT INTO osm_data (

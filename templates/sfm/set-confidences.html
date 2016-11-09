@@ -34,7 +34,31 @@
                                 </div>
                             </td>
                             <td>{{ relation.property }}</td>
-                            <td>{{ relation.value }}</td>
+                            {% if relation.value.geom_type %}
+                                <td>
+                                    <div id="{{ relation.property|slugify }}-map" style="height:200px;"></div>
+                                    {% block extra_head %}
+                                         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+                                    {% endblock %}
+                                    <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+                                    <script type="text/javascript">
+                                        $(document).ready(function(){
+                                            var geom = {{ relation.value.geojson|safe }};
+                                            var map = L.map('{{ relation.property|slugify }}-map');
+                                            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                                        { attribution: attribution, detectRetina: true }).addTo(map);
+                                            var geom_layer = L.geoJSON(geom).addTo(map);
+                                            map.fitBounds(geom_layer.getBounds());
+                                            {% if relation.value.geom_type == 'Point' %}
+                                                map.setZoom(10);
+                                            {% endif %}
+                                        })
+                                    </script>
+                                </td>
+                            {% else %}
+                                <td>{{ relation.value }}</td>
+                            {% endif %}
                             <td>
                                 {% if relation.additional_sources %}
                                 <table class="table table-condensed">
