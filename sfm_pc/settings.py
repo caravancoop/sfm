@@ -195,5 +195,12 @@ OSM_DATA = [
         'osm_id': '192787',
         'boundary_url': 'https://osm.wno-edv-service.de/boundaries/exportBoundaries',
         'country_code': 'ng',
-    }
+    },
+    {
+        'country': 'Mexico',
+        'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
+        'osm_id': '114686',
+        'boundary_url': 'https://osm.wno-edv-service.de/boundaries/exportBoundaries',
+        'country_code': 'mx',
+    },
 ]

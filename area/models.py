@@ -59,7 +59,7 @@ class AreaName(ComplexField):
 @sourced_optional
 class AreaGeometry(ComplexField):
     object_ref = models.ForeignKey('Area')
-    value = models.PolygonField(default=None, blank=True, null=True)
+    value = models.MultiPolygonField(default=None, blank=True, null=True)
     objects = models.GeoManager()
     field_name = _("Location geometry")
 
@@ -83,7 +83,7 @@ class AreaOSMName(ComplexField):
 @sourced
 class AreaOSMId(ComplexField):
     object_ref = models.ForeignKey('Area')
-    value = models.IntegerField(default=None, blank=True, null=True)
+    value = models.BigIntegerField(default=None, blank=True, null=True)
     field_name = _("OSM ID")
 
 class Code(models.Model):

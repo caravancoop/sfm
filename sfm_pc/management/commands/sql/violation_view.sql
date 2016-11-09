@@ -6,8 +6,8 @@ CREATE OR REPLACE VIEW violation AS
     vvld.value AS location_description,
     vval1.value AS admin_level_1,
     vval2.value AS admin_level_2,
-    vvg.value AS geoname,
-    vvgi.value AS geoname_id,
+    vvg.value AS osmname,
+    vvgi.value AS osm_id,
     vvdi.value AS division_id,
     vvl.value AS location,
     vvd.value AS description,
@@ -26,9 +26,9 @@ CREATE OR REPLACE VIEW violation AS
     ON vv.id = vval1.object_ref_id
   LEFT JOIN violation_violationadminlevel2 AS vval2
     ON vv.id = vval2.object_ref_id
-  LEFT JOIN violation_violationgeoname AS vvg
+  LEFT JOIN violation_violationosmname AS vvg
     ON vv.id = vvg.object_ref_id
-  LEFT JOIN violation_violationgeonameid AS vvgi
+  LEFT JOIN violation_violationosmid AS vvgi
     ON vv.id = vvgi.object_ref_id
   LEFT JOIN violation_violationdivisionid AS vvdi
     ON vv.id = vvdi.object_ref_id

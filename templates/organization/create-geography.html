@@ -82,16 +82,16 @@
                                 {% endif %}
                             </div>
                         </div>
-                    {% if form.osmname.errors %}
+                    {% if form.osm_id.errors %}
                         <div class="form-group has-error has-feedback">
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-osmname">OSM Name</label>
+                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-osm_id">OSM ID</label>
                             <div class="col-sm-8">
-                                <select class="form-control" class="osmname-field" id="id_form-{{ form_id }}-osmname" name="form-{{ form_id }}-osmname">
+                                <select class="form-control" class="osm_id-field" id="id_form-{{ form_id }}-osm_id" name="form-{{ form_id }}-osm_id">
                                     {% if form.cleaned_data.osmname %}
-                                        <option value="{{ form.cleaned_data.osmname }}" selected=true>{{ form.cleaned_data.osmname_text }}</option>
+                                        <option value="{{ form.cleaned_data.osm_id }}" selected=true>{{ form.cleaned_data.osm_id_text }}</option>
                                     {% endif %}
                                 </select>
                                 {% if form.osmname.errors %}
@@ -99,7 +99,7 @@
                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                    {% endfor %}
                                 {% endif %}
-                                <input type="hidden" name="form-{{ form_id }}-osmname_text" id="id_form-{{ form_id }}-osmname_text" value="{{ form.cleaned_data.osmname_text }}" />
+                                <input type="hidden" name="form-{{ form_id }}-osm_id_text" id="id_form-{{ form_id }}-osm_id_text" value="{{ form.cleaned_data.osm_id_text }}" />
                                 <input type="hidden" name="form-{{ form_id }}-geotype" id="id_form-{{ form_id }}-geotype" value="{{ form.cleaned_data.geotype }}" />
                             </div>
                         </div>
@@ -190,8 +190,8 @@
         <div class="form-group">
             <label class="control-label col-sm-2" for="id_form-<%= form_id %>-osmname">OSM Name</label>
             <div class="col-sm-8">
-                <select class="form-control" id="id_form-<%= form_id %>-osmname" name="form-<%= form_id %>-osmname"></select>
-                <input type="hidden" name="form-<%= form_id %>-osmname_text" id="id_form-<%= form_id %>-osmname_text" />
+                <select class="form-control" id="id_form-<%= form_id %>-osm_id" name="form-<%= form_id %>-osm_id"></select>
+                <input type="hidden" name="form-<%= form_id %>-osm_id_text" id="id_form-<%= form_id %>-osm_id_text" />
                 <input type="hidden" name="form-<%= form_id %>-geotype" id="id_form-<%= form_id %>-geotype" />
             </div>
         </div>
@@ -218,7 +218,7 @@
         <hr />
     </div>
 </script>
-<script type="textEJS" id="osmnameResult">
+<script type="textEJS" id="osmResult">
     <div class="row">
         <% if(map_image) { %>
             <div class="col-sm-2">
@@ -236,9 +236,9 @@
 </script>
 <script type="text/javascript">
 var form_num = 0;
-var osmname_opts = {
+var osm_opts = {
     ajax: {
-        url: "{% url 'osmname-autocomplete' %}",
+        url: "{% url 'osm-autocomplete' %}",
         datType: 'json',
         delay: 250,
         data: function(params) {
@@ -259,7 +259,7 @@ var osmname_opts = {
         if (data.loading){
             return data.text;
         }
-        var template = new EJS({'text': $('#osmnameResult').html()});
+        var template = new EJS({'text': $('#osmResult').html()});
         return template.render(data);
     }
 };
@@ -290,7 +290,7 @@ function addForm(e){
     $('#dynamic-form-wrapper').append(form_guts);
 
     var field_prefix = '#id_form-' + form_num
-    var osmname_field =  field_prefix + '-osmname';
+    var osmname_field =  field_prefix + '-osm_id';
 
     $(osmname_field).select2(osmname_opts);
 

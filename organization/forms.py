@@ -21,8 +21,8 @@ class OrganizationForm(forms.Form):
 class OrganizationGeographyForm(forms.Form):
     geography_type = forms.ChoiceField(choices=(('Site','Site'),('Area','Area'),), error_messages={'required': _('Geography type is required')})
     name = forms.CharField(error_messages={'required': _('Name is required')})
-    geoname = forms.CharField(error_messages={'required': _('Geoname is required')})
-    geoname_text = forms.CharField()
+    osm_id = forms.CharField(error_messages={'required': _('OSM ID is required')})
+    osm_id_text = forms.CharField()
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
     org = forms.CharField()

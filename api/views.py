@@ -22,8 +22,8 @@ class OrganizationSearchView(JSONAPIView):
             'operators': ['in'],
             'validator': None,
         },
-        'geonames_id': {
-            'field': 'geoname_id',
+        'osm_id': {
+            'field': 'osm_id',
             'operators': ['eq'],
             'validator': integerValidator,
         },
@@ -142,8 +142,8 @@ class PeopleSearchView(JSONAPIView):
             'operators': ['in'],
             'validator': None,
         },
-        'geonames_id': {
-            'field': 'geoname_id',
+        'osm_id': {
+            'field': 'osm_id',
             'operators': ['eq'],
             'validator': integerValidator,
         },
@@ -231,8 +231,8 @@ class EventSearchView(JSONAPIView):
             'operators': ['gte', 'lte'],
             'validator': dateValidator,
         },
-        'geonames_id': {
-            'field': 'geoname_id',
+        'osm_id': {
+            'field': 'osm_id',
             'operators': ['eq'],
             'validator': integerValidator,
         },
@@ -298,8 +298,8 @@ class EventSearchView(JSONAPIView):
               MAX(v.location_description) AS location_description,
               MAX(v.admin_level_1) AS admin_level_1,
               MAX(v.admin_level_2) AS admin_level_2,
-              MAX(v.geoname) AS geoname,
-              MAX(v.geoname_id) AS geoname_id,
+              MAX(v.osmname) AS osm_name,
+              MAX(v.osm_id) AS osm_id,
               MAX(p.name) AS perpetrator_name,
               array_agg(DISTINCT TRIM(v.perpetrator_classification)) AS perpetrator_classification,
               array_agg(DISTINCT TRIM(v.violation_type)) AS violation_types,
@@ -328,7 +328,7 @@ class EventSearchView(JSONAPIView):
 
         return context
 
-class GeonameAutoView(JSONAPIView):
+class OSMAutoView(JSONAPIView):
     
     safe = False
     required_params = ['q']
@@ -348,14 +348,14 @@ class GeonameAutoView(JSONAPIView):
         classification = self.request.GET.get('classification')
         bbox = self.request.GET.get('bbox')
 
-        geonames = ''' 
+        osm = ''' 
             SELECT
-              geonameid AS id,
+              id,
               name,
               alternatenames,
-              feature_code AS classification,
+              admin_level AS classification,
               ST_AsGeoJSON(location)::json AS location
-            FROM geonames
+            FROM osm_data
             WHERE plainto_tsquery('english', %s) @@ search_index
             AND country_code = %s
         '''
@@ -363,18 +363,18 @@ class GeonameAutoView(JSONAPIView):
         args = [q, kwargs['id'].upper()]
 
         if classification:
-            geonames = '{} AND feature_code = %s'.format(geonames)
+            osm = '{} AND admin_level = %s'.format(osm)
             args.append(classification)
 
         if bbox:
-            geonames = '''
+            osm = '''
                 {} ST_Within(location,  
                              ST_MakeEnvelope(%s, %s, %s, %s, 4326))
-            '''.format(geonames)
+            '''.format(osm)
             args.extend(bbox.split(','))
         
         cursor = connection.cursor()
-        cursor.execute(geonames, args)
+        cursor.execute(osm, args)
         columns = [c[0] for c in cursor.description]
         
         context = [self.makeFeature(r[4], dict(zip(columns, r))) for r in cursor]
@@ -473,8 +473,8 @@ class CountryMapView(JSONAPIView):
               MAX(v.location_description) AS location_description,
               MAX(v.admin_level_1) AS admin_level_1,
               MAX(v.admin_level_2) AS admin_level_2,
-              MAX(v.geoname) AS geoname,
-              MAX(v.geoname_id) AS geoname_id,
+              MAX(v.osmname) AS osm_name,
+              MAX(v.osm_id) AS osm_id,
               MAX(v.division_id) AS division_id,
               ST_ASGeoJSON(MAX(v.location))::json AS location,
               MAX(v.description) AS description,
@@ -536,8 +536,8 @@ class CountryEventsView(JSONAPIView):
               MAX(v.location_description) AS location_description,
               MAX(v.admin_level_1) AS admin_level_1,
               MAX(v.admin_level_2) AS admin_level_2,
-              MAX(v.geoname) AS geoname,
-              MAX(v.geoname_id) AS geoname_id,
+              MAX(v.osmname) AS osm_name,
+              MAX(v.osm_id) AS osm_id,
               MAX(v.division_id) AS division_id,
               ST_ASGeoJSON(MAX(v.location))::json AS location,
               MAX(p.name) AS perpetrator_name,
@@ -584,8 +584,8 @@ class EventDetailView(JSONAPIView):
               MAX(v.location_description) AS location_description,
               MAX(v.admin_level_1) AS admin_level_1,
               MAX(v.admin_level_2) AS admin_level_2,
-              MAX(v.geoname) AS geoname,
-              MAX(v.geoname_id) AS geoname_id,
+              MAX(v.osmname) AS osm_name,
+              MAX(v.osm_id) AS osm_id,
               MAX(v.division_id) AS division_id,
               ST_ASGeoJSON(MAX(v.location))::json AS location,
               MAX(v.description) AS description,

@@ -88,7 +88,7 @@ class GeositeOSMName(ComplexField):
 @sourced
 class GeositeOSMId(ComplexField):
     object_ref = models.ForeignKey('Geosite')
-    value = models.IntegerField(default=None, blank=True, null=True)
+    value = models.BigIntegerField(default=None, blank=True, null=True)
     field_name = _("OSM ID")
 
 @versioned

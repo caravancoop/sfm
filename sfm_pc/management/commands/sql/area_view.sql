@@ -3,8 +3,8 @@ CREATE OR REPLACE VIEW area AS
     aa.id,
     aan.value AS name,
     ac.value AS code,
-    aag.value AS geoname,
-    aagi.value AS geonameid,
+    aag.value AS osmname,
+    aagi.value AS osmid,
     aagm.value AS geometry,
     aad.value AS division_id,
     aafc.value AS first_cited,
@@ -16,9 +16,9 @@ CREATE OR REPLACE VIEW area AS
     ON aa.id = aac.object_ref_id
   LEFT JOIN area_code AS ac
     ON aac.value_id = ac.id
-  LEFT JOIN area_areageoname AS aag
+  LEFT JOIN area_areaosmname AS aag
     ON aa.id = aag.object_ref_id
-  LEFT JOIN area_areageonameid AS aagi
+  LEFT JOIN area_areaosmid AS aagi
     ON aa.id = aagi.object_ref_id
   LEFT JOIN area_areageometry AS aagm
     ON aa.id = aagm.object_ref_id

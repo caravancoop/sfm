@@ -202,8 +202,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             SELECT DISTINCT ON (o.id)
               g.id,
               g.name AS location,
-              g.admin_level_1 AS admin_level_1_geonames_name,
-              g.geoname AS geonames_name,
+              g.admin_level_1 AS admin_level_1_osm_name,
+              g.osmname AS osm_name,
               g.first_cited AS date_first_cited,
               g.last_cited AS date_last_cited
             FROM organization AS o
@@ -232,8 +232,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             SELECT DISTINCT ON (o.id)
               o.id,
               a.name,
-              a.geoname AS geonames_name,
-              a.geonameid,
+              a.osmname AS osm_name,
+              a.osm_id,
               a.geometry
             FROM organization AS o
             JOIN association AS ass
@@ -285,8 +285,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 json_build_object('type', 'Feature',
                                   'id', g.id,
                                   'properties', json_build_object('location', g.name,
-                                                                  'geonames_name', g.geoname,
-                                                                  'admin_level_1_geonames_name', g.admin_level_1),
+                                                                  'osm_name', g.osmname,
+                                                                  'admin_level_1_osm_name', g.admin_level_1),
                                   'geometry', ST_AsGeoJSON(g.coordinates)::json) AS site_present
               FROM organization AS o
               LEFT JOIN emplacement AS e

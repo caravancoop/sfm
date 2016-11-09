@@ -32,7 +32,7 @@ from countries_plus.models import Country
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName
-from sfm_pc.utils import import_class, get_geoname_by_id, get_hierarchy_by_id
+from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import UtilityMixin
 from geosite.models import Geosite
 from emplacement.models import Emplacement
@@ -233,12 +233,12 @@ class Command(UtilityMixin, BaseCommand):
         }
         
         area_positions = {
-            'Geoname': {
+            'OSMName': {
                 'value': 44,
                 'confidence': 48,
                 'source': 47,
             },
-            'GeonameId': {
+            'OSMId': {
                 'value': 45,
                 'confidence': 48,
                 'source': 47,
@@ -256,12 +256,12 @@ class Command(UtilityMixin, BaseCommand):
         }
         
         site_positions = {
-            'Geoname': {
+            'OSMName': {
                 'value': 27,
                 'confidence': 30,
                 'source': 29,
             },
-            'GeonameId': {
+            'OSMId': {
                 'value': 28,
                 'confidence': 30,
                 'source': 29,
@@ -341,27 +341,27 @@ class Command(UtilityMixin, BaseCommand):
 
                 # Create Emplacements
                 try:
-                    site_geoname_id = org_data[site_positions['GeonameId']['value']]
+                    site_osm_id = org_data[site_positions['OSMId']['value']]
                 except IndexError:
-                    # self.log_error('No Site Geoname info for {}'.format(organization.name))
-                    site_geoname_id = None
+                    # self.log_error('No Site OSM info for {}'.format(organization.name))
+                    site_osm_id = None
 
-                if site_geoname_id:
+                if site_osm_id:
                     
-                    emplacement = self.make_emplacement(site_geoname_id, 
+                    emplacement = self.make_emplacement(site_osm_id, 
                                                         org_data, 
                                                         organization)
                 
                 # Create Areas
                 try:
-                    area_geoname_id = org_data[area_positions['GeonameId']['value']]
+                    area_osm_id = org_data[area_positions['OSMId']['value']]
                 except IndexError:
-                    # self.log_error('No Area Geoname info for {}'.format(organization.name))
-                    area_geoname_id = None
+                    # self.log_error('No Area OSM info for {}'.format(organization.name))
+                    area_osm_id = None
 
-                if area_geoname_id:
+                if area_osm_id:
 
-                    area = self.make_area(area_geoname_id,
+                    area = self.make_area(area_osm_id,
                                           org_data,
                                           organization)
 
@@ -592,9 +592,9 @@ class Command(UtilityMixin, BaseCommand):
             
             return None
     
-    def make_area(self, geoname_id, org_data, organization):
+    def make_area(self, osm_id, org_data, organization):
         positions = {
-            'Geoname': {
+            'OSMName': {
                 'confidence': 48,
                 'source': 47,
             },
@@ -614,9 +614,9 @@ class Command(UtilityMixin, BaseCommand):
         }
 
         try:
-            geo = get_geoname_by_id(geoname_id)
+            geo = get_osm_by_id(osm_id)
         except DataError:
-            self.log_error('Geoname ID for Area does not seem valid: {}'.format(geoname_id))
+            self.log_error('OSM ID for Area does not seem valid: {}'.format(osm_id))
             geo = None
         
 
@@ -626,47 +626,56 @@ class Command(UtilityMixin, BaseCommand):
             division_id = 'ocd-division/country:{}'.format(country_code)
 
             try:
-                area_confidence = self.get_confidence(org_data[positions['Geoname']['confidence']])
+                area_confidence = self.get_confidence(org_data[positions['OSMName']['confidence']])
             except (IndexError, KeyError):
-                self.log_error('Geoname for Area for {} does not have confidence'.format(organization.name))
+                self.log_error('OSMName for Area for {} does not have confidence'.format(organization.name))
                 return None
 
             try:
-                area_sources = self.create_sources(org_data[positions['Geoname']['source']])
+                area_sources = self.create_sources(org_data[positions['OSMName']['source']])
             except IndexError:
-                self.log_error('Geoname for Area for {} does not have source'.format(organization.name))
+                self.log_error('OSMName for Area for {} does not have source'.format(organization.name))
                 return None
             
             with reversion.create_revision():
-                area, created = Area.objects.get_or_create(areageonameid__value=geo.geonameid,
-                                                           areageoname__value=geo.name)
+                area, created = Area.objects.get_or_create(areaosmid__value=geo.id,
+                                                           areaosmname__value=geo.name)
                 reversion.set_user(self.user)
             
-
+            
             area_info = {
                 'Area_AreaName': {
                     'value': geo.name,
                     'confidence': area_confidence,
                     'sources': area_sources
                 },
-                'Area_AreaGeoname': {
+                'Area_AreaOSMName': {
                     'value': geo.name,
                     'confidence': area_confidence,
                     'sources': area_sources
                 },
-                'Area_AreaGeonameId': {
-                    'value': geo.geonameid,
+                'Area_AreaOSMId': {
+                    'value': geo.id,
                     'confidence': area_confidence,
                     'sources': area_sources
                 },
-                'Area_AreaGeonameId': {
+                'Area_AreaGeometry': {
+                    'value': geo.geometry,
+                    'confidence': area_confidence,
+                    'sources': area_sources
+                },
+                'Area_AreaDivisionId': {
                     'value': division_id,
                     'confidence': area_confidence,
                     'sources': area_sources
                 },
             }
             
-            area.update(area_info)
+            try:
+                area.update(area_info)
+            except TypeError:
+                # Probably means that the geometry is wrong
+                self.log_error('OSM ID "{0}" for area "{1}" does not seem to be a relation'.format(geo.id, geo.name))
 
             with reversion.create_revision():
                 assoc, created = Association.objects.get_or_create(associationorganization__value=organization.id,
@@ -682,12 +691,12 @@ class Command(UtilityMixin, BaseCommand):
 
 
     def make_emplacement(self, 
-                         geoname_id, 
+                         osm_id, 
                          org_data, 
                          organization):
         
         positions = {
-            'Geoname': {
+            'OSMName': {
                 'confidence': 30,
                 'source': 29,
             },
@@ -716,23 +725,23 @@ class Command(UtilityMixin, BaseCommand):
         }
         
         try:
-            geo = get_geoname_by_id(geoname_id)
+            geo = get_osm_by_id(osm_id)
         except DataError:
-            self.log_error('Geoname ID for Site does not seem valid: {}'.format(geoname_id))
+            self.log_error('OSMName ID for Site does not seem valid: {}'.format(osm_id))
             geo = None
         
         if geo:
             
-            hierarchy = get_hierarchy_by_id(geo.geonameid)
+            hierarchy = get_hierarchy_by_id(geo.id)
             
             admin1 = None
             admin2 = None
 
             if hierarchy:
                 for member in hierarchy:
-                    if member.feature_code == 'ADM1':
+                    if member.admin_level == 6:
                         admin1 = member.name
-                    elif member.feature_code == 'ADM2':
+                    elif member.admin_level == 4:
                         admin2 = member.name
             
             country_code = geo.country_code.lower()
@@ -740,51 +749,51 @@ class Command(UtilityMixin, BaseCommand):
             division_id = 'ocd-division/country:{}'.format(country_code)
             
             with reversion.create_revision():
-                site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.geonameid)
+                site, created = Geosite.objects.get_or_create(geositeosmid__value=geo.id)
                 reversion.set_user(self.user)
 
             site_data = {}
 
-            geoname_confidence = self.get_confidence(org_data[positions['Geoname']['confidence']])
-            geoname_sources = self.create_sources(org_data[positions['Geoname']['source']])
+            osm_confidence = self.get_confidence(org_data[positions['OSMName']['confidence']])
+            osm_sources = self.create_sources(org_data[positions['OSMName']['source']])
             
 
-            if geoname_confidence and geoname_sources:
-
+            if osm_confidence and osm_sources:
+                
                 site_data['Geosite_GeositeName'] = {
                     'value': geo.name,
-                    'confidence': geoname_confidence,
-                    'sources': geoname_sources,
+                    'confidence': osm_confidence,
+                    'sources': osm_sources,
                 }
-                site_data['Geosite_GeositeGeoname'] = {
+                site_data['Geosite_GeositeOSMName'] = {
                     'value': geo.name,
-                    'confidence': geoname_confidence,
-                    'sources': geoname_sources,
+                    'confidence': osm_confidence,
+                    'sources': osm_sources,
                 }
-                site_data['Geosite_GeositeGeonameId'] = {
-                    'value': geo.geonameid,
-                    'confidence': geoname_confidence,
-                    'sources': geoname_sources,
+                site_data['Geosite_GeositeOSMId'] = {
+                    'value': geo.id,
+                    'confidence': osm_confidence,
+                    'sources': osm_sources,
                 }
                 site_data['Geosite_GeositeDivisionId'] = {
                     'value': division_id,
-                    'confidence': geoname_confidence,
-                    'sources': geoname_sources,
+                    'confidence': osm_confidence,
+                    'sources': osm_sources,
                 }
                 site_data['Geosite_GeositeCoordinates'] = {
-                    'value': geo.location,
-                    'confidence': geoname_confidence,
-                    'sources': geoname_sources,
+                    'value': geo.geometry,
+                    'confidence': osm_confidence,
+                    'sources': osm_sources,
                 }
             
             else:
                 missing = []
-                if not geoname_confidence:
+                if not osm_confidence:
                     missing.append('confidence')
-                if not geoname_sources:
+                if not osm_sources:
                     missing.append('sources')
             
-                self.log_error('Geoname {0} did not have {1}'.format(geo.name, ', '.join(missing)))
+                self.log_error('OSM {0} did not have {1}'.format(geo.name, ', '.join(missing)))
             
             try:
                 admin1_confidence = self.get_confidence(org_data[positions['AdminLevel1']['confidence']])
@@ -828,8 +837,12 @@ class Command(UtilityMixin, BaseCommand):
                     'value': site_openended,
                 }
             
-            site.update(site_data)
-            
+            try:
+                site.update(site_data)
+            except TypeError:
+                # Probably means that the geometry is wrong
+                self.log_error('OSM ID "{0}" for site "{1}" does not seem to be a node'.format(geo.id, geo.name))
+
             with reversion.create_revision():
                 emplacement, created = Emplacement.objects.get_or_create(emplacementorganization__value=organization.id,
                                                                          emplacementsite__value=site.id)
@@ -844,20 +857,20 @@ class Command(UtilityMixin, BaseCommand):
             emp_data = {
                 'Emplacement_EmplacementOrganization': {
                     'value': organization,
-                    'confidence': geoname_confidence,
-                    'sources': geoname_sources,
+                    'confidence': osm_confidence,
+                    'sources': osm_sources,
                 },
                 'Emplacement_EmplacementSite': {
                     'value': site,
-                    'confidence': geoname_confidence,
-                    'sources': geoname_sources,
+                    'confidence': osm_confidence,
+                    'sources': osm_sources,
                 },
             }
             
             emplacement.update(emp_data)
         
         else:
-            self.log_error('Could not find GeonameID {}'.format(geoname_id))
+            self.log_error('Could not find OSM ID {}'.format(osm_id))
 
     def create_sources(self, sources_string):
         
@@ -1181,7 +1194,7 @@ class Command(UtilityMixin, BaseCommand):
                 'source': 14,
                 'model_field': 'violationdescription',
             },
-            'GeonameId': {
+            'OSMId': {
                 'value': 5,
                 'source': 14,
             },
@@ -1239,38 +1252,38 @@ class Command(UtilityMixin, BaseCommand):
                            violation)
        
         try:
-            sources = self.create_sources(event_data[positions['GeonameId']['source']])
+            sources = self.create_sources(event_data[positions['OSMId']['source']])
         except IndexError:
             self.log_error('Row seems to be blank')
             return None
         
-        # Make geoname stuff
+        # Make OSM stuff
         
         try:
-            geoname_id = event_data[positions['GeonameId']['value']]
+            osm_id = event_data[positions['OSMId']['value']]
         except IndexError:
-            geoname_id = None
+            osm_id = None
 
-        if geoname_id:
+        if osm_id:
             
             try:
-                geo = get_geoname_by_id(geoname_id)
+                geo = get_osm_by_id(osm_id)
             except DataError:
-                self.log_error('Geoname ID for Site does not seem valid: {}'.format(geoname_id))
+                self.log_error('OSM ID for Site does not seem valid: {}'.format(osm_id))
                 geo = None
             
 
             if geo:
-                hierarchy = get_hierarchy_by_id(geo.geonameid)
+                hierarchy = get_hierarchy_by_id(geo.id)
                 
                 admin1 = None
                 admin2 = None
 
                 if hierarchy:
                     for member in hierarchy:
-                        if member.feature_code == 'ADM1':
+                        if member.admin_level == 6:
                             admin1 = member.name
-                        elif member.feature_code == 'ADM2':
+                        elif member.admin_level == 4:
                             admin2 = member.name
                 
                 country_code = geo.country_code.lower()
@@ -1283,13 +1296,13 @@ class Command(UtilityMixin, BaseCommand):
                         'sources': sources,
                         'confidence': 1
                     },
-                    'Violation_ViolationGeoname': {
+                    'Violation_ViolationOSMName': {
                         'value': geo.name,
                         'sources': sources,
                         'confidence': 1
                     },
-                    'Violation_ViolationGeonameId': {
-                        'value': geo.geonameid,
+                    'Violation_ViolationOSMId': {
+                        'value': geo.id,
                         'sources': sources,
                         'confidence': 1
                     },
@@ -1299,7 +1312,7 @@ class Command(UtilityMixin, BaseCommand):
                         'confidence': 1
                     },
                     'Violation_ViolationLocation': {
-                        'value': geo.location,
+                        'value': geo.geometry,
                         'sources': sources,
                         'confidence': 1
                     },
