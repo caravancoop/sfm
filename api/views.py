@@ -4,6 +4,8 @@ from django.db import connection
 
 from api.base_views import JSONAPIView, dateValidator, integerValidator
 
+from sfm_pc.utils import get_org_hierarchy_by_id, get_child_orgs_by_id
+
 class OSMAutoView(JSONAPIView):
     
     safe = False
@@ -293,10 +295,11 @@ class OrganizationChartView(JSONAPIView):
     
     required_params = ['at']
     filter_fields = {}
-    safe = False
 
     def get_context_data(self, **kwargs):
         
+        context = {}
+
         organization_id = kwargs['id']
         when = self.request.GET['at']
         
@@ -306,25 +309,40 @@ class OrganizationChartView(JSONAPIView):
               MAX(o.name) AS name,
               array_agg(DISTINCT o.alias) AS other_names,
               COUNT(DISTINCT v.id) AS events_count,
-              array_agg(DISTINCT o.classification) AS classifications,
-              array_agg(DISTINCT c.parent_id) AS parent_ids
+              array_agg(DISTINCT o.classification) AS classifications
             FROM organization AS o
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
-            LEFT JOIN composition AS c
-              ON o.id = c.child_id
             WHERE o.id = %s
-              AND (c.start_date::date <= %s OR c.end_date::date >= %s)
             GROUP BY o.id
         '''
         
         cursor = connection.cursor()
 
-        q_args = [organization_id, when, when]
-        cursor.execute(query, q_args)
+        cursor.execute(query, [organization_id])
         columns = [c[0] for c in cursor.description]
         
-        context = [OrderedDict(zip(columns, r)) for r in cursor]
+        row = cursor.fetchone()
+        
+        if row:
+            context.update(self.makeOrganization(OrderedDict(zip(columns, row)), relationships=False))
+            context['parents'] = []
+            context['children'] = []
+            
+            parents = get_org_hierarchy_by_id(organization_id, when=when)
+            children = get_child_orgs_by_id(organization_id, when=when)
+
+            for parent in parents:
+                parent = self.makeOrganization(parent, 
+                                               relationships=False, 
+                                               simple=True)
+                context['parents'].append(parent)
+            
+            for child in children:
+                child = self.makeOrganization(child, 
+                                              relationships=False,
+                                              simple=True)
+                context['children'].append(child)
 
         return context
 

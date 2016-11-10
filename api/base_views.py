@@ -190,21 +190,26 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
             if hierarchy:
                 top = hierarchy[-1]
-                properties['root_name'] = top.name
-                properties['root_id'] = top.id
+                properties['root_name'] = top['name']
+                properties['root_id'] = top['id']
 
         current_commander = ''' 
-            SELECT DISTINCT ON (o.id)
+            SELECT 
               o.id,
-              p.name,
-              m.first_cited,
-              m.last_cited
+              MAX(p.name) AS name,
+              m.first_cited AS first_cited,
+              m.last_cited AS last_cited,
+              COUNT(DISTINCT v.id) AS events_count
             FROM organization AS o
             JOIN membershipperson AS m
               ON o.id = m.organization_id
             JOIN person AS p
               ON m.member_id = p.id
+            LEFT JOIN violation AS v
+              ON p.id = v.perpetrator_id
             WHERE o.id = %s
+              AND m.role = 'Commander'
+            GROUP BY o.id, m.first_cited, m.last_cited
             ORDER BY o.id, 
                      m.last_cited DESC, 
                      m.first_cited DESC

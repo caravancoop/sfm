@@ -1,6 +1,7 @@
 import re
 import importlib
 from collections import namedtuple
+import itertools
 
 from django.conf import settings
 from django.utils.translation import ugettext as _
@@ -109,35 +110,125 @@ def get_hierarchy_by_id(osm_id):
     
     return hierarchy
 
-def get_org_hierarchy_by_id(org_id):
+def get_org_hierarchy_by_id(org_id, when=None):
     hierarchy = ''' 
         WITH RECURSIVE children AS (
           SELECT 
             o.*,
             NULL::VARCHAR AS child_id, 
-            NULL::VARCHAR AS child_name 
+            NULL::VARCHAR AS child_name, 
+            NULL::DATE AS start_date,
+            NULL::DATE AS end_date
           FROM organization As o 
           WHERE id = %s 
           UNION 
           SELECT 
             o.*,
             h.child_id::VARCHAR AS child_id, 
-            children.name AS child_name 
+            children.name AS child_name, 
+            h.start_date::date,
+            h.end_date::date
           FROM organization AS o 
           JOIN composition AS h 
             ON o.id = h.parent_id 
           JOIN children 
             ON children.id = h.child_id
-        ) SELECT * FROM children;
+        ) SELECT * FROM children
     '''
     
+    q_args = [org_id]
+    if when:
+        hierarchy = '{} WHERE start_date <= %s OR end_date >= %s'.format(hierarchy)
+        q_args.extend([when, when])
+
     cursor = connection.cursor()
-    cursor.execute(hierarchy, [org_id])
+    cursor.execute(hierarchy, q_args)
     
     columns = [c[0] for c in cursor.description]
     results_tuple = namedtuple('Organization', columns)
 
-    hierarchy = [results_tuple(*r) for r in cursor]
+    hierarchy = [(idx, results_tuple(*r)) for idx, r in enumerate(cursor)]
+    
+    trimmed_hierarchy = []
+    
+    for org_id, orgs in itertools.groupby(hierarchy, key=lambda x: x[1].id):
+        group = list(orgs)
+        
+        lowest_index = min(g[0] for g in group)
+        orgs = [o[1] for o in group]
+        
+        trimmed = {
+            'id': org_id,
+            'name': orgs[0].name,
+            'other_names': list({o.alias.strip() for o in orgs if o.alias}),
+            'classifications': list({o.classification.strip() for o in orgs if o.classification}),
+            'division_id': orgs[0].division_id,
+            'child_id': orgs[0].child_id
+        }
+        trimmed_hierarchy.append((lowest_index, trimmed))
+
+    hierarchy = [i[1] for i in sorted(trimmed_hierarchy, key=lambda x: x[0])]
+    
+    return hierarchy
+
+def get_child_orgs_by_id(org_id, when=None):
+    hierarchy = ''' 
+        WITH RECURSIVE parents AS (
+          SELECT 
+            o.*,
+            NULL::VARCHAR AS parent_id, 
+            NULL::VARCHAR AS parent_name,
+            NULL::DATE AS start_date,
+            NULL::DATE AS end_date
+          FROM organization As o 
+          WHERE id = %s 
+          UNION 
+          SELECT 
+            o.*,
+            h.parent_id::VARCHAR AS parent_id, 
+            parents.name AS parent_name,
+            h.start_date::date,
+            h.end_date::date
+          FROM organization AS o 
+          JOIN composition AS h 
+            ON o.id = h.child_id 
+          JOIN parents 
+            ON parents.id = h.parent_id
+        ) SELECT * FROM parents
+    '''
+    
+    q_args = [org_id]
+    if when:
+        hierarchy = '{} WHERE start_date <= %s OR end_date >= %s'.format(hierarchy)
+        q_args.extend([when, when])
+
+    cursor = connection.cursor()
+    cursor.execute(hierarchy, q_args)
+    
+    columns = [c[0] for c in cursor.description]
+    results_tuple = namedtuple('Organization', columns)
+
+    hierarchy = [(idx, results_tuple(*r)) for idx, r in enumerate(cursor)]
+    
+    trimmed_hierarchy = []
+    
+    for org_id, orgs in itertools.groupby(hierarchy, key=lambda x: x[1].id):
+        group = list(orgs)
+        
+        lowest_index = min(g[0] for g in group)
+        orgs = [o[1] for o in group]
+        
+        trimmed = {
+            'id': org_id,
+            'name': orgs[0].name,
+            'other_names': list({o.alias.strip() for o in orgs if o.alias}),
+            'classifications': list({o.classification.strip() for o in orgs if o.classification}),
+            'division_id': orgs[0].division_id,
+            'parent_id': orgs[0].parent_id
+        }
+        trimmed_hierarchy.append((lowest_index, trimmed))
+
+    hierarchy = [i[1] for i in sorted(trimmed_hierarchy, key=lambda x: x[0])]
     
     return hierarchy
 
