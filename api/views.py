@@ -348,7 +348,58 @@ class OrganizationChartView(JSONAPIView):
 
 class OrganizationDetailView(JSONAPIView):
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = {}
+        
+        organization_id = kwargs['id']
+
+        query = ''' 
+            SELECT 
+              o.id,
+              MAX(o.name_value) AS name_value,
+              MAX(o.name_confidence) AS name_confidence,
+              json_agg(o.name_source) AS name_sources,
+              array_agg(DISTINCT TRIM(o.alias_value)) AS other_names_value,
+              MAX(o.alias_confidence) AS other_names_confidence,
+              json_agg(o.alias_source) AS other_names_sources,
+              array_agg(DISTINCT TRIM(o.classification_value)) AS classification_value,
+              MAX(o.classification_confidence) AS classification_confidence,
+              json_agg(o.classification_source) AS classifications_sources,
+              MAX(o.division_id) AS division_id,
+              COUNT(DISTINCT v.id) AS events_count
+            FROM organization_sources AS o
+            LEFT JOIN violation AS v
+              ON o.id = v.perpetrator_organization_id
+            WHERE o.id = %s
+            GROUP BY o.id
+        '''
+        
+        cursor = connection.cursor()
+        cursor.execute(query, [organization_id])
+        columns = [c[0] for c in cursor.description]
+
+        row = cursor.fetchone()
+        # if row:
+        #     organization = self.makeOrganization(dict(zip(columns, row)))
+        #     
+        #     prepared_org = {}
+
+        #     for k, v in organization.items():
+        #         
+        #         try:
+        #             first, last = k.split('_')
+        #         except ValueError:
+        #             prepared_org[k] = v
+        #             continue
+        #         if last not in ['sources', 'value', 'confidence']:
+        #             prepared_org[k] = v
+        #         else:
+        #             try:
+        #                 prepared_org[first]
+        #             except KeyError:
+
+
+
+    
         return context
 
 class PersonDetailView(JSONAPIView):

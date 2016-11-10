@@ -19,32 +19,16 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
     
-        all_views = [
-            'area',
-            'association',
-            'composition',
-            'emplacement',
-            'violation',
-            'geosite',
-            'membershipperson',
-            'organization',
-            'person',
-        ]
-        
         this_dir = os.path.abspath(os.path.dirname(__file__))
-        for view in all_views:
+        sql_dir = os.path.join(this_dir, 'sql')
+
+        for view in os.listdir(sql_dir):
             
-            file_path = os.path.join(this_dir, 'sql/{}_view.sql'.format(view))
+            file_path = os.path.join(sql_dir, view)
             
             with open(file_path) as f:
                 create = f.read()
         
-                c = connection.cursor()
-
-                try:
+                with connection.cursor() as c:
                     c.execute(create)
-                except ProgrammingError as e:
-                    print(e)
-                    self.stdout.write(self.style.ERROR('{} view already exists. If you want to recreate it use the --recreate flag'))
-
-                c.close()
+                    
