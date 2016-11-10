@@ -236,6 +236,8 @@ class Command(BaseCommand):
                                     '--cache-strategy',
                                     'sparse',
                                     '--slim',
+                                    '--cache',
+                                    '100',
                                     file_path], stdout=subprocess.PIPE)
         
         output, error = process.communicate()
