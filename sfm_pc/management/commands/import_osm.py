@@ -233,6 +233,8 @@ class Command(BaseCommand):
         process = subprocess.Popen(['osm2pgsql',
                                     '-d',
                                     DB_NAME,
+                                    '--cache-strategy',
+                                    'sparse',
                                     '--slim',
                                     file_path], stdout=subprocess.PIPE)
         
