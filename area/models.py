@@ -25,7 +25,8 @@ class Area(models.Model, BaseModel):
         self.last_cited = ComplexFieldContainer(self, AreaLastCited)
 
         self.complex_fields = [self.name, self.code, self.osmname, 
-                               self.geometry, self.division_id]
+                               self.geometry, self.division_id, self.osmid,
+                               self.first_cited, self.last_cited]
 
         self.required_fields = [
             "Area_AreaName",

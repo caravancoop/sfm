@@ -36,7 +36,7 @@ from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import UtilityMixin
 from geosite.models import Geosite
 from emplacement.models import Emplacement
-from area.models import Area
+from area.models import Area, AreaOSMId
 from association.models import Association
 from composition.models import Composition
 from person.models import Person
@@ -399,11 +399,6 @@ class Command(UtilityMixin, BaseCommand):
                         except Organization.DoesNotExist:
                             parent_organization = Organization.create(parent_org_info)
                         
-                        with reversion.create_revision():
-                            composition, created = Composition.objects.get_or_create(compositionparent__value=parent_organization,
-                                                                                     compositionchild__value=organization)
-                            reversion.set_user(self.user)
-                        
                         open_ended = org_data[composition_positions['OpenEnded']['value']]
 
                         comp_info = {
@@ -421,8 +416,12 @@ class Command(UtilityMixin, BaseCommand):
                                 'value': open_ended,
                             },
                         }
-
-                        composition.update(comp_info)
+                        
+                        try:
+                            composition = Composition.objects.get(compositionparent__value=parent_organization,
+                                                                  compositionchild__value=organization)
+                        except Composition.DoesNotExist:
+                            composition = Composition.create(comp_info)
 
                         self.make_relation('StartDate', 
                                            composition_positions['StartDate'], 
@@ -442,6 +441,7 @@ class Command(UtilityMixin, BaseCommand):
 
                     else:
                         self.log_error('Parent organization for {} does not have source or confidence'.format(organization.name))
+                
                 self.stdout.write(self.style.SUCCESS('Created {}'.format(organization.get_value())))
 
             else:
@@ -619,7 +619,7 @@ class Command(UtilityMixin, BaseCommand):
             self.log_error('OSM ID for Area does not seem valid: {}'.format(osm_id))
             geo = None
         
-
+        
         if geo:
             country_code = geo.country_code.lower()
             
@@ -636,12 +636,6 @@ class Command(UtilityMixin, BaseCommand):
             except IndexError:
                 self.log_error('OSMName for Area for {} does not have source'.format(organization.name))
                 return None
-            
-            with reversion.create_revision():
-                area, created = Area.objects.get_or_create(areaosmid__value=geo.id,
-                                                           areaosmname__value=geo.name)
-                reversion.set_user(self.user)
-            
             
             area_info = {
                 'Area_AreaName': {
@@ -672,23 +666,43 @@ class Command(UtilityMixin, BaseCommand):
             }
             
             try:
-                area.update(area_info)
-            except TypeError:
-                # Probably means that the geometry is wrong
-                self.log_error('OSM ID "{0}" for area "{1}" does not seem to be a relation'.format(geo.id, geo.name))
+                area = Area.objects.get(areaosmid__value=geo.id)
+                
+                try:
+                    area.update(area_info)
+                except TypeError:
+                    # Probably means that the geometry is wrong
+                    self.log_error('OSM ID "{0}" for area "{1}" does not seem to be a relation'.format(geo.id, geo.name))
 
-            with reversion.create_revision():
-                assoc, created = Association.objects.get_or_create(associationorganization__value=organization.id,
-                                                                   associationarea__value=area.id)
-                reversion.set_user(self.user)
+            except Area.DoesNotExist:
+                area = Area.create(area_info)
+
+            area_info = {
+                'Association_AssociationOrganization': {
+                    'value': organization,
+                    'confidence': area_confidence,
+                    'sources': area_sources
+                },
+                'Association_AssociationArea': {
+                    'value': area,
+                    'confidence': area_confidence,
+                    'sources': area_sources
+                },
+            }
             
+            try:
+                assoc = Association.objects.get(associationorganization__value=organization,
+                                                associationarea__value=area)
+                assoc.update(area_info)
+            except Association.DoesNotExist:
+                assoc = Association.create(area_info)
+
             for field_name, positions in relation_positions.items():
                 
                 self.make_relation(field_name, 
                                    positions, 
                                    org_data, 
                                    assoc)
-
 
     def make_emplacement(self, 
                          osm_id, 
@@ -842,18 +856,7 @@ class Command(UtilityMixin, BaseCommand):
             except TypeError:
                 # Probably means that the geometry is wrong
                 self.log_error('OSM ID "{0}" for site "{1}" does not seem to be a node'.format(geo.id, geo.name))
-
-            with reversion.create_revision():
-                emplacement, created = Emplacement.objects.get_or_create(emplacementorganization__value=organization.id,
-                                                                         emplacementsite__value=site.id)
-                reversion.set_user(self.user)
             
-            for field_name, positions in relation_positions.items():
-                
-                self.make_relation(field_name, 
-                                   positions, 
-                                   org_data, 
-                                   emplacement)
             emp_data = {
                 'Emplacement_EmplacementOrganization': {
                     'value': organization,
@@ -867,8 +870,19 @@ class Command(UtilityMixin, BaseCommand):
                 },
             }
             
-            emplacement.update(emp_data)
-        
+            try:
+                emplacement = Emplacement.objects.get(emplacementorganization__value=organization, 
+                                                      emplacementsite__value=site)
+            except Emplacement.DoesNotExist:
+                emplacement = Emplacement.create(emp_data)
+            
+            for field_name, positions in relation_positions.items():
+                
+                self.make_relation(field_name, 
+                                   positions, 
+                                   org_data, 
+                                   emplacement)
+            
         else:
             self.log_error('Could not find OSM ID {}'.format(osm_id))
 
@@ -1184,6 +1198,10 @@ class Command(UtilityMixin, BaseCommand):
                 'source': 14,
                 'model_field': 'violationlocationdescription',
             },
+            'DivisionId': {
+                'value': 8,
+                'source': 14,
+            },
             'Type': {
                 'value': 9,
                 'source': 14,
@@ -1263,6 +1281,8 @@ class Command(UtilityMixin, BaseCommand):
             osm_id = event_data[positions['OSMId']['value']]
         except IndexError:
             osm_id = None
+        
+        event_info = {}
 
         if osm_id:
             
@@ -1286,11 +1306,8 @@ class Command(UtilityMixin, BaseCommand):
                         elif member.admin_level == 4:
                             admin2 = member.name
                 
-                country_code = geo.country_code.lower()
                 
-                division_id = 'ocd-division/country:{}'.format(country_code)
-                
-                event_info = {
+                event_info.update({
                     'Violation_ViolationAdminLevel2': {
                         'value': admin2,
                         'sources': sources,
@@ -1306,20 +1323,27 @@ class Command(UtilityMixin, BaseCommand):
                         'sources': sources,
                         'confidence': 1
                     },
-                    'Violation_ViolationDivisionId': {
-                        'value': division_id,
-                        'sources': sources,
-                        'confidence': 1
-                    },
                     'Violation_ViolationLocation': {
                         'value': geo.geometry,
                         'sources': sources,
                         'confidence': 1
                     },
-                }
+                })
 
-                violation.update(event_info)
+        country_code = event_data[positions['DivisionId']['value']]
         
+        division_id = 'ocd-division/country:{}'.format(country_code)
+        
+        event_info.update({
+            'Violation_ViolationDivisionId': {
+                'value': division_id,
+                'sources': sources,
+                'confidence': 1,
+            }
+        })
+       
+        violation.update(event_info)
+
         # Record perpetrators
         
         try:

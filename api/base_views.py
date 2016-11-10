@@ -118,6 +118,19 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                     int(value)
                 except ValueError:
                     errors.append("'{}' is not a valid page number")
+
+            elif field == 'bbox':
+                coords = bbox.split(',')
+                
+                if len(coords) != 4:
+                    errors.append('"bbox" should be a comma separated list of four floats')
+                
+                for point in coords:
+                    
+                    try:
+                        float(point)
+                    except ValueError:
+                        errors.append('"{}" is not a valid value for a bbox'.format(point))
         
         if errors:
             response = HttpResponse(json.dumps({'errors': errors}), 
@@ -148,6 +161,16 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         except KeyError:
             pass
         
+        try:
+            del properties['geometry']
+        except KeyError:
+            pass
+        
+        try:
+            del properties['bbox']
+        except KeyError:
+            pass
+
         feature = {
             'type': 'Feature',
             'id': properties['id'],
@@ -157,7 +180,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
         return feature
     
-    def makeOrganization(self, properties, relationships=True):
+    def makeOrganization(self, properties, relationships=True, simple=False):
         
         if relationships:
             hierarchy = get_org_hierarchy_by_id(properties['id'])
@@ -198,64 +221,65 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         else:
             properties['current_commander'] = {}
         
-        site_present = ''' 
-            SELECT DISTINCT ON (o.id)
-              g.id,
-              g.name AS location,
-              g.admin_level_1 AS admin_level_1_osm_name,
-              g.osmname AS osm_name,
-              g.first_cited AS date_first_cited,
-              g.last_cited AS date_last_cited
-            FROM organization AS o
-            JOIN emplacement AS e
-              ON o.id = e.organization_id
-            JOIN geosite AS g
-              ON e.site_id = g.id
-            WHERE o.id = %s
-            ORDER BY o.id, 
-                     g.last_cited DESC, 
-                     g.first_cited DESC
-        '''
-        
-        cursor = connection.cursor()
-        cursor.execute(site_present, [properties['id']])
-        columns = [c[0] for c in cursor.description]
-        
-        row = cursor.fetchone()
-        
-        if row:
-            properties['site_current'] = dict(zip(columns, row))
-        else:
-            properties['site_current'] = {}
-        
-        area_present = ''' 
-            SELECT DISTINCT ON (o.id)
-              o.id,
-              a.name,
-              a.osmname AS osm_name,
-              a.osm_id,
-              a.geometry
-            FROM organization AS o
-            JOIN association AS ass
-              ON o.id = ass.organization_id
-            JOIN area AS a
-              ON ass.area_id = a.id
-            WHERE o.id = %s
-            ORDER BY o.id, 
-                     a.last_cited DESC, 
-                     a.first_cited DESC
-        '''
-        
-        cursor = connection.cursor()
-        cursor.execute(area_present, [properties['id']])
-        columns = [c[0] for c in cursor.description]
-        
-        row = cursor.fetchone()
-        
-        if row:
-            properties['area_current'] = dict(zip(columns, row))
-        else:
-            properties['area_current'] = {}
+        if not simple:
+            site_present = ''' 
+                SELECT DISTINCT ON (o.id)
+                  g.id,
+                  g.name AS location,
+                  g.admin_level_1 AS admin_level_1_osm_name,
+                  g.osmname AS osm_name,
+                  g.first_cited AS date_first_cited,
+                  g.last_cited AS date_last_cited
+                FROM organization AS o
+                JOIN emplacement AS e
+                  ON o.id = e.organization_id
+                JOIN geosite AS g
+                  ON e.site_id = g.id
+                WHERE o.id = %s
+                ORDER BY o.id, 
+                         g.last_cited DESC, 
+                         g.first_cited DESC
+            '''
+            
+            cursor = connection.cursor()
+            cursor.execute(site_present, [properties['id']])
+            columns = [c[0] for c in cursor.description]
+            
+            row = cursor.fetchone()
+            
+            if row:
+                properties['site_current'] = dict(zip(columns, row))
+            else:
+                properties['site_current'] = {}
+            
+            area_present = ''' 
+                SELECT DISTINCT ON (o.id)
+                  o.id,
+                  a.name,
+                  a.osmname AS osm_name,
+                  a.osmid,
+                  ST_AsGeoJSON(a.geometry)::json AS geometry
+                FROM organization AS o
+                JOIN association AS ass
+                  ON o.id = ass.organization_id
+                JOIN area AS a
+                  ON ass.area_id = a.id
+                WHERE o.id = %s
+                ORDER BY o.id, 
+                         a.last_cited DESC, 
+                         a.first_cited DESC
+            '''
+            
+            cursor = connection.cursor()
+            cursor.execute(area_present, [properties['id']])
+            columns = [c[0] for c in cursor.description]
+            
+            row = cursor.fetchone()
+            
+            if row:
+                properties['area_current'] = dict(zip(columns, row))
+            else:
+                properties['area_current'] = {}
 
         return properties
     
@@ -343,7 +367,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
         return properties
 
-    def makeEvent(self, properties):
+    def makeEvent(self, properties, simple=False):
         properties['violation_types'] = list(set(properties['violation_types']))
 
         perp_class = [c for c in list(set(properties['perpetrator_classification'])) if c]
@@ -356,7 +380,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         perp_orgs = []
         for org in properties['perpetrator_organization']:
             if org and org['id'] not in perp_org_ids:
-                structured_org = self.makeOrganization(org, relationships=False)
+                structured_org = self.makeOrganization(org, 
+                                                       relationships=False,
+                                                       simple=simple)
                 
                 perp_orgs.append(structured_org)
                 perp_org_ids.append(org['id'])

@@ -30,7 +30,9 @@ class Association(models.Model, BaseModel):
 
     def get_value(self):
         return '{0} {1}'.format(self.area, self.organization)
-
+    
+    def __str__(self):
+        return self.get_value()
 
 @versioned
 @sourced
@@ -54,10 +56,17 @@ class AssociationOrganization(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.ForeignKey(Organization)
     field_name = _("Organization")
+    
+    def __str__(self):
+        return self.value
 
 
 @versioned
+@sourced
 class AssociationArea(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.ForeignKey(Area)
     field_name = _("Area")
+    
+    def __str__(self):
+        return self.value
