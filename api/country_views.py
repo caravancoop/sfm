@@ -7,7 +7,9 @@ from api.base_views import JSONAPIView, dateValidator, integerValidator
 class CountryListView(JSONAPIView):
     
     safe = False
-
+    optional_params = ['tolerance']
+    filter_fields = {}
+    
     def get_context_data(self, **kwargs):
         
         tolerance = self.request.GET.get('tolderance', 0.001)
