@@ -10,6 +10,8 @@ class CountryListView(JSONAPIView):
 
     def get_context_data(self, **kwargs):
         
+        tolerance = self.request.GET.get('tolderance', 0.001)
+
         query = ''' 
             SELECT 
               name,
@@ -19,14 +21,14 @@ class CountryListView(JSONAPIView):
                                json_build_object('lon', ST_XMax(ST_Envelope(geometry)),
                                                  'lat', ST_YMax(ST_Envelope(geometry)))) AS bbox,
               tags,
-              ST_ASGeoJSON(geometry)::json AS geometry
+              ST_ASGeoJSON(ST_Simplify(geometry, %s))::json AS geometry
             FROM osm_data
             WHERE admin_level = 2
               AND feature_type = 'boundary'
         '''
 
         cursor = connection.cursor()
-        cursor.execute(query)
+        cursor.execute(query, [tolerance])
         columns = [c[0] for c in cursor.description]
         
         context = [self.makeFeature(r[4], dict(zip(columns, r))) for r in cursor]

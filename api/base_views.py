@@ -167,16 +167,20 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             pass
         
         try:
+            bbox = properties['bbox']
             del properties['bbox']
         except KeyError:
-            pass
+            bbox = None
 
         feature = {
             'type': 'Feature',
             'id': properties['id'],
             'properties': properties,
-            'geometry': geometry
+            'geometry': geometry,
         }
+        
+        if bbox:
+            feature['bbox'] = bbox
 
         return feature
    
