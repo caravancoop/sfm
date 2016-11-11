@@ -180,111 +180,298 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
         return feature
     
-    def makeOrganization(self, properties, relationships=True, simple=False):
+    def makeOrganizationEvents(self, organization_id, bbox=None, when=None):
         
-        if relationships:
-            hierarchy = get_org_hierarchy_by_id(properties['id'])
-            
-            properties['root_name'] = None
-            properties['root_id'] = None
+        q_args = [organization_id]
 
-            if hierarchy:
-                top = hierarchy[-1]
-                properties['root_name'] = top['name']
-                properties['root_id'] = top['id']
-
-        current_commander = ''' 
-            SELECT 
-              o.id,
-              MAX(p.name) AS name,
-              m.first_cited AS first_cited,
-              m.last_cited AS last_cited,
-              COUNT(DISTINCT v.id) AS events_count
-            FROM organization AS o
-            JOIN membershipperson AS m
-              ON o.id = m.organization_id
-            JOIN person AS p
-              ON m.member_id = p.id
-            LEFT JOIN violation AS v
-              ON p.id = v.perpetrator_id
+        events_query = ''' 
+            SELECT DISTINCT ON (MAX(o.id::VARCHAR))
+              v.id,
+              MAX(v.start_date) AS start_date,
+              MAX(v.end_date) AS end_date,
+              MAX(v.location_description) AS location_description,
+              MAX(v.admin_level_1) AS admin_level_1,
+              MAX(v.admin_level_2) AS admin_level_2,
+              MAX(v.osmname) AS osm_name,
+              MAX(v.osm_id) AS osm_id,
+              MAX(v.division_id) AS division_id,
+              MAX(v.description) AS description,
+              MAX(p.name) AS perpetrator_name,
+              array_agg(DISTINCT v.perpetrator_classification) AS perpetrator_classification,
+              array_agg(DISTINCT v.violation_type) AS violation_types,
+              json_agg(row_to_json(o.*)) AS perpetrator_organization,
+              ST_ASGeoJSON(MAX(v.location))::json AS location
+            FROM violation AS v
+            LEFT JOIN person AS p
+              ON v.perpetrator_id = p.id
+            LEFT JOIN organization AS o
+              ON v.perpetrator_organization_id = o.id
+        '''
+        
+        wheres = ''' 
             WHERE o.id = %s
-              AND m.role = 'Commander'
-            GROUP BY o.id, m.first_cited, m.last_cited
-            ORDER BY o.id, 
-                     m.last_cited DESC, 
-                     m.first_cited DESC
+        '''
+        
+        if when:
+            wheres = '{} AND (v.start_date::date <= %s OR v.end_date::date >= %s)'.format(wheres)
+            q_args.extend([when, when])
+
+        if bbox:
+            wheres = ''' 
+                {} AND ST_Within(v.location, ST_MakeEnvelope(%s, %s, %s, %s, 4326))
+            '''.format(wheres)
+            q_args.extend(bbox.split(','))
+        
+        nearby_events_query = '''
+            {} 
+            JOIN violation AS center
+              ON ST_Intersects(ST_Buffer_Meters(center.location, 35000), v.location)
+            WHERE v.id != center.id
+        '''.format(events_query)
+        
+        if when:
+            nearby_events_query = '''
+                {} AND (center.start_date::date <= %s OR 
+                        center.end_date >= %s)
+            '''.format(nearby_events_query)
+
+        nearby_events_query = '{} GROUP BY v.id'.format(nearby_events_query)
+
+        events_query = '''
+            {0} {1} GROUP BY v.id
+        '''.format(events_query, wheres)
+        
+        cursor = connection.cursor()
+        cursor.execute(events_query, q_args)
+        columns = [c[0] for c in cursor.description]
+        
+        events = []
+        for event in cursor:
+            event = self.makeEvent(dict(zip(columns, event)), simple=True)
+            feature = self.makeFeature(event['location'], event)
+            events.append(feature)
+        
+        del q_args[0]
+        
+        cursor.execute(nearby_events_query, q_args)
+        columns = [c[0] for c in cursor.description]
+        
+        event_ids = [e['id'] for e in events]
+        nearby_events = []
+        for event in cursor:
+            if event[0] not in event_ids:
+                event = self.makeEvent(dict(zip(columns, event)), simple=True)
+                feature = self.makeFeature(event['location'], event)
+                nearby_events.append(feature)
+
+        return events, nearby_events
+
+    def makeOrganizationMembers(self, organization_id):
+        
+        members = ''' 
+            SELECT
+              p.id,
+              MAX(p.name) AS name,
+              MAX(m.rank) AS rank,
+              MAX(m.role) AS role,
+              MAX(m.title) AS title,
+              array_agg(DISTINCT TRIM(p.alias)) AS other_names,
+              COUNT(DISTINCT v.id) AS events_count,
+              MAX(m.first_cited::DATE) AS first_cited,
+              MAX(m.last_cited::DATE) AS last_cited,
+              json_agg(row_to_json(ss.*)) AS sources,
+              MAX(mp.confidence) AS confidence
+            FROM person AS p
+            JOIN membershipperson AS m
+              ON p.id = m.member_id
+            JOIN membershipperson_membershippersonmember AS mp
+              ON m.id = mp.object_ref_id
+            LEFT JOIN violation AS v
+              ON m.member_id = v.perpetrator_id
+            LEFT JOIN membershipperson_membershippersonmember_sources AS mps
+              ON m.id = mps.membershippersonmember_id
+            LEFT JOIN source_source AS ss
+              ON mps.source_id = ss.id
+            WHERE m.organization_id = %s
+            GROUP BY p.id
         '''
         
         cursor = connection.cursor()
-        cursor.execute(current_commander, [properties['id']])
+        cursor.execute(members, [organization_id])
+        columns = [c[0] for c in cursor.description]
+        
+        members = []
+
+        for row in cursor:
+
+            member = {
+                'id': row[0],
+                'name': row[1],
+                'rank': row[2],
+                'role': row[3],
+                'title': row[4],
+                'other_names': [i for i in row[5] if i],
+                'events_count': row[6],
+                'first_cited': row[7],
+                'last_cited': row[8],
+                'sources': [],
+                'confidence': row[10]
+            }
+
+            source_ids = []
+
+            for source in row[9]:
+                if source['id'] not in source_ids:
+                    member['sources'].append(source)
+                    source_ids.append(source['id'])
+            
+            members.append(member)
+
+        return members
+
+    def makeOrganizationRelationships(self, properties):
+        
+        hierarchy = get_org_hierarchy_by_id(properties['id'])
+        
+        properties['root_name'] = None
+        properties['root_id'] = None
+
+        if hierarchy:
+            top = hierarchy[-1]
+            properties['root_name'] = top['name']
+            properties['root_id'] = top['id']
+
+        return properties
+    
+    def makeOrganizationCommanders(self, properties):
+        commanders = ''' 
+            SELECT * FROM (
+              SELECT DISTINCT ON (id)
+                *
+              FROM (
+                SELECT 
+                  o.id AS organization_id,
+                  MAX(p.id::VARCHAR) AS id,
+                  MAX(p.name) AS name,
+                  m.first_cited AS first_cited,
+                  m.last_cited AS last_cited,
+                  COUNT(DISTINCT v.id) AS events_count
+                FROM organization AS o
+                JOIN membershipperson AS m
+                  ON o.id = m.organization_id
+                JOIN person AS p
+                  ON m.member_id = p.id
+                LEFT JOIN violation AS v
+                  ON p.id = v.perpetrator_id
+                WHERE o.id = %s
+                  AND m.role = 'Commander'
+                GROUP BY o.id, m.first_cited, m.last_cited
+                ORDER BY o.id, 
+                         m.last_cited DESC, 
+                         m.first_cited DESC
+              ) AS s
+            ) AS s ORDER BY last_cited DESC, first_cited DESC
+        '''
+        
+        cursor = connection.cursor()
+        cursor.execute(commanders, [properties['id']])
         columns = [c[0] for c in cursor.description]
         
         row = cursor.fetchone()
         
         if row:
-            properties['current_commander'] = dict(zip(columns, row))
+            properties['commander_present'] = dict(zip(columns, row))
+            properties['commanders_former'] = [dict(zip(columns, r)) for r in cursor]
         else:
-            properties['current_commander'] = {}
+            properties['commander_present'] = {}
+            properties['commanders_former'] = []
+
+        return properties
+    
+    def makeOrganizationGeographies(self, properties, all_geography=False):
+        site_present = ''' 
+            SELECT DISTINCT ON (o.id)
+              g.id,
+              g.name,
+              g.admin_level_1 AS admin_level_1_osm_name,
+              g.osmname AS osm_name,
+              g.first_cited AS date_first_cited,
+              g.last_cited AS date_last_cited,
+              ST_AsGeoJSON(g.coordinates)::json AS location
+            FROM organization AS o
+            JOIN emplacement AS e
+              ON o.id = e.organization_id
+            JOIN geosite AS g
+              ON e.site_id = g.id
+            WHERE o.id = %s
+            ORDER BY o.id, 
+                     g.last_cited DESC, 
+                     g.first_cited DESC
+        '''
         
-        if not simple:
-            site_present = ''' 
-                SELECT DISTINCT ON (o.id)
-                  g.id,
-                  g.name AS location,
-                  g.admin_level_1 AS admin_level_1_osm_name,
-                  g.osmname AS osm_name,
-                  g.first_cited AS date_first_cited,
-                  g.last_cited AS date_last_cited
-                FROM organization AS o
-                JOIN emplacement AS e
-                  ON o.id = e.organization_id
-                JOIN geosite AS g
-                  ON e.site_id = g.id
-                WHERE o.id = %s
-                ORDER BY o.id, 
-                         g.last_cited DESC, 
-                         g.first_cited DESC
-            '''
-            
-            cursor = connection.cursor()
-            cursor.execute(site_present, [properties['id']])
-            columns = [c[0] for c in cursor.description]
-            
+        cursor = connection.cursor()
+        cursor.execute(site_present, [properties['id']])
+        columns = [c[0] for c in cursor.description]
+        
+        
+        if all_geography:
+            properties['sites'] = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
+        else:
             row = cursor.fetchone()
-            
             if row:
                 properties['site_current'] = dict(zip(columns, row))
             else:
                 properties['site_current'] = {}
-            
-            area_present = ''' 
-                SELECT DISTINCT ON (o.id)
-                  o.id,
-                  a.name,
-                  a.osmname AS osm_name,
-                  a.osmid,
-                  ST_AsGeoJSON(a.geometry)::json AS geometry
-                FROM organization AS o
-                JOIN association AS ass
-                  ON o.id = ass.organization_id
-                JOIN area AS a
-                  ON ass.area_id = a.id
-                WHERE o.id = %s
-                ORDER BY o.id, 
-                         a.last_cited DESC, 
-                         a.first_cited DESC
-            '''
-            
-            cursor = connection.cursor()
-            cursor.execute(area_present, [properties['id']])
-            columns = [c[0] for c in cursor.description]
-            
+        
+        area_present = ''' 
+            SELECT DISTINCT ON (o.id)
+              o.id,
+              a.name,
+              a.osmname AS osm_name,
+              a.osmid,
+              ST_AsGeoJSON(a.geometry)::json AS geometry
+            FROM organization AS o
+            JOIN association AS ass
+              ON o.id = ass.organization_id
+            JOIN area AS a
+              ON ass.area_id = a.id
+            WHERE o.id = %s
+            ORDER BY o.id, 
+                     a.last_cited DESC, 
+                     a.first_cited DESC
+        '''
+        
+        cursor = connection.cursor()
+        cursor.execute(area_present, [properties['id']])
+        columns = [c[0] for c in cursor.description]
+        
+        if all_geography:
+            properties['areas'] = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
+        else:
             row = cursor.fetchone()
-            
             if row:
                 properties['area_current'] = dict(zip(columns, row))
             else:
                 properties['area_current'] = {}
+
+        return properties
+
+    def makeOrganization(self, 
+                         properties, 
+                         relationships=True, 
+                         simple=False,
+                         all_geography=False,
+                         commanders=True):
+        
+        if relationships:
+            properties = self.makeOrganizationRelationships(properties)
+
+        if commanders:
+            properties = self.makeOrganizationCommanders(properties)
+
+        if not simple:
+            properties = self.makeOrganizationGeographies(properties, 
+                                                          all_geography=all_geography)
 
         return properties
     

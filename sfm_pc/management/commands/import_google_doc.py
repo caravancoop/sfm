@@ -32,7 +32,8 @@ from countries_plus.models import Country
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName
-from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id
+from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id, \
+    CONFIDENCE_MAP
 from sfm_pc.base_views import UtilityMixin
 from geosite.models import Geosite
 from emplacement.models import Emplacement
@@ -46,11 +47,6 @@ from violation.models import Violation, Type, ViolationPerpetrator, \
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
-CONFIDENCE_MAP = {
-    'low': 1,
-    'medium': 2,
-    'high': 3,
-}
 
 class Command(UtilityMixin, BaseCommand):
     help = 'Import data from Google Drive Spreadsheet'

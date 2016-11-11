@@ -4,7 +4,8 @@ from django.db import connection
 
 from api.base_views import JSONAPIView, dateValidator, integerValidator
 
-from sfm_pc.utils import get_org_hierarchy_by_id, get_child_orgs_by_id
+from sfm_pc.utils import get_org_hierarchy_by_id, get_child_orgs_by_id, \
+    REVERSE_CONFIDENCE
 
 class OSMAutoView(JSONAPIView):
     
@@ -146,9 +147,6 @@ class OrganizationMapView(JSONAPIView):
         
         q_args = [organization_id, when, when]
         
-        if bbox:
-            q_args.extend(bbox.split(','))
-
         area_query = ''' 
             SELECT DISTINCT ON (area.id)
               area.osmid AS id,
@@ -168,6 +166,7 @@ class OrganizationMapView(JSONAPIView):
                 {} AND ST_Intersects(area.geometry,  
                                      ST_MakeEnvelope(%s, %s, %s, %s, 4326))
             '''.format(area_query)
+            q_args.extend(bbox.split(','))
 
         area_query = '{} ORDER BY area.id, ass.end_date DESC, ass.start_date DESC'.format(area_query)
         
@@ -193,53 +192,6 @@ class OrganizationMapView(JSONAPIView):
                 {} AND ST_Within(site.geometry, ST_MakeEnvelope(%s, %s, %s, %s, 4326))
             '''.format(sites_query)
 
-        events_query = ''' 
-            SELECT DISTINCT ON (MAX(o.id::VARCHAR))
-              v.id,
-              MAX(v.start_date) AS start_date,
-              MAX(v.end_date) AS end_date,
-              MAX(v.location_description) AS location_description,
-              MAX(v.admin_level_1) AS admin_level_1,
-              MAX(v.admin_level_2) AS admin_level_2,
-              MAX(v.osmname) AS osm_name,
-              MAX(v.osm_id) AS osm_id,
-              MAX(v.division_id) AS division_id,
-              MAX(v.description) AS description,
-              MAX(p.name) AS perpetrator_name,
-              array_agg(DISTINCT v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(DISTINCT v.violation_type) AS violation_types,
-              json_agg(row_to_json(o.*)) AS perpetrator_organization,
-              ST_ASGeoJSON(MAX(v.location))::json AS location
-            FROM violation AS v
-            LEFT JOIN person AS p
-              ON v.perpetrator_id = p.id
-            LEFT JOIN organization AS o
-              ON v.perpetrator_organization_id = o.id
-        '''
-        
-        wheres = ''' 
-            WHERE o.id = %s
-              AND (v.start_date::date <= %s OR v.end_date::date >= %s)
-        '''
-
-        if bbox:
-            wheres = ''' 
-                {} AND ST_Within(v.location, ST_MakeEnvelope(%s, %s, %s, %s, 4326))
-            '''.format(wheres)
-        
-        nearby_events_query = '''
-            {0} 
-            JOIN violation AS center
-              ON ST_Intersects(ST_Buffer_Meters(center.location, 35000), v.location)
-            WHERE (center.start_date::date <= %s OR center.end_date >= %s)
-              AND v.id != center.id
-            GROUP BY v.id
-        '''.format(events_query)
-
-        events_query = '''
-            {0} {1} GROUP BY v.id
-        '''.format(events_query, wheres)
-
         cursor = connection.cursor()
         
         # Fetch Area
@@ -262,31 +214,11 @@ class OrganizationMapView(JSONAPIView):
                             dict(zip(columns, r))) for r in cursor]
 
         # Fetch events
-        cursor.execute(events_query, q_args)
-        columns = [c[0] for c in cursor.description]
-        
-        events = []
-        for event in cursor:
-            event = self.makeEvent(dict(zip(columns, event)), simple=True)
-            feature = self.makeFeature(event['location'], event)
-            events.append(feature)
+        events, nearby_events = self.makeOrganizationEvents(organization_id, 
+                                                            when=when, 
+                                                            bbox=bbox)
 
         context['events'] = events
-        
-        # Fetch nearby events
-        del q_args[0]
-        
-        cursor.execute(nearby_events_query, q_args)
-        columns = [c[0] for c in cursor.description]
-        
-        event_ids = [e['id'] for e in context['events']]
-        events = []
-        for event in cursor:
-            if event[0] not in event_ids:
-                event = self.makeEvent(dict(zip(columns, event)), simple=True)
-                feature = self.makeFeature(event['location'], event)
-                events.append(feature)
-        
         context['events_nearby'] = events
 
         return context
@@ -361,8 +293,8 @@ class OrganizationDetailView(JSONAPIView):
               array_agg(DISTINCT TRIM(o.alias_value)) AS other_names_value,
               MAX(o.alias_confidence) AS other_names_confidence,
               json_agg(o.alias_source) AS other_names_sources,
-              array_agg(DISTINCT TRIM(o.classification_value)) AS classification_value,
-              MAX(o.classification_confidence) AS classification_confidence,
+              array_agg(DISTINCT TRIM(o.classification_value)) AS classifications_value,
+              MAX(o.classification_confidence) AS classifications_confidence,
               json_agg(o.classification_source) AS classifications_sources,
               MAX(o.division_id) AS division_id,
               COUNT(DISTINCT v.id) AS events_count
@@ -378,28 +310,71 @@ class OrganizationDetailView(JSONAPIView):
         columns = [c[0] for c in cursor.description]
 
         row = cursor.fetchone()
-        # if row:
-        #     organization = self.makeOrganization(dict(zip(columns, row)))
-        #     
-        #     prepared_org = {}
+        if row:
+            organization = self.makeOrganization(dict(zip(columns, row)), 
+                                                 all_geography=True)
+            
+            prepared_org = {}
 
-        #     for k, v in organization.items():
-        #         
-        #         try:
-        #             first, last = k.split('_')
-        #         except ValueError:
-        #             prepared_org[k] = v
-        #             continue
-        #         if last not in ['sources', 'value', 'confidence']:
-        #             prepared_org[k] = v
-        #         else:
-        #             try:
-        #                 prepared_org[first]
-        #             except KeyError:
+            for k, v in organization.items():
+                
+                try:
+                    first, last = k.rsplit('_', 1)
+                except ValueError:
+                    prepared_org[k] = v
+                    continue
 
+                if last not in ['sources', 'value', 'confidence']:
+                    prepared_org[k] = v
+                
+                else:
+                    
+                    if last == 'sources':
+                        sources = []
+                        source_ids = []
+                        for source in v:
+                            if source and source['id'] not in source_ids:
+                                sources.append(source)
+                                source_ids.append(source['id'])
+                        v = sources
+                    
+                    elif last == 'confidence':
+                        if v:
+                            v = REVERSE_CONFIDENCE[int(v)].title()
 
+                    try:
+                        prepared_org[first][last] = v
+                    except KeyError:
+                        prepared_org[first] = {last: v}
+        
+            context.update(prepared_org)
+            
+            context['parents'] = []
+            context['children'] = []
+            
+            parents = get_org_hierarchy_by_id(organization_id, sources=True)
+            children = get_child_orgs_by_id(organization_id, sources=True)
 
-    
+            for parent in parents:
+                parent = self.makeOrganization(parent, 
+                                               relationships=False, 
+                                               simple=True,
+                                               commanders=False)
+                context['parents'].append(parent)
+            
+            for child in children:
+                child = self.makeOrganization(child, 
+                                              relationships=False,
+                                              simple=True,
+                                              commanders=False)
+                context['children'].append(child)
+
+            context['people'] = self.makeOrganizationMembers(organization_id)
+            
+            events, events_nearby = self.makeOrganizationEvents(organization_id)
+            context['events'] = events
+            context['events_nearby'] = events_nearby
+
         return context
 
 class PersonDetailView(JSONAPIView):
