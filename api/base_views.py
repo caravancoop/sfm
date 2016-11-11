@@ -5,7 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.generic import TemplateView
 from django.db import connection
 
-from sfm_pc.utils import get_org_hierarchy_by_id
+from sfm_pc.utils import get_org_hierarchy_by_id, REVERSE_CONFIDENCE
 
 OPERATOR_LOOKUP = {
     'lte': '<=',
@@ -179,10 +179,50 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         }
 
         return feature
-    
-    def makeOrganizationEvents(self, organization_id, bbox=None, when=None):
+   
+    def splitSources(self, obj):
+        prepared_obj = {}
+
+        for k, v in obj.items():
+            
+            try:
+                first, last = k.rsplit('_', 1)
+            except ValueError:
+                prepared_obj[k] = v
+                continue
+
+            if last not in ['sources', 'value', 'confidence']:
+                prepared_obj[k] = v
+            
+            else:
+                
+                if last == 'sources':
+                    sources = []
+                    source_ids = []
+                    for source in v:
+                        if source and source['id'] not in source_ids:
+                            sources.append(source)
+                            source_ids.append(source['id'])
+                    v = sources
+                
+                elif last == 'confidence':
+                    if v:
+                        v = REVERSE_CONFIDENCE[int(v)].title()
+
+                try:
+                    prepared_obj[first][last] = v
+                except KeyError:
+                    prepared_obj[first] = {last: v}
         
-        q_args = [organization_id]
+        return prepared_obj
+
+    def makeEntityEvents(self, 
+                         entity_id, 
+                         entity_type='organization', 
+                         bbox=None, 
+                         when=None):
+        
+        q_args = [entity_id]
 
         events_query = ''' 
             SELECT DISTINCT ON (MAX(o.id::VARCHAR))
@@ -204,10 +244,20 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             FROM violation AS v
             LEFT JOIN person AS p
               ON v.perpetrator_id = p.id
-            LEFT JOIN organization AS o
-              ON v.perpetrator_organization_id = o.id
         '''
-        
+        if entity_type == 'organization':
+            events_query = '''
+                {}
+                LEFT JOIN organization AS o
+                  ON v.perpetrator_organization_id = o.id
+            '''.format(events_query)
+        elif entity_type == 'person':
+            events_query = '''
+                {}
+                LEFT JOIN person AS o
+                  ON v.perpetrator_id = o.id
+            '''.format(events_query)
+
         wheres = ''' 
             WHERE o.id = %s
         '''
@@ -517,6 +567,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             WHERE mp.member_id = %s
               AND (e.end_date IS NULL OR 
                    e.end_date::date > NOW()::date)
+              AND (mp.last_cited IS NULL OR
+                   mp.last_cited::date > NOW()::date)
         '''
         
         membership_former = '''

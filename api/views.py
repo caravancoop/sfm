@@ -214,9 +214,9 @@ class OrganizationMapView(JSONAPIView):
                             dict(zip(columns, r))) for r in cursor]
 
         # Fetch events
-        events, nearby_events = self.makeOrganizationEvents(organization_id, 
-                                                            when=when, 
-                                                            bbox=bbox)
+        events, nearby_events = self.makeEntityEvents(organization_id, 
+                                                      when=when, 
+                                                      bbox=bbox)
 
         context['events'] = events
         context['events_nearby'] = events
@@ -314,40 +314,7 @@ class OrganizationDetailView(JSONAPIView):
             organization = self.makeOrganization(dict(zip(columns, row)), 
                                                  all_geography=True)
             
-            prepared_org = {}
-
-            for k, v in organization.items():
-                
-                try:
-                    first, last = k.rsplit('_', 1)
-                except ValueError:
-                    prepared_org[k] = v
-                    continue
-
-                if last not in ['sources', 'value', 'confidence']:
-                    prepared_org[k] = v
-                
-                else:
-                    
-                    if last == 'sources':
-                        sources = []
-                        source_ids = []
-                        for source in v:
-                            if source and source['id'] not in source_ids:
-                                sources.append(source)
-                                source_ids.append(source['id'])
-                        v = sources
-                    
-                    elif last == 'confidence':
-                        if v:
-                            v = REVERSE_CONFIDENCE[int(v)].title()
-
-                    try:
-                        prepared_org[first][last] = v
-                    except KeyError:
-                        prepared_org[first] = {last: v}
-        
-            context.update(prepared_org)
+            context.update(self.splitSources(organization))
             
             context['parents'] = []
             context['children'] = []
@@ -371,7 +338,7 @@ class OrganizationDetailView(JSONAPIView):
 
             context['people'] = self.makeOrganizationMembers(organization_id)
             
-            events, events_nearby = self.makeOrganizationEvents(organization_id)
+            events, events_nearby = self.makeEntityEvents(organization_id)
             context['events'] = events
             context['events_nearby'] = events_nearby
 
@@ -379,5 +346,130 @@ class OrganizationDetailView(JSONAPIView):
 
 class PersonDetailView(JSONAPIView):
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = {}
+        
+        person_id = kwargs['id']
+        
+        people = ''' 
+            SELECT
+              p.id,
+              MAX(p.name_value) AS name_value,
+              MAX(p.name_confidence) AS name_confidence,
+              json_agg(p.name_source) AS name_sources, 
+              array_agg(DISTINCT TRIM(p.alias_value)) AS other_names_value,
+              MAX(p.alias_confidence) AS other_names_confidence,
+              json_agg(p.alias_source) AS other_names_sources,
+              MAX(p.division_id) AS division_id,
+              COUNT(DISTINCT v.id) AS events_count
+            FROM person_sources AS p
+            LEFT JOIN violation AS v
+              ON p.id = v.perpetrator_id
+            WHERE p.id = %s
+            GROUP BY p.id
+        '''
+        cursor = connection.cursor()
+        cursor.execute(people, [person_id])
+        columns = [c[0] for c in cursor.description]
+
+        row = cursor.fetchone()
+        if row:
+            person = dict(zip(columns, row))
+            
+            context.update(self.splitSources(person))
+            
+            memberships = ''' 
+                SELECT 
+                  MAX(member_id::VARCHAR) AS id,
+                  organization_id_value AS organization_value,
+                  MAX(organization_id_confidence) AS organization_confidence,
+                  json_agg(organization_id_sources) AS organization_sources,
+                  MAX(role_value) AS role_value,
+                  MAX(role_confidence) AS role_confidence,
+                  json_agg(role_sources) AS role_sources,
+                  MAX(rank_value) AS rank_value,
+                  MAX(rank_confidence) AS rank_confidence,
+                  json_agg(rank_sources) AS rank_sources,
+                  MAX(title_value) AS title_value,
+                  MAX(title_confidence) AS title_confidence, 
+                  json_agg(title_sources) AS title_sources,
+                  bool_or(real_start_value) AS real_start_value,
+                  MAX(real_start_confidence) AS real_start_confidence,
+                  json_agg(real_start_sources) AS real_start_sources,
+                  bool_or(real_end_value) AS real_end_value,
+                  MAX(real_end_confidence) AS real_end_confidence,
+                  json_agg(real_end_sources) AS real_end_sources,
+                  MAX(start_context_value) AS start_context_value,
+                  MAX(start_context_confidence) AS start_context_confidence,
+                  json_agg(start_context_sources) AS start_context_sources,
+                  MAX(first_cited_value) AS first_cited_value,
+                  MAX(first_cited_confidence) AS first_cited_confidence,
+                  json_agg(first_cited_sources) AS first_cited_sources,
+                  MAX(last_cited_value) AS last_cited_value,
+                  MAX(last_cited_confidence) AS last_cited_confidence,
+                  json_agg(last_cited_sources) AS last_cited_sources
+                FROM membershipperson_sources
+                WHERE member_id = %s
+                GROUP BY member_id, organization_id_value
+            '''
+            cursor.execute(memberships, [person_id])
+            columns = [c[0] for c in cursor.description]
+            
+            memberships = [self.splitSources(dict(zip(columns, r))) for r in cursor]
+            
+            context['memberships'] = memberships
+
+            events, events_nearby = self.makeEntityEvents(person_id, 
+                                                          entity_type='person')
+            
+            context['events'] = events
+            context['events_nearby'] = events_nearby
+
+            current_site = ''' 
+                SELECT 
+                  e.*, 
+                  ST_AsGeoJSON(g.coordinates)::json AS geometry
+                FROM membershipperson AS m
+                JOIN emplacement AS e
+                  USING(organization_id)
+                JOIN geosite AS g
+                  ON e.site_id = g.id
+                WHERE member_id = %s
+                  AND (m.last_cited::date > NOW()::date OR m.last_cited IS NULL)
+                  AND (e.end_date::date > NOW()::date OR e.end_date IS NULL)
+                LIMIT 1
+            '''
+            
+            cursor.execute(current_site, [person_id])
+            columns = [c[0] for c in cursor.description]
+            
+            context['site_present'] = {}
+
+            row = cursor.fetchone()
+            if row:
+                context['site_present'] = dict(zip(columns, row))
+
+            current_area = ''' 
+                SELECT 
+                  ass.*, 
+                  ST_AsGeoJSON(a.geometry)::json AS geometry
+                FROM membershipperson AS m
+                JOIN association AS ass
+                  USING(organization_id)
+                JOIN area AS a
+                  ON ass.area_id = a.id
+                WHERE member_id = %s
+                  AND (m.last_cited::date > NOW()::date OR m.last_cited IS NULL)
+                  AND (ass.end_date::date > NOW()::date OR ass.end_date IS NULL)
+                LIMIT 1
+            '''
+            
+            cursor.execute(current_area, [person_id])
+            columns = [c[0] for c in cursor.description]
+            
+            context['area_present'] = {}
+
+            row = cursor.fetchone()
+            if row:
+                context['area_present'] = dict(zip(columns, row))
+
         return context
