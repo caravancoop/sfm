@@ -38,11 +38,11 @@ class OrganizationSearchView(JSONAPIView):
         'name': {'field': 'name'},
         'date_first_cited': {'field': 'date_first_cited'},
         'date_last_cited': {'field': 'date_last_cited'},
-        # 'events_count': {},
+        'events_count': {'field': 'events_count'},
         '-name': {'field': 'name'},
         '-date_first_cited': {'field': 'date_first_cited'},
         '-date_last_cited': {'field': 'date_last_cited'},
-        # '-events_count',
+        '-events_count': {'field': 'events_count'},
     }
     
     required_params = ['q']

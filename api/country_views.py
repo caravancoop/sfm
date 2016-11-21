@@ -39,10 +39,10 @@ class CountryListView(JSONAPIView):
 
 class CountryDetailView(JSONAPIView):
     
-    safe = False
-
     def get_context_data(self, **kwargs):
         
+        context = {}
+
         country_code = kwargs['id'].lower()
         division_id = 'ocd-division/country:{}'.format(country_code)
 
@@ -64,7 +64,11 @@ class CountryDetailView(JSONAPIView):
         cursor.execute(query, [country_code, division_id])
         columns = [c[0] for c in cursor.description]
         
-        context = [OrderedDict(zip(columns, r)) for r in cursor]
+        row = cursor.fetchone()
+
+        if row:
+
+            context = OrderedDict(zip(columns, row))
             
         return context
 
@@ -197,12 +201,15 @@ class CountryMapView(JSONAPIView):
               array_agg(DISTINCT TRIM(o.alias)) AS other_names,
               ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
               MAX(e.start_date) AS start_date,
-              MAX(e.end_date) AS end_date
+              MAX(e.end_date) AS end_date,
+              COUNT(DISTINCT v.id) AS events_count
             FROM organization AS o
             JOIN emplacement AS e
               ON o.id = e.organization_id
             JOIN geosite as g
               ON e.site_id = g.id
+            LEFT JOIN violation AS v
+              ON o.id = v.perpetrator_organization_id
             WHERE o.division_id = %s
               AND (e.start_date <= %s AND e.end_date >= %s)
         '''

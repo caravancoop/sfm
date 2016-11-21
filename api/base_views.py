@@ -233,7 +233,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               v.id,
               MAX(v.start_date) AS start_date,
               MAX(v.end_date) AS end_date,
-              MAX(v.location_description) AS location_description,
+              MAX(v.location_description) AS location,
               MAX(v.admin_level_1) AS admin_level_1,
               MAX(v.admin_level_2) AS admin_level_2,
               MAX(v.osmname) AS osm_name,
@@ -242,7 +242,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
               array_agg(DISTINCT v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(DISTINCT v.violation_type) AS violation_types,
+              array_agg(DISTINCT v.violation_type) AS classifications,
               json_agg(row_to_json(o.*)) AS perpetrator_organization,
               ST_ASGeoJSON(MAX(v.location))::json AS location
             FROM violation AS v
@@ -483,7 +483,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               a.name,
               a.osmname AS osm_name,
               a.osmid,
-              ST_AsGeoJSON(a.geometry)::json AS geometry
+              ST_AsGeoJSON(ST_Simplify(a.geometry, 0.001))::json AS geometry
             FROM organization AS o
             JOIN association AS ass
               ON o.id = ass.organization_id
@@ -616,7 +616,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         return properties
 
     def makeEvent(self, properties, simple=False):
-        properties['violation_types'] = list(set(properties['violation_types']))
+        properties['classifications'] = list(set(properties['classifications']))
 
         perp_class = [c for c in list(set(properties['perpetrator_classification'])) if c]
         if perp_class:
