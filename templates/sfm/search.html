@@ -32,12 +32,11 @@
                 <h4>Filter by location</h4>
                 <div class="row">
                     <div class="col-sm-6">
-                        <select id="location-filter" name="geoname_id" class="form-control">
-                            {% if geoname %}
-                                <option value="{{ geoname.id }}" selected=true>{{ geoname.name_std }}</option>
+                        <select id="location-filter" name="osm_id" class="form-control">
+                            {% if osm %}
+                                <option value="{{ osm.id }}" selected=true>{{ osm.name }}</option>
                             {% endif %}
                         </select>
-                        <input type="hidden" name="geoname_type" {% if geoname_type %}value="{{ geoname_type }}"{% endif %}/>
                     </div>
                     <div class="col-sm-6">
                         <select id="radius" name="radius" class="form-control">
@@ -77,9 +76,9 @@
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
 <script type="text/javascript">
-var geoname_opts = {
+var osm_opts = {
     ajax: {
-        url: "{% url 'geoname-autocomplete' %}",
+        url: "{% url 'osm-autocomplete' %}",
         datType: 'json',
         delay: 250,
         data: function(params) {
@@ -102,11 +101,7 @@ var geoname_opts = {
     minimumInputLength: 2
 };
     $(document).ready(function(){
-        $('#location-filter').select2(geoname_opts);
-        $('#location-filter').on('select2:select', function(e){
-            var geo_type = e.params.data.type;
-            $('input[name="geoname_type"]').val(geo_type);
-        });
+        $('#location-filter').select2(osm_opts);
 
         $('.merge').on('click', function(e){
             e.preventDefault();

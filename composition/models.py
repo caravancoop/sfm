@@ -19,6 +19,8 @@ class Composition(models.Model, BaseModel):
         self.startdate = ComplexFieldContainer(self, CompositionStartDate)
         self.enddate = ComplexFieldContainer(self, CompositionEndDate)
         self.classification = ComplexFieldContainer(self, CompositionClassification)
+        
+        self.open_ended = ComplexFieldContainer(self, CompositionOpenEnded)
 
         self.complex_fields = [self.parent, self.child, self.startdate,
                                self.enddate, self.classification]
@@ -27,29 +29,6 @@ class Composition(models.Model, BaseModel):
             "Composition_CompositionParent", "Composition_CompositionChild"
         ]
 
-    def validate(self, dict_values, lang=get_language()):
-        errors = {}
-
-        parent = dict_values.get("Composition_CompositionParent")
-        child = dict_values.get("Composition_CompositionChild")
-        if (parent and parent.get("value") and child and child.get("value") and
-            parent.get("value") == child.get("value")):
-            errors["Composition_CompositionParent"] = ("The parent and the child" +
-                                                       " organizations must be differents")
-
-        start = dict_values.get("Composition_CompositionStartDate")
-        end = dict_values.get("Composition_CompositionEndDate")
-        if (start and start.get("value") != "" and end and
-            end.get("value") != "" and start.get("value") >= end.get("value")):
-            errors["Composition_CompositionStartDate"] = (
-                "The start date must be before the end date"
-            )
-
-        (base_errors, values) = super().validate(dict_values)
-        errors.update(base_errors)
-
-        return (errors, values)
-    
     def get_value(self):
         return '{0} parent of {1}'.format(self.parent.get_value(), 
                                           self.child.get_value())
@@ -99,3 +78,9 @@ class Classification(models.Model):
 
     def __str__(self):
         return self.value
+
+@versioned
+class CompositionOpenEnded(ComplexField):
+    object_ref = models.ForeignKey(Composition)
+    value = models.NullBooleanField(default=None, blank=True, null=True)
+    field_name = _("Open ended")

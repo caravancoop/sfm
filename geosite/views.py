@@ -54,8 +54,8 @@ def geosite_csv(request):
             geosite.name.get_value(),
             geosite.adminlevel1.get_value(),
             geosite.adminlevel2.get_value(),
-            geosite.geoname.get_value(),
-            geosite.geonameid.get_value(),
+            geosite.osmname.get_value(),
+            geosite.osmid.get_value(),
             str(geosite.coordinates.get_value())
         ])
 

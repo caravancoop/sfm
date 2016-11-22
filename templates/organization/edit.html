@@ -250,8 +250,8 @@
             $('.name-field:selected').text(value);
         });
 
-        $(class_field).on('select2:select', multipleSelect);
-        $(class_field).on('select2:unselect', multipleUnSelect);
+        $('.class-field').on('select2:select', multipleSelect);
+        $('.class-field').on('select2:unselect', multipleUnSelect);
 
         $('.division_id-field').on('select2:select', function(e){
             var value = e.params.data.text;

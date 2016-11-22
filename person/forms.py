@@ -9,7 +9,7 @@ class PersonForm(forms.Form):
     name = forms.CharField(error_messages={'required': _('Name is required')})
     name_text = forms.CharField()
     alias = forms.CharField(required=False)
-    orgs = forms.CharField() 
+    orgs = forms.CharField(required=False) 
     division_id = forms.CharField(error_messages={'required': _('Division ID is required')})
 
     def __init__(self, *args, **kwargs):

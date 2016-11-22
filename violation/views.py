@@ -16,7 +16,6 @@ from django.shortcuts import redirect
 from django.conf import settings
 
 from extra_views import FormSetView
-from cities.models import Place, City, Country, Region, Subregion, District
 
 from violation.models import Violation, Type, ViolationType, \
     ViolationPerpetrator, ViolationPerpetratorOrganization
@@ -24,7 +23,7 @@ from source.models import Source
 from person.models import Person
 from organization.models import Organization
 from violation.forms import ZoneForm, ViolationForm
-from sfm_pc.utils import deleted_in_str, get_geoname_by_id
+from sfm_pc.utils import deleted_in_str, get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 class ViolationDetail(DetailView):
@@ -49,7 +48,7 @@ class ViolationList(PaginatedList):
     orderby_lookup = {
         'start_date': 'violationstartdate__value',
         'end_date': 'violationenddate__value',
-        'geoname': 'violationgeoname__value',
+        'osmname': 'violationosmname__value',
         'classification': 'violationperpetratorclassification__value__value',
     }
 
@@ -85,28 +84,30 @@ class ViolationCreate(FormSetView):
             startdate = formset.data[form_prefix + 'startdate']
             enddate = formset.data[form_prefix + 'enddate']
             locationdescription = formset.data[form_prefix + 'locationdescription']
-            geoid = formset.data[form_prefix + 'geoname']
+            geoid = formset.data[form_prefix + 'osm_id']
             geotype = formset.data[form_prefix + 'geotype']
             description = formset.data[form_prefix + 'description']
             perpetrators = formset.data.getlist(form_prefix + 'perpetrators')
             orgs = formset.data.getlist(form_prefix + 'orgs')
             vtypes = formset.data.getlist(form_prefix + 'vtype')
             
-            geo = get_geoname_by_id(geoid)
-            parent = geo.parent
-            admin1 = parent.name
-            admin2 = parent.parent.name
-            coords = getattr(geo, 'location')
+            geo = get_osm_by_id(geoid)
+            hierarchy = get_hierarchy_by_id(geoid)
             
-            if isinstance(geo, Country):
-                country_code = geo.code.lower()
-            elif isinstance(geo, Region):
-                country_code = geo.country.code.lower()
-            elif isinstance(geo, Subregion) or isinstance(geo, City):
-                country_code = geo.region.country.code.lower()
+            admin1 = None
+            admin2 = None
+
+            if hierarchy:
+                for member in hierarchy:
+                    if member.admin_level == 6:
+                        admin1 = member.name
+                    elif member.admin_level == 4:
+                        admin2 = member.name
+            
+            country_code = geo.country_code.lower()
             
             division_id = 'ocd-division/country:{}'.format(country_code)
-
+            
             violation_data = {
                 'Violation_ViolationDescription': {
                    'value': description,
@@ -128,12 +129,12 @@ class ViolationCreate(FormSetView):
                     'sources': [source],
                     'confidence': 1
                 },
-                'Violation_ViolationGeoname': {
+                'Violation_ViolationOSMname': {
                     'value': geo.name,
                     'sources': [source],
                     'confidence': 1
                 },
-                'Violation_ViolationGeonameId': {
+                'Violation_ViolationOSMId': {
                     'value': geo.id,
                     'sources': [source],
                     'confidence': 1
@@ -144,7 +145,7 @@ class ViolationCreate(FormSetView):
                     'confidence': 1
                 },
                 'Violation_ViolationLocation': {
-                    'value': coords,
+                    'value': geo.geometry,
                     'sources': [source],
                     'confidence': 1
                 },
@@ -221,6 +222,12 @@ class ViolationUpdate(BaseUpdateView):
     success_url = reverse_lazy('dashboard')
     sourced = True
     
+    def post(self, request, *args, **kwargs):
+
+        self.checkSource(request)
+        
+        return self.validateForm()
+    
     def form_valid(self, form):
         response = super().form_valid(form)
         
@@ -228,17 +235,26 @@ class ViolationUpdate(BaseUpdateView):
         startdate = form.cleaned_data['startdate']
         enddate = form.cleaned_data['enddate']
         locationdescription = form.cleaned_data['locationdescription']
-        geoid = form.cleaned_data['geoname']
+        geoid = form.cleaned_data['osm_id']
         description = form.cleaned_data['description']
         perpetrators = form.data.getlist('perpetrators')
         orgs = form.data.getlist('orgs')
         vtypes = form.data.getlist('vtype')
         
-        geo = get_geoname_by_id(geoid)
-        parent = geo.parent
-        admin1 = parent.name
-        admin2 = parent.parent.name
-        coords = getattr(geo, 'location')
+        geo = get_osm_by_id(geoid)
+        hierarchy = get_hierarchy_by_id(geoid)
+        
+        admin1 = None
+        admin2 = None
+
+        if hierarchy:
+            for member in hierarchy:
+                if member.admin_level == 6:
+                    admin1 = member.name
+                elif member.admin_level == 4:
+                    admin2 = member.name
+        
+        coords = getattr(geo, 'geometry')
 
         violation_data = {
             'Violation_ViolationDescription': {
@@ -261,14 +277,14 @@ class ViolationUpdate(BaseUpdateView):
                 'sources': self.sourcesList(violation, 'adminlevel2'),
                 'confidence': 1
             },
-            'Violation_ViolationGeoname': {
+            'Violation_ViolationOSMName': {
                 'value': geo.name,
-                'sources': self.sourcesList(violation, 'geoname'),
+                'sources': self.sourcesList(violation, 'osmname'),
                 'confidence': 1
             },
-            'Violation_ViolationGeonameId': {
+            'Violation_ViolationOSMId': {
                 'value': geo.id,
-                'sources': self.sourcesList(violation, 'geonameid'),
+                'sources': self.sourcesList(violation, 'osmid'),
                 'confidence': 1
             },
             'Violation_ViolationLocation': {
@@ -318,6 +334,10 @@ class ViolationUpdate(BaseUpdateView):
                 vpo_obj.sources.add(self.source)
                 vpo_obj.save()
         
+        messages.add_message(self.request, 
+                             messages.INFO, 
+                             'Event saved!')
+        
         return response
 
     def get_context_data(self, **kwargs):
@@ -333,7 +353,7 @@ class ViolationUpdate(BaseUpdateView):
         if not self.sourced:
             context['source_error'] = 'Please include the source for your changes'
         
-        context['geoname'] = get_geoname_by_id(violation.geonameid.get_value().value)
+        context['osm'] = get_osm_by_id(violation.osmid.get_value().value)
         context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
 
         return context
@@ -400,8 +420,8 @@ def violation_csv(request):
             violation.locationdescription.get_value(),
             violation.adminlevel1.get_value(),
             violation.adminlevel2.get_value(),
-            violation.geoname.get_value(),
-            violation.geonameid.get_value(),
+            violation.osmname.get_value(),
+            violation.osmid.get_value(),
             violation.location.get_value(),
             violation.perpetrator.get_value(),
             violation.perpetratororganization.get_value(),

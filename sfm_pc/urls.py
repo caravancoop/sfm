@@ -4,7 +4,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
-from sfm_pc.views import Dashboard, geoname_autocomplete, division_autocomplete, \
+from sfm_pc.views import Dashboard, osm_autocomplete, division_autocomplete, \
     search, SetConfidence, EntityMergeView
 
 urlpatterns = i18n_patterns(
@@ -23,7 +23,7 @@ urlpatterns = i18n_patterns(
     url(r'^violation/', include('violation.urls')),
     url(r'^search/', search, name="search"),
     
-    url(r'^geoname-autocomplete/$', geoname_autocomplete, name="geoname-autocomplete"),
+    url(r'^osm-autocomplete/$', osm_autocomplete, name="osm-autocomplete"),
     url(r'^division-autocomplete/$', division_autocomplete, name="division-autocomplete"),
     
     url(r'^set-confidence/$', SetConfidence.as_view(), name='set-confidence'),
@@ -40,4 +40,10 @@ urlpatterns = i18n_patterns(
     url(r'^ajax/', include('ajax.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^logout/$', logout_then_login, {'login_url': '/accounts/login'}, name="logout"),
+    
+)
+
+urlpatterns += (
+    # API endpoints
+    url(r'^api/', include('api.urls')),
 )

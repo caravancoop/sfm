@@ -20,9 +20,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
-        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER
+        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, OSM_API_KEY
 except ImportError as e:
-    raise Exception('DATABASE_URL, GOOGLE_MAPS_KEY, SECRET_KEY, ALLOWED_HOSTS, IMPORTER_USER and DEBUG must be defined in settings_local.py')
+    raise Exception('''DATABASE_URL, 
+                     GOOGLE_MAPS_KEY, 
+                     SECRET_KEY, 
+                     ALLOWED_HOSTS, 
+                     IMPORTER_USER, 
+                     OSM_API_KEY and DEBUG must be defined in settings_local.py''')
 
 # Application definition
 
@@ -41,7 +46,6 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'languages_plus',
     'countries_plus',
-    'cities',
     'reversion',
     'leaflet',
     'bootstrap_pagination',
@@ -161,6 +165,7 @@ LOGIN_REQUIRED_URLS_EXCEPTIONS = (
     r'.*/login(.*)$',
     r'.*/logout(.*)$',
     r'.*/admin(.*)$',
+    r'.*/api(.*)$',
 )
 
 LOGIN_URL = reverse_lazy('account_login')
@@ -183,10 +188,20 @@ ALLOWED_CLASS_FOR_NAME = [
     'Emplacement', 'Geosite', 'Violation'
 ]
 
-LEAFLET_CONFIG = {
-    'DEFAULT_CENTER': (15.0, 45.0),
-    'DEFAULT_ZOOM': 2,
-    'MIN_ZOOM': 2,
-    'MAX_ZOOM': 18,
-}
+OSM_DATA = [
+    {
+        'country': 'Nigeria',
+        'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
+        'osm_id': '192787',
+        'boundary_url': 'https://osm.wno-edv-service.de/boundaries/exportBoundaries',
+        'country_code': 'ng',
+    },
+    # {
+    #     'country': 'Mexico',
+    #     'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
+    #     'osm_id': '114686',
+    #     'boundary_url': 'https://osm.wno-edv-service.de/boundaries/exportBoundaries',
+    #     'country_code': 'mx',
+    # },
+]
 

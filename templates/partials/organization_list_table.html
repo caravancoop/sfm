@@ -25,15 +25,15 @@
                     {% endif %}
                 </th>
                 <th>
-                    Site Geoname
+                    Site OSM Name
                     {% if sortable == 'True' %}
-                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='geoname' %}">
+                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='osmname' %}">
                         <i class="fa fa-sort"></i>
                     </a>
                     {% endif %}
                 </th>
                 <th>
-                    Admin 1 Geoname
+                    Admin 1 OSM Name
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-organization' %}?{% query_transform request order_by='admin1' %}">
                         <i class="fa fa-sort"></i>
@@ -86,8 +86,8 @@
                         <td>
                             {% for emplacement in object.emplacementorganization_set.all %}
                                 {% with site=emplacement.object_ref.site.get_value.value %}
-                                    {% if site.geoname.get_value %}
-                                        <a target="_blank" href="http://geonames.org/{{ site.geonameid.get_value }}">{{ site.geoname.get_value }}</a>
+                                    {% if site.osmname.get_value %}
+                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.osmid.get_value }}">{{ site.osmname.get_value }}</a>
                                     {% endif %}
                                 {% endwith %}
                             {% endfor %}
@@ -96,7 +96,7 @@
                             {% for emplacement in object.emplacementorganization_set.all %}
                                 {% with site=emplacement.object_ref.site.get_value.value %}
                                     {% if site.adminlevel1.get_value %}
-                                        {{ site.adminlevel1.get_value }}
+                                        <a target="_blank" href="https://www.openstreetmap.org/search?query={{ site.adminlevel1.get_value }}">{{ site.adminlevel1.get_value }}</a>
                                     {% endif %}
                                 {% endwith %}
                                 {% if not forloop.last %}<br />{% endif %}

@@ -57,7 +57,7 @@ def area_csv(request):
             area.id,
             area.name.get_value(),
             area.code.get_value(),
-            area.geoname.get_value(),
+            area.osmname.get_value(),
             str(area.geometry.get_value()),
         ])
 

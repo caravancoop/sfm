@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
 from django.db.models import Max
@@ -21,6 +23,9 @@ CONFIDENCE_LEVELS = (
 
 class Violation(models.Model, BaseModel):
     confidence_required = False
+    uuid = models.UUIDField(default=uuid.uuid4, 
+                            editable=False, 
+                            db_index=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -31,8 +36,8 @@ class Violation(models.Model, BaseModel):
         )
         self.adminlevel1 = ComplexFieldContainer(self, ViolationAdminLevel1)
         self.adminlevel2 = ComplexFieldContainer(self, ViolationAdminLevel2)
-        self.geoname = ComplexFieldContainer(self, ViolationGeoname)
-        self.geonameid = ComplexFieldContainer(self, ViolationGeonameId)
+        self.osmname = ComplexFieldContainer(self, ViolationOSMName)
+        self.osmid = ComplexFieldContainer(self, ViolationOSMId)
         self.division_id = ComplexFieldContainer(self, ViolationDivisionId)
         self.location = ComplexFieldContainer(self, ViolationLocation)
         self.description = ComplexFieldContainer(self, ViolationDescription)
@@ -47,8 +52,8 @@ class Violation(models.Model, BaseModel):
         self.types = ComplexFieldListContainer(self, ViolationType)
 
         self.complex_fields = [self.startdate, self.enddate, self.locationdescription,
-                               self.adminlevel1, self.adminlevel2, self.geoname,
-                               self.geonameid, self.location, self.description, 
+                               self.adminlevel1, self.adminlevel2, self.osmname,
+                               self.osmid, self.location, self.description, 
                                self.division_id]
 
         self.required_fields = []
@@ -95,17 +100,17 @@ class ViolationAdminLevel2(ComplexField):
 
 @versioned
 @sourced
-class ViolationGeoname(ComplexField):
+class ViolationOSMName(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("GeoName name")
+    field_name = _("OSM Name")
 
 @versioned
 @sourced
-class ViolationGeonameId(ComplexField):
+class ViolationOSMId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("GeoName ID")
+    field_name = _("OSM ID")
 
 @versioned
 @sourced

@@ -1,6 +1,6 @@
 import json
 from uuid import uuid4
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse, HttpResponseNotFound
@@ -19,16 +19,17 @@ from django.contrib.auth.models import User
 from reversion.models import Version
 from extra_views import FormSetView
 
+from countries_plus.models import Country
+
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, Alias as OAlias
 from person.models import Person, PersonAlias, Alias as PAlias
-from cities.models import Place, City, Country, Region, Subregion, District
 from violation.models import Violation
 from membershipperson.models import MembershipPerson
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
 from complex_fields.models import CONFIDENCE_LEVELS
-from sfm_pc.utils import import_class, get_geoname_by_id
+from sfm_pc.utils import import_class, get_osm_by_id
 from sfm_pc.forms import MergeForm
 from sfm_pc.base_views import UtilityMixin
 
@@ -38,14 +39,6 @@ SEARCH_CONTENT_TYPES = {
     'Organization': Organization,
     'Person': Person,
     'Violation': Violation,
-}
-
-GEONAME_TYPES = {
-    'country': (Country, 'Country',),
-    'city': (City, None, ),
-    'district': (District, 'PPLX',),
-    'region': (Region, 'ADM1',),
-    'subregion': (Subregion, 'ADM2',),
 }
 
 class Dashboard(TemplateView):
@@ -119,7 +112,7 @@ class Dashboard(TemplateView):
               ON e.id = s.object_ref_id 
             JOIN geosite_geosite AS gs 
               ON s.value_id = gs.id 
-            JOIN geosite_geositegeonameid AS g 
+            JOIN geosite_geositeosmid AS g 
               ON gs.id = g.object_ref_id 
             GROUP BY g.value 
             HAVING(COUNT(*)>1) 
@@ -129,12 +122,14 @@ class Dashboard(TemplateView):
         
         context['org_geo_counts'] = OrderedDict()
         for row in c:
-            context['org_geo_counts'][get_geoname_by_id(row[0])] = [Organization.objects.get(id=i) for i in row[1]]
+            osm_feature = get_osm_by_id(row[0])
+            organizations = [Organization.objects.get(id=i) for i in row[1]]
+            context['org_geo_counts'][osm_feature.id] = organizations
         
         c.execute(''' 
             SELECT g.value, array_agg(v.id) 
             FROM violation_violation AS v 
-            JOIN violation_violationgeonameid AS g 
+            JOIN violation_violationosmid AS g 
               ON v.id = g.object_ref_id
             GROUP BY g.value 
             HAVING(COUNT(*)>1) 
@@ -144,7 +139,9 @@ class Dashboard(TemplateView):
         
         context['event_geo_counts'] = OrderedDict()
         for row in c:
-            context['event_geo_counts'][get_geoname_by_id(row[0])] = [Violation.objects.get(id=i) for i in row[1]]
+            osm_feature = get_osm_by_id(row[0])
+            violations = [Violation.objects.get(id=i) for i in row[1]]
+            context['event_geo_counts'][osm_feature.id] = violations
 
         return context
 
@@ -366,9 +363,8 @@ class EntityMergeView(FormView, UtilityMixin):
 def search(request):
     query = request.GET.get('q')
     filters = request.GET.getlist('entity_type')
-    location = request.GET.get('geoname_id')
+    location = request.GET.get('osm_id')
     radius = request.GET.get('radius')
-    geoname_type = request.GET.get('geoname_type')
 
     results = {}
     select = ''' 
@@ -399,18 +395,16 @@ def search(request):
             AND ({filts})
         '''.format(select=select, filts=filts)
     
-    geoname_obj = None
-    if location and radius and geoname_type:
+    osm = None
+    if location and radius:
 
         # TODO: Make this work for areas once we have them
-        model, _ = GEONAME_TYPES[geoname_type]
-        geoname_obj = model.objects.get(id=location)
+        osm = get_osm_by_id(location)
         select = ''' 
             {select}
-            AND ST_Intersects(ST_Buffer_Meters(ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), {radius}), site)
+            AND ST_Intersects(ST_Buffer_Meters('{location}', {radius}), site)
         '''.format(select=select,
-                   lon=geoname_obj.location.x,
-                   lat=geoname_obj.location.y,
+                   location=osm.geometry,
                    radius=(int(radius) * 1000))
 
     select = ''' 
@@ -447,54 +441,60 @@ def search(request):
         'query': query, 
         'filters': filters,
         'radius': radius,
-        'geoname': geoname_obj,
-        'geoname_type': geoname_type,
+        'osm': osm,
         'radius_choices': ['1','5','10','25','50','100'],
     }
 
     return render(request, 'sfm/search.html', context)
 
-def geoname_autocomplete(request):
+def osm_autocomplete(request):
     term = request.GET.get('q')
-    types = request.GET.getlist('types')
+    geo_type = request.GET.get('geo_type')
+    
+    q_args = [term]
+    
+    query = '''
+        SELECT 
+          *,
+          ST_X(ST_Centroid(geometry)) AS longitude,
+          ST_Y(ST_Centroid(geometry)) AS latitude
+        FROM osm_data 
+        WHERE plainto_tsquery('english', %s) @@ search_index
+    '''
+    
+    if geo_type:
+        query = '{} AND feature_type = %s'.format(query)
+        q_args.append(geo_type)
 
-    if not types:
-        types = request.GET.getlist('types[]', GEONAME_TYPES.keys())
+    cursor = connection.cursor()
+    cursor.execute(query, q_args)
+    
+    columns = [c[0] for c in cursor.description]
+    results_tuple = namedtuple('OSMFeature', columns)
+
+    search_results = [results_tuple(*r) for r in cursor]
     
     results = []
-    for geo_type in types:
-        model, code = GEONAME_TYPES[geo_type]
+    
+    for result in search_results:
         
-        query_kwargs = {'name__istartswith': term}
+        map_image = None
         
-        for result in model.objects.filter(**query_kwargs):
-            
-            hierarchy = result.hierarchy
-            hierarchy.reverse()
-
-            value = ', '.join(m.name for m in hierarchy)
-
-            map_image = None
-
-            if hasattr(result, 'location'):
-                latlng = '{0},{1}'.format(result.location.y, result.location.x)
-                map_image = 'https://maps.googleapis.com/maps/api/staticmap'
-                map_image = '{0}?center={1}&zoom=10&size=100x100&key={2}&scale=2'.format(map_image,
-                                                                                         latlng,
-                                                                                         settings.GOOGLE_MAPS_KEY)
-            
-            if geo_type == 'city':
-                code = result.kind
-
-            results.append({
-                'text': '{0} (GeonameID: {1}, {2})'.format(value, result.id, code),
-                'value': value,
-                'id': result.id,
-                'type': geo_type,
-                'map_image': map_image,
-                'code': code,
-            })
-
+        if hasattr(result, 'geometry'):
+            latlng = '{0},{1}'.format(result.latitude, result.longitude)
+            map_image = 'https://maps.googleapis.com/maps/api/staticmap'
+            map_image = '{0}?center={1}&zoom=10&size=100x100&key={2}&scale=2'.format(map_image,
+                                                                                     latlng,
+                                                                                     settings.GOOGLE_MAPS_KEY)
+        results.append({
+            'text': '{0} (OSM ID: {1})'.format(result.name, result.id),
+            'value': result.name,
+            'id': result.id,
+            'map_image': map_image,
+            'type': result.feature_type,
+            'admin_level': result.admin_level,
+        })
+    
     results.sort(key=lambda x:x['text'])
     return HttpResponse(json.dumps(results),content_type='application/json')
 
@@ -505,7 +505,7 @@ def division_autocomplete(request):
     results = []
     for country in countries:
         results.append({
-            'text': '{0} (ocd-division/country:{1})'.format(str(country.name), country.code.lower()),
-            'id': 'ocd-division/country:{}'.format(country.code.lower()),
+            'text': '{0} (ocd-division/country:{1})'.format(str(country.name), country.iso.lower()),
+            'id': 'ocd-division/country:{}'.format(country.iso.lower()),
         })
     return HttpResponse(json.dumps(results), content_type='application/json')

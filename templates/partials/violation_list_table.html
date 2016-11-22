@@ -21,9 +21,9 @@
                 <th>Description</th>
                 <th>Violation types</th>
                 <th>
-                    Geoname
+                    OSM Name
                     {% if sortable == 'True' %}
-                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='geoname' %}">
+                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='osmname' %}">
                         <i class="fa fa-sort"></i>
                     </a>
                     {% endif %}
@@ -68,9 +68,9 @@
                         {% endfor %}
                     </td>
                     <td>
-                        {% if object.geoname.get_value and object.geonameid.get_value %}
-                            <a target="_blank" href="http://geonames.org/{{ object.geonameid.get_value }}">
-                                {{ object.geoname.get_value }}
+                        {% if object.osmname.get_value and object.osmnameid.get_value %}
+                            <a target="_blank" href="https://www.openstreetmap.org/node/{{ object.osmid.get_value }}">
+                                {{ object.osmname.get_value }}
                             </a> &nbsp;
                         {% endif %}
                         {% if object.adminlevel1.get_value %}

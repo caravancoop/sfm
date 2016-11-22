@@ -15,17 +15,16 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 
 from extra_views import FormSetView
-from cities.models import City, Country, Region, Subregion, District
 
 from source.models import Source
 from geosite.models import Geosite
 from emplacement.models import Emplacement
-from area.models import Area
+from area.models import Area, Code
 from association.models import Association
 from organization.forms import OrganizationForm, OrganizationGeographyForm
 from organization.models import Organization, OrganizationName, \
     OrganizationAlias, Alias, OrganizationClassification, Classification
-from sfm_pc.utils import deleted_in_str, get_geoname_by_id
+from sfm_pc.utils import deleted_in_str, get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 class OrganizationDetail(DetailView):
@@ -48,7 +47,7 @@ class OrganizationDetail(DetailView):
         context['sites'] = []
         emplacements = context['organization'].emplacementorganization_set.all()
         for emplacement in emplacements:
-            if emplacement.object_ref.site.get_value().value.geonameid.get_value():
+            if emplacement.object_ref.site.get_value().value.osmid.get_value():
                 context['sites'].append(emplacement.object_ref.site.get_value().value)
         
         return context
@@ -59,7 +58,7 @@ class OrganizationList(PaginatedList):
     orderby_lookup = {
         'name': 'organizationname__value',
         'parent': 'parent_organization__object_ref__compositionparent__value__organizationname__value',
-        'geoname': 'emplacementorganization__object_ref__emplacementsite__value__geositegeoname__value',
+        'osmname': 'emplacementorganization__object_ref__emplacementsite__value__geositeosmname__value',
         'admin1': 'emplacementorganization__object_ref__emplacementsite__value__geositeadminlevel1__value',
         'classification': 'organizationclassification__value__value'
     }
@@ -219,7 +218,7 @@ class OrganizationUpdate(BaseUpdateView):
         self.aliases = request.POST.getlist('alias')
         self.classifications = request.POST.getlist('classification')
         
-        self.validateForm(request.POST)
+        return self.validateForm()
     
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -285,7 +284,11 @@ class OrganizationUpdate(BaseUpdateView):
             
             organization.organizationclassification_set = classifications
             organization.save()
-
+        
+        messages.add_message(self.request, 
+                             messages.INFO, 
+                             'Organization {} saved!'.format(form.cleaned_data['name_text']))
+        
         return response
 
     def get_context_data(self, **kwargs):
@@ -384,27 +387,30 @@ class OrganizationCreateGeography(BaseFormSetView):
             startdate = formset.data[form_prefix + 'startdate']
             enddate = formset.data[form_prefix + 'enddate']
             org_id = formset.data[form_prefix + 'org']
-            geoid = formset.data[form_prefix + 'geoname']
+            geoid = formset.data[form_prefix + 'osm_id']
             geotype = formset.data[form_prefix + 'geotype']
             
-            geo = get_geoname_by_id(geoid)
-            parent = geo.parent
-            admin1 = parent.name
-            admin2 = parent.parent.name
-            coords = getattr(geo, 'location')
+            geo = get_osm_by_id(geoid)
+            hierarchy = get_hierarchy_by_id(geoid)
             
-            if isinstance(geo, Country):
-                country_code = geo.code.lower()
-            elif isinstance(geo, Region):
-                country_code = geo.country.code.lower()
-            elif isinstance(geo, Subregion) or isinstance(geo, City):
-                country_code = geo.region.country.code.lower()
+            admin1 = None
+            admin2 = None
+
+            if hierarchy:
+                for member in hierarchy:
+                    if member.admin_level == 6:
+                        admin1 = member.name
+                    elif member.admin_level == 4:
+                        admin2 = member.name
+            
+            coords = getattr(geo, 'geometry')
+            country_code = geo.country_code.lower()
             
             division_id = 'ocd-division/country:{}'.format(country_code)
             
             if formset.data[form_prefix + 'geography_type'] == 'Site':
                 
-                site, created = Geosite.objects.get_or_create(geositegeonameid__value=geo.id)
+                site, created = Geosite.objects.get_or_create(geositeosmid__value=geo.id)
                 
 
                 site_data = {
@@ -413,12 +419,12 @@ class OrganizationCreateGeography(BaseFormSetView):
                         'confidence': 1,
                         'sources': [source]
                     },
-                    'Geosite_GeositeGeoname': {
+                    'Geosite_GeositeOSMName': {
                         'value': geo.name,
                         'confidence': 1,
                         'sources': [source]
                     },
-                    'Geosite_GeositeGeonameId': {
+                    'Geosite_GeositeOSMId': {
                         'value': geo.id,
                         'confidence': 1,
                         'sources': [source]
@@ -479,11 +485,9 @@ class OrganizationCreateGeography(BaseFormSetView):
             
             else:
                 
-                area, created = Area.objects.get_or_create(areageonameid__value=geo.id)
+                area, created = Area.objects.get_or_create(areaosmid__value=geo.id)
                 
                 if created:
-                    
-                    code_obj, created = Code.objects.get_or_create(value=code)
                     
                     area_data = {
                         'Area_AreaName': {
@@ -491,12 +495,12 @@ class OrganizationCreateGeography(BaseFormSetView):
                             'confidence': 1,
                             'sources': [source]
                         },
-                        'Area_AreaGeoname': {
+                        'Area_AreaOSMName': {
                             'value': geo.name,
                             'confidence': 1,
                             'sources': [source]
                         },
-                        'Area_AreaGeonameId': {
+                        'Area_AreaOSMId': {
                             'value': geo.id,
                             'confidence': 1,
                             'sources': [source]
@@ -506,13 +510,8 @@ class OrganizationCreateGeography(BaseFormSetView):
                             'confidence': 1,
                             'sources': [source]
                         },
-                        'Area_AreaCode': {
-                            'value': code_obj,
-                            'confidence': 1,
-                            'sources': [source]
-                        },
                         'Area_AreaGeometry': {
-                            'value': geometry,
+                            'value': geo.geometry,
                             'confidence': 1,
                             'sources': [source]
                         }
