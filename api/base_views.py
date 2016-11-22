@@ -470,8 +470,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               g.name,
               g.admin_level_1 AS admin_level_1_osm_name,
               g.osmname AS osm_name,
-              g.first_cited AS date_first_cited,
-              g.last_cited AS date_last_cited,
+              e.start_date AS date_first_cited,
+              e.end_date AS date_last_cited,
               ST_AsGeoJSON(g.coordinates)::json AS location
             FROM organization AS o
             JOIN emplacement AS e
@@ -480,8 +480,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               ON e.site_id = g.id
             WHERE o.id = %s
             ORDER BY o.id, 
-                     g.last_cited DESC, 
-                     g.first_cited DESC
+                     e.end_date::date DESC, 
+                     e.start_date::date DESC
         '''
         
         cursor = connection.cursor()
@@ -504,6 +504,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               a.name,
               a.osmname AS osm_name,
               a.osmid,
+              ass.start_date AS first_cited,
+              ass.end_date AS last_cited,
               ST_AsGeoJSON(ST_Simplify(a.geometry, 0.001))::json AS geometry
             FROM organization AS o
             JOIN association AS ass
@@ -512,8 +514,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               ON ass.area_id = a.id
             WHERE o.id = %s
             ORDER BY o.id, 
-                     a.last_cited DESC, 
-                     a.first_cited DESC
+                     ass.end_date::date DESC, 
+                     ass.start_date::date DESC
         '''
         
         cursor = connection.cursor()

@@ -297,10 +297,16 @@ class OrganizationDetailView(JSONAPIView):
               MAX(o.classification_confidence) AS classifications_confidence,
               json_agg(o.classification_source) AS classifications_sources,
               MAX(o.division_id) AS division_id,
-              COUNT(DISTINCT v.id) AS events_count
+              COUNT(DISTINCT v.id) AS events_count,
+              COALESCE(MIN(e.start_date::date), MIN(a.start_date::date)) AS first_cited,
+              COALESCE(MAX(e.end_date::date), MAX(a.end_date::date)) AS last_cited
             FROM organization_sources AS o
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
+            LEFT JOIN emplacement AS e
+              ON o.id = e.organization_id
+            LEFT JOIN association AS a
+              ON o.id = a.organization_id
             WHERE o.id = %s
             GROUP BY o.id
         '''
