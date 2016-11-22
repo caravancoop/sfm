@@ -27,13 +27,17 @@ class OrganizationSearchView(JSONAPIView):
             'operators': ['eq'],
             'validator': integerValidator,
         },
-        # 'events_count': {
-        #     'field': 'events_count',
-        #     'operators': ['gte', 'lte',],
-        #     'validator': integerValidator,
-        # },
     }
     
+    having_fields = {
+        'events_count': {
+            'field': 'DISTINCT v.id',
+            'operators': ['gte', 'lte',],
+            'validator': integerValidator,
+            'function': 'COUNT',
+        },
+    }
+
     order_by_fields = {
         'name': {'field': 'name'},
         'date_first_cited': {'field': 'date_first_cited'},
@@ -101,15 +105,18 @@ class OrganizationSearchView(JSONAPIView):
             {}
         '''.format(base_query)
         
-        organizations, new_args = self.appendWhereClauses(organizations)
+        organizations, where_args = self.appendWhereClauses(organizations)
         
-        new_args = query_args + new_args
-
         organizations = '{} GROUP BY o.id'.format(organizations)
+        
+        organizations, having_args = self.appendHavingClauses(organizations)
+        
+        new_args = query_args + having_args + where_args
 
         organizations = self.orderPaginate(organizations)
         
         cursor = connection.cursor()
+        
         cursor.execute(organizations, new_args)
         columns = [c[0] for c in cursor.description]
         
@@ -147,18 +154,22 @@ class PeopleSearchView(JSONAPIView):
             'operators': ['eq'],
             'validator': integerValidator,
         },
-        # 'events_count': {
-        #     'field': 'events_count',
-        #     'operators': ['gte', 'lte',],
-        #     'validator': integerValidator,
-        # },
+    }
+    
+    having_fields = {
+        'events_count': {
+            'field': 'DISTINCT v.id',
+            'operators': ['gte', 'lte',],
+            'validator': integerValidator,
+            'function': 'COUNT',
+        },
     }
     
     order_by_fields = {
         'name': {'field': 'name'},
-        # 'events_count': {},
+        'events_count': {'field': 'events_count'},
         '-name': {'field': 'name'},
-        # '-events_count',
+        '-events_count': {'field': 'events_count'},
     }
     
     required_params = ['q']
@@ -208,11 +219,13 @@ class PeopleSearchView(JSONAPIView):
               {}
         '''.format(base_query)
         
-        people, new_args = self.appendWhereClauses(people)
-        
-        new_args = query_args + new_args
+        people, where_args = self.appendWhereClauses(people)
 
         people = '{} GROUP BY p.id'.format(people)
+        
+        people, having_args = self.appendHavingClauses(people)
+        
+        new_args = query_args + where_args + having_args
         
         people = self.orderPaginate(people)
         

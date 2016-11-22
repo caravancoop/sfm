@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import itertools
 
 from django.http import JsonResponse, HttpResponse
 from django.views.generic import TemplateView
@@ -52,14 +53,16 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
     def dispatch(self, request, *args, **kwargs):
         errors = []
         self.wheres = []
+        self.having = []
         self.order_bys = []
 
         filter_fields = list(getattr(self, 'filter_fields', {}).keys())
+        having_fields = list(getattr(self, 'having_fields', {}).keys())
         order_by_fields = list(getattr(self, 'order_by_fields', {}).keys())
         required_params = getattr(self, 'required_params', [])
         optional_params = getattr(self, 'optional_params', [])
 
-        valid_params = required_params + filter_fields + order_by_fields + optional_params
+        valid_params = required_params + filter_fields + order_by_fields + optional_params + having_fields
         
         incoming_params = list(self.request.GET.keys())
         
@@ -99,6 +102,21 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 else:
                     self.wheres.append((field, operator, value,))
             
+            elif field in having_fields:
+
+                value = self.request.GET[query_param]
+                
+                validator = self.having_fields[field]['validator']
+                
+                if validator:
+                    try:
+                        validator(value)
+                        self.having.append((field, operator, value,))
+                    except ValidationError as e:
+                        errors.append("Value for '{0}' is not valid: {1}".format(field, e.message))
+                else:
+                    self.having.append((field, operator, value,))
+
             elif field == 'o':
                 value = self.request.GET['o']
                 if value not in order_by_fields:
@@ -144,6 +162,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
     def checkOperator(self, field, operator):
         if field in self.filter_fields:
             if operator not in self.filter_fields[field]['operators']:
+                return False
+        elif field in self.having_fields:
+            if operator not in self.having_fields[field]['operators']:
                 return False
         elif operator != 'eq':
             return False
@@ -661,11 +682,28 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
                 if operator == 'IN':
                     value = tuple(v for v in value.split(','))
+                    clause = 'TRIM({0}) {1} %s'.format(db_field, operator)
 
                 where_clauses.append((clause, value,))
         
         return where_clauses
         
+    def makeHavingClauses(self):
+        having_clauses = []
+        
+        for field, operator, value in self.having:
+            operator = OPERATOR_LOOKUP[operator]
+
+            db_field = self.having_fields[field]['field']
+            aggregate_function = self.having_fields[field]['function']
+            
+            clause = '{function}({field}) {operator} %s'.format(function=aggregate_function,
+                                                                field=db_field,
+                                                                operator=operator)
+            having_clauses.append((clause, value,))
+
+        return having_clauses
+
     def makeOrderBy(self):
         order_bys = []
 
@@ -689,20 +727,25 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                   query, 
                   grouper):
         
+        q_args = []
         group_by = 'GROUP BY TRIM({0}), uuid'.format(grouper)
+        
+        having_clauses, q_args = self.appendHavingClauses('')
 
         facets_counts = '''
             SELECT 
               SUM(facet_count)::int AS facet_count,
-              facet 
+              facet,
+              uuid
             FROM (
               {0} 
               {1}
+              {2}
             ) AS s
-            GROUP BY facet
-        '''.format(query, group_by)
+            GROUP BY facet, uuid
+        '''.format(query, group_by, having_clauses)
         
-        return facets_counts
+        return facets_counts, q_args
     
     def retrieveFacetsCounts(self, base_query, query_args):
 
@@ -711,26 +754,33 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             facets_counts = '''
                 SELECT 
                   TRIM({0}) AS facet,
-                  COUNT(DISTINCT uuid) AS facet_count
+                  COUNT(DISTINCT uuid) AS facet_count,
+                  uuid
                 {1}
             '''.format(facet, base_query)
             
             facets_counts, this_facet_args = self.appendWhereClauses(facets_counts)
-            
             this_facet_args = query_args + this_facet_args
-
-            facets_counts = self.getFacets(facets_counts, facet)
+            
+            facets_counts, more_args = self.getFacets(facets_counts, facet)
+            this_facet_args = this_facet_args + more_args
             
             cursor = connection.cursor()
             cursor.execute(facets_counts, this_facet_args)
             
             facets_counts = [r for r in cursor]
             
-            count = int(sum(f[0] for f in facets_counts))
+            count = int(len({f[2] for f in facets_counts}))
             
+            facets_counts = sorted(facets_counts, key=lambda x: x[1])
+            aggregated_facets_counts = []
+
+            for f, group in itertools.groupby(facets_counts, key=lambda x: x[1]):
+                aggregated_facets_counts.append([f, len(list(group))])
+
             this_facet_args = []
 
-            yield facet, count, facets_counts
+            yield facet, count, aggregated_facets_counts
     
     def orderPaginate(self, query):
         order_by = self.makeOrderBy()
@@ -751,3 +801,20 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 query = '{0} OFFSET {1}'.format(query, offset)
 
         return query
+    
+    def appendHavingClauses(self, query):
+        having_clauses = self.makeHavingClauses()
+        
+        these_args = []
+        if having_clauses:
+
+            query_fmt = '{0} HAVING ({1})'
+            clauses = []
+
+            for clause, value in having_clauses:
+                clauses.append(clause)
+                these_args.append(value)
+
+            query = query_fmt.format(query, ' AND '.join(clauses))
+
+        return query, these_args
