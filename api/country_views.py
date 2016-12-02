@@ -311,7 +311,7 @@ class CountryEventsView(JSONAPIView):
               ST_ASGeoJSON(MAX(v.location))::json AS location,
               MAX(p.name) AS perpetrator_name,
               array_agg(v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(v.violation_type) AS violation_types,
+              array_agg(v.violation_type) AS classifications,
               json_agg(row_to_json(o.*)) AS perpetrator_organization
             FROM violation AS v
             LEFT JOIN person AS p
