@@ -8,7 +8,6 @@ class CountryListView(JSONAPIView):
     
     safe = False
     optional_params = ['tolerance']
-    filter_fields = {}
     
     def get_context_data(self, **kwargs):
         
@@ -88,7 +87,6 @@ class CountryGeoJSONView(JSONAPIView):
     
     safe = False
     optional_params = ['tolerance']
-    filter_fields = {}
 
     def get_context_data(self, **kwargs):
         
@@ -125,7 +123,6 @@ class CountryGeoJSONView(JSONAPIView):
 class CountryGeometryView(JSONAPIView):
     
     optional_params = ['tolerance', 'classification', 'bbox']
-    filter_fields = {}
     
     safe = False
 
@@ -249,7 +246,7 @@ class CountryMapView(JSONAPIView):
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
               array_agg(v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(v.violation_type) AS violation_types,
+              array_agg(v.violation_type) AS classifications,
               json_agg(row_to_json(o.*)) AS perpetrator_organization
             FROM violation AS v
             LEFT JOIN person AS p

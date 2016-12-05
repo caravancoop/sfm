@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from django.db import connection
+from django.db import connection, utils
 
 from api.base_views import JSONAPIView, dateValidator, integerValidator
 
@@ -83,7 +83,7 @@ class EventDetailView(JSONAPIView):
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
               array_agg(v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(v.violation_type) AS violation_types,
+              array_agg(v.violation_type) AS classifications,
               json_agg(row_to_json(o.*)) AS perpetrator_organization
             FROM violation AS v
             LEFT JOIN person AS p
@@ -113,7 +113,11 @@ class EventDetailView(JSONAPIView):
 
         cursor = connection.cursor()
         
-        cursor.execute(event, [kwargs['id']])
+        try:
+            cursor.execute(event, [kwargs['id']])
+        except utils.DataError as e:
+            return {'status': 'error', 'message': 'Event with id "{}" not found'.format(kwargs['id'])}
+
         columns = [c[0] for c in cursor.description]
         events = [OrderedDict(zip(columns, r)) for r in cursor]
         
@@ -239,9 +243,9 @@ class OrganizationChartView(JSONAPIView):
             SELECT 
               o.id,
               MAX(o.name) AS name,
-              array_agg(DISTINCT o.alias) AS other_names,
+              array_agg(DISTINCT TRIM(o.alias)) AS other_names,
               COUNT(DISTINCT v.id) AS events_count,
-              array_agg(DISTINCT o.classification) AS classifications
+              array_agg(DISTINCT TRIM(o.classification)) AS classifications
             FROM organization AS o
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id

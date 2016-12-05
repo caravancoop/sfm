@@ -49,6 +49,11 @@ class JSONResponseMixin(object):
 class JSONAPIView(JSONResponseMixin, TemplateView):
     safe = True
     page_count = 20
+    having_fields = {}
+    filter_fields = {}
+    order_by_fields = {}
+    required_params = []
+    optional_params = []
 
     def dispatch(self, request, *args, **kwargs):
         errors = []
