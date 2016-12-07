@@ -195,7 +195,8 @@ class CountryMapView(JSONAPIView):
             SELECT 
               o.id, 
               MAX(o.name) AS name,
-              array_agg(DISTINCT TRIM(o.alias)) AS other_names,
+              array_agg(DISTINCT TRIM(o.alias)) 
+                FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
               ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
               MAX(e.start_date) AS start_date,
               MAX(e.end_date) AS end_date,
@@ -245,8 +246,10 @@ class CountryMapView(JSONAPIView):
               ST_ASGeoJSON(MAX(v.location))::json AS location,
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
-              array_agg(v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(v.violation_type) AS classifications,
+              array_agg(DISTINCT TRIM(v.perpetrator_classification))
+                FILTER (WHERE TRIM(v.perpetrator_classification) IS NOT NULL) AS perpetrator_classification,
+              array_agg(DISTINCT TRIM(v.violation_type))
+                FILTER (WHERE TRIM(v.violation_type) IS NOT NULL) AS classifications,
               json_agg(row_to_json(o.*)) AS perpetrator_organization
             FROM violation AS v
             LEFT JOIN person AS p
@@ -307,8 +310,10 @@ class CountryEventsView(JSONAPIView):
               MAX(v.division_id) AS division_id,
               ST_ASGeoJSON(MAX(v.location))::json AS location,
               MAX(p.name) AS perpetrator_name,
-              array_agg(v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(v.violation_type) AS classifications,
+              array_agg(DISTINCT TRIM(v.perpetrator_classification))
+                FILTER (WHERE TRIM(v.perpetrator_classification) IS NOT NULL) AS perpetrator_classification,
+              array_agg(DISTINCT TRIM(v.violation_type))
+                FILTER (WHERE TRIM(v.violation_type) IS NOT NULL) AS classifications,
               json_agg(row_to_json(o.*)) AS perpetrator_organization
             FROM violation AS v
             LEFT JOIN person AS p

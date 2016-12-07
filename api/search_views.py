@@ -97,7 +97,8 @@ class OrganizationSearchView(JSONAPIView):
             SELECT 
               o.id, 
               MAX(o.name) AS name,
-              array_agg(DISTINCT TRIM(o.alias)) AS other_names,
+              array_agg(DISTINCT TRIM(o.alias)) 
+                FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
               ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
               MAX(e.start_date) AS date_first_cited,
               MAX(e.end_date) AS date_last_cited,
@@ -214,7 +215,8 @@ class PeopleSearchView(JSONAPIView):
             SELECT
               p.id,
               MAX(p.name) AS name,
-              array_agg(DISTINCT TRIM(p.alias)) AS other_names,
+              array_agg(DISTINCT TRIM(p.alias)) 
+                FILTER (WHERE TRIM(p.alias) IS NOT NULL) AS other_names,
               COUNT(DISTINCT v.id) AS events_count
               {}
         '''.format(base_query)
@@ -314,8 +316,10 @@ class EventSearchView(JSONAPIView):
               MAX(v.osmname) AS osm_name,
               MAX(v.osm_id) AS osm_id,
               MAX(p.name) AS perpetrator_name,
-              array_agg(DISTINCT TRIM(v.perpetrator_classification)) AS perpetrator_classification,
-              array_agg(DISTINCT TRIM(v.violation_type)) AS classifications,
+              array_agg(DISTINCT TRIM(v.perpetrator_classification)) 
+                FILTER (WHERE TRIM(v.perpetrator_classification) IS NOT NULL) AS perpetrator_classification,
+              array_agg(DISTINCT TRIM(v.violation_type)) 
+                FILTER (WHERE TRIM(v.violation_type) IS NOT NULL) AS classifications,
               array_agg(row_to_json(o.*)) AS perpetrator_organization,
               array_agg(json_build_object('name', g.name,
                                           'id', g.id,

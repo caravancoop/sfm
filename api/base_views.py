@@ -143,6 +143,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                     errors.append("'{}' is not a valid page number")
 
             elif field == 'bbox':
+                bbox = self.request.GET['bbox']
                 coords = bbox.split(',')
                 
                 if len(coords) != 4:
@@ -267,8 +268,10 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               MAX(v.division_id) AS division_id,
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
-              array_agg(DISTINCT v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(DISTINCT v.violation_type) AS classifications,
+              array_agg(DISTINCT TRIM(v.perpetrator_classification)) 
+                FILTER (WHERE TRIM(v.perpetrator_classification) IS NOT NULL) AS perpetrator_classification,
+              array_agg(DISTINCT TRIM(v.violation_type)) 
+                FILTER (WHERE TRIM(v.violation_type) IS NOT NULL) AS classifications,
               json_agg(row_to_json(o.*)) AS perpetrator_organization,
               ST_ASGeoJSON(MAX(v.location))::json AS location
             FROM violation AS v
@@ -355,7 +358,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               MAX(m.rank) AS rank,
               MAX(m.role) AS role,
               MAX(m.title) AS title,
-              array_agg(DISTINCT TRIM(p.alias)) AS other_names,
+              array_agg(DISTINCT TRIM(p.alias)) 
+                FILTER (WHERE TRIM(p.alias) IS NOT NULL) AS other_names,
               COUNT(DISTINCT v.id) AS events_count,
               MAX(m.first_cited::DATE) AS first_cited,
               MAX(m.last_cited::DATE) AS last_cited,
@@ -644,14 +648,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         return properties
 
     def makeEvent(self, properties, simple=False):
-        properties['classifications'] = list(set(properties['classifications']))
-
-        perp_class = [c for c in list(set(properties['perpetrator_classification'])) if c]
-        if perp_class:
-            properties['perpetrator_classification'] = perp_class
-        else:
-            properties['perpetrator_classification'] = None
-
+        
         perp_org_ids = []
         perp_orgs = []
         for org in properties['perpetrator_organization']:

@@ -82,8 +82,10 @@ class EventDetailView(JSONAPIView):
               ST_ASGeoJSON(MAX(v.location))::json AS location,
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
-              array_agg(v.perpetrator_classification) AS perpetrator_classification,
-              array_agg(v.violation_type) AS classifications,
+              array_agg(DISTINCT TRIM(v.perpetrator_classification))
+                FILTER (WHERE TRIM(v.perpetrator_classification) IS NOT NULL) AS perpetrator_classification,
+              array_agg(DISTINCT TRIM(v.violation_type))
+                FILTER (WHERE TRIM(v.violation_type) IS NOT NULL) AS classifications,
               json_agg(row_to_json(o.*)) AS perpetrator_organization
             FROM violation AS v
             LEFT JOIN person AS p
@@ -98,7 +100,8 @@ class EventDetailView(JSONAPIView):
               SELECT 
                 o.id, 
                 MAX(o.name) AS name,
-                array_agg(DISTINCT TRIM(o.alias)) AS other_names
+                array_agg(DISTINCT TRIM(o.alias)) 
+                  FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names
               FROM violation AS v
               JOIN geosite AS g
                 ON  ST_Intersects(ST_Buffer_Meters(v.location, 35000), g.coordinates)
@@ -243,9 +246,11 @@ class OrganizationChartView(JSONAPIView):
             SELECT 
               o.id,
               MAX(o.name) AS name,
-              array_agg(DISTINCT TRIM(o.alias)) AS other_names,
+              array_agg(DISTINCT TRIM(o.alias)) 
+                FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
               COUNT(DISTINCT v.id) AS events_count,
-              array_agg(DISTINCT TRIM(o.classification)) AS classifications
+              array_agg(DISTINCT TRIM(o.classification)) 
+                FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications
             FROM organization AS o
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
@@ -294,10 +299,12 @@ class OrganizationDetailView(JSONAPIView):
               MAX(o.name_value) AS name_value,
               MAX(o.name_confidence) AS name_confidence,
               json_agg(o.name_source) AS name_sources,
-              array_agg(DISTINCT TRIM(o.alias_value)) AS other_names_value,
+              array_agg(DISTINCT TRIM(o.alias_value)) 
+                FILTER (WHERE TRIM(o.alias_value) IS NOT NULL) AS other_names_value,
               MAX(o.alias_confidence) AS other_names_confidence,
               json_agg(o.alias_source) AS other_names_sources,
-              array_agg(DISTINCT TRIM(o.classification_value)) AS classifications_value,
+              array_agg(DISTINCT TRIM(o.classification_value)) 
+                FILTER (WHERE TRIM(o.classification_value) IS NOT NULL) AS classifications_value,
               MAX(o.classification_confidence) AS classifications_confidence,
               json_agg(o.classification_source) AS classifications_sources,
               MAX(o.division_id) AS division_id,
@@ -366,7 +373,8 @@ class PersonDetailView(JSONAPIView):
               MAX(p.name_value) AS name_value,
               MAX(p.name_confidence) AS name_confidence,
               json_agg(p.name_source) AS name_sources, 
-              array_agg(DISTINCT TRIM(p.alias_value)) AS other_names_value,
+              array_agg(DISTINCT TRIM(p.alias_value)) 
+                FILTER (WHERE TRIM(p.alias) IS NOT NULL) AS other_names_value,
               MAX(p.alias_confidence) AS other_names_confidence,
               json_agg(p.alias_source) AS other_names_sources,
               MAX(p.division_id) AS division_id,
