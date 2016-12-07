@@ -315,7 +315,7 @@ class EventSearchView(JSONAPIView):
               MAX(v.osm_id) AS osm_id,
               MAX(p.name) AS perpetrator_name,
               array_agg(DISTINCT TRIM(v.perpetrator_classification)) AS perpetrator_classification,
-              array_agg(DISTINCT TRIM(v.violation_type)) AS violation_types,
+              array_agg(DISTINCT TRIM(v.violation_type)) AS classifications,
               array_agg(row_to_json(o.*)) AS perpetrator_organization,
               array_agg(json_build_object('name', g.name,
                                           'id', g.id,

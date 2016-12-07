@@ -390,9 +390,12 @@ class PersonDetailView(JSONAPIView):
             memberships = ''' 
                 SELECT 
                   MAX(member_id::VARCHAR) AS id,
-                  organization_id_value AS organization_value,
-                  MAX(organization_id_confidence) AS organization_confidence,
-                  json_agg(organization_id_sources) AS organization_sources,
+                  organization_id_value AS organization_id_value,
+                  MAX(organization_id_confidence) AS organization_id_confidence,
+                  json_agg(organization_id_sources) AS organization_id_sources,
+                  MAX(name_value) AS organization_name_value,
+                  MAX(name_confidence) AS organization_name_confidence,
+                  json_agg(name_source) AS organization_name_sources,
                   MAX(role_value) AS role_value,
                   MAX(role_confidence) AS role_confidence,
                   json_agg(role_sources) AS role_sources,
@@ -411,13 +414,15 @@ class PersonDetailView(JSONAPIView):
                   MAX(start_context_value) AS start_context_value,
                   MAX(start_context_confidence) AS start_context_confidence,
                   json_agg(start_context_sources) AS start_context_sources,
-                  MAX(first_cited_value) AS first_cited_value,
-                  MAX(first_cited_confidence) AS first_cited_confidence,
-                  json_agg(first_cited_sources) AS first_cited_sources,
-                  MAX(last_cited_value) AS last_cited_value,
-                  MAX(last_cited_confidence) AS last_cited_confidence,
-                  json_agg(last_cited_sources) AS last_cited_sources
-                FROM membershipperson_sources
+                  MAX(first_cited_value) AS date_first_cited_value,
+                  MAX(first_cited_confidence) AS date_first_cited_confidence,
+                  json_agg(first_cited_sources) AS date_first_cited_sources,
+                  MAX(last_cited_value) AS date_last_cited_value,
+                  MAX(last_cited_confidence) AS date_last_cited_confidence,
+                  json_agg(last_cited_sources) AS date_last_cited_sources
+                FROM membershipperson_sources AS mp
+                JOIN organization_sources AS o
+                  ON mp.organization_id_value = o.id
                 WHERE member_id = %s
                 GROUP BY member_id, organization_id_value
             '''
@@ -425,7 +430,7 @@ class PersonDetailView(JSONAPIView):
             columns = [c[0] for c in cursor.description]
             
             memberships = [self.splitSources(dict(zip(columns, r))) for r in cursor]
-            
+
             context['memberships'] = memberships
 
             events, events_nearby = self.makeEntityEvents(person_id, 

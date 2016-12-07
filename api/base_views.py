@@ -764,6 +764,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                   COUNT(DISTINCT uuid) AS facet_count,
                   uuid
                 {1}
+                AND {0} IS NOT NULL
             '''.format(facet, base_query)
             
             facets_counts, this_facet_args = self.appendWhereClauses(facets_counts)
