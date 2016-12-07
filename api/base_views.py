@@ -394,7 +394,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 'rank': row[2],
                 'role': row[3],
                 'title': row[4],
-                'other_names': [i for i in row[5] if i],
+                'other_names': row[5],
                 'events_count': row[6],
                 'first_cited': row[7],
                 'last_cited': row[8],
