@@ -79,6 +79,9 @@ class AreaOSMName(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("OSM name")
+    
+    def __str__(self):
+        return self.value
 
 @versioned
 @sourced

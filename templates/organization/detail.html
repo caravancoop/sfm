@@ -10,7 +10,11 @@
 
 {% block content %}
     <div class="row">
-        {% if sites %}
+        {% if sites and areas %}
+            <div class="col-sm-4">
+        {% elif sites %}
+            <div class="col-sm-8">
+        {% elif areas %}
             <div class="col-sm-8">
         {% else %}
             <div class="col-sm-12">
@@ -38,18 +42,14 @@
         </div>
         {% if sites %}
             <div class="col-sm-4">
-                <div id="osm_map" style="height:180px;"></div>
-                {% for site in sites %}
-                    <h3>
-                        {{ site.osmname }}
-                        <small>
-                            {{ site.adminlevel1 }}
-                            {% if site.adminlevel2.get_value %}
-                                , {{ site.adminlevel2.get_value }}
-                            {% endif %}
-                        </small>
-                    </h3>
-                {% endfor %}
+                <h3>Sites</h3>
+                <div id="osm_site_map" style="height:180px;"></div>
+            </div>
+        {% endif %}
+        {% if areas %}
+            <div class="col-sm-4">
+                <h3>Areas</h3>
+                <div id="osm_area_map" style="height:180px;"></div>
             </div>
         {% endif %}
     </div>
@@ -125,26 +125,50 @@
     {% render_versions organization %}
 {% endblock %}
 
-{% if sites %}
-    {% block extra_js %}
+{% block extra_js %}
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    {% if sites %}
         <script type="text/javascript">
             $(document).ready(function(){
                 var center_x = {{ sites.0.coordinates.get_value.value.x }};
                 var center_y = {{ sites.0.coordinates.get_value.value.y }};
-                var map = L.map('osm_map').setView([center_y, center_x], 10);
+                var site_map = L.map('osm_site_map').setView([center_y, center_x], 10);
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            { attribution: attribution, detectRetina: true }).addTo(map);
+                            { attribution: attribution, detectRetina: true }).addTo(site_map);
                 var markers = L.featureGroup();
                 {% for site in sites %}
-                    markers.addLayer(
-                        L.marker([{{ site.coordinates.get_value.value.y }},{{ site.coordinates.get_value.value.x }}])
+                    var mark = L.marker([{{ site.coordinates.get_value.value.y }},{{ site.coordinates.get_value.value.x }}]);
+                    mark.bindPopup("{{ site.osmname }}");
+                    markers.addLayer(mark);
+                {% endfor %}
+                markers.addTo(site_map);
+                site_map.fitBounds(markers.getBounds(), {'maxZoom': 11});
+            });
+        </script>
+    {% endif %}
+    {% if areas %}
+        <script type="text/javascript">
+            function onEachFeature(feature, layer){
+                console.log(feature);
+                layer.bindPopup(feature.properties.name);
+            }
+            $(document).ready(function(){
+                var area_map = L.map('osm_area_map');
+                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            { attribution: attribution, detectRetina: true }).addTo(area_map);
+                var areas = L.featureGroup();
+                {% for area in areas %}
+                    var geom = {{ area.geometry.get_value.value.geojson|safe}};
+                    geom['properties'] = {'name': "{{ area.osmname }}"};
+                    areas.addLayer(
+                        L.geoJson(geom, {onEachFeature: onEachFeature})
                     );
                 {% endfor %}
-                markers.addTo(map);
-                map.fitBounds(markers.getBounds(), {'maxZoom': 11});
-            })
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+            });
         </script>
-    {% endblock %}
-{% endif %}
+    {% endif %}
+{% endblock %}

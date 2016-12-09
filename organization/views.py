@@ -50,6 +50,12 @@ class OrganizationDetail(DetailView):
             if emplacement.object_ref.site.get_value().value.osmid.get_value():
                 context['sites'].append(emplacement.object_ref.site.get_value().value)
         
+        context['areas'] = []
+        associations = context['organization'].associationorganization_set.all()
+        for association in associations:
+            if association.object_ref.area.get_value().value.osmid.get_value():
+                context['areas'].append(association.object_ref.area.get_value().value)
+        
         return context
 
 class OrganizationList(PaginatedList):

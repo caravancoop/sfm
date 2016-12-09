@@ -58,7 +58,7 @@ class AssociationOrganization(ComplexField):
     field_name = _("Organization")
     
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 @versioned
@@ -69,4 +69,4 @@ class AssociationArea(ComplexField):
     field_name = _("Area")
     
     def __str__(self):
-        return self.value
+        return str(self.value)
