@@ -20,7 +20,6 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.text import slugify
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.db.models.signals import post_save
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -37,33 +36,19 @@ from organization.models import Organization, OrganizationAlias, \
 from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id, \
     CONFIDENCE_MAP
 from sfm_pc.base_views import UtilityMixin
-from sfm_pc.signals import update_source_index, update_publication_index, \
-    update_orgname_index, update_orgalias_index, update_personname_index, \
-    update_personalias_index, update_violation_index
 
 from geosite.models import Geosite
 from emplacement.models import Emplacement
 from area.models import Area, AreaOSMId
 from association.models import Association
 from composition.models import Composition
-from person.models import Person
+from person.models import Person, PersonName, PersonAlias
 from membershipperson.models import MembershipPerson
+from membershiporganization.models import MembershipOrganization
 from violation.models import Violation, Type, ViolationPerpetrator, \
     ViolationPerpetratorOrganization
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-
-class SignalBlocker(object):
-    def __init__(self, signal, receiver, **kwargs):
-        self.signal = signal
-        self.receiver = receiver
-        self.kwargs = kwargs
-
-    def __enter__(self, *args, **kwargs):
-        self.signal.disconnect(self.receiver)
-
-    def __exit__(self, *args, **kwargs):
-        self.signal.connect(self.receiver, **self.kwargs)
 
 
 class Command(UtilityMixin, BaseCommand):
@@ -100,6 +85,34 @@ class Command(UtilityMixin, BaseCommand):
                                                                        SCOPES)
         return credentials
     
+    def disconnectSignals(self):
+        from django.db.models.signals import post_save
+        from sfm_pc.signals import update_source_index, update_publication_index, \
+            update_orgname_index, update_orgalias_index, update_personname_index, \
+            update_personalias_index, update_violation_index
+        
+        post_save.disconnect(receiver=update_source_index, sender=Source)
+        post_save.disconnect(receiver=update_publication_index, sender=Publication)
+        post_save.disconnect(receiver=update_orgname_index, sender=OrganizationName)
+        post_save.disconnect(receiver=update_orgalias_index, sender=OrganizationAlias)
+        post_save.disconnect(receiver=update_personname_index, sender=PersonName)
+        post_save.disconnect(receiver=update_personalias_index, sender=PersonAlias)
+        post_save.disconnect(receiver=update_violation_index, sender=Violation)
+    
+    def connectSignals(self):
+        from django.db.models.signals import post_save
+        from sfm_pc.signals import update_source_index, update_publication_index, \
+            update_orgname_index, update_orgalias_index, update_personname_index, \
+            update_personalias_index, update_violation_index
+        
+        post_save.connect(receiver=update_source_index, sender=Source)
+        post_save.connect(receiver=update_publication_index, sender=Publication)
+        post_save.connect(receiver=update_orgname_index, sender=OrganizationName)
+        post_save.connect(receiver=update_orgalias_index, sender=OrganizationAlias)
+        post_save.connect(receiver=update_personname_index, sender=PersonName)
+        post_save.connect(receiver=update_personalias_index, sender=PersonAlias)
+        post_save.connect(receiver=update_violation_index, sender=Violation)
+
     # @transaction.atomic
     def handle(self, *args, **options):
         
@@ -111,6 +124,9 @@ class Command(UtilityMixin, BaseCommand):
                                                  password=importer_user['password'])
         except IntegrityError:
             self.user = User.objects.get(username=importer_user['username'])
+        
+        # Disconnect post save signals
+        self.disconnectSignals()
 
         # Set the country code for the work
         self.country_code = options['country_code']
@@ -172,6 +188,8 @@ class Command(UtilityMixin, BaseCommand):
                             getattr(self, 'create_{}'.format(entity_type))(row)
         
         self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(options['doc_id'])))
+        # connect post save signals
+        self.connectSignals()
     
     def log_error(self, message):
         log_message = message + ' (context: Sheet {0}, Row {1})'.format(self.current_sheet, self.current_row)
@@ -190,7 +208,10 @@ class Command(UtilityMixin, BaseCommand):
     
     def get_confidence(self, confidence_key):
         key = confidence_key.strip().lower()
-        return CONFIDENCE_MAP[key]
+        if key:
+            return CONFIDENCE_MAP[key]
+        else:
+            return 1
 
     def create_organization(self, org_data):
         organization = None
@@ -297,6 +318,25 @@ class Command(UtilityMixin, BaseCommand):
             }
         }
         
+        membership_positions = {
+            'OrganizationOrganization': {
+                'value': 56,
+                'confidence': 58,
+                'source': 57,
+            },
+            'FirstCitedDate': {
+                'value': 59,
+                'confidence': 61,
+                'source': 60,
+            },
+            'LastCitedDate': {
+                'value': 62,
+                'confidence': 64,
+                'source': 63,
+            },
+            
+        }
+
         # Need to get or create name first
 
         try:
@@ -456,6 +496,80 @@ class Command(UtilityMixin, BaseCommand):
                     else:
                         self.log_error('Parent organization for {} does not have source or confidence'.format(organization.name))
                 
+                # Make memberships
+                
+                try:
+                    member_org_name = org_data[membership_positions['OrganizationOrganization']['value']]
+                except IndexError:
+                    member_org_name = None
+
+                if member_org_name:
+                    try:
+                        confidence = self.get_confidence(org_data[membership_positions['OrganizationOrganization']['confidence']])
+                    except (IndexError, KeyError):
+                        self.log_error('Member organization for {} does not have confidence'.format(member_org_name))
+                        confidence = None
+                    
+                    try:
+                        sources = self.create_sources(org_data[membership_positions['OrganizationOrganization']['source']])
+                    except IndexError:
+                        self.log_error('Member organization for {} does not have a source'.format(member_org_name))
+                        sources = None
+                    
+                    if confidence and sources:
+
+                        org_info = {
+                            'Organization_OrganizationName': {
+                                'value': member_org_name, 
+                                'confidence': confidence,
+                                'sources': sources,
+                            },
+                        }
+                        
+                        try:
+                            member_organization = Organization.objects.get(organizationname__value=member_org_name)
+                            member_organization.update(org_info)
+                        except Organization.DoesNotExist:
+                            member_organization = Organization.create(org_info)
+                        
+                        membership_info = {
+                            'MembershipOrganization_MembershipOrganizationMember': {
+                                'value': organization,
+                                'confidence': confidence,
+                                'sources': sources
+                            },
+                            'MembershipOrganization_MembershipOrganizationOrganization': {
+                                'value': member_organization,
+                                'confidence': confidence,
+                                'sources': sources
+                            },
+                        }
+                        
+                        try:
+                            membership = MembershipOrganization.objects.get(membershiporganizationmember__value=organization,
+                                                                            membershiporganizationorganization__value=member_organization)
+                            sources = set(self.sourcesList(membership, 'member') + \
+                                          self.sourcesList(membership, 'organization'))
+                            membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
+                            membership.update(membership_info)
+
+                        except MembershipOrganization.DoesNotExist:
+                            membership = MembershipOrganization.create(membership_info)
+                        
+                        self.make_relation('LastCitedDate', 
+                                           membership_positions['LastCitedDate'], 
+                                           org_data, 
+                                           membership)
+                        
+                        self.make_relation('FirstCitedDate', 
+                                           membership_positions['FirstCitedDate'], 
+                                           org_data, 
+                                           membership)
+
+                    else:
+                        self.log_error('Member organization for {} does not have source or confidence'.format(member_org_name))
+                
+
                 self.stdout.write(self.style.SUCCESS('Created {}'.format(organization.get_value())))
 
             else:
@@ -975,22 +1089,20 @@ class Command(UtilityMixin, BaseCommand):
                                                              id=publication_id,
                                                              country=pub_country)
                 
-                with SignalBlocker(post_save, update_source_index):
-                    source, created = Source.objects.get_or_create(title=source_title.strip(),
-                                                                   source_url=source_url,
-                                                                   publication=publication,
-                                                                   published_on=parsed_date,
-                                                                   user=self.user)
+                source, created = Source.objects.get_or_create(title=source_title.strip(),
+                                                               source_url=source_url,
+                                                               publication=publication,
+                                                               published_on=parsed_date,
+                                                               user=self.user)
                 
                 sources.append(source)
 
         for source in unparsed:
             d = date(1900, 1, 1)
             
-            with SignalBlocker(post_save, update_source_index):
-                source, created = Source.objects.get_or_create(title=source,
-                                                               user=self.user,
-                                                               published_on=d)
+            source, created = Source.objects.get_or_create(title=source,
+                                                           user=self.user,
+                                                           published_on=d)
             sources.append(source)
 
         return sources

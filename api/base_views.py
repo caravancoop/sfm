@@ -547,7 +547,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                          relationships=True, 
                          simple=False,
                          all_geography=False,
-                         commanders=True):
+                         commanders=True,
+                         memberships=False):
         
         if relationships:
             properties = self.makeOrganizationRelationships(properties)
@@ -558,6 +559,33 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         if not simple:
             properties = self.makeOrganizationGeographies(properties, 
                                                           all_geography=all_geography)
+        
+        if memberships:
+            member_orgs = ''' 
+                SELECT
+                  o.id,
+                  MAX(o.name) AS name,
+                  array_agg(DISTINCT TRIM(o.alias)) 
+                    FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
+                  array_agg(DISTINCT TRIM(o.classification)) 
+                    FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications
+                FROM organization AS o
+                JOIN membershiporganization AS mo
+                  ON o.id = mo.member_id
+                JOIN membershiporganization_membershiporganizationmember AS mmo
+                  ON mo.id = mmo.object_ref_id
+                JOIN membershiporganization_membershiporganizationmember_sources AS mos
+                  ON mmo.id = mos.membershiporganizationmember_id
+                WHERE o.id IN %s
+                GROUP BY o.id
+            '''
+            
+            cursor = connection.cursor()
+            cursor.execute(member_orgs, [tuple(properties['memberships'])])
+            
+            columns = [c[0] for c in cursor.description]
+
+            properties['memberships'] = [dict(zip(columns, r)) for r in cursor]
 
         return properties
     
