@@ -35,7 +35,7 @@ class MembershipPerson(models.Model, BaseModel):
 
         self.required_fields = [
             "MembershipPerson_MembershipPersonMember",
-            "Membership_MembershipOrganization",
+            "MembershipPerson_MembershipPersonOrganization",
         ]
 
     @classmethod
@@ -46,34 +46,6 @@ class MembershipPerson(models.Model, BaseModel):
         except cls.DoesNotExist:
             return None
 
-    def validate(self, dict_values):
-        errors = {}
-
-        first_cited = dict_values.get("Membership_MembershipFirstCitedDate")
-        last_cited = dict_values.get("Membership_MembershipLastCitedDate")
-        if (first_cited and first_cited.get('value') != "" and
-                last_cited and last_cited.get("value") != "" and
-                first_cited.get('value') >= last_cited.get('value')):
-            errors["Membership_MembershipFirstCitedDate"] = (
-                "The first cited date must be before the last cited date"
-            )
-
-        real_start = dict_values.get("Membership_MembershipRealStart")
-        real_end = dict_values.get("Membership_MembershipRealEnd")
-        if (real_start is not None and real_start.get("value") == 'True' and
-            not len(real_start.get('sources'))):
-            errors['Membership_MembershipRealStart'] = ("Sources are required " +
-                                                        "to update this field")
-        if (real_end is not None and real_end.get("value") == 'True' and
-            not len(real_end.get('sources'))):
-            errors['Membership_MembershipRealEnd'] = ("Sources are required " +
-                                                      "to update this field")
-
-        (base_errors, values) = super().validate(dict_values)
-        errors.update(base_errors)
-
-        return (errors, values)
-    
     def get_value(self):
         return '{0} member of {1}'.format(self.member.get_value(),
                                           self.organization.get_value())

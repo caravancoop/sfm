@@ -20,6 +20,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.text import slugify
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.db.models.signals import post_save
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -32,9 +33,14 @@ from countries_plus.models import Country
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName
+
 from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id, \
     CONFIDENCE_MAP
 from sfm_pc.base_views import UtilityMixin
+from sfm_pc.signals import update_source_index, update_publication_index, \
+    update_orgname_index, update_orgalias_index, update_personname_index, \
+    update_personalias_index, update_violation_index
+
 from geosite.models import Geosite
 from emplacement.models import Emplacement
 from area.models import Area, AreaOSMId
@@ -46,6 +52,18 @@ from violation.models import Violation, Type, ViolationPerpetrator, \
     ViolationPerpetratorOrganization
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+
+class SignalBlocker(object):
+    def __init__(self, signal, receiver, **kwargs):
+        self.signal = signal
+        self.receiver = receiver
+        self.kwargs = kwargs
+
+    def __enter__(self, *args, **kwargs):
+        self.signal.disconnect(self.receiver)
+
+    def __exit__(self, *args, **kwargs):
+        self.signal.connect(self.receiver, **self.kwargs)
 
 
 class Command(UtilityMixin, BaseCommand):
@@ -957,19 +975,22 @@ class Command(UtilityMixin, BaseCommand):
                                                              id=publication_id,
                                                              country=pub_country)
                 
-                source, created = Source.objects.get_or_create(title=source_title.strip(),
-                                                               source_url=source_url,
-                                                               publication=publication,
-                                                               published_on=parsed_date,
-                                                               user=self.user)
+                with SignalBlocker(post_save, update_source_index):
+                    source, created = Source.objects.get_or_create(title=source_title.strip(),
+                                                                   source_url=source_url,
+                                                                   publication=publication,
+                                                                   published_on=parsed_date,
+                                                                   user=self.user)
                 
                 sources.append(source)
 
         for source in unparsed:
             d = date(1900, 1, 1)
-            source, created = Source.objects.get_or_create(title=source,
-                                                           user=self.user,
-                                                           published_on=d)
+            
+            with SignalBlocker(post_save, update_source_index):
+                source, created = Source.objects.get_or_create(title=source,
+                                                               user=self.user,
+                                                               published_on=d)
             sources.append(source)
 
         return sources
