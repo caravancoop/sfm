@@ -53,7 +53,9 @@ class MembershipOrganizationMember(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
     value = models.ForeignKey(Organization, default=None, blank=True, null=True)
     field_name = _("Member")
-
+    
+    class Meta:
+        db_table = 'membershiporganization_m'
 
 @versioned
 @sourced
@@ -61,7 +63,9 @@ class MembershipOrganizationOrganization(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
     value = models.ForeignKey(Organization)
     field_name = _("Organization")
-
+    
+    class Meta:
+        db_table = 'membershiporganization_moo'
 
 @versioned
 @sourced
@@ -69,6 +73,9 @@ class MembershipOrganizationFirstCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
     value = ApproximateDateField()
     field_name = _("First cited date")
+    
+    class Meta:
+        db_table = 'membershiporganization_fcd'
 
 
 @versioned
@@ -77,3 +84,6 @@ class MembershipOrganizationLastCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
     value = ApproximateDateField()
     field_name = _("Last cited date")
+    
+    class Meta:
+        db_table = 'membershiporganization_lcd'
