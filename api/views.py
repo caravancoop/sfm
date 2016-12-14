@@ -2,13 +2,13 @@ from collections import OrderedDict
 
 from django.db import connection, utils
 
-from api.base_views import JSONAPIView, dateValidator, integerValidator
+from api.base_views import JSONAPIView
 
-from sfm_pc.utils import get_org_hierarchy_by_id, get_child_orgs_by_id, \
-    REVERSE_CONFIDENCE
+from sfm_pc.utils import get_org_hierarchy_by_id, get_child_orgs_by_id
+
 
 class OSMAutoView(JSONAPIView):
-    
+
     safe = False
     required_params = ['q']
     optional_params = ['bbox']
@@ -22,12 +22,12 @@ class OSMAutoView(JSONAPIView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         q = self.request.GET['q']
         classification = self.request.GET.get('classification')
         bbox = self.request.GET.get('bbox')
 
-        osm = ''' 
+        osm = '''
             SELECT
               id,
               name,
@@ -38,7 +38,7 @@ class OSMAutoView(JSONAPIView):
             WHERE plainto_tsquery('english', %s) @@ search_index
             AND country_code = %s
         '''
-        
+
         args = [q, kwargs['id']]
 
         if classification:
@@ -47,29 +47,30 @@ class OSMAutoView(JSONAPIView):
 
         if bbox:
             osm = '''
-                {} ST_Within(location,  
+                {} ST_Within(location,
                              ST_MakeEnvelope(%s, %s, %s, %s, 4326))
             '''.format(osm)
             args.extend(bbox.split(','))
-        
+
         cursor = connection.cursor()
         cursor.execute(osm, args)
         columns = [c[0] for c in cursor.description]
-        
+
         context = [self.makeFeature(r[4], dict(zip(columns, r))) for r in cursor]
 
         return context
+
 
 class EventDetailView(JSONAPIView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         event = {}
         nearby = []
 
-        event = ''' 
-            SELECT 
+        event = '''
+            SELECT
               v.id,
               MAX(v.start_date) AS start_date,
               MAX(v.end_date) AS end_date,
@@ -94,13 +95,13 @@ class EventDetailView(JSONAPIView):
               ON v.perpetrator_organization_id = o.id
             WHERE v.id = %s
             GROUP BY v.id
-        ''' 
-        
+        '''
+
         nearby = '''
-              SELECT 
-                o.id, 
+              SELECT
+                o.id,
                 MAX(o.name) AS name,
-                array_agg(DISTINCT TRIM(o.alias)) 
+                array_agg(DISTINCT TRIM(o.alias))
                   FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names
               FROM violation AS v
               JOIN geosite AS g
@@ -115,7 +116,7 @@ class EventDetailView(JSONAPIView):
         '''
 
         cursor = connection.cursor()
-        
+
         try:
             cursor.execute(event, [kwargs['id']])
         except utils.DataError as e:
@@ -123,62 +124,63 @@ class EventDetailView(JSONAPIView):
 
         columns = [c[0] for c in cursor.description]
         events = [OrderedDict(zip(columns, r)) for r in cursor]
-        
+
         if events:
             event = self.makeEvent(events[0])
-            
+
             cursor.execute(nearby, [kwargs['id']])
             columns = [c[0] for c in cursor.description]
             nearby = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
-            
+
             event['organizations_nearby'] = nearby
 
         context.update(event)
 
         return context
 
+
 class OrganizationMapView(JSONAPIView):
-    
+
     required_params = ['at']
     optional_params = ['bbox']
     filter_fields = {}
 
     def get_context_data(self, **kwargs):
         context = {}
-        
+
         # Four things: Area, Sites, Events, and Events nearby. All as GeoJSON
-        
+
         organization_id = kwargs['id']
         when = self.request.GET['at']
         bbox = self.request.GET.get('bbox')
-        
+
         q_args = [organization_id, when, when]
-        
-        area_query = ''' 
+
+        area_query = '''
             SELECT DISTINCT ON (area.id)
               area.osmid AS id,
               area.name,
               ST_AsGeoJSON(area.geometry)::json AS geometry,
               ass.start_date,
               ass.end_date
-            FROM area 
+            FROM area
             JOIN association AS ass
               ON area.id = ass.area_id
             WHERE ass.organization_id = %s
               AND (ass.start_date::date <= %s OR ass.end_date::date >= %s)
         '''
-        
+
         if bbox:
             area_query = '''
-                {} AND ST_Intersects(area.geometry,  
+                {} AND ST_Intersects(area.geometry,
                                      ST_MakeEnvelope(%s, %s, %s, %s, 4326))
             '''.format(area_query)
             q_args.extend(bbox.split(','))
 
         area_query = '{} ORDER BY area.id, ass.end_date DESC, ass.start_date DESC'.format(area_query)
-        
-        sites_query = ''' 
-            SELECT 
+
+        sites_query = '''
+            SELECT
               site.osm_id AS id,
               site.name,
               site.osmname AS location,
@@ -187,42 +189,42 @@ class OrganizationMapView(JSONAPIView):
               emplacement.end_date,
               ST_AsGeoJSON(site.coordinates)::json AS geometry
             FROM geosite AS site
-            JOIN emplacement 
+            JOIN emplacement
               ON site.id = emplacement.site_id
             WHERE emplacement.organization_id = %s
-              AND (emplacement.start_date::date <= %s OR 
+              AND (emplacement.start_date::date <= %s OR
                    emplacement.end_date::date >= %s)
         '''
-        
+
         if bbox:
             sites_query = '''
                 {} AND ST_Within(site.geometry, ST_MakeEnvelope(%s, %s, %s, %s, 4326))
             '''.format(sites_query)
 
         cursor = connection.cursor()
-        
+
         # Fetch Area
         cursor.execute(area_query, q_args)
         columns = [c[0] for c in cursor.description]
-        
+
         area = cursor.fetchone()
-        
+
         context['area'] = {}
-        
+
         if area:
             area = OrderedDict(zip(columns, area))
             context['area'] = self.makeFeature(area['geometry'], area)
-        
+
         # Fetch sites
         cursor.execute(sites_query, q_args)
         columns = [c[0] for c in cursor.description]
-        
-        context['sites'] = [self.makeFeature(r[-1], \
+
+        context['sites'] = [self.makeFeature(r[-1],
                             dict(zip(columns, r))) for r in cursor]
 
         # Fetch events
-        events, nearby_events = self.makeEntityEvents(organization_id, 
-                                                      when=when, 
+        events, nearby_events = self.makeEntityEvents(organization_id,
+                                                      when=when,
                                                       bbox=bbox)
 
         context['events'] = events
@@ -230,26 +232,27 @@ class OrganizationMapView(JSONAPIView):
 
         return context
 
+
 class OrganizationChartView(JSONAPIView):
-    
+
     required_params = ['at']
     filter_fields = {}
 
     def get_context_data(self, **kwargs):
-        
+
         context = {}
 
         organization_id = kwargs['id']
         when = self.request.GET['at']
-        
-        query = ''' 
-            SELECT 
+
+        query = '''
+            SELECT
               o.id,
               MAX(o.name) AS name,
-              array_agg(DISTINCT TRIM(o.alias)) 
+              array_agg(DISTINCT TRIM(o.alias))
                 FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
               COUNT(DISTINCT v.id) AS events_count,
-              array_agg(DISTINCT TRIM(o.classification)) 
+              array_agg(DISTINCT TRIM(o.classification))
                 FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications
             FROM organization AS o
             LEFT JOIN violation AS v
@@ -259,16 +262,16 @@ class OrganizationChartView(JSONAPIView):
             WHERE o.id = %s
             GROUP BY o.id
         '''
-        
+
         cursor = connection.cursor()
 
         cursor.execute(query, [organization_id])
         columns = [c[0] for c in cursor.description]
-        
+
         row = cursor.fetchone()
-        
+
         if row:
-            context.update(self.makeOrganization(OrderedDict(zip(columns, row)), 
+            context.update(self.makeOrganization(OrderedDict(zip(columns, row)),
                                                  relationships=False))
             context['parents'] = []
             context['children'] = []
@@ -277,37 +280,37 @@ class OrganizationChartView(JSONAPIView):
             children = get_child_orgs_by_id(organization_id, when=when)
 
             for parent in parents:
-                parent = self.makeOrganization(parent, 
-                                               relationships=False, 
+                parent = self.makeOrganization(parent,
+                                               relationships=False,
                                                simple=True)
                 context['parents'].append(parent)
-            
+
             for child in children:
-                child = self.makeOrganization(child, 
+                child = self.makeOrganization(child,
                                               relationships=False,
                                               simple=True)
                 context['children'].append(child)
-            
 
         return context
+
 
 class OrganizationDetailView(JSONAPIView):
     def get_context_data(self, **kwargs):
         context = {}
-        
+
         organization_id = kwargs['id']
 
-        query = ''' 
-            SELECT 
+        query = '''
+            SELECT
               o.id,
               MAX(o.name_value) AS name_value,
               MAX(o.name_confidence) AS name_confidence,
               json_agg(o.name_source) AS name_sources,
-              array_agg(DISTINCT TRIM(o.alias_value)) 
+              array_agg(DISTINCT TRIM(o.alias_value))
                 FILTER (WHERE TRIM(o.alias_value) IS NOT NULL) AS other_names_value,
               MAX(o.alias_confidence) AS other_names_confidence,
               json_agg(o.alias_source) AS other_names_sources,
-              array_agg(DISTINCT TRIM(o.classification_value)) 
+              array_agg(DISTINCT TRIM(o.classification_value))
                 FILTER (WHERE TRIM(o.classification_value) IS NOT NULL) AS classifications_value,
               MAX(o.classification_confidence) AS classifications_confidence,
               json_agg(o.classification_source) AS classifications_sources,
@@ -315,7 +318,7 @@ class OrganizationDetailView(JSONAPIView):
               COUNT(DISTINCT v.id) AS events_count,
               COALESCE(MIN(e.start_date::date), MIN(a.start_date::date)) AS first_cited,
               COALESCE(MAX(e.end_date::date), MAX(a.end_date::date)) AS last_cited,
-              array_agg(DISTINCT mo.organization_id) 
+              array_agg(DISTINCT mo.organization_id)
                 FILTER (WHERE mo.organization_id IS NOT NULL) AS memberships
             FROM organization_sources AS o
             LEFT JOIN violation AS v
@@ -329,60 +332,61 @@ class OrganizationDetailView(JSONAPIView):
             WHERE o.id = %s
             GROUP BY o.id
         '''
-        
+
         cursor = connection.cursor()
         cursor.execute(query, [organization_id])
         columns = [c[0] for c in cursor.description]
 
         row = cursor.fetchone()
         if row:
-            organization = self.makeOrganization(dict(zip(columns, row)), 
+            organization = self.makeOrganization(dict(zip(columns, row)),
                                                  all_geography=True,
                                                  memberships=True)
-            
+
             context.update(self.splitSources(organization))
-            
+
             context['parents'] = []
             context['children'] = []
-            
+
             parents = get_org_hierarchy_by_id(organization_id, sources=True)
             children = get_child_orgs_by_id(organization_id, sources=True)
 
             for parent in parents:
-                parent = self.makeOrganization(parent, 
-                                               relationships=False, 
+                parent = self.makeOrganization(parent,
+                                               relationships=False,
                                                simple=True,
                                                commanders=False)
                 context['parents'].append(parent)
-            
+
             for child in children:
-                child = self.makeOrganization(child, 
+                child = self.makeOrganization(child,
                                               relationships=False,
                                               simple=True,
                                               commanders=False)
                 context['children'].append(child)
 
             context['people'] = self.makeOrganizationMembers(organization_id)
-            
+
             events, events_nearby = self.makeEntityEvents(organization_id)
             context['events'] = events
             context['events_nearby'] = events_nearby
 
         return context
 
+
 class PersonDetailView(JSONAPIView):
     def get_context_data(self, **kwargs):
         context = {}
-        
+
         person_id = kwargs['id']
-        
-        people = ''' 
+
+        people = '''
             SELECT
               p.id,
               MAX(p.name_value) AS name_value,
               MAX(p.name_confidence) AS name_confidence,
-              json_agg(p.name_source) AS name_sources, 
-              array_agg(DISTINCT TRIM(p.alias_value)) 
+              json_agg(p.name_source) AS name_sources,
+              array_agg(DISTINCT TRIM(p.alias_value))
                 FILTER (WHERE TRIM(p.alias) IS NOT NULL) AS other_names_value,
               MAX(p.alias_confidence) AS other_names_confidence,
               json_agg(p.alias_source) AS other_names_sources,
@@ -401,11 +405,11 @@ class PersonDetailView(JSONAPIView):
         row = cursor.fetchone()
         if row:
             person = dict(zip(columns, row))
-            
+
             context.update(self.splitSources(person))
-            
-            memberships = ''' 
-                SELECT 
+
+            memberships = '''
+                SELECT
                   MAX(member_id::VARCHAR) AS id,
                   organization_id_value AS organization_id_value,
                   MAX(organization_id_confidence) AS organization_id_confidence,
@@ -420,7 +424,7 @@ class PersonDetailView(JSONAPIView):
                   MAX(rank_confidence) AS rank_confidence,
                   json_agg(rank_sources) AS rank_sources,
                   MAX(title_value) AS title_value,
-                  MAX(title_confidence) AS title_confidence, 
+                  MAX(title_confidence) AS title_confidence,
                   json_agg(title_sources) AS title_sources,
                   bool_or(real_start_value) AS real_start_value,
                   MAX(real_start_confidence) AS real_start_confidence,
@@ -445,20 +449,20 @@ class PersonDetailView(JSONAPIView):
             '''
             cursor.execute(memberships, [person_id])
             columns = [c[0] for c in cursor.description]
-            
+
             memberships = [self.splitSources(dict(zip(columns, r))) for r in cursor]
 
             context['memberships'] = memberships
 
-            events, events_nearby = self.makeEntityEvents(person_id, 
+            events, events_nearby = self.makeEntityEvents(person_id,
                                                           entity_type='person')
-            
+
             context['events'] = events
             context['events_nearby'] = events_nearby
 
-            current_site = ''' 
-                SELECT 
-                  e.*, 
+            current_site = '''
+                SELECT
+                  e.*,
                   ST_AsGeoJSON(g.coordinates)::json AS geometry
                 FROM membershipperson AS m
                 JOIN emplacement AS e
@@ -470,19 +474,19 @@ class PersonDetailView(JSONAPIView):
                   AND (e.end_date::date > NOW()::date OR e.end_date IS NULL)
                 LIMIT 1
             '''
-            
+
             cursor.execute(current_site, [person_id])
             columns = [c[0] for c in cursor.description]
-            
+
             context['site_present'] = {}
 
             row = cursor.fetchone()
             if row:
                 context['site_present'] = dict(zip(columns, row))
 
-            current_area = ''' 
-                SELECT 
-                  ass.*, 
+            current_area = '''
+                SELECT
+                  ass.*,
                   ST_AsGeoJSON(a.geometry)::json AS geometry
                 FROM membershipperson AS m
                 JOIN association AS ass
@@ -494,10 +498,10 @@ class PersonDetailView(JSONAPIView):
                   AND (ass.end_date::date > NOW()::date OR ass.end_date IS NULL)
                 LIMIT 1
             '''
-            
+
             cursor.execute(current_area, [person_id])
             columns = [c[0] for c in cursor.description]
-            
+
             context['area_present'] = {}
 
             row = cursor.fetchone()

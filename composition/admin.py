@@ -30,6 +30,7 @@ class CompositionEndDateAdmin(reversion.admin.VersionAdmin):
 class CompositionClassificationAdmin(reversion.admin.VersionAdmin):
     pass
 
+
 admin.site.register(Composition, CompositionAdmin)
 admin.site.register(CompositionParent, CompositionParentAdmin)
 admin.site.register(CompositionChild, CompositionChildAdmin)

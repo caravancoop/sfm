@@ -1,7 +1,5 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
-from django.contrib.gis import geos
-from django.db.models import Max
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -20,11 +18,11 @@ class Area(models.Model, BaseModel):
         self.osmid = ComplexFieldContainer(self, AreaOSMId)
         self.geometry = ComplexFieldContainer(self, AreaGeometry)
         self.division_id = ComplexFieldContainer(self, AreaDivisionId)
-        
+
         self.first_cited = ComplexFieldContainer(self, AreaFirstCited)
         self.last_cited = ComplexFieldContainer(self, AreaLastCited)
 
-        self.complex_fields = [self.name, self.code, self.osmname, 
+        self.complex_fields = [self.name, self.code, self.osmname,
                                self.geometry, self.division_id, self.osmid,
                                self.first_cited, self.last_cited]
 
@@ -79,9 +77,10 @@ class AreaOSMName(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("OSM name")
-    
+
     def __str__(self):
         return self.value
+
 
 @versioned
 @sourced
@@ -89,6 +88,7 @@ class AreaOSMId(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.BigIntegerField(default=None, blank=True, null=True)
     field_name = _("OSM ID")
+
 
 class Code(models.Model):
     value = models.TextField()
@@ -104,6 +104,7 @@ class Code(models.Model):
     def __str__(self):
         return self.value
 
+
 @versioned
 @sourced
 class AreaDivisionId(ComplexField):
@@ -111,12 +112,14 @@ class AreaDivisionId(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Division ID")
 
+
 @versioned
 @sourced
 class AreaFirstCited(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("First cited")
+
 
 @versioned
 @sourced

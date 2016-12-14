@@ -1,7 +1,5 @@
 from django.db import models
 from django.utils.translation import ugettext as _
-from django.utils.translation import get_language
-from django.db.models import Max
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -30,9 +28,10 @@ class Association(models.Model, BaseModel):
 
     def get_value(self):
         return '{0} {1}'.format(self.area, self.organization)
-    
+
     def __str__(self):
         return self.get_value()
+
 
 @versioned
 @sourced
@@ -56,7 +55,7 @@ class AssociationOrganization(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.ForeignKey(Organization)
     field_name = _("Organization")
-    
+
     def __str__(self):
         return str(self.value)
 
@@ -67,6 +66,6 @@ class AssociationArea(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.ForeignKey(Area)
     field_name = _("Area")
-    
+
     def __str__(self):
         return str(self.value)

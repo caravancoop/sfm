@@ -15,9 +15,11 @@ OPERATOR_LOOKUP = {
     'in': 'IN',
 }
 
+
 class ValidationError(Exception):
     def __init__(self, message):
         self.message = message
+
 
 def dateValidator(value):
     try:
@@ -25,11 +27,13 @@ def dateValidator(value):
     except ValueError:
         raise ValidationError('Incorrect date format. Should be YYYY-MM-DD.')
 
+
 def integerValidator(value):
     try:
         int(value)
     except ValueError:
         raise ValidationError('{} is not an integer'.format(value))
+
 
 class JSONResponseMixin(object):
     def render_to_json_response(self, context, **response_kwargs):
@@ -45,6 +49,7 @@ class JSONResponseMixin(object):
             pass
         # Make sure things are JSON serializable
         return context
+
 
 class JSONAPIView(JSONResponseMixin, TemplateView):
     safe = True
@@ -68,9 +73,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         optional_params = getattr(self, 'optional_params', [])
 
         valid_params = required_params + filter_fields + order_by_fields + optional_params + having_fields
-        
+
         incoming_params = list(self.request.GET.keys())
-        
+
         missing = set(required_params) - set(incoming_params)
 
         if missing:
@@ -88,16 +93,16 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
             if field not in valid_params:
                 errors.append("'{}' is not a valid query parameter".format(query_param))
-            
+
             elif not self.checkOperator(field, operator):
                 errors.append("Invalid operator for '{1}'".format(operator, field))
 
             elif field in filter_fields:
-                
+
                 value = self.request.GET[query_param]
-                
+
                 validator = self.filter_fields[field]['validator']
-                
+
                 if validator:
                     try:
                         validator(value)
@@ -106,13 +111,13 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                         errors.append("Value for '{0}' is not valid: {1}".format(field, e.message))
                 else:
                     self.wheres.append((field, operator, value,))
-            
+
             elif field in having_fields:
 
                 value = self.request.GET[query_param]
-                
+
                 validator = self.having_fields[field]['validator']
-                
+
                 if validator:
                     try:
                         validator(value)
@@ -128,7 +133,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                     errors.append("Cannot order by '{}'".format(value))
                 else:
                     sort_order = 'ASC'
-                    
+
                     if value.startswith('-'):
                         sort_order = 'DESC'
                         value = value.strip('-')
@@ -145,26 +150,26 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             elif field == 'bbox':
                 bbox = self.request.GET['bbox']
                 coords = bbox.split(',')
-                
+
                 if len(coords) != 4:
                     errors.append('"bbox" should be a comma separated list of four floats')
-                
+
                 for point in coords:
-                    
+
                     try:
                         float(point)
                     except ValueError:
                         errors.append('"{}" is not a valid value for a bbox'.format(point))
-        
+
         if errors:
-            response = HttpResponse(json.dumps({'errors': errors}), 
+            response = HttpResponse(json.dumps({'errors': errors}),
                                     content_type='application/json')
             response.status_code = 400
         else:
             response = super().dispatch(request, *args, **kwargs)
 
         return response
-    
+
     def checkOperator(self, field, operator):
         if field in self.filter_fields:
             if operator not in self.filter_fields[field]['operators']:
@@ -174,25 +179,25 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 return False
         elif operator != 'eq':
             return False
-        
+
         return True
 
     def render_to_response(self, context, **response_kwargs):
         response_kwargs.update({'safe': self.safe})
         return self.render_to_json_response(context, **response_kwargs)
-        
+
     def makeFeature(self, geometry, properties):
-        
+
         try:
             del properties['location']
         except KeyError:
             pass
-        
+
         try:
             del properties['geometry']
         except KeyError:
             pass
-        
+
         try:
             bbox = properties['bbox']
             del properties['bbox']
@@ -205,17 +210,17 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             'properties': properties,
             'geometry': geometry,
         }
-        
+
         if bbox:
             feature['bbox'] = bbox
 
         return feature
-   
+
     def splitSources(self, obj):
         prepared_obj = {}
 
         for k, v in obj.items():
-            
+
             try:
                 first, last = k.rsplit('_', 1)
             except ValueError:
@@ -224,9 +229,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
             if last not in ['sources', 'value', 'confidence']:
                 prepared_obj[k] = v
-            
+
             else:
-                
+
                 if last == 'sources':
                     sources = []
                     source_ids = []
@@ -235,7 +240,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                             sources.append(source)
                             source_ids.append(source['id'])
                     v = sources
-                
+
                 elif last == 'confidence':
                     if v:
                         v = REVERSE_CONFIDENCE[int(v)].title()
@@ -244,18 +249,18 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                     prepared_obj[first][last] = v
                 except KeyError:
                     prepared_obj[first] = {last: v}
-        
+
         return prepared_obj
 
-    def makeEntityEvents(self, 
-                         entity_id, 
-                         entity_type='organization', 
-                         bbox=None, 
+    def makeEntityEvents(self,
+                         entity_id,
+                         entity_type='organization',
+                         bbox=None,
                          when=None):
-        
+
         q_args = [entity_id]
 
-        events_query = ''' 
+        events_query = '''
             SELECT DISTINCT ON (MAX(o.id::VARCHAR))
               v.id,
               MAX(v.start_date) AS start_date,
@@ -268,9 +273,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               MAX(v.division_id) AS division_id,
               MAX(v.description) AS description,
               MAX(p.name) AS perpetrator_name,
-              array_agg(DISTINCT TRIM(v.perpetrator_classification)) 
+              array_agg(DISTINCT TRIM(v.perpetrator_classification))
                 FILTER (WHERE TRIM(v.perpetrator_classification) IS NOT NULL) AS perpetrator_classification,
-              array_agg(DISTINCT TRIM(v.violation_type)) 
+              array_agg(DISTINCT TRIM(v.violation_type))
                 FILTER (WHERE TRIM(v.violation_type) IS NOT NULL) AS classifications,
               json_agg(row_to_json(o.*)) AS perpetrator_organization,
               ST_ASGeoJSON(MAX(v.location))::json AS location
@@ -291,30 +296,30 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                   ON v.perpetrator_id = o.id
             '''.format(events_query)
 
-        wheres = ''' 
+        wheres = '''
             WHERE o.id = %s
         '''
-        
+
         if when:
             wheres = '{} AND (v.start_date::date <= %s OR v.end_date::date >= %s)'.format(wheres)
             q_args.extend([when, when])
 
         if bbox:
-            wheres = ''' 
+            wheres = '''
                 {} AND ST_Within(v.location, ST_MakeEnvelope(%s, %s, %s, %s, 4326))
             '''.format(wheres)
             q_args.extend(bbox.split(','))
-        
+
         nearby_events_query = '''
-            {} 
+            {}
             JOIN violation AS center
               ON ST_Intersects(ST_Buffer_Meters(center.location, 35000), v.location)
             WHERE v.id != center.id
         '''.format(events_query)
-        
+
         if when:
             nearby_events_query = '''
-                {} AND (center.start_date::date <= %s OR 
+                {} AND (center.start_date::date <= %s OR
                         center.end_date >= %s)
             '''.format(nearby_events_query)
 
@@ -323,22 +328,22 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         events_query = '''
             {0} {1} GROUP BY v.id
         '''.format(events_query, wheres)
-        
+
         cursor = connection.cursor()
         cursor.execute(events_query, q_args)
         columns = [c[0] for c in cursor.description]
-        
+
         events = []
         for event in cursor:
             event = self.makeEvent(dict(zip(columns, event)), simple=True)
             feature = self.makeFeature(event['location'], event)
             events.append(feature)
-        
+
         del q_args[0]
-        
+
         cursor.execute(nearby_events_query, q_args)
         columns = [c[0] for c in cursor.description]
-        
+
         event_ids = [e['id'] for e in events]
         nearby_events = []
         for event in cursor:
@@ -350,15 +355,15 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         return events, nearby_events
 
     def makeOrganizationMembers(self, organization_id):
-        
-        members = ''' 
+
+        members = '''
             SELECT
               p.id,
               MAX(p.name) AS name,
               MAX(m.rank) AS rank,
               MAX(m.role) AS role,
               MAX(m.title) AS title,
-              array_agg(DISTINCT TRIM(p.alias)) 
+              array_agg(DISTINCT TRIM(p.alias))
                 FILTER (WHERE TRIM(p.alias) IS NOT NULL) AS other_names,
               COUNT(DISTINCT v.id) AS events_count,
               MAX(m.first_cited::DATE) AS first_cited,
@@ -379,11 +384,10 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             WHERE m.organization_id = %s
             GROUP BY p.id
         '''
-        
+
         cursor = connection.cursor()
         cursor.execute(members, [organization_id])
-        columns = [c[0] for c in cursor.description]
-        
+
         members = []
 
         for row in cursor:
@@ -408,15 +412,15 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 if source['id'] not in source_ids:
                     member['sources'].append(source)
                     source_ids.append(source['id'])
-            
+
             members.append(member)
 
         return members
 
     def makeOrganizationRelationships(self, properties):
-        
+
         hierarchy = get_org_hierarchy_by_id(properties['id'])
-        
+
         properties['root_name'] = None
         properties['root_id'] = None
 
@@ -426,14 +430,14 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             properties['root_id'] = top['id']
 
         return properties
-    
+
     def makeOrganizationCommanders(self, properties):
-        commanders = ''' 
+        commanders = '''
             SELECT * FROM (
               SELECT DISTINCT ON (id)
                 *
               FROM (
-                SELECT 
+                SELECT
                   o.id AS organization_id,
                   MAX(p.id::VARCHAR) AS id,
                   MAX(p.name) AS name,
@@ -450,19 +454,19 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 WHERE o.id = %s
                   AND m.role = 'Commander'
                 GROUP BY o.id, m.first_cited, m.last_cited
-                ORDER BY o.id, 
-                         m.last_cited DESC, 
+                ORDER BY o.id,
+                         m.last_cited DESC,
                          m.first_cited DESC
               ) AS s
             ) AS s ORDER BY last_cited DESC, first_cited DESC
         '''
-        
+
         cursor = connection.cursor()
         cursor.execute(commanders, [properties['id']])
         columns = [c[0] for c in cursor.description]
-        
+
         row = cursor.fetchone()
-        
+
         if row:
             properties['commander_present'] = dict(zip(columns, row))
             properties['commanders_former'] = [dict(zip(columns, r)) for r in cursor]
@@ -471,9 +475,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             properties['commanders_former'] = []
 
         return properties
-    
+
     def makeOrganizationGeographies(self, properties, all_geography=False):
-        site_present = ''' 
+        site_present = '''
             SELECT DISTINCT ON (o.id)
               g.id,
               g.name,
@@ -488,16 +492,15 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             JOIN geosite AS g
               ON e.site_id = g.id
             WHERE o.id = %s
-            ORDER BY o.id, 
-                     e.end_date::date DESC, 
+            ORDER BY o.id,
+                     e.end_date::date DESC,
                      e.start_date::date DESC
         '''
-        
+
         cursor = connection.cursor()
         cursor.execute(site_present, [properties['id']])
         columns = [c[0] for c in cursor.description]
-        
-        
+
         if all_geography:
             properties['sites'] = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
         else:
@@ -506,8 +509,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 properties['site_current'] = dict(zip(columns, row))
             else:
                 properties['site_current'] = {}
-        
-        area_present = ''' 
+
+        area_present = '''
             SELECT DISTINCT ON (o.id)
               o.id,
               a.name,
@@ -522,15 +525,15 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             JOIN area AS a
               ON ass.area_id = a.id
             WHERE o.id = %s
-            ORDER BY o.id, 
-                     ass.end_date::date DESC, 
+            ORDER BY o.id,
+                     ass.end_date::date DESC,
                      ass.start_date::date DESC
         '''
-        
+
         cursor = connection.cursor()
         cursor.execute(area_present, [properties['id']])
         columns = [c[0] for c in cursor.description]
-        
+
         if all_geography:
             properties['areas'] = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
         else:
@@ -542,14 +545,14 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
         return properties
 
-    def makeOrganization(self, 
-                         properties, 
-                         relationships=True, 
+    def makeOrganization(self,
+                         properties,
+                         relationships=True,
                          simple=False,
                          all_geography=False,
                          commanders=True,
                          memberships=False):
-        
+
         if relationships:
             properties = self.makeOrganizationRelationships(properties)
 
@@ -557,22 +560,22 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             properties = self.makeOrganizationCommanders(properties)
 
         if not simple:
-            properties = self.makeOrganizationGeographies(properties, 
+            properties = self.makeOrganizationGeographies(properties,
                                                           all_geography=all_geography)
-        
+
         if memberships:
-            
+
             orgs = []
-            
+
             for org in properties['memberships']:
 
-                member_orgs = ''' 
+                member_orgs = '''
                     SELECT DISTINCT ON (mo.member_id_value)
                       o.id,
                       MAX(o.name) AS name,
-                      array_agg(DISTINCT TRIM(o.alias)) 
+                      array_agg(DISTINCT TRIM(o.alias))
                         FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
-                      array_agg(DISTINCT TRIM(o.classification)) 
+                      array_agg(DISTINCT TRIM(o.classification))
                         FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications,
                       json_agg(mo.member_id_sources) AS sources
                     FROM organization AS o
@@ -581,12 +584,12 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                     WHERE o.id = %s
                     GROUP BY o.id, mo.member_id_value
                 '''
-                
+
                 cursor = connection.cursor()
                 cursor.execute(member_orgs, [org])
-                
+
                 columns = [c[0] for c in cursor.description]
-                
+
                 for org_id, group in itertools.groupby(cursor, lambda x: x[0]):
                     grouping = [dict(zip(columns, r)) for r in group]
 
@@ -597,7 +600,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                         'classifications': grouping[0]['classifications'],
                         'sources': []
                     }
-                    
+
                     source_ids = []
 
                     for row in grouping:
@@ -609,18 +612,18 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                                 source_ids.append(source['id'])
 
                     orgs.append(o)
-            
+
             properties['memberships'] = orgs
 
         return properties
-    
+
     def makePerson(self, properties):
-        
+
         properties['membership_present'] = None
         properties['membership_former'] = None
 
         membership_present = '''
-            SELECT 
+            SELECT
               row_to_json(o.*) AS organization,
               role,
               rank,
@@ -629,7 +632,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             FROM membershipperson AS mp
             JOIN (
               SELECT DISTINCT ON (id)
-                id, 
+                id,
                 name
               FROM organization
             ) AS o
@@ -654,14 +657,14 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             LEFT JOIN emplacement AS e
               ON mp.organization_id = e.organization_id
             WHERE mp.member_id = %s
-              AND (e.end_date IS NULL OR 
+              AND (e.end_date IS NULL OR
                    e.end_date::date > NOW()::date)
               AND (mp.last_cited IS NULL OR
                    mp.last_cited::date > NOW()::date)
         '''
-        
+
         membership_former = '''
-            SELECT 
+            SELECT
               row_to_json(o.*) AS organization,
               role,
               rank,
@@ -669,7 +672,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             FROM membershipperson AS mp
             JOIN (
               SELECT DISTINCT ON (id)
-                id, 
+                id,
                 name
               FROM organization
             ) AS o
@@ -679,42 +682,42 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             WHERE mp.member_id = %s
               AND e.end_date::date < NOW()::date
         '''
-        
+
         cursor = connection.cursor()
         cursor.execute(membership_present, [properties['id']])
         columns = [c[0] for c in cursor.description]
-        
+
         row = cursor.fetchone()
-        
+
         if row:
             properties['membership_present'] = dict(zip(columns, row))
-        
+
         cursor = connection.cursor()
         cursor.execute(membership_former, [properties['id']])
         columns = [c[0] for c in cursor.description]
-        
+
         row = cursor.fetchone()
-        
+
         if row:
             properties['membership_former'] = dict(zip(columns, row))
 
         return properties
 
     def makeEvent(self, properties, simple=False):
-        
+
         perp_org_ids = []
         perp_orgs = []
         for org in properties['perpetrator_organization']:
             if org and org['id'] not in perp_org_ids:
-                structured_org = self.makeOrganization(org, 
+                structured_org = self.makeOrganization(org,
                                                        relationships=False,
                                                        simple=simple)
-                
+
                 perp_orgs.append(structured_org)
                 perp_org_ids.append(org['id'])
 
         properties['perpetrator_organization'] = perp_orgs
-        
+
         site_ids = []
         sites = []
         if properties.get('sites_nearby'):
@@ -722,19 +725,19 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 if site['id'] not in site_ids:
                     sites.append(site)
                     site_ids.append(site['id'])
-        
+
             properties['sites_nearby'] = sites
         return properties
-    
+
     def makeWhereClauses(self):
         where_clauses = []
 
         for field, operator, value in self.wheres:
             operator = OPERATOR_LOOKUP[operator]
-            
+
             if self.filter_fields.get(field):
                 db_field = self.filter_fields[field]['field']
-            
+
                 clause = '{0} {1} %s'.format(db_field, operator)
 
                 if operator == 'IN':
@@ -742,18 +745,18 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                     clause = 'TRIM({0}) {1} %s'.format(db_field, operator)
 
                 where_clauses.append((clause, value,))
-        
+
         return where_clauses
-        
+
     def makeHavingClauses(self):
         having_clauses = []
-        
+
         for field, operator, value in self.having:
             operator = OPERATOR_LOOKUP[operator]
 
             db_field = self.having_fields[field]['field']
             aggregate_function = self.having_fields[field]['function']
-            
+
             clause = '{function}({field}) {operator} %s'.format(function=aggregate_function,
                                                                 field=db_field,
                                                                 operator=operator)
@@ -769,67 +772,67 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             order_bys.append('{0} {1}'.format(db_field, sort_order))
 
         return order_bys
-    
+
     def appendWhereClauses(self, query):
         where_clauses = self.makeWhereClauses()
-        
+
         these_args = []
         for clause, value in where_clauses:
             query = '{0} AND {1}'.format(query, clause)
             these_args.append(value)
-        
+
         return query, these_args
 
-    def getFacets(self, 
-                  query, 
+    def getFacets(self,
+                  query,
                   grouper):
-        
+
         q_args = []
         group_by = 'GROUP BY TRIM({0}), uuid'.format(grouper)
-        
+
         having_clauses, q_args = self.appendHavingClauses('')
 
         facets_counts = '''
-            SELECT 
+            SELECT
               SUM(facet_count)::int AS facet_count,
               facet,
               uuid
             FROM (
-              {0} 
+              {0}
               {1}
               {2}
             ) AS s
             GROUP BY facet, uuid
         '''.format(query, group_by, having_clauses)
-        
+
         return facets_counts, q_args
-    
+
     def retrieveFacetsCounts(self, base_query, query_args):
 
         for facet in self.facet_fields:
-            
+
             facets_counts = '''
-                SELECT 
+                SELECT
                   TRIM({0}) AS facet,
                   COUNT(DISTINCT uuid) AS facet_count,
                   uuid
                 {1}
                 AND {0} IS NOT NULL
             '''.format(facet, base_query)
-            
+
             facets_counts, this_facet_args = self.appendWhereClauses(facets_counts)
             this_facet_args = query_args + this_facet_args
-            
+
             facets_counts, more_args = self.getFacets(facets_counts, facet)
             this_facet_args = this_facet_args + more_args
-            
+
             cursor = connection.cursor()
             cursor.execute(facets_counts, this_facet_args)
-            
+
             facets_counts = [r for r in cursor]
-            
+
             count = int(len({f[2] for f in facets_counts}))
-            
+
             facets_counts = sorted(facets_counts, key=lambda x: x[1])
             aggregated_facets_counts = []
 
@@ -839,30 +842,30 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             this_facet_args = []
 
             yield facet, count, aggregated_facets_counts
-    
+
     def orderPaginate(self, query):
         order_by = self.makeOrderBy()
-        
+
         if order_by:
             order_by = ', '.join(order_by)
             query = '{0} ORDER BY {1}'.format(query, order_by)
-        
-        query = ''' 
+
+        query = '''
             SELECT * FROM ({0}) AS s LIMIT {1}
         '''.format(query, self.page_count)
 
         if self.request.GET.get('p'):
             page = self.request.GET.get('p')
-            
+
             if int(page) >= 1:
                 offset = (int(page) - 1) * self.page_count
                 query = '{0} OFFSET {1}'.format(query, offset)
 
         return query
-    
+
     def appendHavingClauses(self, query):
         having_clauses = self.makeHavingClauses()
-        
+
         these_args = []
         if having_clauses:
 

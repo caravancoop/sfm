@@ -147,7 +147,6 @@ class AssociationCreate(TemplateView):
     template_name = 'association/edit.html'
 
     def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
         (errors, data) = Association().validate(data)
         if len(errors):

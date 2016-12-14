@@ -147,7 +147,6 @@ class AreaCreate(TemplateView):
     template_name = 'area/edit.html'
 
     def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
 
         (errors, data) = Area().validate(data)

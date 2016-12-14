@@ -4,11 +4,12 @@ from django.db import connection
 
 from api.base_views import JSONAPIView, dateValidator, integerValidator
 
+
 class OrganizationSearchView(JSONAPIView):
-    
+
     filter_fields = {
         'date_first_cited': {
-            'field': 'e.start_date', 
+            'field': 'e.start_date',
             'operators': ['gte', 'lte'],
             'validator': dateValidator,
         },
@@ -28,11 +29,11 @@ class OrganizationSearchView(JSONAPIView):
             'validator': integerValidator,
         },
     }
-    
+
     having_fields = {
         'events_count': {
             'field': 'DISTINCT v.id',
-            'operators': ['gte', 'lte',],
+            'operators': ['gte', 'lte'],
             'validator': integerValidator,
             'function': 'COUNT',
         },
@@ -48,25 +49,25 @@ class OrganizationSearchView(JSONAPIView):
         '-date_last_cited': {'field': 'date_last_cited'},
         '-events_count': {'field': 'events_count'},
     }
-    
+
     required_params = ['q']
     optional_params = ['o', 'p']
-    
+
     facet_fields = ['classification']
 
     def get_context_data(self, **kwargs):
         context = {}
-        
+
         country_code = kwargs['id'].lower()
         division_id = 'ocd-division/country:{}'.format(country_code)
-        
+
         query_term = self.request.GET['q']
-        
+
         query_args = [query_term, division_id]
-        
+
         # Create last half of query so counts and main query are working with
         # the same joins
-        base_query = ''' 
+        base_query = '''
             FROM organization AS o
             JOIN organization_organization AS oo
               ON o.id = oo.uuid
@@ -82,22 +83,22 @@ class OrganizationSearchView(JSONAPIView):
               AND si.content_type = 'Organization'
               AND o.division_id = %s
         '''
-        
+
         context['count'] = 0
         context['facets'] = {}
 
         for facet, count, facet_count in self.retrieveFacetsCounts(base_query, query_args):
             context['count'] = count
             context['facets'][facet] = facet_count
-        
+
         # Reinitialize query params so we can re-run the query with limit / offset
         query_args = [query_term, division_id]
 
         organizations = '''
-            SELECT 
-              o.id, 
+            SELECT
+              o.id,
               MAX(o.name) AS name,
-              array_agg(DISTINCT TRIM(o.alias)) 
+              array_agg(DISTINCT TRIM(o.alias))
                 FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
               ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
               MAX(e.start_date) AS date_first_cited,
@@ -105,33 +106,34 @@ class OrganizationSearchView(JSONAPIView):
               COUNT(DISTINCT v.id) AS events_count
             {}
         '''.format(base_query)
-        
+
         organizations, where_args = self.appendWhereClauses(organizations)
-        
+
         organizations = '{} GROUP BY o.id'.format(organizations)
-        
+
         organizations, having_args = self.appendHavingClauses(organizations)
-        
+
         new_args = query_args + having_args + where_args
 
         organizations = self.orderPaginate(organizations)
-        
+
         cursor = connection.cursor()
-        
+
         cursor.execute(organizations, new_args)
         columns = [c[0] for c in cursor.description]
-        
+
         organizations = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
-        
+
         context['results'] = organizations
 
         return context
 
+
 class PeopleSearchView(JSONAPIView):
-    
+
     filter_fields = {
         'date_first_cited': {
-            'field': 'mp.first_cited', 
+            'field': 'mp.first_cited',
             'operators': ['gte', 'lte'],
             'validator': dateValidator,
         },
@@ -156,37 +158,37 @@ class PeopleSearchView(JSONAPIView):
             'validator': integerValidator,
         },
     }
-    
+
     having_fields = {
         'events_count': {
             'field': 'DISTINCT v.id',
-            'operators': ['gte', 'lte',],
+            'operators': ['gte', 'lte'],
             'validator': integerValidator,
             'function': 'COUNT',
         },
     }
-    
+
     order_by_fields = {
         'name': {'field': 'name'},
         'events_count': {'field': 'events_count'},
         '-name': {'field': 'name'},
         '-events_count': {'field': 'events_count'},
     }
-    
+
     required_params = ['q']
     optional_params = ['o', 'p']
     facet_fields = ['rank', 'role']
 
     def get_context_data(self, **kwargs):
         context = {}
-        
+
         country_code = kwargs['id'].lower()
         division_id = 'ocd-division/country:{}'.format(country_code)
-        
+
         query_term = self.request.GET['q']
-        
+
         query_args = [query_term, division_id]
-        
+
         base_query = '''
             FROM person AS p
             JOIN person_person AS pp
@@ -201,7 +203,7 @@ class PeopleSearchView(JSONAPIView):
               AND plainto_tsquery('english', %s) @@ si.content
               AND p.division_id = %s
         '''
-        
+
         context['count'] = 0
         context['facets'] = {}
 
@@ -210,39 +212,40 @@ class PeopleSearchView(JSONAPIView):
             context['facets'][facet] = facet_count
 
         query_args = [query_term, division_id]
-        
-        people = ''' 
+
+        people = '''
             SELECT
               p.id,
               MAX(p.name) AS name,
-              array_agg(DISTINCT TRIM(p.alias)) 
+              array_agg(DISTINCT TRIM(p.alias))
                 FILTER (WHERE TRIM(p.alias) IS NOT NULL) AS other_names,
               COUNT(DISTINCT v.id) AS events_count
               {}
         '''.format(base_query)
-        
+
         people, where_args = self.appendWhereClauses(people)
 
         people = '{} GROUP BY p.id'.format(people)
-        
+
         people, having_args = self.appendHavingClauses(people)
-        
+
         new_args = query_args + where_args + having_args
-        
+
         people = self.orderPaginate(people)
-        
+
         cursor = connection.cursor()
         cursor.execute(people, new_args)
         columns = [c[0] for c in cursor.description]
-        
+
         context['results'] = [self.makePerson(OrderedDict(zip(columns, r))) for r in cursor]
 
         return context
 
+
 class EventSearchView(JSONAPIView):
     filter_fields = {
         'start_date': {
-            'field': 'start_date', 
+            'field': 'start_date',
             'operators': ['gte', 'lte'],
             'validator': dateValidator,
         },
@@ -257,26 +260,26 @@ class EventSearchView(JSONAPIView):
             'validator': None,
         },
     }
-    
+
     order_by_fields = {
         'start_date': {'field': 'start_date'},
         # 'events_count': {},
         '-start_date': {'field': 'start_date'},
         # '-events_count',
     }
-    
+
     required_params = ['q']
     optional_params = ['o', 'p']
     facet_fields = ['violation_type']
-    
+
     def get_context_data(self, **kwargs):
         context = {}
-        
+
         country_code = kwargs['id'].lower()
         division_id = 'ocd-division/country:{}'.format(country_code)
-        
+
         query_term = self.request.GET['q']
-        
+
         query_args = [query_term, division_id]
 
         base_query = '''
@@ -294,8 +297,8 @@ class EventSearchView(JSONAPIView):
             WHERE si.content_type = 'Violation'
               AND plainto_tsquery('english', %s) @@ si.content
               AND v.division_id = %s
-        ''' 
-        
+        '''
+
         context['count'] = 0
         context['facets'] = {}
 
@@ -304,9 +307,9 @@ class EventSearchView(JSONAPIView):
             context['facets'][facet] = facet_count
 
         query_args = [query_term, division_id]
-        
-        events = ''' 
-            SELECT 
+
+        events = '''
+            SELECT
               v.id,
               MAX(v.start_date) AS start_date,
               MAX(v.end_date) AS end_date,
@@ -316,9 +319,9 @@ class EventSearchView(JSONAPIView):
               MAX(v.osmname) AS osm_name,
               MAX(v.osm_id) AS osm_id,
               MAX(p.name) AS perpetrator_name,
-              array_agg(DISTINCT TRIM(v.perpetrator_classification)) 
+              array_agg(DISTINCT TRIM(v.perpetrator_classification))
                 FILTER (WHERE TRIM(v.perpetrator_classification) IS NOT NULL) AS perpetrator_classification,
-              array_agg(DISTINCT TRIM(v.violation_type)) 
+              array_agg(DISTINCT TRIM(v.violation_type))
                 FILTER (WHERE TRIM(v.violation_type) IS NOT NULL) AS classifications,
               array_agg(row_to_json(o.*)) AS perpetrator_organization,
               array_agg(json_build_object('name', g.name,
@@ -326,22 +329,21 @@ class EventSearchView(JSONAPIView):
                                           'geometry', ST_AsGeoJSON(g.coordinates)::json)) AS sites_nearby
             {}
         ''' .format(base_query)
-        
+
         events, new_args = self.appendWhereClauses(events)
-        
+
         new_args = query_args + new_args
 
         events = '{} GROUP BY v.id'.format(events)
-        
+
         events = self.orderPaginate(events)
-        
+
         cursor = connection.cursor()
-        
+
         cursor.execute(events, new_args)
         columns = [c[0] for c in cursor.description]
         events = [self.makeEvent(OrderedDict(zip(columns, r))) for r in cursor]
-        
+
         context['results'] = events
 
         return context
-

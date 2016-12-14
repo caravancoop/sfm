@@ -24,11 +24,14 @@ class AreaCodeAdmin(reversion.admin.VersionAdmin):
 class AreaOSMNameAdmin(reversion.admin.VersionAdmin):
     pass
 
+
 class AreaOSMIdAdmin(reversion.admin.VersionAdmin):
     pass
 
+
 class CodeAdmin(admin.ModelAdmin):
     pass
+
 
 admin.site.register(Area, AreaAdmin)
 admin.site.register(AreaName, AreaNameAdmin)

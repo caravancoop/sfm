@@ -1,7 +1,5 @@
 from django.db import models
 from django.utils.translation import ugettext as _
-from django.utils.translation import get_language
-from django.db.models import Max
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -19,7 +17,7 @@ class Composition(models.Model, BaseModel):
         self.startdate = ComplexFieldContainer(self, CompositionStartDate)
         self.enddate = ComplexFieldContainer(self, CompositionEndDate)
         self.classification = ComplexFieldContainer(self, CompositionClassification)
-        
+
         self.open_ended = ComplexFieldContainer(self, CompositionOpenEnded)
 
         self.complex_fields = [self.parent, self.child, self.startdate,
@@ -30,8 +28,9 @@ class Composition(models.Model, BaseModel):
         ]
 
     def get_value(self):
-        return '{0} parent of {1}'.format(self.parent.get_value(), 
+        return '{0} parent of {1}'.format(self.parent.get_value(),
                                           self.child.get_value())
+
 
 @versioned
 @sourced
@@ -73,11 +72,13 @@ class CompositionClassification(ComplexField):
                               null=True)
     field_name = _("Classification")
 
+
 class Classification(models.Model):
     value = models.TextField()
 
     def __str__(self):
         return self.value
+
 
 @versioned
 class CompositionOpenEnded(ComplexField):

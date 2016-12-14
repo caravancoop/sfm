@@ -25,6 +25,7 @@ class AssociationOrganizationAdmin(reversion.admin.VersionAdmin):
 class AssociationAreaAdmin(admin.ModelAdmin):
     pass
 
+
 admin.site.register(Association, AssociationAdmin)
 admin.site.register(AssociationStartDate, AssociationStartDateAdmin)
 admin.site.register(AssociationEndDate, AssociationEndDateAdmin)

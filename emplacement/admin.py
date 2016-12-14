@@ -25,6 +25,7 @@ class EmplacementOrganizationAdmin(reversion.admin.VersionAdmin):
 class EmplacementSiteAdmin(admin.ModelAdmin):
     pass
 
+
 admin.site.register(Emplacement, EmplacementAdmin)
 admin.site.register(EmplacementStartDate, EmplacementStartDateAdmin)
 admin.site.register(EmplacementEndDate, EmplacementEndDateAdmin)
