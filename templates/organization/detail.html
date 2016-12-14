@@ -55,8 +55,106 @@
     </div>
     <div class="row">
         <div class="col-sm-12">
-            {% if members %}
-                <h3>Members</h3>
+            {% if org_members %}
+                <h3>Organization members</h3>
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Aliases</th>
+                            <th>Classifications</th>
+                            <th>First cited</th>
+                            <th>Last cited</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for membership in org_members %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'detail_organization' membership.id %}">
+                                        {{ membership.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% for alias in membership.aliases %}
+                                        {% if not forloop.last %}
+                                            {{ alias }},
+                                        {% else %}
+                                            {{ alias }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for classification in membership.classifications %}
+                                        {% if not forloop.last %}
+                                            {{ classification }},
+                                        {% else %}
+                                            {{ classification }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ membership.first_cited }}</td>
+                                <td>{{ membership.last_cited }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if memberships %}
+                <h3>Member of</h3>
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Aliases</th>
+                            <th>Classifications</th>
+                            <th>First cited</th>
+                            <th>Last cited</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for membership in memberships %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'detail_organization' membership.id %}">
+                                        {{ membership.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% for alias in membership.aliases %}
+                                        {% if not forloop.last %}
+                                            {{ alias }},
+                                        {% else %}
+                                            {{ alias }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for classification in membership.classifications %}
+                                        {% if not forloop.last %}
+                                            {{ classification }},
+                                        {% else %}
+                                            {{ classification }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ membership.first_cited }}</td>
+                                <td>{{ membership.last_cited }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if person_members %}
+                <h3>Person Members</h3>
                 <table class="table table-condensed">
                     <thead>
                         <tr>
@@ -69,7 +167,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for member in members %}
+                        {% for member in person_members %}
                             <tr>
                                 <td>
                                     <a href="{% url 'detail-person' member.member.get_value.value.id %}">
@@ -122,7 +220,6 @@
             {% endif %}
         </div>
     </div>
-    {% render_versions organization %}
 {% endblock %}
 
 {% block extra_js %}

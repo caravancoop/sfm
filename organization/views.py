@@ -1,6 +1,7 @@
 import json
 import csv
 from datetime import date
+import itertools
 
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
@@ -9,7 +10,7 @@ from django.views.generic import TemplateView, DetailView, ListView
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from django.db import DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, connection
 from django.utils.translation import get_language
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
@@ -34,10 +35,10 @@ class OrganizationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        context['members'] = []
+        context['person_members'] = []
         memberships = context['organization'].membershippersonorganization_set.all()
         for membership in memberships:
-            context['members'].append(membership.object_ref)
+            context['person_members'].append(membership.object_ref)
         
         context['events'] = []
         events = context['organization'].violationperpetratororganization_set.all()
@@ -56,6 +57,67 @@ class OrganizationDetail(DetailView):
             if association.object_ref.area.get_value().value.osmid.get_value():
                 context['areas'].append(association.object_ref.area.get_value().value)
         
+        orgs = []
+
+        member_of_orgs = ''' 
+            SELECT 
+              org_o.id,
+              MAX(org.name) AS name,
+              array_agg(DISTINCT TRIM(org.alias))
+                FILTER (WHERE TRIM(org.alias) IS NOT NULL) AS aliases,
+              array_agg(DISTINCT TRIM(org.classification))
+                FILTER (WHERE TRIM(org.classification) IS NOT NULL) AS classifications,
+              MAX(mo.first_cited) AS first_cited,
+              MAX(mo.last_cited) AS last_cited
+            FROM membershiporganization AS mo 
+            JOIN organization AS member 
+              ON mo.member_id = member.id 
+            JOIN organization_organization AS member_o 
+              ON member.id = member_o.uuid 
+            JOIN organization AS org 
+              ON mo.organization_id = org.id 
+            JOIN organization_organization AS org_o
+              ON org.id = org_o.uuid
+            WHERE member_o.id = %s 
+            GROUP BY org_o.id
+        '''
+        
+        cursor = connection.cursor()
+        cursor.execute(member_of_orgs, [self.kwargs['pk']])
+        
+        columns = [c[0] for c in cursor.description]
+        
+        context['memberships'] = [dict(zip(columns, r)) for r in cursor]
+        
+        org_members = ''' 
+            SELECT
+              member_o.id,
+              MAX(member.name) AS name,
+              array_agg(DISTINCT TRIM(member.alias))
+                FILTER (WHERE TRIM(member.alias) IS NOT NULL) AS aliases,
+              array_agg(DISTINCT TRIM(member.classification))
+                FILTER (WHERE TRIM(member.classification) IS NOT NULL) AS classifications,
+              MAX(mo.first_cited) AS first_cited,
+              MAX(mo.last_cited) AS last_cited
+            FROM membershiporganization AS mo 
+            JOIN organization AS member 
+              ON mo.member_id = member.id 
+            JOIN organization_organization AS member_o 
+              ON member.id = member_o.uuid 
+            JOIN organization AS org 
+              ON mo.organization_id = org.id 
+            JOIN organization_organization AS org_o
+              ON org.id = org_o.uuid
+            WHERE org_o.id = %s
+            GROUP BY member_o.id
+        '''
+        
+        cursor.execute(org_members, [self.kwargs['pk']])
+        
+        columns = [c[0] for c in cursor.description]
+        
+        context['org_members'] = [dict(zip(columns, r)) for r in cursor]
+
         return context
 
 class OrganizationList(PaginatedList):
