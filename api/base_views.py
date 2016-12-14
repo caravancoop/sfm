@@ -547,7 +547,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                          relationships=True, 
                          simple=False,
                          all_geography=False,
-                         commanders=True):
+                         commanders=True,
+                         memberships=False):
         
         if relationships:
             properties = self.makeOrganizationRelationships(properties)
@@ -558,6 +559,58 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         if not simple:
             properties = self.makeOrganizationGeographies(properties, 
                                                           all_geography=all_geography)
+        
+        if memberships:
+            
+            orgs = []
+            
+            for org in properties['memberships']:
+
+                member_orgs = ''' 
+                    SELECT DISTINCT ON (mo.member_id_value)
+                      o.id,
+                      MAX(o.name) AS name,
+                      array_agg(DISTINCT TRIM(o.alias)) 
+                        FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
+                      array_agg(DISTINCT TRIM(o.classification)) 
+                        FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications,
+                      json_agg(mo.member_id_sources) AS sources
+                    FROM organization AS o
+                    JOIN membershiporganization_sources AS mo
+                      ON o.id = mo.organization_id_value
+                    WHERE o.id = %s
+                    GROUP BY o.id, mo.member_id_value
+                '''
+                
+                cursor = connection.cursor()
+                cursor.execute(member_orgs, [org])
+                
+                columns = [c[0] for c in cursor.description]
+                
+                for org_id, group in itertools.groupby(cursor, lambda x: x[0]):
+                    grouping = [dict(zip(columns, r)) for r in group]
+
+                    o = {
+                        'id': org_id,
+                        'name': grouping[0]['name'],
+                        'other_names': grouping[0]['other_names'],
+                        'classifications': grouping[0]['classifications'],
+                        'sources': []
+                    }
+                    
+                    source_ids = []
+
+                    for row in grouping:
+
+                        for source in row['sources']:
+
+                            if source['id'] not in source_ids:
+                                o['sources'].append(source)
+                                source_ids.append(source['id'])
+
+                    orgs.append(o)
+            
+            properties['memberships'] = orgs
 
         return properties
     

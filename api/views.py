@@ -253,7 +253,9 @@ class OrganizationChartView(JSONAPIView):
                 FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications
             FROM organization AS o
             LEFT JOIN violation AS v
-              ON o.id = v.perpetrator_organization_id
+              ON o.id = v.perpetrator_organization_id,
+            LEFT JOIN membershiporganization AS mo
+              ON o.id = mo.member_id
             WHERE o.id = %s
             GROUP BY o.id
         '''
@@ -266,10 +268,11 @@ class OrganizationChartView(JSONAPIView):
         row = cursor.fetchone()
         
         if row:
-            context.update(self.makeOrganization(OrderedDict(zip(columns, row)), relationships=False))
+            context.update(self.makeOrganization(OrderedDict(zip(columns, row)), 
+                                                 relationships=False))
             context['parents'] = []
             context['children'] = []
-            
+
             parents = get_org_hierarchy_by_id(organization_id, when=when)
             children = get_child_orgs_by_id(organization_id, when=when)
 
@@ -284,6 +287,7 @@ class OrganizationChartView(JSONAPIView):
                                               relationships=False,
                                               simple=True)
                 context['children'].append(child)
+            
 
         return context
 
@@ -310,7 +314,9 @@ class OrganizationDetailView(JSONAPIView):
               MAX(o.division_id) AS division_id,
               COUNT(DISTINCT v.id) AS events_count,
               COALESCE(MIN(e.start_date::date), MIN(a.start_date::date)) AS first_cited,
-              COALESCE(MAX(e.end_date::date), MAX(a.end_date::date)) AS last_cited
+              COALESCE(MAX(e.end_date::date), MAX(a.end_date::date)) AS last_cited,
+              array_agg(DISTINCT mo.organization_id) 
+                FILTER (WHERE mo.organization_id IS NOT NULL) AS memberships
             FROM organization_sources AS o
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
@@ -318,6 +324,8 @@ class OrganizationDetailView(JSONAPIView):
               ON o.id = e.organization_id
             LEFT JOIN association AS a
               ON o.id = a.organization_id
+            LEFT JOIN membershiporganization AS mo
+              ON o.id = mo.member_id
             WHERE o.id = %s
             GROUP BY o.id
         '''
@@ -329,7 +337,8 @@ class OrganizationDetailView(JSONAPIView):
         row = cursor.fetchone()
         if row:
             organization = self.makeOrganization(dict(zip(columns, row)), 
-                                                 all_geography=True)
+                                                 all_geography=True,
+                                                 memberships=True)
             
             context.update(self.splitSources(organization))
             
