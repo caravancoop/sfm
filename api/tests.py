@@ -74,6 +74,7 @@ def setUpModule():
         call_command('loaddata', fixture)
 
     call_command('make_flattened_views')
+    call_command('make_search_index')
 
 def tearDownModule():
     engine = sa.create_engine('postgresql://postgres:@localhost:5432/test_sfm-db')
@@ -173,4 +174,41 @@ class RouteTest(TestCase):
         assert response.status_code == 200
 
         assert len(json.loads(response.content.decode('utf-8'))) == 11
+    
+    def test_org_search_no_q(self):
+        response = self.getPage(reverse_lazy('organization-search', args=['ng']))
+
+        assert response.status_code == 400
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        assert response_json['errors'][0] == 'q is a required field'
+
+    def test_org_search(self):
+        url = '{}?q=Battalion'.format(reverse_lazy('organization-search', args=['ng']))
+
+        response = self.getPage(url)
+
+        assert response.status_code == 200
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        assert len(response_json['results']) == 20
+    
+    def test_people_search_no_q(self):
+        response = self.getPage(reverse_lazy('people-search', args=['ng']))
+
+        assert response.status_code == 400
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        assert response_json['errors'][0] == 'q is a required field'
+
+    def test_people_search(self):
+        url = '{}?q=John'.format(reverse_lazy('people-search', args=['ng']))
+
+        response = self.getPage(url)
+
+        assert response.status_code == 200
+        
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        assert len(response_json['results']) == 4
 
