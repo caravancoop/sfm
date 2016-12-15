@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW geosite AS 
+CREATE MATERIALIZED VIEW geosite AS 
   SELECT 
     gg.id,
     ggn.value AS name,

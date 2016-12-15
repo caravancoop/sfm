@@ -1,46 +1,46 @@
-CREATE OR REPLACE VIEW membershipperson_sources AS 
+CREATE MATERIALIZED VIEW membershipperson_sources AS 
   SELECT 
     mm.id,
     pp.uuid AS member_id,
     oo.uuid AS organization_id_value,
-    mmo.confidence AS organization_id_confidence,
-    row_to_json(mmpss.*) AS organization_id_sources,
+    MAX(mmo.confidence) AS organization_id_confidence,
+    json_agg(DISTINCT mmpss.*) AS organization_id_sources,
 
     mr.value AS role_value,
-    mmr.confidence AS role_confidence,
-    row_to_json(mmrss.*) AS role_sources,
+    MAX(mmr.confidence) AS role_confidence,
+    json_agg(DISTINCT mmrss.*) AS role_sources,
 
     mmt.value AS title_value,
-    mmt.confidence AS title_confidence,
-    row_to_json(mmtss.*) AS title_sources,
+    MAX(mmt.confidence) AS title_confidence,
+    json_agg(DISTINCT mmtss.*) AS title_sources,
 
     mmrk.value AS rank_value,
-    mmk.confidence AS rank_confidence,
-    row_to_json(mmrkss.*) AS rank_sources,
+    MAX(mmk.confidence) AS rank_confidence,
+    json_agg(DISTINCT mmrkss.*) AS rank_sources,
 
     mmreals.value AS real_start_value,
-    mmreals.confidence AS real_start_confidence,
-    row_to_json(mmrealsss.*) AS real_start_sources,
+    MAX(mmreals.confidence) AS real_start_confidence,
+    json_agg(DISTINCT mmrealsss.*) AS real_start_sources,
 
     mmre.value AS real_end_value,
-    mmre.confidence AS real_end_confidence,
-    row_to_json(mmress.*) AS real_end_sources,
+    MAX(mmre.confidence) AS real_end_confidence,
+    json_agg(DISTINCT mmress.*) AS real_end_sources,
 
     sc.value AS start_context_value,
-    mmsc.confidence AS start_context_confidence,
-    row_to_json(scss.*) AS start_context_sources,
+    MAX(mmsc.confidence) AS start_context_confidence,
+    json_agg(DISTINCT scss.*) AS start_context_sources,
 
     ec.value AS end_context_value,
-    mmec.confidence AS end_context_confidence,
-    row_to_json(ecss.*) AS end_context_sources,
+    MAX(mmec.confidence) AS end_context_confidence,
+    json_agg(DISTINCT ecss.*) AS end_context_sources,
 
     mmfc.value AS first_cited_value,
-    mmfc.confidence AS first_cited_confidence,
-    row_to_json(mmfcss.*) AS first_cited_sources,
+    MAX(mmfc.confidence) AS first_cited_confidence,
+    json_agg(DISTINCT mmfcss.*) AS first_cited_sources,
 
     mmlc.value AS last_cited_value,
-    mmlc.confidence AS last_cited_confidence,
-    row_to_json(mmlcss.*) AS last_cited_sources
+    MAX(mmlc.confidence) AS last_cited_confidence,
+    json_agg(DISTINCT mmlcss.*) AS last_cited_sources
   FROM membershipperson_membershipperson AS mm
   LEFT JOIN membershipperson_membershippersonmember AS mmm
     ON mm.id = mmm.object_ref_id
@@ -125,3 +125,15 @@ CREATE OR REPLACE VIEW membershipperson_sources AS
     ON mmlc.id = mmlcs.membershippersonlastciteddate_id
   LEFT JOIN source_source AS mmlcss
     ON mmlcs.source_id = mmlcss.id
+  GROUP BY mm.id, 
+           pp.uuid, 
+           oo.uuid, 
+           mr.value, 
+           mmt.value, 
+           mmrk.value, 
+           mmreals.value,
+           mmre.value,
+           sc.value, 
+           ec.value, 
+           mmfc.value, 
+           mmlc.value

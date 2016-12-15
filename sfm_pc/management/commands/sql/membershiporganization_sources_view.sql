@@ -1,21 +1,21 @@
-CREATE OR REPLACE VIEW membershiporganization_sources AS 
+CREATE MATERIALIZED VIEW membershiporganization_sources AS 
   SELECT 
     m.id,
     mm.uuid AS member_id_value,
-    mom.confidence AS member_id_confidence,
-    row_to_json(momss.*) AS member_id_sources,
+    MAX(mom.confidence) AS member_id_confidence,
+    json_agg(DISTINCT momss.*) AS member_id_sources,
     
     mo.uuid AS organization_id_value,
-    mmo.confidence AS organization_id_confidence,
-    row_to_json(mmoss.*) AS organization_id_sources,
+    MAX(mmo.confidence) AS organization_id_confidence,
+    json_agg(DISTINCT mmoss.*) AS organization_id_sources,
 
     mmfc.value AS first_cited_date_value,
-    mmfc.confidence AS first_cited_date_confidence,
-    row_to_json(mmfcss.*) AS first_cited_date_sources,
+    MAX(mmfc.confidence) AS first_cited_date_confidence,
+    json_agg(DISTINCT mmfcss.*) AS first_cited_date_sources,
 
     mmlc.value AS last_cited_date_value,
-    mmlc.confidence AS last_cited_date_confidence,
-    row_to_json(mmlcss.*) AS last_cited_date_sources
+    MAX(mmlc.confidence) AS last_cited_date_confidence,
+    json_agg(DISTINCT mmlcss.*) AS last_cited_date_sources
   FROM membershiporganization_membershiporganization AS m
   LEFT JOIN membershiporganization_m AS mom
     ON m.id = mom.object_ref_id
@@ -45,3 +45,4 @@ CREATE OR REPLACE VIEW membershiporganization_sources AS
     ON mmlc.id = mmlcs.membershiporganizationlastciteddate_id
   LEFT JOIN source_source AS mmlcss
     ON mmlcs.source_id = mmlcss.id
+  GROUP BY m.id, mm.uuid, mo.uuid, mmfc.value, mmlc.value

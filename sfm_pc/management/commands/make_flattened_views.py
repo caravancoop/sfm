@@ -8,14 +8,20 @@ class Command(BaseCommand):
     help = 'Create flattened versions of entity tables'
     
     def add_arguments(self, parser):
-        pass 
-        # parser.add_argument(
-        #     '--recreate',
-        #     action='store_true',
-        #     dest='recreate',
-        #     default=False,
-        #     help='Recreate all views'
-        # )
+        parser.add_argument(
+            '--recreate',
+            action='store_true',
+            dest='recreate',
+            default=False,
+            help='Recreate all views'
+        )
+        parser.add_argument(
+            '--refresh',
+            action='store_true',
+            dest='refresh',
+            default=False,
+            help='Refresh all views'
+        )
     
     def handle(self, *args, **options):
     
@@ -23,12 +29,28 @@ class Command(BaseCommand):
         sql_dir = os.path.join(this_dir, 'sql')
 
         for view in os.listdir(sql_dir):
-            
             file_path = os.path.join(sql_dir, view)
+            view_name = view.rsplit('_', 1)[0]
             
-            with open(file_path) as f:
-                create = f.read()
-        
+            if options['recreate']:
+                
                 with connection.cursor() as c:
-                    c.execute(create)
-                    
+                    c.execute('DROP MATERIALIZED VIEW IF EXISTS {}'.format(view_name))
+                
+                self.createView(file_path)
+
+            elif options['refresh']:
+
+                with connection.cursor() as c:
+                    c.execute('REFRESH MATERIALIZED VIEW CONCURRENTLY {}'.format(view_name))
+            
+            else:
+                self.createView(file_path)
+
+    def createView(self, file_path):
+        
+        with open(file_path) as f:
+            create = f.read()
+        
+            with connection.cursor() as c:
+                c.execute(create)

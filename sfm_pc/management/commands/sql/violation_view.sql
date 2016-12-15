@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW violation AS 
+CREATE MATERIALIZED VIEW violation AS 
   SELECT 
     vv.uuid AS id,
     vvsd.value AS start_date,

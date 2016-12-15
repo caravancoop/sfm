@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW organization AS 
+CREATE MATERIALIZED VIEW organization AS 
   SELECT 
     oo.uuid AS id,
     oon.value AS name,

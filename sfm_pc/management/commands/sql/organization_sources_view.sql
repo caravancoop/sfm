@@ -1,16 +1,16 @@
-CREATE OR REPLACE VIEW organization_sources AS 
+CREATE MATERIALIZED VIEW organization_sources AS 
   SELECT 
     oo.uuid AS id,
     oon.value AS name_value,
-    oon.confidence AS name_confidence,
-    row_to_json(oonss.*) AS name_source,
+    MAX(oon.confidence) AS name_confidence,
+    json_agg(DISTINCT oonss.*) AS name_source,
     oa.value AS alias_value,
-    ooa.confidence AS alias_confidence,
-    row_to_json(ooass.*) AS alias_source,
+    MAX(ooa.confidence) AS alias_confidence,
+    json_agg(DISTINCT ooass.*) AS alias_source,
     oc.value AS classification_value,
-    ooc.confidence AS classification_confidence,
-    row_to_json(oocss.*) AS classification_source,
-    ood.value AS division_id
+    MAX(ooc.confidence) AS classification_confidence,
+    json_agg(DISTINCT oocss.*) AS classification_source,
+    MAX(ood.value) AS division_id
   FROM organization_organization AS oo
   LEFT JOIN organization_organizationname AS oon
     ON oo.id = oon.object_ref_id
@@ -36,3 +36,7 @@ CREATE OR REPLACE VIEW organization_sources AS
     ON oocs.source_id = oocss.id
   LEFT JOIN organization_organizationdivisionid AS ood
     ON oo.id = ood.object_ref_id
+  GROUP BY oo.uuid, 
+           oon.value, 
+           oa.value, 
+           oc.value

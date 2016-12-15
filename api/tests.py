@@ -9,6 +9,7 @@ from django.test import TestCase, Client
 from django.core.urlresolvers import reverse_lazy
 from django.db.models.signals import post_save
 from django.core.management import call_command
+from django.db import connection
 
 from sfm_pc.signals import update_source_index, update_publication_index, \
     update_orgname_index, update_orgalias_index, update_personname_index, \
@@ -48,8 +49,6 @@ def setUpModule():
         )
     '''
     
-    dump_path = os.path.join(settings.BASE_DIR, 'fixtures/osm_data.sql')
-
     with engine.begin() as conn:
         conn.execute('CREATE EXTENSION IF NOT EXISTS postgis')
         conn.execute('DROP TABLE IF EXISTS osm_data')
@@ -57,6 +56,8 @@ def setUpModule():
         conn.execute("SELECT AddGeometryColumn ('public', 'osm_data', 'geometry', 4326, 'GEOMETRY', 2)")
         conn.execute("CREATE INDEX ON osm_data USING GIST (geometry)")
 
+    dump_path = os.path.join(settings.BASE_DIR, 'fixtures/osm_data.sql')
+    
     with open(dump_path, 'r') as f:
         psql = subprocess.run(['psql', '-d', 'test_sfm-db', '-U', 'postgres'], stdin=f)
     
@@ -73,8 +74,10 @@ def setUpModule():
     for fixture in fixtures:
         call_command('loaddata', fixture)
 
-    call_command('make_flattened_views')
+    call_command('make_flattened_views', '--recreate')
     call_command('make_search_index')
+    
+    engine.dispose()
 
 def tearDownModule():
     engine = sa.create_engine('postgresql://postgres:@localhost:5432/test_sfm-db')
@@ -87,13 +90,18 @@ def tearDownModule():
         conn.execute('TRUNCATE violation_violation CASCADE')
         conn.execute('TRUNCATE membershipperson_membershipperson CASCADE')
         conn.execute('TRUNCATE membershiporganization_membershiporganization CASCADE')
+    
+    engine.dispose()
 
-class RouteTest(TestCase):
+class TestBase(TestCase):
     
     def getPage(self, url):
         client = Client()
         return client.get(url)
 
+
+class RouteTest(TestBase):
+    
     def test_country_list(self):
         response = self.getPage(reverse_lazy('country-list'))
 
@@ -211,4 +219,97 @@ class RouteTest(TestCase):
         response_json = json.loads(response.content.decode('utf-8'))
 
         assert len(response_json['results']) == 4
+    
+    def test_event_search_no_q(self):
+        response = self.getPage(reverse_lazy('event-search', args=['ng']))
 
+        assert response.status_code == 400
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        assert response_json['errors'][0] == 'q is a required field'
+
+    def test_event_search(self):
+        url = '{}?q=According'.format(reverse_lazy('event-search', args=['ng']))
+
+        response = self.getPage(url)
+
+        assert response.status_code == 200
+        
+        response_json = json.loads(response.content.decode('utf-8'))
+        
+        assert len(response_json['results']) == 20
+    
+    def test_country_geojson(self):
+        response = self.getPage(reverse_lazy('country-geojson', args=['ng']))
+
+        assert response.status_code == 200
+
+    def test_event_detail(self):
+        curs = connection.cursor()
+
+        curs.execute(''' 
+            SELECT id FROM violation
+        ''')
+
+        for row in curs:
+            response = self.getPage(reverse_lazy('event-detail', args=[row[0]]))
+
+            assert response.status_code == 200
+
+    def test_org_map(self):
+        curs = connection.cursor()
+
+        curs.execute(''' 
+            SELECT id FROM organization
+            ORDER BY RANDOM()
+            LIMIT 15
+        ''')
+
+        for row in curs:
+            url = '{}?at=2014-01-01'.format(reverse_lazy('organization-map', args=[row[0]]))
+            response = self.getPage(url)
+
+            assert response.status_code == 200
+
+    def test_org_chart(self):
+        curs = connection.cursor()
+
+        curs.execute(''' 
+            SELECT id FROM organization
+            ORDER BY RANDOM()
+            LIMIT 15
+        ''')
+
+        for row in curs:
+            url = '{}?at=2014-01-01'.format(reverse_lazy('organization-chart', args=[row[0]]))
+            response = self.getPage(url)
+            
+            assert response.status_code == 200
+    
+    def test_org_detail(self):
+        curs = connection.cursor()
+
+        curs.execute(''' 
+            SELECT id FROM organization
+            ORDER BY RANDOM()
+            LIMIT 15 
+        ''')
+
+        for row in curs:
+            response = self.getPage(reverse_lazy('organization-detail', args=[row[0]]))
+
+            assert response.status_code == 200
+    
+    def test_person_detail(self):
+        curs = connection.cursor()
+
+        curs.execute(''' 
+            SELECT id FROM person
+            ORDER BY RANDOM()
+            LIMIT 15
+        ''')
+
+        for row in curs:
+            response = self.getPage(reverse_lazy('person-detail', args=[row[0]]))
+
+            assert response.status_code == 200

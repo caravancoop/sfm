@@ -1,13 +1,13 @@
-CREATE OR REPLACE VIEW person_sources AS 
+CREATE MATERIALIZED VIEW person_sources AS 
   SELECT 
     pp.uuid AS id,
     ppn.value AS name_value,
-    ppn.confidence AS name_confidence,
-    row_to_json(ppnss.*) AS name_source,
+    MAX(ppn.confidence) AS name_confidence,
+    json_agg(DISTINCT ppnss.*) AS name_source,
     pa.value AS alias_value,
-    ppa.confidence AS alias_confidence,
-    row_to_json(ppass.*) AS alias_source,
-    ppd.value AS division_id
+    MAX(ppa.confidence) AS alias_confidence,
+    json_agg(DISTINCT ppass.*) AS alias_source,
+    MAX(ppd.value) AS division_id
   FROM person_person AS pp
   LEFT JOIN person_personname AS ppn
     ON pp.id = ppn.object_ref_id
@@ -25,3 +25,4 @@ CREATE OR REPLACE VIEW person_sources AS
     ON ppas.source_id = ppass.id
   LEFT JOIN person_persondivisionid AS ppd
     ON pp.id = ppd.object_ref_id
+  GROUP BY pp.uuid, ppn.value, pa.value, ppd.value

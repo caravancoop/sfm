@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW membershiporganization AS 
+CREATE MATERIALIZED VIEW membershiporganization AS 
   SELECT 
     m.id,
     mm.uuid AS member_id,

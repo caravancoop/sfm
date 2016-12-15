@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW association AS 
+CREATE MATERIALIZED VIEW association AS 
   SELECT 
     aa.id,
     aasd.value AS start_date,

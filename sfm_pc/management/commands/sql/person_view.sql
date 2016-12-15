@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW person AS 
+CREATE MATERIALIZED VIEW person AS 
   SELECT 
     pp.uuid AS id,
     ppn.value AS name,

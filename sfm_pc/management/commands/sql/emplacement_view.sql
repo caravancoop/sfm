@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW emplacement AS 
+CREATE MATERIALIZED VIEW emplacement AS 
   SELECT 
     ee.id,
     eesd.value AS start_date,

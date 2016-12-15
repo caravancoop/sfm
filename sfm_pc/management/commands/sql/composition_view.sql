@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW composition AS 
+CREATE MATERIALIZED VIEW composition AS 
   SELECT 
     cc.id,
     oop.uuid AS parent_id,

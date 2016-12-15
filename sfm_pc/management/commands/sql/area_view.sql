@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW area AS 
+CREATE MATERIALIZED VIEW area AS 
   SELECT 
     aa.id,
     aan.value AS name,

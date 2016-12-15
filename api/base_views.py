@@ -570,7 +570,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             properties = self.makeOrganizationGeographies(properties,
                                                           all_geography=all_geography)
 
-        if memberships:
+        if memberships and properties.get('memberships'):
 
             orgs = []
 
@@ -584,7 +584,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                         FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
                       array_agg(DISTINCT TRIM(o.classification))
                         FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications,
-                      json_agg(mo.member_id_sources) AS sources
+                      MAX(mo.member_id_sources::VARCHAR)::json AS sources
                     FROM organization AS o
                     JOIN membershiporganization_sources AS mo
                       ON o.id = mo.organization_id_value
