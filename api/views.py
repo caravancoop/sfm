@@ -256,7 +256,7 @@ class OrganizationChartView(JSONAPIView):
                 FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications
             FROM organization AS o
             LEFT JOIN violation AS v
-              ON o.id = v.perpetrator_organization_id,
+              ON o.id = v.perpetrator_organization_id
             LEFT JOIN membershiporganization AS mo
               ON o.id = mo.member_id
             WHERE o.id = %s

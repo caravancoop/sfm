@@ -1,32 +1,24 @@
 import json
-import csv
-from datetime import date
-import itertools
 
-from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
-from django.views.generic.edit import DeleteView, FormView
-from django.views.generic import TemplateView, DetailView, ListView
-from django.utils.translation import ugettext as _
-from django.template.loader import render_to_string
+from django.views.generic import DetailView
 from django.http import HttpResponse
-from django.db import DEFAULT_DB_ALIAS, connection
+from django.db import connection
 from django.utils.translation import get_language
 from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import redirect
-
-from extra_views import FormSetView
 
 from source.models import Source
 from geosite.models import Geosite
 from emplacement.models import Emplacement
-from area.models import Area, Code
+from area.models import Area
 from association.models import Association
 from organization.forms import OrganizationForm, OrganizationGeographyForm
-from organization.models import Organization, OrganizationName, \
-    OrganizationAlias, Alias, OrganizationClassification, Classification
-from sfm_pc.utils import deleted_in_str, get_osm_by_id, get_hierarchy_by_id
+from organization.models import Organization, OrganizationAlias, Alias, \
+    OrganizationClassification, Classification
+
+from sfm_pc.utils import get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
+
 
 class OrganizationDetail(DetailView):
     model = Organization
@@ -34,33 +26,31 @@ class OrganizationDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         context['person_members'] = []
         memberships = context['organization'].membershippersonorganization_set.all()
         for membership in memberships:
             context['person_members'].append(membership.object_ref)
-        
+
         context['events'] = []
         events = context['organization'].violationperpetratororganization_set.all()
         for event in events:
             context['events'].append(event.object_ref)
-        
+
         context['sites'] = []
         emplacements = context['organization'].emplacementorganization_set.all()
         for emplacement in emplacements:
             if emplacement.object_ref.site.get_value().value.osmid.get_value():
                 context['sites'].append(emplacement.object_ref.site.get_value().value)
-        
+
         context['areas'] = []
         associations = context['organization'].associationorganization_set.all()
         for association in associations:
             if association.object_ref.area.get_value().value.osmid.get_value():
                 context['areas'].append(association.object_ref.area.get_value().value)
-        
-        orgs = []
 
-        member_of_orgs = ''' 
-            SELECT 
+        member_of_orgs = '''
+            SELECT
               org_o.id,
               MAX(org.name) AS name,
               array_agg(DISTINCT TRIM(org.alias))
@@ -69,27 +59,27 @@ class OrganizationDetail(DetailView):
                 FILTER (WHERE TRIM(org.classification) IS NOT NULL) AS classifications,
               MAX(mo.first_cited) AS first_cited,
               MAX(mo.last_cited) AS last_cited
-            FROM membershiporganization AS mo 
-            JOIN organization AS member 
-              ON mo.member_id = member.id 
-            JOIN organization_organization AS member_o 
-              ON member.id = member_o.uuid 
-            JOIN organization AS org 
-              ON mo.organization_id = org.id 
+            FROM membershiporganization AS mo
+            JOIN organization AS member
+              ON mo.member_id = member.id
+            JOIN organization_organization AS member_o
+              ON member.id = member_o.uuid
+            JOIN organization AS org
+              ON mo.organization_id = org.id
             JOIN organization_organization AS org_o
               ON org.id = org_o.uuid
-            WHERE member_o.id = %s 
+            WHERE member_o.id = %s
             GROUP BY org_o.id
         '''
-        
+
         cursor = connection.cursor()
         cursor.execute(member_of_orgs, [self.kwargs['pk']])
-        
+
         columns = [c[0] for c in cursor.description]
-        
+
         context['memberships'] = [dict(zip(columns, r)) for r in cursor]
-        
-        org_members = ''' 
+
+        org_members = '''
             SELECT
               member_o.id,
               MAX(member.name) AS name,
@@ -99,26 +89,27 @@ class OrganizationDetail(DetailView):
                 FILTER (WHERE TRIM(member.classification) IS NOT NULL) AS classifications,
               MAX(mo.first_cited) AS first_cited,
               MAX(mo.last_cited) AS last_cited
-            FROM membershiporganization AS mo 
-            JOIN organization AS member 
-              ON mo.member_id = member.id 
-            JOIN organization_organization AS member_o 
-              ON member.id = member_o.uuid 
-            JOIN organization AS org 
-              ON mo.organization_id = org.id 
+            FROM membershiporganization AS mo
+            JOIN organization AS member
+              ON mo.member_id = member.id
+            JOIN organization_organization AS member_o
+              ON member.id = member_o.uuid
+            JOIN organization AS org
+              ON mo.organization_id = org.id
             JOIN organization_organization AS org_o
               ON org.id = org_o.uuid
             WHERE org_o.id = %s
             GROUP BY member_o.id
         '''
-        
+
         cursor.execute(org_members, [self.kwargs['pk']])
-        
+
         columns = [c[0] for c in cursor.description]
-        
+
         context['org_members'] = [dict(zip(columns, r)) for r in cursor]
 
         return context
+
 
 class OrganizationList(PaginatedList):
     model = Organization
@@ -131,6 +122,7 @@ class OrganizationList(PaginatedList):
         'classification': 'organizationclassification__value__value'
     }
 
+
 class OrganizationCreate(BaseFormSetView):
     template_name = 'organization/create.html'
     form_class = OrganizationForm
@@ -142,30 +134,30 @@ class OrganizationCreate(BaseFormSetView):
         context = super().get_context_data(**kwargs)
 
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
-        
+
         return context
 
     def post(self, request, *args, **kwargs):
-        
+
         form_data = {}
-        
+
         for key, value in request.POST.items():
             if 'alias' in key or 'classification' in key:
                 form_data[key] = request.POST.getlist(key)
             else:
                 form_data[key] = request.POST.get(key)
-        
+
         self.initFormset(form_data)
-        
+
         return self.validateFormSet()
-    
+
     def formset_invalid(self, formset):
         response = super().formset_invalid(formset)
-        
+
         for index, form in enumerate(formset.forms):
             alias_ids = formset.data.get('form-{}-alias'.format(index))
             classification_ids = formset.data.get('form-{}-classification'.format(index))
-            
+
             form.aliases = []
             form.classifications = []
 
@@ -174,42 +166,37 @@ class OrganizationCreate(BaseFormSetView):
 
             if classification_ids:
                 form.classifications = OrganizationClassification.objects.filter(id__in=classification_ids)
-        
+
         return response
 
     def formset_valid(self, formset):
-        forms_added = int(formset.data['form-FORMS_ADDED'][0])     
-        
+        forms_added = int(formset.data['form-FORMS_ADDED'][0])
+
         self.organizations = []
-        
+
         self.source = Source.objects.get(id=self.request.session['source_id'])
 
         actual_form_index = 0
-        
+
         for i in range(0, forms_added):
 
             form_prefix = 'form-{}-'.format(i)
-            actual_form_prefix = 'form-{}-'.format(actual_form_index)
 
-            form_key_mapper = {k: k.replace(str(i), str(actual_form_index)) \
-                                   for k in formset.data.keys() \
-                                       if k.startswith(form_prefix)}
-            
             name_id_key = 'form-{}-name'.format(i)
             name_text_key = 'form-{}-name_text'.format(i)
             division_id_key = 'form-{}-division_id'.format(i)
 
             try:
                 name_id = formset.data[name_id_key]
-            except MultiValueDictKeyError:
+            except KeyError:
                 continue
-            
+
             name_text = formset.data[name_text_key]
             division_id = formset.data[division_id_key]
 
             org_info = {
                 'Organization_OrganizationName': {
-                    'value': name_text, 
+                    'value': name_text,
                     'confidence': 1,
                     'sources': [self.source]
                 },
@@ -219,26 +206,26 @@ class OrganizationCreate(BaseFormSetView):
                     'sources': [self.source],
                 }
             }
-            
+
             try:
                 organization = Organization.objects.get(id=name_id)
                 sources = self.sourcesList(organization, 'name')
-                
+
                 org_info["Organization_OrganizationName"]['sources'] = sources
-            
+
             except (Organization.DoesNotExist, ValueError):
                 organization = Organization.create(org_info)
 
             organization.update(org_info)
-            
+
             # Save aliases first
-            
+
             aliases = formset.data.get(form_prefix + 'alias_text')
-            
+
             if aliases:
-                
+
                 for alias in aliases:
-                    
+
                     alias_obj, created = Alias.objects.get_or_create(value=alias)
 
                     oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
@@ -248,28 +235,28 @@ class OrganizationCreate(BaseFormSetView):
                     oa_obj.save()
 
             # Next do classifications
-            
+
             classifications = formset.data.get(form_prefix + 'classification_text')
-            
+
             if classifications:
                 for classification in classifications:
-                    
+
                     class_obj, created = Classification.objects.get_or_create(value=classification)
-                    
+
                     oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
                                                                                        object_ref=organization,
                                                                                        lang=get_language())
                     oc_obj.sources.add(self.source)
                     oc_obj.save()
-            
+
             self.organizations.append(organization)
 
             actual_form_index += 1
-        
-        self.request.session['organizations'] = [{'id': o.id, 'name': o.name.get_value().value} \
-                                                     for o in self.organizations]
+
+        self.request.session['organizations'] = [{'id': o.id, 'name': o.name.get_value().value}
+                                                 for o in self.organizations]
         response = super().formset_valid(formset)
-        
+
         return response
 
 
@@ -282,17 +269,17 @@ class OrganizationUpdate(BaseUpdateView):
     def post(self, request, *args, **kwargs):
 
         self.checkSource(request)
-        
+
         self.aliases = request.POST.getlist('alias')
         self.classifications = request.POST.getlist('classification')
-        
+
         return self.validateForm()
-    
+
     def form_valid(self, form):
         response = super().form_valid(form)
-        
+
         organization = Organization.objects.get(pk=self.kwargs['pk'])
-        
+
         org_info = {
             'Organization_OrganizationName': {
                 'value': form.cleaned_data['name_text'],
@@ -305,15 +292,15 @@ class OrganizationUpdate(BaseUpdateView):
                 'sources': self.sourcesList(organization, 'division_id'),
             },
         }
-        
+
         organization.update(org_info)
-        
+
         if self.aliases:
-            
+
             aliases = []
 
             for alias in self.aliases:
-            
+
                 try:
                     # try to get an object based on ID
                     oa_obj = OrganizationAlias.objects.get(id=alias)
@@ -334,14 +321,14 @@ class OrganizationUpdate(BaseUpdateView):
 
             organization.organizationalias_set = aliases
             organization.save()
-        
+
         if self.classifications:
-            
+
             classifications = []
             for classification in self.classifications:
-            
+
                 class_obj, created = Classification.objects.get_or_create(value=classification)
-                
+
                 oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
                                                                                    object_ref=organization,
                                                                                    lang=get_language())
@@ -349,22 +336,21 @@ class OrganizationUpdate(BaseUpdateView):
                 oc_obj.save()
 
                 classifications.append(oc_obj)
-            
+
             organization.organizationclassification_set = classifications
             organization.save()
-        
-        messages.add_message(self.request, 
-                             messages.INFO, 
+
+        messages.add_message(self.request,
+                             messages.INFO,
                              'Organization {} saved!'.format(form.cleaned_data['name_text']))
-        
+
         return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         organization = Organization.objects.get(pk=self.kwargs['pk'])
-        
-        
+
         form_data = {
             'name': organization.name.get_value(),
             'classification': [i.get_value() for i in organization.classification.get_list()],
@@ -376,17 +362,17 @@ class OrganizationUpdate(BaseUpdateView):
         context['title'] = 'Organization'
         context['source_object'] = organization
         context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
- 
 
         if not self.sourced:
             context['source_error'] = 'Please include the source for your changes'
-        
+
         return context
+
 
 def classification_autocomplete(request):
     term = request.GET.get('q')
     classifications = Classification.objects.filter(value__icontains=term).all()
-    
+
     results = []
     for classification in classifications:
         results.append({
@@ -395,6 +381,7 @@ def classification_autocomplete(request):
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
+
 
 def organization_autocomplete(request):
     term = request.GET.get('q')
@@ -407,6 +394,7 @@ def organization_autocomplete(request):
             'id': organization.id,
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
+
 
 def alias_autocomplete(request):
     term = request.GET.get('q')
@@ -427,40 +415,35 @@ class OrganizationCreateGeography(BaseFormSetView):
     extra = 1
     max_num = None
     required_session_data = ['organizations', 'people']
-   
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         organizations = self.request.session['organizations']
         people = self.request.session['people']
-  
-        context['people'] = people 
+
+        context['people'] = people
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
-        
+
         form = self.form_class()
         context['geo_types'] = form.fields['geography_type'].choices
-        
+
         return context
 
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
-        
+
         for i in range(0, num_forms):
             form_prefix = 'form-{0}-'.format(i)
-            
-            form_keys = [k for k in formset.data.keys() \
-                             if k.startswith(form_prefix)]
-            startdate = formset.data[form_prefix + 'startdate']
-            enddate = formset.data[form_prefix + 'enddate']
+
             org_id = formset.data[form_prefix + 'org']
             geoid = formset.data[form_prefix + 'osm_id']
-            geotype = formset.data[form_prefix + 'geotype']
-            
+
             geo = get_osm_by_id(geoid)
             hierarchy = get_hierarchy_by_id(geoid)
-            
+
             admin1 = None
             admin2 = None
 
@@ -470,16 +453,15 @@ class OrganizationCreateGeography(BaseFormSetView):
                         admin1 = member.name
                     elif member.admin_level == 4:
                         admin2 = member.name
-            
+
             coords = getattr(geo, 'geometry')
             country_code = geo.country_code.lower()
-            
+
             division_id = 'ocd-division/country:{}'.format(country_code)
-            
+
             if formset.data[form_prefix + 'geography_type'] == 'Site':
-                
+
                 site, created = Geosite.objects.get_or_create(geositeosmid__value=geo.id)
-                
 
                 site_data = {
                     'Geosite_GeositeName': {
@@ -519,7 +501,7 @@ class OrganizationCreateGeography(BaseFormSetView):
                     }
                 }
                 site.update(site_data)
-                
+
                 emp, created = Emplacement.objects.get_or_create(emplacementorganization__value=org_id,
                                                                  emplacementsite__value=site.id)
                 emp_data = {
@@ -534,14 +516,14 @@ class OrganizationCreateGeography(BaseFormSetView):
                         'sources': [source]
                     },
                 }
-                
+
                 if formset.data[form_prefix + 'startdate']:
                     emp_data['Emplacement_EmplacementStartDate'] = {
                         'value': formset.data[form_prefix + 'startdate'],
                         'confidence': 1,
                         'sources': [source]
                     }
-                
+
                 if formset.data[form_prefix + 'enddate']:
                     emp_data['Emplacement_EmplacementEndDate'] = {
                         'value': formset.data[form_prefix + 'enddate'],
@@ -550,13 +532,13 @@ class OrganizationCreateGeography(BaseFormSetView):
                     }
 
                 emp.update(emp_data)
-            
+
             else:
-                
+
                 area, created = Area.objects.get_or_create(areaosmid__value=geo.id)
-                
+
                 if created:
-                    
+
                     area_data = {
                         'Area_AreaName': {
                             'value': formset.data[form_prefix + 'name'],
@@ -585,10 +567,10 @@ class OrganizationCreateGeography(BaseFormSetView):
                         }
                     }
                     area.update(area_data)
-                
+
                 assoc, created = Association.objects.get_or_create(associationorganization__value=org_id,
                                                                    associationarea__value=area.id)
-                
+
                 assoc_data = {
                     'Association_AssociationStartDate': {
                         'value': formset.data[form_prefix + 'startdate'],
@@ -612,53 +594,7 @@ class OrganizationCreateGeography(BaseFormSetView):
                     }
                 }
                 assoc.update(assoc_data)
-        
+
         response = super().formset_valid(formset)
-        
+
         return response
-
-
-#############################################
-###                                       ###
-### Below here are currently unused views ###
-### which we'll probably need eventually  ###
-###                                       ###
-#############################################
-
-class OrganizationDelete(DeleteView):
-    model = Organization
-    template_name = "delete_confirm.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(OrganizationDelete, self).get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)
-        collector.collect([context['object']])
-        deleted_elements = collector.nested()
-        context['deleted_elements'] = deleted_in_str(deleted_elements)
-        context['title'] = _("Organization")
-        context['model'] = "organization"
-        return context
-
-    def get_object(self, queryset=None):
-        obj = super(OrganizationDelete, self).get_object()
-
-        return obj
-
-def organization_csv(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="organizations.csv"'
-
-    terms = request.GET.dict()
-    organization_query = Organization.search(terms)
-
-    writer = csv.writer(response)
-    for organization in organization_query:
-        writer.writerow([
-            organization.id,
-            organization.name.get_value(),
-            organization.alias.get_value(),
-            organization.classification.get_value(),
-        ])
-
-    return response
-

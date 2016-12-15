@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from django.db import connection
 
-from api.base_views import JSONAPIView
+from api.base_views import JSONAPIView, NotImplementedView
 
 
 class CountryListView(JSONAPIView):
@@ -74,18 +74,12 @@ class CountryDetailView(JSONAPIView):
         return context
 
 
-class CountryZipView(JSONAPIView):
-    # TODO: This should actually return a zipfile
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+class CountryZipView(NotImplementedView):
+    pass
 
 
-class CountryTxtView(JSONAPIView):
-    # TODO: This should actually return a text file
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+class CountryTxtView(NotImplementedView):
+    pass
 
 
 class CountryGeoJSONView(JSONAPIView):

@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
-from django.db.models import Max
 
 from django_date_extensions.fields import ApproximateDateField
 

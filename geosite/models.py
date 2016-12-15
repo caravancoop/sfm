@@ -1,12 +1,8 @@
-import json
-
 from django.contrib.gis.db import models
 
 from django_date_extensions.fields import ApproximateDateField
 
 from django.utils.translation import ugettext as _
-from django.db.models import Max
-from django.contrib.gis import geos
 
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
@@ -23,14 +19,14 @@ class Geosite(models.Model, BaseModel):
         self.osmname = ComplexFieldContainer(self, GeositeOSMName)
         self.osmid = ComplexFieldContainer(self, GeositeOSMId)
         self.division_id = ComplexFieldContainer(self, GeositeDivisionId)
-        
+
         self.first_cited = ComplexFieldContainer(self, GeositeFirstCited)
         self.last_cited = ComplexFieldContainer(self, GeositeLastCited)
-        
+
         self.open_ended = ComplexFieldContainer(self, GeositeOpenEnded)
 
         self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
-                               self.coordinates, self.osmname, self.osmid, 
+                               self.coordinates, self.osmname, self.osmid,
                                self.division_id]
 
         self.required_fields = ["Geosite_GeositeName"]
@@ -91,12 +87,14 @@ class GeositeOSMId(ComplexField):
     value = models.BigIntegerField(default=None, blank=True, null=True)
     field_name = _("OSM ID")
 
+
 @versioned
 @sourced
 class GeositeDivisionId(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Division ID")
+
 
 @versioned
 @sourced
@@ -105,12 +103,14 @@ class GeositeFirstCited(ComplexField):
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("First cited")
 
+
 @versioned
 @sourced
 class GeositeLastCited(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last cited")
+
 
 @versioned
 class GeositeOpenEnded(ComplexField):

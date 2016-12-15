@@ -36,9 +36,6 @@ class GeositeDelete(DeleteView):
 class SiteView(TemplateView):
     template_name = 'site/search.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(SiteView, self).get_context_data(**kwargs)
-
 
 def geosite_csv(request):
     response = HttpResponse(content_type='text/csv')
@@ -146,7 +143,6 @@ class SiteCreate(TemplateView):
     template_name = 'site/edit.html'
 
     def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
 
         (errors, data) = Geosite().validate(data)

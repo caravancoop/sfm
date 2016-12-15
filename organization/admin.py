@@ -20,6 +20,7 @@ class OrganizationAliasAdmin(reversion.admin.VersionAdmin):
 class OrganizationClassificationAdmin(reversion.admin.VersionAdmin):
     pass
 
+
 class ClassificationAdmin(admin.ModelAdmin):
     pass
 

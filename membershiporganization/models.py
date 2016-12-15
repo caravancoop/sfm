@@ -4,8 +4,7 @@ from django.utils.translation import get_language
 
 from django_date_extensions.fields import ApproximateDateField
 
-from complex_fields.model_decorators import (versioned, translated, sourced,
-                                             sourced_optional)
+from complex_fields.model_decorators import versioned, sourced
 
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
@@ -20,7 +19,7 @@ class MembershipOrganization(models.Model, BaseModel):
         self.firstciteddate = ComplexFieldContainer(self, MembershipOrganizationFirstCitedDate)
         self.lastciteddate = ComplexFieldContainer(self, MembershipOrganizationLastCitedDate)
 
-        self.complex_fields = [self.member, self.organization, 
+        self.complex_fields = [self.member, self.organization,
                                self.firstciteddate, self.lastciteddate]
 
         self.required_fields = [
@@ -53,9 +52,10 @@ class MembershipOrganizationMember(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
     value = models.ForeignKey(Organization, default=None, blank=True, null=True)
     field_name = _("Member")
-    
+
     class Meta:
         db_table = 'membershiporganization_m'
+
 
 @versioned
 @sourced
@@ -63,9 +63,10 @@ class MembershipOrganizationOrganization(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
     value = models.ForeignKey(Organization)
     field_name = _("Organization")
-    
+
     class Meta:
         db_table = 'membershiporganization_moo'
+
 
 @versioned
 @sourced
@@ -73,7 +74,7 @@ class MembershipOrganizationFirstCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
     value = ApproximateDateField()
     field_name = _("First cited date")
-    
+
     class Meta:
         db_table = 'membershiporganization_fcd'
 
@@ -84,6 +85,6 @@ class MembershipOrganizationLastCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
     value = ApproximateDateField()
     field_name = _("Last cited date")
-    
+
     class Meta:
         db_table = 'membershiporganization_lcd'

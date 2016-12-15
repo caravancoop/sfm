@@ -34,6 +34,7 @@ class GeositeOSMNameAdmin(reversion.admin.VersionAdmin):
 class GeositeOSMIdAdmin(reversion.admin.VersionAdmin):
     pass
 
+
 admin.site.register(Geosite, GeositeAdmin)
 admin.site.register(GeositeName, GeositeNameAdmin)
 admin.site.register(GeositeAdminLevel1, GeositeAdminLevel1Admin)

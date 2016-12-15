@@ -1,21 +1,17 @@
 import uuid
 
 from django.db import models
-from django.contrib.gis import geos
 from django.utils.translation import ugettext as _
-from django.db.models import Max
 
-from django_date_extensions.fields import ApproximateDateField
-
-from complex_fields.model_decorators import versioned, translated, sourced, sourced_optional
+from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer, ComplexFieldListContainer
 from complex_fields.base_models import BaseModel
 
 
 class Organization(models.Model, BaseModel):
-    
-    uuid = models.UUIDField(default=uuid.uuid4, 
-                            editable=False, 
+
+    uuid = models.UUIDField(default=uuid.uuid4,
+                            editable=False,
                             db_index=True)
 
     def __init__(self, *args, **kwargs):
@@ -37,6 +33,7 @@ class Organization(models.Model, BaseModel):
     def __str__(self):
         return str(self.name)
 
+
 @translated
 @versioned
 @sourced
@@ -45,20 +42,23 @@ class OrganizationName(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
+
 @translated
 @versioned
 @sourced
 class OrganizationAlias(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.ForeignKey('Alias', default=None, blank=True, null=True)
-    
+
     field_name = _("Alias")
+
 
 class Alias(models.Model):
     value = models.TextField()
-    
+
     def __str__(self):
         return self.value
+
 
 @versioned
 @sourced
@@ -75,6 +75,7 @@ class Classification(models.Model):
     def __str__(self):
         return self.value
 
+
 @versioned
 @sourced
 class OrganizationDivisionId(ComplexField):
@@ -85,4 +86,3 @@ class OrganizationDivisionId(ComplexField):
 
     def __str__(self):
         return self.value
-

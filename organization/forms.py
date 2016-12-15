@@ -3,7 +3,6 @@ from django import forms
 from django_date_extensions.fields import ApproximateDateFormField
 from django.utils.translation import ugettext as _
 
-from organization.models import Classification
 
 class OrganizationForm(forms.Form):
     name = forms.CharField(error_messages={'required': _('Name is required')})
@@ -18,8 +17,10 @@ class OrganizationForm(forms.Form):
 
         self.empty_permitted = False
 
+
 class OrganizationGeographyForm(forms.Form):
-    geography_type = forms.ChoiceField(choices=(('Site','Site'),('Area','Area'),), error_messages={'required': _('Geography type is required')})
+    geography_type = forms.ChoiceField(choices=(('Site', 'Site'), ('Area', 'Area'), ),
+                                       error_messages={'required': _('Geography type is required')})
     name = forms.CharField(error_messages={'required': _('Name is required')})
     osm_id = forms.CharField(error_messages={'required': _('OSM ID is required')})
     osm_id_text = forms.CharField()

@@ -50,6 +50,13 @@ class JSONResponseMixin(object):
         # Make sure things are JSON serializable
         return context
 
+class NotImplementedView(JSONResponseMixin, TemplateView):
+    def dispatch(self, request, *args, **kwargs):
+        response = HttpResponse({'status': 'ok', 'message': 'Endpoint not implemented yet'},
+                                content_type='application/json')
+        response.status_code = 204
+        return response
+
 
 class JSONAPIView(JSONResponseMixin, TemplateView):
     safe = True
