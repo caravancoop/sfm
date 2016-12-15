@@ -164,4 +164,13 @@ class RouteTest(TestCase):
         response_json = json.loads(response.content.decode('utf-8'))
 
         assert response_json['errors'][0] == 'q is a required field'
-        
+    
+    def test_country_autocomplete(self):
+        url = '{}?q=Lagos'.format(reverse_lazy('osm-auto', args=['ng']))
+
+        response = self.getPage(url)
+
+        assert response.status_code == 200
+
+        assert len(json.loads(response.content.decode('utf-8'))) == 11
+

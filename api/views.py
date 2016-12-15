@@ -31,9 +31,9 @@ class OSMAutoView(JSONAPIView):
             SELECT
               id,
               name,
-              alternatenames,
+              localname,
               admin_level AS classification,
-              ST_AsGeoJSON(location)::json AS location
+              ST_AsGeoJSON(geometry)::json AS location
             FROM osm_data
             WHERE plainto_tsquery('english', %s) @@ search_index
             AND country_code = %s
