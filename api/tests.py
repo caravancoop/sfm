@@ -98,17 +98,22 @@ class TestBase(TestCase):
     def getPage(self, url):
         client = Client()
         return client.get(url)
+    
+    def getStatusJSON(self, url):
+        response = self.getPage(url)
 
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        return response.status_code, response_json
 
 class CountryList(TestBase):
     
     def test_country_list(self):
-        response = self.getPage(reverse_lazy('country-list'))
+        status_code, response = self.getStatusJSON(reverse_lazy('country-list'))
 
-        assert response.status_code == 200
+        assert status_code == 200
 
-        response_json = json.loads(response.content.decode('utf-8'))
-        first_country = response_json[0]
+        first_country = response[0]
 
         assert set(first_country.keys()) == {'geometry', 'id', 'properties', 'type', 'bbox'}
         assert first_country['id'] == 'ng'
@@ -121,32 +126,29 @@ class CountryList(TestBase):
 
     def test_country_list_bad_param(self):
         url = '{}?foo=bar'.format(reverse_lazy('country-list'))
-        response = self.getPage(url)
+        status_code, response = self.getStatusJSON(url)
 
-        assert response.status_code == 400
+        assert status_code == 400
 
-        response_json = json.loads(response.content.decode('utf-8'))
-        assert response_json['errors'][0] == "'foo' is not a valid query parameter"
+        assert response['errors'][0] == "'foo' is not a valid query parameter"
 
 
 class CountryDetail(TestBase):
     
     def test_country_detail(self):
-        response = self.getPage(reverse_lazy('country-detail', args=['ng']))
+        status_code, response = self.getStatusJSON(reverse_lazy('country-detail', args=['ng']))
 
-        assert response.status_code == 200
+        assert status_code == 200
 
-        response_json = json.loads(response.content.decode('utf-8'))
-        assert set(response_json.keys()) == {'name', 'title', 'description', 'events_count'}
+        assert set(response.keys()) == {'name', 'title', 'description', 'events_count'}
     
     def test_country_detail_bad_param(self):
         url = '{}?foo=bar'.format(reverse_lazy('country-detail', args=['ng']))
-        response = self.getPage(url)
+        status_code, response = self.getStatusJSON(url)
 
-        assert response.status_code == 400
+        assert status_code == 400
 
-        response_json = json.loads(response.content.decode('utf-8'))
-        assert response_json['errors'][0] == "'foo' is not a valid query parameter"
+        assert response['errors'][0] == "'foo' is not a valid query parameter"
 
     def test_country_zip(self):
         response = self.getPage(reverse_lazy('country-zip', args=['ng']))
@@ -160,12 +162,11 @@ class CountryDetail(TestBase):
 class CountryMap(TestBase):
 
     def test_country_map_no_at(self):
-        response = self.getPage(reverse_lazy('country-map', args=['ng']))
+        status_code, response = self.getStatusJSON(reverse_lazy('country-map', args=['ng']))
 
-        assert response.status_code == 400
+        assert status_code == 400
 
-        response_json = json.loads(response.content.decode('utf-8'))
-        assert response_json['errors'][0] == "at is a required field"
+        assert response['errors'][0] == "at is a required field"
 
     def test_country_map(self):
         url = '{}?at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
@@ -181,21 +182,19 @@ class CountryMap(TestBase):
     
     def test_country_map_bad_bbox(self):
         url = '{}?bbox=11,7,9&at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
-        response = self.getPage(url)
+        status_code, response = self.getStatusJSON(url)
         
-        assert response.status_code == 400
-        response_json = json.loads(response.content.decode('utf-8'))
+        assert status_code == 400
 
-        assert response_json['errors'][0] == '"bbox" should be a comma separated list of four floats'
+        assert response['errors'][0] == '"bbox" should be a comma separated list of four floats'
     
     def test_country_map_bad_bbox_value(self):
         url = '{}?bbox=11,7,9,ugh&at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
-        response = self.getPage(url)
+        status_code, response = self.getStatusJSON(url)
         
-        assert response.status_code == 400
-        response_json = json.loads(response.content.decode('utf-8'))
+        assert status_code == 400
 
-        assert response_json['errors'][0] == '"ugh" is not a valid value for a bbox'
+        assert response['errors'][0] == '"ugh" is not a valid value for a bbox'
     
     def test_country_map_classification(self):
         url = '{}?classification__in=Violations of the right to life&at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
@@ -205,12 +204,11 @@ class CountryMap(TestBase):
     
     def test_country_map_classification_bad_operator(self):
         url = '{}?classification__foo=Violations of the right to life&at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
-        response = self.getPage(url)
+        status_code, response = self.getStatusJSON(url)
 
-        assert response.status_code == 400
-        response_json = json.loads(response.content.decode('utf-8'))
+        assert status_code == 400
 
-        assert response_json['errors'][0] == "Invalid operator for 'classification'"
+        assert response['errors'][0] == "Invalid operator for 'classification'"
 
 
 class CountryEvents(TestBase):
@@ -242,86 +240,84 @@ class CountryGeometries(TestBase):
 class OSMAutocomplete(TestBase):
 
     def test_country_autocomplete_no_q(self):
-        response = self.getPage(reverse_lazy('osm-auto', args=['ng']))
+        status_code, response = self.getStatusJSON(reverse_lazy('osm-auto', args=['ng']))
         
-        assert response.status_code == 400
-        response_json = json.loads(response.content.decode('utf-8'))
+        assert status_code == 400
 
-        assert response_json['errors'][0] == 'q is a required field'
+        assert response['errors'][0] == 'q is a required field'
     
     def test_country_autocomplete(self):
         url = '{}?q=Lagos'.format(reverse_lazy('osm-auto', args=['ng']))
 
-        response = self.getPage(url)
+        status_code, response = self.getStatusJSON(url)
 
-        assert response.status_code == 200
+        assert status_code == 200
 
-        assert len(json.loads(response.content.decode('utf-8'))) == 11
+        assert len(response) == 11
 
 
 class OrganizationSearch(TestBase):
 
     def test_org_search_no_q(self):
-        response = self.getPage(reverse_lazy('organization-search', args=['ng']))
+        status_code, response = self.getStatusJSON(reverse_lazy('organization-search', args=['ng']))
 
-        assert response.status_code == 400
-        response_json = json.loads(response.content.decode('utf-8'))
+        assert status_code == 400
 
-        assert response_json['errors'][0] == 'q is a required field'
+        assert response['errors'][0] == 'q is a required field'
 
     def test_org_search(self):
         url = '{}?q=Battalion'.format(reverse_lazy('organization-search', args=['ng']))
 
-        response = self.getPage(url)
+        status_code, response = self.getStatusJSON(url)
 
-        assert response.status_code == 200
-        response_json = json.loads(response.content.decode('utf-8'))
+        assert status_code == 200
 
-        assert len(response_json['results']) == 20
+        assert len(response['results']) == 20
+    
+    def test_org_search_first_cited(self):
+        url = '{}?q=Battalion&date_first_cited__gte=2011-01-01'.format(reverse_lazy('organization-search', args=['ng']))
+
+        status_code, response = self.getStatusJSON(url)
+        
+        assert status_code == 200
 
 
 class PeopleSearch(TestBase):
 
     def test_people_search_no_q(self):
-        response = self.getPage(reverse_lazy('people-search', args=['ng']))
+        status_code, response = self.getStatusJSON(reverse_lazy('people-search', args=['ng']))
 
-        assert response.status_code == 400
-        response_json = json.loads(response.content.decode('utf-8'))
+        assert status_code == 400
 
-        assert response_json['errors'][0] == 'q is a required field'
+        assert response['errors'][0] == 'q is a required field'
 
     def test_people_search(self):
         url = '{}?q=John'.format(reverse_lazy('people-search', args=['ng']))
 
-        response = self.getPage(url)
+        status_code, response = self.getStatusJSON(url)
 
-        assert response.status_code == 200
+        assert status_code == 200
         
-        response_json = json.loads(response.content.decode('utf-8'))
-
-        assert len(response_json['results']) == 4
+        assert len(response['results']) == 4
 
 
 class EventSearch(TestBase):
 
     def test_event_search_no_q(self):
-        response = self.getPage(reverse_lazy('event-search', args=['ng']))
+        status_code, response = self.getStatusJSON(reverse_lazy('event-search', args=['ng']))
 
         assert response.status_code == 400
-        response_json = json.loads(response.content.decode('utf-8'))
 
-        assert response_json['errors'][0] == 'q is a required field'
+        assert response['errors'][0] == 'q is a required field'
 
     def test_event_search(self):
         url = '{}?q=According'.format(reverse_lazy('event-search', args=['ng']))
 
-        response = self.getPage(url)
+        status_code, response = self.getPage(url)
 
-        assert response.status_code == 200
+        assert status_code == 200
         
-        response_json = json.loads(response.content.decode('utf-8'))
-        
-        assert len(response_json['results']) == 20
+        assert len(response['results']) == 20
 
 
 class CountryGeoJSON(TestBase):
