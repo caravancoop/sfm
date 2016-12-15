@@ -100,7 +100,7 @@ class TestBase(TestCase):
         return client.get(url)
 
 
-class RouteTest(TestBase):
+class CountryList(TestBase):
     
     def test_country_list(self):
         response = self.getPage(reverse_lazy('country-list'))
@@ -128,6 +128,9 @@ class RouteTest(TestBase):
         response_json = json.loads(response.content.decode('utf-8'))
         assert response_json['errors'][0] == "'foo' is not a valid query parameter"
 
+
+class CountryDetail(TestBase):
+    
     def test_country_detail(self):
         response = self.getPage(reverse_lazy('country-detail', args=['ng']))
 
@@ -135,6 +138,15 @@ class RouteTest(TestBase):
 
         response_json = json.loads(response.content.decode('utf-8'))
         assert set(response_json.keys()) == {'name', 'title', 'description', 'events_count'}
+    
+    def test_country_detail_bad_param(self):
+        url = '{}?foo=bar'.format(reverse_lazy('country-detail', args=['ng']))
+        response = self.getPage(url)
+
+        assert response.status_code == 400
+
+        response_json = json.loads(response.content.decode('utf-8'))
+        assert response_json['errors'][0] == "'foo' is not a valid query parameter"
 
     def test_country_zip(self):
         response = self.getPage(reverse_lazy('country-zip', args=['ng']))
@@ -143,6 +155,9 @@ class RouteTest(TestBase):
     def test_country_text(self):
         response = self.getPage(reverse_lazy('country-txt', args=['ng']))
         assert response.status_code == 204
+
+
+class CountryMap(TestBase):
 
     def test_country_map_no_at(self):
         response = self.getPage(reverse_lazy('country-map', args=['ng']))
@@ -158,14 +173,74 @@ class RouteTest(TestBase):
 
         assert response.status_code == 200
 
+    def test_country_map_bbox(self):
+        url = '{}?bbox=11,7,9,9&at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
+        response = self.getPage(url)
+
+        assert response.status_code == 200
+    
+    def test_country_map_bad_bbox(self):
+        url = '{}?bbox=11,7,9&at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
+        response = self.getPage(url)
+        
+        assert response.status_code == 400
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        assert response_json['errors'][0] == '"bbox" should be a comma separated list of four floats'
+    
+    def test_country_map_bad_bbox_value(self):
+        url = '{}?bbox=11,7,9,ugh&at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
+        response = self.getPage(url)
+        
+        assert response.status_code == 400
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        assert response_json['errors'][0] == '"ugh" is not a valid value for a bbox'
+    
+    def test_country_map_classification(self):
+        url = '{}?classification__in=Violations of the right to life&at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
+        response = self.getPage(url)
+
+        assert response.status_code == 200
+    
+    def test_country_map_classification_bad_operator(self):
+        url = '{}?classification__foo=Violations of the right to life&at=2014-01-01'.format(reverse_lazy('country-map', args=['ng']))
+        response = self.getPage(url)
+
+        assert response.status_code == 400
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        assert response_json['errors'][0] == "Invalid operator for 'classification'"
+
+
+class CountryEvents(TestBase):
+
     def test_country_events(self):
         response = self.getPage(reverse_lazy('country-events', args=['ng']))
         assert response.status_code == 200
+
+
+class CountryGeometries(TestBase):
 
     def test_country_geometries(self):
         response = self.getPage(reverse_lazy('country-geometry', args=['ng']))
         assert response.status_code == 200
     
+    def test_country_geometries_tolerance(self):
+        url = '{}?tolerance=0.0001'.format(reverse_lazy('country-geometry', args=['ng']))
+        response = self.getPage(url)
+
+        assert response.status_code == 200
+
+    def test_country_geometries_classification(self):
+        url = '{}?classification=4'.format(reverse_lazy('country-geometry', args=['ng']))
+        response = self.getPage(url)
+
+        assert response.status_code == 200
+
+
+class OSMAutocomplete(TestBase):
+
     def test_country_autocomplete_no_q(self):
         response = self.getPage(reverse_lazy('osm-auto', args=['ng']))
         
@@ -182,7 +257,10 @@ class RouteTest(TestBase):
         assert response.status_code == 200
 
         assert len(json.loads(response.content.decode('utf-8'))) == 11
-    
+
+
+class OrganizationSearch(TestBase):
+
     def test_org_search_no_q(self):
         response = self.getPage(reverse_lazy('organization-search', args=['ng']))
 
@@ -200,7 +278,10 @@ class RouteTest(TestBase):
         response_json = json.loads(response.content.decode('utf-8'))
 
         assert len(response_json['results']) == 20
-    
+
+
+class PeopleSearch(TestBase):
+
     def test_people_search_no_q(self):
         response = self.getPage(reverse_lazy('people-search', args=['ng']))
 
@@ -219,7 +300,10 @@ class RouteTest(TestBase):
         response_json = json.loads(response.content.decode('utf-8'))
 
         assert len(response_json['results']) == 4
-    
+
+
+class EventSearch(TestBase):
+
     def test_event_search_no_q(self):
         response = self.getPage(reverse_lazy('event-search', args=['ng']))
 
@@ -238,11 +322,17 @@ class RouteTest(TestBase):
         response_json = json.loads(response.content.decode('utf-8'))
         
         assert len(response_json['results']) == 20
-    
+
+
+class CountryGeoJSON(TestBase):
+
     def test_country_geojson(self):
         response = self.getPage(reverse_lazy('country-geojson', args=['ng']))
 
         assert response.status_code == 200
+
+
+class EventDetail(TestBase):
 
     def test_event_detail(self):
         curs = connection.cursor()
@@ -255,6 +345,9 @@ class RouteTest(TestBase):
             response = self.getPage(reverse_lazy('event-detail', args=[row[0]]))
 
             assert response.status_code == 200
+
+
+class OrganizationMap(TestBase):
 
     def test_org_map(self):
         curs = connection.cursor()
@@ -271,6 +364,9 @@ class RouteTest(TestBase):
 
             assert response.status_code == 200
 
+
+class OrganizationChart(TestBase):
+
     def test_org_chart(self):
         curs = connection.cursor()
 
@@ -285,7 +381,10 @@ class RouteTest(TestBase):
             response = self.getPage(url)
             
             assert response.status_code == 200
-    
+
+
+class OrganizationDetail(TestBase):
+
     def test_org_detail(self):
         curs = connection.cursor()
 
@@ -299,7 +398,10 @@ class RouteTest(TestBase):
             response = self.getPage(reverse_lazy('organization-detail', args=[row[0]]))
 
             assert response.status_code == 200
-    
+
+
+class PersonDetail(TestBase):
+
     def test_person_detail(self):
         curs = connection.cursor()
 
