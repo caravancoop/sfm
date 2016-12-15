@@ -306,14 +306,14 @@ class EventSearch(TestBase):
     def test_event_search_no_q(self):
         status_code, response = self.getStatusJSON(reverse_lazy('event-search', args=['ng']))
 
-        assert response.status_code == 400
+        assert status_code == 400
 
         assert response['errors'][0] == 'q is a required field'
 
     def test_event_search(self):
         url = '{}?q=According'.format(reverse_lazy('event-search', args=['ng']))
 
-        status_code, response = self.getPage(url)
+        status_code, response = self.getStatusJSON(url)
 
         assert status_code == 200
         
