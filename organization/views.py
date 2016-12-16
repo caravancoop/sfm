@@ -255,6 +255,7 @@ class OrganizationCreate(BaseFormSetView):
 
         self.request.session['organizations'] = [{'id': o.id, 'name': o.name.get_value().value}
                                                  for o in self.organizations]
+
         response = super().formset_valid(formset)
 
         return response

@@ -17,10 +17,10 @@ class SourceCreate(FormView):
     template_name = 'source/create.html'
     form_class = SourceForm
     success_url = reverse_lazy('create-organization')
-    
+
     def get_context_data(self, **kwargs):
-        context = super(SourceCreate, self).get_context_data(**kwargs)
-        context['publication_uuid'] = str(uuid4())       
+        context = super().get_context_data(**kwargs)
+        context['publication_uuid'] = str(uuid4())
 
         pub_title = self.request.POST.get('publication_title')
         if pub_title:
@@ -31,26 +31,26 @@ class SourceCreate(FormView):
             context['publication_country'] = pub_country
 
         context['countries'] = Country.objects.all()
- 
+
         if self.request.session.get('source_id'):
             del self.request.session['source_id']
-        
+
         return context
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
-        
+
         if form.is_valid():
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
 
     def form_valid(self, form):
-        response = super(SourceCreate, self).form_valid(form)
+        response = super().form_valid(form)
         # Try to find the publication
 
         publication_uuid = form.data.get('publication')
-        
+
         if publication_uuid == 'None':
             return self.form_invalid(form)
 
@@ -60,7 +60,7 @@ class SourceCreate(FormView):
             publication.title = form.data.get('publication_title')
             publication.country = form.data.get('publication_country')
             publication.save()
-        
+
         self.publication = publication
 
         source, created = Source.objects.get_or_create(title=form.cleaned_data['title'],
@@ -70,17 +70,17 @@ class SourceCreate(FormView):
                                                        page_number=form.cleaned_data['page_number'],
                                                        accessed_on=form.cleaned_data['accessed_on'],
                                                        user=self.request.user)
-        
+
         self.request.session['source_id'] = source.id
         return response
 
 def source_autocomplete(request):
     term = request.GET.get('q')
     sources = Source.objects.filter(title__icontains=term).all()
-    
+
     results = []
     for source in sources:
-        
+
         publication_title = ''
         publication_country = ''
 
@@ -95,13 +95,13 @@ def source_autocomplete(request):
             'text': text,
             'id': str(source.id),
         })
-    
+
     return HttpResponse(json.dumps(results), content_type='application/json')
 
 def publication_autocomplete(request):
     term = request.GET.get('q')
     publications = Publication.objects.filter(title__icontains=term).all()
-    
+
     results = []
     for publication in publications:
         results.append({
@@ -109,18 +109,18 @@ def publication_autocomplete(request):
             'country': publication.country,
             'id': str(publication.id),
         })
-    
+
     return HttpResponse(json.dumps(results), content_type='application/json')
 
 def view_source(request, source_id):
     try:
         source = Source.objects.get(id=source_id)
-    
+
     except Source.DoesNotExist:
         return HttpResponseNotFound()
-    
-    return render(request, 
-                  'source/view.html', 
+
+    return render(request,
+                  'source/view.html',
                   context={'source': source})
 
 def get_sources(request, object_type, object_id, field_name):
@@ -140,4 +140,3 @@ def get_sources(request, object_type, object_id, field_name):
     }
 
     return HttpResponse(json.dumps(sources_json))
-

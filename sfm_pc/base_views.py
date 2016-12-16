@@ -11,24 +11,24 @@ from extra_views import FormSetView
 from source.models import Source
 
 class UtilityMixin(object):
-    
+
     source = None
 
     def sourcesList(self, obj, attribute):
         sources = [s for s in getattr(obj, attribute).get_sources()] \
                       + [self.source]
         return list(set(s for s in sources if s))
-    
+
 
 class BaseFormSetView(FormSetView, UtilityMixin):
-    
+
     required_session_data = []
 
     def dispatch(self, *args, **kwargs):
         # Redirect to source creation page if no source in session
         if not self.request.session.get('source_id'):
-            messages.add_message(self.request, 
-                                 messages.INFO, 
+            messages.add_message(self.request,
+                                 messages.INFO,
                                  _("Please add a source for this information"),
                                  extra_tags='alert alert-info')
             return redirect(reverse_lazy('create-source'))
@@ -57,13 +57,13 @@ class BaseFormSetView(FormSetView, UtilityMixin):
 
 
 class BaseUpdateView(FormView, UtilityMixin):
-    
+
     def post(self, request, *args, **kwargs):
         self.checkSource(request)
         self.validateForm()
 
     def checkSource(self, request):
-        
+
         self.form = self.form_class(request.POST)
 
         if not request.POST.get('source'):
@@ -71,17 +71,17 @@ class BaseUpdateView(FormView, UtilityMixin):
             return self.form_invalid(self.form)
         else:
             self.source = Source.objects.get(id=request.POST.get('source'))
-    
+
     def validateForm(self):
         if self.form.is_valid():
             return self.form_valid(self.form)
         else:
             print(self.form.errors)
             return self.form_invalid(self.form)
-    
+
 
 class PaginatedList(ListView):
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -94,18 +94,18 @@ class PaginatedList(ListView):
             context['object_list'] = paginator.page(1)
         except EmptyPage:
             context['object_list'] = paginator.page(paginator.num_pages)
-        
+
         return context
 
     def get_queryset(self):
         order_by_field = self.request.GET.get('order_by')
-        
+
         if order_by_field:
             order_by = self.orderby_lookup.get(order_by_field)
-            
+
             if order_by:
                 return self.model.objects.order_by(order_by)
-        
+
         return self.model.objects.all()
 
 
