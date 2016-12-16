@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from organization.views import OrganizationCreate, OrganizationUpdate, \
-    organization_autocomplete,  alias_autocomplete, \
+    organization_autocomplete, alias_autocomplete, \
     OrganizationCreateGeography, classification_autocomplete, OrganizationDetail, \
     OrganizationList
 

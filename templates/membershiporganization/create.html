@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load get_item %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+{% endblock %}
+{% block content %}
+{% include 'partials/nav-wizard.html' %}
+<div class="row">
+    <h2>Organization Memberships</h2>
+    <p>
+        Describe what organizations the organizations in this source are members of
+        <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{source.published_on|date:"F d, Y"}})
+    </p>
+    <hr />
+</div>
+<div class="row">
+    <form method="post" action="" id="org-form" class="form-horizontal">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset %}
+            {% with organization=organizations|from_index:forloop.counter0 %}
+                <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-organization" />
+                <h4>Memberships for {{ organization.name }}</h4>
+                <div id="form-{{ forloop.counter0 }}-wrapper">
+                {% if form.related_organization.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="col-sm-2 control-label">Related organization</label>
+                        <div class="col-sm-8">
+                            <select id="id_form-{{ forloop.counter0 }}-related_organization" class="form-control organization-field" name="form-{{ forloop.counter0 }}-related_organization">
+                                <option value="" selected="selected">--------</option>
+                                {% for org in organizations %}
+                                    {% if org.id != organization.id %}
+                                        {% if form.cleaned_data.related_organization.id == org.id %}
+                                            <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
+                                        {% else %}
+                                            <option value="{{ org.id }}">{{ org.name }}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.related_organization.errors %}
+                                {% for error in form.related_organization.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% if form.firstcitedfirstciteddate.errors or form.lastciteddate.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-firstciteddate">First & last citation dates</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-firstciteddate" name="form-{{ forloop.counter0 }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
+                            {% if form.firstciteddate.errors %}
+                                {% for error in form.firstciteddate.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-lastciteddate" name="form-{{ forloop.counter0 }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
+                            {% if form.lastciteddate.errors %}
+                                {% for error in form.lastciteddate.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button type="submit" class="pull-right btn btn-success" value="Submit">Continue</button>
+                    <a class="btn btn-info" href="{% url 'create-composition' %}">Go back</a>
+                    <a class="btn btn-info" href="{% url 'create-person' %}">Skip</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+    $(document).ready(function(e){
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", lastciteddate: '0d'});
+    })
+</script>
+{% endblock %}

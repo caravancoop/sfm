@@ -8,9 +8,9 @@ from person.models import PersonAlias, PersonName
 from violation.models import ViolationDescription
 
 def update_index():
-    
+
     with connection.cursor() as c:
-        c.execute(''' 
+        c.execute('''
             REFRESH MATERIALIZED VIEW CONCURRENTLY search_index
         ''')
 

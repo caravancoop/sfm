@@ -8,4 +8,4 @@ addons:
 install:
     - pip install -r requirements.txt
 script:
-    - python manage.py test -k -v 3 --settings=tests.test_settings
+    - python manage.py test -k -v 2 --settings=tests.test_settings
