@@ -30,9 +30,9 @@ def tearDownModule():
 class SourceTest(TestCase):
 
     client = Client()
-    user = User.objects.first()
     
     def setUp(self):
+        self.user = User.objects.first()
         self.client.force_login(self.user)
 
     def tearDown(self):

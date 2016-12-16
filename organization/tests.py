@@ -36,9 +36,9 @@ def tearDownModule():
 class OrganizationTest(TestCase):
 
     client = Client()
-    user = User.objects.first()
 
     def setUp(self):
+        self.user = User.objects.first()
         self.client.force_login(self.user)
         self.source = Source.objects.first()
 
