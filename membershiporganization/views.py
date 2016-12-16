@@ -33,8 +33,25 @@ class MembershipOrganizationCreate(BaseFormSetView):
 
         for i in range(0, num_forms):
             form_prefix = 'form-{0}-'.format(i)
+            
+            member_id = formset.data[form_prefix + 'member']
+            member_organization = Organization.objects.get(id=organization_id)
 
-            membership_info = {}
+            organization_id = formset.data[form_prefix + 'organization']
+            organization = Organization.objects.get(id=organization_id)
+
+            membership_info = {
+                'MembershipOrganization_MembershipOrganizationMember': {
+                    'value': member,
+                    'confidence': 1,
+                    'sources': [source],
+                },
+                'MembershipOrganization_MembershipOrganizationOrganization': {
+                    'value': organization,
+                    'confidence': 1,
+                    'sources': [source]
+                },
+            }
 
             if formset.data.get(form_prefix + 'firstciteddate'):
                 membership_info['MembershipOrganization_MembershipOrganizationFirstCitedDate'] = {
@@ -49,13 +66,18 @@ class MembershipOrganizationCreate(BaseFormSetView):
                     'confidence': 1,
                     'sources': [source]
                 }
-
-            member_id = formset.data[form_prefix + 'member']
-            member_organization = Organization.objects.get(id=organization_id)
-
-            organization_id = formset.data[form_prefix + 'organization']
-            organization = Organization.objects.get(id=organization_id)
-
+            
+            
+            try:
+                membership = MembershipOrganization.objects.get(membershiporganizationmember__value=member,
+                                                                membershiporganizationorganization__value=organization)
+                sources = set(self.sourcesList(membership, 'member') + \
+                              self.sourcesList(membership, 'organization'))
+                membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
+                membership.update(membership_info)
+            
+            except MembershipOrganization.DoesNotExist:
+                membership = MembershipOrganization.create(membership_info)
 
         response = super().formset_valid(formset)
         return response

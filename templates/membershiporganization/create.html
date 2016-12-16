@@ -24,14 +24,14 @@
                 <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-organization" />
                 <h4>Memberships for {{ organization.name }}</h4>
                 <div id="form-{{ forloop.counter0 }}-wrapper">
-                {% if form.related_organization.errors %}
+                {% if form.organization.errors %}
                     <div class="form-group has-error has-feedback">
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="col-sm-2 control-label">Related organization</label>
+                        <label class="col-sm-2 control-label">Organization</label>
                         <div class="col-sm-8">
-                            <select id="id_form-{{ forloop.counter0 }}-related_organization" class="form-control organization-field" name="form-{{ forloop.counter0 }}-related_organization">
+                            <select id="id_form-{{ forloop.counter0 }}-organization" class="form-control organization-field" name="form-{{ forloop.counter0 }}-organization">
                                 <option value="" selected="selected">--------</option>
                                 {% for org in organizations %}
                                     {% if org.id != organization.id %}
@@ -43,7 +43,7 @@
                                     {% endif %}
                                 {% endfor %}
                             </select>
-                            {% if form.related_organization.errors %}
+                            {% if form.organization.errors %}
                                 {% for error in form.related_organization.errors %}
                                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                 {% endfor %}
