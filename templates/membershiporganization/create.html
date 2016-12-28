@@ -35,7 +35,7 @@
                                 <option value="" selected="selected">--------</option>
                                 {% for org in organizations %}
                                     {% if org.id != organization.id %}
-                                        {% if form.cleaned_data.related_organization.id == org.id %}
+                                        {% if form.cleaned_data.organization.id == org.id %}
                                             <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
                                         {% else %}
                                             <option value="{{ org.id }}">{{ org.name }}</option>
@@ -44,7 +44,7 @@
                                 {% endfor %}
                             </select>
                             {% if form.organization.errors %}
-                                {% for error in form.related_organization.errors %}
+                                {% for error in form.organization.errors %}
                                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                 {% endfor %}
                             {% endif %}
