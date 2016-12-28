@@ -69,7 +69,7 @@ class EventDetailView(JSONAPIView):
         event = {}
         nearby = []
 
-        event = '''
+        event_q = '''
             SELECT
               v.id,
               MAX(v.start_date) AS start_date,
@@ -118,7 +118,7 @@ class EventDetailView(JSONAPIView):
         cursor = connection.cursor()
 
         try:
-            cursor.execute(event, [kwargs['id']])
+            cursor.execute(event_q, [kwargs['id']])
         except utils.DataError as e:
             return {'status': 'error', 'message': 'Event with id "{}" not found'.format(kwargs['id'])}
 
@@ -133,6 +133,9 @@ class EventDetailView(JSONAPIView):
             nearby = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
 
             event['organizations_nearby'] = nearby
+        
+        else:
+            return {'status': 'error', 'message': 'Event with id "{}" not found'.format(kwargs['id'])}
 
         context.update(event)
 
