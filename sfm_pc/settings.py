@@ -19,6 +19,11 @@ from django.utils.translation import ugettext_lazy as _
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 try:
+    from .settings_local import EXTRA_APPS
+except ImportError:
+    EXTRA_APPS = ()
+
+try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
         SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, OSM_API_KEY
 except ImportError as e:
@@ -63,6 +68,8 @@ INSTALLED_APPS = (
     'emplacement',
     'violation',
 )
+
+INSTALLED_APPS += EXTRA_APPS
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
