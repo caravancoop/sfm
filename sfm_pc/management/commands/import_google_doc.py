@@ -1346,7 +1346,7 @@ class Command(UtilityMixin, BaseCommand):
                 'source': 14,
             },
             'AdminLevel1': {
-                'value': 7,
+                'value': 6,
                 'source': 14,
             },
             'Perpetrator': {
@@ -1439,6 +1439,11 @@ class Command(UtilityMixin, BaseCommand):
                 event_info.update({
                     'Violation_ViolationAdminLevel2': {
                         'value': admin2,
+                        'sources': sources,
+                        'confidence': 1
+                    },
+                    'Violation_ViolationAdminLevel1': {
+                        'value': admin1,
                         'sources': sources,
                         'confidence': 1
                     },
