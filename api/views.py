@@ -229,6 +229,24 @@ class OrganizationMapView(JSONAPIView):
 
         context['events'] = events
         context['events_nearby'] = events
+        
+        # Fetch classifications
+
+        classifications = ''' 
+            SELECT
+              array_agg(DISTINCT TRIM(o.classification))
+                  FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications
+            FROM organization AS o
+            WHERE o.id = %s
+        '''
+        
+        cursor.execute(classifications, [organization_id])
+        columns = [c[0] for c in cursor.description]
+        
+        row = cursor.fetchone()
+        
+        if row:
+            context['classifications'] = row[0]
 
         return context
 
@@ -354,15 +372,13 @@ class OrganizationDetailView(JSONAPIView):
             for parent in parents:
                 parent = self.makeOrganization(parent,
                                                relationships=False,
-                                               simple=True,
-                                               commanders=False)
+                                               simple=True)
                 context['parents'].append(parent)
 
             for child in children:
                 child = self.makeOrganization(child,
                                               relationships=False,
-                                              simple=True,
-                                              commanders=False)
+                                              simple=True)
                 context['children'].append(child)
 
             context['people'] = self.makeOrganizationMembers(organization_id)
