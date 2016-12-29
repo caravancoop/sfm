@@ -51,7 +51,7 @@ class OrganizationSearchView(JSONAPIView):
     }
 
     required_params = ['q']
-    optional_params = ['o', 'p']
+    optional_params = ['o', 'p', 'tolerance']
 
     facet_fields = ['classification']
 
@@ -60,6 +60,8 @@ class OrganizationSearchView(JSONAPIView):
 
         country_code = kwargs['id'].lower()
         division_id = 'ocd-division/country:{}'.format(country_code)
+        
+        tolerance = self.request.GET.get('tolerance', 0.001)
 
         query_term = self.request.GET['q']
 
@@ -121,8 +123,14 @@ class OrganizationSearchView(JSONAPIView):
 
         cursor.execute(organizations, new_args)
         columns = [c[0] for c in cursor.description]
-
-        organizations = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
+        
+        organizations = []
+        
+        for row in cursor:
+            org_dict = OrderedDict(zip(columns, row))
+            organization = self.makeOrganization(org_dict, tolerance=tolerance)
+            
+            organizations.append(organization)
 
         context['results'] = organizations
 

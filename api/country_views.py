@@ -12,7 +12,7 @@ class CountryListView(JSONAPIView):
 
     def get_context_data(self, **kwargs):
 
-        tolerance = self.request.GET.get('tolderance', 0.001)
+        tolerance = self.request.GET.get('tolerance', 0.001)
 
         query = '''
             SELECT
@@ -168,7 +168,7 @@ class CountryGeometryView(JSONAPIView):
 class CountryMapView(JSONAPIView):
 
     required_params = ['at']
-    optional_params = ['bbox']
+    optional_params = ['bbox', 'tolerance']
     filter_fields = {
         'classification': {
             'field': 'classification',
@@ -186,6 +186,7 @@ class CountryMapView(JSONAPIView):
         when = self.request.GET['at']
         bbox = self.request.GET.get('bbox')
         classification = self.request.GET.get('classification__in')
+        tolerance = self.request.GET.get('tolerance', 0.001)
 
         organizations = '''
             SELECT
@@ -225,8 +226,15 @@ class CountryMapView(JSONAPIView):
 
         cursor.execute(organizations, args)
         columns = [c[0] for c in cursor.description]
+        
+        organizations = []
 
-        organizations = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
+        for row in cursor:
+            org_dict = OrderedDict(zip(columns, row))
+            organization = self.makeOrganization(org_dict, 
+                                                 tolerance=tolerance)
+
+            organizations.append(organization)
 
         context['organizations'] = [self.makeFeature(o['location'], o) for o in organizations]
 
