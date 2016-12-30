@@ -17,9 +17,11 @@ class Association(models.Model, BaseModel):
         self.enddate = ComplexFieldContainer(self, AssociationEndDate)
         self.organization = ComplexFieldContainer(self, AssociationOrganization)
         self.area = ComplexFieldContainer(self, AssociationArea)
+        
+        self.open_ended = ComplexFieldContainer(self, AssociationOpenEnded)
 
         self.complex_fields = [self.startdate, self.enddate, self.organization,
-                               self.area]
+                               self.area, self.open_ended]
 
         self.required_fields = [
             "Association_AssociationOrganization",
@@ -69,3 +71,9 @@ class AssociationArea(ComplexField):
 
     def __str__(self):
         return str(self.value)
+
+@versioned
+class AssociationOpenEnded(ComplexField):
+    object_ref = models.ForeignKey('Association')
+    value = models.NullBooleanField(default=None, blank=True, null=True)
+    field_name = _("Open ended")

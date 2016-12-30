@@ -20,11 +20,6 @@ class Geosite(models.Model, BaseModel):
         self.osmid = ComplexFieldContainer(self, GeositeOSMId)
         self.division_id = ComplexFieldContainer(self, GeositeDivisionId)
 
-        self.first_cited = ComplexFieldContainer(self, GeositeFirstCited)
-        self.last_cited = ComplexFieldContainer(self, GeositeLastCited)
-
-        self.open_ended = ComplexFieldContainer(self, GeositeOpenEnded)
-
         self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
                                self.coordinates, self.osmname, self.osmid,
                                self.division_id]
@@ -110,10 +105,3 @@ class GeositeLastCited(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last cited")
-
-
-@versioned
-class GeositeOpenEnded(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
-    value = models.NullBooleanField(default=None, blank=True, null=True)
-    field_name = _("Open ended")

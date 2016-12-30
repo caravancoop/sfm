@@ -17,11 +17,12 @@ class Emplacement(models.Model, BaseModel):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, EmplacementStartDate)
         self.enddate = ComplexFieldContainer(self, EmplacementEndDate)
+        self.open_ended = ComplexFieldContainer(self, EmplacementOpenEnded)
         self.organization = ComplexFieldContainer(self, EmplacementOrganization)
         self.site = ComplexFieldContainer(self, EmplacementSite)
 
         self.complex_fields = [self.startdate, self.enddate, self.organization,
-                               self.site]
+                               self.site, self.open_ended]
 
         self.required_fields = [
             "Emplacement_EmplacementOrganization",
@@ -46,6 +47,13 @@ class EmplacementEndDate(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("End date")
+
+
+@versioned
+class EmplacementOpenEnded(ComplexField):
+    object_ref = models.ForeignKey('Emplacement')
+    value = models.NullBooleanField(default=None, blank=True, null=True)
+    field_name = _("Open ended")
 
 
 @versioned

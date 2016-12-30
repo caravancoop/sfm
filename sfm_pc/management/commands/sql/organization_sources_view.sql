@@ -4,6 +4,9 @@ CREATE MATERIALIZED VIEW organization_sources AS
     oon.value AS name_value,
     MAX(oon.confidence) AS name_confidence,
     json_agg(DISTINCT oonss.*) AS name_source,
+    ooh.value AS headquarters_value,
+    MAX(ooh.confidence) AS headquarters_confidence,
+    json_agg(DISTINCT oohss.*) AS headquarters_source,
     oa.value AS alias_value,
     MAX(ooa.confidence) AS alias_confidence,
     json_agg(DISTINCT ooass.*) AS alias_source,
@@ -18,6 +21,12 @@ CREATE MATERIALIZED VIEW organization_sources AS
     ON oon.id = oons.organizationname_id
   LEFT JOIN source_source AS oonss
     ON oons.source_id = oonss.id
+  LEFT JOIN organization_organizationheadquarters AS ooh
+    ON oo.id = ooh.object_ref_id
+  LEFT JOIN organization_organizationheadquarters_sources AS oohs
+    ON oon.id = oohs.organizationheadquarters_id
+  LEFT JOIN source_source AS oohss
+    ON oohs.source_id = oohss.id
   LEFT JOIN organization_organizationalias AS ooa
     ON oo.id = ooa.object_ref_id
   LEFT JOIN organization_alias AS oa
@@ -38,5 +47,6 @@ CREATE MATERIALIZED VIEW organization_sources AS
     ON oo.id = ood.object_ref_id
   GROUP BY oo.uuid, 
            oon.value, 
+           ooh.value, 
            oa.value, 
            oc.value

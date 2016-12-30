@@ -3,6 +3,7 @@ CREATE MATERIALIZED VIEW emplacement AS
     ee.id,
     eesd.value AS start_date,
     eeed.value AS end_date,
+    eeoe.value AS open_ended,
     oo.uuid AS organization_id,
     gg.id AS site_id
   FROM emplacement_emplacement AS ee
@@ -10,6 +11,8 @@ CREATE MATERIALIZED VIEW emplacement AS
     ON ee.id = eesd.object_ref_id
   LEFT JOIN emplacement_emplacementenddate AS eeed
     ON ee.id = eeed.object_ref_id
+  LEFT JOIN emplacement_emplacementopenended AS eeoe
+    ON ee.id = eeoe.object_ref_id
   LEFT JOIN emplacement_emplacementorganization AS eeo
     ON ee.id = eeo.object_ref_id
   LEFT JOIN organization_organization AS oo

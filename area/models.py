@@ -19,12 +19,8 @@ class Area(models.Model, BaseModel):
         self.geometry = ComplexFieldContainer(self, AreaGeometry)
         self.division_id = ComplexFieldContainer(self, AreaDivisionId)
 
-        self.first_cited = ComplexFieldContainer(self, AreaFirstCited)
-        self.last_cited = ComplexFieldContainer(self, AreaLastCited)
-
         self.complex_fields = [self.name, self.code, self.osmname,
-                               self.geometry, self.division_id, self.osmid,
-                               self.first_cited, self.last_cited]
+                               self.geometry, self.division_id, self.osmid]
 
         self.required_fields = [
             "Area_AreaName",
@@ -111,19 +107,3 @@ class AreaDivisionId(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Division ID")
-
-
-@versioned
-@sourced
-class AreaFirstCited(ComplexField):
-    object_ref = models.ForeignKey('Area')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("First cited")
-
-
-@versioned
-@sourced
-class AreaLastCited(ComplexField):
-    object_ref = models.ForeignKey('Area')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Last cited")
