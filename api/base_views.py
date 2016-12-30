@@ -266,6 +266,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                          when=None):
 
         q_args = [entity_id]
+        nearby_q_args = []
 
         events_query = '''
             SELECT DISTINCT ON (MAX(o.id::VARCHAR))
@@ -329,6 +330,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 {} AND (center.start_date::date <= %s OR
                         center.end_date >= %s)
             '''.format(nearby_events_query)
+            nearby_q_args.extend([when, when])
 
         nearby_events_query = '{} GROUP BY v.id'.format(nearby_events_query)
 
@@ -347,8 +349,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             events.append(feature)
 
         del q_args[0]
-
-        cursor.execute(nearby_events_query, q_args)
+        
+        cursor.execute(nearby_events_query, nearby_q_args)
         columns = [c[0] for c in cursor.description]
 
         event_ids = [e['id'] for e in events]
@@ -483,7 +485,11 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
         return properties
 
-    def makeOrganizationGeographies(self, properties, all_geography=False):
+    def makeOrganizationGeographies(self, 
+                                    properties, 
+                                    all_geography=False,
+                                    tolerance=0.001):
+
         site_present = '''
             SELECT DISTINCT ON (o.id)
               g.id,
@@ -525,7 +531,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
               a.osmid,
               ass.start_date AS first_cited,
               ass.end_date AS last_cited,
-              ST_AsGeoJSON(ST_Simplify(a.geometry, 0.001))::json AS geometry
+              ST_AsGeoJSON(ST_Simplify(a.geometry, %s))::json AS geometry
             FROM organization AS o
             JOIN association AS ass
               ON o.id = ass.organization_id
@@ -538,7 +544,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         '''
 
         cursor = connection.cursor()
-        cursor.execute(area_present, [properties['id']])
+        cursor.execute(area_present, [tolerance, properties['id']])
         columns = [c[0] for c in cursor.description]
 
         if all_geography:
@@ -558,7 +564,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                          simple=False,
                          all_geography=False,
                          commanders=True,
-                         memberships=False):
+                         memberships=False,
+                         tolerance=0.001):
 
         if relationships:
             properties = self.makeOrganizationRelationships(properties)
@@ -568,7 +575,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
         if not simple:
             properties = self.makeOrganizationGeographies(properties,
-                                                          all_geography=all_geography)
+                                                          all_geography=all_geography,
+                                                          tolerance=tolerance)
 
         if memberships and properties.get('memberships'):
 

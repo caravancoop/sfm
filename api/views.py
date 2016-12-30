@@ -62,9 +62,13 @@ class OSMAutoView(JSONAPIView):
 
 
 class EventDetailView(JSONAPIView):
+    
+    optional_params = ['tolerance']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        tolerance = self.request.GET.get('tolerance', 0.001)
 
         event = {}
         nearby = []
@@ -130,7 +134,14 @@ class EventDetailView(JSONAPIView):
 
             cursor.execute(nearby, [kwargs['id']])
             columns = [c[0] for c in cursor.description]
-            nearby = [self.makeOrganization(OrderedDict(zip(columns, r))) for r in cursor]
+
+            nearby = []
+
+            for row in cursor:
+                org_dict = OrderedDict(zip(columns, row))
+                organization = self.makeOrganization(org_dict, tolerance=tolerance)
+
+                nearby.append(organization)
 
             event['organizations_nearby'] = nearby
         
@@ -145,7 +156,7 @@ class EventDetailView(JSONAPIView):
 class OrganizationMapView(JSONAPIView):
 
     required_params = ['at']
-    optional_params = ['bbox']
+    optional_params = ['bbox', 'tolerance']
     filter_fields = {}
 
     def get_context_data(self, **kwargs):
@@ -156,14 +167,15 @@ class OrganizationMapView(JSONAPIView):
         organization_id = kwargs['id']
         when = self.request.GET['at']
         bbox = self.request.GET.get('bbox')
+        tolerance = self.request.GET.get('tolerance', 0.001)
 
-        q_args = [organization_id, when, when]
+        q_args = [tolerance, organization_id, when, when]
 
         area_query = '''
             SELECT DISTINCT ON (area.id)
               area.osmid AS id,
               area.name,
-              ST_AsGeoJSON(area.geometry)::json AS geometry,
+              ST_AsGeoJSON(ST_Simplify(area.geometry, %s))::json AS geometry,
               ass.start_date,
               ass.end_date
             FROM area
@@ -201,7 +213,7 @@ class OrganizationMapView(JSONAPIView):
 
         if bbox:
             sites_query = '''
-                {} AND ST_Within(site.geometry, ST_MakeEnvelope(%s, %s, %s, %s, 4326))
+                {} AND ST_Within(site.coordinates, ST_MakeEnvelope(%s, %s, %s, %s, 4326))
             '''.format(sites_query)
 
         cursor = connection.cursor()
@@ -219,6 +231,7 @@ class OrganizationMapView(JSONAPIView):
             context['area'] = self.makeFeature(area['geometry'], area)
 
         # Fetch sites
+        q_args.pop(0)
         cursor.execute(sites_query, q_args)
         columns = [c[0] for c in cursor.description]
 
@@ -258,6 +271,8 @@ class OrganizationChartView(JSONAPIView):
 
     required_params = ['at']
     filter_fields = {}
+    
+    optional_params = ['tolerance']
 
     def get_context_data(self, **kwargs):
 
@@ -265,6 +280,7 @@ class OrganizationChartView(JSONAPIView):
 
         organization_id = kwargs['id']
         when = self.request.GET['at']
+        tolerance = self.request.GET.get('tolerance', 0.001)
 
         query = '''
             SELECT
@@ -293,7 +309,8 @@ class OrganizationChartView(JSONAPIView):
 
         if row:
             context.update(self.makeOrganization(OrderedDict(zip(columns, row)),
-                                                 relationships=False))
+                                                 relationships=False,
+                                                 tolerance=tolerance))
             context['parents'] = []
             context['children'] = []
 
@@ -303,23 +320,29 @@ class OrganizationChartView(JSONAPIView):
             for parent in parents:
                 parent = self.makeOrganization(parent,
                                                relationships=False,
-                                               simple=True)
+                                               simple=True,
+                                               tolerance=tolerance)
                 context['parents'].append(parent)
 
             for child in children:
                 child = self.makeOrganization(child,
                                               relationships=False,
-                                              simple=True)
+                                              simple=True,
+                                              tolerance=tolerance)
                 context['children'].append(child)
 
         return context
 
 
 class OrganizationDetailView(JSONAPIView):
+    
+    optional_params = ['tolerance']
+    
     def get_context_data(self, **kwargs):
         context = {}
 
         organization_id = kwargs['id']
+        tolerance = self.request.GET.get('tolerance', 0.001)
 
         query = '''
             SELECT
@@ -362,7 +385,8 @@ class OrganizationDetailView(JSONAPIView):
         if row:
             organization = self.makeOrganization(dict(zip(columns, row)),
                                                  all_geography=True,
-                                                 memberships=True)
+                                                 memberships=True,
+                                                 tolerance=tolerance)
 
             context.update(self.splitSources(organization))
 
@@ -375,13 +399,15 @@ class OrganizationDetailView(JSONAPIView):
             for parent in parents:
                 parent = self.makeOrganization(parent,
                                                relationships=False,
-                                               simple=True)
+                                               simple=True,
+                                               tolerance=tolerance)
                 context['parents'].append(parent)
 
             for child in children:
                 child = self.makeOrganization(child,
                                               relationships=False,
-                                              simple=True)
+                                              simple=True,
+                                              tolerance=tolerance)
                 context['children'].append(child)
 
             context['people'] = self.makeOrganizationMembers(organization_id)
