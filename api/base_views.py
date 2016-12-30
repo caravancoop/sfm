@@ -266,6 +266,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                          when=None):
 
         q_args = [entity_id]
+        nearby_q_args = []
 
         events_query = '''
             SELECT DISTINCT ON (MAX(o.id::VARCHAR))
@@ -329,6 +330,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                 {} AND (center.start_date::date <= %s OR
                         center.end_date >= %s)
             '''.format(nearby_events_query)
+            nearby_q_args.extend([when, when])
 
         nearby_events_query = '{} GROUP BY v.id'.format(nearby_events_query)
 
@@ -347,8 +349,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             events.append(feature)
 
         del q_args[0]
-
-        cursor.execute(nearby_events_query, q_args)
+        
+        cursor.execute(nearby_events_query, nearby_q_args)
         columns = [c[0] for c in cursor.description]
 
         event_ids = [e['id'] for e in events]

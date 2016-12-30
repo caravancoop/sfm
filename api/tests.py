@@ -338,8 +338,8 @@ class EventDetail(TestBase):
 
 
 class OrganizationMap(TestBase):
-
-    def test_org_map(self):
+    
+    def getRandomOrgs(self):
         curs = connection.cursor()
 
         curs.execute('''
@@ -347,12 +347,25 @@ class OrganizationMap(TestBase):
             ORDER BY RANDOM()
             LIMIT 15
         ''')
+        
+        return curs
 
-        for row in curs:
+    def test_org_map(self):
+
+        for row in self.getRandomOrgs():
             url = '{}?at=2014-01-01'.format(reverse_lazy('organization-map', args=[row[0]]))
             response = self.getPage(url)
 
             assert response.status_code == 200
+    
+    def test_bbox(self):
+        
+        for row in self.getRandomOrgs():
+            url = '{}?at=2014-01-01&bbox=9,9,12,7'.format(reverse_lazy('organization-map', args=[row[0]]))
+            response = self.getPage(url)
+
+            assert response.status_code == 200
+
 
 
 class OrganizationChart(TestBase):
