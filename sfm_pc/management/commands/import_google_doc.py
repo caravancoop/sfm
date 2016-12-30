@@ -41,7 +41,7 @@ from geosite.models import Geosite
 from emplacement.models import Emplacement, EmplacementOpenEnded
 from area.models import Area, AreaOSMId
 from association.models import Association, AssociationOpenEnded
-from composition.models import Composition
+from composition.models import Composition, CompositionOpenEnded
 from person.models import Person, PersonName, PersonAlias
 from membershipperson.models import MembershipPerson
 from membershiporganization.models import MembershipOrganization
@@ -428,8 +428,6 @@ class Command(UtilityMixin, BaseCommand):
                         except Organization.DoesNotExist:
                             parent_organization = Organization.create(parent_org_info)
 
-                        open_ended = org_data[composition_positions['OpenEnded']['value']]
-
                         comp_info = {
                             'Composition_CompositionParent': {
                                 'value': parent_organization,
@@ -441,9 +439,6 @@ class Command(UtilityMixin, BaseCommand):
                                 'confidence': parent_confidence,
                                 'sources': parent_sources,
                             },
-                            'Composition_CompositionOpenEnded': {
-                                'value': open_ended,
-                            },
                         }
 
                         try:
@@ -451,6 +446,25 @@ class Command(UtilityMixin, BaseCommand):
                                                                   compositionchild__value=organization)
                         except Composition.DoesNotExist:
                             composition = Composition.create(comp_info)
+                        
+                        try:
+                            comp_openended = org_data[composition_positions['OpenEnded']['value']]
+                        except IndexError:
+                            comp_openended = None
+
+                        if comp_openended:
+                            if 'Y' in comp_openended:
+                                comp_openended = True
+                            elif 'N' in comp_openended:
+                                comp_openended = False
+                            else:
+                                comp_openended = None
+
+                            with reversion.create_revision():
+                                open_ended, created = CompositionOpenEnded.objects.get_or_create(value=comp_openended, 
+                                                                                                 object_ref=composition)
+                                composition.save()
+                                reversion.set_user(self.user)
 
                         self.make_relation('StartDate',
                                            composition_positions['StartDate'],
