@@ -309,7 +309,11 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
         '''
 
         if when:
-            wheres = '{} AND (v.start_date::date <= %s OR v.end_date::date >= %s)'.format(wheres)
+            wheres = '''
+                {} 
+                AND v.start_date::date <= %s 
+                AND v.end_date::date >= %s
+            '''.format(wheres)
             q_args.extend([when, when])
 
         if bbox:
@@ -327,8 +331,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
 
         if when:
             nearby_events_query = '''
-                {} AND (center.start_date::date <= %s OR
-                        center.end_date >= %s)
+                {} AND center.start_date::date <= %s 
+                   AND center.end_date >= %s
             '''.format(nearby_events_query)
             nearby_q_args.extend([when, when])
 
@@ -484,6 +488,55 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
             properties['commanders_former'] = []
 
         return properties
+    
+    def makePresentCommander(self, properties):
+        when = self.request.GET.get('at', datetime.now().date().isoformat())
+        
+        commander = '''
+            SELECT * FROM (
+              SELECT DISTINCT ON (id)
+                *
+              FROM (
+                SELECT
+                  o.id AS organization_id,
+                  MAX(p.id::VARCHAR) AS id,
+                  MAX(p.name) AS name,
+                  m.first_cited AS first_cited,
+                  m.last_cited AS last_cited,
+                  COUNT(DISTINCT v.id) AS events_count
+                FROM organization AS o
+                JOIN membershipperson AS m
+                  ON o.id = m.organization_id
+                JOIN person AS p
+                  ON m.member_id = p.id
+                LEFT JOIN violation AS v
+                  ON p.id = v.perpetrator_id
+                WHERE o.id = %s
+                  AND m.role = 'Commander'
+                  AND m.first_cited <= %s
+                  AND COALESCE(m.last_cited::date, NOW()::date)  >= %s
+                GROUP BY o.id, m.first_cited, m.last_cited
+                ORDER BY o.id,
+                         m.last_cited DESC,
+                         m.first_cited DESC
+              ) AS s
+            ) AS s 
+            ORDER BY last_cited DESC, first_cited DESC
+            LIMIT 1
+        '''
+
+        cursor = connection.cursor()
+        cursor.execute(commander, [properties['id'], when, when])
+        columns = [c[0] for c in cursor.description]
+        
+        row = cursor.fetchone()
+        
+        properties['current_commander'] = {}
+
+        if row:
+            properties['current_commander'] = dict(zip(columns, row))
+
+        return properties
 
     def makeOrganizationGeographies(self, 
                                     properties, 
@@ -561,17 +614,21 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
     def makeOrganization(self,
                          properties,
                          relationships=True,
+                         all_commanders=True,
+                         present_commander=False,
                          simple=False,
                          all_geography=False,
-                         commanders=True,
                          memberships=False,
                          tolerance=0.001):
 
         if relationships:
             properties = self.makeOrganizationRelationships(properties)
 
-        if commanders:
+        if all_commanders:
             properties = self.makeOrganizationCommanders(properties)
+        
+        if present_commander:
+            properties = self.makePresentCommander(properties)
 
         if not simple:
             properties = self.makeOrganizationGeographies(properties,

@@ -182,7 +182,8 @@ class OrganizationMapView(JSONAPIView):
             JOIN association AS ass
               ON area.id = ass.area_id
             WHERE ass.organization_id = %s
-              AND (ass.start_date::date <= %s OR ass.end_date::date >= %s)
+              AND ass.start_date::date <= %s 
+              AND (ass.end_date::date >= %s OR ass.open_ended = TRUE)
         '''
 
         if bbox:
@@ -207,8 +208,9 @@ class OrganizationMapView(JSONAPIView):
             JOIN emplacement
               ON site.id = emplacement.site_id
             WHERE emplacement.organization_id = %s
-              AND (emplacement.start_date::date <= %s OR
-                   emplacement.end_date::date >= %s)
+              AND emplacement.start_date::date <= %s 
+              AND (emplacement.end_date::date >= %s OR 
+                   emplacement.open_ended = TRUE)
         '''
 
         if bbox:
@@ -308,9 +310,14 @@ class OrganizationChartView(JSONAPIView):
         row = cursor.fetchone()
 
         if row:
-            context.update(self.makeOrganization(OrderedDict(zip(columns, row)),
-                                                 relationships=False,
-                                                 tolerance=tolerance))
+            current_org = self.makeOrganization(OrderedDict(zip(columns, row)),
+                                                relationships=False,
+                                                tolerance=tolerance,
+                                                all_commanders=False,
+                                                present_commander=True)
+
+            context.update(current_org)
+
             context['parents'] = []
             context['children'] = []
 
@@ -321,14 +328,20 @@ class OrganizationChartView(JSONAPIView):
                 parent = self.makeOrganization(parent,
                                                relationships=False,
                                                simple=True,
-                                               tolerance=tolerance)
+                                               tolerance=tolerance,
+                                               all_commanders=False,
+                                               present_commander=True)
+
                 context['parents'].append(parent)
 
             for child in children:
                 child = self.makeOrganization(child,
                                               relationships=False,
                                               simple=True,
-                                              tolerance=tolerance)
+                                              tolerance=tolerance,
+                                              all_commanders=False,
+                                              present_commander=True)
+
                 context['children'].append(child)
 
         return context

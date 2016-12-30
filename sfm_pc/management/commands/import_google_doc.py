@@ -38,10 +38,10 @@ from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id, \
 from sfm_pc.base_views import UtilityMixin
 
 from geosite.models import Geosite
-from emplacement.models import Emplacement
+from emplacement.models import Emplacement, EmplacementOpenEnded
 from area.models import Area, AreaOSMId
-from association.models import Association
-from composition.models import Composition
+from association.models import Association, AssociationOpenEnded
+from composition.models import Composition, CompositionOpenEnded
 from person.models import Person, PersonName, PersonAlias
 from membershipperson.models import MembershipPerson
 from membershiporganization.models import MembershipOrganization
@@ -237,6 +237,11 @@ class Command(UtilityMixin, BaseCommand):
                 'confidence': None,
                 'source': None,
             },
+            'Headquarters': {
+                'value': 24,
+                'confidence': 26,
+                'source': 25,
+            },
         }
 
         composition_positions = {
@@ -268,54 +273,19 @@ class Command(UtilityMixin, BaseCommand):
         }
 
         area_positions = {
-            'OSMName': {
-                'value': 44,
-                'confidence': 48,
-                'source': 47,
-            },
             'OSMId': {
                 'value': 45,
                 'confidence': 48,
                 'source': 47,
             },
-            'FirstCited': {
-                'value': 49,
-                'confidence': 51,
-                'source': 50,
-            },
-            'LastCited': {
-                'value': 52,
-                'confidence': 54,
-                'source': 53,
-            },
         }
 
         site_positions = {
-            'OSMName': {
-                'value': 27,
-                'confidence': 30,
-                'source': 29,
-            },
             'OSMId': {
                 'value': 28,
                 'confidence': 30,
                 'source': 29,
             },
-            'FirstCited': {
-                'value': 45,
-                'confidence': 48,
-                'source': 47,
-            },
-            'LastCited': {
-                'value': 46,
-                'confidence': 48,
-                'source': 47,
-            },
-            'OpenEnded': {
-                'value': 43,
-                'confidence': None,
-                'source': None,
-            }
         }
 
         membership_positions = {
@@ -391,6 +361,11 @@ class Command(UtilityMixin, BaseCommand):
                                                     org_positions['Classification'],
                                                     org_data,
                                                     organization)
+                
+                headquarters = self.make_relation('Headquarters',
+                                                  org_positions['Headquarters'],
+                                                  org_data,
+                                                  organization)
 
 
                 # Create Emplacements
@@ -453,8 +428,6 @@ class Command(UtilityMixin, BaseCommand):
                         except Organization.DoesNotExist:
                             parent_organization = Organization.create(parent_org_info)
 
-                        open_ended = org_data[composition_positions['OpenEnded']['value']]
-
                         comp_info = {
                             'Composition_CompositionParent': {
                                 'value': parent_organization,
@@ -466,9 +439,6 @@ class Command(UtilityMixin, BaseCommand):
                                 'confidence': parent_confidence,
                                 'sources': parent_sources,
                             },
-                            'Composition_CompositionOpenEnded': {
-                                'value': open_ended,
-                            },
                         }
 
                         try:
@@ -476,6 +446,25 @@ class Command(UtilityMixin, BaseCommand):
                                                                   compositionchild__value=organization)
                         except Composition.DoesNotExist:
                             composition = Composition.create(comp_info)
+                        
+                        try:
+                            comp_openended = org_data[composition_positions['OpenEnded']['value']]
+                        except IndexError:
+                            comp_openended = None
+
+                        if comp_openended:
+                            if 'Y' in comp_openended:
+                                comp_openended = True
+                            elif 'N' in comp_openended:
+                                comp_openended = False
+                            else:
+                                comp_openended = None
+
+                            with reversion.create_revision():
+                                open_ended, created = CompositionOpenEnded.objects.get_or_create(value=comp_openended, 
+                                                                                                 object_ref=composition)
+                                composition.save()
+                                reversion.set_user(self.user)
 
                         self.make_relation('StartDate',
                                            composition_positions['StartDate'],
@@ -817,6 +806,7 @@ class Command(UtilityMixin, BaseCommand):
                     'sources': area_sources
                 },
             }
+            
 
             try:
                 assoc = Association.objects.get(associationorganization__value=organization,
@@ -824,6 +814,26 @@ class Command(UtilityMixin, BaseCommand):
                 assoc.update(area_info)
             except Association.DoesNotExist:
                 assoc = Association.create(area_info)
+            
+            try:
+                ass_openended = org_data[55]
+            except IndexError:
+                ass_openended = None
+            
+
+            if ass_openended:
+                if 'Y' in ass_openended:
+                    ass_openended = True
+                elif 'N' in ass_openended:
+                    ass_openended = False
+                else:
+                    ass_openended = None
+
+                with reversion.create_revision():
+                    open_ended, created = AssociationOpenEnded.objects.get_or_create(value=ass_openended, 
+                                                                                     object_ref=assoc)
+                    assoc.save()
+                    reversion.set_user(self.user)
 
             for field_name, positions in relation_positions.items():
 
@@ -846,11 +856,6 @@ class Command(UtilityMixin, BaseCommand):
                 'confidence': 34,
                 'source': 33,
             },
-            'OpenEnded': {
-                'value': 43,
-                'confidence': None,
-                'source': None,
-            }
         }
 
         relation_positions = {
@@ -963,23 +968,6 @@ class Command(UtilityMixin, BaseCommand):
                 self.log_error('AdminLevel1 {0} did not have {1}'.format(admin1, ', '.join(missing)))
 
             try:
-                site_openended = org_data[positions['OpenEnded']['value']]
-            except IndexError:
-                site_openended = None
-
-            if site_openended:
-                if site_openended == 'Y':
-                    site_openended = True
-                elif site_openended == 'N':
-                    site_openended = False
-                else:
-                    site_openended = None
-
-                site_data['Geosite_GeositeOpenEnded'] = {
-                    'value': site_openended,
-                }
-
-            try:
                 site.update(site_data)
             except TypeError:
                 # Probably means that the geometry is wrong
@@ -1003,6 +991,25 @@ class Command(UtilityMixin, BaseCommand):
                                                       emplacementsite__value=site)
             except Emplacement.DoesNotExist:
                 emplacement = Emplacement.create(emp_data)
+            
+            try:
+                emp_openended = org_data[43]
+            except IndexError:
+                emp_openended = None
+
+            if emp_openended:
+                if 'Y' in emp_openended:
+                    emp_openended = True
+                elif 'N' in emp_openended:
+                    emp_openended = False
+                else:
+                    emp_openended = None
+
+                with reversion.create_revision():
+                    open_ended, created = EmplacementOpenEnded.objects.get_or_create(value=emp_openended, 
+                                                                                     object_ref=emplacement)
+                    emplacement.save()
+                    reversion.set_user(self.user)
 
             for field_name, positions in relation_positions.items():
 

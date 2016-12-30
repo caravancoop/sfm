@@ -176,6 +176,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             NULL::VARCHAR AS child_name, 
             NULL::DATE AS start_date,
             NULL::DATE AS end_date,
+            NULL::BOOL AS open_ended,
             NULL::VARCHAR AS source,
             NULL::VARCHAR AS confidence
           FROM organization As o 
@@ -187,6 +188,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             children.name AS child_name, 
             h.start_date::date,
             h.end_date::date,
+            h.open_ended,
             row_to_json(ss.*)::VARCHAR AS source,
             ccc.confidence
           FROM organization AS o 
@@ -205,7 +207,11 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
     
     q_args = [org_id, org_id]
     if when:
-        hierarchy = '{} AND start_date <= %s OR end_date >= %s'.format(hierarchy)
+        hierarchy = '''
+            {} 
+            AND start_date <= %s 
+            AND (end_date >= %s OR open_ended = TRUE)
+        '''.format(hierarchy)
         q_args.extend([when, when])
 
     hierarchy = generate_hierarchy(hierarchy, q_args, 'child_id', sources=sources)
@@ -221,6 +227,7 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
             NULL::VARCHAR AS parent_name,
             NULL::DATE AS start_date,
             NULL::DATE AS end_date,
+            NULL::BOOL AS open_ended,
             NULL::VARCHAR AS source,
             NULL::VARCHAR AS confidence
           FROM organization As o 
@@ -232,6 +239,7 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
             parents.name AS parent_name,
             h.start_date::date,
             h.end_date::date,
+            h.open_ended,
             row_to_json(ss.*)::VARCHAR AS source,
             ccc.confidence
           FROM organization AS o 
@@ -250,7 +258,11 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
     
     q_args = [org_id, org_id]
     if when:
-        hierarchy = '{} AND start_date <= %s OR end_date >= %s'.format(hierarchy)
+        hierarchy = '''
+            {} 
+            AND start_date <= %s 
+            AND (end_date >= %s OR open_ended = TRUE)
+        '''.format(hierarchy)
         q_args.extend([when, when])
 
     hierarchy = generate_hierarchy(hierarchy, q_args, 'parent_id', sources=sources)
