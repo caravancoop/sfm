@@ -91,8 +91,9 @@ class EventDetailView(JSONAPIView):
                 FILTER (WHERE TRIM(v.perpetrator_classification) IS NOT NULL) AS perpetrator_classification,
               array_agg(DISTINCT TRIM(v.violation_type))
                 FILTER (WHERE TRIM(v.violation_type) IS NOT NULL) AS classifications,
-              json_agg(row_to_json(o.*)) AS perpetrator_organization
-            FROM violation AS v
+              json_agg(row_to_json(o.*)) AS perpetrator_organization,
+              json_agg(v.sources) AS sources
+            FROM violation_sources AS v
             LEFT JOIN person AS p
               ON v.perpetrator_id = p.id
             LEFT JOIN organization AS o
