@@ -894,7 +894,7 @@ class Command(UtilityMixin, BaseCommand):
                 site = Geosite.objects.get(geositeosmid__value=osm_geo.id)
             except Geosite.DoesNotExist:
                 with reversion.create_revision():
-                    site = GeoSite()
+                    site = Geosite()
                     site.save()
                     reversion.set_user(self.user)
             
