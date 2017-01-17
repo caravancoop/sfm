@@ -237,11 +237,6 @@ class Command(UtilityMixin, BaseCommand):
                 'confidence': None,
                 'source': None,
             },
-            'Headquarters': {
-                'value': 24,
-                'confidence': 26,
-                'source': 25,
-            },
         }
 
         composition_positions = {
@@ -362,12 +357,6 @@ class Command(UtilityMixin, BaseCommand):
                                                     org_data,
                                                     organization)
                 
-                headquarters = self.make_relation('Headquarters',
-                                                  org_positions['Headquarters'],
-                                                  org_data,
-                                                  organization)
-
-
                 # Create Emplacements
                 try:
                     site_osm_id = org_data[site_positions['OSMId']['value']]
@@ -848,14 +837,35 @@ class Command(UtilityMixin, BaseCommand):
                          organization):
 
         positions = {
-            'OSMName': {
+            'AdminLevel1': {
+                'value': 27,
+                'osmid': 28,
                 'confidence': 30,
                 'source': 29,
             },
-            'AdminLevel1': {
+            'AdminLevel2': {
+                'value': 31,
+                'osmid': 32,
                 'confidence': 34,
                 'source': 33,
             },
+            'Name': {
+                'value': 24,
+                'confidence': 26,
+                'source': 25,
+            },
+            'OSMName': {
+                'value': 27,
+                'osmid': 28,
+                'confidence': 30,
+                'source': 29
+            },
+            'OSMId': {
+                'value': 28,
+                'osmid': 28,
+                'confidence': 30,
+                'source': 29
+            }
         }
 
         relation_positions = {
@@ -870,102 +880,74 @@ class Command(UtilityMixin, BaseCommand):
                 'source': 41,
             },
         }
-
+        
+        site_data = {}
+        
         try:
-            geo = get_osm_by_id(osm_id)
+            osm_geo = get_osm_by_id(osm_id)
         except DataError:
-            self.log_error('OSMName ID for Site does not seem valid: {}'.format(osm_id))
-            geo = None
-
-        if geo:
-
-            hierarchy = get_hierarchy_by_id(geo.id)
-
-            admin1 = None
-            admin2 = None
-
-            if hierarchy:
-                for member in hierarchy:
-                    if member.admin_level == 6:
-                        admin1 = member.name
-                    elif member.admin_level == 4:
-                        admin2 = member.name
-
-            country_code = geo.country_code.lower()
-
-            division_id = 'ocd-division/country:{}'.format(country_code)
-
-            with reversion.create_revision():
-                site, created = Geosite.objects.get_or_create(geositeosmid__value=geo.id)
-                reversion.set_user(self.user)
-
-            site_data = {}
-
-            osm_confidence = self.get_confidence(org_data[positions['OSMName']['confidence']])
-            osm_sources = self.create_sources(org_data[positions['OSMName']['source']])
-
-
-            if osm_confidence and osm_sources:
-
-                site_data['Geosite_GeositeName'] = {
-                    'value': geo.name,
-                    'confidence': osm_confidence,
-                    'sources': osm_sources,
-                }
-                site_data['Geosite_GeositeOSMName'] = {
-                    'value': geo.name,
-                    'confidence': osm_confidence,
-                    'sources': osm_sources,
-                }
-                site_data['Geosite_GeositeOSMId'] = {
-                    'value': geo.id,
-                    'confidence': osm_confidence,
-                    'sources': osm_sources,
-                }
-                site_data['Geosite_GeositeDivisionId'] = {
-                    'value': division_id,
-                    'confidence': osm_confidence,
-                    'sources': osm_sources,
-                }
-                site_data['Geosite_GeositeCoordinates'] = {
-                    'value': geo.geometry,
-                    'confidence': osm_confidence,
-                    'sources': osm_sources,
-                }
-
-            else:
-                missing = []
-                if not osm_confidence:
-                    missing.append('confidence')
-                if not osm_sources:
-                    missing.append('sources')
-
-                self.log_error('OSM {0} did not have {1}'.format(geo.name, ', '.join(missing)))
-
+            osm_geo = None
+        
+        if osm_geo:
+            
             try:
-                admin1_confidence = self.get_confidence(org_data[positions['AdminLevel1']['confidence']])
-            except KeyError:
-                self.log_error('Admin Level 1 for {} does not have a confidence'.format(organization.name))
-                return None
+                site = Geosite.objects.get(geositeosmid__value=osm_geo.id)
+            except Geosite.DoesNotExist:
+                with reversion.create_revision():
+                    site = GeoSite()
+                    site.save()
+                    reversion.set_user(self.user)
+            
+            name_confidence = self.get_confidence(org_data[positions['Name']['confidence']])
+            name_sources = self.create_sources(org_data[positions['Name']['source']])
+            name = org_data[positions['Name']['value']]
 
-            admin1_sources = self.create_sources(org_data[positions['AdminLevel1']['source']])
-
-            if admin1_confidence and admin1_sources:
-
-                site_data['Geosite_GeositeAdminLevel1'] = {
-                    'value': admin1,
-                    'confidence': admin1_confidence,
-                    'sources': admin1_sources,
+            if name and name_confidence and name_sources:
+                
+                site_data['Geosite_GeositeName'] = {
+                    'value': name,
+                    'confidence': name_confidence,
+                    'sources': name_sources,
                 }
-
+            
             else:
                 missing = []
-                if not admin1_confidence:
+                if not name_confidence:
                     missing.append('confidence')
-                if not admin1_sources:
+                if not name_sources:
                     missing.append('sources')
+                
+                self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
+            
+            for attribute in ['AdminLevel1', 'AdminLevel2', 'OSMName', 'OSMId']:
+                
+                confidence = self.get_confidence(org_data[positions[attribute]['confidence']])
+                sources = self.create_sources(org_data[positions[attribute]['source']])
+                value = org_data[positions[attribute]['value']]
+                osm_id = org_data[positions[attribute]['osmid']]
 
-                self.log_error('AdminLevel1 {0} did not have {1}'.format(admin1, ', '.join(missing)))
+                try:
+                   geo = get_osm_by_id(osm_id)
+                except DataError:
+                    self.log_error('OSMName ID for {0} for Site {1} does not seem valid: {2}'.format(value, name, osm_id))
+                    geo = None
+
+                if geo and confidence and sources:
+
+                    site_data['Geosite_Geosite{}'.format(attribute)] = {
+                        'value': value,
+                        'confidence': confidence,
+                        'sources': sources,
+                    }
+
+                else:
+                    missing = []
+                    if not confidence:
+                        missing.append('confidence')
+                    if not sources:
+                        missing.append('sources')
+                    
+                    self.log_error('{0} {1} did not have {2}'.format(attribute, value, ', '.join(missing)))
 
             try:
                 site.update(site_data)
@@ -976,13 +958,13 @@ class Command(UtilityMixin, BaseCommand):
             emp_data = {
                 'Emplacement_EmplacementOrganization': {
                     'value': organization,
-                    'confidence': osm_confidence,
-                    'sources': osm_sources,
+                    'confidence': name_confidence,
+                    'sources': name_sources,
                 },
                 'Emplacement_EmplacementSite': {
                     'value': site,
-                    'confidence': osm_confidence,
-                    'sources': osm_sources,
+                    'confidence': name_confidence,
+                    'sources': name_sources,
                 },
             }
 

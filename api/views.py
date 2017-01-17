@@ -202,6 +202,7 @@ class OrganizationMapView(JSONAPIView):
               site.name,
               site.osmname AS location,
               site.admin_level_1,
+              site.admin_level_2,
               emplacement.start_date,
               emplacement.end_date,
               ST_AsGeoJSON(site.coordinates)::json AS geometry
