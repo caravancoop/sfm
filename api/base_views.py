@@ -799,6 +799,10 @@ class JSONAPIView(JSONResponseMixin, TemplateView):
                     site_ids.append(site['id'])
 
             properties['sites_nearby'] = sites
+        
+        if properties.get('sources'):
+            properties['sources'] = properties['sources'][0]
+
         return properties
 
     def makeWhereClauses(self):
