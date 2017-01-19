@@ -2,7 +2,7 @@ import urllib.request
 import urllib.parse
 import subprocess
 import os
-import zipfile
+import tarfile
 from io import BytesIO
 import json
 
@@ -80,6 +80,7 @@ class Command(BaseCommand):
             if import_only:
                 self.importPBF(country)
                 self.importBoundaries(country)
+                self.constructHierarchy(country)
         
             self.createCombinedTable(country)
         
@@ -112,7 +113,7 @@ class Command(BaseCommand):
         """, raise_exc=False)
         
         self.executeTransaction("""
-            CREATE INDEX ON osm_data USING GIST (geometry)
+            CREATE INDEX ON geometry_index osm_data USING GIST (geometry)
         """, raise_exc=False)
     
     def makeRawTable(self, country):
@@ -278,7 +279,6 @@ class Command(BaseCommand):
             INSERT INTO osm_boundaries (
               id,
               localname,
-              hierarchy,
               tags,
               admin_level,
               name,
@@ -288,7 +288,6 @@ class Command(BaseCommand):
               SELECT
                 :id,
                 :localname,
-                :hierarchy,
                 :tags,
                 :admin_level,
                 :name,
@@ -299,41 +298,41 @@ class Command(BaseCommand):
         inserts = []
         count = 0
 
-        with zipfile.ZipFile(file_path) as zf:
-            for filename in zf.namelist():
-
-                geojson = BytesIO(zf.read(filename))
-                geojson.seek(0)
+        with tarfile.open(file_path) as tf:
+            for filename in tf.getnames():
                 
-                boundary_data = json.loads(geojson.getvalue().decode('utf-8'))
-
-                for feature in boundary_data['features']:
-
-                    insert = {
-                        'id': feature['properties']['id'],
-                        'localname': feature['properties']['localname'],
-                        'hierarchy': feature['rpath'],
-                        'geometry': json.dumps(feature['geometry']),
-                        'tags': json.dumps(feature['properties']['tags']),
-                        'admin_level': feature['properties']['admin_level'],
-                        'name': feature['properties']['name'],
-                        'country_code': country['country_code'],
-                    }
+                if 'admin_level' in filename:
                     
-                    inserts.append(insert)
+                    geojson = BytesIO(tf.extractfile(filename).read())
+                    geojson.seek(0)
+                    
+                    boundary_data = json.loads(geojson.getvalue().decode('utf-8'))
 
-                    if len(inserts) % 10000 == 0:
-                        self.executeTransaction(sa.text(insert_sql), inserts)
-                        count += 10000
-                        inserts = []
-                        self.stdout.write(self.style.SUCCESS('Inserted {} boundaries'.format(count)))
+                    for feature in boundary_data['features']:
+                        
+                        insert = {
+                            'id': feature['id'],
+                            'localname': feature['properties']['name'],
+                            'geometry': json.dumps(feature['geometry']),
+                            'tags': json.dumps(feature['properties']),
+                            'admin_level': feature['properties']['admin_level'],
+                            'name': feature['name'],
+                            'country_code': country['country_code'],
+                        }
+                        
+                        inserts.append(insert)
+
+                        if len(inserts) % 10000 == 0:
+                            self.executeTransaction(sa.text(insert_sql), inserts)
+                            count += 10000
+                            inserts = []
+                            self.stdout.write(self.style.SUCCESS('Inserted {} boundaries'.format(count)))
 
             if inserts:
                 count += len(inserts)
                 self.executeTransaction(sa.text(insert_sql), inserts)
                 self.stdout.write(self.style.SUCCESS('Inserted {} boundaries'.format(count)))
         
-
     def downloadPBFs(self, country):
             
         pbf_url = country['pbf_url']
@@ -353,25 +352,9 @@ class Command(BaseCommand):
     
     def downloadBoundaries(self, country):
 
-        country_feature_id = country['osm_id']
-        
-        params = {
-            'apiversion': '1.0',
-            'apikey': settings.OSM_API_KEY,
-            'exportFormat': 'json',
-            'exportLayout': 'levels',
-            'exportAreas': 'land',
-            'from_al': '2',
-            'to_al': '8',
-            'union': 'false',
-            'selected': country_feature_id,
-        }
-        
-        data = urllib.parse.urlencode(params)
-
         file_path = os.path.join(self.data_directory, '{}.zip'.format(country['country']))
 
-        with urllib.request.urlopen(country['boundary_url'], data=data.encode('utf-8')) as u:
+        with urllib.request.urlopen(country['boundary_url']) as u:
             with open(file_path, 'wb') as f:
                 while True:
                     chunk = u.read(1024)

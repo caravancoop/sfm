@@ -323,6 +323,11 @@ class Command(UtilityMixin, BaseCommand):
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
 
             if confidence and sources:
+                
+                country_code = org_data[org_positions['DivisionId']['value']]
+                
+                if not country_code:
+                    country_code = self.country_code
 
                 org_info = {
                     'Organization_OrganizationName': {
@@ -331,7 +336,7 @@ class Command(UtilityMixin, BaseCommand):
                         'sources': sources
                     },
                     'Organization_OrganizationDivisionId': {
-                        'value': 'ocd-division/country:{}'.format(self.country_code),
+                        'value': 'ocd-division/country:{}'.format(country_code),
                         'confidence': confidence,
                         'sources': sources,
                     }

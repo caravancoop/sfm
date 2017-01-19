@@ -25,7 +25,7 @@ except ImportError:
 
 try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
-        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, OSM_API_KEY
+        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER
 except ImportError as e:
     raise Exception('''DATABASE_URL, 
                      GOOGLE_MAPS_KEY, 
@@ -199,16 +199,32 @@ OSM_DATA = [
     {
         'country': 'Nigeria',
         'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
-        'osm_id': '192787',
-        'boundary_url': 'https://osm.wno-edv-service.de/boundaries/exportBoundaries',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/nigeria_geojson.tgz',
         'country_code': 'ng',
     },
-    # {
-    #     'country': 'Mexico',
-    #     'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
-    #     'osm_id': '114686',
-    #     'boundary_url': 'https://osm.wno-edv-service.de/boundaries/exportBoundaries',
-    #     'country_code': 'mx',
-    # },
+    {
+        'country': 'Mexico',
+        'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/mexico_geojson.tgz',
+        'country_code': 'mx',
+    },
+    {
+        'country': 'Sierra Leone',
+        'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sierra-leone_geojson.tgz',
+        'country_code': 'sl',
+    },
+    {
+        'country': 'Democratic Republic of the Congo',
+        'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/congo-kinshasa_geojson.tgz',
+        'country_code': 'cd',
+    },
+    {
+        'country': 'Liberia',
+        'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/liberia_geojson.tgz',
+        'country_code': 'lr',
+    },
 ]
 
