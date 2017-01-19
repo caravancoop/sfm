@@ -112,7 +112,7 @@ class Command(BaseCommand):
         """, raise_exc=False)
         
         self.executeTransaction("""
-            CREATE INDEX ON geometry_index osm_data USING GIST (geometry)
+            CREATE INDEX geometry_index ON osm_data USING GIST (geometry)
         """, raise_exc=False)
     
     def makeRawTable(self, country):
