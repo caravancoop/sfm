@@ -110,6 +110,12 @@ WSGI_APPLICATION = 'sfm_pc.wsgi.application'
 DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
 FIXTURES_DIRS = (
     BASE_DIR + "/fixtures",
 )

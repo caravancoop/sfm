@@ -7,6 +7,7 @@ from django.views.generic import TemplateView
 from django.db import connection
 
 from sfm_pc.utils import get_org_hierarchy_by_id, REVERSE_CONFIDENCE
+from sfm_pc.base_views import CacheMixin
 
 OPERATOR_LOOKUP = {
     'lte': '<=',
@@ -58,7 +59,7 @@ class NotImplementedView(JSONResponseMixin, TemplateView):
         return response
 
 
-class JSONAPIView(JSONResponseMixin, TemplateView):
+class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
     safe = True
     page_count = 20
     having_fields = {}

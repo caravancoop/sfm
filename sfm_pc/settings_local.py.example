@@ -18,3 +18,9 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 OSM_API_KEY = ''
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}

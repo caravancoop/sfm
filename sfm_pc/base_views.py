@@ -5,10 +5,26 @@ from django.shortcuts import redirect
 from django.views.generic.edit import FormView
 from django.views.generic import ListView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.views.decorators.cache import cache_page, never_cache
+from django.utils.decorators import method_decorator
 
 from extra_views import FormSetView
 
 from source.models import Source
+
+class CacheMixin(object):
+    cache_timeout = 600
+
+    def get_cache_timeout(self):
+        return self.cache_timeout
+
+    def dispatch(self, *args, **kwargs):
+        return cache_page(self.get_cache_timeout())(super(CacheMixin, self).dispatch)(*args, **kwargs)
+
+class NeverCacheMixin(object):
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
 
 class UtilityMixin(object):
 
@@ -20,7 +36,7 @@ class UtilityMixin(object):
         return list(set(s for s in sources if s))
 
 
-class BaseFormSetView(FormSetView, UtilityMixin):
+class BaseFormSetView(FormSetView, UtilityMixin, NeverCacheMixin):
 
     required_session_data = []
 
@@ -56,7 +72,7 @@ class BaseFormSetView(FormSetView, UtilityMixin):
             return self.formset_invalid(self.formset)
 
 
-class BaseUpdateView(FormView, UtilityMixin):
+class BaseUpdateView(FormView, UtilityMixin, NeverCacheMixin):
 
     def post(self, request, *args, **kwargs):
         self.checkSource(request)
@@ -80,7 +96,7 @@ class BaseUpdateView(FormView, UtilityMixin):
             return self.form_invalid(self.form)
 
 
-class PaginatedList(ListView):
+class PaginatedList(ListView, NeverCacheMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
