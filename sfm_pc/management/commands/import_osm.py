@@ -80,7 +80,6 @@ class Command(BaseCommand):
             if import_only:
                 self.importPBF(country)
                 self.importBoundaries(country)
-                self.constructHierarchy(country)
         
             self.createCombinedTable(country)
         
