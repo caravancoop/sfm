@@ -272,12 +272,11 @@ class Command(BaseCommand):
         
         self.executeTransaction("SELECT AddGeometryColumn ('public','osm_boundaries','geometry',4326,'MULTIPOLYGON',2)")
 
-        file_path = os.path.join(self.data_directory, '{}.zip'.format(country['country']))
+        file_path = os.path.join(self.data_directory, '{}.tgz'.format(country['country']))
         
         insert_sql = ''' 
             INSERT INTO osm_boundaries (
               id,
-              localname,
               tags,
               admin_level,
               name,
@@ -286,7 +285,6 @@ class Command(BaseCommand):
             ) 
               SELECT
                 :id,
-                :localname,
                 :tags,
                 :admin_level,
                 :name,
@@ -311,7 +309,6 @@ class Command(BaseCommand):
                         
                         insert = {
                             'id': feature['id'],
-                            'localname': feature['properties']['name'],
                             'geometry': json.dumps(feature['geometry']),
                             'tags': json.dumps(feature['properties']),
                             'admin_level': feature['properties']['admin_level'],
@@ -351,7 +348,7 @@ class Command(BaseCommand):
     
     def downloadBoundaries(self, country):
 
-        file_path = os.path.join(self.data_directory, '{}.zip'.format(country['country']))
+        file_path = os.path.join(self.data_directory, '{}.tgz'.format(country['country']))
 
         with urllib.request.urlopen(country['boundary_url']) as u:
             with open(file_path, 'wb') as f:
