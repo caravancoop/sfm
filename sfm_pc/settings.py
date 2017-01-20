@@ -204,29 +204,29 @@ OSM_DATA = [
         'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/nigeria_geojson.tgz',
         'country_code': 'ng',
     },
-    {
-        'country': 'Mexico',
-        'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/mexico_geojson.tgz',
-        'country_code': 'mx',
-    },
-    {
-        'country': 'Sierra Leone',
-        'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sierra-leone_geojson.tgz',
-        'country_code': 'sl',
-    },
-    {
-        'country': 'Democratic Republic of the Congo',
-        'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/congo-kinshasa_geojson.tgz',
-        'country_code': 'cd',
-    },
-    {
-        'country': 'Liberia',
-        'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/liberia_geojson.tgz',
-        'country_code': 'lr',
-    },
+    # {
+    #     'country': 'Mexico',
+    #     'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/mexico_geojson.tgz',
+    #     'country_code': 'mx',
+    # },
+    # {
+    #     'country': 'Sierra Leone',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sierra-leone_geojson.tgz',
+    #     'country_code': 'sl',
+    # },
+    # {
+    #     'country': 'Democratic Republic of the Congo',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/congo-kinshasa_geojson.tgz',
+    #     'country_code': 'cd',
+    # },
+    # {
+    #     'country': 'Liberia',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/liberia_geojson.tgz',
+    #     'country_code': 'lr',
+    # },
 ]
 

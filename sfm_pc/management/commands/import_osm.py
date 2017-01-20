@@ -144,7 +144,8 @@ class Command(BaseCommand):
                 'point'::VARCHAR AS feature_type,
                 to_tsvector('english', COALESCE(name, ''))
               FROM planet_osm_point
-              WHERE place IS NOT NULL
+              WHERE name IS NOT NULL
+                AND admin_level IS NOT NULL
                 AND country_code = :country_code
         '''
         
