@@ -13,7 +13,7 @@ from extra_views import FormSetView
 from source.models import Source
 
 class CacheMixin(object):
-    cache_timeout = 600
+    cache_timeout = 60 * 60 * 24
 
     def get_cache_timeout(self):
         return self.cache_timeout
