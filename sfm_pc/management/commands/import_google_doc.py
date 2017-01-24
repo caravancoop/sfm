@@ -843,12 +843,6 @@ class Command(UtilityMixin, BaseCommand):
 
         positions = {
             'AdminLevel1': {
-                'value': 27,
-                'osmid': 28,
-                'confidence': 30,
-                'source': 29,
-            },
-            'AdminLevel2': {
                 'value': 31,
                 'osmid': 32,
                 'confidence': 34,
@@ -905,7 +899,14 @@ class Command(UtilityMixin, BaseCommand):
             
             name_confidence = self.get_confidence(org_data[positions['Name']['confidence']])
             name_sources = self.create_sources(org_data[positions['Name']['source']])
-            name = org_data[positions['Name']['value']]
+            
+            names = [
+                org_data[positions['Name']['value']],
+                org_data[positions['OSMName']['value']],
+                org_data[positions['AdminLevel1']['value']],
+            ]
+            
+            name = ', '.join([n for n in names if n])
 
             if name and name_confidence and name_sources:
                 
@@ -924,7 +925,7 @@ class Command(UtilityMixin, BaseCommand):
                 
                 self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
             
-            for attribute in ['AdminLevel1', 'AdminLevel2', 'OSMName', 'OSMId']:
+            for attribute in ['AdminLevel1', 'OSMName', 'OSMId']:
                 
                 confidence = self.get_confidence(org_data[positions[attribute]['confidence']])
                 sources = self.create_sources(org_data[positions[attribute]['source']])
@@ -953,7 +954,7 @@ class Command(UtilityMixin, BaseCommand):
                         missing.append('sources')
                     
                     self.log_error('{0} {1} did not have {2}'.format(attribute, value, ', '.join(missing)))
-
+            
             try:
                 site.update(site_data)
             except TypeError:
