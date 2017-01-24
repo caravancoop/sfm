@@ -72,4 +72,11 @@ CREATE MATERIALIZED VIEW violation_sources AS
            pp.uuid,
            oo.uuid,
            pc.value,
-           vt.code
+           vt.code;
+CREATE UNIQUE INDEX violation_src_id_index ON violation_sources (
+  id, 
+  perpetrator_id, 
+  perpetrator_organization_id, 
+  perpetrator_classification, 
+  violation_type
+)

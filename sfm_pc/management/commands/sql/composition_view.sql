@@ -25,4 +25,6 @@ CREATE MATERIALIZED VIEW composition AS
   LEFT JOIN composition_classification AS cls
     ON ccf.value_id = cls.id
   LEFT JOIN composition_compositionopenended AS ccoe
-    ON cc.id = ccoe.object_ref_id
+    ON cc.id = ccoe.object_ref_id;
+CREATE UNIQUE INDEX composition_id_index ON composition (id, start_date, end_date);
+CREATE INDEX composition_relation_index ON composition (parent_id, child_id)

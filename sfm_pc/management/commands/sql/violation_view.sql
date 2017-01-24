@@ -51,4 +51,11 @@ CREATE MATERIALIZED VIEW violation AS
   LEFT JOIN violation_violationtype AS vvt
     ON vv.id = vvt.object_ref_id
   LEFT JOIN violation_type AS vt
-    ON vvt.value_id = vt.id
+    ON vvt.value_id = vt.id;
+CREATE UNIQUE INDEX violation_id_index ON violation (
+  id, 
+  perpetrator_id, 
+  perpetrator_organization_id, 
+  perpetrator_classification, 
+  violation_type
+)

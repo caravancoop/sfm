@@ -20,4 +20,6 @@ CREATE MATERIALIZED VIEW emplacement AS
   LEFT JOIN emplacement_emplacementsite AS ees
     ON ee.id = ees.object_ref_id
   LEFT JOIN geosite_geosite AS gg
-    ON ees.value_id = gg.id
+    ON ees.value_id = gg.id;
+CREATE UNIQUE INDEX emplacement_id_index ON emplacement (id, open_ended, start_date, end_date);
+CREATE INDEX emplacement_org_index ON emplacement (organization_id, site_id)

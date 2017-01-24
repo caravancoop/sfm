@@ -12,4 +12,5 @@ CREATE MATERIALIZED VIEW person AS
   LEFT JOIN person_alias AS pa
     ON ppa.value_id = pa.id
   LEFT JOIN person_persondivisionid AS ppd
-    ON pp.id = ppd.object_ref_id
+    ON pp.id = ppd.object_ref_id;
+CREATE UNIQUE INDEX person_id_index ON person (id, alias)

@@ -21,4 +21,5 @@ CREATE MATERIALIZED VIEW area AS
   LEFT JOIN area_areageometry AS aagm
     ON aa.id = aagm.object_ref_id
   LEFT JOIN area_areadivisionid AS aad
-    ON aa.id = aad.object_ref_id
+    ON aa.id = aad.object_ref_id;
+CREATE UNIQUE INDEX area_id_index ON area (id)

@@ -25,4 +25,5 @@ CREATE MATERIALIZED VIEW person_sources AS
     ON ppas.source_id = ppass.id
   LEFT JOIN person_persondivisionid AS ppd
     ON pp.id = ppd.object_ref_id
-  GROUP BY pp.uuid, ppn.value, pa.value, ppd.value
+  GROUP BY pp.uuid, ppn.value, pa.value, ppd.value;
+CREATE UNIQUE INDEX person_src_id_index ON person_sources (id, alias_value)

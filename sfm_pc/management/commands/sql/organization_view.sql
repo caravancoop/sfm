@@ -17,4 +17,9 @@ CREATE MATERIALIZED VIEW organization AS
   LEFT JOIN organization_classification AS oc
     ON ooc.value_id = oc.id
   LEFT JOIN organization_organizationdivisionid AS ood
-    ON oo.id = ood.object_ref_id
+    ON oo.id = ood.object_ref_id;
+CREATE UNIQUE INDEX organization_id_index ON organization (
+  id,
+  alias,
+  classification
+)

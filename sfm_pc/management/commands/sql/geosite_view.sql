@@ -22,4 +22,5 @@ CREATE MATERIALIZED VIEW geosite AS
   LEFT JOIN geosite_geositecoordinates AS ggc
     ON gg.id = ggc.object_ref_id
   LEFT JOIN geosite_geositedivisionid AS ggd
-    ON gg.id = ggd.object_ref_id
+    ON gg.id = ggd.object_ref_id;
+CREATE UNIQUE INDEX geosite_id_index ON geosite (id)

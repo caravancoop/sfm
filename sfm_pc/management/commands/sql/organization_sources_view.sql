@@ -39,4 +39,5 @@ CREATE MATERIALIZED VIEW organization_sources AS
   GROUP BY oo.uuid, 
            oon.value, 
            oa.value, 
-           oc.value
+           oc.value;
+CREATE UNIQUE INDEX organization_src_id_index ON organization_sources (id, alias_value, classification_value)

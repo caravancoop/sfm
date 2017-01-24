@@ -50,7 +50,8 @@ class Command(BaseCommand):
     def createView(self, file_path):
         
         with open(file_path) as f:
-            create = f.read()
+            statements = f.read().split(';')
         
             with connection.cursor() as c:
-                c.execute(create)
+                for statement in statements:
+                    c.execute(statement.strip())

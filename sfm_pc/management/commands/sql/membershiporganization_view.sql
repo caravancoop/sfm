@@ -17,4 +17,5 @@ CREATE MATERIALIZED VIEW membershiporganization AS
   LEFT JOIN membershiporganization_fcd AS mmfc
     ON m.id = mmfc.object_ref_id
   LEFT JOIN membershiporganization_lcd AS mmlc
-    ON m.id = mmlc.object_ref_id
+    ON m.id = mmlc.object_ref_id;
+CREATE UNIQUE INDEX membershiporg_id_index ON membershiporganization (id, first_cited, last_cited)

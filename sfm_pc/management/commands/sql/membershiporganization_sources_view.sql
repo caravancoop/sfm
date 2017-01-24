@@ -45,4 +45,5 @@ CREATE MATERIALIZED VIEW membershiporganization_sources AS
     ON mmlc.id = mmlcs.membershiporganizationlastciteddate_id
   LEFT JOIN source_source AS mmlcss
     ON mmlcs.source_id = mmlcss.id
-  GROUP BY m.id, mm.uuid, mo.uuid, mmfc.value, mmlc.value
+  GROUP BY m.id, mm.uuid, mo.uuid, mmfc.value, mmlc.value;
+CREATE UNIQUE INDEX membership_org_src_id_idx ON membershiporganization_sources (id, first_cited_date_value, last_cited_date_value)
