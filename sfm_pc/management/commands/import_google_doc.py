@@ -925,17 +925,45 @@ class Command(UtilityMixin, BaseCommand):
                 
                 self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
             
+            # Get Coordinates
+            try:
+               geo = get_osm_by_id(osm_id)
+            except DataError:
+                self.log_error('OSMName ID for {0} for Site {1} does not seem valid: {2}'.format(value, name, attr_osm_id))
+                geo = None
+            
+            if geo:
+                confidence = self.get_confidence(org_data[positions['OSMId']['confidence']])
+                sources = self.create_sources(org_data[positions['OSMId']['source']])
+                
+                if confidence and sources:
+                    
+                    site_data['Geosite_GeositeCoordinates'] = {
+                        'value': geo.geometry,
+                        'confidence': confidence,
+                        'sources': sources,
+                    }
+                
+                else:
+                    missing = []
+                    if not confidence:
+                        missing.append('confidence')
+                    if not sources:
+                        missing.append('sources')
+                    
+                    self.log_error('OSMId {0} did not have {1}'.format(value, ', '.join(missing)))
+
             for attribute in ['AdminLevel1', 'OSMName', 'OSMId']:
                 
                 confidence = self.get_confidence(org_data[positions[attribute]['confidence']])
                 sources = self.create_sources(org_data[positions[attribute]['source']])
                 value = org_data[positions[attribute]['value']]
-                osm_id = org_data[positions[attribute]['osmid']]
+                attr_osm_id = org_data[positions[attribute]['osmid']]
 
                 try:
-                   geo = get_osm_by_id(osm_id)
+                   geo = get_osm_by_id(attr_osm_id)
                 except DataError:
-                    self.log_error('OSMName ID for {0} for Site {1} does not seem valid: {2}'.format(value, name, osm_id))
+                    self.log_error('OSMName ID for {0} for Site {1} does not seem valid: {2}'.format(value, name, attr_osm_id))
                     geo = None
 
                 if geo and confidence and sources:
