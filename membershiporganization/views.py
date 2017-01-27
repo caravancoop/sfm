@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import redirect
 
 from sfm_pc.base_views import BaseFormSetView
 
@@ -17,6 +18,11 @@ class MembershipOrganizationCreate(BaseFormSetView):
         for i in self.request.session['organizations']:
             data.append({})
         return data
+    
+    def get(self, request, *args, **kwargs):
+        if len(request.session['organizations']) == 1:
+            return redirect(reverse_lazy('create-person'))
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
 

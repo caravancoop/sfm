@@ -8,11 +8,12 @@ from person.models import PersonAlias, PersonName
 from violation.models import ViolationDescription
 
 def update_index():
-
-    with connection.cursor() as c:
-        c.execute('''
-            REFRESH MATERIALIZED VIEW CONCURRENTLY search_index
-        ''')
+    pass 
+    # Blergh this takes too long ...
+    # with connection.cursor() as c:
+    #     c.execute('''
+    #         REFRESH MATERIALIZED VIEW CONCURRENTLY search_index
+    #     ''')
 
 @receiver(post_save, sender=Source)
 def update_source_index(sender, **kwargs):
