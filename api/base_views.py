@@ -578,7 +578,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                 properties['site_current'] = {}
 
         area_present = '''
-            SELECT DISTINCT ON (o.id)
+            SELECT
               o.id,
               a.name,
               a.osmname AS osm_name,
