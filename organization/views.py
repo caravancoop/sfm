@@ -160,11 +160,11 @@ class OrganizationCreate(BaseFormSetView):
 
             form.aliases = []
             form.classifications = []
-            
+
             if alias_ids:
-                
+
                 actual_ids = []
-                
+
                 for alias_id in alias_ids:
                     try:
                         actual_ids.append(int(alias_id))
@@ -381,8 +381,8 @@ class OrganizationUpdate(BaseUpdateView):
 
 def classification_autocomplete(request):
     term = request.GET.get('q')
-    
-    classifications = ''' 
+
+    classifications = '''
         SELECT DISTINCT TRIM(value) AS value
     '''
 
@@ -475,13 +475,13 @@ class OrganizationCreateGeography(BaseFormSetView):
             if formset.data[form_prefix + 'geography_type'] == 'Site':
 
                 site, created = Geosite.objects.get_or_create(geositeosmid__value=geo.id)
-                
+
                 names = [
                     formset.data[form_prefix + 'name'],
                     geo.name,
                     admin1,
                 ]
-                
+
                 name = ', '.join([n for n in names if n])
 
                 site_data = {
