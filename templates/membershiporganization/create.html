@@ -21,9 +21,15 @@
         {{ formset.management_form }}
         {% for form in formset %}
             {% with organization=organizations|from_index:forloop.counter0 %}
-                <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-organization" />
-                <h4>Memberships for {{ organization.name }}</h4>
                 <div id="form-{{ forloop.counter0 }}-wrapper">
+                <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-organization" />
+                <h4>
+                    Memberships for {{ organization.name }}
+                    <button class="btn btn-danger btn-sm remove-relationship" data-form_id="{{ forloop.counter0 }}">
+                        <i class="fa fa-minus"> </i> Remove
+                    </button>
+
+                </h4>
                 {% if form.organization.errors %}
                     <div class="form-group has-error has-feedback">
                 {% else %}
@@ -94,6 +100,16 @@
 <script type="text/javascript">
     $(document).ready(function(e){
         $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", lastciteddate: '0d'});
-    })
+        $('.remove-relationship').on('click', function(e){
+            e.preventDefault();
+            var form_id = $(e.target).data('form_id');
+            $('#form-' + form_id + '-wrapper').remove();
+            var current_total = $('#id_form-TOTAL_FORMS').val();
+            var new_total = parseInt(current_total) - 1;
+
+            $('#id_form-TOTAL_FORMS').prop('value', new_total);
+
+        });
+    });
 </script>
 {% endblock %}

@@ -381,6 +381,11 @@ class OrganizationUpdate(BaseUpdateView):
 
 def classification_autocomplete(request):
     term = request.GET.get('q')
+    
+    classifications = ''' 
+        SELECT DISTINCT TRIM(value) AS value
+    '''
+
     classifications = Classification.objects.filter(value__icontains=term).all()
 
     results = []

@@ -640,6 +640,8 @@ class Command(UtilityMixin, BaseCommand):
 
                     value_objects = []
                     for value_text in value.split(';'):
+                            
+                            value_text = value_text.strip()
 
                             if value_model == Type:
                                 with reversion.create_revision():
