@@ -42,7 +42,7 @@ class Command(BaseCommand):
             elif options['refresh']:
 
                 with connection.cursor() as c:
-                    c.execute('REFRESH MATERIALIZED VIEW CONCURRENTLY {}'.format(view_name))
+                    c.execute('REFRESH MATERIALIZED VIEW {}'.format(view_name))
             
             else:
                 self.createView(file_path)

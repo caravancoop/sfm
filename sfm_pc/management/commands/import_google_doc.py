@@ -891,8 +891,17 @@ class Command(UtilityMixin, BaseCommand):
         
         if osm_geo:
             
+            names = [
+                org_data[positions['Name']['value']],
+                org_data[positions['OSMName']['value']],
+                org_data[positions['AdminLevel1']['value']],
+            ]
+            
+            name = ', '.join([n for n in names if n])
+            
             try:
-                site = Geosite.objects.get(geositeosmid__value=osm_geo.id)
+                site = Geosite.objects.get(geositeosmid__value=osm_geo.id, 
+                                           geositename__value=name)
             except Geosite.DoesNotExist:
                 with reversion.create_revision():
                     site = Geosite()
@@ -902,14 +911,7 @@ class Command(UtilityMixin, BaseCommand):
             name_confidence = self.get_confidence(org_data[positions['Name']['confidence']])
             name_sources = self.create_sources(org_data[positions['Name']['source']])
             
-            names = [
-                org_data[positions['Name']['value']],
-                org_data[positions['OSMName']['value']],
-                org_data[positions['AdminLevel1']['value']],
-            ]
             
-            name = ', '.join([n for n in names if n])
-
             if name and name_confidence and name_sources:
                 
                 site_data['Geosite_GeositeName'] = {
@@ -917,7 +919,7 @@ class Command(UtilityMixin, BaseCommand):
                     'confidence': name_confidence,
                     'sources': name_sources,
                 }
-            
+        
             else:
                 missing = []
                 if not name_confidence:
