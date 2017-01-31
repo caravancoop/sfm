@@ -545,7 +545,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                                     tolerance=0.001):
 
         site_present = '''
-            SELECT DISTINCT ON (o.id)
+            SELECT DISTINCT ON (e.id)
               g.id,
               g.name,
               g.admin_level_1 AS admin_level_1_osm_name,
@@ -559,7 +559,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             JOIN geosite AS g
               ON e.site_id = g.id
             WHERE o.id = %s
-            ORDER BY o.id,
+            ORDER BY e.id,
                      e.end_date::date DESC,
                      e.start_date::date DESC
         '''
@@ -578,7 +578,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                 properties['site_current'] = {}
 
         area_present = '''
-            SELECT
+            SELECT DISTINCT ON (ass.id)
               o.id,
               a.name,
               a.osmname AS osm_name,
@@ -592,7 +592,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             JOIN area AS a
               ON ass.area_id = a.id
             WHERE o.id = %s
-            ORDER BY o.id,
+            ORDER BY ass.id,
                      ass.end_date::date DESC,
                      ass.start_date::date DESC
         '''
