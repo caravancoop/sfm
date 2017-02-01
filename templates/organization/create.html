@@ -55,7 +55,7 @@
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
                                     {% for alias in form.aliases %}
-                                        <option value="{{ alias.id }}" selected=true>{{ alias.get_value }}</option>
+                                        <option value="{{ alias.id }}" selected=true>{{ alias.value.value }}</option>
                                     {% endfor %}
                                 </select>
                                 {% for alias in form.aliases %}
@@ -77,11 +77,11 @@
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-classification" class="form-control class-field" name="form-{{ form_id }}-classification" multiple="multiple">
                                     {% for classification in form.classifications %}
-                                        <option value="{{ classification.id }}" selected=true>{{ classification.get_value }}</option>
+                                        <option value="{{ classification.id }}" selected=true>{{ classification.value.value }}</option>
                                     {% endfor %}
                                 </select>
                                 {% for classification in form.classifications %}
-                                    <input type="hidden" value="{{ classification.get_value }}" name="form-{{ form_id }}-classification_text" id="id_form-{{ form_id }}-classification_text" />
+                                    <input type="hidden" value="{{ classification.value.value }}" name="form-{{ form_id }}-classification_text" id="id_form-{{ form_id }}-classification_text" />
                                 {% endfor %}
                                 {% if form.classification.errors %}
                                     {% for error in form.classification.errors %}

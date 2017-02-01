@@ -162,7 +162,16 @@ class OrganizationCreate(BaseFormSetView):
             form.classifications = []
 
             if alias_ids:
-                form.aliases = OrganizationAlias.objects.filter(id__in=alias_ids)
+
+                actual_ids = []
+
+                for alias_id in alias_ids:
+                    try:
+                        actual_ids.append(int(alias_id))
+                    except ValueError:
+                        pass
+
+                form.aliases = OrganizationAlias.objects.filter(id__in=actual_ids)
 
             if classification_ids:
                 form.classifications = OrganizationClassification.objects.filter(id__in=classification_ids)
@@ -372,6 +381,11 @@ class OrganizationUpdate(BaseUpdateView):
 
 def classification_autocomplete(request):
     term = request.GET.get('q')
+
+    classifications = '''
+        SELECT DISTINCT TRIM(value) AS value
+    '''
+
     classifications = Classification.objects.filter(value__icontains=term).all()
 
     results = []
@@ -415,15 +429,13 @@ class OrganizationCreateGeography(BaseFormSetView):
     success_url = reverse_lazy('create-event')
     extra = 1
     max_num = None
-    required_session_data = ['organizations', 'people']
+    required_session_data = ['organizations']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         organizations = self.request.session['organizations']
-        people = self.request.session['people']
 
-        context['people'] = people
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
 
@@ -464,9 +476,17 @@ class OrganizationCreateGeography(BaseFormSetView):
 
                 site, created = Geosite.objects.get_or_create(geositeosmid__value=geo.id)
 
+                names = [
+                    formset.data[form_prefix + 'name'],
+                    geo.name,
+                    admin1,
+                ]
+
+                name = ', '.join([n for n in names if n])
+
                 site_data = {
                     'Geosite_GeositeName': {
-                        'value': formset.data[form_prefix + 'name'],
+                        'value': name,
                         'confidence': 1,
                         'sources': [source]
                     },

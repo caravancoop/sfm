@@ -58,43 +58,14 @@
 {% endif %}
   {% block content %}{% endblock %}
 </section>
-<!--  TABLE ROW TEMPLATES -->
-<div id="source-template" class="hide">
-  <li >
-    <p class="col-sm-10 src_name"></p>
-    <p class="col-sm-2 src_del text-center">
-      <span title="Delete Source">
-        <i class="fa fa-trash fa-lg"></i>
-      </span>
-    </p>
-  </li>
-</div>
-<div id="version-template" class="hide">
-  <li >
-    <p class="col-sm-4 ver_vers"></p>
-    <p class="col-sm-6 ver_src-conf"></p>
-    <p class="col-sm-2 ver_rev">
-      <span title="Revert">
-        <i class="fa fa-undo fa-lg"></i>
-      </span>
-    </p>
-  </li>
-</div>
-<div id="language-template" class="hide">
-  <li class="row">
-    <p class="col-sm-6 lang_name"></p>
-    <p class="col-sm-6 lang_trans"></p>
-  </li>
-</div>
-<!--  END TABLE ROW TEMPLATES -->
-<!--  SOURCE TEMPLATE -->
-<div class="modal fade sourceModal" id="complexFieldModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
+<hr />
+<footer class="container">
+    <div class="row">
+        <div class="col-sm-4">
+            <p>&copy {% now "Y" %} Security Force Monitor</p>
+        </div>
     </div>
-  </div>
-</div>
-<!--  END SOURCE TEMPLATE -->
+</footer>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
   <script src="{% static "js/language.js" %}"></script>
   <script src="{% static "js/version.js" %}"></script>

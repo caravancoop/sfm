@@ -40,7 +40,9 @@ class GeositeName(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
-
+    
+    def __str__(self):
+        return self.value
 
 @versioned
 @sourced

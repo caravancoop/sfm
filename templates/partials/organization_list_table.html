@@ -1,13 +1,8 @@
 {% load tablesort %}
-    <table class="table table-condensed">
+    <table class="table">
         <thead>
             <tr>
-                {% if merge == 'True' %}
-                    <th>Select records to merge</th>
-                {% endif %}
-                {% if canonical == 'True' %}
-                    <th>Select canonical record</th>
-                {% endif %}
+                <th></th>
                 <th>
                     Name
                     {% if sortable == 'True' %}
@@ -25,17 +20,9 @@
                     {% endif %}
                 </th>
                 <th>
-                    Site OSM Name
+                    Site Name
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-organization' %}?{% query_transform request order_by='osmname' %}">
-                        <i class="fa fa-sort"></i>
-                    </a>
-                    {% endif %}
-                </th>
-                <th>
-                    Admin 1 OSM Name
-                    {% if sortable == 'True' %}
-                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='admin1' %}">
                         <i class="fa fa-sort"></i>
                     </a>
                     {% endif %}
@@ -85,23 +72,12 @@
                         </td>
                         <td>
                             {% for emplacement in object.emplacementorganization_set.all %}
-                                {% with site=emplacement.object_ref.site.get_value.value %}
-                                    {% if site.osmname.get_value %}
-                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.osmid.get_value }}">{{ site.osmname.get_value }}</a>
-                                    {% endif %}
+                                {% with sites=emplacement.object_ref.emplacementsite_set.all %}
+                                    {% for site in sites %}
+                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.osmid.get_value }}">{{ site }}</a>
+                                    {% endfor %}
                                 {% endwith %}
                             {% endfor %}
-                        </td>
-                        <td>
-                            {% for emplacement in object.emplacementorganization_set.all %}
-                                {% with site=emplacement.object_ref.site.get_value.value %}
-                                    {% if site.adminlevel1.get_value %}
-                                        <a target="_blank" href="https://www.openstreetmap.org/search?query={{ site.adminlevel1.get_value }}">{{ site.adminlevel1.get_value }}</a>
-                                    {% endif %}
-                                {% endwith %}
-                                {% if not forloop.last %}<br />{% endif %}
-                            {% endfor %}
-
                         </td>
                         <td>
                             {% for classification in object.classification.get_list %}
