@@ -389,8 +389,11 @@ class Command(UtilityMixin, BaseCommand):
                                           organization)
 
                 # Create Compositions
-
-                parent_org_name = org_data[composition_positions['Parent']['value']]
+                
+                try:
+                    parent_org_name = org_data[composition_positions['Parent']['value']]
+                except IndexError:
+                    parent_org_name = None
 
                 if parent_org_name:
 
