@@ -32,6 +32,7 @@ CREATE UNIQUE INDEX composition_id_index ON composition (
   child_id, 
   classification, 
   start_date, 
-  end_date
+  end_date,
+  open_ended
 );
 CREATE INDEX composition_relation_index ON composition (parent_id, child_id)
