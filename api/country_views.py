@@ -131,6 +131,8 @@ class CountryGeometryView(JSONAPIView):
         tolerance = self.request.GET.get('tolerance', 0.001)
         classification = self.request.GET.get('classification')
         bbox = self.request.GET.get('bbox')
+        
+        country_code = self.kwargs['id']
 
         query = '''
             SELECT
@@ -140,10 +142,10 @@ class CountryGeometryView(JSONAPIView):
               admin_level AS classification,
               ST_AsGeoJSON(ST_Simplify(geometry, %s))::json AS geometry
             FROM osm_data
-            WHERE 1=1
+            WHERE country_code = %s
         '''
 
-        q_args = [tolerance]
+        q_args = [tolerance, country_code]
 
         if classification:
             query = '{} AND admin_level = %s'.format(query)
