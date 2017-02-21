@@ -125,7 +125,6 @@ CREATE MATERIALIZED VIEW membershipperson_sources AS
     ON mmlc.id = mmlcs.membershippersonlastciteddate_id
   LEFT JOIN source_source AS mmlcss
     ON mmlcs.source_id = mmlcss.id
-  WHERE mm.id = 68
   GROUP BY mm.id, 
            pp.uuid, 
            oo.uuid, 
