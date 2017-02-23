@@ -210,7 +210,8 @@ class CountryMapView(JSONAPIView):
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
             WHERE o.division_id = %s
-              AND (e.start_date <= %s AND e.end_date >= %s)
+              AND e.start_date <= %s 
+              AND (e.end_date >= %s OR e.open_ended = TRUE OR e.end_date IS NULL)
         '''
 
         args = [division_id, when, when]

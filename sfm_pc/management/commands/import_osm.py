@@ -73,13 +73,13 @@ class Command(BaseCommand):
         
         for country in settings.OSM_DATA:
             
-            if download_only:
-                self.downloadPBFs(country)
-                self.downloadBoundaries(country)
+            # if download_only:
+            #     self.downloadPBFs(country)
+            #     self.downloadBoundaries(country)
 
-            if import_only:
-                self.importPBF(country)
-                self.importBoundaries(country)
+            # if import_only:
+            #     self.importPBF(country)
+            #     self.importBoundaries(country)
         
             self.createCombinedTable(country)
         
@@ -145,7 +145,6 @@ class Command(BaseCommand):
                 to_tsvector('english', COALESCE(name, ''))
               FROM planet_osm_point
               WHERE name IS NOT NULL
-                AND admin_level IS NOT NULL
                 AND country_code = :country_code
         '''
         
