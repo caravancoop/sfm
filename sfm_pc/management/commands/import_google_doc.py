@@ -323,9 +323,9 @@ class Command(UtilityMixin, BaseCommand):
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
 
             if confidence and sources:
-                
+
                 country_code = org_data[org_positions['DivisionId']['value']]
-                
+
                 if not country_code:
                     country_code = self.country_code
 
@@ -361,7 +361,7 @@ class Command(UtilityMixin, BaseCommand):
                                                     org_positions['Classification'],
                                                     org_data,
                                                     organization)
-                
+
                 # Create Emplacements
                 try:
                     site_osm_id = org_data[site_positions['OSMId']['value']]
@@ -389,7 +389,7 @@ class Command(UtilityMixin, BaseCommand):
                                           organization)
 
                 # Create Compositions
-                
+
                 try:
                     parent_org_name = org_data[composition_positions['Parent']['value']]
                 except IndexError:
@@ -443,7 +443,7 @@ class Command(UtilityMixin, BaseCommand):
                                                                   compositionchild__value=organization)
                         except Composition.DoesNotExist:
                             composition = Composition.create(comp_info)
-                        
+
                         try:
                             comp_openended = org_data[composition_positions['OpenEnded']['value']]
                         except IndexError:
@@ -458,7 +458,7 @@ class Command(UtilityMixin, BaseCommand):
                                 comp_openended = None
 
                             with reversion.create_revision():
-                                open_ended, created = CompositionOpenEnded.objects.get_or_create(value=comp_openended, 
+                                open_ended, created = CompositionOpenEnded.objects.get_or_create(value=comp_openended,
                                                                                                  object_ref=composition)
                                 composition.save()
                                 reversion.set_user(self.user)
@@ -643,23 +643,31 @@ class Command(UtilityMixin, BaseCommand):
 
                     value_objects = []
                     for value_text in value.split(';'):
-                            
-                            value_text = value_text.strip()
 
-                            if value_model == Type:
-                                with reversion.create_revision():
-                                    value_obj, created = value_model.objects.get_or_create(code=value_text)
-                                    reversion.set_user(self.user)
-                            else:
-                                with reversion.create_revision():
-                                    value_obj, created = value_model.objects.get_or_create(value=value_text)
-                                    reversion.set_user(self.user)
+                        value_text = value_text.strip()
 
+                        if value_model == Type:
                             with reversion.create_revision():
-                                relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
-                                                                                                  object_ref=instance,
-                                                                                                  lang='en')
+                                value_obj, created = value_model.objects.get_or_create(code=value_text)
                                 reversion.set_user(self.user)
+                        else:
+                            with reversion.create_revision():
+                                value_obj, created = value_model.objects.get_or_create(value=value_text)
+                                reversion.set_user(self.user)
+
+                        with reversion.create_revision():
+                            relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
+                                                                                              object_ref=instance,
+                                                                                              lang='en')
+                            reversion.set_user(self.user)
+
+                        for source in sources:
+                            relation_instance.sources.add(source)
+
+                        with reversion.create_revision():
+                            relation_instance.confidence = confidence
+                            relation_instance.save()
+                            reversion.set_user(self.user)
 
                 elif isinstance(relation_model._meta.get_field('value'), ApproximateDateField):
                     parsed_value = dateparser(value)
@@ -670,6 +678,15 @@ class Command(UtilityMixin, BaseCommand):
                                                                                               object_ref=instance,
                                                                                               lang='en')
                             reversion.set_user(self.user)
+
+                        for source in sources:
+                            relation_instance.sources.add(source)
+
+                        with reversion.create_revision():
+                            relation_instance.confidence = confidence
+                            relation_instance.save()
+                            reversion.set_user(self.user)
+
                     else:
                         self.log_error('Expected a date for {app_name}.models.{field_name} but got {value}'.format(app_name=app_name,
                                                                                                                    field_name=field_name,
@@ -683,13 +700,13 @@ class Command(UtilityMixin, BaseCommand):
                                                                                           lang='en')
                         reversion.set_user(self.user)
 
-                for source in sources:
-                    relation_instance.sources.add(source)
+                    for source in sources:
+                        relation_instance.sources.add(source)
 
-                with reversion.create_revision():
-                    relation_instance.confidence = confidence
-                    relation_instance.save()
-                    reversion.set_user(self.user)
+                    with reversion.create_revision():
+                        relation_instance.confidence = confidence
+                        relation_instance.save()
+                        reversion.set_user(self.user)
 
                 return relation_instance
 
@@ -805,7 +822,7 @@ class Command(UtilityMixin, BaseCommand):
                     'sources': area_sources
                 },
             }
-            
+
 
             try:
                 assoc = Association.objects.get(associationorganization__value=organization,
@@ -813,12 +830,12 @@ class Command(UtilityMixin, BaseCommand):
                 assoc.update(area_info)
             except Association.DoesNotExist:
                 assoc = Association.create(area_info)
-            
+
             try:
                 ass_openended = org_data[55]
             except IndexError:
                 ass_openended = None
-            
+
 
             if ass_openended:
                 if 'Y' in ass_openended:
@@ -829,7 +846,7 @@ class Command(UtilityMixin, BaseCommand):
                     ass_openended = None
 
                 with reversion.create_revision():
-                    open_ended, created = AssociationOpenEnded.objects.get_or_create(value=ass_openended, 
+                    open_ended, created = AssociationOpenEnded.objects.get_or_create(value=ass_openended,
                                                                                      object_ref=assoc)
                     assoc.save()
                     reversion.set_user(self.user)
@@ -884,84 +901,84 @@ class Command(UtilityMixin, BaseCommand):
                 'source': 41,
             },
         }
-        
+
         site_data = {}
-        
+
         try:
             osm_geo = get_osm_by_id(osm_id)
         except DataError:
             osm_geo = None
-        
+
         if osm_geo:
-            
+
             names = [
                 org_data[positions['Name']['value']],
                 org_data[positions['OSMName']['value']],
                 org_data[positions['AdminLevel1']['value']],
             ]
-            
+
             name = ', '.join([n for n in names if n])
-            
+
             try:
-                site = Geosite.objects.get(geositeosmid__value=osm_geo.id, 
+                site = Geosite.objects.get(geositeosmid__value=osm_geo.id,
                                            geositename__value=name)
             except Geosite.DoesNotExist:
                 with reversion.create_revision():
                     site = Geosite()
                     site.save()
                     reversion.set_user(self.user)
-            
+
             name_confidence = self.get_confidence(org_data[positions['Name']['confidence']])
             name_sources = self.create_sources(org_data[positions['Name']['source']])
-            
-            
+
+
             if name and name_confidence and name_sources:
-                
+
                 site_data['Geosite_GeositeName'] = {
                     'value': name,
                     'confidence': name_confidence,
                     'sources': name_sources,
                 }
-        
+
             else:
                 missing = []
                 if not name_confidence:
                     missing.append('confidence')
                 if not name_sources:
                     missing.append('sources')
-                
+
                 self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
-            
+
             # Get Coordinates
             try:
                geo = get_osm_by_id(osm_id)
             except DataError:
                 self.log_error('OSMName ID for {0} for Site {1} does not seem valid: {2}'.format(value, name, attr_osm_id))
                 geo = None
-            
+
             if geo:
                 confidence = self.get_confidence(org_data[positions['OSMId']['confidence']])
                 sources = self.create_sources(org_data[positions['OSMId']['source']])
-                
+
                 if confidence and sources:
-                    
+
                     site_data['Geosite_GeositeCoordinates'] = {
                         'value': geo.geometry,
                         'confidence': confidence,
                         'sources': sources,
                     }
-                
+
                 else:
                     missing = []
                     if not confidence:
                         missing.append('confidence')
                     if not sources:
                         missing.append('sources')
-                    
+
                     self.log_error('OSMId {0} did not have {1}'.format(value, ', '.join(missing)))
 
             for attribute in ['AdminLevel1', 'OSMName', 'OSMId']:
-                
+
                 confidence = self.get_confidence(org_data[positions[attribute]['confidence']])
                 sources = self.create_sources(org_data[positions[attribute]['source']])
                 value = org_data[positions[attribute]['value']]
@@ -987,9 +1004,9 @@ class Command(UtilityMixin, BaseCommand):
                         missing.append('confidence')
                     if not sources:
                         missing.append('sources')
-                    
+
                     self.log_error('{0} {1} did not have {2}'.format(attribute, value, ', '.join(missing)))
-            
+
             try:
                 site.update(site_data)
             except TypeError:
@@ -1014,7 +1031,7 @@ class Command(UtilityMixin, BaseCommand):
                                                       emplacementsite__value=site)
             except Emplacement.DoesNotExist:
                 emplacement = Emplacement.create(emp_data)
-            
+
             try:
                 emp_openended = org_data[43]
             except IndexError:
@@ -1029,7 +1046,7 @@ class Command(UtilityMixin, BaseCommand):
                     emp_openended = None
 
                 with reversion.create_revision():
-                    open_ended, created = EmplacementOpenEnded.objects.get_or_create(value=emp_openended, 
+                    open_ended, created = EmplacementOpenEnded.objects.get_or_create(value=emp_openended,
                                                                                      object_ref=emplacement)
                     emplacement.save()
                     reversion.set_user(self.user)

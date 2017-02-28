@@ -412,6 +412,7 @@ class OrganizationDetailView(JSONAPIView):
             children = get_child_orgs_by_id(organization_id, sources=True)
 
             for parent in parents:
+
                 parent = self.makeOrganization(parent,
                                                relationships=False,
                                                simple=True,

@@ -9,7 +9,8 @@ CREATE MATERIALIZED VIEW organization_sources AS
     json_agg(DISTINCT ooass.*) AS alias_source,
     oc.value AS classification_value,
     MAX(ooc.confidence) AS classification_confidence,
-    json_agg(DISTINCT oocss.*) AS classification_source,
+    json_agg(DISTINCT oocss.*) 
+      FILTER (WHERE oocss.id IS NOT NULL) AS classification_source,
     MAX(ood.value) AS division_id
   FROM organization_organization AS oo
   LEFT JOIN organization_organizationname AS oon
