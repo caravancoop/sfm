@@ -142,6 +142,8 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
             'other_names': list({o.alias.strip() for o in orgs if o.alias}),
             'classifications': list({o.classification.strip() for o in orgs if o.classification}),
             'division_id': orgs[0].division_id,
+            'date_first_cited': orgs[0].start_date,
+            'date_last_cited': orgs[0].end_date,
             # 'parent_id': orgs[0].parent_id
         }
         
