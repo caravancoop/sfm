@@ -131,7 +131,7 @@ class CountryGeometryView(JSONAPIView):
         tolerance = self.request.GET.get('tolerance', 0.001)
         classification = self.request.GET.get('classification')
         bbox = self.request.GET.get('bbox')
-        
+
         country_code = self.kwargs['id']
 
         query = '''
@@ -207,14 +207,29 @@ class CountryMapView(JSONAPIView):
               ON o.id = e.organization_id
             JOIN geosite as g
               ON e.site_id = g.id
+            JOIN association AS ass
+              ON o.id = ass.organization_id
+            JOIN area AS a
+              ON ass.area_id = a.id
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
             WHERE o.division_id = %s
-              AND e.start_date <= %s 
-              AND (e.end_date >= %s OR e.open_ended = TRUE OR e.end_date IS NULL)
+              AND ((
+                e.start_date <= %s AND (
+                  e.end_date >= %s OR 
+                  e.open_ended = TRUE OR 
+                  e.end_date IS NULL
+                )
+              ) OR (
+                ass.start_date <= %s AND (
+                  ass.end_date >= %s OR
+                  ass.open_ended = TRUE OR
+                  ass.end_date IS NULL
+                )
+              ))
         '''
 
-        args = [division_id, when, when]
+        args = [division_id, when, when, when, when]
 
         if bbox:
             organizations = '''
@@ -229,12 +244,12 @@ class CountryMapView(JSONAPIView):
 
         cursor.execute(organizations, args)
         columns = [c[0] for c in cursor.description]
-        
+
         organizations = []
 
         for row in cursor:
             org_dict = OrderedDict(zip(columns, row))
-            organization = self.makeOrganization(org_dict, 
+            organization = self.makeOrganization(org_dict,
                                                  tolerance=tolerance)
 
             organizations.append(organization)

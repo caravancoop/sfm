@@ -76,11 +76,11 @@ def class_for_name(class_name, module_name="person.models"):
     return class_
 
 def get_osm_by_id(osm_id):
-    
+
     osm_feature = None
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM osm_data WHERE id = %s', [osm_id])
-    
+
     columns = [c[0] for c in cursor.description]
     results_tuple = namedtuple('OSMFeature', columns)
 
@@ -88,11 +88,11 @@ def get_osm_by_id(osm_id):
 
     if row:
         osm_feature = results_tuple(*row)
-        
+
     return osm_feature
 
 def get_hierarchy_by_id(osm_id):
-    hierarchy = ''' 
+    hierarchy = '''
         SELECT parents.*
         FROM osm_data AS parents
         JOIN (
@@ -111,31 +111,31 @@ def get_hierarchy_by_id(osm_id):
 
     cursor = connection.cursor()
     cursor.execute(hierarchy, [osm_id])
-    
+
     columns = [c[0] for c in cursor.description]
     results_tuple = namedtuple('OSMFeature', columns)
 
     hierarchy = [results_tuple(*r) for r in cursor]
-    
+
     return hierarchy
 
 def generate_hierarchy(query, q_args, rel_field, sources=False):
     cursor = connection.cursor()
     cursor.execute(query, q_args)
-    
+
     columns = [c[0] for c in cursor.description]
     results_tuple = namedtuple('Organization', columns)
 
     hierarchy = [(idx, results_tuple(*r)) for idx, r in enumerate(cursor)]
-    
+
     trimmed_hierarchy = []
-    
+
     for org_id, orgs in itertools.groupby(hierarchy, key=lambda x: x[1].id):
         group = list(orgs)
-        
+
         lowest_index = min(g[0] for g in group)
         orgs = [o[1] for o in group]
-        
+
         trimmed = {
             'id': org_id,
             'name': orgs[0].name,
@@ -146,108 +146,108 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
             'date_last_cited': orgs[0].end_date,
             # 'parent_id': orgs[0].parent_id
         }
-        
+
         trimmed[rel_field] = getattr(orgs[0], rel_field)
 
         if sources:
             trimmed['sources'] = []
-            
+
             source_ids = []
             for o in orgs:
                 org_source = json.loads(o.source)
-                
+
                 if org_source['id'] not in source_ids:
-                    
+
                     trimmed['sources'].append(org_source)
                     source_ids.append(org_source['id'])
-            
+
             trimmed['confidence'] = REVERSE_CONFIDENCE[int(orgs[0].confidence)].title()
 
         trimmed_hierarchy.append((lowest_index, trimmed))
 
     hierarchy = [i[1] for i in sorted(trimmed_hierarchy, key=lambda x: x[0])]
-    
+
     return hierarchy
 
 def get_org_hierarchy_by_id(org_id, when=None, sources=False):
-    hierarchy = ''' 
+    hierarchy = '''
         WITH RECURSIVE children AS (
-          SELECT 
+          SELECT
             o.*,
-            NULL::VARCHAR AS child_id, 
-            NULL::VARCHAR AS child_name, 
+            NULL::VARCHAR AS child_id,
+            NULL::VARCHAR AS child_name,
             NULL::DATE AS start_date,
             NULL::DATE AS end_date,
             NULL::BOOL AS open_ended,
             NULL::VARCHAR AS source,
             NULL::VARCHAR AS confidence
-          FROM organization As o 
-          WHERE id = %s 
-          UNION 
-          SELECT 
+          FROM organization As o
+          WHERE id = %s
+          UNION
+          SELECT
             o.*,
-            h.child_id::VARCHAR AS child_id, 
-            children.name AS child_name, 
+            h.child_id::VARCHAR AS child_id,
+            children.name AS child_name,
             h.start_date::date,
             h.end_date::date,
             h.open_ended,
             row_to_json(ss.*)::VARCHAR AS source,
             ccc.confidence
-          FROM organization AS o 
-          JOIN composition AS h 
-            ON o.id = h.parent_id 
+          FROM organization AS o
+          JOIN composition AS h
+            ON o.id = h.parent_id
           JOIN composition_compositionparent AS ccc
             ON h.id = ccc.object_ref_id
           LEFT JOIN composition_compositionparent_sources AS cccs
             ON ccc.id = cccs.compositionparent_id
           LEFT JOIN source_source AS ss
             ON cccs.source_id = ss.id
-          JOIN children 
+          JOIN children
             ON children.id = h.child_id
         ) SELECT * FROM children WHERE id != %s
     '''
-    
+
     q_args = [org_id, org_id]
     if when:
         hierarchy = '''
-            {} 
-            AND start_date <= %s 
+            {}
+            AND start_date <= %s
             AND (end_date >= %s OR open_ended = TRUE)
         '''.format(hierarchy)
         q_args.extend([when, when])
-    
+
     hierarchy = '{} ORDER BY id'.format(hierarchy)
 
     hierarchy = generate_hierarchy(hierarchy, q_args, 'child_id', sources=sources)
-    
+
     return hierarchy
 
 def get_child_orgs_by_id(org_id, when=None, sources=False):
-    hierarchy = ''' 
+    hierarchy = '''
         WITH RECURSIVE parents AS (
-          SELECT 
+          SELECT
             o.*,
-            NULL::VARCHAR AS parent_id, 
+            NULL::VARCHAR AS parent_id,
             NULL::VARCHAR AS parent_name,
             NULL::DATE AS start_date,
             NULL::DATE AS end_date,
             NULL::BOOL AS open_ended,
             NULL::VARCHAR AS source,
             NULL::VARCHAR AS confidence
-          FROM organization As o 
-          WHERE id = %s 
-          UNION 
-          SELECT 
+          FROM organization As o
+          WHERE id = %s
+          UNION
+          SELECT
             o.*,
-            h.parent_id::VARCHAR AS parent_id, 
+            h.parent_id::VARCHAR AS parent_id,
             parents.name AS parent_name,
             h.start_date::date,
             h.end_date::date,
             h.open_ended,
             row_to_json(ss.*)::VARCHAR AS source,
             ccc.confidence
-          FROM organization AS o 
-          JOIN composition AS h 
+          FROM organization AS o
+          JOIN composition AS h
             ON o.id = h.child_id
           JOIN composition_compositionchild AS ccc
             ON h.id = ccc.object_ref_id
@@ -255,24 +255,24 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
             ON ccc.id = cccs.compositionchild_id
           LEFT JOIN source_source AS ss
             ON cccs.source_id = ss.id
-          JOIN parents 
+          JOIN parents
             ON parents.id = h.parent_id
         ) SELECT * FROM parents WHERE id != %s
     '''
-    
+
     q_args = [org_id, org_id]
     if when:
         hierarchy = '''
-            {} 
-            AND start_date <= %s 
+            {}
+            AND start_date <= %s
             AND (end_date >= %s OR open_ended = TRUE)
         '''.format(hierarchy)
         q_args.extend([when, when])
-    
+
     hierarchy = '{} ORDER BY id'.format(hierarchy)
 
     hierarchy = generate_hierarchy(hierarchy, q_args, 'parent_id', sources=sources)
-    
+
     return hierarchy
 
 

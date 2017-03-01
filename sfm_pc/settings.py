@@ -228,5 +228,11 @@ OSM_DATA = [
         'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/liberia_geojson.tgz',
         'country_code': 'lr',
     },
+    {
+        'country': 'Sudan',
+        'pbf_url': 'http://download.geofabrik.de/africa/sudan-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sudan_geojson.tgz',
+        'country_code': 'sd',
+    },
 ]
 
