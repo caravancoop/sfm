@@ -102,6 +102,8 @@ class OrganizationSearchView(JSONAPIView):
               MAX(o.name) AS name,
               array_agg(DISTINCT TRIM(o.alias))
                 FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
+              array_agg(DISTINCT TRIM(o.classification))
+                FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications,
               ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
               MAX(e.start_date) AS date_first_cited,
               MAX(e.end_date) AS date_last_cited,
