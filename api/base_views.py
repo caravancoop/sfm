@@ -311,8 +311,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
 
         if when:
             wheres = '''
-                {} 
-                AND v.start_date::date <= %s 
+                {}
+                AND v.start_date::date <= %s
                 AND v.end_date::date >= %s
             '''.format(wheres)
             q_args.extend([when, when])
@@ -332,7 +332,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
 
         if when:
             nearby_events_query = '''
-                {} AND center.start_date::date <= %s 
+                {} AND center.start_date::date <= %s
                    AND center.end_date >= %s
             '''.format(nearby_events_query)
             nearby_q_args.extend([when, when])
@@ -354,7 +354,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             events.append(feature)
 
         del q_args[0]
-        
+
         cursor.execute(nearby_events_query, nearby_q_args)
         columns = [c[0] for c in cursor.description]
 
@@ -489,10 +489,10 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             properties['commanders_former'] = []
 
         return properties
-    
+
     def makePresentCommander(self, properties):
         when = self.request.GET.get('at', datetime.now().date().isoformat())
-        
+
         commander = '''
             SELECT * FROM (
               SELECT DISTINCT ON (id)
@@ -521,7 +521,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                          m.last_cited DESC,
                          m.first_cited DESC
               ) AS s
-            ) AS s 
+            ) AS s
             ORDER BY last_cited DESC, first_cited DESC
             LIMIT 1
         '''
@@ -529,9 +529,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
         cursor = connection.cursor()
         cursor.execute(commander, [properties['id'], when, when])
         columns = [c[0] for c in cursor.description]
-        
+
         row = cursor.fetchone()
-        
+
         properties['current_commander'] = {}
 
         if row:
@@ -539,8 +539,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
 
         return properties
 
-    def makeOrganizationGeographies(self, 
-                                    properties, 
+    def makeOrganizationGeographies(self,
+                                    properties,
+                                    when,
                                     all_geography=False,
                                     tolerance=0.001):
 
@@ -559,13 +560,45 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             JOIN geosite AS g
               ON e.site_id = g.id
             WHERE o.id = %s
-            ORDER BY e.id,
-                     e.end_date::date DESC,
-                     e.start_date::date DESC
         '''
 
+        q_params = [properties['id']]
+
+        if when:
+            site_present = '''
+              {}
+              AND e.start_date <= %s AND (
+                e.end_date >= %s OR
+                (
+                  e.open_ended = TRUE AND
+                  e.end_date IS NULL
+                )
+              )
+            '''.format(site_present)
+
+            q_params.extend([when, when])
+
+        site_present = '''
+            SELECT
+              id,
+              array_to_string(array_agg(name), ', ') AS name,
+              array_to_string(array_agg(admin_level_1_osm_name), ', ') AS admin_level_1_osm_name,
+              array_to_string(array_agg(osm_name), ', ') AS osm_name,
+              array_to_string(array_agg(date_first_cited), ', ') AS date_first_cited,
+              array_to_string(array_agg(date_last_cited), ', ') AS date_last_cited,
+              ST_AsGeoJSON(
+                ST_Collect(
+                  ST_GeomFromGeoJSON(location::VARCHAR)
+                ))::json AS geometry
+            FROM (
+                {}
+                AND g.coordinates IS NOT NULL
+            ) AS subq
+            GROUP BY id
+        '''.format(site_present)
+
         cursor = connection.cursor()
-        cursor.execute(site_present, [properties['id']])
+        cursor.execute(site_present, q_params)
         columns = [c[0] for c in cursor.description]
 
         if all_geography:
@@ -592,19 +625,52 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             JOIN area AS a
               ON ass.area_id = a.id
             WHERE o.id = %s
-            ORDER BY ass.id,
-                     ass.end_date::date DESC,
-                     ass.start_date::date DESC
         '''
 
+        q_params = [tolerance, properties['id']]
+
+        if when:
+
+            area_present = '''
+                {}
+                AND ass.start_date <= %s AND (
+                    ass.end_date >= %s OR
+                    (
+                      ass.open_ended = TRUE AND
+                      ass.end_date IS NULL
+                    )
+                  )
+            '''.format(area_present)
+
+            q_params.extend([when, when])
+
+        area_present = '''
+            SELECT
+              id,
+              array_to_string(array_agg(name), ', ') AS osm_name,
+              array_to_string(array_agg(osmid), ', ') AS osmid,
+              array_to_string(array_agg(first_cited), ', ') AS first_cited,
+              array_to_string(array_agg(last_cited), ', ') AS last_cited,
+              ST_AsGeoJSON(
+                ST_Collect(
+                  ST_GeomFromGeoJSON(geometry::VARCHAR)
+                ))::json AS geometry
+            FROM (
+              {}
+              AND a.geometry IS NOT NULL
+            ) AS subq
+            GROUP BY id
+        '''.format(area_present)
+
         cursor = connection.cursor()
-        cursor.execute(area_present, [tolerance, properties['id']])
+        cursor.execute(area_present, q_params)
         columns = [c[0] for c in cursor.description]
 
         if all_geography:
             properties['areas'] = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
         else:
             row = cursor.fetchone()
+
             if row:
                 properties['area_current'] = dict(zip(columns, row))
             else:
@@ -620,19 +686,21 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                          simple=False,
                          all_geography=False,
                          memberships=False,
-                         tolerance=0.001):
+                         tolerance=0.001,
+                         when=None):
 
         if relationships:
             properties = self.makeOrganizationRelationships(properties)
 
         if all_commanders:
             properties = self.makeOrganizationCommanders(properties)
-        
+
         if present_commander:
             properties = self.makePresentCommander(properties)
 
         if not simple:
             properties = self.makeOrganizationGeographies(properties,
+                                                          when,
                                                           all_geography=all_geography,
                                                           tolerance=tolerance)
 
@@ -800,7 +868,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                     site_ids.append(site['id'])
 
             properties['sites_nearby'] = sites
-        
+
         if properties.get('sources'):
             properties['sources'] = properties['sources'][0]
 

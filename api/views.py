@@ -316,7 +316,8 @@ class OrganizationChartView(JSONAPIView):
                                                 relationships=False,
                                                 tolerance=tolerance,
                                                 all_commanders=False,
-                                                present_commander=True)
+                                                present_commander=True,
+                                                when=when)
 
             context.update(current_org)
 
@@ -332,7 +333,8 @@ class OrganizationChartView(JSONAPIView):
                                                simple=True,
                                                tolerance=tolerance,
                                                all_commanders=False,
-                                               present_commander=True)
+                                               present_commander=True,
+                                               when=when)
 
                 context['parents'].append(parent)
 
@@ -342,7 +344,8 @@ class OrganizationChartView(JSONAPIView):
                                               simple=True,
                                               tolerance=tolerance,
                                               all_commanders=False,
-                                              present_commander=True)
+                                              present_commander=True,
+                                              when=when)
 
                 context['children'].append(child)
 

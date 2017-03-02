@@ -217,14 +217,18 @@ class CountryMapView(JSONAPIView):
               AND ((
                 e.start_date <= %s AND (
                   e.end_date >= %s OR 
-                  e.open_ended = TRUE OR 
-                  e.end_date IS NULL
+                  (
+                    e.open_ended = TRUE AND
+                    e.end_date IS NULL
+                  )
                 )
               ) OR (
                 ass.start_date <= %s AND (
                   ass.end_date >= %s OR
-                  ass.open_ended = TRUE OR
-                  ass.end_date IS NULL
+                  (
+                    ass.open_ended = TRUE AND
+                    ass.end_date IS NULL
+                  )
                 )
               ))
         '''
@@ -250,7 +254,8 @@ class CountryMapView(JSONAPIView):
         for row in cursor:
             org_dict = OrderedDict(zip(columns, row))
             organization = self.makeOrganization(org_dict,
-                                                 tolerance=tolerance)
+                                                 tolerance=tolerance,
+                                                 when=when)
 
             organizations.append(organization)
 
