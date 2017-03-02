@@ -96,7 +96,18 @@ class EventDetailView(JSONAPIView):
             FROM violation_sources AS v
             LEFT JOIN person AS p
               ON v.perpetrator_id = p.id
-            LEFT JOIN organization AS o
+            LEFT JOIN (
+              SELECT 
+                id,
+                MAX(name) AS name,
+                array_agg(DISTINCT TRIM(alias))
+                  FILTER (WHERE TRIM(alias) IS NOT NULL) AS other_names,
+                array_agg(DISTINCT TRIM(classification))
+                  FILTER (WHERE TRIM(classification) IS NOT NULL) AS classification,
+                MAX(division_id) AS division_id
+              FROM organization
+              GROUP BY id
+            ) AS o
               ON v.perpetrator_organization_id = o.id
             WHERE v.id = %s
             GROUP BY v.id
