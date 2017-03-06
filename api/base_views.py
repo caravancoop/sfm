@@ -804,7 +804,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                         FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
                       array_agg(DISTINCT TRIM(o.classification))
                         FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications,
-                      MAX(mo.member_id_sources::VARCHAR)::json AS sources
+                      MAX(mo.member_id_sources::VARCHAR)::json AS sources,
+                      MAX(mo.member_id_confidence) AS confidence
                     FROM organization AS o
                     JOIN membershiporganization_sources AS mo
                       ON o.id = mo.organization_id_value
@@ -819,13 +820,19 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
 
                 for org_id, group in itertools.groupby(cursor, lambda x: x[0]):
                     grouping = [dict(zip(columns, r)) for r in group]
+                    
+                    confidence = grouping[0]['confidence']
+                    
+                    if confidence:
+                        confidence = REVERSE_CONFIDENCE[int(confidence)].title()
 
                     o = {
                         'id': org_id,
                         'name': grouping[0]['name'],
                         'other_names': grouping[0]['other_names'],
                         'classifications': grouping[0]['classifications'],
-                        'sources': []
+                        'sources': [],
+                        'confidence': confidence,
                     }
 
                     source_ids = []
