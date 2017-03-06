@@ -676,6 +676,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
     def makeOrganizationGeoSources(self, 
                                    properties,
                                    tolerance=0.001):
+        properties['sites'] = []
+        properties['areas'] = []
+
         sites = '''
             SELECT
               id,
@@ -685,6 +688,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
               array_to_string(array_agg(date_first_cited_value), ', ') AS date_first_cited,
               array_to_string(array_agg(date_last_cited_value), ', ') AS date_last_cited,
               json_agg(organization_id_source)->0 AS sources,
+              MAX(organization_id_confidence) AS confidence,
               ST_AsGeoJSON(
                 ST_Collect(
                   ST_GeomFromGeoJSON(location::VARCHAR)
@@ -698,6 +702,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                 e.start_date_value AS date_first_cited_value,
                 e.end_date_value AS date_last_cited_value,
                 e.organization_id_source,
+                e.organization_id_confidence,
                 ST_AsGeoJSON(g.coordinates)::json AS location
               FROM organization AS o
               JOIN emplacement_sources AS e
@@ -716,7 +721,17 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
         cursor.execute(sites, q_params)
         columns = [c[0] for c in cursor.description]
 
-        properties['sites'] = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
+        sites = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
+        
+        for site in sites:
+            confidence = site['properties']['confidence']
+
+            if confidence:
+                confidence = REVERSE_CONFIDENCE[int(confidence)].title()
+
+            site['properties']['confidence'] = confidence
+
+            properties['sites'].append(site)
 
         areas = ''' 
             SELECT
@@ -726,6 +741,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
               array_to_string(array_agg(first_cited_value), ', ') AS first_cited,
               array_to_string(array_agg(last_cited_value), ', ') AS last_cited,
               json_agg(organization_id_source)->0 AS sources,
+              MAX(organization_id_confidence) AS confidence,
               ST_AsGeoJSON(
                 ST_Collect(
                   ST_GeomFromGeoJSON(geometry::VARCHAR)
@@ -739,6 +755,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                 ass.start_date_value AS first_cited_value,
                 ass.end_date_value AS last_cited_value,
                 ass.organization_id_source,
+                ass.organization_id_confidence,
                 ST_AsGeoJSON(ST_Simplify(a.geometry, %s))::json AS geometry
               FROM organization AS o
               JOIN association_sources AS ass
@@ -757,8 +774,19 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
         cursor.execute(areas, q_params)
         columns = [c[0] for c in cursor.description]
 
-        properties['areas'] = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
+        areas = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
         
+        for area in areas:
+            confidence = area['properties']['confidence']
+
+            if confidence:
+                confidence = REVERSE_CONFIDENCE[int(confidence)].title()
+
+            area['properties']['confidence'] = confidence
+
+            properties['areas'].append(area)
+
+
         return properties
 
     def makeOrganization(self,
