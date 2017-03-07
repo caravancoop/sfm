@@ -1169,6 +1169,9 @@ class Command(UtilityMixin, BaseCommand):
                 'confidence': 6,
                 'source': 5,
             },
+            'DivisionId': {
+                'value': 7,
+            },
         }
         membership_positions = {
             'Organization': {
@@ -1232,6 +1235,9 @@ class Command(UtilityMixin, BaseCommand):
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
 
             if confidence and sources:
+                
+                country_code = person_data[person_positions['DivisionId']['value']]
+                division_id = 'ocd-division/country:{}'.format(country_code)
 
                 person_info = {
                     'Person_PersonName': {
@@ -1240,7 +1246,7 @@ class Command(UtilityMixin, BaseCommand):
                         'sources': sources
                     },
                     'Person_PersonDivisionId': {
-                        'value': 'ocd-division/country:{}'.format(self.country_code),
+                        'value': division_id,
                         'confidence': confidence,
                         'sources': sources,
                     }
@@ -1285,6 +1291,11 @@ class Command(UtilityMixin, BaseCommand):
                         'confidence': confidence,
                         'sources': sources,
                     },
+                    'Organization_OrganizationDivisionId': {
+                        'value': division_id,
+                        'confidence': confidence,
+                        'sources': sources,
+                    }
                 }
 
                 try:

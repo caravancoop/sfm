@@ -1,4 +1,8 @@
+from datetime import timedelta
+
 from collections import OrderedDict
+
+from dateutil.parser import parse as date_parser
 
 from django.db import connection, utils
 
@@ -127,7 +131,43 @@ class EventDetailView(JSONAPIView):
               JOIN organization AS o
                 ON e.organization_id = o.id
               WHERE v.id = %s
-                AND v.perpetrator_organization_id != e.organization_id
+                AND v.perpetrator_organization_id != e.organization_id 
+                AND (
+                  e.start_date::date <= %s AND (
+                    e.end_date::date >= %s OR 
+                    (
+                      e.open_ended = TRUE AND
+                      e.end_date IS NULL
+                    )
+                  )
+                )
+              GROUP BY o.id
+
+              UNION
+              
+              SELECT
+                o.id,
+                MAX(o.name) AS name,
+                array_agg(DISTINCT TRIM(o.alias))
+                  FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names
+              FROM violation AS v
+              JOIN area 
+                ON ST_Intersects(ST_Buffer_Meters(v.location, 35000), area.geometry)
+              JOIN association AS ass
+                ON area.id = ass.area_id
+              JOIN organization AS o
+                ON ass.organization_id = o.id
+              WHERE v.id = %s
+                AND v.perpetrator_organization_id != ass.organization_id
+                AND (
+                  ass.start_date::date <= %s AND (
+                    ass.end_date::date >= %s OR
+                    (
+                      ass.open_ended = TRUE AND
+                      ass.end_date::date IS NULL
+                    )
+                  )
+                )
               GROUP BY o.id
         '''
 
@@ -143,8 +183,26 @@ class EventDetailView(JSONAPIView):
 
         if events:
             event = self.makeEvent(events[0])
+            
+            q_params = [kwargs['id']]
 
-            cursor.execute(nearby, [kwargs['id']])
+            start_date, end_date = None, None
+
+            if event['start_date']:
+                start_date = date_parser(event['start_date']) - timedelta(days=30)
+            
+            if event['end_date']:
+                end_date = date_parser(event['end_date']) + timedelta(days=30)
+            
+            q_params.extend([
+                start_date, 
+                end_date, 
+                kwargs['id'], 
+                start_date, 
+                end_date
+            ])
+            
+            cursor.execute(nearby, q_params)
             columns = [c[0] for c in cursor.description]
 
             nearby = []

@@ -333,7 +333,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
         if when:
             nearby_events_query = '''
                 {} AND center.start_date::date <= %s
-                   AND center.end_date >= %s
+                   AND center.end_date::date >= %s
             '''.format(nearby_events_query)
             nearby_q_args.extend([when, when])
 
@@ -568,8 +568,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
         if when:
             site_present = '''
               {}
-              AND e.start_date <= %s AND (
-                e.end_date >= %s OR
+              AND e.start_date::date <= %s AND (
+                e.end_date::date >= %s OR
                 (
                   e.open_ended = TRUE AND
                   e.end_date IS NULL
@@ -631,8 +631,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
 
             area_present = '''
                 {}
-                AND ass.start_date <= %s AND (
-                    ass.end_date >= %s OR
+                AND ass.start_date::date <= %s AND (
+                    ass.end_date::date >= %s OR
                     (
                       ass.open_ended = TRUE AND
                       ass.end_date IS NULL

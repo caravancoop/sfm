@@ -215,19 +215,19 @@ class CountryMapView(JSONAPIView):
               ON o.id = v.perpetrator_organization_id
             WHERE o.division_id = %s
               AND ((
-                e.start_date <= %s AND (
-                  e.end_date >= %s OR 
+                e.start_date::date <= %s AND (
+                  e.end_date::date >= %s OR 
                   (
                     e.open_ended = TRUE AND
                     e.end_date IS NULL
                   )
                 )
               ) OR (
-                ass.start_date <= %s AND (
-                  ass.end_date >= %s OR
+                ass.start_date::date <= %s AND (
+                  ass.end_date::date >= %s OR
                   (
                     ass.open_ended = TRUE AND
-                    ass.end_date IS NULL
+                    ass.end_date::date IS NULL
                   )
                 )
               ))
@@ -286,7 +286,7 @@ class CountryMapView(JSONAPIView):
             LEFT JOIN organization AS o
               ON v.perpetrator_organization_id = o.id
             WHERE v.division_id = %s
-              AND (v.start_date <= %s AND v.end_date >= %s)
+              AND (v.start_date::date <= %s AND v.end_date::date >= %s)
         '''
 
         args = [division_id, when, when]
