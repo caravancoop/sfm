@@ -211,10 +211,34 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
     if when:
         hierarchy = '''
             {}
-            AND start_date <= %s
-            AND (end_date >= %s OR open_ended = TRUE)
+            AND CASE 
+              WHEN (start_date IS NOT NULL AND 
+                    end_date IS NOT NULL AND 
+                    open_ended = FALSE)
+              THEN (%s::date BETWEEN start_date::date AND end_date::date)
+              WHEN (start_date IS NOT NULL AND
+                    end_date IS NOT NULL AND
+                    open_ended = TRUE)
+              THEN (%s::date BETWEEN start_date::date AND NOW()::date)
+              WHEN (start_date IS NOT NULL AND
+                    end_date IS NULL AND
+                    open_ended = FALSE)
+              THEN (start_date::date = %s::date)
+              WHEN (start_date IS NOT NULL AND
+                    end_date IS NULL AND
+                    open_ended = TRUE)
+              THEN (%s::date BETWEEN start_date::date AND NOW()::date)
+              WHEN (start_date IS NULL AND
+                    end_date IS NOT NULL AND
+                    open_ended = FALSE)
+              THEN (end_date::date = %s)
+              WHEN (start_date IS NULL AND 
+                    end_date IS NOT NULL AND
+                    open_ended IS TRUE)
+              THEN TRUE
+            END
         '''.format(hierarchy)
-        q_args.extend([when, when])
+        q_args.extend([when] * 5)
 
     hierarchy = '{} ORDER BY id'.format(hierarchy)
 
@@ -264,10 +288,34 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
     if when:
         hierarchy = '''
             {}
-            AND start_date <= %s
-            AND (end_date >= %s OR open_ended = TRUE)
+            AND CASE 
+              WHEN (start_date IS NOT NULL AND 
+                    end_date IS NOT NULL AND 
+                    open_ended = FALSE)
+              THEN (%s::date BETWEEN start_date::date AND end_date::date)
+              WHEN (start_date IS NOT NULL AND
+                    end_date IS NOT NULL AND
+                    open_ended = TRUE)
+              THEN (%s::date BETWEEN start_date::date AND NOW()::date)
+              WHEN (start_date IS NOT NULL AND
+                    end_date IS NULL AND
+                    open_ended = FALSE)
+              THEN (start_date::date = %s::date)
+              WHEN (start_date IS NOT NULL AND
+                    end_date IS NULL AND
+                    open_ended = TRUE)
+              THEN (%s::date BETWEEN start_date::date AND NOW()::date)
+              WHEN (start_date IS NULL AND
+                    end_date IS NOT NULL AND
+                    open_ended = FALSE)
+              THEN (end_date::date = %s)
+              WHEN (start_date IS NULL AND 
+                    end_date IS NOT NULL AND
+                    open_ended IS TRUE)
+              THEN TRUE
+            END
         '''.format(hierarchy)
-        q_args.extend([when, when])
+        q_args.extend([when] * 5)
 
     hierarchy = '{} ORDER BY id'.format(hierarchy)
 

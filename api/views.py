@@ -116,7 +116,7 @@ class EventDetailView(JSONAPIView):
             WHERE v.id = %s
             GROUP BY v.id
         '''
-
+        
         nearby = '''
               SELECT
                 o.id,
@@ -131,17 +131,21 @@ class EventDetailView(JSONAPIView):
               JOIN organization AS o
                 ON e.organization_id = o.id
               WHERE v.id = %s
-                AND v.perpetrator_organization_id != e.organization_id 
-                AND (
-                  e.start_date::date <= %s AND (
-                    e.end_date::date >= %s OR 
-                    (
-                      e.open_ended = TRUE AND
-                      e.end_date IS NULL
-                    )
-                  )
-                )
+                AND CASE WHEN (e.start_date IS NOT NULL AND e.end_date IS NOT NULL) 
+                      THEN (daterange((v.start_date::date - INTERVAL '30 days')::date, 
+                                      (v.end_date::date + INTERVAL '30 days')::date) &&
+                            daterange(e.start_date::date, e.end_date::date))
+                    WHEN (e.start_date IS NOT NULL AND e.end_date IS NULL AND e.open_ended IS FALSE)
+                      THEN (e.start_date::date BETWEEN v.start_date::date AND v.end_date::date)
+                    WHEN (e.start_date IS NOT NULL AND e.end_date IS NULL AND e.open_ended IS TRUE)
+                      THEN (daterange((v.start_date::date - INTERVAL '30 days')::date, 
+                                      (v.end_date::date + INTERVAL '30 days')::date) &&
+                            daterange(e.start_date::date, NOW()::date))
+                    WHEN (e.start_date IS NULL and e.end_date IS NOT NULL)
+                      THEN (e.end_date::date BETWEEN v.start_date::date AND v.end_date::date)
+                    END
               GROUP BY o.id
+              HAVING(array_agg(o.classification) @> '{Military}'::text[]) 
 
               UNION
               
@@ -158,17 +162,29 @@ class EventDetailView(JSONAPIView):
               JOIN organization AS o
                 ON ass.organization_id = o.id
               WHERE v.id = %s
-                AND v.perpetrator_organization_id != ass.organization_id
-                AND (
-                  ass.start_date::date <= %s AND (
-                    ass.end_date::date >= %s OR
-                    (
-                      ass.open_ended = TRUE AND
-                      ass.end_date::date IS NULL
-                    )
-                  )
-                )
+                AND CASE WHEN (ass.start_date IS NOT NULL AND ass.end_date IS NOT NULL) 
+                      THEN (daterange((v.start_date::date - INTERVAL '30 days')::date, 
+                                      (v.end_date::date + INTERVAL '30 days')::date) &&
+                            daterange(ass.start_date::date, ass.end_date::date))
+                    WHEN (ass.start_date IS NOT NULL AND ass.end_date IS NULL AND ass.open_ended IS FALSE)
+                      THEN (ass.start_date::date 
+                            BETWEEN 
+                              (v.start_date::date - INTERVAL '30 days')::date AND 
+                              (v.end_date::date + INTERVAL '30 days')::date
+                           )
+                    WHEN (ass.start_date IS NOT NULL AND ass.end_date IS NULL AND ass.open_ended IS TRUE)
+                      THEN (daterange((v.start_date::date - INTERVAL '30 days')::date, 
+                                      (v.end_date::date + INTERVAL '30 days')::date) &&
+                            daterange(ass.start_date::date, NOW()::date))
+                    WHEN (ass.start_date IS NULL and ass.end_date IS NOT NULL)
+                      THEN (ass.end_date::date 
+                              BETWEEN 
+                                (v.start_date::date - INTERVAL '30 days') AND 
+                                (v.end_date::date + INTERVAL '30 days')
+                           )
+                    END
               GROUP BY o.id
+              HAVING(array_agg(o.classification) @> '{Military}'::text[]) 
         '''
 
         cursor = connection.cursor()
@@ -184,24 +200,8 @@ class EventDetailView(JSONAPIView):
         if events:
             event = self.makeEvent(events[0])
             
-            q_params = [kwargs['id']]
+            q_params = [kwargs['id'], kwargs['id']]
 
-            start_date, end_date = None, None
-
-            if event['start_date']:
-                start_date = date_parser(event['start_date']) - timedelta(days=30)
-            
-            if event['end_date']:
-                end_date = date_parser(event['end_date']) + timedelta(days=30)
-            
-            q_params.extend([
-                start_date, 
-                end_date, 
-                kwargs['id'], 
-                start_date, 
-                end_date
-            ])
-            
             cursor.execute(nearby, q_params)
             columns = [c[0] for c in cursor.description]
 
@@ -253,7 +253,9 @@ class OrganizationMapView(JSONAPIView):
               ON area.id = ass.area_id
             WHERE ass.organization_id = %s
               AND ass.start_date::date <= %s 
-              AND (ass.end_date::date >= %s OR ass.open_ended = TRUE)
+              AND (ass.end_date::date >= %s OR 
+                   ass.open_ended = TRUE OR
+                   ass.end_date IS NULL)
         '''
 
         if bbox:
@@ -281,7 +283,8 @@ class OrganizationMapView(JSONAPIView):
             WHERE emplacement.organization_id = %s
               AND emplacement.start_date::date <= %s 
               AND (emplacement.end_date::date >= %s OR 
-                   emplacement.open_ended = TRUE)
+                   emplacement.open_ended = TRUE OR
+                   emplacement.end_date IS NULL)
         '''
 
         if bbox:

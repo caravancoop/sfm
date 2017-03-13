@@ -568,16 +568,35 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
         if when:
             site_present = '''
               {}
-              AND e.start_date::date <= %s AND (
-                e.end_date::date >= %s OR
-                (
-                  e.open_ended = TRUE AND
-                  e.end_date IS NULL
-                )
-              )
+              AND CASE 
+                    WHEN (e.start_date IS NOT NULL AND 
+                          e.end_date IS NOT NULL AND 
+                          e.open_ended = FALSE)
+                    THEN (%s::date BETWEEN e.start_date::date AND e.end_date::date)
+                    WHEN (e.start_date IS NOT NULL AND
+                          e.end_date IS NOT NULL AND
+                          e.open_ended = TRUE)
+                    THEN (%s::date BETWEEN e.start_date::date AND NOW()::date)
+                    WHEN (e.start_date IS NOT NULL AND
+                          e.end_date IS NULL AND
+                          e.open_ended = FALSE)
+                    THEN (e.start_date::date = %s::date)
+                    WHEN (e.start_date IS NOT NULL AND
+                          e.end_date IS NULL AND
+                          e.open_ended = TRUE)
+                    THEN (%s::date BETWEEN e.start_date::date AND NOW()::date)
+                    WHEN (e.start_date IS NULL AND
+                          e.end_date IS NOT NULL AND
+                          e.open_ended = FALSE)
+                    THEN (e.end_date::date = %s)
+                    WHEN (e.start_date IS NULL AND 
+                          e.end_date IS NOT NULL AND
+                          e.open_ended IS TRUE)
+                    THEN TRUE
+                  END
             '''.format(site_present)
 
-            q_params.extend([when, when])
+            q_params.extend([when] * 5)
 
         site_present = '''
             SELECT
@@ -631,16 +650,35 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
 
             area_present = '''
                 {}
-                AND ass.start_date::date <= %s AND (
-                    ass.end_date::date >= %s OR
-                    (
-                      ass.open_ended = TRUE AND
-                      ass.end_date IS NULL
-                    )
-                  )
+                AND CASE 
+                      WHEN (ass.start_date IS NOT NULL AND 
+                            ass.end_date IS NOT NULL AND 
+                            ass.open_ended = FALSE)
+                      THEN (%s::date BETWEEN ass.start_date::date AND ass.end_date::date)
+                      WHEN (ass.start_date IS NOT NULL AND
+                            ass.end_date IS NOT NULL AND
+                            ass.open_ended = TRUE)
+                      THEN (%s::date BETWEEN ass.start_date::date AND NOW()::date)
+                      WHEN (ass.start_date IS NOT NULL AND
+                            ass.end_date IS NULL AND
+                            ass.open_ended = FALSE)
+                      THEN (ass.start_date::date = %s::date)
+                      WHEN (ass.start_date IS NOT NULL AND
+                            ass.end_date IS NULL AND
+                            ass.open_ended = TRUE)
+                      THEN (%s::date BETWEEN ass.start_date::date AND NOW()::date)
+                      WHEN (ass.start_date IS NULL AND
+                            ass.end_date IS NOT NULL AND
+                            ass.open_ended = FALSE)
+                      THEN (ass.end_date::date = %s)
+                      WHEN (ass.start_date IS NULL AND 
+                            ass.end_date IS NOT NULL AND
+                            ass.open_ended IS TRUE)
+                      THEN TRUE
+                    END
             '''.format(area_present)
 
-            q_params.extend([when, when])
+            q_params.extend([when] * 5)
 
         area_present = '''
             SELECT

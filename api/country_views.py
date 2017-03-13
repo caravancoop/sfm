@@ -214,26 +214,61 @@ class CountryMapView(JSONAPIView):
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
             WHERE o.division_id = %s
-              AND ((
-                e.start_date::date <= %s AND (
-                  e.end_date::date >= %s OR 
-                  (
-                    e.open_ended = TRUE AND
-                    e.end_date IS NULL
-                  )
-                )
-              ) OR (
-                ass.start_date::date <= %s AND (
-                  ass.end_date::date >= %s OR
-                  (
-                    ass.open_ended = TRUE AND
-                    ass.end_date::date IS NULL
-                  )
-                )
-              ))
+              AND (CASE 
+                     WHEN (e.start_date IS NOT NULL AND 
+                           e.end_date IS NOT NULL AND 
+                           e.open_ended = FALSE)
+                     THEN (%s::date BETWEEN e.start_date::date AND e.end_date::date)
+                     WHEN (e.start_date IS NOT NULL AND
+                           e.end_date IS NOT NULL AND
+                           e.open_ended = TRUE)
+                     THEN (%s::date BETWEEN e.start_date::date AND NOW()::date)
+                     WHEN (e.start_date IS NOT NULL AND
+                           e.end_date IS NULL AND
+                           e.open_ended = FALSE)
+                     THEN (e.start_date::date = %s::date)
+                     WHEN (e.start_date IS NOT NULL AND
+                           e.end_date IS NULL AND
+                           e.open_ended = TRUE)
+                     THEN (%s::date BETWEEN e.start_date::date AND NOW()::date)
+                     WHEN (e.start_date IS NULL AND
+                           e.end_date IS NOT NULL AND
+                           e.open_ended = FALSE)
+                     THEN (e.end_date::date = %s)
+                     WHEN (e.start_date IS NULL AND 
+                           e.end_date IS NOT NULL AND
+                           e.open_ended IS TRUE)
+                     THEN TRUE
+                  END) 
+              OR (CASE 
+                    WHEN (ass.start_date IS NOT NULL AND 
+                          ass.end_date IS NOT NULL AND 
+                          ass.open_ended = FALSE)
+                    THEN (%s::date BETWEEN ass.start_date::date AND ass.end_date::date)
+                    WHEN (ass.start_date IS NOT NULL AND
+                          ass.end_date IS NOT NULL AND
+                          ass.open_ended = TRUE)
+                    THEN (%s::date BETWEEN ass.start_date::date AND NOW()::date)
+                    WHEN (ass.start_date IS NOT NULL AND
+                          ass.end_date IS NULL AND
+                          ass.open_ended = FALSE)
+                    THEN (ass.start_date::date = %s::date)
+                    WHEN (ass.start_date IS NOT NULL AND
+                          ass.end_date IS NULL AND
+                          ass.open_ended = TRUE)
+                    THEN (%s::date BETWEEN ass.start_date::date AND NOW()::date)
+                    WHEN (ass.start_date IS NULL AND
+                          ass.end_date IS NOT NULL AND
+                          ass.open_ended = FALSE)
+                    THEN (ass.end_date::date = %s)
+                    WHEN (ass.start_date IS NULL AND 
+                          ass.end_date IS NOT NULL AND
+                          ass.open_ended IS TRUE)
+                    THEN TRUE
+                  END)
         '''
 
-        args = [division_id, when, when, when, when]
+        args = [division_id] + ([when] * 10)
 
         if bbox:
             organizations = '''
