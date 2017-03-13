@@ -489,6 +489,7 @@ class OrganizationDetailView(JSONAPIView):
                                                relationships=False,
                                                simple=True,
                                                tolerance=tolerance)
+                
                 context['parents'].append(parent)
 
             for child in children:

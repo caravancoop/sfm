@@ -680,39 +680,23 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
         properties['areas'] = []
 
         sites = '''
-            SELECT
-              id,
-              array_to_string(array_agg(name), ', ') AS name,
-              array_to_string(array_agg(admin_level_1_osm_name), ', ') AS admin_level_1_osm_name,
-              array_to_string(array_agg(osm_name), ', ') AS osm_name,
-              array_to_string(array_agg(date_first_cited_value), ', ') AS date_first_cited,
-              array_to_string(array_agg(date_last_cited_value), ', ') AS date_last_cited,
-              json_agg(organization_id_source)->0 AS sources,
-              MAX(organization_id_confidence) AS confidence,
-              ST_AsGeoJSON(
-                ST_Collect(
-                  ST_GeomFromGeoJSON(location::VARCHAR)
-                ))::json AS geometry
-            FROM (
-              SELECT DISTINCT ON (e.id)
-                g.id,
-                g.name,
-                g.admin_level_1 AS admin_level_1_osm_name,
-                g.osmname AS osm_name,
-                e.start_date_value AS date_first_cited_value,
-                e.end_date_value AS date_last_cited_value,
-                e.organization_id_source,
-                e.organization_id_confidence,
-                ST_AsGeoJSON(g.coordinates)::json AS location
-              FROM organization AS o
-              JOIN emplacement_sources AS e
-                ON o.id = e.organization_id_value
-              JOIN geosite AS g
-                ON e.site_id_value = g.id
-              WHERE o.id = %s
-                AND g.coordinates IS NOT NULL
-            ) AS subq
-            GROUP BY id
+            SELECT DISTINCT ON (e.id)
+              g.id,
+              g.name,
+              g.admin_level_1 AS admin_level_1_osm_name,
+              g.osmname AS osm_name,
+              e.start_date_value AS date_first_cited_value,
+              e.end_date_value AS date_last_cited_value,
+              e.organization_id_source AS sources,
+              e.organization_id_confidence AS confidence,
+              ST_AsGeoJSON(g.coordinates)::json AS location
+            FROM organization AS o
+            JOIN emplacement_sources AS e
+              ON o.id = e.organization_id_value
+            JOIN geosite AS g
+              ON e.site_id_value = g.id
+            WHERE o.id = %s
+              AND g.coordinates IS NOT NULL
         '''
 
         q_params = [properties['id']]
@@ -734,38 +718,23 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             properties['sites'].append(site)
 
         areas = ''' 
-            SELECT
-              id,
-              array_to_string(array_agg(name), ', ') AS osm_name,
-              array_to_string(array_agg(osmid), ', ') AS osmid,
-              array_to_string(array_agg(first_cited_value), ', ') AS first_cited,
-              array_to_string(array_agg(last_cited_value), ', ') AS last_cited,
-              json_agg(organization_id_source)->0 AS sources,
-              MAX(organization_id_confidence) AS confidence,
-              ST_AsGeoJSON(
-                ST_Collect(
-                  ST_GeomFromGeoJSON(geometry::VARCHAR)
-                ))::json AS geometry
-            FROM (
-              SELECT DISTINCT ON (ass.id)
-                o.id,
-                a.name,
-                a.osmname AS osm_name,
-                a.osmid,
-                ass.start_date_value AS first_cited_value,
-                ass.end_date_value AS last_cited_value,
-                ass.organization_id_source,
-                ass.organization_id_confidence,
-                ST_AsGeoJSON(ST_Simplify(a.geometry, %s))::json AS geometry
-              FROM organization AS o
-              JOIN association_sources AS ass
-                ON o.id = ass.organization_id_value
-              JOIN area AS a
-                ON ass.area_id_value = a.id
-              WHERE o.id = %s
-              AND a.geometry IS NOT NULL
-            ) AS subq
-            GROUP BY id
+            SELECT DISTINCT ON (ass.id)
+              o.id,
+              a.name,
+              a.osmname AS osm_name,
+              a.osmid,
+              ass.start_date_value AS first_cited_value,
+              ass.end_date_value AS last_cited_value,
+              ass.organization_id_source AS sources,
+              ass.organization_id_confidence AS confidence,
+              ST_AsGeoJSON(ST_Simplify(a.geometry, %s))::json AS geometry
+            FROM organization AS o
+            JOIN association_sources AS ass
+              ON o.id = ass.organization_id_value
+            JOIN area AS a
+              ON ass.area_id_value = a.id
+            WHERE o.id = %s
+            AND a.geometry IS NOT NULL
         '''
         
         q_params = [tolerance, properties['id']]
