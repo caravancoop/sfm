@@ -184,6 +184,8 @@ class CountryMapView(JSONAPIView):
 
         country_code = kwargs['id']
         division_id = 'ocd-division/country:{}'.format(country_code)
+        
+        print(division_id)
 
         when = self.request.GET['at']
         bbox = self.request.GET.get('bbox')
@@ -214,7 +216,7 @@ class CountryMapView(JSONAPIView):
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
             WHERE o.division_id = %s
-              AND (CASE 
+              AND ((CASE 
                      WHEN (e.start_date IS NOT NULL AND 
                            e.end_date IS NOT NULL AND 
                            e.open_ended = FALSE)
@@ -265,7 +267,7 @@ class CountryMapView(JSONAPIView):
                           ass.end_date IS NOT NULL AND
                           ass.open_ended IS TRUE)
                     THEN TRUE
-                  END)
+                  END))
         '''
 
         args = [division_id] + ([when] * 10)
