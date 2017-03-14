@@ -689,7 +689,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
               array_to_string(array_agg(last_cited), ', ') AS last_cited,
               ST_AsGeoJSON(
                 ST_Collect(
-                  ST_GeomFromGeoJSON(geometry::VARCHAR)
+                  ST_Force_2d(ST_GeomFromGeoJSON(geometry::VARCHAR))
                 ))::json AS geometry
             FROM (
               {}
