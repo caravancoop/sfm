@@ -166,7 +166,7 @@ class EventDetailView(JSONAPIView):
                       THEN (daterange((v.start_date::date - INTERVAL '30 days')::date, 
                                       (v.end_date::date + INTERVAL '30 days')::date) &&
                             daterange((ass.start_date::date - INTERVAL '1 day')::date, 
-                                      (ass.end_date::date + INTERVAL '1 day')::date)
+                                      (ass.end_date::date + INTERVAL '1 day')::date))
                     WHEN (ass.start_date IS NOT NULL AND ass.end_date IS NULL AND ass.open_ended IS FALSE)
                       THEN (ass.start_date::date 
                             BETWEEN 
