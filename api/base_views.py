@@ -723,8 +723,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
               g.name,
               g.admin_level_1 AS admin_level_1_osm_name,
               g.osmname AS osm_name,
-              e.start_date_value AS date_first_cited_value,
-              e.end_date_value AS date_last_cited_value,
+              e.start_date_value AS date_first_cited,
+              e.end_date_value AS date_last_cited,
               e.organization_id_source AS sources,
               e.organization_id_confidence AS confidence,
               ST_AsGeoJSON(g.coordinates)::json AS location
@@ -761,8 +761,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
               a.name,
               a.osmname AS osm_name,
               a.osmid,
-              ass.start_date_value AS first_cited_value,
-              ass.end_date_value AS last_cited_value,
+              ass.start_date_value AS date_first_cited,
+              ass.end_date_value AS date_last_cited,
               ass.organization_id_source AS sources,
               ass.organization_id_confidence AS confidence,
               ST_AsGeoJSON(ST_Simplify(a.geometry, %s))::json AS geometry
