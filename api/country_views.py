@@ -47,29 +47,39 @@ class CountryDetailView(JSONAPIView):
         country_code = kwargs['id'].lower()
         division_id = 'ocd-division/country:{}'.format(country_code)
 
-        query = '''
+        country_query = '''
             SELECT
-              MAX(c.name) AS name,
-              MAX(c.name) AS title,
-              NULL::VARCHAR AS description,
-              COUNT(DISTINCT v.id) AS events_count
-            FROM osm_data AS c, violation AS v
-            WHERE c.country_code = %s
-              AND c.admin_level = 2
-              AND c.feature_type = 'boundary'
-              AND v.division_id = %s
-            GROUP BY c.id
+              MAX(name) AS name,
+              MAX(name) AS title,
+              NULL::VARCHAR AS description
+            FROM osm_data
+            WHERE country_code = %s
+              AND admin_level = 2
+              AND feature_type = 'boundary'
         '''
 
         cursor = connection.cursor()
-        cursor.execute(query, [country_code, division_id])
+        cursor.execute(country_query, [country_code])
         columns = [c[0] for c in cursor.description]
+        
+        country_row = cursor.fetchone()
+        
+        if country_row:
+            
+            context = OrderedDict(zip(columns, country_row))
 
-        row = cursor.fetchone()
+            event_query = ''' 
+                SELECT COUNT(DISTINCT id)
+                FROM violation
+                WHERE division_id = %s
+            '''
+            
+            cursor = connection.cursor()
+            cursor.execute(event_query, [division_id])
 
-        if row:
-
-            context = OrderedDict(zip(columns, row))
+            event_row = cursor.fetchone()
+            
+            context.update({'events_count': event_row[0]})
 
         return context
 
