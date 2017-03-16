@@ -147,7 +147,7 @@ class EventDetailView(JSONAPIView):
                       THEN (e.end_date::date BETWEEN v.start_date::date AND v.end_date::date)
                     END
               GROUP BY o.id
-              HAVING(array_agg(o.classification) @> '{Military}'::text[]) 
+              HAVING(array_agg(o.classification) && array_agg(v.perpetrator_classification)) 
 
               UNION
               
@@ -189,7 +189,7 @@ class EventDetailView(JSONAPIView):
                            )
                     END
               GROUP BY o.id
-              HAVING(array_agg(o.classification) @> '{Military}'::text[]) 
+              HAVING(array_agg(o.classification) && array_agg(v.perpetrator_classification)) 
         '''
 
         cursor = connection.cursor()
