@@ -243,11 +243,14 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                 if last == 'sources':
                     sources = []
                     source_ids = []
-                    for source in v:
-                        if source and source['id'] not in source_ids:
-                            sources.append(source)
-                            source_ids.append(source['id'])
-                    v = sources
+                    
+                    if v:
+
+                        for source in v:
+                            if source and source['id'] not in source_ids:
+                                sources.append(source)
+                                source_ids.append(source['id'])
+                        v = sources
 
                 elif last == 'confidence':
                     if v:
