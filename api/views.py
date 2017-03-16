@@ -122,7 +122,9 @@ class EventDetailView(JSONAPIView):
                 o.id,
                 MAX(o.name) AS name,
                 array_agg(DISTINCT TRIM(o.alias))
-                  FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names
+                  FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
+                array_agg(DISTINCT TRIM(classification))
+                  FILTER (WHERE TRIM(classification) IS NOT NULL) AS classification
               FROM violation AS v
               JOIN geosite AS g
                 ON  ST_Intersects(ST_Buffer_Meters(v.location, 35000), g.coordinates)
@@ -153,7 +155,9 @@ class EventDetailView(JSONAPIView):
                 o.id,
                 MAX(o.name) AS name,
                 array_agg(DISTINCT TRIM(o.alias))
-                  FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names
+                  FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
+                array_agg(DISTINCT TRIM(classification))
+                  FILTER (WHERE TRIM(classification) IS NOT NULL) AS classification
               FROM violation AS v
               JOIN area 
                 ON ST_Intersects(ST_Buffer_Meters(v.location, 35000), area.geometry)
