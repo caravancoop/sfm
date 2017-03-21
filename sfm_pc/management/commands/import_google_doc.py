@@ -212,6 +212,17 @@ class Command(UtilityMixin, BaseCommand):
             return CONFIDENCE_MAP[key]
         else:
             return 1
+    
+    def parse_date(self, value):
+        parsed = None
+        for date_format in ['%Y', '%B %Y', '%m/%d/%Y']:
+            try:
+                parsed = datetime.strptime(value, date_format)
+                break
+            except ValueError:
+                pass
+
+        return parsed
 
     def create_organization(self, org_data):
         organization = None
@@ -670,7 +681,7 @@ class Command(UtilityMixin, BaseCommand):
                             reversion.set_user(self.user)
 
                 elif isinstance(relation_model._meta.get_field('value'), ApproximateDateField):
-                    parsed_value = dateparser(value)
+                    parsed_value = self.parse_date(value)
 
                     if parsed_value:
                         with reversion.create_revision():
