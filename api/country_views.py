@@ -210,18 +210,20 @@ class CountryMapView(JSONAPIView):
                 FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
               array_agg(DISTINCT TRIM(o.classification))
                 FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications,
-              ST_AsGeoJSON(MAX(g.coordinates))::json AS location,
-              MAX(e.start_date) AS start_date,
-              MAX(e.end_date) AS end_date,
+              ST_AsGeoJSON(
+                COALESCE(MAX(g.coordinates), 
+                         MAX(ST_Centroid(a.geometry))))::json AS location,
+              COALESCE(MAX(e.start_date), MAX(ass.start_date)) AS start_date,
+              COALESCE(MAX(e.end_date), MAX(ass.end_date)) AS end_date,
               COUNT(DISTINCT v.id) AS events_count
             FROM organization AS o
-            JOIN emplacement AS e
+            LEFT JOIN emplacement AS e
               ON o.id = e.organization_id
-            JOIN geosite as g
+            LEFT JOIN geosite as g
               ON e.site_id = g.id
-            JOIN association AS ass
+            LEFT JOIN association AS ass
               ON o.id = ass.organization_id
-            JOIN area AS a
+            LEFT JOIN area AS a
               ON ass.area_id = a.id
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
