@@ -11,3 +11,6 @@ db.sqlite3
 env/
 node_modules/
 settings_local.py
+/keyrings/live/pubring.gpg~
+/keyrings/live/pubring.kbx~
+/keyrings/live/secring.gpg
