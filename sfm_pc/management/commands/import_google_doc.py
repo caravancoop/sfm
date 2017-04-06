@@ -182,7 +182,7 @@ class Command(UtilityMixin, BaseCommand):
                 if not title in skippers:
 
                     # Skip header row
-                    for index, row in enumerate(sheet[247:]):
+                    for index, row in enumerate(sheet[1:]):
                         if row:
                             self.current_row = index + 2
                             getattr(self, 'create_{}'.format(entity_type))(row)
