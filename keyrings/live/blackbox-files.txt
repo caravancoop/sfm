@@ -7,3 +7,4 @@ configs/sfm.conf.production.nginx
 configs/sfm.conf.production.supervisor
 configs/sfm.conf.staging.nginx
 configs/sfm.conf.staging.supervisor
+scripts/after_install.sh
