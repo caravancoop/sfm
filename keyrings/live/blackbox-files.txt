@@ -3,3 +3,4 @@ configs/client_secrets.json
 configs/credentials.json
 configs/settings_local_production.py
 configs/settings_local_staging.py
+configs/sfm.conf.production.nginx
