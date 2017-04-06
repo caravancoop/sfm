@@ -19,24 +19,23 @@ script:
 - python manage.py test -k -v 2 --settings=tests.test_settings
 
 deploy:
-  provider: codedeploy
-  access_key_id: AKIAJNYGDLOJKHOUWCAA
-  secret_access_key:
-    secure: WQOQxaqdPSTyli/1fDp9Jn6qcSIp+VxIe5PCN7eAeTuMYL3WUltdtzxvLz8K+Awos3fW9GyfdS5Fp4acrSFBcKoSDlAYygG2eMmoAEdb3wg2EZXhMtpIQpalYo0newuLal0TwGUrdcknZLglbcx2UmKjH1PyBwn4ArNeiUXtjOzGwKklHtNaR/oiIjGpTSL1TESNCp0BLI+Jh8vT1zusRHQkFn1XYn3QspqnhXYl0KxkdoQcrg/5cjsSui2Ul3VslSMhq8empCuWZAuJACmKZkhVMJTNg4zyLR9yipQyqNGiz+BjsfiW19HR9kTfrzNjoEhaHs6y7MDwAYuRs1wEfhlbXjJRKhOXoxxcN4fJqVZkbrYIB1/wciGzcEazv6s6PAOAH4wMHn77eUdPkNxKQ+gphghhJt3hRy4SIBBk9slBW8RMxFID3N0DZjGGn6TfWtJYJDeHTx3Q1w1FaKVWlWtcqiQUAfDwtkml1ZF9fkVpsrY7vKqIf3lmCQz83ewQjQNpK18xUuf+xybpE1ogskYFVbTbiow/1lV619IZKj9B/FexNnIvtLrUuxYQPgh5gWNxWa9BSNY0X1468uLi6fGmE/6GzHT/Ye9PPqB2kq4J2z+irgbRHKApt3rBPfWzFKgj0En2eXB1zjrkZcO/Gt+bRx7EYLRt3yjVvvooPek=
-  revision_type: github
-  application: security-force-monitor
-  deployment_group: staging
-  on:
-    branch:
-      - master
+  - provider: codedeploy
+    access_key_id: AKIAJNYGDLOJKHOUWCAA
+    secret_access_key:
+      secure: WQOQxaqdPSTyli/1fDp9Jn6qcSIp+VxIe5PCN7eAeTuMYL3WUltdtzxvLz8K+Awos3fW9GyfdS5Fp4acrSFBcKoSDlAYygG2eMmoAEdb3wg2EZXhMtpIQpalYo0newuLal0TwGUrdcknZLglbcx2UmKjH1PyBwn4ArNeiUXtjOzGwKklHtNaR/oiIjGpTSL1TESNCp0BLI+Jh8vT1zusRHQkFn1XYn3QspqnhXYl0KxkdoQcrg/5cjsSui2Ul3VslSMhq8empCuWZAuJACmKZkhVMJTNg4zyLR9yipQyqNGiz+BjsfiW19HR9kTfrzNjoEhaHs6y7MDwAYuRs1wEfhlbXjJRKhOXoxxcN4fJqVZkbrYIB1/wciGzcEazv6s6PAOAH4wMHn77eUdPkNxKQ+gphghhJt3hRy4SIBBk9slBW8RMxFID3N0DZjGGn6TfWtJYJDeHTx3Q1w1FaKVWlWtcqiQUAfDwtkml1ZF9fkVpsrY7vKqIf3lmCQz83ewQjQNpK18xUuf+xybpE1ogskYFVbTbiow/1lV619IZKj9B/FexNnIvtLrUuxYQPgh5gWNxWa9BSNY0X1468uLi6fGmE/6GzHT/Ye9PPqB2kq4J2z+irgbRHKApt3rBPfWzFKgj0En2eXB1zjrkZcO/Gt+bRx7EYLRt3yjVvvooPek=
+    revision_type: github
+    application: security-force-monitor
+    deployment_group: staging
+    on:
+      branch:
+        - master
 
-deploy:
-  provider: codedeploy
-  access_key_id: AKIAJNYGDLOJKHOUWCAA
-  secret_access_key:
-    secure: WQOQxaqdPSTyli/1fDp9Jn6qcSIp+VxIe5PCN7eAeTuMYL3WUltdtzxvLz8K+Awos3fW9GyfdS5Fp4acrSFBcKoSDlAYygG2eMmoAEdb3wg2EZXhMtpIQpalYo0newuLal0TwGUrdcknZLglbcx2UmKjH1PyBwn4ArNeiUXtjOzGwKklHtNaR/oiIjGpTSL1TESNCp0BLI+Jh8vT1zusRHQkFn1XYn3QspqnhXYl0KxkdoQcrg/5cjsSui2Ul3VslSMhq8empCuWZAuJACmKZkhVMJTNg4zyLR9yipQyqNGiz+BjsfiW19HR9kTfrzNjoEhaHs6y7MDwAYuRs1wEfhlbXjJRKhOXoxxcN4fJqVZkbrYIB1/wciGzcEazv6s6PAOAH4wMHn77eUdPkNxKQ+gphghhJt3hRy4SIBBk9slBW8RMxFID3N0DZjGGn6TfWtJYJDeHTx3Q1w1FaKVWlWtcqiQUAfDwtkml1ZF9fkVpsrY7vKqIf3lmCQz83ewQjQNpK18xUuf+xybpE1ogskYFVbTbiow/1lV619IZKj9B/FexNnIvtLrUuxYQPgh5gWNxWa9BSNY0X1468uLi6fGmE/6GzHT/Ye9PPqB2kq4J2z+irgbRHKApt3rBPfWzFKgj0En2eXB1zjrkZcO/Gt+bRx7EYLRt3yjVvvooPek=
-  revision_type: github
-  application: security-force-monitor
-  deployment_group: production
-  on:
-    tags: true
+  - provider: codedeploy
+    access_key_id: AKIAJNYGDLOJKHOUWCAA
+    secret_access_key:
+      secure: WQOQxaqdPSTyli/1fDp9Jn6qcSIp+VxIe5PCN7eAeTuMYL3WUltdtzxvLz8K+Awos3fW9GyfdS5Fp4acrSFBcKoSDlAYygG2eMmoAEdb3wg2EZXhMtpIQpalYo0newuLal0TwGUrdcknZLglbcx2UmKjH1PyBwn4ArNeiUXtjOzGwKklHtNaR/oiIjGpTSL1TESNCp0BLI+Jh8vT1zusRHQkFn1XYn3QspqnhXYl0KxkdoQcrg/5cjsSui2Ul3VslSMhq8empCuWZAuJACmKZkhVMJTNg4zyLR9yipQyqNGiz+BjsfiW19HR9kTfrzNjoEhaHs6y7MDwAYuRs1wEfhlbXjJRKhOXoxxcN4fJqVZkbrYIB1/wciGzcEazv6s6PAOAH4wMHn77eUdPkNxKQ+gphghhJt3hRy4SIBBk9slBW8RMxFID3N0DZjGGn6TfWtJYJDeHTx3Q1w1FaKVWlWtcqiQUAfDwtkml1ZF9fkVpsrY7vKqIf3lmCQz83ewQjQNpK18xUuf+xybpE1ogskYFVbTbiow/1lV619IZKj9B/FexNnIvtLrUuxYQPgh5gWNxWa9BSNY0X1468uLi6fGmE/6GzHT/Ye9PPqB2kq4J2z+irgbRHKApt3rBPfWzFKgj0En2eXB1zjrkZcO/Gt+bRx7EYLRt3yjVvvooPek=
+    revision_type: github
+    application: security-force-monitor
+    deployment_group: production
+    on:
+      tags: true
