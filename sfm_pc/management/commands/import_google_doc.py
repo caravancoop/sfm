@@ -182,7 +182,7 @@ class Command(UtilityMixin, BaseCommand):
                 if not title in skippers:
 
                     # Skip header row
-                    for index, row in enumerate(sheet[1:]):
+                    for index, row in enumerate(sheet[247:]):
                         if row:
                             self.current_row = index + 2
                             getattr(self, 'create_{}'.format(entity_type))(row)
@@ -1091,8 +1091,8 @@ class Command(UtilityMixin, BaseCommand):
             parsed_date, indices = date_indices
             now = datetime.now()
             today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-
-            while parsed_date > now or parsed_date == today:
+            
+            while parsed_date.date() > now.date() or parsed_date.date() == today.date():
                 try:
                     date_indices = next(date_gen)
                     parsed_date, indices = date_indices
