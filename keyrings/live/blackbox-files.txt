@@ -1,2 +1,3 @@
 configs/auth.json
 configs/client_secrets.json
+configs/credentials.json
