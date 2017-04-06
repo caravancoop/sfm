@@ -1,0 +1,22 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+  destination: /home/datamade/sfm-cms # dir where your application will live on the server
+hooks: # these are boilerplate and may be copy/pasted as is
+  BeforeInstall:
+    - location: scripts/before_install.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: scripts/app_start.sh
+      timeout: 300
+      runas: root
+  ApplicationStop:
+    - location: scripts/app_stop.sh
+      timeout: 300
+      runas: root
+  AfterInstall:
+    - location: scripts/after_install.sh
+      timeout: 1000
+      runas: root
