@@ -6,3 +6,4 @@ configs/settings_local_staging.py
 configs/sfm.conf.production.nginx
 configs/sfm.conf.production.supervisor
 configs/sfm.conf.staging.nginx
+configs/sfm.conf.staging.supervisor
