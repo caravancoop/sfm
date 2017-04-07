@@ -1083,7 +1083,7 @@ class Command(UtilityMixin, BaseCommand):
 
             try:
                 date_indices = next(date_gen)
-            except StopIteration:
+            except (StopIteration, TypeError):
                 # self.log_error('Unable to parse published on date from source string: {}'.format(source))
                 unparsed.append(source)
                 continue
