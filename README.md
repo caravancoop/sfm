@@ -11,36 +11,38 @@
 
     mkvirtualenv sfm
     git clone git@github.com:security-force-monitor/sfm-cms.git
-    cd sfm/sfm_pc
+    cd sfm-cms
 
 Install the requirements:
 
     pip install -r requirements.txt
+    
+Create a local settings file:
+
+    cp sfm_pc/settings_local.py.example sfm_pc/settings_local.py
+    # You can change some of the variables if you want, but it's not necessary to get the app running    
 
 Create a database:
 
     createdb sfm-db
     psql sfm-db -c "CREATE EXTENSION postgis;"
-    export DATABASE_URL=postgis://localhost/sfm-db
     ./manage.py migrate --noinput
 
 Load static data:
 
 ```
-# Load fixtures for Violation Types and Organization classification types
+# Load fixtures for Violation Types, Organization classification types, and countries
 ./manage.py loaddata violation_types
 ./manage.py loaddata classification_types
-
-# Load Geonames data
-./manage.py import_geonames
 ./manage.py update_countries_plus
 ```
 
-Create search index and 
+Create search index and create Materialized Views for global search and looking up a Geoname object based upon a geoname id: 
 
-# Create Materialized Views for global search and looking up a Geoname object
-# based upon a geoname id 
-./manage.py make_search_index
+    python manage.py import_osm
+    python manage.py import_google_doc
+    python manage.py make_search_index
+    python manage.py make_flattened_views
 
 Create an admin user:
 
