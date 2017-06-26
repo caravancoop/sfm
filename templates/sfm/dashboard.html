@@ -5,8 +5,9 @@
     <div class="col-sm-12">
         <div class="jumbotron">
             <form action='{% url 'search' %}' method='GET'>
+                <p>Investigate <strong>police</strong> and <strong>military commanders</strong>, <strong>units</strong> and <strong>areas of operation</strong></p>
                 <div class="input-group input-group-lg">
-                    <input type="text" class="form-control" placeholder="Search for organizations, people and events" name="q">
+                    <input type="text" class="form-control" placeholder="Enter a person or unit name, location or keyword..." name="q">
                     <input type='hidden' name='entity_type' value='Organization' />
                     <input type='hidden' name='entity_type' value='Person' />
                     <input type='hidden' name='entity_type' value='Violation' />
@@ -17,10 +18,38 @@
             </form>
         </div>
     </div>
+    <div class="col-sm-12">
+        <a href="#">Learn more</a>
+    </div>
 </div>
 <div class="row">
     <div class="col-sm-12 text-center">
         <a href="{% url 'create-source' %}" class="btn btn-lg btn-primary">Add new source</a>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default" style="min-height:150px">
+            <div class="panel-heading">
+                <h4><strong>What is</strong> WhoWasInCommand?</h4>
+            </div>
+            <div class="panel-body">
+                <p><em>Simple illustration showing the research process</em></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default" style="min-height:150px">
+            <div class="panel-heading">
+                <h4><strong>How to use</strong> WhoWasInCommand</h4>
+            </div>
+            <div class="panel-body">
+                <p><em>Simple FAQ, text, and links to stuff about methods and data</em></p>
+            </div>
+        </div>
     </div>
 </div>
 <hr />
