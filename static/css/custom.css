@@ -1,5 +1,10 @@
 /* Custom styles */
 
+body {
+    font-weight: 400;
+    font-size: 16px;
+}
+
 .pre-navbar {
     /* Ad bar that sits above the navbar */
     text-align: right;
@@ -27,6 +32,7 @@
 .navbar {
     background-color: #eeeeee;
     margin-bottom: 50px;
+    border-bottom: none;
 }
 
 .navbar-header {
@@ -41,6 +47,10 @@
     margin-top: 5px;
     margin-left: 15px !important; /* override bootstrap default */
     font-size: 2em;
+}
+
+.selected-tab {
+    background-color: #fcfcfc;
 }
 
 @media (max-width: 465px) {

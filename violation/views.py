@@ -52,6 +52,14 @@ class ViolationList(PaginatedList):
         'classification': 'violationperpetratorclassification__value__value',
     }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print('Getting incident context...')
+
+        # Highlight the correct nav tab in the template
+        context['violation_tab'] = 'selected-tab'
+        context['search_term'] = 'an incident'
+        return context
 
 
 class ViolationCreate(FormSetView):

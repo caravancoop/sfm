@@ -41,11 +41,11 @@
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li><a href="#">Countries</a></li>
-                <li><a href="{% url 'list-person' %}">Personnel</a></li>
-                <li><a href="{% url 'list-organization' %}">Units</a></li>
-                <li><a href="{% url 'list-violation' %}">Incidents</a></li>
-                <li><a href="#">Help</a></li>
+                <li class="{{ countries_tab }}"><a href="#">Countries</a></li>
+                <li class="{{ person_tab }}"><a href="{% url 'list-person' %}">Personnel</a></li>
+                <li class="{{ organization_tab }}"><a href="{% url 'list-organization' %}">Units</a></li>
+                <li class="{{ violation_tab }}"><a href="{% url 'list-violation' %}">Incidents</a></li>
+                <li class="{{ help_tab }}"><a href="#">Help</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </div>

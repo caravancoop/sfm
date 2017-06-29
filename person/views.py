@@ -51,6 +51,14 @@ class PersonList(PaginatedList):
         'name': 'personname__value',
     }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Highlight the correct nav tab in the template
+        context['person_tab'] = 'selected-tab'
+        context['search_term'] = 'a person'
+        return context
+
 class PersonCreate(BaseFormSetView):
     template_name = 'person/create.html'
     form_class = PersonForm
