@@ -49,6 +49,10 @@ body {
     font-size: 2em;
 }
 
+.lang-select-box {
+    margin-top: 10px;
+}
+
 .selected-tab {
     background-color: #fcfcfc;
 }
