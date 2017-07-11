@@ -33,11 +33,13 @@
                             <input type="checkbox" name="entity_type" value="Violation" {% if 'Violation' in filters %}checked=true{% endif %}> Events
                         </label>
                     </div>
-                    <select id="location-filter" name="osm_id" class="form-control">
-                        {% if osm %}
-                            <option value="{{ osm.id }}" selected=true>{{ osm.name }}</option>
-                        {% endif %}
-                    </select>
+                    <div class="select2-input-buffer">
+                        <select id="location-filter" name="osm_id" class="form-control">
+                            {% if osm %}
+                                <option value="{{ osm.id }}" selected=true>{{ osm.name }}</option>
+                            {% endif %}
+                        </select>
+                    </div>
                     <select id="radius" name="radius" class="form-control">
                         {% for rad in radius_choices %}
                             {% if rad == radius %}

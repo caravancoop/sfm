@@ -53,6 +53,10 @@ body {
     background-color: #fcfcfc;
 }
 
+.select2-input-buffer {
+    margin-bottom: 10px;
+}
+
 @media (max-width: 465px) {
     /* Responsive header styles for tiny screens */
     .navbar-brand {

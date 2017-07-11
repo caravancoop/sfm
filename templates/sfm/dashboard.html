@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="col-sm-12">
-        <a href="#">Learn more</a>
+        <a href="#">Learn more <i class="fa fa-fw fa-arrow-right"></i></a>
     </div>
 </div>
 <div class="row">
@@ -52,55 +52,5 @@
         </div>
     </div>
 </div>
-<hr />
-<div class="row">
-    <div class="col-sm-6">
-        <h4>Entity counts</h4>
-        <table class="table table-condensed">
-            <thead>
-                <tr>
-                    <th>Division identifier</th>
-                    <th>Organizations</th>
-                    <th>People</th>
-                    <th>Events</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for division_id, entity_counts in counts.items %}
-                    <tr>
-                        <td>{{ division_id }}</td>
-                        <td>{{ entity_counts.organization }}</td>
-                        <td>{{ entity_counts.person }}</td>
-                        <td>{{ entity_counts.violation }}</td>
-                    </tr>
-                {% endfor%}
-            </tbody>
-        </table>
-    </div>
-    <div class="col-sm-6">
-        <h4>Sources added by user</h4>
-        <table class="table table-condensed">
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Last week</th>
-                    <th>Last month</th>
-                    <th>All time</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user, user_counts in count_by_user.items %}
-                    <tr>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user_counts.last_week_count }}</td>
-                        <td>{{ user_counts.last_month_count }}</td>
-                        <td>{{ user_counts.all_source_count }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-<hr />
 
 {% endblock %}

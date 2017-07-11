@@ -41,7 +41,7 @@
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="{{ countries_tab }}"><a href="#"><i class="fa fa-fw fa-globe"></i> Countries</a></li>
+                <li class="{{ countries_tab }}"><a href="{% url 'countries' %}"><i class="fa fa-fw fa-globe"></i> Countries</a></li>
                 <li class="{{ person_tab }}"><a href="{% url 'list-person' %}"><i class="fa fa-fw fa-user"></i> Personnel</a></li>
                 <li class="{{ organization_tab }}"><a href="{% url 'list-organization' %}"><i class="fa fa-fw fa-users"></i> Units</a></li>
                 <li class="{{ violation_tab }}"><a href="{% url 'list-violation' %}"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>
@@ -67,7 +67,7 @@
 <footer class="container">
     <div class="row">
         <div class="col-sm-4">
-            <p>&copy {% now "Y" %} Security Force Monitor</p>
+            <p>&copy {% now "Y" %} <a href="https://securityforcemonitor.org">Security Force Monitor</a></p>
         </div>
     </div>
 </footer>
