@@ -57,6 +57,11 @@ body {
     margin-bottom: 10px;
 }
 
+.map-thumbnail {
+    max-height: 300px;
+    margin-bottom: 10px;
+}
+
 @media (max-width: 465px) {
     /* Responsive header styles for tiny screens */
     .navbar-brand {
