@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
 from sfm_pc.views import Dashboard, osm_autocomplete, division_autocomplete, \
-    search, SetConfidence, EntityMergeView
+    SetConfidence, EntityMergeView
 
 urlpatterns = i18n_patterns(
     url(r'^composition/', include('composition.urls')),
