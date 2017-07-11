@@ -22,8 +22,8 @@ urlpatterns = i18n_patterns(
     url(r'^geosite/', include('geosite.urls')),
     url(r'^emplacement/', include('emplacement.urls')),
     url(r'^violation/', include('violation.urls')),
-    url(r'^search/', search, name="search"),
     url(r'^countries/', Countries.as_view(), name="countries"),
+    url(r'^search/', include('search.urls')),
 
     url(r'^osm-autocomplete/$', osm_autocomplete, name="osm-autocomplete"),
     url(r'^division-autocomplete/$', division_autocomplete, name="division-autocomplete"),
