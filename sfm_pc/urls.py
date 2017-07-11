@@ -48,3 +48,13 @@ urlpatterns += (
     # API endpoints
     url(r'^api/', include('api.urls')),
 )
+
+if settings.DEBUG:
+    try:
+        import debug_toolbar
+        urlpatterns = i18n_patterns(
+            # Django debug toolbar plugin
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ) + urlpatterns
+    except ImportError:
+        pass
