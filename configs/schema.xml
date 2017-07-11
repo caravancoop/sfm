@@ -128,8 +128,8 @@
     <field name="object_ref_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="language" type="string"  indexed="true" stored="true" />
 
-    <field name="site" type="location_rpt"  indexed="true" stored="true" />
-    <field name="area" type="location_rpt"  indexed="true" stored="true" />
+    <field name="site" type="location_rpt"  indexed="true" stored="false" multiValued="true" />
+    <field name="area" type="location_rpt"  indexed="true" stored="false" multiValued="true" />
 
 
     <!-- doc values are enabled by default for primitive types such as long so we don't index the version field  -->
