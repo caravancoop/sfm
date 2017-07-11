@@ -10,7 +10,9 @@
   <link rel="stylesheet" href="{% static "css/bootstrap.simplex.min.css" %}">
   <link rel="stylesheet" href="{% static "css/bootstrap-nav-wizard.css" %}">
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
   <script src="{% static "js/jquery-1.10.2.js" %}"></script>
   {% block extra_head %}{% endblock %}
 </head>
@@ -21,27 +23,30 @@
     window.LANG = "{{ LANGUAGE_CODE }}";
   </script>
 
+<div class="pre-navbar">
+  <p>A tool from <a href="https://securityforcemonitor.org">Security Force Monitor</a></p>
+</div>
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{% url 'dashboard' %}">Security Force Monitor</a>
+            <a class="navbar-brand" href="{% url 'dashboard' %}">WhoWasIn<strong>Command</strong></a>
+            <select class="lang-select-box" style="margin-top:10px;"></select>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li><a href="{% url 'list-organization' %}">Organizations</a></li>
-                <li><a href="{% url 'list-person' %}">People</a></li>
-                <li><a href="{% url 'list-violation' %}">Events</a></li>
-                <li><a href="{% url 'search' %}">Search</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="{% url 'logout' %}">Logout</a></li>
+                <li class="{{ countries_tab }}"><a href="{% url 'countries' %}"><i class="fa fa-fw fa-globe"></i> Countries</a></li>
+                <li class="{{ person_tab }}"><a href="{% url 'search' %}?entity_type=Person"><i class="fa fa-fw fa-user"></i> Personnel</a></li>
+                <li class="{{ organization_tab }}"><a href="{% url 'search' %}?entity_type=Organization"><i class="fa fa-fw fa-users"></i> Units</a></li>
+                <li class="{{ violation_tab }}"><a href="{% url 'search' %}?entity_type=Violation"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>
+                <li class="{{ help_tab }}"><a href="#"><i class="fa fa-fw fa-question-circle"></i> Help</a></li>
+                <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> Logout</a></li>
             </ul>
         </div>
     </div>
@@ -62,13 +67,30 @@
 <footer class="container">
     <div class="row">
         <div class="col-sm-4">
-            <p>&copy {% now "Y" %} Security Force Monitor</p>
+            <p>&copy {% now "Y" %} <a href="https://securityforcemonitor.org">Security Force Monitor</a></p>
         </div>
     </div>
 </footer>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
   <script src="{% static "js/language.js" %}"></script>
   <script src="{% static "js/version.js" %}"></script>
+  <script src="{% static 'js/select2.min.js' %}"></script>
+  <script type="text/javascript">
+  $(document).ready(function() {
+    $('.lang-select-box').select2({
+        data: [
+            {
+                id: 'en',
+                text: 'English'
+            },
+            {
+                id: 'fr',
+                text: 'French'
+            }
+        ]
+    });
+  });
+  </script>
   {% block extra_js %}{% endblock %}
 
 </body>

@@ -24,6 +24,16 @@ except ImportError:
     EXTRA_APPS = ()
 
 try:
+    from .settings_local import EXTRA_MIDDLEWARE_CLASSES
+except ImportError:
+    EXTRA_MIDDLEWARE_CLASSES = ()
+
+try:
+    from .settings_local import INTERNAL_IPS
+except ImportError:
+    INTERNAL_IPS = []
+
+try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
         SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER
 except ImportError as e:
@@ -86,6 +96,9 @@ MIDDLEWARE_CLASSES = (
     'reversion.middleware.RevisionMiddleware',
     'sfm_pc.utils.RequireLoginMiddleware',
 )
+
+# Debug toolbar middleware needs to be included as early as possible
+MIDDLEWARE_CLASSES = EXTRA_MIDDLEWARE_CLASSES + MIDDLEWARE_CLASSES
 
 ROOT_URLCONF = 'sfm_pc.urls'
 

@@ -122,6 +122,14 @@ class OrganizationList(PaginatedList):
         'classification': 'organizationclassification__value__value'
     }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Highlight the correct nav tab in the template
+        context['organization_tab'] = 'selected-tab'
+        context['search_term'] = 'a unit'
+        return context
+
 
 class OrganizationCreate(BaseFormSetView):
     template_name = 'organization/create.html'

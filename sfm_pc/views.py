@@ -360,6 +360,16 @@ class EntityMergeView(FormView, UtilityMixin):
 
         return redirect(redirect_url)
 
+class Countries(TemplateView):
+    template_name = 'sfm/countries.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['countries_tab'] = 'selected-tab'
+
+        return context
+
 def search(request):
     query = request.GET.get('q')
     filters = request.GET.getlist('entity_type')
