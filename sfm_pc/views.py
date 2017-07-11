@@ -33,13 +33,6 @@ from sfm_pc.utils import import_class, get_osm_by_id
 from sfm_pc.forms import MergeForm
 from sfm_pc.base_views import UtilityMixin
 
-SEARCH_CONTENT_TYPES = {
-    'Source': Source,
-    'Publication': Publication,
-    'Organization': Organization,
-    'Person': Person,
-    'Violation': Violation,
-}
 
 class Dashboard(TemplateView):
     template_name = 'sfm/dashboard.html'
@@ -360,92 +353,6 @@ class EntityMergeView(FormView, UtilityMixin):
 
         return redirect(redirect_url)
 
-def search(request):
-    query = request.GET.get('q')
-    filters = request.GET.getlist('entity_type')
-    location = request.GET.get('osm_id')
-    radius = request.GET.get('radius')
-
-    results = {}
-    select = '''
-        SELECT DISTINCT ON(content_type, object_ref_id)
-          content_type,
-          value_type,
-          object_ref_id
-        FROM search_index
-        WHERE 1=1
-    '''
-
-    params = []
-
-
-    if query:
-
-        select = '''
-            {select}
-            AND plainto_tsquery('english', %s) @@ content
-        '''.format(select=select)
-
-        params = [query]
-
-    if filters:
-        filts = ' OR '.join(["content_type = '{}'".format(f) for f in filters])
-        select = '''
-            {select}
-            AND ({filts})
-        '''.format(select=select, filts=filts)
-
-    osm = None
-    if location and radius:
-
-        # TODO: Make this work for areas once we have them
-        osm = get_osm_by_id(location)
-        select = '''
-            {select}
-            AND ST_Intersects(ST_Buffer_Meters('{location}', {radius}), site)
-        '''.format(select=select,
-                   location=osm.geometry,
-                   radius=(int(radius) * 1000))
-
-    select = '''
-        {select}
-        ORDER BY content_type, object_ref_id
-    '''.format(select=select)
-
-    if not query:
-        select = '''
-            {select}
-            LIMIT 100
-        '''.format(select=select)
-
-    cursor = connection.cursor()
-
-    cursor.execute(select, params)
-
-    result_types = {}
-
-    for result in cursor:
-        content_type, value_type, object_ref_id = result
-
-        try:
-            result_types[content_type].append(object_ref_id)
-        except KeyError:
-            result_types[content_type] = [object_ref_id]
-
-    for content_type, objects in result_types.items():
-        model = SEARCH_CONTENT_TYPES[content_type]
-        results[content_type] = model.objects.filter(id__in=objects)
-
-    context = {
-        'results': results,
-        'query': query,
-        'filters': filters,
-        'radius': radius,
-        'osm': osm,
-        'radius_choices': ['1','5','10','25','50','100'],
-    }
-
-    return render(request, 'sfm/search.html', context)
 
 def osm_autocomplete(request):
     term = request.GET.get('q')
