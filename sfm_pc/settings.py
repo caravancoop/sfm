@@ -35,13 +35,14 @@ except ImportError:
 
 try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
-        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER
+        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL
 except ImportError as e:
     raise Exception('''DATABASE_URL, 
                      GOOGLE_MAPS_KEY, 
                      SECRET_KEY, 
                      ALLOWED_HOSTS, 
                      IMPORTER_USER, 
+                     SOLR_URL,
                      OSM_API_KEY and DEBUG must be defined in settings_local.py''')
 
 # Application definition
