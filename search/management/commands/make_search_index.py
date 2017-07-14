@@ -184,7 +184,7 @@ class Command(BaseCommand):
             if person['other_names']:
                 content.extend(n for n in person['other_names'])
             
-            content = ', '.join(content)
+            content = '; '.join(content)
             
             first_cited = None
             last_cited = None
