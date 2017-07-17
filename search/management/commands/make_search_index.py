@@ -125,8 +125,8 @@ class Command(BaseCommand):
 
     def index_people(self):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing people ... '))
-        
-        people = ''' 
+
+        people = '''
             SELECT
               p.id,
               MAX(p.name) AS name,
@@ -136,17 +136,17 @@ class Command(BaseCommand):
             FROM person AS p
             GROUP BY p.id
         '''
-        
+
         person_cursor = connection.cursor()
         person_cursor.execute(people)
         person_columns = [c[0] for c in person_cursor.description]
-        
+
         documents = []
 
         for person in person_cursor:
             person = dict(zip(person_columns, person))
 
-            memberships = ''' 
+            memberships = '''
                 SELECT DISTINCT ON (member_id)
                   mp.organization_id,
                   o.name AS organization_name,
@@ -172,26 +172,26 @@ class Command(BaseCommand):
                 WHERE member_id = %s
                 ORDER BY member_id, COALESCE(last_cited, first_cited) DESC
             '''
-            
+
             membership_cursor = connection.cursor()
             membership_cursor.execute(memberships, [person['id']])
             member_columns = [c[0] for c in membership_cursor.description]
-            
+
             membership = dict(zip(member_columns, membership_cursor.fetchone()))
-            
+
             content = [person['name']]
 
             if person['other_names']:
                 content.extend(n for n in person['other_names'])
-            
+
             content = '; '.join(content)
-            
+
             first_cited = None
             last_cited = None
 
             if membership['first_cited']:
                 first_cited = membership['first_cited'].strftime('%Y-%m-%dT%H:%M:%SZ')
-            
+
             if membership['last_cited']:
                 last_cited = membership['last_cited'].strftime('%Y-%m-%dT%H:%M:%SZ')
 
@@ -207,7 +207,7 @@ class Command(BaseCommand):
                 'person_first_cited_dt': first_cited,
                 'person_last_cited_dt': last_cited,
             }
-            
+
             documents.append(document)
 
         self.add_to_index(documents)
