@@ -345,16 +345,43 @@ class Command(BaseCommand):
     def index_sources(self):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing sources ... '))
 
+        source_query= '''
+            SELECT
+              src.id,
+              MAX(src.title) AS src_title,
+              MAX(src.source_url) AS src_url,
+              MAX(src.published_on)::timestamp as date_published,
+              MAX(pub.title) AS pub_title,
+              MAX(pub.country) AS pub_country
+            FROM source_source as src
+            LEFT JOIN source_publication as pub
+              ON src.publication_id = pub.id
+            GROUP BY src.id
+        '''
+
+        source_cursor = connection.cursor()
+        source_cursor.execute(source_query)
+        source_columns = [c[0] for c in source_cursor.description]
+
         documents = []
 
-        document = {
-            'id': source['id'],
-            'source_url_s': source['source_url'],
-            'source_title_t': source['title'],
-            'source_date_published_dt': date_published,
-            'publication_title_t': publication['title'],
-            'publication_country_s': publication['country'],
-        }
+        for source in source_cursor:
+
+            source = dict(zip(source_columns, source))
+
+            date_published = source['date_published'].strftime('%Y-%m-%dT%H:%M:%SZ')
+
+            content = source['src_title']
+
+            document = {
+                'id': source['id'],
+                'content': content,
+                'source_url_s': source['src_url'],
+                'source_title_t': source['src_title'],
+                'source_date_published_dt': date_published,
+                'publication_title_t': source['pub_title'],
+                'publication_country_s': source['pub_country'],
+            }
 
         documents.append(document)
 
