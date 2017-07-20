@@ -119,6 +119,7 @@
     -->
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="content" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="entity_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="content_en" type="text_en" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="content_es" type="text_es" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="content_ar" type="text_ar" indexed="true" stored="true" required="false" multiValued="false" />

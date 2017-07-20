@@ -1,34 +1,55 @@
 from django.shortcuts import render
+import pysolr
 
-from search.search import Searcher
+from django.conf import settings
 
-# SEARCH_CONTENT_TYPES = {
-#     'Source': Source,
-#     'Publication': Publication,
-#     'Organization': Organization,
-#     'Person': Person,
-#     'Violation': Violation,
-# }
+from source.models import Source, Publication
+from organization.models import Organization
+from person.models import Person
+from violation.models import Violation
+
+
+SEARCH_ENTITY_TYPES = {
+    'Source': Source,
+    'Publication': Publication,
+    'Organization': Organization,
+    'Person': Person,
+    'Violation': Violation,
+}
+
+solr = pysolr.Solr(settings.SOLR_URL)
 
 def search(request):
     query = request.GET.get('q')
-    filters = request.GET.getlist('entity_type')
-    location = request.GET.get('osm_id')
-    radius = request.GET.get('radius')
+    filters = request.GET.getlist('entity_type', ['*'])
+    location = request.GET.get('osm_id', '*')
+    radius = request.GET.get('radius', '*')
 
-    # result_types = {}
+    response = solr.search(query, **{
+        'entity_type': filters,
+        'location': location,
+    })
 
-    # for result in cursor:
-    #     content_type, value_type, object_ref_id = result
+    result_types = {}
 
-    #     try:
-    #         result_types[content_type].append(object_ref_id)
-    #     except KeyError:
-    #         result_types[content_type] = [object_ref_id]
+    for result in response:
 
-    # for content_type, objects in result_types.items():
-    #     model = SEARCH_CONTENT_TYPES[content_type]
-    #     results[content_type] = model.objects.filter(id__in=objects)
+        entity_type = result['entity_type']
+        object_ref_id = result['id']
+
+        try:
+            result_types[entity_type].append(object_ref_id)
+        except KeyError:
+            result_types[entity_type] = [object_ref_id]
+
+    results = {}
+
+    for entity_type, objects in result_types.items():
+
+        model = SEARCH_ENTITY_TYPES[entity_type]
+        results[entity_type] = model.objects.filter(uuid__in=objects)
+
+    osm = None
 
     context = {
         'results': results,

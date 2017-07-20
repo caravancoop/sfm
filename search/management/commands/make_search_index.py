@@ -99,6 +99,7 @@ class Command(BaseCommand):
 
             document = {
                 'id': organization['id'],
+                'entity_type': 'Organization',
                 'content': content,
                 'location': organization['location'],
                 'organization_name_s': organization['name'],
@@ -187,6 +188,7 @@ class Command(BaseCommand):
 
             document = {
                 'id': person['id'],
+                'entity_type': 'Person',
                 'content': content,
                 'location': membership['location'],
                 'person_name_s': person['name'],
@@ -315,6 +317,7 @@ class Command(BaseCommand):
 
             document = {
                 'id': violation['id'],
+                'entity_type': 'Violation',
                 'content': content,
                 'location': violation['location'],
                 'violation_location_description_ss': locations,
@@ -367,6 +370,7 @@ class Command(BaseCommand):
 
             document = {
                 'id': source['id'],
+                'entity_type': 'Source',
                 'content': content,
                 'source_url_s': source['src_url'],
                 'source_title_t': source['src_title'],
