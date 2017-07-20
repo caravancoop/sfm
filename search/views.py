@@ -20,12 +20,16 @@ SEARCH_ENTITY_TYPES = {
 solr = pysolr.Solr(settings.SOLR_URL)
 
 def search(request):
-    user_query = request.GET.get('q')
+    user_query = request.GET.get('q', None)
     filters = request.GET.getlist('entity_type', ['*'])
     location = request.GET.get('osm_id', '*')
     radius = request.GET.get('radius', '*')
 
-    full_query = user_query
+    if user_query is None or user_query == '':
+        full_query = '*'
+    else:
+        full_query = user_query
+
     entity_types = filters
 
     for etype in entity_types:
