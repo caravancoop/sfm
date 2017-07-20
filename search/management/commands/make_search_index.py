@@ -115,8 +115,8 @@ class Command(BaseCommand):
 
     def index_people(self):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing people ... '))
-        
-        people = ''' 
+
+        people = '''
             SELECT
               p.id,
               MAX(p.name) AS name,
@@ -126,17 +126,17 @@ class Command(BaseCommand):
             FROM person AS p
             GROUP BY p.id
         '''
-        
+
         person_cursor = connection.cursor()
         person_cursor.execute(people)
         person_columns = [c[0] for c in person_cursor.description]
-        
+
         documents = []
 
         for person in person_cursor:
             person = dict(zip(person_columns, person))
 
-            memberships = ''' 
+            memberships = '''
                 SELECT DISTINCT ON (member_id)
                   mp.organization_id,
                   o.name AS organization_name,
@@ -162,26 +162,26 @@ class Command(BaseCommand):
                 WHERE member_id = %s
                 ORDER BY member_id, COALESCE(last_cited, first_cited) DESC
             '''
-            
+
             membership_cursor = connection.cursor()
             membership_cursor.execute(memberships, [person['id']])
             member_columns = [c[0] for c in membership_cursor.description]
-            
+
             membership = dict(zip(member_columns, membership_cursor.fetchone()))
-            
+
             content = [person['name']]
 
             if person['other_names']:
                 content.extend(n for n in person['other_names'])
-            
-            content = ', '.join(content)
-            
+
+            content = '; '.join(content)
+
             first_cited = None
             last_cited = None
 
             if membership['first_cited']:
                 first_cited = membership['first_cited'].strftime('%Y-%m-%dT%H:%M:%SZ')
-            
+
             if membership['last_cited']:
                 last_cited = membership['last_cited'].strftime('%Y-%m-%dT%H:%M:%SZ')
 
@@ -197,7 +197,137 @@ class Command(BaseCommand):
                 'person_first_cited_dt': first_cited,
                 'person_last_cited_dt': last_cited,
             }
-            
+
+            documents.append(document)
+
+        self.add_to_index(documents)
+
+    def index_events(self):
+        self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing events ... '))
+
+        violation_query = '''
+            SELECT
+              v.id,
+              ARRAY_AGG(DISTINCT v.violation_type)
+                FILTER (WHERE v.violation_type IS NOT NULL) AS violation_type,
+              MAX(v.admin_level_1) AS admin_level_1,
+              MAX(v.admin_level_2) AS admin_level_2,
+              MAX(v.location_description) AS location_description,
+              MAX(v.description) AS description,
+              MAX(v.start_date)::timestamp AS start_date,
+              MAX(v.end_date)::timestamp AS end_date,
+              ST_AsText(
+                COALESCE(MAX(g.coordinates),
+                         MAX(ST_Centroid(a.geometry)))) AS location,
+              ARRAY_AGG(DISTINCT v.perpetrator_id)
+                FILTER (WHERE v.perpetrator_id IS NOT NULL) AS perpetrator_id,
+              ARRAY_AGG(v.perpetrator_organization_id)
+                FILTER (WHERE v.perpetrator_organization_id IS NOT NULL)
+                AS perpetrator_organization_id,
+              ARRAY_AGG(DISTINCT v.perpetrator_classification)
+                FILTER (WHERE v.perpetrator_classification IS NOT NULL)
+                AS perp_class
+            FROM violation AS v
+            LEFT JOIN geosite as g
+              ON (g.osm_id::varchar = v.osm_id)
+            LEFT JOIN area AS a
+              ON (a.osmid = g.osm_id)
+            GROUP BY v.id
+        '''
+
+        violation_cursor = connection.cursor()
+        violation_cursor.execute(violation_query)
+        violation_columns = [c[0] for c in violation_cursor.description]
+
+        documents = []
+
+        for violation in violation_cursor:
+
+            violation = dict(zip(violation_columns, violation))
+
+            # Global index on the description field
+            content = violation['description']
+
+            # To build location descriptions, start with the most reliable
+            locations = [violation['admin_level_2']]
+
+            if violation['admin_level_1']:
+                locations.append(violation['admin_level_1'])
+
+            if violation['location_description']:
+                locations.append(violation['location_description'])
+
+            start_date, end_date = None, None
+
+            if violation['start_date']:
+                start_date = violation['start_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
+
+            if violation['end_date']:
+                end_date = violation['end_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
+
+            perp_query = '''
+                SELECT
+                  DISTINCT t.name,
+                  ARRAY_AGG(DISTINCT TRIM(t.alias))
+                    FILTER (WHERE TRIM(t.alias) IS NOT NULL)
+                    AS aliases
+                FROM {table} AS t
+                WHERE id = '{perp_id}'
+                GROUP BY t.name
+            '''
+
+            perp_name, perp_aliases = '', []
+
+            if violation['perpetrator_id'] is not None:
+                for perp_id in violation['perpetrator_id']:
+
+                    query = perp_query.format(table='person', perp_id=perp_id)
+
+                    perp_cursor = connection.cursor()
+                    perp_cursor.execute(query)
+                    perp_columns = [c[0] for c in perp_cursor.description]
+
+                    perp_results = dict(zip(perp_columns,
+                                            perp_cursor.fetchone()))
+
+                    perp_name = perp_results['name']
+                    perp_aliases = perp_results['aliases']
+
+            perp_org_name, perp_org_aliases = '', []
+
+            if violation['perpetrator_organization_id'] is not None:
+                for org_id in violation['perpetrator_organization_id']:
+
+                    query = perp_query.format(table='organization',
+                                              perp_id=org_id)
+
+                    perp_org_cursor = connection.cursor()
+                    perp_org_cursor.execute(query)
+                    perp_org_columns = [c[0] for c in
+                                        perp_org_cursor.description]
+
+                    perp_org_results = dict(zip(perp_org_columns,
+                                                perp_org_cursor.fetchone()))
+
+                    perp_org_name = perp_org_results['name']
+                    perp_org_aliases = perp_org_results['aliases']
+
+            document = {
+                'id': violation['id'],
+                'content': content,
+                'location': violation['location'],
+                'violation_location_description_ss': locations,
+                'violation_type_ss': violation['violation_type'],
+                'violation_description_t': violation['description'],
+                'violation_start_date_dt': start_date,
+                'violation_end_date_dt': end_date,
+                'perpetrator_s': perp_name,
+                'perpetrator_alias_ss': perp_aliases,
+                'perpetrator_organization_ss': perp_org_name,
+                'perpetrator_organization_alias_ss': perp_org_aliases,
+                'perpetrator_classification_ss': violation['perp_class']
+            }
+
             documents.append(document)
 
         self.add_to_index(documents)
@@ -205,8 +335,47 @@ class Command(BaseCommand):
     def index_sources(self):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing sources ... '))
 
-    def index_events(self):
-        self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing events ... '))
+        source_query= '''
+            SELECT
+              src.id,
+              MAX(src.title) AS src_title,
+              MAX(src.source_url) AS src_url,
+              MAX(src.published_on)::timestamp as date_published,
+              MAX(pub.title) AS pub_title,
+              MAX(pub.country) AS pub_country
+            FROM source_source as src
+            LEFT JOIN source_publication as pub
+              ON src.publication_id = pub.id
+            GROUP BY src.id
+        '''
+
+        source_cursor = connection.cursor()
+        source_cursor.execute(source_query)
+        source_columns = [c[0] for c in source_cursor.description]
+
+        documents = []
+
+        for source in source_cursor:
+
+            source = dict(zip(source_columns, source))
+
+            date_published = source['date_published'].strftime('%Y-%m-%dT%H:%M:%SZ')
+
+            content = source['src_title']
+
+            document = {
+                'id': source['id'],
+                'content': content,
+                'source_url_s': source['src_url'],
+                'source_title_t': source['src_title'],
+                'source_date_published_dt': date_published,
+                'publication_title_t': source['pub_title'],
+                'publication_country_s': source['pub_country'],
+            }
+
+        documents.append(document)
+
+        self.add_to_index(documents)
 
     def add_to_index(self, documents):
 

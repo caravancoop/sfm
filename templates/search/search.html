@@ -6,39 +6,43 @@
 {% endblock %}
 {% block content %}
 <div class="row">
-    <div class="col-sm-12">
-        <form class="form">
+    <form class="form">
+        <div class="col-xs-12 col-sm-8 pull-right">
             <div class="input-group">
-                <input type="text" class="form-control input-lg" placeholder="Search for..." name="q" {% if query %}value="{{ query }}{% endif %}">
+                <input type="text" class="form-control input-lg" placeholder="Search for {{ search_term }}..." name="q" {% if query %}value="{{ query }}{% endif %}">
                 <span class="input-group-btn">
                     <button class="btn btn-default btn-lg" type="submit">Go!</button>
                 </span>
             </div>
-            <div class="col-sm-4">
-                <h4>Filter by entity type</h4>
-                <div class="form-group">
-                    <label class="checkbox-inline">
-                        <input type="checkbox" name="entity_type" value="Organization" {% if 'Organization' in filters %}checked=true{% endif %}> Organizations
-                    </label>
-                    <label class="checkbox-inline">
-                        <input type="checkbox" name="entity_type" value="Person" {% if 'Person' in filters %}checked=true{% endif %}> People
-                    </label>
-                    <label class="checkbox-inline">
-                        <input type="checkbox" name="entity_type" value="Violation" {% if 'Violation' in filters %}checked=true{% endif %}> Events
-                    </label>
+        </div>
+        <div class="col-xs-12 col-sm-4 pull-left">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4><strong><i class="fa fa-fw fa-search"></i> I'm looking for...</strong></h4>
                 </div>
-            </div>
-            <div class="col-sm-8">
-                <h4>Filter by location</h4>
-                <div class="row">
-                    <div class="col-sm-6">
-                        <select id="location-filter" name="osm_id" class="form-control">
-                            {% if osm %}
-                                <option value="{{ osm.id }}" selected=true>{{ osm.name }}</option>
-                            {% endif %}
+                <div class="panel-body">
+                    <div class="form-group">
+                        <select id="entity-type" name="entity_type" class="form-control">
+                            <option value="Person" {% if 'Person' in filters %}selected=true{% endif %}>Personnel</option>
+                            <option value="Organization" {% if 'Organization' in filters %}selected=true{% endif %}>Units</option>
+                            <option value="Violation" {% if 'Violation' in filters %}selected=true{% endif %}>Incidents</option>
                         </select>
                     </div>
-                    <div class="col-sm-6">
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4><strong><i class="fa fa-fw fa-filter"></i> Filter by...</strong></h4>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="select2-input-buffer">
+                            <select id="location-filter" name="osm_id" class="form-control">
+                                {% if osm %}
+                                    <option value="{{ osm.id }}" selected=true>{{ osm.name }}</option>
+                                {% endif %}
+                            </select>
+                        </div>
                         <select id="radius" name="radius" class="form-control">
                             {% for rad in radius_choices %}
                                 {% if rad == radius %}
@@ -51,27 +55,25 @@
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
-</div>
-{% if results %}
-    <div class="row">
-        <div class="col-sm-12">
-            {% if query %}
-            <h1>Results for &ldquo;{{ query }}&rdquo;</h1>
-            {% endif %}
-            {% for result_type, objects in results.items %}
-                {% if result_type == 'Organization' %}
-                    {% include 'partials/organization_search_results.html' %}
-                {% elif result_type == 'Person' %}
-                    {% include 'partials/person_search_results.html' %}
-                {% elif result_type == 'Violation' %}
-                    {% include 'partials/violation_search_results.html' %}
-                {% endif %}
-            {% endfor %}
         </div>
+    </form>
+{% if results %}
+    <div class="col-xs-12 col-sm-8 pull-right">
+        {% if query %}
+        <h1>Results for &ldquo;{{ query }}&rdquo;</h1>
+        {% endif %}
+        {% for result_type, objects in results.items %}
+            {% if result_type == 'Organization' %}
+                {% include 'partials/organization_search_results.html' %}
+            {% elif result_type == 'Person' %}
+                {% include 'partials/person_search_results.html' %}
+            {% elif result_type == 'Violation' %}
+                {% include 'partials/violation_search_results.html' %}
+            {% endif %}
+        {% endfor %}
     </div>
 {% endif %}
+</div>
 {% endblock %}
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
@@ -98,10 +100,17 @@ var osm_opts = {
         }
     },
     escapeMarkup: function(markup){ return markup; },
+    placeholder: 'Location',
     minimumInputLength: 2
 };
     $(document).ready(function(){
         $('#location-filter').select2(osm_opts);
+        $('#entity-type').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('#radius').select2({
+            minimumResultsForSearch: Infinity
+        });
 
         $('.merge').on('click', function(e){
             e.preventDefault();

@@ -1,0 +1,86 @@
+/* Custom styles */
+
+body {
+    font-weight: 400;
+    font-size: 16px;
+}
+
+.pre-navbar {
+    /* Ad bar that sits above the navbar */
+    text-align: right;
+    display: block;
+    padding: 15px 20px;
+    background-color: #808080;
+    color: white
+}
+
+.pre-navbar > p {
+    /* Text in the ad bar */
+    margin: 0;
+}
+
+.pre-navbar > p > a {
+    /* Link in the ad bar should be white */
+    color: inherit;
+    text-decoration: underline;
+}
+
+.pre-navbar > p > a:hover {
+    font-weight: 500;
+}
+
+.navbar {
+    background-color: #eeeeee;
+    margin-bottom: 50px;
+    border-bottom: none;
+}
+
+.navbar-header {
+    width: 100%;
+}
+
+.navbar-header > span.select2 {
+    margin-top: 10px;
+}
+
+.navbar-brand {
+    margin-top: 5px;
+    margin-left: 15px !important; /* override bootstrap default */
+    font-size: 2em;
+}
+
+.lang-select-box {
+    margin-top: 10px;
+}
+
+.selected-tab {
+    background-color: #fcfcfc;
+}
+
+.select2-input-buffer {
+    margin-bottom: 10px;
+}
+
+.map-thumbnail {
+    max-height: 300px;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 465px) {
+    /* Responsive header styles for tiny screens */
+    .navbar-brand {
+        margin-left: 5px !important; /* override bootstrap default */
+        font-size: 1.5em;
+    }
+    .navbar-toggle {
+        margin-right: 0px;
+    }
+}
+
+@media (max-width: 380px) {
+    /* Brand needs to be even smaller on smallest screens */
+    .navbar-brand {
+        font-size: 1.3em;
+    }
+}
+

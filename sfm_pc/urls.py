@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
 from sfm_pc.views import Dashboard, osm_autocomplete, division_autocomplete, \
-    SetConfidence, EntityMergeView
+    SetConfidence, EntityMergeView, Countries
 
 urlpatterns = i18n_patterns(
     url(r'^composition/', include('composition.urls')),
@@ -22,6 +22,7 @@ urlpatterns = i18n_patterns(
     url(r'^geosite/', include('geosite.urls')),
     url(r'^emplacement/', include('emplacement.urls')),
     url(r'^violation/', include('violation.urls')),
+    url(r'^countries/', Countries.as_view(), name="countries"),
     url(r'^search/', include('search.urls')),
 
     url(r'^osm-autocomplete/$', osm_autocomplete, name="osm-autocomplete"),
@@ -48,3 +49,13 @@ urlpatterns += (
     # API endpoints
     url(r'^api/', include('api.urls')),
 )
+
+if settings.DEBUG:
+    try:
+        import debug_toolbar
+        urlpatterns = i18n_patterns(
+            # Django debug toolbar plugin
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ) + urlpatterns
+    except ImportError:
+        pass
