@@ -45,10 +45,6 @@ class Command(BaseCommand):
     def index_organizations(self):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing organizations ... '))
 
-        countries = '''
-            SELECT DISTINCT division_id FROM organization
-        '''
-
         organizations = '''
             SELECT
               o.id,
@@ -71,55 +67,49 @@ class Command(BaseCommand):
               ON o.id = ass.organization_id
             LEFT JOIN area AS a
               ON ass.area_id = a.id
-            WHERE o.division_id = %s
             GROUP BY o.id
         '''
 
         country_cursor = connection.cursor()
-        country_cursor.execute(countries)
 
         documents = []
 
-        for row in country_cursor:
-            country = row[0]
+        org_cursor = connection.cursor()
+        org_cursor.execute(organizations)
+        columns = [c[0] for c in org_cursor.description]
 
-            if country:
+        for organization in org_cursor:
+            organization = dict(zip(columns, organization))
 
-                org_cursor = connection.cursor()
-                org_cursor.execute(organizations, [country])
-                columns = [c[0] for c in org_cursor.description]
+            content = [organization['name']]
 
-                for organization in org_cursor:
-                    organization = dict(zip(columns, organization))
+            if organization['other_names']:
+                content.extend(n for n in organization['other_names'])
 
-                    content = [organization['name']]
+            content = '; '.join(content)
 
-                    if organization['other_names']:
-                        content.extend(n for n in organization['other_names'])
+            start_date = None
+            end_date = None
 
-                    content = '; '.join(content)
+            if organization['start_date']:
+                start_date = organization['start_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
 
-                    start_date = None
-                    end_date = None
+            if organization['end_date']:
+                end_date = organization['end_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
 
-                    if organization['start_date']:
-                        start_date = organization['start_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
+            document = {
+                'id': organization['id'],
+                'content': content,
+                'location': organization['location'],
+                'organization_name_s': organization['name'],
+                'organization_classification_ss': organization['classifications'],
+                'organization_alias_ss': organization['other_names'],
+                'organization_start_date_dt': start_date,
+                'organization_end_date_dt': end_date,
+                '_text_': content,
+            }
 
-                    if organization['end_date']:
-                        end_date = organization['end_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
-
-                    document = {
-                        'id': organization['id'],
-                        'content': content,
-                        'location': organization['location'],
-                        'organization_name_s': organization['name'],
-                        'organization_classification_ss': organization['classifications'],
-                        'organization_alias_ss': organization['other_names'],
-                        'organization_start_date_dt': start_date,
-                        'organization_end_date_dt': end_date,
-                    }
-
-                    documents.append(document)
+            documents.append(document)
 
         self.add_to_index(documents)
 
