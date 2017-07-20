@@ -106,7 +106,7 @@ class Command(BaseCommand):
                 'organization_alias_ss': organization['other_names'],
                 'organization_start_date_dt': start_date,
                 'organization_end_date_dt': end_date,
-                '_text_': content,
+                '_text_': content
             }
 
             documents.append(document)
@@ -196,6 +196,7 @@ class Command(BaseCommand):
                 'person_current_title_s':membership['title'],
                 'person_first_cited_dt': first_cited,
                 'person_last_cited_dt': last_cited,
+                '_text_': content
             }
 
             documents.append(document)
@@ -325,7 +326,8 @@ class Command(BaseCommand):
                 'perpetrator_alias_ss': perp_aliases,
                 'perpetrator_organization_ss': perp_org_name,
                 'perpetrator_organization_alias_ss': perp_org_aliases,
-                'perpetrator_classification_ss': violation['perp_class']
+                'perpetrator_classification_ss': violation['perp_class'],
+                '_text_': content
             }
 
             documents.append(document)
@@ -371,6 +373,7 @@ class Command(BaseCommand):
                 'source_date_published_dt': date_published,
                 'publication_title_t': source['pub_title'],
                 'publication_country_s': source['pub_country'],
+                '_text_': content
             }
 
         documents.append(document)
