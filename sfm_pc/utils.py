@@ -79,7 +79,17 @@ def get_osm_by_id(osm_id):
 
     osm_feature = None
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM osm_data WHERE id = %s', [osm_id])
+
+    query = '''
+        SELECT
+          ST_X(ST_Centroid(geometry)),
+          ST_Y(ST_Centroid(geometry)),
+          *
+        FROM osm_data
+        WHERE id = {osm_id}
+    '''.format(osm_id=osm_id)
+
+    cursor.execute(query)
 
     columns = [c[0] for c in cursor.description]
     results_tuple = namedtuple('OSMFeature', columns)

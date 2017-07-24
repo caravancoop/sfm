@@ -22,11 +22,10 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <select id="entity-type" name="entity_type" class="form-control">
-                            <option value="Person" {% if 'Person' in filters %}selected=true{% endif %}>Personnel</option>
-                            <option value="Organization" {% if 'Organization' in filters %}selected=true{% endif %}>Units</option>
-                            <option value="Violation" {% if 'Violation' in filters %}selected=true{% endif %}>Incidents</option>
-                            <option value="*" {% if '*' in filters %}selected=true{%endif%}>Everything</option>
+                        <select id="entity-type" name="entity_type" class="form-control" multiple="multiple">
+                            <option value="Person" {% if 'Person' in entity_types %}selected=true{% endif %}>Personnel</option>
+                            <option value="Organization" {% if 'Organization' in entity_types %}selected=true{% endif %}>Units</option>
+                            <option value="Violation" {% if 'Violation' in entity_types %}selected=true{% endif %}>Incidents</option>
                         </select>
                     </div>
                 </div>
