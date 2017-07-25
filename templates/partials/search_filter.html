@@ -1,0 +1,22 @@
+<div class="panel panel-filter">
+    <div class="panel-heading" data-toggle="collapse" data-target="#filter-{{facet_name}}">
+        <p class="panel-title">
+            <a role="button">
+                <strong>{{facet_label}}</strong>
+                <i class="fa fa-fw {% if facet_name in selected_facets %}fa-minus {% else %} fa-plus {% endif %} pull-right"></i>
+            </a>
+        </p>
+    </div>
+    <div class="panel-body {% if facet_name in selected_facets %}panel-show{% endif %} collapse" id="filter-{{facet_name}}">
+        <ul class="search-facet-list">
+            {% for name, count in item_list %}
+                {% if count and count > 0 %}
+
+                    {% include 'partials/search_filter_item.html' %}
+
+                {% endif %}
+            {% endfor %}
+
+        </ul>
+    </div>
+</div>

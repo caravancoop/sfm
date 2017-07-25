@@ -15,10 +15,16 @@
                 </span>
             </div>
         </div>
+
+        <!-- Filters -->
         <div class="col-xs-12 col-sm-4 pull-left">
+
+            <!-- Entity type -->
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h4><strong><i class="fa fa-fw fa-search"></i> I'm looking for...</strong></h4>
+                    <h4 class="panel-title">
+                        <strong><i class="fa fa-fw fa-search"></i> I'm looking for...</strong>
+                    </h4>
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
@@ -30,11 +36,15 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Location -->
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h4><strong><i class="fa fa-fw fa-filter"></i> Filter by...</strong></h4>
+                    <h4 class="panel-title">
+                        Filters for <strong><i class="fa fa-fw fa-globe"></i>Location</strong>
+                    </h4>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body" id="location-filters">
                     <div class="form-group">
                         <div class="select2-input-buffer">
                             <select id="location-filter" name="osm_id" class="form-control">
@@ -55,6 +65,51 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Persons -->
+            {% if 'Person' in entity_types %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            Filters for <strong><i class="fa fa-fw fa-user"></i>Personnel</strong>
+                        </h4>
+                    </div>
+                    <!-- Facets -->
+                    <div class="panel-body" id="person-filters">
+                        {% with facet_name='person_current_role_s' facet_label='Role' item_list=facets.Person.facet_fields.person_current_role_s %}
+                            {% include 'partials/search_filter.html' %}
+                        {% endwith %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Organizations -->
+            {% if 'Organization' in entity_types %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            Filters for <strong><i class="fa fa-fw fa-users"></i>Units</strong>
+                        </h4>
+                    </div>
+                    <!-- Facets -->
+                    <div class="panel-body" id="organization-filters">
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Violations -->
+            {% if 'Violation' in entity_types %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            Filters for <strong><i class="fa fa-fw fa-exclamation-triangle"></i>Incidents</strong>
+                        </h4>
+                    </div>
+                    <!-- Facets -->
+                    <div class="panel-body" id="violation-filters">
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </form>
 {% if results %}

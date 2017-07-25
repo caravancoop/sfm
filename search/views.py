@@ -11,12 +11,68 @@ from violation.models import Violation
 from sfm_pc.utils import get_osm_by_id
 
 
+def format_facets(facet_dict):
+    '''
+    pysolr formats facets in a weird way. This helper function converts their
+    list-like data structure into a standard tuple.
+
+    Basic idea: convert counts from a list to a list of tuples, e.g.:
+
+    ['foo', 1, 'bar', 2] --> [('foo', 1), ('bar': 2)]
+    '''
+    facet_types = ['facet_queries', 'facet_fields', 'facet_ranges',
+                   'facet_heatmaps', 'facet_intervals']
+
+    out = {}
+
+    for ftype, facets in facet_dict.items():
+        updated_facets = {}
+        for facet, items in facets.items():
+            if isinstance(items, dict):
+                # Ranges have a slightly different format
+                item_list = items['counts']
+            else:
+                item_list = items
+
+            counts = []
+            for i, el in enumerate(item_list):
+                # The attribute name always comes first; use them as keys
+                if i % 2 == 0:
+                    count = item_list[i+1]
+                    counts.append((el, count))
+                else:
+                    # We already bunched this one, so skip it
+                    continue
+
+            updated_facets[facet] = counts
+        out[ftype] = updated_facets
+
+    return out
+
 SEARCH_ENTITY_TYPES = {
 #    'Source': Source,
 #    'Publication': Publication,
-    'Organization': Organization,
-    'Person': Person,
-    'Violation': Violation,
+    'Organization': {
+        'model': Organization,
+        'facet_fields': ['organization_classification_ss'],
+        'facet_ranges': ['organization_start_date_dt',
+                         'organization_end_date_dt'],
+    },
+    'Person': {
+        'model': Person,
+        'facet_fields': ['person_current_role_s',
+                         'person_current_rank_s'],
+        'facet_ranges': ['person_first_cited_dt',
+                         'person_last_cited_dt'],
+    },
+    'Violation': {
+        'model': Violation,
+        'facet_fields': ['violation_type_ss',
+                         'perpetrator_classification_ss',
+                         'violation_location_description'],
+        'facet_ranges': ['violation_start_date_dt',
+                         'violation_end_date_dt'],
+    }
 }
 
 solr = pysolr.Solr(settings.SOLR_URL)
@@ -55,13 +111,14 @@ def search(request):
     else:
         full_query = user_query
 
+    # Set limits for search pagination
     if len(entity_types) < 2:
         result_count = 10
     else:
         result_count = 5
 
-    # Initialize extra Solr params with the default row count
-    search_context = {'rows': result_count}
+    # Initialize extra Solr params with the default row count and facets on
+    search_context = {'rows': result_count, 'facet': 'on'}
 
     # Configure geofilters
     osm = None
@@ -79,9 +136,17 @@ def search(request):
         search_context['d'] = d
 
     # Search solr
-    results = {}
-    pages = {}
+    results = {}  # Store model info
+    pages = {}  # Store pagination info
+    facets = {etype: [] for etype in entity_types}  # Store facet counts
     for etype in entity_types:
+
+        # Add facets to the query
+        search_context['facet.field'] = SEARCH_ENTITY_TYPES[etype]['facet_fields']
+        search_context['facet.range'] = SEARCH_ENTITY_TYPES[etype]['facet_ranges']
+        search_context['facet.range.start'] = '2000-01-01T00:00:00Z/YEAR'
+        search_context['facet.range.end'] = 'NOW/YEAR'
+        search_context['facet.range.gap'] = '+1YEAR'
 
         # Handle pagination
         pages[etype] = {}
@@ -110,10 +175,13 @@ def search(request):
         else:
             pages[etype]['has_next'] = False
 
+        facets[etype] = format_facets(response.facets)
+        print(facets)
+
         # Pull models from the DB based on search results
         object_ids = [result['id'] for result in response]
         if len(object_ids) > 0:
-            model = SEARCH_ENTITY_TYPES[etype]
+            model = SEARCH_ENTITY_TYPES[etype]['model']
             results[etype] = model.objects.filter(uuid__in=object_ids)
 
     context = {
@@ -124,7 +192,8 @@ def search(request):
         'osm': osm,
         'radius_choices': ['1','5','10','25','50','100'],
         'pages': pages,
-        'q_filters': q_filters
+        'q_filters': q_filters,
+        'facets': facets
     }
 
     return render(request, 'search/search.html', context)
