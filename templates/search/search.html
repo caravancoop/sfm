@@ -62,15 +62,23 @@
         {% if query %}
         <h1>Results for &ldquo;{{ query }}&rdquo;</h1>
         {% endif %}
-        {% for result_type, objects in results.items %}
-            {% if result_type == 'Organization' %}
-                {% include 'partials/organization_search_results.html' %}
-            {% elif result_type == 'Person' %}
+
+        {% if 'Person' in results.keys %}
+            {% with objects=results.Person %}
                 {% include 'partials/person_search_results.html' %}
-            {% elif result_type == 'Violation' %}
+            {% endwith %}
+        {% endif %}
+        {% if 'Organization' in results.keys %}
+            {% with objects=results.Organization %}
+                {% include 'partials/organization_search_results.html' %}
+            {% endwith %}
+        {% endif %}
+        {% if 'Violation' in results.keys %}
+            {% with objects=results.Violation %}
                 {% include 'partials/violation_search_results.html' %}
-            {% endif %}
-        {% endfor %}
+            {% endwith %}
+        {% endif %}
+
     </div>
 {% endif %}
 </div>
