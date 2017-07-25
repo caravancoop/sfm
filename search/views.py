@@ -10,6 +10,8 @@ from violation.models import Violation
 from sfm_pc.utils import get_osm_by_id
 
 
+DEFAULT_RESULT_COUNT = 10
+
 SEARCH_ENTITY_TYPES = {
 #    'Source': Source,
 #    'Publication': Publication,
@@ -22,7 +24,7 @@ solr = pysolr.Solr(settings.SOLR_URL)
 
 def search(request):
 
-    # Parse request params
+    # Parse standard request params
     user_query = request.GET.get('q')
     entity_types = request.GET.getlist('entity_type')
     location = request.GET.get('osm_id')
@@ -34,17 +36,9 @@ def search(request):
     else:
         full_query = user_query
 
-    # Restrict the query based on the type of entity the user wants
-    if entity_types == []:
-        entity_types = [etype for etype in SEARCH_ENTITY_TYPES.keys()]
+    search_context = {'rows': DEFAULT_RESULT_COUNT}
 
-    for etype in entity_types:
-        full_query += ' AND entity_type:{etype}'.format(etype=etype)
-
-    # Start to build the parameters for the Lucene search query
-    search_context = {'entity_type': entity_types}
-
-    # Geo filters
+    # Configure geofilters
     osm = None
     if location and radius:
         fq = '{!geofilt sfield=location}'
@@ -59,26 +53,45 @@ def search(request):
         search_context['sort'] = sort
         search_context['d'] = d
 
+    # Make sure to handle empty entity types
+    if entity_types is None or entity_types == '' or entity_types == []:
+        entity_types = [etype for etype in SEARCH_ENTITY_TYPES.keys()]
+
     # Search solr
-    response = solr.search(full_query, **search_context)
-
-    # Parse the results
-    result_types = {}
-    for result in response:
-
-        entity_type = result['entity_type']
-        object_ref_id = result['id']
-
-        try:
-            result_types[entity_type].append(object_ref_id)
-        except KeyError:
-            result_types[entity_type] = [object_ref_id]
-
     results = {}
-    for entity_type, objects in result_types.items():
+    pages = {}
+    for etype in entity_types:
 
-        model = SEARCH_ENTITY_TYPES[entity_type]
-        results[entity_type] = model.objects.filter(uuid__in=objects)
+        pages[etype] = {}
+        pagination = request.GET.get(etype + '_page')
+
+        if pagination is not None:
+            pagination = int(pagination)
+            start = (pagination - 1) * DEFAULT_RESULT_COUNT
+            if pagination > 1:
+                pages[etype]['has_previous'] = True
+                pages[etype]['previous_page_number'] = pagination - 1
+        else:
+            pagination = 1
+            start = 0
+            pages[etype]['has_previous'] = False
+
+        search_context['start'] = start
+
+        etype_query = full_query + ' AND entity_type:{etype}'.format(etype=etype)
+        response = solr.search(etype_query, **search_context)
+
+        if response.hits > DEFAULT_RESULT_COUNT:
+            pages[etype]['has_next'] = True
+            pages[etype]['next_page_number'] = pagination + 1
+        else:
+            pages[etype]['has_next'] = False
+
+        object_ids = [result['id'] for result in response]
+
+        if len(object_ids) > 0:
+            model = SEARCH_ENTITY_TYPES[etype]
+            results[etype] = model.objects.filter(uuid__in=object_ids)
 
     context = {
         'results': results,
@@ -87,6 +100,8 @@ def search(request):
         'radius': radius,
         'osm': osm,
         'radius_choices': ['1','5','10','25','50','100'],
+        'pages': pages
     }
 
     return render(request, 'search/search.html', context)
+

@@ -2,7 +2,11 @@
     <strong><i class="fa fa-fw fa-user"></i> Personnel</strong>
     <button class="pull-right btn btn-default merge" data-entity_type="person">Merge selected</button>
 </h3>
+
 {% with merge='True' object_list=objects %}
     {% include 'partials/person_list_table.html' %}
 {% endwith %}
 
+{% with page=pages.Person page_type='Person' %}
+    {% include 'partials/pagination.html' %}
+{% endwith %}
