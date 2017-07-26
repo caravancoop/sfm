@@ -209,3 +209,4 @@ OSM_DATA = [
     # },
 ]
 
+SOLR_URL = ''

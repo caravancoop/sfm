@@ -72,7 +72,7 @@ def setUpModule():
         call_command('loaddata', fixture)
 
     call_command('make_flattened_views', '--recreate')
-    call_command('make_search_index')
+    # call_command('make_search_index')
 
 
 def tearDownModule():
