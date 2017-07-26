@@ -195,8 +195,6 @@ class CountryMapView(JSONAPIView):
         country_code = kwargs['id']
         division_id = 'ocd-division/country:{}'.format(country_code)
         
-        print(division_id)
-
         when = self.request.GET['at']
         bbox = self.request.GET.get('bbox')
         classification = self.request.GET.get('classification__in')
