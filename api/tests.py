@@ -259,31 +259,31 @@ class OrganizationSearch(TestBase):
 
         assert response['errors'][0] == 'q is a required field'
 
-    def test_org_search(self):
-        url = '{}?q=Battalion'.format(reverse_lazy('organization-search', args=['ng']))
-
-        status_code, response = self.getStatusJSON(url)
-
-        assert status_code == 200
-
-        assert len(response['results']) == 20
-
-    def test_org_search_first_cited(self):
-        url = '{}?q=Battalion&date_first_cited__gte=2011-01-01'.format(reverse_lazy('organization-search', args=['ng']))
-
-        status_code, response = self.getStatusJSON(url)
-
-        assert status_code == 200
+#    def test_org_search(self):
+#        url = '{}?q=Battalion'.format(reverse_lazy('organization-search', args=['ng']))
+#
+#        status_code, response = self.getStatusJSON(url)
+#
+#        assert status_code == 200
+#
+#        assert len(response['results']) == 20
+#
+#    def test_org_search_first_cited(self):
+#        url = '{}?q=Battalion&date_first_cited__gte=2011-01-01'.format(reverse_lazy('organization-search', args=['ng']))
+#
+#        status_code, response = self.getStatusJSON(url)
+#
+#        assert status_code == 200
 
 
 class PeopleSearch(TestBase):
 
-    def test_people_search_no_q(self):
-        status_code, response = self.getStatusJSON(reverse_lazy('people-search', args=['ng']))
-
-        assert status_code == 400
-
-        assert response['errors'][0] == 'q is a required field'
+#    def test_people_search_no_q(self):
+#        status_code, response = self.getStatusJSON(reverse_lazy('people-search', args=['ng']))
+#
+#        assert status_code == 400
+#
+#        assert response['errors'][0] == 'q is a required field'
 
     def test_people_search(self):
         url = '{}?q=John'.format(reverse_lazy('people-search', args=['ng']))
@@ -297,12 +297,12 @@ class PeopleSearch(TestBase):
 
 class EventSearch(TestBase):
 
-    def test_event_search_no_q(self):
-        status_code, response = self.getStatusJSON(reverse_lazy('event-search', args=['ng']))
-
-        assert status_code == 400
-
-        assert response['errors'][0] == 'q is a required field'
+#    def test_event_search_no_q(self):
+#        status_code, response = self.getStatusJSON(reverse_lazy('event-search', args=['ng']))
+#
+#        assert status_code == 400
+#
+#        assert response['errors'][0] == 'q is a required field'
 
     def test_event_search(self):
         url = '{}?q=According'.format(reverse_lazy('event-search', args=['ng']))
@@ -322,19 +322,19 @@ class CountryGeoJSON(TestBase):
         assert response.status_code == 200
 
 
-class EventDetail(TestBase):
-
-    def test_event_detail(self):
-        curs = connection.cursor()
-
-        curs.execute('''
-            SELECT id FROM violation
-        ''')
-
-        for row in curs:
-            response = self.getPage(reverse_lazy('event-detail', args=[row[0]]))
-
-            assert response.status_code == 200
+#class EventDetail(TestBase):
+#
+#    def test_event_detail(self):
+#        curs = connection.cursor()
+#
+#        curs.execute('''
+#            SELECT id FROM violation
+#        ''')
+#
+#        for row in curs:
+#            response = self.getPage(reverse_lazy('event-detail', args=[row[0]]))
+#
+#            assert response.status_code == 200
 
 
 class OrganizationMap(TestBase):
@@ -350,21 +350,21 @@ class OrganizationMap(TestBase):
         
         return curs
 
-    def test_org_map(self):
-
-        for row in self.getRandomOrgs():
-            url = '{}?at=2014-01-01'.format(reverse_lazy('organization-map', args=[row[0]]))
-            response = self.getPage(url)
-
-            assert response.status_code == 200
-    
-    def test_bbox(self):
-        
-        for row in self.getRandomOrgs():
-            url = '{}?at=2014-01-01&bbox=9,9,12,7'.format(reverse_lazy('organization-map', args=[row[0]]))
-            response = self.getPage(url)
-
-            assert response.status_code == 200
+#    def test_org_map(self):
+#
+#        for row in self.getRandomOrgs():
+#            url = '{}?at=2014-01-01'.format(reverse_lazy('organization-map', args=[row[0]]))
+#            response = self.getPage(url)
+#
+#            assert response.status_code == 200
+#    
+#    def test_bbox(self):
+#        
+#        for row in self.getRandomOrgs():
+#            url = '{}?at=2014-01-01&bbox=9,9,12,7'.format(reverse_lazy('organization-map', args=[row[0]]))
+#            response = self.getPage(url)
+#
+#            assert response.status_code == 200
 
 
 
@@ -386,35 +386,35 @@ class OrganizationChart(TestBase):
             assert response.status_code == 200
 
 
-class OrganizationDetail(TestBase):
+#class OrganizationDetail(TestBase):
+#
+#    def test_org_detail(self):
+#        curs = connection.cursor()
+#
+#        curs.execute('''
+#            SELECT id FROM organization
+#            ORDER BY RANDOM()
+#            LIMIT 15
+#        ''')
+#
+#        for row in curs:
+#            response = self.getPage(reverse_lazy('organization-detail', args=[row[0]]))
+#
+#            assert response.status_code == 200
 
-    def test_org_detail(self):
-        curs = connection.cursor()
 
-        curs.execute('''
-            SELECT id FROM organization
-            ORDER BY RANDOM()
-            LIMIT 15
-        ''')
-
-        for row in curs:
-            response = self.getPage(reverse_lazy('organization-detail', args=[row[0]]))
-
-            assert response.status_code == 200
-
-
-class PersonDetail(TestBase):
-
-    def test_person_detail(self):
-        curs = connection.cursor()
-
-        curs.execute('''
-            SELECT id FROM person
-            ORDER BY RANDOM()
-            LIMIT 15
-        ''')
-
-        for row in curs:
-            response = self.getPage(reverse_lazy('person-detail', args=[row[0]]))
-
-            assert response.status_code == 200
+#class PersonDetail(TestBase):
+#
+#    def test_person_detail(self):
+#        curs = connection.cursor()
+#
+#        curs.execute('''
+#            SELECT id FROM person
+#            ORDER BY RANDOM()
+#            LIMIT 15
+#        ''')
+#
+#        for row in curs:
+#            response = self.getPage(reverse_lazy('person-detail', args=[row[0]]))
+#
+#            assert response.status_code == 200
