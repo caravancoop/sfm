@@ -8,46 +8,8 @@ from source.models import Source, Publication
 from organization.models import Organization
 from person.models import Person
 from violation.models import Violation
-from sfm_pc.utils import get_osm_by_id
+from sfm_pc.utils import get_osm_by_id, format_facets
 
-
-def format_facets(facet_dict):
-    '''
-    pysolr formats facets in a weird way. This helper function converts their
-    list-like data structure into a standard tuple.
-
-    Basic idea: convert counts from a list to a list of tuples, e.g.:
-
-    ['foo', 1, 'bar', 2] --> [('foo', 1), ('bar': 2)]
-    '''
-    facet_types = ['facet_queries', 'facet_fields', 'facet_ranges',
-                   'facet_heatmaps', 'facet_intervals']
-
-    out = {}
-
-    for ftype, facets in facet_dict.items():
-        updated_facets = {}
-        for facet, items in facets.items():
-            if isinstance(items, dict):
-                # Ranges have a slightly different format
-                item_list = items['counts']
-            else:
-                item_list = items
-
-            counts = []
-            for i, el in enumerate(item_list):
-                # The attribute name always comes first; use them as keys
-                if i % 2 == 0:
-                    count = item_list[i+1]
-                    counts.append((el, count))
-                else:
-                    # We already bunched this one, so skip it
-                    continue
-
-            updated_facets[facet] = counts
-        out[ftype] = updated_facets
-
-    return out
 
 SEARCH_ENTITY_TYPES = {
 #    'Source': Source,
@@ -69,7 +31,7 @@ SEARCH_ENTITY_TYPES = {
         'model': Violation,
         'facet_fields': ['violation_type_ss',
                          'perpetrator_classification_ss',
-                         'violation_location_description'],
+                         'violation_location_description_ss'],
         'facet_ranges': ['violation_start_date_dt',
                          'violation_end_date_dt'],
     }
@@ -176,7 +138,6 @@ def search(request):
             pages[etype]['has_next'] = False
 
         facets[etype] = format_facets(response.facets)
-        print(facets)
 
         # Pull models from the DB based on search results
         object_ids = [result['id'] for result in response]

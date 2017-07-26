@@ -67,7 +67,7 @@
             </div>
 
             <!-- Persons -->
-            {% if 'Person' in entity_types %}
+            {% if 'Person' in entity_types and results.Person|length > 0 %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -76,7 +76,12 @@
                     </div>
                     <!-- Facets -->
                     <div class="panel-body" id="person-filters">
+                        <!-- Role -->
                         {% with facet_name='person_current_role_s' facet_label='Role' item_list=facets.Person.facet_fields.person_current_role_s %}
+                            {% include 'partials/search_filter.html' %}
+                        {% endwith %}
+                        <!-- Rank -->
+                        {% with facet_name='person_current_rank_s' facet_label='Rank' item_list=facets.Person.facet_fields.person_current_rank_s %}
                             {% include 'partials/search_filter.html' %}
                         {% endwith %}
                     </div>
@@ -84,7 +89,7 @@
             {% endif %}
 
             <!-- Organizations -->
-            {% if 'Organization' in entity_types %}
+            {% if 'Organization' in entity_types and results.Organization|length > 0 %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -93,12 +98,16 @@
                     </div>
                     <!-- Facets -->
                     <div class="panel-body" id="organization-filters">
+                        <!-- Classification -->
+                        {% with facet_name='organization_classification_ss' facet_label='Classification' item_list=facets.Organization.facet_fields.organization_classification_ss %}
+                            {% include 'partials/search_filter.html' %}
+                        {% endwith %}
                     </div>
                 </div>
             {% endif %}
 
             <!-- Violations -->
-            {% if 'Violation' in entity_types %}
+            {% if 'Violation' in entity_types and results.Violation|length > 0 %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -107,6 +116,18 @@
                     </div>
                     <!-- Facets -->
                     <div class="panel-body" id="violation-filters">
+                        <!-- Violation type -->
+                        {% with facet_name='violation_type_ss' facet_label='Violation type' item_list=facets.Violation.facet_fields.violation_type_ss %}
+                            {% include 'partials/search_filter.html' %}
+                        {% endwith %}
+                        <!-- Perpetrator classification -->
+                        {% with facet_name='perpetrator_classification_ss' facet_label='Perpetrator type' item_list=facets.Violation.facet_fields.perpetrator_classification_ss %}
+                            {% include 'partials/search_filter.html' %}
+                        {% endwith %}
+                        <!-- Location description -->
+                        {% with facet_name='violation_location_description_ss' facet_label='Location description' item_list=facets.Violation.facet_fields.violation_location_description_ss %}
+                            {% include 'partials/search_filter.html' %}
+                        {% endwith %}
                     </div>
                 </div>
             {% endif %}
@@ -196,6 +217,15 @@ var osm_opts = {
 
             window.location.assign(redirect_path + '?' + $.param(params));
 
+        });
+
+        // Facet dropdowns
+        $('.filter-heading').on('click', function(e) {
+            if ($(this).parent().siblings('.panel-body').hasClass("in")){
+                $(this).find('i').removeClass("fa-minus").addClass("fa-plus");
+            } else{
+                $(this).find('i').removeClass("fa-plus").addClass("fa-minus");
+            }
         })
     })
 

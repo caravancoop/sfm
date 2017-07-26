@@ -66,6 +66,15 @@ body {
     margin-bottom: 10px;
 }
 
+.filter-heading {
+    color: inherit;
+}
+
+.filter-heading:hover {
+    color: inherit;
+    cursor: pointer;
+}
+
 @media (max-width: 465px) {
     /* Responsive header styles for tiny screens */
     .navbar-brand {
