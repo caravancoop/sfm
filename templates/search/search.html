@@ -78,11 +78,11 @@
                     <!-- Facets -->
                     <div class="panel-body" id="person-filters">
                         <!-- Role -->
-                        {% with facet_name='person_current_role_s' facet_label='Role' item_list=facets.Person.facet_fields.person_current_role_s %}
+                        {% with facet_name='person_current_role_s' facet_label='Role' selected_list=selected_facets.person_current_role_s item_list=facets.Person.facet_fields.person_current_role_s %}
                             {% include 'partials/search_filter.html' %}
                         {% endwith %}
                         <!-- Rank -->
-                        {% with facet_name='person_current_rank_s' facet_label='Rank' item_list=facets.Person.facet_fields.person_current_rank_s %}
+                        {% with facet_name='person_current_rank_ss' facet_label='Rank' selected_list=selected_facets.person_current_rank_ss item_list=facets.Person.facet_fields.person_current_rank_s %}
                             {% include 'partials/search_filter.html' %}
                         {% endwith %}
                     </div>
@@ -100,7 +100,7 @@
                     <!-- Facets -->
                     <div class="panel-body" id="organization-filters">
                         <!-- Classification -->
-                        {% with facet_name='organization_classification_ss' facet_label='Classification' item_list=facets.Organization.facet_fields.organization_classification_ss %}
+                        {% with facet_name='organization_classification_ss' facet_label='Classification' selected_list=selected_facets.organization_classification_ss item_list=facets.Organization.facet_fields.organization_classification_ss %}
                             {% include 'partials/search_filter.html' %}
                         {% endwith %}
                     </div>
@@ -118,15 +118,15 @@
                     <!-- Facets -->
                     <div class="panel-body" id="violation-filters">
                         <!-- Violation type -->
-                        {% with facet_name='violation_type_ss' facet_label='Violation type' item_list=facets.Violation.facet_fields.violation_type_ss %}
+                        {% with facet_name='violation_type_ss' facet_label='Violation type' selected_list=selected_facets.violation_type_ss item_list=facets.Violation.facet_fields.violation_type_ss %}
                             {% include 'partials/search_filter.html' %}
                         {% endwith %}
                         <!-- Perpetrator classification -->
-                        {% with facet_name='perpetrator_classification_ss' facet_label='Perpetrator type' item_list=facets.Violation.facet_fields.perpetrator_classification_ss %}
+                        {% with facet_name='perpetrator_classification_ss' facet_label='Perpetrator type' selected_list=selected_facets.perpetrator_classification_ss item_list=facets.Violation.facet_fields.perpetrator_classification_ss %}
                             {% include 'partials/search_filter.html' %}
                         {% endwith %}
                         <!-- Location description -->
-                        {% with facet_name='violation_location_description_ss' facet_label='Location description' item_list=facets.Violation.facet_fields.violation_location_description_ss %}
+                        {% with facet_name='violation_location_description_ss' facet_label='Location description' selected_list=selected_facets.violation_location_description_ss item_list=facets.Violation.facet_fields.violation_location_description_ss %}
                             {% include 'partials/search_filter.html' %}
                         {% endwith %}
                     </div>
@@ -164,32 +164,87 @@
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
 <script type="text/javascript">
-var osm_opts = {
-    ajax: {
-        url: "{% url 'osm-autocomplete' %}",
-        datType: 'json',
-        delay: 250,
-        data: function(params) {
-            return {
-                q: params.term,
-                types: ['city', 'district'],
+    var osm_opts = {
+        ajax: {
+            url: "{% url 'osm-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return {
+                    q: params.term,
+                    types: ['city', 'district'],
 
-            };
-        },
-        cache: true,
-        processResults: function(data, params) {
-            if (data.length >= 1) {
-                return { results: data };
-            } else {
-                    return { results: [] };
+                };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                        return { results: [] };
+                }
             }
-        }
-    },
-    escapeMarkup: function(markup){ return markup; },
-    placeholder: 'Location',
-    minimumInputLength: 2
-};
+        },
+        escapeMarkup: function(markup){ return markup; },
+        placeholder: 'Location',
+        minimumInputLength: 2
+    };
     $(document).ready(function(){
+
+        // Show dropdowns containing selected facets
+        $('.panel-show').addClass('in');
+
+        // Init dropdowns
+        $('.filter-heading').on('click', function(e) {
+            if ($(this).parent().siblings('.panel-body').hasClass("in")) {
+                $(this).find('i').removeClass("fa-minus").addClass("fa-plus");
+            } else {
+                $(this).find('i').removeClass("fa-plus").addClass("fa-minus");
+            }
+        });
+
+        // Facet logic
+        var existing_q = decodeURIComponent("{{ q_filters }}")
+                         .replace(/&amp;/g, '&')
+                         .replace(/\+/g, ' ');
+
+        $(".filter-value").click(function() {
+            var addtl_filter = $(this).attr('data');
+            if (existing_q) {
+                window.location.assign('/search/?' + existing_q +
+                                       '&selected_facets=' +
+                                       encodeURIComponent(addtl_filter));
+            } else {
+                window.location.assign('/search/?selected_facets=' +
+                                       encodeURIComponent(addtl_filter));
+            }
+        });
+
+        $(".remove-filter-value").click(function() {
+            var to_remove = encodeURIComponent('selected_facets=' +
+                                               $(this).attr('data'));
+            var existing_components = existing_q.split("&");
+            var new_components = $.grep(existing_components, function(value) {
+                return encodeURIComponent(value) != to_remove;
+            });
+            window.location.assign('/search/?' + new_components.join('&'));
+        });
+
+        $(".remove-order-value").click(function() {
+            var to_remove = $(this).attr('data');
+            var existing_components = existing_q.split("&");
+            for (var i = existing_components.length -1; i >= 0 ; i--) {
+                var el = existing_components[i];
+                if (el.includes('ascending') ||
+                    el.includes(to_remove) ||
+                    el.includes('descending')) {
+                        existing_components.splice(i, 1);
+                }
+            }
+            window.location.assign('/search/?' + existing_components.join('&'));
+        });
+
+        // Init select2 boxes
         $('#location-filter').select2(osm_opts);
         $('#entity-type').select2({
             minimumResultsForSearch: Infinity
@@ -220,16 +275,7 @@ var osm_opts = {
             window.location.assign(redirect_path + '?' + $.param(params));
 
         });
-
-        // Facet dropdowns
-        $('.filter-heading').on('click', function(e) {
-            if ($(this).parent().siblings('.panel-body').hasClass("in")){
-                $(this).find('i').removeClass("fa-minus").addClass("fa-plus");
-            } else{
-                $(this).find('i').removeClass("fa-plus").addClass("fa-minus");
-            }
-        })
-    })
+    });
 
 </script>
 {% endblock %}

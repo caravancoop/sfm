@@ -142,10 +142,11 @@ def search(request):
         search_context['start'] = start
 
         # Filter on selected facets and entity type
-        for field, val in selected_facets.items():
-            if field_name in search_context['facet.field']:
-                etype_query += ' AND {field_name}:{value}'.format(field=field,
-                                                                 val=val)
+        for field, values in selected_facets.items():
+            if field in search_context['facet.field']:
+                for val in values:
+                    etype_query += ' AND {field}:{val}'.format(field=field,
+                                                               val=val)
         etype_query += ' AND entity_type:{etype}'.format(etype=etype)
 
         # Perform a search
@@ -168,6 +169,8 @@ def search(request):
 
     # Determine total result count
     hits['global'] = sum(count for count in hits.values())
+
+    print(selected_facets)
 
     context = {
         'results': results,
