@@ -362,11 +362,12 @@ def import_class(cl):
 def format_facets(facet_dict):
     '''
     pysolr formats facets in a weird way. This helper function converts their
-    list-like data structure into a standard tuple.
+    list-like data structure into a dict that we can iterate more easily.
 
-    Basic idea: convert counts from a list to a list of tuples, e.g.:
+    Basic idea: convert counts from a list to a dict containing a list of tuples
+    and a flag for whether any facets were found, e.g.:
 
-    ['foo', 1, 'bar', 2] --> [('foo', 1), ('bar': 2)]
+    ['foo', 1, 'bar', 2] --> {'any': True, 'counts': [('foo', 1), ('bar': 2)]}
     '''
     facet_types = ['facet_queries', 'facet_fields', 'facet_ranges',
                    'facet_heatmaps', 'facet_intervals']
@@ -392,7 +393,12 @@ def format_facets(facet_dict):
                     # We already bunched this one, so skip it
                     continue
 
-            updated_facets[facet] = counts
+            updated_facets[facet] = {}
+            updated_facets[facet]['counts'] = counts
+
+            # Check to see if there are any facets in this category
+            any_facets = sum(count[1] for count in counts) > 0
+            updated_facets[facet]['any'] = any_facets
         out[ftype] = updated_facets
 
     return out
