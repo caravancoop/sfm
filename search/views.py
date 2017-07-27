@@ -48,6 +48,16 @@ def search(request):
     radius = request.GET.get('radius')
     selected_facet_vals = request.GET.getlist('selected_facets')
 
+    # Parse selected facets
+    selected_facets = {}
+    for val in selected_facet_vals:
+        if val:
+            [k, v] = val.split('_exact:', 1)
+            try:
+                selected_facets[k].append(v)
+            except KeyError:
+                selected_facets[k] = [v]
+
     # Make sure to handle empty entity types
     if entity_types is None or entity_types == '' or entity_types == []:
         entity_types = [etype for etype in SEARCH_ENTITY_TYPES.keys()]
@@ -98,10 +108,14 @@ def search(request):
         search_context['d'] = d
 
     # Search solr
-    results = {}  # Store model info
-    pages = {}  # Store pagination info
-    facets = {etype: [] for etype in entity_types}  # Store facet counts
+    results = {}  # Model info
+    pages = {}  # Pagination info
+    facets = {etype: [] for etype in entity_types}  # Facet counts
+    hits = {}  # Result counts
     for etype in entity_types:
+
+        # Copy the query so we can modify it in the scope of this iteration
+        etype_query = full_query
 
         # Add facets to the query
         search_context['facet.field'] = SEARCH_ENTITY_TYPES[etype]['facet_fields']
@@ -127,8 +141,14 @@ def search(request):
 
         search_context['start'] = start
 
+        # Filter on selected facets and entity type
+        for field, val in selected_facets.items():
+            if field_name in search_context['facet.field']:
+                etype_query += ' AND {field_name}:{value}'.format(field=field,
+                                                                 val=val)
+        etype_query += ' AND entity_type:{etype}'.format(etype=etype)
+
         # Perform a search
-        etype_query = full_query + ' AND entity_type:{etype}'.format(etype=etype)
         response = solr.search(etype_query, **search_context)
 
         if response.hits > result_count:
@@ -137,6 +157,7 @@ def search(request):
         else:
             pages[etype]['has_next'] = False
 
+        hits[etype] = response.hits
         facets[etype] = format_facets(response.facets)
 
         # Pull models from the DB based on search results
@@ -144,6 +165,9 @@ def search(request):
         if len(object_ids) > 0:
             model = SEARCH_ENTITY_TYPES[etype]['model']
             results[etype] = model.objects.filter(uuid__in=object_ids)
+
+    # Determine total result count
+    hits['global'] = sum(count for count in hits.values())
 
     context = {
         'results': results,
@@ -154,7 +178,9 @@ def search(request):
         'radius_choices': ['1','5','10','25','50','100'],
         'pages': pages,
         'q_filters': q_filters,
-        'facets': facets
+        'facets': facets,
+        'selected_facets': selected_facets,
+        'hits': hits
     }
 
     return render(request, 'search/search.html', context)

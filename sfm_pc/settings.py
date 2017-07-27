@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'django.contrib.humanize',
     'django_date_extensions',
     'allauth',
     'allauth.account',

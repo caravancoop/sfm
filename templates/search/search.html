@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load humanize %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
 {% endblock %}
@@ -133,30 +134,31 @@
             {% endif %}
         </div>
     </form>
-{% if results %}
     <div class="col-xs-12 col-sm-8 pull-right">
-        {% if query %}
-        <h1>Results for &ldquo;{{ query }}&rdquo;</h1>
-        {% endif %}
+    {% if results %}
+        <h1>{{ hits.global|intcomma }} results found {% if query %}for &ldquo;{{ query }}&rdquo;{% endif %}</h1>
 
         {% if 'Person' in results.keys %}
-            {% with objects=results.Person %}
+            {% with objects=results.Person hit_count=hits.Person %}
                 {% include 'partials/person_search_results.html' %}
             {% endwith %}
         {% endif %}
         {% if 'Organization' in results.keys %}
-            {% with objects=results.Organization %}
+            {% with objects=results.Organization hit_count=hits.Organization %}
                 {% include 'partials/organization_search_results.html' %}
             {% endwith %}
         {% endif %}
         {% if 'Violation' in results.keys %}
-            {% with objects=results.Violation %}
+            {% with objects=results.Violation hit_count=hits.Violation %}
                 {% include 'partials/violation_search_results.html' %}
             {% endwith %}
         {% endif %}
-
+    {% else %}
+        <h1>No results found {% if query %}for &ldquo;{{ query  }}&rdquo;{% endif %}</h1>
+        <p>For better results, try adjusting your search filters.</p>
+        <p>Think we're missing something? <a href="#">Let us know!</a></p>
+    {% endif %}
     </div>
-{% endif %}
 </div>
 {% endblock %}
 {% block extra_js %}
