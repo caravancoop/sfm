@@ -58,6 +58,7 @@ body {
 }
 
 .select2-input-buffer {
+    margin-top: 10px;
     margin-bottom: 10px;
 }
 
