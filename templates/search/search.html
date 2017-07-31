@@ -4,6 +4,7 @@
 {% load humanize %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
 {% endblock %}
 {% block content %}
 <div class="row">
@@ -78,7 +79,9 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <!-- <strong><i class="fa fa-fw fa-clock-o"></i>Time</strong> -->
+                        <strong><i class="fa fa-fw fa-calendar"></i>Date</strong>
+                        <input type="text" class="form-control datepicker select2-input-buffer" id="id_start_date" name="start_date" placeholder="Start date" value="{{ start_date }}" />
+                        <input type="text" class="form-control datepicker select2-input-buffer" id="id_end_date" name="end_date" placeholder="End date" value="{{ end_date }}" />
                     </div>
                 </div>
             </div>
@@ -191,6 +194,7 @@
 {% endblock %}
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/javascript">
     var osm_opts = {
         ajax: {
@@ -233,6 +237,9 @@
 
         // Init tooltips
         $('[data-toggle="tooltip"').tooltip();
+
+        // Init datepicker
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
 
         // Facet logic
         var existing_q = decodeURIComponent("{{ q_filters }}")

@@ -46,9 +46,11 @@ def search(request):
     entity_types = request.GET.getlist('entity_type')
     location = request.GET.get('osm_id')
     radius = request.GET.get('radius')
-    selected_facet_vals = request.GET.getlist('selected_facets')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
 
     # Parse selected facets
+    selected_facet_vals = request.GET.getlist('selected_facets')
     selected_facets = {}
     for val in selected_facet_vals:
         if val:
@@ -82,6 +84,27 @@ def search(request):
         full_query = '*'
     else:
         full_query = user_query
+
+    # Filter on date params, if they exist; otherwise, don't bother
+    if start_date or end_date:
+
+        # Lucene needs us to replace missing params with *
+        formatted_start = start_date
+        formatted_end = end_date
+
+        if formatted_start in ('', None):
+            formatted_start = '*'
+        else:
+            formatted_start += 'T00:00:00Z'
+
+        if formatted_end in ('', None):
+            formatted_end = '*'
+        else:
+            formatted_end += 'T00:00:00Z'
+
+        full_query += ' AND start_date_dt:[{start_date} TO {end_date}]'\
+                      .format(start_date=formatted_start,
+                              end_date=formatted_end)
 
     # Set limits for search pagination
     if len(entity_types) < 2:
@@ -177,6 +200,8 @@ def search(request):
         'radius': radius,
         'osm': osm,
         'radius_choices': ['1','5','10','25','50','100'],
+        'start_date': start_date,
+        'end_date': end_date,
         'pages': pages,
         'q_filters': q_filters,
         'facets': facets,
