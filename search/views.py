@@ -46,8 +46,8 @@ def search(request):
     entity_types = request.GET.getlist('entity_type')
     location = request.GET.get('osm_id')
     radius = request.GET.get('radius')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    start_date = request.GET.get('start_date', '')
+    end_date = request.GET.get('end_date', '')
 
     # Parse selected facets
     selected_facet_vals = request.GET.getlist('selected_facets')
