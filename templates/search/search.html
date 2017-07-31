@@ -10,6 +10,13 @@
     <form class="form">
         <div class="col-xs-12 col-sm-8 pull-right">
             <div class="input-group">
+
+                {% for facet, selections in selected_facets.items %}
+                    {% for s in selections %}
+                        <input name="selected_facets" type="hidden" class="form-control" value="{{facet}}_exact:{{s}}">
+                    {% endfor %}
+                {% endfor %}
+
                 <input type="text" class="form-control input-lg" placeholder="Search for {{ search_term }}..." name="q" {% if query %}value="{{ query }}{% endif %}">
                 <span class="input-group-btn">
                     <button class="btn btn-default btn-lg" type="submit">Go!</button>
@@ -194,7 +201,6 @@
                 return {
                     q: params.term,
                     types: ['city', 'district'],
-
                 };
             },
             cache: true,
@@ -208,7 +214,8 @@
         },
         escapeMarkup: function(markup){ return markup; },
         placeholder: 'Location',
-        minimumInputLength: 2
+        minimumInputLength: 2,
+        allowClear: true
     };
     $(document).ready(function(){
 
@@ -223,6 +230,9 @@
                 $(this).find('i').removeClass("fa-plus").addClass("fa-minus");
             }
         });
+
+        // Init tooltips
+        $('[data-toggle="tooltip"').tooltip();
 
         // Facet logic
         var existing_q = decodeURIComponent("{{ q_filters }}")

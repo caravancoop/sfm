@@ -1,14 +1,14 @@
 {% load facets %}
 <li class="small">
   	{% if name in selected_list %}
-  		  <a role="button" class="filter-value" data="{{facet_name}}_exact:{{name}}" title="{{ name|title }}">
+        <a role="button" class="filter-value" data="{{facet_name}}_exact:{{name}}" data-toggle="tooltip" data-placement="auto" title="{{ name|title }}">
             <strong>{{ name | title | short_title }}</strong>
       	</a>
       	<a role="button" class="remove-filter-value" data="{{facet_name}}_exact:{{name}}">
       	   <i class="fa fa-times"></i>
       	</a>
   	{% else %}
-  		  <a role="button" class="filter-value" data="{{facet_name}}_exact:{{name}}" title="{{ name|title }}">
+        <a role="button" class="filter-value" data="{{facet_name}}_exact:{{name}}" data-toggle="tooltip" data-placement="auto" title="{{ name|title }}">
   			   {{ name | title | short_title }}
   	    </a>
   	{% endif %}
