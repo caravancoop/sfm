@@ -3,6 +3,7 @@ from os.path import join, abspath, dirname
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction, connection
 from django.db.utils import ProgrammingError
+import pysolr
 
 from search.search import Searcher
 
@@ -10,20 +11,22 @@ from search.search import Searcher
 class Command(BaseCommand):
     help = 'Add global search index'
 
+    def __init__(self, *args, **kwargs):
+
+        super(Command, self).__init__(*args, **kwargs)
+
+        self.searcher = Searcher()
+        self.updated_count = 0
+        self.added_count = 0
+
     def add_arguments(self, parser):
+
         parser.add_argument(
-            '--recreate',
+            '--update',
             action='store_true',
-            dest='recreate',
+            dest='update',
             default=False,
-            help='Recreate search index'
-        )
-        parser.add_argument(
-            '--force-refresh',
-            action='store_true',
-            dest='force_refresh',
-            default=False,
-            help='Force search index to refresh'
+            help="Add new items to an existing search index"
         )
         parser.add_argument(
             '--entity-types',
@@ -31,18 +34,35 @@ class Command(BaseCommand):
             help='Comma separated list of entity types to index',
             default="people,organizations,sources,events"
         )
+        parser.add_argument(
+            '--id',
+            dest='doc_id',
+            default=None,
+            help="Specify a specific record ID to index"
+        )
 
     def handle(self, *args, **options):
 
         entity_types = [e.strip() for e in options['entity_types'].split(',')]
+        update = options.get('update')
+        doc_id = options.get('doc_id')
 
         for entity_type in entity_types:
 
-            getattr(self, 'index_{}'.format(entity_type))()
+            getattr(self, 'index_{}'.format(entity_type))(update=update,
+                                                          doc_id=doc_id)
 
-        self.stdout.write(self.style.SUCCESS('Successfully created global search index'))
+        if update:
+            success_message = 'Successfully updated global search index.'
+            count = '{count} new indexes added.'.format(count=self.updated_count)
+        else:
+            success_message = 'Successfully created global search index.'
+            count = '{count} new indexes added.'.format(count=self.added_count)
 
-    def index_organizations(self):
+        self.stdout.write(self.style.SUCCESS(success_message))
+        self.stdout.write(self.style.SUCCESS(count))
+
+    def index_organizations(self, doc_id=None, update=False):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing organizations ... '))
 
         organizations = '''
@@ -67,9 +87,18 @@ class Command(BaseCommand):
               ON o.id = ass.organization_id
             LEFT JOIN area AS a
               ON ass.area_id = a.id
-            GROUP BY o.id
         '''
 
+        # Optionally, filter the query so that we add just one specific record
+        if doc_id:
+            organizations += '''
+                WHERE o.id = '{doc_id}'
+            '''.format(doc_id=doc_id)
+
+        # Finally, make sure to group the records by unique ID
+        organizations += '''
+            GROUP BY o.id
+        '''
         country_cursor = connection.cursor()
 
         documents = []
@@ -80,6 +109,11 @@ class Command(BaseCommand):
 
         for organization in org_cursor:
             organization = dict(zip(columns, organization))
+
+            # Skip this record if we're updating and the document is already
+            # in the index
+            if update and self.check_index(organization['id']):
+                continue
 
             content = [organization['name']]
 
@@ -114,9 +148,14 @@ class Command(BaseCommand):
 
             documents.append(document)
 
+            if update:
+                self.updated_count += 1
+            else:
+                self.added_count += 1
+
         self.add_to_index(documents)
 
-    def index_people(self):
+    def index_people(self, doc_id=None, update=False):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing people ... '))
 
         people = '''
@@ -127,6 +166,14 @@ class Command(BaseCommand):
                 FILTER (WHERE TRIM(p.alias) IS NOT NULL) AS other_names,
               MAX(p.division_id) AS division_id
             FROM person AS p
+        '''
+
+        if doc_id:
+            people += '''
+                WHERE p.id = '{doc_id}'
+            '''.format(doc_id=doc_id)
+
+        people += '''
             GROUP BY p.id
         '''
 
@@ -138,6 +185,9 @@ class Command(BaseCommand):
 
         for person in person_cursor:
             person = dict(zip(person_columns, person))
+
+            if update and self.check_index(person['id']):
+                continue
 
             memberships = '''
                 SELECT DISTINCT ON (member_id)
@@ -207,9 +257,14 @@ class Command(BaseCommand):
 
             documents.append(document)
 
+            if update:
+                self.updated_count += 1
+            else:
+                self.added_count += 1
+
         self.add_to_index(documents)
 
-    def index_events(self):
+    def index_events(self, doc_id=None, update=False):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing events ... '))
 
         violation_query = '''
@@ -239,6 +294,14 @@ class Command(BaseCommand):
               ON (g.osm_id::varchar = v.osm_id)
             LEFT JOIN area AS a
               ON (a.osmid = g.osm_id)
+        '''
+
+        if doc_id:
+            violation_query += '''
+                WHERE v.id = '{doc_id}'
+            '''.format(doc_id=doc_id)
+
+        violation_query += '''
             GROUP BY v.id
         '''
 
@@ -251,6 +314,9 @@ class Command(BaseCommand):
         for violation in violation_cursor:
 
             violation = dict(zip(violation_columns, violation))
+
+            if update and self.check_index(violation['id']):
+                continue
 
             # Global index on the description field
             content = violation['description']
@@ -341,9 +407,14 @@ class Command(BaseCommand):
 
             documents.append(document)
 
+            if update:
+                self.updated_count += 1
+            else:
+                self.added_count += 1
+
         self.add_to_index(documents)
 
-    def index_sources(self):
+    def index_sources(self, doc_id=None, update=False):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing sources ... '))
 
         source_query= '''
@@ -357,6 +428,14 @@ class Command(BaseCommand):
             FROM source_source as src
             LEFT JOIN source_publication as pub
               ON src.publication_id = pub.id
+        '''
+
+        if doc_id:
+            source_query += '''
+                WHERE src.id = '{doc_id}'
+            '''.format(doc_id=doc_id)
+
+        source_query += '''
             GROUP BY src.id
         '''
 
@@ -370,9 +449,16 @@ class Command(BaseCommand):
 
             source = dict(zip(source_columns, source))
 
+            if update and self.check_index(source['id']):
+                continue
+
             date_published = source['date_published'].strftime('%Y-%m-%dT%H:%M:%SZ')
 
             content = source['src_title']
+
+            if len(content) == 0:
+                # The import data script is missing one title - skip it for now
+                continue
 
             document = {
                 'id': source['id'],
@@ -386,13 +472,26 @@ class Command(BaseCommand):
                 '_text_': content
             }
 
-        documents.append(document)
+            documents.append(document)
+
+            if update:
+                self.updated_count += 1
+            else:
+                self.added_count += 1
 
         self.add_to_index(documents)
 
     def add_to_index(self, documents):
 
-        searcher = Searcher()
+        self.searcher.add(documents)
 
-        searcher.add(documents)
+    def check_index(self, doc_id):
+        '''
+        Check if a document with the id `doc_id` already exists in the index.
+
+        Returns boolean.
+        '''
+        results = self.searcher.search('id:"{doc_id}"'.format(doc_id=doc_id))
+
+        return len(results) > 0
 
