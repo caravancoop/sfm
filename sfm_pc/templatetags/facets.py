@@ -15,3 +15,23 @@ def short_title(text_blob):
         return blurb
     else:
         return text_blob
+
+@register.filter
+@stringfilter
+def violation(text_blob):
+    '''
+    Shorten the names of violation type facets.
+    '''
+    blob = text_blob.lower()
+    if 'right' in blob:
+        start = len(blob.split('right')[0])
+        blurb = text_blob[start:]
+        return blurb
+
+    elif 'personal integrity' in blob:
+        start = len(blob.split('personal integrity')[0])
+        blurb = text_blob[start:]
+        return blurb
+
+    else:
+        return text_blob

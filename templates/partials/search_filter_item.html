@@ -6,7 +6,15 @@
 
         <!-- We want selected facets to be bold -->
         {% if name in selected_list %}<strong>{% endif %}
-            {% if facet_is_date %} {{ name|slice:":4" }} {% else %} {{ name | title | short_title }} {% endif %}
+            <!-- Format facets -->
+            {% if facet_is_date %}
+                {{ name|slice:":4" }}
+            {% elif facet_is_violation %}
+                {{ name|violation|title }}
+            {% else %}
+                {{ name | title | short_title }}
+            {% endif %}
+
         {% if name in selected_list %}</strong>{% endif %}
     </a>
 
