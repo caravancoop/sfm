@@ -6,14 +6,34 @@
         <div class="jumbotron">
             <form action='{% url 'search' %}' method='GET'>
                 <p>Investigate <strong>police</strong> and <strong>military commanders</strong>, <strong>units</strong> and <strong>areas of operation</strong></p>
-                <div class="input-group input-group-lg">
+                <div class="row input-group input-group-lg">
                     <input type="text" class="form-control" placeholder="Enter a person or unit name, location or keyword..." name="q">
-                    <input type='hidden' name='entity_type' value='Person' />
-                    <input type='hidden' name='entity_type' value='Organization' />
-                    <input type='hidden' name='entity_type' value='Violation' />
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> Search</button>
                     </span>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p class="small"><strong><i class="fa fa-fw fa-search"></i> I'm looking for...</strong></p>
+                        <div class="entities btn-group" data-toggle="buttons">
+                            <label class="btn btn-default">
+                                <input type="checkbox" autocomplete="off" name='entity_type' value='Person' />
+                                <i class="fa fa-fw fa-user"></i> Personnel
+                            </label>
+                            <label class="btn btn-default">
+                                <input type="checkbox" name="entity_type" value="Organization" />
+                                <i class="fa fa-fw fa-users"></i> Units
+                            </label>
+                            <label class="btn btn-default">
+                                <input type="checkbox" name="entity_type" value="Violation" />
+                                <i class="fa fa-fw fa-exclamation-triangle"></i> Incidents
+                            </label>
+                            <label class="btn btn-default active">
+                                <input type="checkbox" name="" value="" checked>
+                                <i class="fa fa-fw fa-thumbs-up"></i> Everything
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -53,4 +73,27 @@
     </div>
 </div>
 
+{% endblock %}
+{% block extra_js %}
+<script>
+
+    $('document').ready(function() {
+
+        // Make buttons mutually exclusive
+        $('.entities label').click(function() {
+            // If this button is not checked, uncheck all its cousins while
+            // selecting it
+            if (!$(this).find('input').is(':checked')) {
+                console.log('child is checked');
+                var $nieces = $(this).siblings().children();
+                $nieces.each(function() {
+                    if ($(this).is(':checked')) {
+                        $(this).removeAttr('checked');
+                        $(this).parent().removeClass('active');
+                    }
+                });
+            }
+        });
+    });
+</script>
 {% endblock %}

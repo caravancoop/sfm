@@ -61,7 +61,7 @@ def search(request):
                 selected_facets[k] = [v]
 
     # Make sure to handle empty entity types
-    if entity_types is None or entity_types == '' or entity_types == []:
+    if entity_types in (None, '', [], ['']):
         entity_types = [etype for etype in SEARCH_ENTITY_TYPES.keys()]
 
     # Re-format the query string for use in templating

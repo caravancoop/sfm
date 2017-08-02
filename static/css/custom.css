@@ -29,6 +29,11 @@ body {
     font-weight: 500;
 }
 
+.jumbotron p.small {
+    font-size: 95%;
+    margin-top:10px;
+}
+
 .navbar {
     background-color: #eeeeee;
     margin-bottom: 50px;
