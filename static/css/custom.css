@@ -108,6 +108,12 @@ body {
     cursor: pointer;
 }
 
+.detail-header {
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 6px;
+}
+
 @media (max-width: 465px) {
     /* Responsive header styles for tiny screens */
     .navbar-brand {
