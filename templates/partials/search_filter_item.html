@@ -1,16 +1,20 @@
 {% load facets %}
 <li class="small">
+
+    <!-- Format the display value of date facets slightly differently -->
+    <a role="button" class="filter-value" data="{{facet_name}}_exact:{{name}}" data-toggle="tooltip" data-placement="auto" title="{% if facet_is_date %} {{ name|slice:":4" }} {% else %} {{ name|title }} {% endif %}">
+
+        <!-- We want selected facets to be bold -->
+        {% if name in selected_list %}<strong>{% endif %}
+            {% if facet_is_date %} {{ name|slice:":4" }} {% else %} {{ name | title | short_title }} {% endif %}
+        {% if name in selected_list %}</strong>{% endif %}
+    </a>
+
+    <!-- Only selected facets should have a "remove" button -->
   	{% if name in selected_list %}
-        <a role="button" class="filter-value" data="{{facet_name}}_exact:{{name}}" data-toggle="tooltip" data-placement="auto" title="{{ name|title }}">
-            <strong>{{ name | title | short_title }}</strong>
-      	</a>
       	<a role="button" class="remove-filter-value" data="{{facet_name}}_exact:{{name}}">
       	   <i class="fa fa-times"></i>
       	</a>
-  	{% else %}
-        <a role="button" class="filter-value" data="{{facet_name}}_exact:{{name}}" data-toggle="tooltip" data-placement="auto" title="{{ name|title }}">
-  			   {{ name | title | short_title }}
-  	    </a>
   	{% endif %}
 
     <span class="badge badge-facet pull-right">{{ count }}</span>

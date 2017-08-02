@@ -169,10 +169,26 @@ def search(request):
             if field in search_context['facet.field']:
                 for val in values:
                     etype_query += ' AND {field}:"{val}"'.format(field=field,
-                                                               val=val)
+                                                                 val=val)
+            # Handle date ranges
+            elif field in search_context['facet.range']:
+                for val in values:
+
+                    # Increment the year to define an end date
+                    start = val
+                    start_year = int(start[:4])
+                    end_year = start_year + 1
+                    end = str(end_year) + start[4:]
+
+                    etype_query += ' AND {field}:["{start}" TO "{end}"]'\
+                                   .format(field=field,
+                                           start=start,
+                                           end=end)
+
+        # Make sure to filter on this entity type
         etype_query += ' AND entity_type:{etype}'.format(etype=etype)
 
-        # Perform a search
+        # Search that bad boy!
         response = solr.search(etype_query, **search_context)
 
         if response.hits > result_count:
