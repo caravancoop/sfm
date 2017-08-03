@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_detail.html" %}
 {% load i18n %}
 {% load static %}
 {% load render_versions %}
@@ -8,223 +8,245 @@
     {% endblock %}
 {% endif %}
 
-{% block content %}
+{% block header %}
+    <h1 class="page-title">
+        <i class="fa fa-fw fa-users"></i> {{ organization.name.get_value }}
+        <small>
+            <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">Edit</a>
+        </small>
+    </h1>
+    {% if organization.aliases.get_list %}
+        <p>Also known as:
+            {% for alias in organization.aliases.get_list %}
+            <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
+            {% endfor %}
+        </p>
+    {% endif %}
+    {% if organization.classification.get_list %}
+        <p>
+        {% for classification in organization.classification.get_list %}
+            <span class="label label-default">{{ classification.get_value }}</span>&nbsp;
+        {% endfor %}
+        </p>
+    {% endif %}
+{% endblock %}
+
+{% block sidebar %}
+    <li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>
+    <li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>
+    <li><a href="#organizational-structure"><i class="fa fa-fw fa-sitemap"></i> Organizational structure</a></li>
+    <li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>
+    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
+    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+{% endblock %}
+
+{# This is exactly the same as the previous sidebar #}
+{# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
+{% block sidebar_mobile %}
+    <li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>
+    <li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>
+    <li><a href="#organizational-structure"><i class="fa fa-fw fa-sitemap"></i> Organizational structure</a></li>
+    <li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>
+    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
+    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+{% endblock %}
+
+{% block details %}
+
     <div class="row">
-        {% if sites and areas %}
-            <div class="col-sm-4">
-        {% elif sites %}
-            <div class="col-sm-8">
-        {% elif areas %}
-            <div class="col-sm-8">
-        {% else %}
-            <div class="col-sm-12">
-        {% endif %}
-            {% if organization.classification.get_list %}
-                <p>
-                {% for classification in organization.classification.get_list %}
-                    <span class="label label-default">{{ classification.get_value }}</span>&nbsp;
-                {% endfor %}
-                </p>
-            {% endif %}
-            <h1 class="page-title">
-                {{ organization.name.get_value }}
-                <small>
-                    <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">Edit</a>
-                </small>
-            </h1>
-            {% if organization.aliases.get_list %}
-                <p>
-                    {% for alias in organization.aliases.get_list %}
-                    <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
-                    {% endfor %}
-                </p>
-            {% endif %}
+    {% if sites %}
+        <div class="col-sm-4">
+            <h3>Sites</h3>
+            <div id="osm_site_map" style="height:180px;"></div>
         </div>
-        {% if sites %}
-            <div class="col-sm-4">
-                <h3>Sites</h3>
-                <div id="osm_site_map" style="height:180px;"></div>
-            </div>
-        {% endif %}
-        {% if areas %}
-            <div class="col-sm-4">
-                <h3>Areas</h3>
-                <div id="osm_area_map" style="height:180px;"></div>
-            </div>
-        {% endif %}
+    {% endif %}
+    {% if areas %}
+        <div class="col-sm-4">
+            <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation</h3>
+            <div id="osm_area_map" style="height:180px;"></div>
+        </div>
+    {% endif %}
     </div>
+
+    {% if org_members %}
     <div class="row">
         <div class="col-sm-12">
-            {% if org_members %}
-                <h3>Organization members</h3>
-                <table class="table table-condensed">
-                    <thead>
+            <h3>Organization members</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Aliases</th>
+                        <th>Classifications</th>
+                        <th>First cited</th>
+                        <th>Last cited</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membership in org_members %}
                         <tr>
-                            <th>Name</th>
-                            <th>Aliases</th>
-                            <th>Classifications</th>
-                            <th>First cited</th>
-                            <th>Last cited</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for membership in org_members %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'detail_organization' membership.id %}">
-                                        {{ membership.name }}
-                                    </a>
-                                </td>
-                                <td>
-                                    {% for alias in membership.aliases %}
-                                        {% if not forloop.last %}
-                                            {{ alias }},
-                                        {% else %}
-                                            {{ alias }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% for classification in membership.classifications %}
-                                        {% if not forloop.last %}
-                                            {{ classification }},
-                                        {% else %}
-                                            {{ classification }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </td>
-                                <td>{{ membership.first_cited }}</td>
-                                <td>{{ membership.last_cited }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            {% if memberships %}
-                <h3>Member of</h3>
-                <table class="table table-condensed">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Aliases</th>
-                            <th>Classifications</th>
-                            <th>First cited</th>
-                            <th>Last cited</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for membership in memberships %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'detail_organization' membership.id %}">
-                                        {{ membership.name }}
-                                    </a>
-                                </td>
-                                <td>
-                                    {% for alias in membership.aliases %}
-                                        {% if not forloop.last %}
-                                            {{ alias }},
-                                        {% else %}
-                                            {{ alias }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% for classification in membership.classifications %}
-                                        {% if not forloop.last %}
-                                            {{ classification }},
-                                        {% else %}
-                                            {{ classification }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </td>
-                                <td>{{ membership.first_cited }}</td>
-                                <td>{{ membership.last_cited }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            {% if person_members %}
-                <h3>Person Members</h3>
-                <table class="table table-condensed">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Rank</th>
-                            <th>Role</th>
-                            <th>Title</th>
-                            <th>Start date</th>
-                            <th>End date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for member in person_members %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'detail-person' member.member.get_value.value.id %}">
-                                        {{ member.member.get_value }}
-                                    </a>
-                                </td>
-                                <td>{{ member.rank.get_value }}</td>
-                                <td>{{ member.role.get_value }}</td>
-                                <td>{{ member.title.get_value|default:"" }}</td>
-                                <td>{{ member.firstciteddate }}</td>
-                                <td>{{ member.lastciteddate }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            {% if events %}
-                <h3>Events</h3>
-                {% for event in events %}
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <p>
-                                <a href="{% url 'detail_violation' event.id %}">
-                                    Event
-                                    {% if event.osmname %}
-                                        in <strong>{{ event.osmname }}</strong>
-                                    {% endif %}
-                                    {% if event.startdate and event.enddate %}
-                                        between <strong>{{ event.startdate }}</strong> and <strong>{{ event.enddate }}</strong>
-                                    {% elif event.startdate %}
-                                        starting <strong>{{ event.startdate }}</strong>
-                                    {% elif event.enddate %}
-                                        ending <strong>{{ event.enddate }}</strong>
-                                    {% endif %}
+                            <td>
+                                <a href="{% url 'detail_organization' membership.id %}">
+                                    {{ membership.name }}
                                 </a>
-                            </p>
-                        </div>
-                        <div class="col-sm-12">
-                            <p>{{ event.description.get_value|truncatewords:50 }}</p>
-                        </div>
-                    </div>
-                    {% if not forloop.last %}
-                    <hr />
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
+                            </td>
+                            <td>
+                                {% for alias in membership.aliases %}
+                                    {% if not forloop.last %}
+                                        {{ alias }},
+                                    {% else %}
+                                        {{ alias }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for classification in membership.classifications %}
+                                    {% if not forloop.last %}
+                                        {{ classification }},
+                                    {% else %}
+                                        {{ classification }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ membership.first_cited }}</td>
+                            <td>{{ membership.last_cited }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+    {% endif %}
+
+    {% if memberships %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>Member of</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Aliases</th>
+                        <th>Classifications</th>
+                        <th>First cited</th>
+                        <th>Last cited</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membership in memberships %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' membership.id %}">
+                                    {{ membership.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in membership.aliases %}
+                                    {% if not forloop.last %}
+                                        {{ alias }},
+                                    {% else %}
+                                        {{ alias }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for classification in membership.classifications %}
+                                    {% if not forloop.last %}
+                                        {{ classification }},
+                                    {% else %}
+                                        {{ classification }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ membership.first_cited }}</td>
+                            <td>{{ membership.last_cited }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if person_members %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3><i class="fa fa-fw fa-users"></i> Command personnel</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Rank</th>
+                        <th>Role</th>
+                        <th>Title</th>
+                        <th>Start date</th>
+                        <th>End date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in person_members %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail-person' member.member.get_value.value.id %}">
+                                    {{ member.member.get_value }}
+                                </a>
+                            </td>
+                            <td>{{ member.rank.get_value }}</td>
+                            <td>{{ member.role.get_value }}</td>
+                            <td>{{ member.title.get_value|default:"" }}</td>
+                            <td>{{ member.firstciteddate }}</td>
+                            <td>{{ member.lastciteddate }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if events %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>Events</h3>
+            {% for event in events %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p>
+                            <a href="{% url 'detail_violation' event.id %}">
+                                Event
+                                {% if event.osmname %}
+                                    in <strong>{{ event.osmname }}</strong>
+                                {% endif %}
+                                {% if event.startdate and event.enddate %}
+                                    between <strong>{{ event.startdate }}</strong> and <strong>{{ event.enddate }}</strong>
+                                {% elif event.startdate %}
+                                    starting <strong>{{ event.startdate }}</strong>
+                                {% elif event.enddate %}
+                                    ending <strong>{{ event.enddate }}</strong>
+                                {% endif %}
+                            </a>
+                        </p>
+                    </div>
+                    <div class="col-sm-12">
+                        <p>{{ event.description.get_value|truncatewords:50 }}</p>
+                    </div>
+                </div>
+                {% if not forloop.last %}
+                <hr />
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
+    {% if sites or areas %}
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    {% endif %}
     {% if sites %}
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
                 var center_x = {{ sites.0.coordinates.get_value.value.x }};

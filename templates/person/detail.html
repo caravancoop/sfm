@@ -1,111 +1,98 @@
-{% extends "base.html" %}
+{% extends "base_detail.html" %}
 {% load i18n %}
 {% load static %}
 {% load render_versions %}
-{% block content %}
+
+{% block header %}
+    <h1 class="page-title">
+        <i class="fa fa-fw fa-user"></i> {{ person.name.get_value }}
+        <small>
+            <a href="{% url 'edit-person' person.id %}" class="btn btn-default">Edit</a>
+        </small>
+    </h1>
+    {% if person.aliases.get_list %}
+        <p>Also known as:
+            {% for alias in person.aliases.get_list %}
+            <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
+            {% endfor %}
+        </p>
+    {% endif %}
+{% endblock %}
+
+{% block sidebar %}
+    <li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>
+    <li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>
+    <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
+    <li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>
+    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
+    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+{% endblock %}
+
+{# This is exactly the same as the previous sidebar #}
+{# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
+{% block sidebar_mobile %}
+    <li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>
+    <li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>
+    <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
+    <li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>
+    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
+    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+{% endblock %}
+
+{% block details %}
+    {% if memberships %}
     <div class="row">
         <div class="col-sm-12">
-            <div class="detail-header">
-                <h1 class="page-title">
-                    <i class="fa fa-fw fa-user"></i> {{ person.name.get_value }}
-                    <small>
-                        <a href="{% url 'edit-person' person.id %}" class="btn btn-default">Edit</a>
-                    </small>
-                </h1>
-                {% if person.aliases.get_list %}
-                <p>Also known as:
-                        {% for alias in person.aliases.get_list %}
-                        <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
-                        {% endfor %}
-                    </p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <!-- On desktop, show a fixed scrollspy sidebar -->
-        <div class="col-md-3 hidden-xs hidden-sm">
-            <div id="sidebar">
-                <h3>Contents</h3>
-                <ul class="nav nav-pills nav-stacked">
-                    <li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>
-                    <li><a href="#memberships"><i class="fa fa-fw fa-star-o"></i> Memberships</a></li>
-                    <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
-                    <li><a href="#subordinates"><i class="fa fa-fw fa-users"></i> Subordinates</a></li>
-                    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
-                    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-md-9">
-            <!-- On mobile, show a table of contents near the top of the page -->
-            <div class="visible-xs visible-sm" id="table-of-contents">
-                <h3>Contents</h3>
-                <ul>
-                    <li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>
-                    <li><a href="#memberships"><i class="fa fa-fw fa-star-o"></i> Memberships</a></li>
-                    <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
-                    <li><a href="#subordinates"><i class="fa fa-fw fa-users"></i> Subordinates</a></li>
-                    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
-                    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
-                </ul>
-                <hr />
-            </div>
-
-        <div class="row">
-            <div class="col-sm-12">
-                {% if memberships %}
-                    <h3>Memberships</h3>
-                    <table class="table table-condensed">
-                        <thead>
-                            <tr>
-                                <th>Organization</th>
-                                <th>Rank</th>
-                                <th>Role</th>
-                                <th>Title</th>
-                                <th>Start date</th>
-                                <th>End date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for member in memberships %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'detail_organization' member.organization.get_value.value.id %}">
-                                            {{ member.organization.get_value }}
-                                        </a>
-                                    </td>
-                                    <td>{{ member.rank.get_value }}</td>
-                                    <td>{{ member.role.get_value }}</td>
-                                    <td>{{ member.title.get_value|default:"" }}</td>
-                                    <td>{{ member.firstciteddate }}</td>
-                                    <td>{{ member.lastciteddate }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                {% if events %}
-                    <h3>Events</h3>
-                    {% for event in events %}
-                        <div class="row">
-                            <div class="col-sm-8">
-                                <p>{{ event.description.get_value }}</p>
-                            </div>
-                            <div class="col-sm-4"></div>
-                        </div>
+            <h3 id="memberships"><i class="fa fa-fw fa-users"></i> Memberships</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Organization</th>
+                        <th>Rank</th>
+                        <th>Role</th>
+                        <th>Title</th>
+                        <th>Start date</th>
+                        <th>End date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in memberships %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' member.organization.get_value.value.id %}">
+                                    {{ member.organization.get_value }}
+                                </a>
+                            </td>
+                            <td>{{ member.rank.get_value }}</td>
+                            <td>{{ member.role.get_value }}</td>
+                            <td>{{ member.title.get_value|default:"" }}</td>
+                            <td>{{ member.firstciteddate }}</td>
+                            <td>{{ member.lastciteddate }}</td>
+                        </tr>
                     {% endfor %}
-                {% endif %}
-            </div>
+                </tbody>
+            </table>
         </div>
-        {% render_versions person %}
     </div>
+    {% endif %}
+
+    {% if events %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>Events</h3>
+            {% for event in events %}
+                <div class="row">
+                    <div class="col-sm-8">
+                        <p>{{ event.description.get_value }}</p>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% render_versions person %}
+
 {% endblock %}
 
-{% block extra_js %}
-{% endblock %}
