@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_detail.html" %}
 {% load i18n %}
 {% load static %}
 {% load render_versions %}
@@ -9,121 +9,147 @@
     {% endblock %}
 {% endif %}
 
-{% block content %}
-    <div class="row">
-        <div class="col-sm-12">
-            {% if violation.perpetratorclassification.get_value %}
-                <p>
-                    <span class="label label-default">
-                        {{ violation.perpetratorclassification.get_value }}
-                    </span>
-                </p>
-            {% endif %}
-            <h1 class="page-title">
-                Event
-                {% if violation.geoname %}
-                    in <strong>{{ violation.geoname }}</strong>
-                {% endif %}
-                {% if violation.startdate.get_value and violation.enddate.get_value %}
-                    between <strong>{{ violation.startdate.get_value }}</strong> and <strong>{{ violation.enddate.get_value }}</strong>
-                {% elif violation.startdate.get_value %}
-                    starting <strong>{{ violation.startdate.get_value }}</strong>
-                {% elif violation.enddate.get_value %}
-                    ending <strong>{{ violation.enddate.get_value }}</strong>
-                {% endif %}
-                <small>
-                    <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">Edit</a>
-                </small>
-            </h1>
-        </div>
-    </div>
-    <hr />
-    <div class="row">
-        {% if location %}
-            <div class="col-sm-8">
-        {% else %}
-            <div class="col-sm-12">
+{% block header %}
+    <h2 class="page-title">
+        <i class="fa fa-fw fa-exclamation-triangle"></i> Incident
+        {% if violation.geoname %}
+            in <strong>{{ violation.geoname }}</strong>
         {% endif %}
-            <p id="description">
-                {{ violation.description }}
-            </p>
-        </div>
-        {% if location %}
-            <div class="col-sm-4">
-                <div id="geoname_map" style="height:180px;"></div>
-                <h3>{{ violation.geoname }} <br /><small>{{ violation.division_id}}</small></h3>
-            </div>
+        {% if violation.startdate.get_value and violation.enddate.get_value %}
+            between <strong>{{ violation.startdate.get_value }}</strong> and <strong>{{ violation.enddate.get_value }}</strong>
+        {% elif violation.startdate.get_value %}
+            starting <strong>{{ violation.startdate.get_value }}</strong>
+        {% elif violation.enddate.get_value %}
+            ending <strong>{{ violation.enddate.get_value }}</strong>
         {% endif %}
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            {% if violation.violationperpetrator_set.all %}
-                <h3>Perpetrators</h3>
-                <table class="table table-condensed">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Aliases</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for person in violation.violationperpetrator_set.all %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'detail-person' person.value.id %}">
-                                        {{ person.value.get_value }}
-                                    </a>
-                                </td>
-                                <td>
-                                    {% for alias in person.value.aliases.get_list %}
-                                        {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            {% if violation.violationperpetratororganization_set.all %}
-                <h3>Perpetrator organizations</h3>
-                <table class="table table-condensed">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Aliases</th>
-                            <th>Classification</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for organization in violation.violationperpetratororganization_set.all %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'detail_organization' organization.value.id %}">
-                                        {{ organization.value.get_value }}
-                                    </a>
-                                </td>
-                                <td>
-                                    {% for alias in organization.value.aliases.get_list %}
-                                        {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% for classification in organization.value.classification.get_list %}
-                                        {{ classification.get_value }} {% if not forloop.last %}<br />{% endif %}
-                                    {% endfor %}
+        <small>
+            <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">Edit</a>
+        </small>
+    </h2>
+    {% if violation.perpetratorclassification.get_value %}
+        <p>
+            <span class="label label-default">
+                {{ violation.perpetratorclassification.get_value }}
+            </span>
+        </p>
+    {% endif %}
+{% endblock %}
 
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
+{% block sidebar %}
+    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> Location </a></li>{% endif %}
+    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> Description </a></li>{% endif %}
+    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</a></li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</li>{% endif %}
+    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
+    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+{% endblock %}
+
+{# This is exactly the same as the previous sidebar #}
+{# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
+{% block sidebar_mobile %}
+    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> Location </a></li>{% endif %}
+    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> Description </a></li>{% endif %}
+    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</a></li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</li>{% endif %}
+    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
+    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+{% endblock %}
+
+{% block details %}
+
+    {% if location %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="location"><i class="fa fa-fw fa-map-marker"></i> Location</h3>
+            <hr />
+            <div id="geoname_map" style="height:300px;"></div>
+            <h3>{% if violation.geoname %} {{ violation.geoname }} <br />{% endif %}
+                <small>{{ violation.division_id}}</small>
+            </h3>
         </div>
     </div>
+    {% endif %}
+
+    {% if violation.description %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="description"><i class="fa fa-fw fa-file-text-o"></i> Description</h3>
+            <hr />
+            <p>{{ violation.description }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if violation.violationperpetrator_set.all %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Aliases</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for person in violation.violationperpetrator_set.all %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail-person' person.value.id %}">
+                                    {{ person.value.get_value }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in person.value.aliases.get_list %}
+                                    {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if violation.violationperpetratororganization_set.all %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Aliases</th>
+                        <th>Classification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for organization in violation.violationperpetratororganization_set.all %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' organization.value.id %}">
+                                    {{ organization.value.get_value }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in organization.value.aliases.get_list %}
+                                    {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for classification in organization.value.classification.get_list %}
+                                    {{ classification.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                {% endfor %}
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 
     {% render_versions violation %}
 

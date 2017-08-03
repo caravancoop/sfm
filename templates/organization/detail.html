@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load render_versions %}
+
 {% if sites %}
     {% block extra_head %}
          <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
@@ -32,10 +33,12 @@
 {% endblock %}
 
 {% block sidebar %}
-    <li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>
-    <li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>
-    <li><a href="#organizational-structure"><i class="fa fa-fw fa-sitemap"></i> Organizational structure</a></li>
-    <li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>
+    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>{% endif %}
+    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>{% endif %}
+    {% if org_members %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
+    {% if memberships %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</a></li>{% endif %}
+    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>{% endif %}
+    {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>{% endif %}
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
     <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
 {% endblock %}
@@ -43,35 +46,43 @@
 {# This is exactly the same as the previous sidebar #}
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
-    <li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>
-    <li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>
-    <li><a href="#organizational-structure"><i class="fa fa-fw fa-sitemap"></i> Organizational structure</a></li>
-    <li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>
+    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>{% endif %}
+    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>{% endif %}
+    {% if org_members %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
+    {% if memberships %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</a></li>{% endif %}
+    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>{% endif %}
+    {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>{% endif %}
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
     <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
 {% endblock %}
 
 {% block details %}
 
-    <div class="row">
-    {% if sites %}
-        <div class="col-sm-4">
-            <h3>Sites</h3>
-            <div id="osm_site_map" style="height:180px;"></div>
-        </div>
-    {% endif %}
     {% if areas %}
-        <div class="col-sm-4">
+    <div class="row">
+        <div class="col-sm-12">
             <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation</h3>
-            <div id="osm_area_map" style="height:180px;"></div>
+            <hr />
+            <div id="osm_area_map" style="height:300px;"></div>
         </div>
-    {% endif %}
     </div>
+    {% endif %}
+
+    {% if sites %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="sites"><i class="fa fa-fw fa-map-marker"></i> Sites</h3>
+            <hr />
+            <div id="osm_site_map" style="height:300px;"></div>
+        </div>
+    </div>
+    {% endif %}
 
     {% if org_members %}
     <div class="row">
         <div class="col-sm-12">
-            <h3>Organization members</h3>
+            <h3 id="subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</h3>
+            <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
@@ -121,7 +132,8 @@
     {% if memberships %}
     <div class="row">
         <div class="col-sm-12">
-            <h3>Member of</h3>
+            <h3 id="parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</h3>
+            <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
@@ -171,7 +183,8 @@
     {% if person_members %}
     <div class="row">
         <div class="col-sm-12">
-            <h3><i class="fa fa-fw fa-users"></i> Command personnel</h3>
+            <h3 id="command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</h3>
+            <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
@@ -207,13 +220,14 @@
     {% if events %}
     <div class="row">
         <div class="col-sm-12">
-            <h3>Events</h3>
+            <h3 id="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</h3>
+            <hr />
             {% for event in events %}
                 <div class="row">
                     <div class="col-sm-12">
                         <p>
                             <a href="{% url 'detail_violation' event.id %}">
-                                Event
+                                Incident
                                 {% if event.osmname %}
                                     in <strong>{{ event.osmname }}</strong>
                                 {% endif %}
@@ -238,6 +252,8 @@
         </div>
     </div>
     {% endif %}
+
+    {% render_versions organization %}
 
 {% endblock %}
 

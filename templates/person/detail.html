@@ -21,7 +21,7 @@
 
 {% block sidebar %}
     <li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>
-    <li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>{% endif %}
     <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
     <li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
@@ -44,6 +44,7 @@
     <div class="row">
         <div class="col-sm-12">
             <h3 id="memberships"><i class="fa fa-fw fa-users"></i> Memberships</h3>
+            <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
@@ -80,6 +81,7 @@
     <div class="row">
         <div class="col-sm-12">
             <h3>Events</h3>
+            <hr />
             {% for event in events %}
                 <div class="row">
                     <div class="col-sm-8">
