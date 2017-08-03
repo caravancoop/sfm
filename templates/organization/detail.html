@@ -33,6 +33,8 @@
 {% endblock %}
 
 {% block sidebar %}
+    {% has_versions organization as changelog %}
+
     {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>{% endif %}
     {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>{% endif %}
     {% if org_members %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
@@ -40,12 +42,15 @@
     {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>{% endif %}
     {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>{% endif %}
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
-    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+
 {% endblock %}
 
 {# This is exactly the same as the previous sidebar #}
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
+    {% has_versions organization as changelog %}
+
     {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>{% endif %}
     {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>{% endif %}
     {% if org_members %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
@@ -53,7 +58,8 @@
     {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>{% endif %}
     {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>{% endif %}
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
-    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+
 {% endblock %}
 
 {% block details %}
@@ -253,7 +259,10 @@
     </div>
     {% endif %}
 
-    {% render_versions organization %}
+    {% has_versions organization as changelog %}
+        {% if changelog %}
+            {% render_versions organization %}
+        {% endif %}
 
 {% endblock %}
 

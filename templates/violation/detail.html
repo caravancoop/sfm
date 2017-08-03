@@ -36,23 +36,29 @@
 {% endblock %}
 
 {% block sidebar %}
+    {% has_versions violation as changelog %}
+
     {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> Location </a></li>{% endif %}
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> Description </a></li>{% endif %}
     {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</a></li>{% endif %}
     {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</li>{% endif %}
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
-    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+
 {% endblock %}
 
 {# This is exactly the same as the previous sidebar #}
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
+    {% has_versions violation as changelog %}
+
     {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> Location </a></li>{% endif %}
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> Description </a></li>{% endif %}
     {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</a></li>{% endif %}
     {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</li>{% endif %}
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
-    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+
 {% endblock %}
 
 {% block details %}
@@ -151,7 +157,10 @@
     </div>
     {% endif %}
 
-    {% render_versions violation %}
+    {% has_versions violation as changelog %}
+        {% if changelog %}
+            {% render_versions violation %}
+        {% endif %}
 
 {% endblock %}
 

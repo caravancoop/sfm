@@ -3,6 +3,7 @@
 {% load static %}
 {% load render_versions %}
 
+
 {% block header %}
     <h1 class="page-title">
         <i class="fa fa-fw fa-user"></i> {{ person.name.get_value }}
@@ -20,23 +21,28 @@
 {% endblock %}
 
 {% block sidebar %}
+    {% has_versions person as changelog %}
     <li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>{% endif %}
     <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
     <li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
-    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+
 {% endblock %}
 
 {# This is exactly the same as the previous sidebar #}
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
+    {% has_versions person as changelog %}
+
     <li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>
-    <li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>{% endif %}
     <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
     <li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
-    <li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+
 {% endblock %}
 
 {% block details %}
@@ -94,7 +100,10 @@
     </div>
     {% endif %}
 
-    {% render_versions person %}
+    {% has_versions person as changelog %}
+        {% if changelog %}
+            {% render_versions person %}
+        {% endif %}
 
 {% endblock %}
 
