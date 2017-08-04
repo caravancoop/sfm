@@ -92,6 +92,7 @@ def search(request):
         formatted_start = start_date
         formatted_end = end_date
 
+        # Turn dates into a Lucene-readable timestamp
         if formatted_start in ('', None):
             formatted_start = '*'
         else:
@@ -102,9 +103,40 @@ def search(request):
         else:
             formatted_end += 'T00:00:00Z'
 
-        full_query += ' AND start_date_dt:[{start_date} TO {end_date}]'\
-                      .format(start_date=formatted_start,
-                              end_date=formatted_end)
+        if start_date and end_date:
+            # In this case, we want results where there is complete overlap
+            # between the dates set by the filter range and the first/last
+            # cited. We also want to include records where `end_date` is empty:
+            #   * (rec.start < q.start) AND (rec.end > q.end)
+
+            full_query += ' AND start_date_dt:[* TO {start_date}]' +\
+                          ' AND end_date_dt:[{end_date} TO *]'
+
+            full_query = full_query.format(start_date=formatted_start,
+                                           end_date=formatted_end)
+
+        elif start_date:
+            # Show records for which there is data on or after `start_date`.
+            # Include records where `start_date` is empty:
+            #   * (rec.start > q.start) OR (rec.end > q.start AND !rec.start)
+
+            full_query += ' AND (start_date_dt:[{start_date} TO *]' +\
+                          ' OR (end_date_dt:[{start_date} TO *]' +\
+                           ' AND -start_date_dt:[* TO *]))'
+
+            full_query = full_query.format(start_date=formatted_start)
+
+        elif end_date:
+            # Show records for which there is no data on or after `end_date`
+            # (that is, exclude records for which there *is* data
+            # after `end_date`). Include records where `end_date` is empty:
+            #   * (rec.end < q.end) OR (rec.start < q.end AND !rec.end)
+
+            full_query += ' AND (end_date_dt:[* TO {end_date}]' +\
+                               ' OR (start_date_dt:[* TO {end_date}]' +\
+                              ' AND -end_date_dt:[* TO *]))'\
+
+            full_query = full_query.format(end_date=formatted_end)
 
     # Set limits for search pagination
     if len(entity_types) < 2:
@@ -140,6 +172,7 @@ def search(request):
         # Copy the query so we can modify it in the scope of this iteration
         etype_query = full_query
 
+        print(etype_query)
         # Add facets to the query
         search_context['facet.field'] = SEARCH_ENTITY_TYPES[etype]['facet_fields']
         search_context['facet.range'] = SEARCH_ENTITY_TYPES[etype]['facet_ranges']
