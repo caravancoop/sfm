@@ -1,6 +1,7 @@
 {% extends "base_detail.html" %}
 {% load i18n %}
 {% load static %}
+{% load countries %}
 {% load render_versions %}
 
 {% if location %}
@@ -16,7 +17,11 @@
             in <strong>{{ violation.geoname }}</strong>
         {% endif %}
         {% if violation.startdate.get_value and violation.enddate.get_value %}
-            between <strong>{{ violation.startdate.get_value }}</strong> and <strong>{{ violation.enddate.get_value }}</strong>
+            {% if violation.startdate.get_value.value == violation.enddate.get_value.value %}
+                on <strong>{{ violation.startdate.get_value }}</strong>
+            {% else %}
+                between <strong>{{ violation.startdate.get_value }}</strong> and <strong>{{ violation.enddate.get_value }}</strong>
+            {% endif %}
         {% elif violation.startdate.get_value %}
             starting <strong>{{ violation.startdate.get_value }}</strong>
         {% elif violation.enddate.get_value %}
@@ -26,6 +31,27 @@
             <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">Edit</a>
         </small>
     </h2>
+
+    {% if violation.locationdescription.get_value or violation.adminlevel1.get_value or violation.adminlevel2.get_value %}
+        <h4>Location:
+            <strong>
+                {% render_location_string violation countries=False %}
+            </strong>
+        </h4>
+    {% endif %}
+
+    {% if violation.division_id.get_value %}
+        <h4>Country: <strong>{{ violation.division_id.get_value | country_name }}</strong></h4>
+    {% endif %}
+
+    {% if violation.types.get_list %}
+        <p>
+        {% for type in violation.types.get_list %}
+            <span class="label label-default">{{ type.get_value }}</span>&nbsp;
+        {% endfor %}
+        </p>
+    {% endif %}
+
     {% if violation.perpetratorclassification.get_value %}
         <p>
             <span class="label label-default">
@@ -33,6 +59,7 @@
             </span>
         </p>
     {% endif %}
+
 {% endblock %}
 
 {% block sidebar %}
@@ -69,9 +96,7 @@
             <h3 id="location"><i class="fa fa-fw fa-map-marker"></i> Location</h3>
             <hr />
             <div id="geoname_map" style="height:300px;"></div>
-            <h3>{% if violation.geoname %} {{ violation.geoname }} <br />{% endif %}
-                <small>{{ violation.division_id}}</small>
-            </h3>
+            <h4><strong>{% render_location_string violation %}</strong></h4>
         </div>
     </div>
     {% endif %}
@@ -81,7 +106,9 @@
         <div class="col-sm-12">
             <h3 id="description"><i class="fa fa-fw fa-file-text-o"></i> Description</h3>
             <hr />
-            <p>{{ violation.description }}</p>
+            {% with N=1 description=violation.description %}
+                {% include 'partials/violation_description.html' %}
+            {% endwith %}
         </div>
     </div>
     {% endif %}

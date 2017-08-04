@@ -5,6 +5,10 @@ body {
     font-size: 16px;
 }
 
+/* ====== *
+ * navbar *
+ * ====== */
+
 .pre-navbar {
     /* Ad bar that sits above the navbar */
     text-align: right;
@@ -77,7 +81,10 @@ body {
     border: 1px solid #7a7a7a;
 }
 
-/* Facet styles */
+/* ====== *
+ * facets *
+ * ====== */
+
 .filter-heading {
     color: inherit;
 }
@@ -113,6 +120,39 @@ body {
     background-color: #f4f4f4;
     border-radius: 6px;
 }
+
+/* =======================  *
+ * show more/less logic for *
+ * long description boxes   *
+ * =======================  */
+
+a .show-more {
+    display: none;
+}
+
+a .show-less {
+    display: inline;
+}
+
+a.collapsed .show-more {
+    display: inline;
+}
+
+a.collapsed .show-less {
+    display: none;
+}
+
+.description-text:not(.in) {
+    min-height: 4.25em;
+    height: 4.25em;
+    display: block;
+    overflow: hidden;
+    visibility: visible;
+}
+
+/* ============= */
+/* media queries */
+/* ============= */
 
 @media (max-width: 465px) {
     /* Responsive header styles for tiny screens */
