@@ -22,7 +22,7 @@
 
 {% block sidebar %}
     {% has_versions person as changelog %}
-    <li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>
+    {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>{% endif %}
     <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
     <li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>
@@ -35,17 +35,26 @@
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
     {% has_versions person as changelog %}
-
-    <li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>
+    {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>{% endif %}
     <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
     <li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>
     <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
-
+    {% has_versions person as changelog %}
 {% endblock %}
 
 {% block details %}
+
+    {% if last_seen_as %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</h3>
+            <p>{{ last_seen_as|safe }}</p>
+        </div>
+    </div>
+    {% endif %}
+
     {% if memberships %}
     <div class="row">
         <div class="col-sm-12">

@@ -11,7 +11,7 @@ from django.views.generic import TemplateView, DetailView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
@@ -32,10 +32,17 @@ class PersonDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        memberships = context['person'].membershippersonmember_set\
+                        .order_by('-object_ref__membershippersonlastciteddate')
+
         context['memberships'] = []
-        memberships = context['person'].membershippersonmember_set.all()
         for membership in memberships:
             context['memberships'].append(membership.object_ref)
+
+        if len(memberships) > 0:
+            last_membership = memberships[0]
+
+            context['last_seen_as'] = self.last_seen_as(last_membership)
 
         context['events'] = []
         events = context['person'].violationperpetrator_set.all()
@@ -43,6 +50,70 @@ class PersonDetail(DetailView):
             context['events'].append(event.object_ref)
 
         return context
+
+    @staticmethod
+    def last_seen_as(memberships):
+        '''
+        Get a description string (as HTML) for the last position this Person
+        held, like:
+
+        "General Officer Commanding, Major General, Commander of 82 Division
+        (Military/Army, Nigeria) on 1st January 2013"
+        '''
+
+        obj = memberships.object_ref
+
+        # Start with the epithets (title, rank, and role)
+        description = '<strong>'
+
+        epithets = [obj.title.get_value().value,
+                    obj.rank.get_value().value,
+                    obj.role.get_value().value]
+
+        epithets = [str(ep) for ep in epithets if ep is not None]
+
+        if len(epithets) == 1:
+            description += epithets[0] + '</strong>'
+
+        elif len(epithets) == 2 or len(epithets) == 3:
+            separator = '</strong>, <strong>'
+            description += separator.join(epithets) + '</strong>'
+
+        else:
+            # Length must be 0, so use a generic title
+            description = 'Member'
+
+        # Member organization
+        description += ' '
+
+        organization = obj.organization.get_value().value
+
+        href = reverse('detail_organization', args=(organization.id,))
+
+        org_string = 'of <strong><a href="{href}">{org}</a></strong>'
+
+        description += org_string.format(org=organization,
+                                         href=href)
+
+        # Classifications
+        description += ' '
+
+        classifications = organization.classification.get_list()
+        if classifications:
+            classifications = '/'.join(str(clss) for clss in classifications
+                                       if clss is not None)
+
+        description += '(%s)' % classifications
+
+        # Last cited date
+        description += ' '
+
+        last_cited = obj.lastciteddate.get_value()
+        if last_cited:
+            description += 'on <strong>%s</strong>' % last_cited
+
+        return description
+
 
 class PersonList(PaginatedList):
     model = Person
