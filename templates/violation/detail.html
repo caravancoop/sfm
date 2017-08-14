@@ -69,7 +69,7 @@
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> Description </a></li>{% endif %}
     {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</a></li>{% endif %}
     {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</li>{% endif %}
-    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
 
 {% endblock %}
@@ -83,7 +83,7 @@
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> Description </a></li>{% endif %}
     {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</a></li>{% endif %}
     {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</li>{% endif %}
-    <li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
 
 {% endblock %}

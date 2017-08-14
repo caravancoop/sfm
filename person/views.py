@@ -66,11 +66,11 @@ class PersonDetail(DetailView):
         # Start with the epithets (title, rank, and role)
         description = '<strong>'
 
-        epithets = [obj.title.get_value().value,
-                    obj.rank.get_value().value,
-                    obj.role.get_value().value]
+        epithets = [obj.title.get_value(),
+                    obj.rank.get_value(),
+                    obj.role.get_value()]
 
-        epithets = [str(ep) for ep in epithets if ep is not None]
+        epithets = [str(ep.value) for ep in epithets if ep is not None]
 
         if len(epithets) == 1:
             description += epithets[0] + '</strong>'

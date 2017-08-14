@@ -2,38 +2,47 @@
     <div class="col-sm-12">
         <h3 id="changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</h3>
         <hr />
+        <p>Select an attribute below to review the changes our staff have made to this entity.</p>
         {% for version in versions %}
             {% for type_name, type_group in version.items %}
                 {% if type_group|last|last|length > 0 %} {# Only create tables for groups containing revisions #}
                     {% if forloop.first %}
-                        <h4>{{ type_name }}</h4>
-                        <table class="table table-condensed">
-                            <thead>
-                                <th>Value</th>
-                                <th>Confidence</th>
-                                <th>Date created</th>
-                                <th>User</th>
-                                <th>Sources</th>
-                            </thead>
-                            <tbody>
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#show-{{type_name|slugify}}">
+                            <a role="button" class="filter-heading">
+                                <h4><strong>{{ type_name }}</strong></h4>
+                            </a>
+                        </div>
+                        <div class="panel-body collapse" id="show-{{type_name|slugify}}">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <th>Value</th>
+                                    <th>Confidence</th>
+                                    <th>Date created</th>
+                                    <th>User</th>
+                                    <th>Sources</th>
+                                </thead>
+                                <tbody>
                     {% endif %}
-                    {% for group, members in type_group %}
-                        {% for member in members %}
-                            <tr>
-                                <td>{{ member.object.value }}</td>
-                                <td>{{ member.object.confidence }}</td>
-                                <td>{{ member.revision.date_created }}</td>
-                                <td>{{ member.revision.user }}</td>
-                                <td>
-                                    {% for source in member.object.sources.all %}
-                                        {{ source.title }}{% if not forloop.last %},{% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    {% endfor %}
-                        </tbody>
-                    </table>
+                            {% for group, members in type_group %}
+                                {% for member in members %}
+                                    <tr>
+                                        <td>{{ member.object.value }}</td>
+                                        <td>{{ member.object.confidence }}</td>
+                                        <td>{{ member.revision.date_created }}</td>
+                                        <td>{{ member.revision.user }}</td>
+                                        <td>
+                                            {% for source in member.object.sources.all %}
+                                                {{ source.title }}{% if not forloop.last %},{% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 {% endif %}
             {% endfor %}
         {% endfor %}
