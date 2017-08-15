@@ -104,7 +104,7 @@
                         {% endif %}
                         <!-- Rank -->
                         {% if facets.Person.facet_fields.person_current_rank_s.any %}
-                            {% with facet_name='person_current_rank_ss' facet_label='Rank' selected_list=selected_facets.person_current_rank_ss item_list=facets.Person.facet_fields.person_current_rank_s.counts %}
+                            {% with facet_name='person_current_rank_s' facet_label='Rank' selected_list=selected_facets.person_current_rank_s item_list=facets.Person.facet_fields.person_current_rank_s.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
