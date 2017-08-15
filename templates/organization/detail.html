@@ -37,8 +37,10 @@
 
     {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>{% endif %}
     {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>{% endif %}
-    {% if org_members %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
-    {% if memberships %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Memberships</a></li>{% endif %}
+    {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> Member units</a></li>{% endif %}
+    {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</a></li>{% endif %}
+    {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
     {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>{% endif %}
     {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
@@ -53,8 +55,10 @@
 
     {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>{% endif %}
     {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>{% endif %}
-    {% if org_members %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Memberships</a></li>{% endif %}
+    {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> Member units</a></li>{% endif %}
     {% if memberships %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</a></li>{% endif %}
+    {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
     {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>{% endif %}
     {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
@@ -84,10 +88,65 @@
     </div>
     {% endif %}
 
+    {% if memberships %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="parent-units">
+                <i class="fa fa-fw fa-sitemap fa-rotate-180"></i>
+                Memberships
+                <small>Multi-unit organizations that this unit is part of.</small>
+            </h3>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Aliases</th>
+                        <th>Classifications</th>
+                        <th>First cited</th>
+                        <th>Last cited</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membership in memberships %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' membership.id %}">
+                                    {{ membership.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in membership.aliases %}
+                                    {% if not forloop.last %}
+                                        {{ alias }},
+                                    {% else %}
+                                        {{ alias }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for classification in membership.classifications %}
+                                    {% if not forloop.last %}
+                                        {{ classification }},
+                                    {% else %}
+                                        {{ classification }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ membership.first_cited }}</td>
+                            <td>{{ membership.last_cited }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
     {% if org_members %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</h3>
+            <h3 id="org-members"><i class="fa fa-fw fa-sitemap"></i> Member units</h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
@@ -135,7 +194,7 @@
     </div>
     {% endif %}
 
-    {% if memberships %}
+    {% if parents %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</h3>
@@ -151,15 +210,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for membership in memberships %}
+                    {% for parent in parents %}
                         <tr>
                             <td>
-                                <a href="{% url 'detail_organization' membership.id %}">
-                                    {{ membership.name }}
+                                <a href="{% url 'detail_organization' parent.id %}">
+                                    {{ parent.name }}
                                 </a>
                             </td>
                             <td>
-                                {% for alias in membership.aliases %}
+                                {% for alias in parent.aliases.get_list %}
                                     {% if not forloop.last %}
                                         {{ alias }},
                                     {% else %}
@@ -168,7 +227,7 @@
                                 {% endfor %}
                             </td>
                             <td>
-                                {% for classification in membership.classifications %}
+                                {% for classification in parent.classifications %}
                                     {% if not forloop.last %}
                                         {{ classification }},
                                     {% else %}
@@ -176,8 +235,59 @@
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>{{ membership.first_cited }}</td>
-                            <td>{{ membership.last_cited }}</td>
+                            <td>{{ parent.first_cited }}</td>
+                            <td>{{ parent.last_cited }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if subsidiaries %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</h3>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Aliases</th>
+                        <th>Classifications</th>
+                        <th>First cited</th>
+                        <th>Last cited</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for child in subsidiaries %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' child.id %}">
+                                    {{ child.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in child.aliases.get_list %}
+                                    {% if not forloop.last %}
+                                        {{ alias }},
+                                    {% else %}
+                                        {{ alias }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for classification in child.classifications %}
+                                    {% if not forloop.last %}
+                                        {{ classification }},
+                                    {% else %}
+                                        {{ classification }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ child.first_cited }}</td>
+                            <td>{{ child.last_cited }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

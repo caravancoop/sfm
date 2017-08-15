@@ -49,6 +49,16 @@ class OrganizationDetail(DetailView):
             if association.object_ref.area.get_value().value.osmid.get_value():
                 context['areas'].append(association.object_ref.area.get_value().value)
 
+        context['parents'] = []
+        parents = context['organization'].parent_organization.all()
+        for parent in parents:
+            context['parents'].append(parent.object_ref.parent.get_value().value)
+
+        context['subsidiaries'] = []
+        children = context['organization'].child_organization.all()
+        for child in children:
+            context['subsidiaries'].append(child.object_ref.child.get_value().value)
+
         member_of_orgs = '''
             SELECT
               org_o.id,
