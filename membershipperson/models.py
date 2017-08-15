@@ -1,13 +1,14 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
-
+from django.core.urlresolvers import reverse
 from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
+
 from person.models import Person
 from organization.models import Organization
 
@@ -36,6 +37,69 @@ class MembershipPerson(models.Model, BaseModel):
             "MembershipPerson_MembershipPersonMember",
             "MembershipPerson_MembershipPersonOrganization",
         ]
+
+    @property
+    def short_description(self):
+        '''
+        Get a description string (as HTML) for information on this membership,
+        such as:
+
+        "General Officer Commanding, Major General, Commander of 82 Division
+        (Military/Army, Nigeria) on 1st January 2013"
+        '''
+
+        obj = self
+
+        # Start with the epithets (title, rank, and role)
+        description = '<strong>'
+
+        epithets = [obj.title.get_value(),
+                    obj.rank.get_value(),
+                    obj.role.get_value()]
+
+        epithets = [str(ep.value) for ep in epithets if ep is not None]
+
+        if len(epithets) == 1:
+            description += epithets[0] + '</strong>'
+
+        elif len(epithets) == 2 or len(epithets) == 3:
+            separator = '</strong>, <strong>'
+            description += separator.join(epithets) + '</strong>'
+
+        else:
+            # Length must be 0, so use a generic title
+            description = 'Member'
+
+        # Member organization
+        description += ' '
+
+        organization = obj.organization.get_value().value
+
+        href = reverse('detail_organization', args=(organization.id,))
+
+        org_string = 'of <strong><a href="{href}">{org}</a></strong>'
+
+        description += org_string.format(org=organization,
+                                         href=href)
+
+        # Classifications
+        description += ' '
+
+        classifications = organization.classification.get_list()
+        if classifications:
+            classifications = '/'.join(str(clss) for clss in classifications
+                                       if clss is not None)
+
+        description += '(%s)' % classifications
+
+        # Last cited date
+        description += ' '
+
+        last_cited = obj.lastciteddate.get_value()
+        if last_cited:
+            description += 'on <strong>%s</strong>' % last_cited
+
+        return description
 
     @classmethod
     def from_id(cls, id_):

@@ -11,7 +11,8 @@ from django.views.generic import TemplateView, DetailView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.db.models import Q
+from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
@@ -32,8 +33,9 @@ class PersonDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        last_cited_attr = '-object_ref__membershippersonlastciteddate'
         memberships = context['person'].membershippersonmember_set\
-                        .order_by('-object_ref__membershippersonlastciteddate')
+                        .order_by(last_cited_attr)
 
         context['memberships'] = []
         for membership in memberships:
@@ -42,7 +44,103 @@ class PersonDetail(DetailView):
         if len(memberships) > 0:
             last_membership = memberships[0]
 
-            context['last_seen_as'] = self.last_seen_as(last_membership)
+            context['last_seen_as'] = last_membership.object_ref.short_description
+
+        context['subordinates'] = []
+        for membership in memberships:
+            # Get the child organizations for the member org
+            org = membership.object_ref.organization.get_value().value
+            child_compositions = org.child_organization.all()
+
+            # Start and end date for this membership
+            mem_start = membership.object_ref.firstciteddate.get_value()
+            no_start = False
+            if mem_start is None:
+                # Make a bogus date that everything will be greater than
+                mem_start = date(1000, 1, 1)
+                no_start = True
+            else:
+                mem_start = mem_start.value
+
+            mem_end = membership.object_ref.lastciteddate.get_value()
+            no_end = False
+            if mem_end is None:
+                mem_end = date.today()
+                no_end = True
+            else:
+                mem_end = mem_end.value
+
+            # Get the commanders of each child organization
+            # (Unfortunately, this requires two more iterations)
+            if child_compositions:
+                for composition in child_compositions:
+                    child = composition.object_ref.child.get_value().value
+
+                    # Start and end date attributes for filtering:
+                    # We want only the personnel who were commanders of child
+                    # organizations during this membership
+                    # (also allowing for null dates)
+                    commander_start = Q(object_ref__membershippersonfirstciteddate__value__lte=mem_end)
+                    start_is_null = Q(object_ref__membershippersonfirstciteddate__value__isnull=True)
+
+                    commander_end = Q(object_ref__membershippersonlastciteddate__value__gte=mem_start)
+                    end_is_null = Q(object_ref__membershippersonlastciteddate__value__isnull=True)
+
+                    commanders = child.membershippersonorganization_set\
+                                      .filter(commander_start |\
+                                              start_is_null)\
+                                      .filter(commander_end |\
+                                              end_is_null)\
+                                      .order_by(last_cited_attr)
+
+                    for commander in commanders:
+                        # We need to calculate time overlap, so use a dict to
+                        # stash information about this commander
+                        info = {}
+                        info['commander'] = commander.object_ref
+                        info['organization'] = child
+
+                        # Get start of the overlap between these two people,
+                        # being sensitive to nulls
+
+                        # First, try to get the commander of the child unit's
+                        # start/end dates
+                        c_start = commander.object_ref.firstciteddate.get_value()
+                        c_end = commander.object_ref.lastciteddate.get_value()
+
+                        if c_start and not no_end:
+                            overlap_start = c_start.value
+                        else:
+                            # Once we have "ongoing" attributes, we'll be able to
+                            # determine ongoing overlap; for now, mark it as
+                            # "unknown"
+                            overlap_start = 'Unknown'
+
+                        if c_end and not no_start:
+                            overlap_end = c_end.value
+                        else:
+                            # Ditto about "ongoing" attributes above
+                            overlap_end = 'Unknown'
+
+                        if overlap_start != 'Unknown' and overlap_end != 'Unknown':
+                            # Convert to date objects to calculate delta
+                            start = date(overlap_start.year,
+                                         overlap_start.month,
+                                         overlap_start.day)
+
+                            end = date(overlap_end.year,
+                                       overlap_end.month,
+                                       overlap_end.day)
+
+                            overlap_duration = str((end - start).days)
+                        else:
+                            overlap_duration = 'Unknown'
+
+                        info['overlap_start'] = overlap_start
+                        info['overlap_end'] = overlap_end
+                        info['overlap_duration'] = overlap_duration
+
+                        context['subordinates'].append(info)
 
         context['events'] = []
         events = context['person'].violationperpetrator_set.all()
@@ -50,69 +148,6 @@ class PersonDetail(DetailView):
             context['events'].append(event.object_ref)
 
         return context
-
-    @staticmethod
-    def last_seen_as(memberships):
-        '''
-        Get a description string (as HTML) for the last position this Person
-        held, like:
-
-        "General Officer Commanding, Major General, Commander of 82 Division
-        (Military/Army, Nigeria) on 1st January 2013"
-        '''
-
-        obj = memberships.object_ref
-
-        # Start with the epithets (title, rank, and role)
-        description = '<strong>'
-
-        epithets = [obj.title.get_value(),
-                    obj.rank.get_value(),
-                    obj.role.get_value()]
-
-        epithets = [str(ep.value) for ep in epithets if ep is not None]
-
-        if len(epithets) == 1:
-            description += epithets[0] + '</strong>'
-
-        elif len(epithets) == 2 or len(epithets) == 3:
-            separator = '</strong>, <strong>'
-            description += separator.join(epithets) + '</strong>'
-
-        else:
-            # Length must be 0, so use a generic title
-            description = 'Member'
-
-        # Member organization
-        description += ' '
-
-        organization = obj.organization.get_value().value
-
-        href = reverse('detail_organization', args=(organization.id,))
-
-        org_string = 'of <strong><a href="{href}">{org}</a></strong>'
-
-        description += org_string.format(org=organization,
-                                         href=href)
-
-        # Classifications
-        description += ' '
-
-        classifications = organization.classification.get_list()
-        if classifications:
-            classifications = '/'.join(str(clss) for clss in classifications
-                                       if clss is not None)
-
-        description += '(%s)' % classifications
-
-        # Last cited date
-        description += ' '
-
-        last_cited = obj.lastciteddate.get_value()
-        if last_cited:
-            description += 'on <strong>%s</strong>' % last_cited
-
-        return description
 
 
 class PersonList(PaginatedList):
