@@ -1,4 +1,7 @@
 {% load tablesort %}
+{% load countries %}
+{% load facets %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -21,16 +24,16 @@
                 <th>Description</th>
                 <th>Violation types</th>
                 <th>
-                    OSM Name
+                    Location
                     {% if sortable == 'True' %}
-                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='osmname' %}">
+                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='location' %}">
                         <i class="fa fa-sort"></i>
                     </a>
                     {% endif %}
                 </th>
-                <th>Organizations</th>
+                <th>Perpetrators</th>
                 <th>
-                    Organization classification
+                    Perpetrator classification
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-violation' %}?{% query_transform request order_by='classification' %}">
                         <i class="fa fa-sort"></i>
@@ -42,16 +45,19 @@
         <tbody>
             {% for object in object_list %}
                 <tr>
+                    <!-- Start date -->
                     <td>
                         {% if object.startdate.get_value %}
                             {{ object.startdate.get_value }}
                         {% endif %}
                     </td>
+                    <!-- End date -->
                     <td>
                         {% if object.enddate.get_value %}
                             {{ object.enddate.get_value }}
                         {% endif %}
                     </td>
+                    <!-- Description -->
                     <td>
                         <a href="{% url 'detail_violation' object.id %}">
                         {% if object.description.get_value %}
@@ -61,22 +67,18 @@
                         {% endif %}
                         </a>
                     </td>
+                    <!-- Violation type -->
                     <td>
                         {% for violation_type in object.types.get_list %}
-                            {{ violation_type.get_value }}
+                            {{ violation_type.get_value|violation|title }}
                             {% if not forloop.last %}<br />{% endif %}
                         {% endfor %}
                     </td>
+                    <!-- Location -->
                     <td>
-                        {% if object.osmname.get_value and object.osmnameid.get_value %}
-                            <a target="_blank" href="https://www.openstreetmap.org/node/{{ object.osmid.get_value }}">
-                                {{ object.osmname.get_value }}
-                            </a> &nbsp;
-                        {% endif %}
-                        {% if object.adminlevel1.get_value %}
-                            ({{ object.adminlevel1.get_value }})
-                        {% endif %}
+                        {% render_location_string object %}
                     </td>
+                    <!-- Perpetrators -->
                     <td>
                         {% for organization in object.violationperpetratororganization_set.all %}
                             <a href="{% url 'detail_organization' organization.value.id %}">
@@ -85,6 +87,7 @@
                             {% if not forloop.last %}<br />{% endif %}
                         {% endfor %}
                     </td>
+                    <!-- Perpetrator classification -->
                     <td>
                         {% for classification in object.violationperpetratorclassification_set.all %}
                             {{ classification.value.value }}

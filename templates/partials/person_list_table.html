@@ -3,7 +3,7 @@
         <thead>
             <tr>
                 {% if merge == 'True' %}
-                    <th>Select records to merge</th>
+                    <th>Select</th>
                 {% endif %}
                 {% if canonical == 'True' %}
                     <th>Select canonical record</th>
@@ -17,7 +17,10 @@
                     {% endif %}
                 </th>
                 <th>Also known as</th>
-                <th>Units</th>
+                <th>Most recent rank</th>
+                <th>Most recent unit</th>
+                <th>First citation</th>
+                <th>Last citation</th>
             </tr>
         </thead>
         <tbody>
@@ -42,22 +45,43 @@
                                 </div>
                             </td>
                         {% endif %}
+                        <!-- Name -->
                         <td>
                             <a href="{% url 'detail-person' object.id %}">{{ object.name.get_value }}</a>
                         </td>
+                        <!-- Aliases -->
                         <td>
                             {% for alias in object.personalias_set.all %}
                                 {{ alias.value.value }}
                                 {% if not forloop.last %}<br />{% endif %}
                             {% endfor %}
                         </td>
+                        <!-- Most recent rank -->
                         <td>
-                            {% for membership in object.membershippersonmember_set.all %}
-                                {% for organization in membership.object_ref.membershippersonorganization_set.all %}
+                            {% with membership=object.membershippersonmember_set.last %}
+                                {{ membership.object_ref.rank.get_value }}
+                            {% endwith %}
+                        </td>
+                        <!-- Most recent unit -->
+                        <td>
+                            {% with membership=object.membershippersonmember_set.last %}
+                                {% with organization=membership.object_ref.membershippersonorganization_set.last %}
                                     <a href="{% url 'detail_organization' organization.value.id %}">{{ organization.value.name.get_value }}</a>
-                                {% endfor %}
-                                {% if not forloop.last %}<br />{% endif %}
-                            {% endfor %}
+                                {% endwith %}
+                                <br />
+                            {% endwith %}
+                        </td>
+                        <!-- First citation -->
+                        <td>
+                            {% with membership=object.membershippersonmember_set.first %}
+                                {{ membership.object_ref.firstciteddate.get_value }}
+                            {% endwith %}
+                        </td>
+                        <!-- Last citation -->
+                        <td>
+                            {% with membership=object.membershippersonmember_set.last %}
+                                {{ membership.object_ref.lastciteddate.get_value }}
+                            {% endwith %}
                         </td>
                     </tr>
                 {% endif %}

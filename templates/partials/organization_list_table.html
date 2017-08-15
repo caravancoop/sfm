@@ -1,4 +1,6 @@
 {% load tablesort %}
+{% load countries %}
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -20,7 +22,15 @@
                     {% endif %}
                 </th>
                 <th>
-                    Site Name
+                    Classification
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='classification' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>
+                    Last site name
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-organization' %}?{% query_transform request order_by='osmname' %}">
                         <i class="fa fa-sort"></i>
@@ -28,12 +38,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    Classification
-                    {% if sortable == 'True' %}
-                    <a href="{% url 'list-organization' %}?{% query_transform request order_by='classification' %}">
-                        <i class="fa fa-sort"></i>
-                    </a>
-                    {% endif %}
+                    Country
                 </th>
             </tr>
         </thead>
@@ -59,9 +64,11 @@
                                 </div>
                             </td>
                         {% endif %}
+                        <!-- Name -->
                         <td>
                             <a href="{% url 'detail_organization' object.id %}">{{ object.name.get_value }}</a>
                         </td>
+                        <!-- Parent -->
                         <td>
                             {% for comp in object.parent_organization.all %}
                                 {% with parent=comp.object_ref.parent.get_value %}
@@ -70,15 +77,7 @@
                                 {% if not forloop.last %}<br />{% endif %}
                             {% endfor %}
                         </td>
-                        <td>
-                            {% for emplacement in object.emplacementorganization_set.all %}
-                                {% with sites=emplacement.object_ref.emplacementsite_set.all %}
-                                    {% for site in sites %}
-                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.osmid.get_value }}">{{ site }}</a>
-                                    {% endfor %}
-                                {% endwith %}
-                            {% endfor %}
-                        </td>
+                        <!-- Classification -->
                         <td>
                             {% for classification in object.classification.get_list %}
                                 {% if classification.get_value %}
@@ -86,6 +85,18 @@
                                 {% endif %}
                                 {% if not forloop.last %}<br />{% endif %}
                             {% endfor %}
+                        </td>
+                        <!-- Site name -->
+                        <td>
+                            {% with emplacement=object.emplacementorganization_set.last %}
+                                {% with site=emplacement.object_ref.emplacementsite_set.last %}
+                                    <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.osmid.get_value }}">{{ site }}</a>
+                                {% endwith %}
+                            {% endwith %}
+                        </td>
+                        <!-- Country -->
+                        <td>
+                            {{ object.division_id|country_name }}
                         </td>
                     </tr>
                 {% endif %}

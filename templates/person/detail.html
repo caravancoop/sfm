@@ -25,7 +25,7 @@
     {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>{% endif %}
     <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
-    <li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>
+    {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
 {% endblock %}
@@ -37,7 +37,7 @@
     {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>{% endif %}
     <li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>
-    <li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>
+    {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
 {% endblock %}
