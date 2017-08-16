@@ -13,6 +13,7 @@ django-bootstrap-pagination==1.6.2
 django-leaflet==0.16.0
 psycopg2==2.6.1
 django-extra-views==0.7.1
+django-rosetta==0.7.13
 
 -e git+https://github.com/security-force-monitor/complex_fields.git#egg=django-complex-fields
 

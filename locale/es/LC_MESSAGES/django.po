@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-15 18:19+0000\n"
+"POT-Creation-Date: 2017-08-16 14:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: area/models.py:50 geosite/models.py:42 organization/models.py:43
 #: person/models.py:46 templates/area/search.html:24
@@ -25,7 +25,7 @@ msgstr ""
 #: templates/person/search.html:128 templates/site/search.html:23
 #: templates/site/search.html:91
 msgid "Name"
-msgstr "Nom"
+msgstr ""
 
 #: area/models.py:59
 msgid "Location geometry"
@@ -36,7 +36,7 @@ msgstr ""
 #: templates/composition/search.html:97 templates/composition/search.html:140
 #: templates/organization/search.html:30 templates/organization/search.html:164
 msgid "Classification"
-msgstr "Classification"
+msgstr ""
 
 #: area/models.py:75 geosite/models.py:77
 msgid "OSM name"
@@ -72,7 +72,7 @@ msgid "End date"
 msgstr ""
 
 #: association/models.py:59 emplacement/models.py:64
-#: membershiporganization/models.py:65 membershipperson/models.py:72
+#: membershiporganization/models.py:65 membershipperson/models.py:136
 #: templates/association/search.html:109 templates/association/search.html:140
 #: templates/emplacement/search.html:109 templates/emplacement/search.html:140
 #: templates/organization/edit.html:10 templates/violation/search.html:198
@@ -125,48 +125,48 @@ msgstr ""
 msgid "Last cited"
 msgstr ""
 
-#: membershiporganization/models.py:54 membershipperson/models.py:64
+#: membershiporganization/models.py:54 membershipperson/models.py:128
 msgid "Member"
 msgstr ""
 
-#: membershiporganization/models.py:76 membershipperson/models.py:105
+#: membershiporganization/models.py:76 membershipperson/models.py:169
 #: templates/membershipperson/search.html:42
 msgid "First cited date"
 msgstr ""
 
-#: membershiporganization/models.py:87 membershipperson/models.py:113
+#: membershiporganization/models.py:87 membershipperson/models.py:177
 #: templates/membershipperson/search.html:81
 msgid "Last cited date"
 msgstr ""
 
-#: membershipperson/models.py:80 templates/membershipperson/search.html:17
+#: membershipperson/models.py:144 templates/membershipperson/search.html:17
 #: templates/membershipperson/search.html:136 templates/person/edit.html:80
 msgid "Role"
 msgstr ""
 
-#: membershipperson/models.py:89 templates/membershipperson/search.html:35
+#: membershipperson/models.py:153 templates/membershipperson/search.html:35
 #: templates/membershipperson/search.html:137 templates/person/edit.html:79
 msgid "Title"
 msgstr ""
 
-#: membershipperson/models.py:97 templates/membershipperson/search.html:26
+#: membershipperson/models.py:161 templates/membershipperson/search.html:26
 #: templates/membershipperson/search.html:138 templates/person/edit.html:81
 msgid "Rank"
 msgstr ""
 
-#: membershipperson/models.py:121
+#: membershipperson/models.py:185
 msgid "Real start date"
 msgstr ""
 
-#: membershipperson/models.py:129
+#: membershipperson/models.py:193
 msgid "Real end date"
 msgstr ""
 
-#: membershipperson/models.py:137
+#: membershipperson/models.py:201
 msgid "Start context"
 msgstr ""
 
-#: membershipperson/models.py:145
+#: membershipperson/models.py:209
 msgid "End context"
 msgstr ""
 
@@ -196,14 +196,12 @@ msgstr ""
 
 #: organization/models.py:53 person/models.py:55
 #: templates/organization/search.html:163 templates/person/search.html:129
-#, fuzzy
-#| msgid "Aliases"
 msgid "Alias"
-msgstr "Alias"
+msgstr ""
 
-#: person/views.py:351 templates/person/search.html:7
+#: person/views.py:402 templates/person/search.html:7
 msgid "Person"
-msgstr "Personne"
+msgstr ""
 
 #: sfm_pc/base_views.py:48
 msgid "Please add a source for this information"
@@ -211,17 +209,17 @@ msgstr ""
 
 #: sfm_pc/settings.py:148 tests/test_settings.py:127
 msgid "French"
-msgstr "Français"
+msgstr ""
 
 #: sfm_pc/settings.py:149 tests/test_settings.py:128
 msgid "English"
-msgstr "Anglais"
+msgstr ""
 
 #: sfm_pc/settings.py:150 tests/test_settings.py:129
 msgid "Spanish"
 msgstr ""
 
-#: sfm_pc/utils.py:349
+#: sfm_pc/utils.py:353
 msgid "Object sources"
 msgstr ""
 
@@ -240,19 +238,19 @@ msgstr ""
 #: templates/account/account_inactive.html:5
 #: templates/account/account_inactive.html:8
 msgid "Account Inactive"
-msgstr "Compte inactif"
+msgstr ""
 
 #: templates/account/account_inactive.html:10
 msgid "This account is inactive."
-msgstr "Ce compte est inactif"
+msgstr ""
 
 #: templates/account/email.html:5
 msgid "Account"
-msgstr "Compte"
+msgstr ""
 
 #: templates/account/email.html:8
 msgid "E-mail Addresses"
-msgstr "Adresse courriel"
+msgstr ""
 
 #: templates/account/email.html:10
 msgid "The following e-mail addresses are associated with your account:"
@@ -995,15 +993,15 @@ msgstr ""
 
 #: templates/modals/source.html:12 violation/models.py:18
 msgid "Low"
-msgstr "Basse"
+msgstr ""
 
 #: templates/modals/source.html:13 violation/models.py:19
 msgid "Medium"
-msgstr "Moyenne"
+msgstr ""
 
 #: templates/modals/source.html:14 violation/models.py:20
 msgid "High"
-msgstr "Haute"
+msgstr ""
 
 #: templates/modals/source.html:21 templates/modals/source.html:24
 msgid "Add"
@@ -1071,10 +1069,8 @@ msgstr ""
 
 #: templates/site/search.html:68 templates/site/search.html:92
 #: templates/violation/search.html:143 templates/violation/search.html:196
-#, fuzzy
-#| msgid "Name"
 msgid "GeoName"
-msgstr "Nom"
+msgstr ""
 
 #: templates/site/search.html:71 templates/site/search.html:72
 #: templates/site/search.html:93 templates/violation/search.html:146
@@ -1118,10 +1114,8 @@ msgid "Perpetrator Organization"
 msgstr ""
 
 #: violation/models.py:106
-#, fuzzy
-#| msgid "Name"
 msgid "OSM Name"
-msgstr "Nom"
+msgstr ""
 
 #: violation/models.py:127
 msgid "Location"
@@ -1138,9 +1132,3 @@ msgstr ""
 #: violation/models.py:172
 msgid "Event Perpetrator Classification"
 msgstr ""
-
-#~ msgid "Notes"
-#~ msgstr "Notes"
-
-#~ msgid "Dashboard"
-#~ msgstr "Tableau de bord"

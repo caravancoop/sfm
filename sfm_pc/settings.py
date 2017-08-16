@@ -58,6 +58,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'django.contrib.humanize',
     'django_date_extensions',
+    'rosetta',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

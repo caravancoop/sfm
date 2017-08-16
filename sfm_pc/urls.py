@@ -50,6 +50,13 @@ urlpatterns += (
     url(r'^api/', include('api.urls')),
 )
 
+# Rosetta translation app
+if 'rosetta' in settings.INSTALLED_APPS:
+    urlpatterns += (
+        url(r'^rosetta/', include('rosetta.urls')),
+    )
+
+# Django debug toolbar (for local development only)
 if settings.DEBUG:
     try:
         import debug_toolbar
