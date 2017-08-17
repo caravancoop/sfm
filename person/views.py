@@ -23,7 +23,7 @@ from person.forms import PersonForm
 from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, Role
-from sfm_pc.utils import deleted_in_str
+from sfm_pc.utils import deleted_in_str, chain_of_command
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 class PersonDetail(DetailView):
@@ -37,19 +37,31 @@ class PersonDetail(DetailView):
         memberships = context['person'].membershippersonmember_set\
                         .order_by(last_cited_attr)
 
-        context['memberships'] = []
-        for membership in memberships:
-            context['memberships'].append(membership.object_ref)
-
+        # Start by getting the most recent membership for the "Last seen as"
+        # description
         if len(memberships) > 0:
             last_membership = memberships[0]
 
             context['last_seen_as'] = last_membership.object_ref.short_description
 
+        context['memberships'] = []
+        context['chain_of_command'] = []
         context['subordinates'] = []
         for membership in memberships:
-            # Get the child organizations for the member org
+
+            # Store the raw memberships for use in the template
+            context['memberships'].append(membership.object_ref)
+
+            # Grab the org object
             org = membership.object_ref.organization.get_value().value
+
+            # Get the chain of command
+            command = chain_of_command(org.uuid)
+            context['chain_of_command'].append(json.dumps(command))
+
+            # Next, get some info about subordinates
+
+            # Start by getting all child organizations for the member org
             child_compositions = org.child_organization.all()
 
             # Start and end date for this membership
@@ -132,7 +144,7 @@ class PersonDetail(DetailView):
                                        overlap_end.month,
                                        overlap_end.day)
 
-                            overlap_duration = str((end - start).days)
+                            overlap_duration = (str((end - start).days) + ' days')
                         else:
                             overlap_duration = 'Unknown'
 

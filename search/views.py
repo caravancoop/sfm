@@ -172,7 +172,6 @@ def search(request):
         # Copy the query so we can modify it in the scope of this iteration
         etype_query = full_query
 
-        print(etype_query)
         # Add facets to the query
         search_context['facet.field'] = SEARCH_ENTITY_TYPES[etype]['facet_fields']
         search_context['facet.range'] = SEARCH_ENTITY_TYPES[etype]['facet_ranges']

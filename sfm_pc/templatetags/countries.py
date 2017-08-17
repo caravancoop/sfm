@@ -12,17 +12,18 @@ def country_name(division_id):
 
     "ocd-division/country:ng" -> "Nigeria"
     '''
-    country_code = division_id.split('country:')[1]
+    if division_id and division_id != '':
+        country_code = division_id.split('country:')[1]
 
-    for country in settings.OSM_DATA:
+        for country in settings.OSM_DATA:
 
-        if country['country_code'] == country_code:
+            if country['country_code'] == country_code:
 
-            return country['country']
+                return country['country']
 
     # If for some reason we can't find this country, return None
     # so that we don't mess with the template
-    return None
+    return '' 
 
 @register.inclusion_tag('partials/location_string.html')
 def render_location_string(obj, countries=True):

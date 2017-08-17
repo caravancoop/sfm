@@ -3,7 +3,6 @@
 {% load static %}
 {% load render_versions %}
 
-
 {% block header %}
     <h1 class="page-title">
         <i class="fa fa-fw fa-user"></i> {{ person.name.get_value }}
@@ -24,7 +23,7 @@
     {% has_versions person as changelog %}
     {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>{% endif %}
-    {% if chain_of_command %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>{% endif %}
+    {% if chain_of_command %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Chain of command</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
@@ -36,7 +35,7 @@
     {% has_versions person as changelog %}
     {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> Last seen as</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> Memberships</a></li>{% endif %}
-    {% if chain_of_command %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap"></i> Chain of command</a></li>{% endif %}
+    {% if chain_of_command %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Chain of command</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> Subordinates</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
@@ -90,6 +89,16 @@
     </div>
     {% endif %}
 
+    {% if chain_of_command %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Chain of command</h3>
+            <hr />
+            <div id="org-chart-container" class="org-chart-container"></div>
+        </div>
+    </div>
+    {% endif %}
+
     {% if subordinates %}
     <div class="row">
         <div class="col-sm-12">
@@ -125,7 +134,7 @@
                         </td>
                         <td>{{ subordinate.overlap_start }}</td>
                         <td>{{ subordinate.overlap_end }}</td>
-                        <td>{{ subordinate.overlap_duration }} days</td>
+                        <td>{{ subordinate.overlap_duration }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -158,3 +167,35 @@
 
 {% endblock %}
 
+{% block extra_js %}
+    {% if chain_of_command %}
+        <!-- Org chart work is in progress; disabled for now -->
+        <!-- script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script -->
+        <script>
+
+        $(document).ready(function() {
+
+            // Retrieve the graph data as JSON
+            {% with member=memberships|first %}
+                var command_url = "{% url 'chain-of-command' member.organization.get_value.value.uuid %}";
+            {% endwith %}
+
+            /*
+            $.getJSON(command_url, function(data) {
+                // Print hierarchy
+                console.log(data);
+
+                // Load charts library
+                google.charts.load('current', {packages:['orgchart']});
+                google.charts.setOnLoadCallback(drawChart);
+
+            });
+
+            function drawChart() {
+                var dataTable = new google.visualization.DataTable();
+            }
+            */
+        });
+        </script>
+    {% endif %}
+{% endblock %}

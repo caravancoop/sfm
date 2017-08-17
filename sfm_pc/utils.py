@@ -154,6 +154,7 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
             'division_id': orgs[0].division_id,
             'date_first_cited': orgs[0].start_date,
             'date_last_cited': orgs[0].end_date,
+            'commander': orgs[0].commander,
             # 'parent_id': orgs[0].parent_id
         }
 
@@ -179,7 +180,151 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
 
     return hierarchy
 
+
+def get_chain_of_command(org_id):
+    # Generate the hierarchy as an edge list
+    hierarchy = get_org_hierarchy_by_id(org_id)
+
+    # Get some info about this org (the root node)
+    # TODO: Make sure this grabs the right membership
+    org_query = '''
+        SELECT
+          o.name,
+          person.name AS commander
+        FROM organization as o
+        LEFT JOIN membershipperson AS mem
+          ON o.id = mem.organization_id
+        LEFT JOIN person
+          ON person.id = mem.member_id
+        WHERE o.id = %s
+        LIMIT 1
+    '''
+
+    cursor = connection.cursor()
+    cursor.execute(org_query, [org_id])
+
+    result = list(row for row in cursor)[0]
+
+    org_info = {'name': result[0], 'commander': result[1]}
+
+    out = {
+        'nodes': [
+                    [
+                        1,
+                        {
+                            'label': org_info['name']
+                        }
+                    ],
+                    [
+                        2,
+                        {
+                            'label': 'hi!'
+                        }
+                    ]
+                ],
+        'edges': [[1, 2]]
+    }
+
+    return out
+
+def chain_of_command(org_id):
+    '''
+    Returns a JSON object that we can use to build a hierarchy tree.
+    '''
+    # Generate the hierarchy as an edge list
+    hierarchy = get_org_hierarchy_by_id(org_id)
+
+    # Get some info about this org (the root node)
+    # TODO: Make sure this grabs the right membership
+    org_query = '''
+        SELECT
+          o.name,
+          person.name AS commander
+        FROM organization as o
+        LEFT JOIN membershipperson AS mem
+          ON o.id = mem.organization_id
+        LEFT JOIN person
+          ON person.id = mem.member_id
+        WHERE o.id = %s
+        LIMIT 1
+    '''
+
+    cursor = connection.cursor()
+    cursor.execute(org_query, [org_id])
+
+    result = list(row for row in cursor)[0]
+
+    org_info = {'name': result[0], 'commander': result[1]}
+
+    # Skeleton for the output JSON, starting with the root node
+    # c.f. https://github.com/dabeng/OrgChart#structure-of-datasource
+    out = {
+        'id': str(org_id),
+        'className': 'rootNode',
+        'collapsed': False,
+        'nodeTitlePro': org_info['name'],
+        'nodeContentPro': org_info['commander'],
+        'relationship': '',
+        'children': []
+    }
+
+    if len(hierarchy) > 0:
+        out['relationship'] = '001'
+    else:
+        out['relationship'] = '000'
+
+    # The output key has to be called "children" for the JS lib to work,
+    # but what we actually want is the parents!
+    out['children'] = get_parents(hierarchy, out['id'])
+
+    return out
+
+def get_parents(edgelist, org_id):
+
+    parents = []
+
+    found_parents = []
+    for unit in edgelist:
+        if str(unit['child_id']) == str(org_id):
+            found_parents.append(unit)
+
+    if found_parents:
+
+        for parent in found_parents:
+
+            parent_info = {
+                'id': str(parent['id']),
+                'className': 'childNode',
+                'collapsed': False,
+                'nodeTitlePro': parent['name'],
+                'nodeContentPro': parent['commander'],
+                'relationship': '',
+                'children': []
+            }
+
+            parent_info['children'] = get_parents(edgelist, parent['id'])
+
+            if len(parent_info['children']) > 0:
+                if len(found_parents) > 1:
+                    parent_info['relationship'] = '111'
+                else:
+                    parent_info['relationship'] = '101'
+            else:
+                parent_info['relationship'] = '100'
+
+            parents.append(parent_info)
+
+        return parents
+
+    else:
+
+        return []
+
 def get_org_hierarchy_by_id(org_id, when=None, sources=False):
+    '''
+    org_id: uuid for the organization
+    date: date for limiting the search
+    '''
     hierarchy = '''
         WITH RECURSIVE children AS (
           SELECT
@@ -190,7 +335,8 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             NULL::DATE AS end_date,
             NULL::BOOL AS open_ended,
             NULL::VARCHAR AS source,
-            NULL::VARCHAR AS confidence
+            NULL::VARCHAR AS confidence,
+            NULL::VARCHAR AS commander
           FROM organization As o
           WHERE id = %s
           UNION
@@ -202,7 +348,8 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             h.end_date::date,
             h.open_ended,
             row_to_json(ss.*)::VARCHAR AS source,
-            ccc.confidence
+            ccc.confidence,
+            person.name
           FROM organization AS o
           JOIN composition AS h
             ON o.id = h.parent_id
@@ -212,6 +359,10 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             ON ccc.id = cccs.compositionparent_id
           LEFT JOIN source_source AS ss
             ON cccs.source_id = ss.id
+          LEFT JOIN membershipperson AS mem
+            ON o.id = mem.organization_id
+          LEFT JOIN person
+            ON person.id = mem.member_id
           JOIN children
             ON children.id = h.child_id
         ) SELECT * FROM children WHERE id != %s
