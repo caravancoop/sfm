@@ -35,6 +35,9 @@ class SourceCreate(FormView):
         if self.request.session.get('source_id'):
             del self.request.session['source_id']
 
+        # Highlight "new source" tab
+        context['new_source_tab'] = 'tab-selected'
+
         return context
 
     def post(self, request, *args, **kwargs):

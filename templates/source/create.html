@@ -12,8 +12,8 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2>Add a new source</h2>
-    <p>Describe where you are getting your information</p>
+    <h2><i class="fa fa-fw fa-file-text"></i> Create source</h2>
+    <p class="small">Describe where you are getting your information.</p>
     <hr />
 </div>
 <form method="post" class="form-horizontal">
@@ -23,7 +23,7 @@
     {% else %}
         <div class="form-group">
     {% endif %}
-        <label for="id_title" class="control-label col-sm-2">Source title</label>
+    <label for="id_title" class="control-label col-sm-2">Source title</label>
         <div class="col-sm-8">
             <input type="text" class="form-control" id="id_title" name="title" value="{{ form.cleaned_data.title }}">
         {% if form.title.errors %}
@@ -172,9 +172,14 @@
             },
             escapeMarkup: function(markup){ return markup; },
             minimumInputLength: 2,
-            tags: true
+            tags: true,
+            allowClear: true,
+            placeholder: ''
         });
-        $('#id_publication_country').select2();
+        $('#id_publication_country').select2({
+            allowClear: true,
+            placeholder: ''
+        });
         $('#id_publication').on('select2:select', function(e){
             $('#id_publication_title').val(e.params.data.text);
             if(e.params.data.country){

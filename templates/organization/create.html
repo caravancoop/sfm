@@ -11,8 +11,8 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2>Organizations</h2>
-    <p>Describe any organizations found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <h2><i class="fa fa-fw fa-users"></i> Units</h2>
+    <p>Describe any units found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
 <div class="row">
@@ -30,7 +30,7 @@
                         {% else %}
                             <div class="form-group">
                         {% endif %}
-                            <label class="col-sm-2 control-label">Organization name</label>
+                            <label class="col-sm-2 control-label">Unit name</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
                                         <option value="" selected="selected">--------</option>
@@ -114,8 +114,8 @@
                         {% if form_id > 0 %}
                             <div class="form-group">
                                 <div class="col-sm-10 col-sm-offset-2">
-                                    <button id="remove_form-{{ form_id }}" type="button" class="remove-form btn btn-danger">
-                                        Remove Organization <i class="fa fa-minus"></i>
+                                    <button id="remove_form-{{ form_id }}" type="button" class="remove-form btn btn-link">
+                                        <i class="fa fa-fw fa-times-circle"></i> Remove this unit
                                     </button>
                                 </div>
                             </div>
@@ -128,17 +128,20 @@
     </div>
     <div class="row">
         <div class="col-sm-12" id="manage-forms">
-            <button id="add-form" type="button" class="btn btn-default">Add organization <i class="fa fa-plus"></i></button>
+            <button id="add-form" type="button" class="btn btn-link"><i class="fa fa-fw fa-plus-circle"></i> Add another unit </button>
         </div>
     </div>
     <br />
     <div class="row">
         <div class="form-group">
             <div class="col-md-12">
-                <button type="submit" class="btn pull-right btn-success" value="Submit">Continue</button>
+                <button type="submit" class="btn pull-right btn-success" value="Submit">
+                    Continue <i class="fa fa-fw fa-chevron-right"></i>
+                </button>
                 <div class="btn-group" role="group">
-                    <a class="btn btn-info" href="{% url 'create-source' %}">Go back</a>
-                    <a class="btn btn-info" href="{% url 'create-event' %}">Skip</a>
+                    <a class="btn btn-info" href="{% url 'create-source' %}"><i class="fa fa-fw fa-chevron-left"></i> Go back</a>
+                    <a class="btn btn-info" href="{% url 'create-event' %}">
+                        Skip <i class="fa fa-chevron-right"></i><i class="fa fa-chevron-right"></i></a>
                 </div>
             </div>
         </div>
@@ -167,7 +170,7 @@
 <script type="text/EJS" id="formTemplate">
     <div id="form-<%= form_id %>-wrapper">
         <div class="form-group">
-            <label class="col-sm-2 control-label">Organization name</label>
+            <label class="col-sm-2 control-label">Unit name</label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-name" class="form-control" name="form-<%= form_id %>-name">
                     <option value="" selected="selected">--------</option>
@@ -201,8 +204,8 @@
         <% if (form_id > 0) { %>
             <div class="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
-                    <button id="remove_form-<%= form_id %>" href="javascript://" type="button" class="remove-form btn btn-danger">
-                        Remove Organization <i class="fa fa-minus"></i>
+                    <button id="remove_form-<%= form_id %>" href="javascript://" type="button" class="remove-form btn btn-link">
+                        <i class="fa fa-times"></i> Remove this unit
                     </button>
                 </div>
             </div>
@@ -234,7 +237,9 @@
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
         selectOnClose: true,
-        tags: true
+        tags: true,
+        allowClear: true,
+        placeholder: ''
     }
     var name_opts = {
         ajax: {
@@ -258,7 +263,9 @@
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
         selectOnClose: true,
-        tags: true
+        tags: true,
+        allowClear: true,
+        placeholder: ''
     }
 
     var alias_opts = {
@@ -282,7 +289,9 @@
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
-        tags: true
+        tags: true,
+        allowClear: true,
+        placeholder: ''
     }
 
     var division_opts = {
@@ -307,7 +316,9 @@
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
         selectOnClose: true,
-        tags: true
+        tags: true,
+        allowClear: true,
+        placeholder: ''
     }
 
     $(document).ready(function(e) {

@@ -46,7 +46,14 @@
                 <li class="{{ organization_tab }}"><a href="{% url 'search' %}?entity_type=Organization"><i class="fa fa-fw fa-users"></i> Units</a></li>
                 <li class="{{ violation_tab }}"><a href="{% url 'search' %}?entity_type=Violation"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>
                 <li class="{{ help_tab }}"><a href="#"><i class="fa fa-fw fa-question-circle"></i> Help</a></li>
-                <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> Logout</a></li>
+                {% if user.is_staff %}
+                <li class="{{ new_source_tab }}">
+                    <a href="{% url 'create-source' %}">
+                        <i class="fa fa-fw fa-plus"></i> New source
+                    </a>
+                </li>
+                {% endif %}
+                {% if user.is_authenticated %}<li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> Logout</a></li>{% endif %}
             </ul>
         </div>
     </div>

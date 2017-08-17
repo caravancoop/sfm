@@ -1,8 +1,8 @@
 <div class="row">
         <ul class='nav nav-wizard'>
-            <li class='{% if "create-source" in request.path %} active {% endif %}'>1 - Create source</li>
-            <li class='{% if "create-orgs" in request.path %} active {% endif %}'>2 - Organizations</li>
-            <li class='{% if "create-person" in request.path %} active {% endif %}'>3 - People</li>
+            <li class='{% if "source" in request.path %} active {% endif %}'>1 - Create source</li>
+            <li class='{% if "organization" in request.path %} active {% endif %}'>2 - Units</li>
+            <li class='{% if "person" in request.path %} active {% endif %}'>3 - People</li>
             <li class='{% if "membership-info" in request.path %} active {% endif %}'>4 - Relations</li>
             <li class='{% if "create-sites" in request.path %} active {% endif %}'>5 - Geographies</li>
             <li class='{% if "create-events" in request.path %} active {% endif %}'>6 - Events</li>
