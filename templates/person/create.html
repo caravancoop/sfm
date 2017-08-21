@@ -12,8 +12,8 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2>People</h2>
-    <p>Describe any people found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <h2><i class="fa fa-fw fa-user"></i> Personnel</h2>
+    <p>Describe any personnel found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
 <form method="post" action="" id="person-form">
@@ -31,7 +31,7 @@
                         {% else %}
                             <div class="form-group">
                         {% endif %}
-                            <div class="col-sm-4">
+                            <div class="col-md-4">
                                 <label class="control-label">Name</label>
                                 <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
                                     {% if form.cleaned_data.name %}
@@ -51,7 +51,7 @@
                         {% else %}
                             <div class="form-group">
                         {% endif %}
-                            <div class="col-sm-4">
+                            <div class="col-md-4">
                                 <label class="control-label">Aliases</label>
                                 <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
                                 </select>
@@ -67,7 +67,7 @@
                         {% else %}
                             <div class="form-group">
                         {% endif %}
-                            <div class="col-sm-4">
+                            <div class="col-md-4">
                                 <label class="control-label">Division identifier</label>
                                 <select id="id_form-{{ form_id }}-division_id" class="form-control division-field" name="form-{{ form_id }}-division_id">
                                     {% if form.cleaned_data.division_id %}
@@ -123,21 +123,15 @@
 <br />
 <div class="row">
     <div class="col-sm-12">
-        <button class="btn btn-default" href="javascript://" id="add-form">
-            Add person <i class="fa fa-plus"></i>
+        <button class="btn btn-link" type="button" id="add-form">
+            <i class="fa fa-fw fa-plus-circle"></i> Add another person
         </button>
     </div>
 </div>
 <br />
-<div class="row">
-    <div class="form-group">
-        <div class="col-md-12">
-            <button type="submit" class="pull-right btn btn-success" value="Submit">Continue</button>
-            <a class="btn btn-info" href="{% url 'create-organization' %}">Go back</a>
-            <a class="btn btn-info" href="{% url 'create-geography' %}">Skip</a>
-        </div>
-    </div>
-</div>
+{% with has_next=True back_url='create-organization' skip_url='create-geography' %}
+    {% include 'partials/back_skip_next.html' %}
+{% endwith %}
 </form>
 
 {% endblock %}
@@ -188,8 +182,8 @@
         <div class="row">
             <div classs="form-group">
                 <div class="col-sm-12">
-                    <button id="remove_form-<%= form_id %>" href="javascript://" class="remove-form btn btn-danger">
-                        Remove Person <i class="fa fa-minus"></i>
+                    <button id="remove_form-<%= form_id %>" type="button" class="remove-form btn btn-link">
+                        <i class="fa fa-fw fa-times"></i> Remove this person
                     </button>
                 </div>
             </div>

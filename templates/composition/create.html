@@ -8,8 +8,11 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2>Organization relationships</h2>
-    <p>Describe the relationships between organizations found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <h2>
+        <i class="fa fa-fw fa-sitemap"></i>
+        Unit relationships
+    </h2>
+    <p>Describe how units are related to one another in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
 <div class="row">
@@ -21,9 +24,9 @@
                 <div id="form-{{ forloop.counter0 }}-wrapper">
                 <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-organization" />
                 <h4>
-                    Relationships for {{ organization.name }}
-                    <button class="btn btn-danger btn-sm remove-relationship" data-form_id="{{ forloop.counter0 }}">
-                        <i class="fa fa-minus"> </i> Remove
+                    Relationships for <strong>{{ organization.name }}</strong>
+                    <button class="btn btn-link btn-sm remove-relationship" type="button" data-form_id="{{ forloop.counter0 }}">
+                        <i class="fa fa-fw fa-times"> </i> Remove this relationship
                     </button>
 
                 </h4>
@@ -127,15 +130,9 @@
                 </div>
             {% endwith %}
         {% endfor %}
-        <div class="row">
-            <div class="form-group">
-                <div class="col-md-12">
-                    <button type="submit" class="pull-right btn btn-success" value="Submit">Continue</button>
-                    <a class="btn btn-info" href="{% url 'create-organization' %}">Go back</a>
-                    <a class="btn btn-info" href="{% url 'create-organization-membership' %}">Skip</a>
-                </div>
-            </div>
-        </div>
+        {% with has_next=True back_url='create-organization' skip_url='create-organization-membership' %}
+            {% include 'partials/back_skip_next.html' %}
+        {% endwith %}
     </form>
 </div>
 

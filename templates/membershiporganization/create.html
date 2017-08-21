@@ -8,9 +8,15 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2>Organization Memberships</h2>
+    <h2>
+        <small><i class="fa fa-users"></i></small>
+        <small><i class="fa fa-arrow-right"></i></small>
+        <i class="fa fa-users"></i>
+        <small><i class="fa fa-arrow-left"></i></small>
+        <small><i class="fa fa-users"></i></small>
+        Unit memberships</h2>
     <p>
-        Describe what organizations the organizations in this source are members of
+        Describe which organizations (if any) are members of one another in
         <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{source.published_on|date:"F d, Y"}})
     </p>
     <hr />
@@ -24,9 +30,9 @@
                 <div id="form-{{ forloop.counter0 }}-wrapper">
                 <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-member" />
                 <h4>
-                    Memberships for {{ organization.name }}
-                    <button class="btn btn-danger btn-sm remove-relationship" data-form_id="{{ forloop.counter0 }}">
-                        <i class="fa fa-minus"> </i> Remove
+                    Memberships for <strong>{{ organization.name }}</strong>
+                    <button class="btn btn-link btn-sm remove-relationship" type="button" data-form_id="{{ forloop.counter0 }}">
+                        <i class="fa fa-times"> </i> Remove this membership
                     </button>
 
                 </h4>
@@ -38,7 +44,6 @@
                         <label class="col-sm-2 control-label">Organization</label>
                         <div class="col-sm-8">
                             <select id="id_form-{{ forloop.counter0 }}-organization" class="form-control organization-field" name="form-{{ forloop.counter0 }}-organization">
-                                <option value="" selected="selected">--------</option>
                                 {% for org in organizations %}
                                     {% if org.id != organization.id %}
                                         {% if form.cleaned_data.organization.id == org.id %}
@@ -79,18 +84,13 @@
                             {% endif %}
                         </div>
                     </div>
+                <hr/>
                 </div>
             {% endwith %}
         {% endfor %}
-        <div class="row">
-            <div class="form-group">
-                <div class="col-md-12">
-                    <button type="submit" class="pull-right btn btn-success" value="Submit">Continue</button>
-                    <a class="btn btn-info" href="{% url 'create-composition' %}">Go back</a>
-                    <a class="btn btn-info" href="{% url 'create-person' %}">Skip</a>
-                </div>
-            </div>
-        </div>
+        {% with has_next=True back_url='create-composition' skip_url='create-person' %}
+            {% include 'partials/back_skip_next.html' %}
+        {% endwith %}
     </form>
 </div>
 
@@ -99,7 +99,7 @@
 <script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/javascript">
     $(document).ready(function(e){
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", lastciteddate: '0d'});
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: '0d'});
         $('.remove-relationship').on('click', function(e){
             e.preventDefault();
 
@@ -110,6 +110,10 @@
 
             var form_id = $(e.target).data('form_id');
             $('#form-' + form_id + '-wrapper').remove();
+        });
+        $('.organization-field').select2({
+            placeholder: '',
+            allowClear: true
         });
     });
 </script>

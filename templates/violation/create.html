@@ -11,8 +11,8 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2>Events</h2>
-    <p>Describe any events found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <h2><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</h2>
+    <p>Describe any incidents found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
 <form method="post" action="" id="person-form" class="form form-horizontal">
@@ -154,11 +154,11 @@
                                 <input type="text" name="form-{{ form_id }}-locationdescription" id="id_form-{{ form_id }}-locationdescription" class="form-control" value="{{ form.cleaned_data.locationdescription }}" />
                             </div>
                         </div>
-                    {% if form_id > 0 %}
+                    {% if form_id != '0' %}
                         <br />
                         <div class="col-sm-12">
-                            <button id="remove_form-{{ form_id }}" href="javascript://" class="remove-form btn btn-danger">
-                                Remove Person <i class="fa fa-minus"></i>
+                            <button id="remove_form-{{ form_id }}" type="button" class="remove-form btn btn-link">
+                                <i class="fa fa-fw fa-times"></i> Remove this incident
                             </button>
                         </div>
                         <br />
@@ -172,21 +172,16 @@
 <br />
 <div class="row">
     <div class="col-sm-12">
-        <button class="btn btn-default" id="add-form">
-            Add violation <i class="fa fa-plus"></i>
+        <button class="btn btn-link" id="add-form">
+            <i class="fa fa-fw fa-plus-circle"></i>
+            Add incident
         </button>
     </div>
 </div>
 <br />
-<div class="row">
-    <div class="form-group">
-        <div class="col-md-12">
-            <button type="submit" class="pull-right btn btn-success">Continue</button>
-            <a class="btn btn-info" href="{% url 'create-geography' %}">Go back</a>
-            <a class="btn btn-info" href="{% url 'set-confidence' %}">Skip</a>
-        </div>
-    </div>
-</div>
+{% with has_next=False back_url='create-geography' skip_url='set-confidence' %}
+    {% include 'partials/back_skip_next.html' %}
+{% endwith %}
 </form>
 
 {% endblock %}
@@ -258,14 +253,14 @@
             <input type="text" name="form-<%= form_id %>-locationdescription" id="id_form-<%= form_id %>-locationdescription" class="form-control">
         </div>
     </div>
-    {% if form_id > 0 %}
-        <br />
-        <div class="col-sm-12">
-            <button id="remove_form-<%= form_id %>" href="javascript://" class="remove-form btn btn-danger">
-                Remove Person <i class="fa fa-minus"></i>
+    <% if (form_id > 0) { %>
+        <div class="col-sm-10 col-sm-offset-2">
+            <button id="remove_form-<%= form_id %>" type="button" class="remove-form btn btn-link">
+                <i class="fa fa-fw fa-times"></i> Remove this incident
             </button>
         </div>
-    {% endif %}
+        <br />
+    <% } %>
     <br />
     <hr />
 </div>
