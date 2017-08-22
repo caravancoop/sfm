@@ -90,7 +90,7 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-orgs">Select the organization(s) that perpetrated this violation: </label>
+                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-orgs">Perpetrator units </label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-orgs" class="form-control" name="form-{{ form_id }}-orgs" multiple=true>
                                     {% for organization in organizations %}
@@ -109,7 +109,7 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                        <label class="control-label col-sm-2" for="id_form-{{ form_id }}-perpetrators">Select the person(s) that perpetrated this violation: </label>
+                        <label class="control-label col-sm-2" for="id_form-{{ form_id }}-perpetrators">Perpetrator personnel </label>
                         <div class="col-sm-8">
                             <select id="id_form-{{ form_id }}-perpetrators" class="form-control" name="form-{{ form_id }}-perpetrators" multiple=true>
                                 {% for person in people %}
@@ -169,7 +169,6 @@
         {% endfor %}
     {% endif %}
 </div>
-<br />
 <div class="row">
     <div class="col-sm-12">
         <button class="btn btn-link" id="add-form">
@@ -219,7 +218,7 @@
     </div>
     <br />
     <div class="form-group">
-        <label class="control-label col-sm-2" for="id_form-<%= form_id %>-orgs">Select the organization(s) that perpetrated this violation: </label>
+        <label class="control-label col-sm-2" for="id_form-<%= form_id %>-orgs">Perpetrator units </label>
         <div class="col-sm-8">
             <select id="id_form-<%= form_id %>-orgs" class="form-control" name="form-<%= form_id %>-orgs" multiple=true>
                 {% for organization in organizations %}
@@ -229,7 +228,7 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-sm-2" for="id_form-<%= form_id %>-perpetrators">Select the person(s) that perpetrated this violation: </label>
+        <label class="control-label col-sm-2" for="id_form-<%= form_id %>-perpetrators">Perpetrator personnel </label>
         <div class="col-sm-8">
             <select id="id_form-<%= form_id %>-perpetrators" class="form-control" name="form-<%= form_id %>-perpetrators" multiple=true>
                 {% for person in people  %}
@@ -261,7 +260,6 @@
         </div>
         <br />
     <% } %>
-    <br />
     <hr />
 </div>
 </script>
@@ -355,6 +353,8 @@
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
+        allowClear: true,
+        placeholder: '',
         templateResult: function(data){
             if (data.loading){
                 return data.text;
@@ -362,15 +362,18 @@
             var template = new EJS({'text': $('#osmResult').html()});
             return template.render(data);
         }
-    };
+    }
+    var violation_opts = {
+        tags: true
+    }
 
     $(document).ready(function(e) {
         {% if formset.errors %}
             $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy", endDate: "0d"});
             $('.perpetrator-field').select2(perp_opts);
             $('.org-field').select2(org_opts);
-            $('.osm-field').select2(osm_opts);
-            $('.violation-type').select2()
+            $('.osm_id-field').select2(osm_opts);
+            $('.violation-type').select2(violation_opts);
         {% else %}
             addForm(null);
         {% endif %}
@@ -412,7 +415,8 @@
         var violation_field = '#id_form-' + form_num + '-vtype';
 
         $(osm_id_field).select2(osm_opts);
-        $(violation_field).select2();
+
+        $(violation_field).select2(violation_opts);
 
         $(perp_field).select2(perp_opts);
 

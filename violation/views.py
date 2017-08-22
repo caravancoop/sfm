@@ -75,7 +75,8 @@ class ViolationCreate(FormSetView):
         organizations = self.request.session.get('organizations')
         people = self.request.session.get('people')
         
-        context['types'] = ViolationType.objects.filter(lang=get_language())
+        context['types'] = ViolationType.objects.filter(lang=get_language())\
+                                                .distinct('value')
         context['people'] = people         
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])

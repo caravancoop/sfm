@@ -12,8 +12,8 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2>Organization memberships</h2>
-    <p>Describe positions held by people in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <h2><i class="fa fa-fw fa-sitemap"></i> Positions</h2>
+    <p>Describe positions held by personnel in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
 <form method="post" action="" id="person-form" class="form-horizontal">
@@ -26,7 +26,9 @@
             {% endif %}
             <div class="col-sm-10 col-sm-offset-2">
             {% with a_membership=memberships|from_index:form_id %}
-                <h3>{{ a_membership.person }} <small>{{ a_membership.organization }}</small></h3>
+            <h3><i class="fa fa-fw fa-user"></i>{{ a_membership.person }} |
+                <small><i class="fa fa-fw fa-users"></i>{{ a_membership.organization }}</small>
+            </h3>
                 <input type="hidden" name="form-{{ form_id }}-membership" id="id_form-{{ form_id }}-person" value="{{ a_membership.membership }}">
             {% endwith %}
             </div>
@@ -37,7 +39,7 @@
             {% endif %}
                 <label class="control-label col-sm-2" for="id_form-{{ form_id }}-title">Title</label>
                 <div class="col-sm-8">
-                   <input type="text" class="form-control" id="id_form-{{ form_id }}-title" name="form-{{ form_id }}-title" value="{{ form.cleaned_data.title }}" />
+                   <input type="text" class="form-control title-field" id="id_form-{{ form_id }}-title" name="form-{{ form_id }}-title" value="{{ form.cleaned_data.title }}" />
                     {% if form.title.errors %}
                        {% for error in form.title.errors %}
                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -52,7 +54,7 @@
             {% endif %}
                 <label class="control-label col-sm-2">Role & Rank</label>
                 <div class="col-sm-4">
-                    <select id="id_form-{{ form_id }}-role" class="form-control" name="form-{{ form_id }}-role">
+                    <select id="id_form-{{ form_id }}-role" class="form-control role-field" name="form-{{ form_id }}-role">
                         <option value="" selected="selected">-- Select a Role --</option>
                         {% for role in roles %}
                         <option value="{{ role.id }}">{{ role.value }}</option>
@@ -66,7 +68,7 @@
                     <input type="hidden" name="form-{{ form_id }}-role-name_text" id="id_form-{{ form_id }}-role_text" />
                 </div>
                 <div class="col-sm-4">
-                    <select id="id_form-{{ form_id }}-rank" class="form-control" name="form-{{ form_id }}-rank">
+                    <select id="id_form-{{ form_id }}-rank" class="form-control rank-field" name="form-{{ form_id }}-rank">
                         <option value="" selected="selected">-- Select a Rank --</option>
                         {% for rank in ranks %}
                         <option value="{{ rank.id }}">{{ rank.value }}</option>
@@ -87,7 +89,7 @@
             {% endif %}
                 <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startcontext">Start context</label>
                 <div class="col-sm-6">
-                   <input type="text" class="form-control" id="id_form-{{ form_id }}-startcontext" name="form-{{ form_id }}-startcontext" value="{{ form.cleaned_data.startcontext }}" />
+                   <input type="text" class="form-control start-context-field" id="id_form-{{ form_id }}-startcontext" name="form-{{ form_id }}-startcontext" value="{{ form.cleaned_data.startcontext }}" />
                     {% if form.startcontext.errors %}
                         {% for error in form.startcontext.errors %}
                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -116,7 +118,7 @@
             {% endif %}
                 <label class="control-label col-sm-2" for="id_form-{{ form_id }}-endcontext">End context</label>
                 <div class="col-sm-6">
-                   <input type="text" class="form-control" id="id_form-{{ form_id }}-endcontext" name="form-{{ form_id }}-endcontext" value="{{ form.cleaned_data.endcontext }}" />
+                   <input type="text" class="form-control end-context-field" id="id_form-{{ form_id }}-endcontext" name="form-{{ form_id }}-endcontext" value="{{ form.cleaned_data.endcontext }}" />
                     {% if form.endcontext.errors %}
                         {% for error in form.endcontext.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -166,14 +168,11 @@
             <br />
         {% endif %}
     {% endfor %}
-        <div class="form-group submit">
-            <div class="col-md-12">
-                <button type="submit" class="pull-right btn btn-success">Continue</button>
-                <a class="btn btn-info" href="{% url 'create-person' %}">Go back</a>
-                <a class="btn btn-info" href="{% url 'create-geography' %}">Skip</a>
-            </div>
-        </div>
-
+    <br />
+    <hr />
+    {% with has_next=True back_url='create-person' skip_url='create-geography' %}
+        {% include 'partials/back_skip_next.html' %}
+    {% endwith %}
 </form>
 
 {% endblock %}
@@ -183,6 +182,18 @@
 <script type="text/javascript">
 $(document).ready(function() {
     $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
+
+    // Init select2s
+    $('.rank-field').select2({
+        tags: true,
+        placeholder: 'Select a rank',
+        allowClear: true
+    });
+    $('.role-field').select2({
+        tags: true,
+        placeholder: 'Select a role',
+        allowClear: true
+    });
 });
 </script>
 {% endblock %}

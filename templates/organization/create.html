@@ -132,20 +132,10 @@
         </div>
     </div>
     <br />
-    <div class="row">
-        <div class="form-group">
-            <div class="col-md-12">
-                <button type="submit" class="btn pull-right btn-info" value="Submit">
-                    Next <i class="fa fa-fw fa-chevron-right"></i>
-                </button>
-                <div class="btn-group" role="group">
-                    <a class="btn btn-info" href="{% url 'create-source' %}"><i class="fa fa-fw fa-chevron-left"></i> Go back</a>
-                    <a class="btn btn-info" href="{% url 'create-event' %}">
-                        Skip <i class="fa fa-chevron-right"></i><i class="fa fa-chevron-right"></i></a>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% with has_next=True %}
+        {% include 'partials/back_skip_next.html' %}
+    {% endwith %}
+
     </form>
 </div>
 <div id="delete-modal" class="modal fade" tabindex="-1" role="dialog">

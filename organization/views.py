@@ -153,6 +153,9 @@ class OrganizationCreate(BaseFormSetView):
 
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
 
+        context['back_url'] = reverse_lazy('create-source')
+        context['skip_url'] = reverse_lazy('create-person')
+
         return context
 
     def post(self, request, *args, **kwargs):
