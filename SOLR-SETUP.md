@@ -1,6 +1,6 @@
 ## Solr Setup
 
-1. `sudo apt-get install openjdk-8-jre-headless`
+1. If you don't have Java, install it with `sudo apt-get install openjdk-8-jre-headless` (Linux only, Mac will have to find another way)
 2. Download latest solr distfrom http://mirror.dsrg.utoronto.ca/apache/lucene/solr/
 2a. [Verify the package](https://www.apache.org/info/verification.html) using the `.asc` signature and `KEYS` file from the official solr mirror
 3. `tar xvf` into `/opt`
