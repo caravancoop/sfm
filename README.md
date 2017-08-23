@@ -37,12 +37,17 @@ Load static data:
 ./manage.py update_countries_plus
 ```
 
-Create search index and create Materialized Views for global search and looking up a Geoname object based upon a geoname id: 
+Create Materialized Views for global search, and looking up a Geoname object based upon a geoname id: 
 
     python manage.py import_osm
     python manage.py import_google_doc
-    python manage.py make_search_index
     python manage.py make_flattened_views
+
+You're almost done! The last step is to get solr and the search index setup. Start by following the instructions in [SOLR-SETUP.md](https://github.com/security-force-monitor/sfm-cms/blob/master/SOLR-SETUP.md) to get solr installed and running on your machine.
+
+Then, create the search index: 
+
+    python manage.py make_search_index
 
 Create an admin user:
 
