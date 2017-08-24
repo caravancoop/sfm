@@ -6,8 +6,8 @@ from leaflet.forms.widgets import LeafletWidget
 from .models import ViolationLocation
 
 class ViolationForm(forms.Form):
-    startdate = ApproximateDateFormField(required=False)
-    enddate = ApproximateDateFormField(required=False)
+    startdate = ApproximateDateFormField(required=True)
+    enddate = ApproximateDateFormField(required=True)
     locationdescription = forms.CharField(required=False)
     osm_id = forms.CharField(required=False)
     osm_id_text = forms.CharField(required=False)
