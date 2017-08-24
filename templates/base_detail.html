@@ -16,7 +16,7 @@
     <!-- On desktop, show a fixed scrollspy sidebar -->
     <div class="col-md-3 hidden-xs hidden-sm">
         <div id="sidebar">
-            <h3>Contents</h3>
+            <h3>{% trans "Contents" %}</h3>
             <ul class="nav nav-pills nav-stacked">
                 {% block sidebar %}{% endblock %}
             </ul>
@@ -26,7 +26,7 @@
     <div class="col-xs-12 col-md-9">
         <!-- On mobile, show a table of contents near the top of the page -->
         <div class="visible-xs visible-sm" id="table-of-contents">
-            <h3>Contents</h3>
+            <h3>{% trans "Contents" %}</h3>
             <ul>
                 {% block sidebar_mobile %}{% endblock %}
             </ul>

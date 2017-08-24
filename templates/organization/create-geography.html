@@ -11,8 +11,8 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2><i class="fa fa-fw fa-map-marker"></i> Geographies</h2>
-    <p>Describe any geographies related to organizations found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <h2><i class="fa fa-fw fa-map-marker"></i> {% trans "Geographies" %}</h2>
+    <p>{% trans "Describe any geographies related to organizations found in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
 <form method="post" action="" class="form-horizontal">
@@ -29,7 +29,7 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-org">Organization </label>
+                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-org">{% trans "Organization" %} </label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-org" class="form-control org-field" name="form-{{ form_id }}-org">
                                     {% for organization in organizations %}
@@ -48,7 +48,7 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                            <label class="control-label col-sm-2">Geography type</label>
+                            <label class="control-label col-sm-2">{% trans "Geography type" %}</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-geography_type" class="geography-type form-control" name="form-{{ form_id }}-geography_type">
                                     <option value="">--------</option>
@@ -72,7 +72,7 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                            <label class="control-label col-sm-2">Name</label>
+                            <label class="control-label col-sm-2">{% trans "Name" %}</label>
                             <div class="col-sm-8">
                                 <input type="text" name="form-{{ form_id }}-name" id="id_form-{{ form_id }}-name" value="{{ form.cleaned_data.name }}" class="form-control" />
                                 {% if form.name.errors %}
@@ -87,7 +87,7 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-osm_id">OSM ID</label>
+                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-osm_id">{% trans "OSM ID" %}</label>
                             <div class="col-sm-8">
                                 <select class="form-control" class="osm_id-field" id="id_form-{{ form_id }}-osm_id" name="form-{{ form_id }}-osm_id">
                                     {% if form.cleaned_data.osmname %}
@@ -109,7 +109,7 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startdate">Start & end dates</label>
+                        <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startdate">{% trans "Start & end dates" %}</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-startdate" name="form-{{ form_id }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
                             {% if form.startdate.errors %}
@@ -134,7 +134,7 @@
     </div>
     <div class="form-group">
         <div class="col-sm-12" id="manage-forms">
-            <button id="add-form" type="button" class="btn btn-link"><i class="fa fa-fw fa-plus-circle"></i> Add another geography</button>
+            <button id="add-form" type="button" class="btn btn-link"><i class="fa fa-fw fa-plus-circle"></i> {% trans "Add another geography" %}</button>
         </div>
     </div>
     <br />
@@ -161,7 +161,7 @@
 <script id="formTemplate" type="text/EJS">
     <div id="form-<%= form_id %>-wrapper">
         <div class="form-group">
-            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-org">Organization </label>
+            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-org">{% trans "Organization" %} </label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-org" class="form-control org-field" name="form-<%= form_id %>-org">
                     {% for organization in organizations %}
@@ -171,7 +171,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-2">Geography type</label>
+            <label class="control-label col-sm-2">{% trans "Geography type" %}</label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-geography_type" class="geography-type form-control" name="form-<%= form_id %>-geography_type">
                     <option value="">--------</option>
@@ -182,13 +182,13 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-2">Name</label>
+            <label class="control-label col-sm-2">{% trans "Name" %}</label>
             <div class="col-sm-8">
                 <input type="text" name="form-<%= form_id %>-name" id="id_form-<%= form_id %>-name" class="form-control" />
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-osmname">OSM Name</label>
+            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-osmname">{% trans "OSM Name" %}</label>
             <div class="col-sm-8">
                 <select class="form-control" id="id_form-<%= form_id %>-osm_id" name="form-<%= form_id %>-osm_id"></select>
                 <input type="hidden" name="form-<%= form_id %>-osm_id_text" id="id_form-<%= form_id %>-osm_id_text" />
@@ -196,7 +196,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-startdate">Start & end dates</label>
+            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-startdate">{% trans "Start & end dates" %}</label>
             <div class="col-sm-4">
                 <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-startdate" name="form-<%= form_id %>-startdate"  placeholder="Start date" />
             </div>
@@ -208,7 +208,7 @@
             <div class="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
                     <button id="remove_form-<%= form_id %>" type="button" class="remove-form btn btn-link">
-                        <i class="fa fa-fw fa-times"></i> Remove this geography
+                        <i class="fa fa-fw fa-times"></i> {% trans "Remove this geography" %}
                     </button>
                 </div>
             </div>

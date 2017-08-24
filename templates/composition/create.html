@@ -10,9 +10,9 @@
 <div class="row">
     <h2>
         <i class="fa fa-fw fa-sitemap"></i>
-        Unit relationships
+        {% trans "Unit relationships" %}
     </h2>
-    <p>Describe how units are related to one another in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <p>{% trans "Describe how units are related to one another in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
 <div class="row">
@@ -24,9 +24,9 @@
                 <div id="form-{{ forloop.counter0 }}-wrapper">
                 <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-organization" />
                 <h4>
-                    Relationships for <strong>{{ organization.name }}</strong>
+                    {% trans "Relationships for" %} <strong>{{ organization.name }}</strong>
                     <button class="btn btn-link btn-sm remove-relationship" type="button" data-form_id="{{ forloop.counter0 }}">
-                        <i class="fa fa-fw fa-times"> </i> Remove this relationship
+                        <i class="fa fa-fw fa-times"> </i> {% trans "Remove this relationship" %}
                     </button>
 
                 </h4>
@@ -35,7 +35,7 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="col-sm-2 control-label">Relationship type</label>
+                        <label class="col-sm-2 control-label">{% trans "Relationship type" %}</label>
                         <div class="col-sm-8">
                             <select id="id_form-{{ forloop.counter0 }}-relationship_type" class="form-control" name="form-{{ forloop.counter0 }}-relationship_type">
                                 {% for type in relationship_types %}
@@ -58,7 +58,7 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="col-sm-2 control-label">Related organization</label>
+                        <label class="col-sm-2 control-label">{% trans "Related organization" %}</label>
                         <div class="col-sm-8">
                             <select id="id_form-{{ forloop.counter0 }}-related_organization" class="form-control organization-field" name="form-{{ forloop.counter0 }}-related_organization">
                                 <option value="" selected="selected">--------</option>
@@ -84,7 +84,7 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="col-sm-2 control-label">Relationship classification</label>
+                        <label class="col-sm-2 control-label">{% trans "Relationship classification" %}</label>
                         <div class="col-sm-8">
                             <select id="id_form-{{ forloop.counter0 }}-classification" class="form-control classification-field" name="form-{{ forloop.counter0 }}-classification">
                                     <option value="" selected="selected">--------</option>

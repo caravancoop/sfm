@@ -1,3 +1,4 @@
+{% load i18n %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,14 +23,14 @@
     <h2 class="form-signin-heading text-center">Security Force Monitor</h2>
     <form class="form-signin">
 
-      <label for="inputEmail" class="sr-only">Email address</label>
+      <label for="inputEmail" class="sr-only">{% trans "Email address" %}</label>
       <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-      <label for="inputPassword" class="sr-only">Password</label>
+      <label for="inputPassword" class="sr-only">{% trans "Password" %}</label>
       <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
       <div class="checkbox">
-        <a href="#"> Forgot Password? </a>
+        <a href="#"> {% trans "Forgot Password?" %} </a>
       </div>
-      <button class="btn btn-lg sfm-btn-action" type="submit">Sign in</button>
+      <button class="btn btn-lg sfm-btn-action" type="submit">{% trans "Sign in" %}</button>
     </form>
 
   </div> <!-- /container -->

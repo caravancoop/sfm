@@ -1,8 +1,10 @@
+{% load i18n %}
+
 <div id="description-content-{{ N }}" class="collapse description-text">
     <p>{{ description }}</p>
 </div>
 <a href="#description-content-{{ N }}" data-toggle="collapse" class="collapsed">
-    <span class="text-danger show-more">Show more <i class="fa fa-fw fa-arrow-down"></i></span>
-    <span class="text-danger show-less">Show less <i class="fa fa-fw fa-arrow-up"></i></span>
+    <span class="text-danger show-more">{% trans "Show more" %} <i class="fa fa-fw fa-arrow-down"></i></span>
+    <span class="text-danger show-less">{% trans "Show less" %} <i class="fa fa-fw fa-arrow-up"></i></span>
 </a>
 

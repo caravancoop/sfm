@@ -1,10 +1,12 @@
+{% load i18n %}
+
 <div class="row">
         <ul class='nav nav-wizard'>
-            <li class='{% if "source" in request.path %} active {% endif %}'>1 - Create source</li>
-            <li class='{% if "organization" in request.path or "composition" in request.path %}{% if "geography" not in request.path %} active {% endif %}{% endif %}'>2 - Units</li>
-            <li class='{% if "person" in request.path and "membershipperson" not in request.path %} active {% endif %}'>3 - Personnel</li>
-            <li class='{% if "membershipperson" in request.path %} active {% endif %}'>4 - Positions</li>
-            <li class='{% if "geography" in request.path %} active {% endif %}'>5 - Geographies</li>
-            <li class='{% if "violation" in request.path %} active {% endif %}'>6 - Incidents</li>
+            <li class='{% if "source" in request.path %} active {% endif %}'>1 - {% trans "Create source" %}</li>
+            <li class='{% if "organization" in request.path or "composition" in request.path %}{% if "geography" not in request.path %} active {% endif %}{% endif %}'>2 - {% trans "Units" %}</li>
+            <li class='{% if "person" in request.path and "membershipperson" not in request.path %} active {% endif %}'>3 - {% trans "Personnel" %}</li>
+            <li class='{% if "membershipperson" in request.path %} active {% endif %}'>4 - {% trans "Positions" %}</li>
+            <li class='{% if "geography" in request.path %} active {% endif %}'>5 - {% trans "Geographies" %}</li>
+            <li class='{% if "violation" in request.path %} active {% endif %}'>6 - {% trans "Incidents" %}</li>
         </ul>
 </div>

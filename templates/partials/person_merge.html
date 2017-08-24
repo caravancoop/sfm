@@ -1,8 +1,10 @@
-<h3>People</h3>
+{% load i18n %}
+
+<h3>{% trans "People" %}</h3>
 <form class="form" method="POST">
     {% csrf_token %}
     {% with canonical='True' object_list=objects %}
         {% include 'partials/person_list_table.html' %}
     {% endwith %}
-    <button type="submit" class="btn btn-success">Save</button>
+    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
 </form>
