@@ -85,6 +85,11 @@
                     {% endif %}
                 {% endfor %}
             </select>
+            {% if form.publication_country.errors %}
+                {% for error in form.publication_country.errors %}
+                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
     {% if form.source_url.errors %}
@@ -111,7 +116,7 @@
             <div class="col-sm-8">
                 <input type="text" class="form-control" id="id_page_number" name="page_number" value="{{ form.cleaned_data.page_number }}">
                 {% if form.page_number.errors %}
-                    {% for error in form.source_url.errors %}
+                    {% for error in form.page_number.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}
@@ -124,9 +129,9 @@
     {% endif %}
             <label for="id_accessed_on" class="control-label col-sm-2">Accessed date</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control datepicker" id="id_accessed_on" name="accessed_on" value="{{ form.cleaned_data.accessed_on }}">
+                <input type="text" class="form-control datepicker" id="id_accessed_on" name="accessed_on" value="{{ form.cleaned_data.accessed_on|date:"Y-m-d" }}">
                 {% if form.accessed_on.errors %}
-                    {% for error in form.source_url.errors %}
+                    {% for error in form.accessed_on.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}

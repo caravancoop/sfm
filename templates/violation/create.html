@@ -154,16 +154,15 @@
                                 <input type="text" name="form-{{ form_id }}-locationdescription" id="id_form-{{ form_id }}-locationdescription" class="form-control" value="{{ form.cleaned_data.locationdescription }}" />
                             </div>
                         </div>
-                    {% if form_id != '0' %}
-                        <br />
-                        <div class="col-sm-12">
+                    {% if form_id > 0 %}
+                        <div class="col-sm-10 col-sm-offset-2">
                             <button id="remove_form-{{ form_id }}" type="button" class="remove-form btn btn-link">
                                 <i class="fa fa-fw fa-times"></i> Remove this incident
                             </button>
                         </div>
                         <br />
-                        <hr />
                     {% endif %}
+                    <hr />
                 </div>
             {% endwith %}
         {% endfor %}
@@ -369,11 +368,23 @@
 
     $(document).ready(function(e) {
         {% if formset.errors %}
-            $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy", endDate: "0d"});
-            $('.perpetrator-field').select2(perp_opts);
-            $('.org-field').select2(org_opts);
-            $('.osm_id-field').select2(osm_opts);
-            $('.violation-type').select2(violation_opts);
+            {% for form in formset %}
+                {% with form_id=forloop.counter0 %}
+
+                var perp_field = '#id_form-' + form_num + '-perpetrators';
+                var org_field = '#id_form-' + form_num + '-orgs';
+                var osm_id_field =  '#id_form-' + form_num + '-osm_id';
+                var geotype_field = '#id_form-' + form_num + '-geotype';
+                var violation_field = '#id_form-' + form_num + '-vtype';
+
+                activateInputs(perp_field, org_field, osm_id_field, geotype_field, violation_field);
+
+                $('.datepicker').datepicker({'autoclose': true, format: "dd/mm/yyyy", endDate: "0d"});
+
+                form_num ++
+
+                {% endwith %}
+            {% endfor %}
         {% else %}
             addForm(null);
         {% endif %}
@@ -396,6 +407,9 @@
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-TOTAL_FORMS').val(form_count);
 
+        var forms_added = parseInt($('#id_form-FORMS_ADDED').val()) - 1;
+        $('#id_form-FORMS_ADDED').val(forms_added);
+
         form_num --;
     }
 
@@ -414,15 +428,28 @@
         var geotype_field = '#id_form-' + form_num + '-geotype';
         var violation_field = '#id_form-' + form_num + '-vtype';
 
-        $(osm_id_field).select2(osm_opts);
-
-        $(violation_field).select2(violation_opts);
-
-        $(perp_field).select2(perp_opts);
-
-        $(org_field).select2(org_opts);
+        activateInputs(perp_field, org_field, osm_id_field, geotype_field, violation_field);
 
         $('#remove_form-' +  form_num).on('click', deleteForm);
+
+        $('.datepicker').datepicker('destroy');
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
+
+        var form_count = $('#dynamic-form').children().length;
+        $('#id_form-TOTAL_FORMS').val(form_count);
+
+        var forms_added = parseInt($('#id_form-FORMS_ADDED').val()) + 1;
+        $('#id_form-FORMS_ADDED').val(forms_added);
+
+        form_num ++;
+    }
+
+    function activateInputs(perp_field, org_field, osm_id_field, geotype_field, violation_field) {
+
+        $(perp_field).select2(perp_opts);
+        $(org_field).select2(org_opts);
+        $(osm_id_field).select2(osm_opts);
+        $(violation_field).select2(violation_opts);
 
         $(osm_id_field).on('select2:select', function(e){
             var value = e.params.data.value;
@@ -432,7 +459,6 @@
             }
             $(geotype_field).val(e.params.data.type);
         });
-
 
         $(org_field).on('select2:select', function(e){
             var value = e.params.data.text;
@@ -473,17 +499,6 @@
                 }
             })
         });
-
-        $('.datepicker').datepicker('destroy');
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
-
-        var form_count = $('#dynamic-form').children().length;
-        $('#id_form-TOTAL_FORMS').val(form_count);
-
-        var forms_added = parseInt($('#id_form-FORMS_ADDED').val()) + 1;
-        $('#id_form-FORMS_ADDED').val(forms_added);
-
-        form_num ++;
     }
 </script>
 {% endblock %}
