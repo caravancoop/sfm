@@ -33,7 +33,6 @@
                             <label class="col-sm-2 control-label">{% trans "Unit name" %}</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
-                                        <option value="" selected="selected">--------</option>
                                     {% if form.cleaned_data.name %}
                                         <option value="{{ form.cleaned_data.name }}" selected=true>{{ form.cleaned_data.name_text }}</option>
                                     {% endif %}
@@ -143,7 +142,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Are you sure you want to delete this form?</h4>
+                <h4 class="modal-title">Are you sure you want to remove this unit? All data will be lost.</h4>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
@@ -312,17 +311,28 @@
     }
 
     $(document).ready(function(e) {
-        {% if formset.errors %}
-            $('.name-field').select2(name_opts);
-            $('.alias-field').select2(alias_opts);
-            $('.class-field').select2(class_opts);
-            $('.division_id-field').select2(division_opts);
-        {% else %}
-            addForm(null);
-        {% endif %}
 
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-FORMS_ADDED').val(form_count);
+
+        {% if formset.errors %}
+            {% for form in formset %}
+                {% with form_id=forloop.counter0 %}
+
+                var name_field = '#id_form-' + form_num + '-name';
+                var alias_field = '#id_form-' + form_num + '-alias';
+                var class_field = '#id_form-' + form_num + '-classification';
+                var division_field = '#id_form-' + form_num + '-division_id';
+
+                activateInputs(name_field, alias_field, class_field, division_field);
+
+                form_num ++;
+
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            addForm(null);
+        {% endif %}
 
         $('#add-form').on('click', addForm);
         $('.remove-form').on('click', deleteForm);
@@ -375,6 +385,9 @@
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-TOTAL_FORMS').val(form_count);
 
+        var forms_added = parseInt($('#id_form-FORMS_ADDED').val()) - 1;
+        $('#id_form-FORMS_ADDED').val(forms_added);
+
         form_num --;
     }
 
@@ -412,18 +425,27 @@
         var class_field = '#id_form-' + form_num + '-classification';
         var division_field = '#id_form-' + form_num + '-division_id';
 
-        $(name_field).select2(name_opts);
-
-        $(alias_field).select2(alias_opts);
-
-        $(class_field).select2(class_opts);
-
-        $(division_field).select2(division_opts);
+        activateInputs(name_field, alias_field, class_field, division_field);
 
         $('#remove_form-' +  form_num).on('click', deleteForm);
 
-        $(alias_field).on('select2:select', multipleSelect);
+        var form_count = $('#dynamic-form').children().length;
+        $('#id_form-TOTAL_FORMS').val(form_count);
 
+        var forms_added = parseInt($('#id_form-FORMS_ADDED').val()) + 1;
+        $('#id_form-FORMS_ADDED').val(forms_added);
+
+        form_num ++;
+    }
+
+    function activateInputs(name_field, alias_field, class_field, division_field) {
+
+        $(name_field).select2(name_opts);
+        $(alias_field).select2(alias_opts);
+        $(class_field).select2(class_opts);
+        $(division_field).select2(division_opts);
+
+        $(alias_field).on('select2:select', multipleSelect);
         $(alias_field).on('select2:unselect', multipleUnSelect);
 
         $(name_field).on('select2:select', function(e){
@@ -444,14 +466,6 @@
             $(division_field + ' :selected').text(value);
         });
 
-
-        var form_count = $('#dynamic-form').children().length;
-        $('#id_form-TOTAL_FORMS').val(form_count);
-
-        var forms_added = parseInt($('#id_form-FORMS_ADDED').val()) + 1;
-        $('#id_form-FORMS_ADDED').val(forms_added);
-
-        form_num ++;
     }
 </script>
 {% endblock %}

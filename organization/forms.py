@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 
 
 class OrganizationForm(forms.Form):
-    name = forms.CharField(error_messages={'required': _('Name is required')})
+    name = forms.CharField(error_messages={'required': _('Unit name is required')})
     name_text = forms.CharField()
     classification = forms.CharField(error_messages={'required': _('Classification is required')})
     classification_text = forms.CharField()
