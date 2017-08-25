@@ -84,18 +84,39 @@
   <script src="{% static 'js/select2.min.js' %}"></script>
   <script type="text/javascript">
   $(document).ready(function() {
+    dataArray = ['English', 'French', 'Spanish']
+    transObj = {
+      'French': 'fr',
+      'English': 'en',
+      'Spanish': 'es',
+    }
+    // Get stored item, prepend to array, and remove duplicate
+    previousSelectedLang = localStorage.getItem("language")
+    
+    if (previousSelectedLang != null) {
+      dataArray.unshift(previousSelectedLang)
+      dataArray = dataArray.filter(function(language, idx) {
+          return dataArray.indexOf(language) == idx;
+      })
+    }
+
     $('.lang-select-box').select2({
-        data: [
-            {
-                id: 'en',
-                text: 'English'
-            },
-            {
-                id: 'fr',
-                text: 'French'
-            }
-        ]
+        data: dataArray,
+        width: '100px'
     });
+
+    $('.lang-select-box').on('change', function (evt) {
+        selectedLang = $('.lang-select-box').val()
+        selectedLangSym = '/' + transObj[selectedLang] + '/'
+        // Store selected item.
+        localStorage.setItem("language", selectedLang);
+
+        // Create new URL with selected language, and redirect to it.
+        currentUrl = window.location.href
+        newUrl = currentUrl.replace('/es/', selectedLangSym).replace('/fr/', selectedLangSym).replace('/en/', selectedLangSym)
+        window.location = newUrl
+    })
+
   });
   </script>
   {% block extra_js %}{% endblock %}

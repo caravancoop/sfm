@@ -155,8 +155,6 @@ LOCALE_PATHS = (
 )
 
 LANGUAGE_CODE = 'en'
-# LANGUAGE_CODE = 'fr'
-
 
 TIME_ZONE = 'UTC'
 
