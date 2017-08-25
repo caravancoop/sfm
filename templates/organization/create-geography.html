@@ -109,7 +109,7 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startdate">{% trans "Start & end dates" %}</label>
+                        <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startdate">{% trans "Start and end dates" %}</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-startdate" name="form-{{ form_id }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
                             {% if form.startdate.errors %}
@@ -196,7 +196,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-startdate">{% trans "Start & end dates" %}</label>
+            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-startdate">{% trans "Start and end dates" %}</label>
             <div class="col-sm-4">
                 <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-startdate" name="form-<%= form_id %>-startdate"  placeholder="Start date" />
             </div>

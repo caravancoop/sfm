@@ -66,7 +66,7 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-firstciteddate">{% trans "First & last citation dates" %}</label>
+                        <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-firstciteddate">{% trans "First and last citation dates" %}</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-firstciteddate" name="form-{{ forloop.counter0 }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
                             {% if form.firstciteddate.errors %}
