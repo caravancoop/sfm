@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-25 14:45-0500\n"
+"POT-Creation-Date: 2017-08-25 15:03-0500\n"
 "PO-Revision-Date: 2017-08-24 18:51+0000\n"
 "Last-Translator: b'  <reginafcompton@datamade.us>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgstr ""
 #: templates/partials/person_list_table.html:13 templates/person/create.html:34
 #: templates/person/create.html:144 templates/person/detail.html:111
 #: templates/person/search.html:21 templates/person/search.html:128
-#: templates/site/search.html:23 templates/site/search.html:91
+#: templates/site/search.html:23 templates/site/search.html:93
 msgid "Name"
 msgstr "Nom"
 
@@ -67,7 +67,7 @@ msgid "Division ID"
 msgstr ""
 
 #: association/models.py:43 composition/models.py:56 emplacement/models.py:41
-#: templates/association/search.html:23 templates/association/search.html:140
+#: templates/association/search.html:23 templates/association/search.html:141
 #: templates/composition/search.html:17 templates/composition/search.html:141
 #: templates/emplacement/search.html:23 templates/emplacement/search.html:138
 #: templates/membershipperson/search.html:139
@@ -79,7 +79,7 @@ msgid "Start date"
 msgstr ""
 
 #: association/models.py:51 composition/models.py:64 emplacement/models.py:49
-#: templates/association/search.html:62 templates/association/search.html:141
+#: templates/association/search.html:62 templates/association/search.html:142
 #: templates/composition/search.html:56 templates/composition/search.html:142
 #: templates/emplacement/search.html:62 templates/emplacement/search.html:139
 #: templates/membershipperson/search.html:140
@@ -92,7 +92,7 @@ msgstr ""
 
 #: association/models.py:59 emplacement/models.py:64
 #: membershiporganization/models.py:65 membershipperson/models.py:136
-#: templates/association/search.html:111 templates/association/search.html:142
+#: templates/association/search.html:112 templates/association/search.html:143
 #: templates/emplacement/search.html:109 templates/emplacement/search.html:140
 #: templates/membershiporganization/create.html:44
 #: templates/organization/create-geography.html:32
@@ -102,8 +102,8 @@ msgstr ""
 msgid "Organization"
 msgstr "Organisation"
 
-#: association/models.py:70 templates/association/search.html:119
-#: templates/association/search.html:143 templates/sidebar.html:13
+#: association/models.py:70 templates/association/search.html:120
+#: templates/association/search.html:144 templates/sidebar.html:13
 msgid "Area"
 msgstr ""
 
@@ -761,19 +761,19 @@ msgstr ""
 msgid "View map"
 msgstr ""
 
-#: templates/area/search.html:71 templates/association/search.html:127
+#: templates/area/search.html:71 templates/association/search.html:128
 #: templates/composition/search.html:125 templates/emplacement/search.html:125
 #: templates/membershipperson/search.html:123
 #: templates/organization/search.html:149 templates/person/search.html:115
-#: templates/site/search.html:78 templates/violation/search.html:181
+#: templates/site/search.html:80 templates/violation/search.html:181
 msgid "Results"
 msgstr ""
 
-#: templates/area/search.html:73 templates/association/search.html:129
+#: templates/area/search.html:73 templates/association/search.html:130
 #: templates/composition/search.html:127 templates/emplacement/search.html:127
 #: templates/membershipperson/search.html:125
 #: templates/organization/search.html:151 templates/person/search.html:117
-#: templates/site/search.html:80 templates/violation/search.html:183
+#: templates/site/search.html:82 templates/violation/search.html:183
 msgid "Export"
 msgstr ""
 
@@ -781,7 +781,7 @@ msgstr ""
 msgid "Association"
 msgstr ""
 
-#: templates/association/edit.html:36 templates/association/search.html:116
+#: templates/association/edit.html:36 templates/association/search.html:117
 #: templates/composition/edit.html:47 templates/composition/search.html:114
 #: templates/emplacement/edit.html:36 templates/emplacement/search.html:114
 msgid "With"
@@ -966,7 +966,8 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
-#: templates/association/search.html:54 templates/association/search.html:95
+#. Translators: The date format for year, e.g., 2017
+#: templates/association/search.html:54 templates/association/search.html:96
 #: templates/composition/search.html:48 templates/composition/search.html:87
 #: templates/emplacement/search.html:54 templates/emplacement/search.html:93
 #: templates/membershipperson/search.html:73
@@ -975,12 +976,12 @@ msgstr ""
 msgid "yyyy"
 msgstr ""
 
-#: templates/association/search.html:105 templates/composition/edit.html:37
+#: templates/association/search.html:106 templates/composition/edit.html:37
 #: templates/emplacement/search.html:103
 msgid "Relations"
 msgstr ""
 
-#: templates/association/search.html:112 templates/emplacement/search.html:110
+#: templates/association/search.html:113 templates/emplacement/search.html:110
 msgid "Enter organization name"
 msgstr ""
 
@@ -1029,7 +1030,7 @@ msgstr ""
 msgid "Contents"
 msgstr ""
 
-#: templates/base_modal.html:10 templates/modals/source.html:34
+#: templates/base_modal.html:10 templates/modals/source.html:35
 #: templates/modals/translate.html:24 templates/modals/version.html:26
 msgid "Close"
 msgstr ""
@@ -1213,28 +1214,29 @@ msgstr ""
 msgid "View/Edit Sources"
 msgstr ""
 
-#: templates/modals/source.html:9 templates/partials/version_list.html:22
+#. Translators: The level of confidence that the user has in a source, when entering it into the system
+#: templates/modals/source.html:10 templates/partials/version_list.html:22
 msgid "Confidence"
 msgstr ""
 
-#: templates/modals/source.html:12 violation/models.py:18
+#: templates/modals/source.html:13 violation/models.py:18
 msgid "Low"
 msgstr "Basse"
 
-#: templates/modals/source.html:13 violation/models.py:19
+#: templates/modals/source.html:14 violation/models.py:19
 msgid "Medium"
 msgstr "Moyenne"
 
-#: templates/modals/source.html:14 violation/models.py:20
+#: templates/modals/source.html:15 violation/models.py:20
 msgid "High"
 msgstr "Haute"
 
-#: templates/modals/source.html:21 templates/modals/source.html:24
+#: templates/modals/source.html:22 templates/modals/source.html:25
 #: templates/modals/translate.html:20
 msgid "Add"
 msgstr ""
 
-#: templates/modals/source.html:28 templates/modals/version.html:10
+#: templates/modals/source.html:29 templates/modals/version.html:10
 #: templates/organization/detail.html:46 templates/organization/detail.html:64
 #: templates/partials/source_search_results.html:3
 #: templates/partials/version_list.html:25 templates/person/detail.html:28
@@ -1717,19 +1719,21 @@ msgstr ""
 msgid "Search Site"
 msgstr ""
 
-#: templates/site/search.html:67 templates/violation/search.html:142
+#. Translators: Refers to the name of the Openstreet map
+#: templates/site/search.html:68 templates/violation/search.html:142
 msgid "GeoName name"
 msgstr ""
 
-#: templates/site/search.html:68 templates/site/search.html:92
+#: templates/site/search.html:69 templates/site/search.html:94
 #: templates/violation/search.html:143 templates/violation/search.html:196
 #, fuzzy
 #| msgid "Name"
 msgid "GeoName"
 msgstr "Nom"
 
-#: templates/site/search.html:71 templates/site/search.html:72
-#: templates/site/search.html:93 templates/violation/search.html:146
+#. Translators: Refers to the ID of the Openstreet map
+#: templates/site/search.html:73 templates/site/search.html:74
+#: templates/site/search.html:95 templates/violation/search.html:146
 #: templates/violation/search.html:147
 msgid "GeoName ID"
 msgstr ""
