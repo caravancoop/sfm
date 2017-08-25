@@ -1,13 +1,15 @@
+{% load i18n %}
+
 <div class="row">
     <div class="form-group">
         <div class="col-md-12">
             <button type="submit" class="btn pull-right btn-info" value="Submit">
-            {% if has_next %} Next {% else %} Finish {% endif %}<i class="fa fa-fw fa-chevron-right"></i>
+            {% if has_next %} {% trans "Next" %} {% else %} {% trans "Finish" %} {% endif %}<i class="fa fa-fw fa-chevron-right"></i>
             </button>
             <div class="btn-group" role="group">
-                <a class="btn btn-info" href="{{ back_url }}"><i class="fa fa-fw fa-chevron-left"></i> Go back</a>
+                <a class="btn btn-info" href="{{ back_url }}"><i class="fa fa-fw fa-chevron-left"></i> {% trans "Go back" %}</a>
                 <a class="btn btn-info" href="{{ skip_url }}">
-                    Skip <i class="fa fa-chevron-right"></i><i class="fa fa-chevron-right"></i>
+                    {% trans "Skip" %} <i class="fa fa-chevron-right"></i><i class="fa fa-chevron-right"></i>
                 </a>
             </div>
         </div>

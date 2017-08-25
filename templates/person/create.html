@@ -12,8 +12,8 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2><i class="fa fa-fw fa-user"></i> Personnel</h2>
-    <p>Describe any personnel found in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <h2><i class="fa fa-fw fa-user"></i>{% trans "Personnel" %}</h2>
+    <p>{% trans "Describe any personnel found in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
 <form method="post" action="" class="form-horizontal" id="person-form">
@@ -31,7 +31,7 @@
                         {% else %}
                             <div class="form-group">
                         {% endif %}
-                            <label class="col-sm-2 control-label">Name</label>
+                            <label class="col-sm-2 control-label">{% trans "Name" %}</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-name" class="form-control name-field" name="form-{{ form_id }}-name">
                                     {% if form.cleaned_data.name %}
@@ -51,7 +51,7 @@
                         {% else %}
                             <div class="form-group">
                         {% endif %}
-                            <label class="col-sm-2 control-label">Aliases</label>
+                            <label class="col-sm-2 control-label">{% trans "Aliases" %}</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
                                 </select>
@@ -67,7 +67,7 @@
                         {% else %}
                             <div class="form-group">
                         {% endif %}
-                            <label class="col-sm-2 control-label">Division identifier</label>
+                            <label class="col-sm-2 control-label">{% trans "Division identifier" %}</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-division_id" class="form-control division-field" name="form-{{ form_id }}-division_id">
                                     {% if form.cleaned_data.division_id %}
@@ -89,7 +89,7 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                    <label class="col-sm-2 control-label" for="id_form-{{ form_id }}-orgs">Member units</label>
+                    <label class="col-sm-2 control-label" for="id_form-{{ form_id }}-orgs">{% trans "Member units" %}</label>
                     <div class="col-sm-8">
                         <select id="id_form-{{ form_id }}-orgs" class="form-control orgs-field" name="form-{{ form_id }}-orgs" multiple="multiple">
                                 {% for organization in organizations %}
@@ -97,7 +97,7 @@
                                 {% endfor %}
                             </select>
                                 {% if form.orgs.errors %}
-                                    <span class="help-block"><i class="fa fa-remove"> </i> A person must belong to at least one unit.</span>
+                                    <span class="help-block"><i class="fa fa-remove"> </i> {% trans "A person must belong to at least one unit." %}</span>
                                 {% endif %}
                         </div>
                         </div>
@@ -108,7 +108,7 @@
                             <div classs="form-group">
                                 <div class="col-sm-12">
                                     <button id="remove_form-{{ form_id }}" href="javascript://" class="remove-form btn btn-danger">
-                                        Remove Person <i class="fa fa-minus"></i>
+                                        {% trans "Remove Person" %} <i class="fa fa-minus"></i>
                                     </button>
                                 </div>
                             </div>
@@ -124,7 +124,7 @@
 <div class="row">
     <div class="col-sm-12">
         <button class="btn btn-link" type="button" id="add-form">
-            <i class="fa fa-fw fa-plus-circle"></i> Add another person
+            <i class="fa fa-fw fa-plus-circle"></i> {% trans "Add another person" %}
         </button>
     </div>
 </div>
@@ -143,7 +143,7 @@
 <script type="text/EJS" id="formTemplate">
     <div id="form-<%= form_id %>-wrapper">
         <div class="form-group">
-            <label class="col-sm-2 control-label">Name</label>
+            <label class="col-sm-2 control-label">{% trans "Name" %}</label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-name" class="form-control name-field" name="form-<%= form_id %>-name">
                 </select>
@@ -151,21 +151,21 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-2 control-label">Aliases</label>
+            <label class="col-sm-2 control-label">{% trans "Aliases" %}</label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-alias" class="form-control" name="form-<%= form_id %>-alias" multiple="multiple">
                 </select>
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-2 control-label">Division identifier</label>
+            <label class="col-sm-2 control-label">{% trans "Division identifier" %}</label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-division_id" class="form-control division-field" name="form-<%= form_id %>-division_id">
                 </select>
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-2 control-label" for="id_form-<%= form_id %>-orgs">Member units</label>
+            <label class="col-sm-2 control-label" for="id_form-<%= form_id %>-orgs">{% trans "Member units" %}</label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-orgs" class="form-control orgs-field" name="form-<%= form_id %>-orgs" multiple="multiple">
                     {% for organization in organizations %}
@@ -180,7 +180,7 @@
             <div classs="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
                     <button id="remove_form-<%= form_id %>" type="button" class="remove-form btn btn-link">
-                        <i class="fa fa-fw fa-times"></i> Remove this person
+                        <i class="fa fa-fw fa-times"></i> {% trans "Remove this person" %}
                     </button>
                 </div>
             </div>

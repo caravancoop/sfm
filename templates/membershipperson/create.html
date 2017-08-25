@@ -12,8 +12,8 @@
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
 <div class="row">
-    <h2><i class="fa fa-fw fa-sitemap"></i> Positions</h2>
-    <p>Describe positions held by personnel in <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <h2><i class="fa fa-fw fa-sitemap"></i> {% trans "Positions" %}</h2>
+    <p>{% trans "Describe positions held by personnel in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
 <form method="post" action="" id="person-form" class="form-horizontal">
@@ -37,7 +37,7 @@
             {% else %}
             <div class="form-group">
             {% endif %}
-                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-title">Title</label>
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-title">{% trans "Title" %}</label>
                 <div class="col-sm-8">
                    <input type="text" class="form-control title-field" id="id_form-{{ form_id }}-title" name="form-{{ form_id }}-title" value="{{ form.cleaned_data.title }}" />
                     {% if form.title.errors %}
@@ -52,10 +52,10 @@
             {% else %}
             <div class="form-group">
             {% endif %}
-                <label class="control-label col-sm-2">Role & Rank</label>
+                <label class="control-label col-sm-2">{% trans "Role and Rank" %}</label>
                 <div class="col-sm-4">
                     <select id="id_form-{{ form_id }}-role" class="form-control role-field" name="form-{{ form_id }}-role">
-                        <option value="" selected="selected">-- Select a Role --</option>
+                        <option value="" selected="selected">-- {% trans "Select a Role" %} --</option>
                         {% for role in roles %}
                         <option value="{{ role.id }}">{{ role.value }}</option>
                         {% endfor %}
@@ -69,7 +69,7 @@
                 </div>
                 <div class="col-sm-4">
                     <select id="id_form-{{ form_id }}-rank" class="form-control rank-field" name="form-{{ form_id }}-rank">
-                        <option value="" selected="selected">-- Select a Rank --</option>
+                        <option value="" selected="selected">-- {% trans "Select a Rank" %} --</option>
                         {% for rank in ranks %}
                         <option value="{{ rank.id }}">{{ rank.value }}</option>
                         {% endfor %}
@@ -87,7 +87,7 @@
             {% else %}
             <div class="form-group">
             {% endif %}
-                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startcontext">Start context</label>
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startcontext">{% trans "Start context" %}</label>
                 <div class="col-sm-6">
                    <input type="text" class="form-control start-context-field" id="id_form-{{ form_id }}-startcontext" name="form-{{ form_id }}-startcontext" value="{{ form.cleaned_data.startcontext }}" />
                     {% if form.startcontext.errors %}
@@ -99,9 +99,9 @@
                 <div class="col-sm-2">
                     <label for="id_form-{{ form_id }}-realstart" class="checkbox-inline">
                         {% if form.cleaned_data.realstart %}
-                            <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" checked > Real context?
+                            <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" checked > {% trans "Real context?" %}
                         {% else %}
-                            <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" > Real context?
+                            <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" > {% trans "Real context?" %}
                         {% endif %}
                     </label>
                     {% if form.realstart.errors %}
@@ -116,7 +116,7 @@
             {% else %}
             <div class="form-group">
             {% endif %}
-                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-endcontext">End context</label>
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-endcontext">{% trans "End context" %}</label>
                 <div class="col-sm-6">
                    <input type="text" class="form-control end-context-field" id="id_form-{{ form_id }}-endcontext" name="form-{{ form_id }}-endcontext" value="{{ form.cleaned_data.endcontext }}" />
                     {% if form.endcontext.errors %}
@@ -128,9 +128,9 @@
                 <div class="col-sm-2">
                     <label for="id_form-{{ form_id }}-realend" class="checkbox-inline">
                         {% if form.cleaned_data.realend %}
-                            <input type="checkbox" id="id_form-{{ form_id }}-realend" name="form-{{ form_id }}-realend" checked > Real context?
+                            <input type="checkbox" id="id_form-{{ form_id }}-realend" name="form-{{ form_id }}-realend" checked > {% trans "Real context?" %}
                         {% else %}
-                            <input type="checkbox" id="id_form-{{ form_id }}-realend" name="form-{{ form_id }}-realend" > Real context?
+                            <input type="checkbox" id="id_form-{{ form_id }}-realend" name="form-{{ form_id }}-realend" > {% trans "Real context?" %}
                         {% endif %}
                     </label>
                     {% if form.realend.errors %}
@@ -145,7 +145,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-firstciteddate">Citation dates</label>
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-firstciteddate">{% trans "Citation dates" %}</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-firstciteddate" name="form-{{ form_id }}-firstciteddate" value="{{ form.cleaned_data.firstciteddate|date:'Y-m-d' }}" placeholder="First cited date" />
                     {% if form.firstciteddate.errors %}

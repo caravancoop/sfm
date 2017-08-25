@@ -14,9 +14,9 @@
         <i class="fa fa-users"></i>
         <small><i class="fa fa-arrow-left"></i></small>
         <small><i class="fa fa-users"></i></small>
-        Unit memberships</h2>
+        {% trans "Unit memberships" %}</h2>
     <p>
-        Describe which organizations (if any) are members of one another in
+        {% trans "Describe which organizations (if any) are members of one another in" %}
         <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{source.published_on|date:"F d, Y"}})
     </p>
     <hr />
@@ -30,9 +30,9 @@
                 <div id="form-{{ forloop.counter0 }}-wrapper">
                 <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-member" />
                 <h4>
-                    Memberships for <strong>{{ organization.name }}</strong>
+                    {% trans "Memberships for" %} <strong>{{ organization.name }}</strong>
                     <button class="btn btn-link btn-sm remove-relationship" type="button" data-form_id="{{ forloop.counter0 }}">
-                        <i class="fa fa-times"> </i> Remove this membership
+                        <i class="fa fa-times"> </i> {% trans "Remove this membership" %}
                     </button>
 
                 </h4>
@@ -41,7 +41,7 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="col-sm-2 control-label">Organization</label>
+                        <label class="col-sm-2 control-label">{% trans "Organization" %}</label>
                         <div class="col-sm-8">
                             <select id="id_form-{{ forloop.counter0 }}-organization" class="form-control organization-field" name="form-{{ forloop.counter0 }}-organization">
                                 {% for org in organizations %}
@@ -66,7 +66,7 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-firstciteddate">First & last citation dates</label>
+                        <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-firstciteddate">{% trans "First and last citation dates" %}</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-firstciteddate" name="form-{{ forloop.counter0 }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
                             {% if form.firstciteddate.errors %}

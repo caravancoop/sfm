@@ -1,30 +1,32 @@
 {% load tablesort %}
+{% load i18n %}
     <table class="table table-striped">
         <thead>
             <tr>
                 {% if merge == 'True' %}
-                    <th>Select</th>
+                    <th>{% trans "Select" %}</th>
                 {% endif %}
                 {% if canonical == 'True' %}
-                    <th>Select canonical record</th>
+                    <th>{% trans "Select canonical record" %}</th>
                 {% endif %}
                 <th>
-                    Name
+                    {% trans "Name" %}
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-person' %}?{% query_transform request order_by='name' %}">
                         <i class="fa fa-sort"></i>
                     </a>
                     {% endif %}
                 </th>
-                <th>Also known as</th>
-                <th>Most recent rank</th>
-                <th>Most recent unit</th>
-                <th>First citation</th>
-                <th>Last citation</th>
+                <th>{% trans "Also known as" %}</th>
+                <th>{% trans "Most recent rank" %}</th>
+                <th>{% trans "Most recent unit" %}</th>
+                <th>{% trans "First citation" %}</th>
+                <th>{% trans "Last citation" %}</th>
             </tr>
         </thead>
         <tbody>
             {% for object in object_list %}
+                <!-- Returns the object based on the language -->
                 {% if object.name.get_value %}
                     <tr>
                         {% if merge == 'True' %}

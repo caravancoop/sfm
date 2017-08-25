@@ -11,7 +11,7 @@
     {% else %}
         <div class="form-group">
     {% endif %}
-        <label class="col-sm-2 control-label">Person name</label>
+        <label class="col-sm-2 control-label">{% trans "Person name" %}</label>
         <div class="col-sm-8">
             <select id="id_name" class="form-control" name="name">
                     <option value="" selected="selected">--------</option>
@@ -32,7 +32,7 @@
     {% else %}
         <div class="form-group">
     {% endif %}
-        <label class="col-sm-2 control-label">Aliases</label>
+        <label class="col-sm-2 control-label">{% trans "Aliases" %}</label>
         <div class="col-sm-8">
             <select id="id_alias" class="form-control" name="alias" multiple="multiple">
                 {% for alias in form_data.aliases %}
@@ -51,7 +51,7 @@
     {% else %}
         <div class="form-group">
     {% endif %}
-        <label class="col-sm-2 control-label">Division identifier</label>
+        <label class="col-sm-2 control-label">{% trans "Division identifier" %}</label>
         <div class="col-sm-8">
             <select id="id_division_id" class="form-control division-field" name="division_id">
                     <option value="" selected="selected">--------</option>

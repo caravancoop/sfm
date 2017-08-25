@@ -1,12 +1,13 @@
 {% load tablesort %}
 {% load countries %}
+{% load i18n %}
 
     <table class="table table-striped">
         <thead>
             <tr>
                 <th></th>
                 <th>
-                    Name
+                    {% trans "Name" %}
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-organization' %}?{% query_transform request order_by='name' %}">
                         <i class="fa fa-sort"></i>
@@ -14,7 +15,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    Parent
+                    {% trans "Parent" %}
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-organization' %}?{% query_transform request order_by='parent' %}">
                         <i class="fa fa-sort"></i>
@@ -22,7 +23,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    Classification
+                    {% trans "Classification" %}
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-organization' %}?{% query_transform request order_by='classification' %}">
                         <i class="fa fa-sort"></i>
@@ -30,7 +31,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    Last site name
+                    {% trans "Last site name" %}
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-organization' %}?{% query_transform request order_by='osmname' %}">
                         <i class="fa fa-sort"></i>
@@ -38,7 +39,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    Country
+                    {% trans "Country" %}
                 </th>
             </tr>
         </thead>

@@ -1,12 +1,13 @@
 {% load tablesort %}
 {% load countries %}
 {% load facets %}
+{% load i18n %}
 
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>
-                    Start Date
+                    {% trans "Start Date" %}
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-violation' %}?{% query_transform request order_by='start_date' %}">
                         <i class="fa fa-sort"></i>
@@ -14,26 +15,26 @@
                     {% endif %}
                 </th>
                 <th>
-                    End Date
+                    {% trans "End Date" %}
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-violation' %}?{% query_transform request order_by='end_date' %}">
                         <i class="fa fa-sort"></i>
                     </a>
                     {% endif %}
                 </th>
-                <th>Description</th>
-                <th>Violation types</th>
+                <th>{% trans "Description" %}</th>
+                <th>{% trans "Violation types" %}</th>
                 <th>
-                    Location
+                    {% trans "Location" %}
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-violation' %}?{% query_transform request order_by='location' %}">
                         <i class="fa fa-sort"></i>
                     </a>
                     {% endif %}
                 </th>
-                <th>Perpetrators</th>
+                <th>{% trans "Perpetrators" %}</th>
                 <th>
-                    Perpetrator classification
+                    {% trans "Perpetrator classification" %}
                     {% if sortable == 'True' %}
                     <a href="{% url 'list-violation' %}?{% query_transform request order_by='classification' %}">
                         <i class="fa fa-sort"></i>
@@ -63,7 +64,7 @@
                         {% if object.description.get_value %}
                             {{ object.description.get_value|truncatewords:25 }}
                         {% else %}
-                            View Detail
+                            {% trans "View Detail" %}
                         {% endif %}
                         </a>
                     </td>

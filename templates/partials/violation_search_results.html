@@ -1,7 +1,9 @@
+{% load i18n %}
+
 {% load humanize %}
 <h3>
-    <strong><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</strong>
-    <small>{{ hit_count|intcomma }} results</small>
+    <strong><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</strong>
+    <small>{{ hit_count|intcomma }} {% trans "results" %}</small>
 </h3>
 
 {% with object_list=objects %}

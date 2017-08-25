@@ -17,7 +17,7 @@
         </small>
     </h1>
     {% if organization.aliases.get_list %}
-        <p>Also known as:
+        <p>{% trans "Also known as:" %}
             {% for alias in organization.aliases.get_list %}
             <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
             {% endfor %}
@@ -35,16 +35,16 @@
 {% block sidebar %}
     {% has_versions organization as changelog %}
 
-    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>{% endif %}
-    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>{% endif %}
-    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Memberships</a></li>{% endif %}
-    {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> Member units</a></li>{% endif %}
-    {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</a></li>{% endif %}
-    {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
-    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>{% endif %}
-    {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>{% endif %}
-    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
-    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
+    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
+    {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
+    {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</a></li>{% endif %}
+    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Command personnel" %}</a></li>{% endif %}
+    {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 
 {% endblock %}
 
@@ -53,16 +53,16 @@
 {% block sidebar_mobile %}
     {% has_versions organization as changelog %}
 
-    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation </a></li>{% endif %}
-    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> Sites</a></li>{% endif %}
-    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Memberships</a></li>{% endif %}
-    {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> Member units</a></li>{% endif %}
-    {% if memberships %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</a></li>{% endif %}
-    {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</a></li>{% endif %}
-    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</a></li>{% endif %}
-    {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</a></li>{% endif %}
-    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
-    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
+    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
+    {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
+    {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</a></li>{% endif %}
+    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Command personnel" %}</a></li>{% endif %}
+    {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 
 {% endblock %}
 
@@ -71,7 +71,7 @@
     {% if areas %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i> Areas of operation</h3>
+            <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %}</h3>
             <hr />
             <div id="osm_area_map" style="height:300px;"></div>
         </div>
@@ -81,7 +81,7 @@
     {% if sites %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="sites"><i class="fa fa-fw fa-map-marker"></i> Sites</h3>
+            <h3 id="sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</h3>
             <hr />
             <div id="osm_site_map" style="height:300px;"></div>
         </div>
@@ -93,18 +93,18 @@
         <div class="col-sm-12">
             <h3 id="parent-units">
                 <i class="fa fa-fw fa-sitemap fa-rotate-180"></i>
-                Memberships
-                <small>Multi-unit organizations that this unit is part of.</small>
+                {% trans "Memberships" %}
+                <small>{% trans "Multi-unit organizations that this unit is part of." %}</small>
             </h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Aliases</th>
-                        <th>Classifications</th>
-                        <th>First cited</th>
-                        <th>Last cited</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classifications" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -146,16 +146,16 @@
     {% if org_members %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="org-members"><i class="fa fa-fw fa-sitemap"></i> Member units</h3>
+            <h3 id="org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Aliases</th>
-                        <th>Classifications</th>
-                        <th>First cited</th>
-                        <th>Last cited</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classifications" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -197,16 +197,16 @@
     {% if parents %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent units</h3>
+            <h3 id="parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Aliases</th>
-                        <th>Classifications</th>
-                        <th>First cited</th>
-                        <th>Last cited</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classifications" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -248,16 +248,16 @@
     {% if subsidiaries %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="subsidiaries"><i class="fa fa-fw fa-sitemap"></i> Subsidiaries</h3>
+            <h3 id="subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Aliases</th>
-                        <th>Classifications</th>
-                        <th>First cited</th>
-                        <th>Last cited</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classifications" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -299,17 +299,17 @@
     {% if person_members %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="command-personnel"><i class="fa fa-fw fa-users"></i> Command personnel</h3>
+            <h3 id="command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Command personnel" %}</h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Rank</th>
-                        <th>Role</th>
-                        <th>Title</th>
-                        <th>Start date</th>
-                        <th>End date</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Rank" %}</th>
+                        <th>{% trans "Role" %}</th>
+                        <th>{% trans "Title" %}</th>
+                        <th>{% trans "Start date" %}</th>
+                        <th>{% trans "End date" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -336,23 +336,23 @@
     {% if events %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> Incidents</h3>
+            <h3 id="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</h3>
             <hr />
             {% for event in events %}
                 <div class="row">
                     <div class="col-sm-12">
                         <p>
                             <a href="{% url 'detail_violation' event.id %}">
-                                Incident
+                                {% trans "Incident" %}
                                 {% if event.osmname %}
-                                    in <strong>{{ event.osmname }}</strong>
+                                    {% trans "in" %} <strong>{{ event.osmname }}</strong>
                                 {% endif %}
                                 {% if event.startdate and event.enddate %}
-                                    between <strong>{{ event.startdate }}</strong> and <strong>{{ event.enddate }}</strong>
+                                    {% trans "between" %} <strong>{{ event.startdate }}</strong> and <strong>{{ event.enddate }}</strong>
                                 {% elif event.startdate %}
-                                    starting <strong>{{ event.startdate }}</strong>
+                                    {% trans "starting" %} <strong>{{ event.startdate }}</strong>
                                 {% elif event.enddate %}
-                                    ending <strong>{{ event.enddate }}</strong>
+                                    {% trans "ending" %} <strong>{{ event.enddate }}</strong>
                                 {% endif %}
                             </a>
                         </p>
@@ -384,8 +384,8 @@
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
-                var center_x = {{ sites.0.coordinates.get_value.value.x }};
-                var center_y = {{ sites.0.coordinates.get_value.value.y }};
+                var center_x = {{ sites.0.coordinates.get_value.value.x|safe }};
+                var center_y = {{ sites.0.coordinates.get_value.value.y|safe }};
                 var site_map = L.map('osm_site_map').setView([center_y, center_x], 10);
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
