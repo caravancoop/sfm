@@ -53,7 +53,7 @@
                             <label class="col-sm-2 control-label">{% trans "Aliases" %}</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
-                                    {% for alias in form.aliases %}
+                                    {% for alias in form.cleaned_data.aliases %}
                                         <option value="{{ alias.id }}" selected=true>{{ alias.value.value }}</option>
                                     {% endfor %}
                                 </select>
@@ -109,12 +109,11 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <br />
                         {% if form_id > 0 %}
                             <div class="form-group">
                                 <div class="col-sm-10 col-sm-offset-2">
                                     <button id="remove_form-{{ form_id }}" type="button" class="remove-form btn btn-link">
-                                        <i class="fa fa-fw fa-times-circle"></i> Remove this unit
+                                        <i class="fa fa-fw fa-times"></i> {% trans "Remove this unit" %}
                                     </button>
                                 </div>
                             </div>
@@ -127,7 +126,7 @@
     </div>
     <div class="row">
         <div class="col-sm-12" id="manage-forms">
-            <button id="add-form" type="button" class="btn btn-link"><i class="fa fa-fw fa-plus-circle"></i> Add another unit </button>
+            <button id="add-form" type="button" class="btn btn-link"><i class="fa fa-fw fa-plus-circle"></i>{% trans "Add another unit" %}</button>
         </div>
     </div>
     <br />
@@ -142,11 +141,15 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Are you sure you want to remove this unit? All data will be lost.</h4>
+                <h3 class="modal-title">{% trans "Remove unit" %}</h3>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Are you sure you want to remove this unit? All data will be lost." %}</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-primary" id="delete-confirm">Yes</button>
+                <button type="button" class="btn btn-link" data-dismiss="modal">{% trans "Cancel" %}</button>
+                <button type="button" class="btn btn-primary" id="delete-confirm">
+                    <i class="fa fa-fw fa-times"></i>{% trans "Remove" %}</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -189,11 +192,10 @@
                 </select>
             </div>
         </div>
-        <br />
         <% if (form_id > 0) { %>
             <div class="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
-                    <button id="remove_form-<%= form_id %>" href="javascript://" type="button" class="remove-form btn btn-link">
+                    <button id="remove_form-<%= form_id %>" type="button" class="remove-form btn btn-link">
                         <i class="fa fa-fw fa-times"></i> {% trans "Remove this unit" %}
                     </button>
                 </div>
@@ -454,6 +456,12 @@
             $(name_field + '_text').val(value);
             $(name_field + ' :selected').attr('value', e.params.data.id);
             $(name_field + ' :selected').text(value);
+        });
+
+        $(name_field).on('select2:unselect', function(e){
+            var value = e.params.data.text;
+            $(name_field).find(':selected').prop('selected', false);
+            $(name_field + '_text').val('');
         });
 
         $(class_field).on('select2:select', multipleSelect);

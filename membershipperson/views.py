@@ -32,13 +32,19 @@ class MembershipPersonCreate(BaseFormSetView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        context['organizations'] = self.request.session['organizations']
+        context['organizations'] = self.request.session.get('organizations')
         context['people'] = self.request.session['people']
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         context['memberships'] = self.request.session['memberships']
         context['roles'] = [{'id': r.id, 'value': r.value} for r in Role.objects.all()]
         context['ranks'] = [{'id': r.id, 'value': r.value} for r in Rank.objects.all()]
         context['contexts'] = [{'id': c.id, 'value': c.value} for c in Context.objects.all()]
+
+        context['back_url'] = reverse_lazy('create-person')
+        context['skip_url'] = reverse_lazy('create-geography')
+
+        print(context)
+
         return context
 
     def get_initial(self):

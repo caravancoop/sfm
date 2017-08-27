@@ -170,7 +170,7 @@
     {% endfor %}
     <br />
     <hr />
-    {% with has_next=True back_url='create-person' skip_url='create-geography' %}
+    {% with has_next=True %}
         {% include 'partials/back_skip_next.html' %}
     {% endwith %}
 </form>

@@ -80,6 +80,10 @@ class ViolationCreate(FormSetView):
         context['people'] = people         
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
+
+        context['back_url'] = reverse_lazy('create-geography')
+        context['skip_url'] = reverse_lazy('set-confidence')
+
         return context
 
     def formset_valid(self, formset):
