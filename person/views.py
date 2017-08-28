@@ -186,9 +186,13 @@ class PersonCreate(BaseFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        context['organizations'] = self.request.session['organizations']
+
+        context['organizations'] = self.request.session.get('organizations')
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
+
+        context['back_url'] = reverse_lazy('create-organization')
+        context['skip_url'] = reverse_lazy('create-geography')
+
         return context
     
     def formset_invalid(self, formset):

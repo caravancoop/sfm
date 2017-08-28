@@ -21,13 +21,15 @@ class CompositionCreate(BaseFormSetView):
 
     def get_initial(self):
         data = []
-        for i in self.request.session['organizations']:
-            data.append({})
+        if self.request.session.get('organizations'):
+            for i in self.request.session['organizations']:
+                data.append({})
         return data
 
     def get(self, request, *args, **kwargs):
-        if len(request.session['organizations']) == 1:
-            return redirect(reverse_lazy('create-organization-membership'))
+        if self.request.session.get('organizations'):
+            if len(request.session['organizations']) == 1:
+                return redirect(reverse_lazy('create-organization-membership'))
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -37,7 +39,10 @@ class CompositionCreate(BaseFormSetView):
         context['classifications'] = Classification.objects.all()
         context['relationship_types'] = self.form_class().fields['relationship_type'].choices
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
-        context['organizations'] = self.request.session['organizations']
+        context['organizations'] = self.request.session.get('organizations')
+
+        context['back_url'] = reverse_lazy('create-organization')
+        context['skip_url'] = reverse_lazy('create-organization-membership')
 
         return context
 

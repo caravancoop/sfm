@@ -17,13 +17,15 @@ class MembershipOrganizationCreate(BaseFormSetView):
 
     def get_initial(self):
         data = []
-        for i in self.request.session['organizations']:
-            data.append({})
+        if self.request.session.get('organizations'):
+            for i in self.request.session['organizations']:
+                data.append({})
         return data
 
     def get(self, request, *args, **kwargs):
-        if len(request.session['organizations']) == 1:
-            return redirect(reverse_lazy('create-person'))
+        if request.session.get('organizations'):
+            if len(request.session.get('organizations')) == 1:
+                return redirect(reverse_lazy('create-person'))
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -31,7 +33,10 @@ class MembershipOrganizationCreate(BaseFormSetView):
         context = super().get_context_data(**kwargs)
 
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
-        context['organizations'] = self.request.session['organizations']
+        context['organizations'] = self.request.session.get('organizations')
+
+        context['back_url'] = reverse_lazy('create-composition')
+        context['skip_url'] = reverse_lazy('create-person')
 
         return context
 

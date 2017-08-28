@@ -91,8 +91,8 @@
                     <label class="col-sm-2 control-label" for="id_form-{{ form_id }}-orgs">{% trans "Member units" %}</label>
                     <div class="col-sm-8">
                         <select id="id_form-{{ form_id }}-orgs" class="form-control orgs-field" name="form-{{ form_id }}-orgs" multiple="multiple">
-                                {% for organization in organizations %}
-                                    <option value="{{ organization.id }}">{{ organization.name }}</option>
+                                {% for organization in form.cleaned_data.orgs %}
+                                    <option value="{{ organization.id }}" selected=true>{{ organization.name }}</option>
                                 {% endfor %}
                             </select>
                                 {% if form.orgs.errors %}
@@ -118,7 +118,6 @@
         {% endfor %}
     {% endif %}
 </div>
-<br />
 <div class="row">
     <div class="col-sm-12">
         <button class="btn btn-link" type="button" id="add-form">
@@ -127,7 +126,7 @@
     </div>
 </div>
 <br />
-{% with has_next=True back_url='create-organization' skip_url='create-geography' %}
+{% with has_next=True %}
     {% include 'partials/back_skip_next.html' %}
 {% endwith %}
 </form>
@@ -393,6 +392,12 @@
             $(name_field + '_text').val(value);
             $(name_field + ' :selected').attr('value', e.params.data.id);
             $(name_field + ' :selected').text(value);
+        });
+
+        $(name_field).on('select2:unselect', function(e){
+            var value = e.params.data.text;
+            $(name_field).find(':selected').prop('selected', false);
+            $(name_field + '_text').val('');
         });
 
         $(division_field).on('select2:select', function(e){

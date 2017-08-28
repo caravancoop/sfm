@@ -68,7 +68,7 @@
                 {% endif %}
                         <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-firstciteddate">{% trans "First and last citation dates" %}</label>
                         <div class="col-sm-4">
-                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-firstciteddate" name="form-{{ forloop.counter0 }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-firstciteddate" name="form-{{ forloop.counter0 }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}" placeholder="First citation date"/>
                             {% if form.firstciteddate.errors %}
                                 {% for error in form.firstciteddate.errors %}
                                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -76,7 +76,7 @@
                             {% endif %}
                         </div>
                         <div class="col-sm-4">
-                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-lastciteddate" name="form-{{ forloop.counter0 }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-lastciteddate" name="form-{{ forloop.counter0 }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}" placeholder="Last citation date"/>
                             {% if form.lastciteddate.errors %}
                                 {% for error in form.lastciteddate.errors %}
                                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -88,33 +88,78 @@
                 </div>
             {% endwith %}
         {% endfor %}
-        {% with has_next=True back_url='create-composition' skip_url='create-person' %}
+        {% with has_next=True %}
             {% include 'partials/back_skip_next.html' %}
         {% endwith %}
     </form>
 </div>
 
+<div id="delete-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title">{% trans "Remove membership" %}</h3>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Are you sure you want to remove this membership? All data will be lost." %}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">{% trans "Cancel" %}</button>
+                <button type="button" class="btn btn-primary" id="delete-confirm">
+                    <i class="fa fa-fw fa-times"></i> {% trans "Remove" %}</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 {% endblock %}
 {% block extra_js %}
 <script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/javascript">
+
     $(document).ready(function(e){
         $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: '0d'});
-        $('.remove-relationship').on('click', function(e){
+
+        $('.organization-field').select2({
+            placeholder: '',
+            allowClear: true
+        });
+
+        $('.remove-relationship').on('click', deleteForm);
+    });
+
+    function deleteForm(e){
+
+        e.preventDefault();
+        var form_id = $(e.target).data('form_id');
+        console.log(e.target)
+        var wrapper_id = '#form-' + form_id + '-wrapper';
+
+        console.log(wrapper_id)
+        $('#delete-confirm').data('wrapper_id', wrapper_id);
+        $('#delete-confirm').off();
+
+        $('#delete-modal').modal();
+        $('#delete-confirm').on('click', function(e){
+
             e.preventDefault();
+            var wrapper_id = $(e.target).data('wrapper_id');
+
+            removeForm(wrapper_id);
+
+            $('#delete-modal').modal('hide');
 
             var current_total = $('#id_form-TOTAL_FORMS').val();
             var new_total = parseInt(current_total) - 1;
 
             $('#id_form-TOTAL_FORMS').prop('value', new_total);
 
-            var form_id = $(e.target).data('form_id');
-            $('#form-' + form_id + '-wrapper').remove();
         });
-        $('.organization-field').select2({
-            placeholder: '',
-            allowClear: true
-        });
-    });
+    }
+
+    function removeForm(wrapper_id){
+        $(wrapper_id).remove();
+    }
 </script>
 {% endblock %}
