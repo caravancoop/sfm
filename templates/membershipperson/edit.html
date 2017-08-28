@@ -85,6 +85,7 @@
         </div>
         <div class="col-sm-2">
             <label for="id_realstart" class="checkbox-inline">
+                {% comment %}Translators: Disregard this term, for now. Clarification forthcoming.{% endcomment %}
                 {% if form_data.realstart %}
                     <input type="checkbox" id="id_realstart" name="realstart" checked > {% trans "Real context?" %}
                 {% else %}
