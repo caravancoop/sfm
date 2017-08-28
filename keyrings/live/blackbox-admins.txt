@@ -2,3 +2,4 @@ evz@datamade.us
 jean.cochrane@datamade.us
 sfm@datamade.us
 sfm-prod@datamade.us
+sfm-staging@datamade.us
