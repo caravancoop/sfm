@@ -84,6 +84,8 @@
   <script src="{% static 'js/select2.min.js' %}"></script>
   <script type="text/javascript">
   $(document).ready(function() {
+    console.log('{{request.path_info}}', "!!!!!!$$$")
+    console.log('{{request.LANGUAGE_CODE}}', "###")
     dataArray = ['English', 'French', 'Spanish']
     transObj = {
       'French': 'fr',
