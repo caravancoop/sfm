@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load language_url %}
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
@@ -84,18 +85,31 @@
   <script src="{% static 'js/select2.min.js' %}"></script>
   <script type="text/javascript">
   $(document).ready(function() {
+    // Get language code in url, prepend to array, and remove duplicate
+    dataArray = JSON.parse('{{request.LANGUAGE_CODE|create_select2_data|safe}}');
+
+    // Populate select2
     $('.lang-select-box').select2({
-        data: [
-            {
-                id: 'en',
-                text: 'English'
-            },
-            {
-                id: 'fr',
-                text: 'French'
-            }
-        ]
+        data: dataArray,
+        width: '100px'
     });
+
+    // Attach click event to dropdown, which reloads page with new language code 
+    transObj = {
+      'French': 'fr',
+      'English': 'en',
+      'Spanish': 'es',
+    }
+
+    $('.lang-select-box').on('change', function (evt) {
+        selectedLang = $('.lang-select-box').val();
+        selectedLangSym = '/' + transObj[selectedLang] + '/';
+        // Create new URL with selected language, and redirect to it.
+        currentUrl = window.location.href;
+        newUrl = currentUrl.replace('/es/', selectedLangSym).replace('/fr/', selectedLangSym).replace('/en/', selectedLangSym);
+        window.location = newUrl;
+    });
+
   });
   </script>
   {% block extra_js %}{% endblock %}
