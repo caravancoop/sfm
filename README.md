@@ -58,3 +58,35 @@ Start the web server:
     ./manage.py runserver
 
 Open http://127.0.0.1:8000/ and sign in with your email and password.
+
+## Translations
+
+We use [Django translation](https://docs.djangoproject.com/en/1.11/topics/i18n/translation/) together with [Rosetta](https://github.com/mbi/django-rosetta) and [django-complex-fields](https://github.com/security-force-monitor/complex_fields). 
+
+Template translations appear inside `trans` tags, like so:
+
+```python
+{% trans "Countries" %}
+```
+
+Model field and form error translations appear inside `_()` hooks, as such:
+
+```python
+from django.utils.translation import ugettext as _
+
+...
+
+field_name = _("End date")
+```
+
+This nomenclature signals that the text can be translated into the user's specified language. But first, someone with language expertise must provide the appropriate translation. Happily, Django can extract all translatable strings into a message file:
+
+```bash
+django-admin.py makemessages -l es
+django-admin.py makemessages -l fr
+```
+
+This command generates a `.po` file for each language. Rosetta facilitates the editing and compiling of these files. Go to `/rosetta/`, and view the snippets of code, requiring translation, organized by language. Then, translate some text, click "Save and translate next block," and Rosetta compiles the code into Django-friendly translations.
+
+
+
