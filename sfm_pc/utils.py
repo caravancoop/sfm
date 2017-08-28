@@ -497,12 +497,13 @@ def deleted_in_str(objects):
             else:
                 name = type(obj).__name__ + ": " + str(obj)
             if '_sources' in name:
-                objects[index] = _("Object sources")
+                objects[index] = "Object sources"
             else:
                 objects[index] = name
         index += 1
 
     return objects
+    
 
 def import_class(cl):
     d = cl.rfind('.')
