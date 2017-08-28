@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-24 15:24-0500\n"
+"POT-Creation-Date: 2017-08-28 15:49+0000\n"
 "PO-Revision-Date: 2017-08-24 18:51+0000\n"
 "Last-Translator: b'  <reginafcompton@datamade.us>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,9 +32,9 @@ msgstr ""
 #: templates/organization/search.html:162
 #: templates/partials/organization_list_table.html:10
 #: templates/partials/person_list_table.html:13 templates/person/create.html:34
-#: templates/person/create.html:146 templates/person/detail.html:111
+#: templates/person/create.html:144 templates/person/detail.html:111
 #: templates/person/search.html:21 templates/person/search.html:128
-#: templates/site/search.html:23 templates/site/search.html:91
+#: templates/site/search.html:23 templates/site/search.html:93
 msgid "Name"
 msgstr "Nom"
 
@@ -45,7 +45,7 @@ msgstr ""
 #: area/models.py:67 composition/models.py:73 organization/models.py:69
 #: templates/area/search.html:28 templates/area/search.html:85
 #: templates/composition/search.html:97 templates/composition/search.html:140
-#: templates/organization/create.html:76 templates/organization/create.html:179
+#: templates/organization/create.html:75 templates/organization/create.html:178
 #: templates/organization/edit.html:59 templates/organization/search.html:30
 #: templates/organization/search.html:164
 #: templates/partials/organization_list_table.html:26
@@ -67,7 +67,7 @@ msgid "Division ID"
 msgstr ""
 
 #: association/models.py:43 composition/models.py:56 emplacement/models.py:41
-#: templates/association/search.html:23 templates/association/search.html:138
+#: templates/association/search.html:23 templates/association/search.html:141
 #: templates/composition/search.html:17 templates/composition/search.html:141
 #: templates/emplacement/search.html:23 templates/emplacement/search.html:138
 #: templates/membershipperson/search.html:139
@@ -79,7 +79,7 @@ msgid "Start date"
 msgstr ""
 
 #: association/models.py:51 composition/models.py:64 emplacement/models.py:49
-#: templates/association/search.html:62 templates/association/search.html:139
+#: templates/association/search.html:62 templates/association/search.html:142
 #: templates/composition/search.html:56 templates/composition/search.html:142
 #: templates/emplacement/search.html:62 templates/emplacement/search.html:139
 #: templates/membershipperson/search.html:140
@@ -92,7 +92,7 @@ msgstr ""
 
 #: association/models.py:59 emplacement/models.py:64
 #: membershiporganization/models.py:65 membershipperson/models.py:136
-#: templates/association/search.html:109 templates/association/search.html:140
+#: templates/association/search.html:112 templates/association/search.html:143
 #: templates/emplacement/search.html:109 templates/emplacement/search.html:140
 #: templates/membershiporganization/create.html:44
 #: templates/organization/create-geography.html:32
@@ -102,8 +102,8 @@ msgstr ""
 msgid "Organization"
 msgstr "Organisation"
 
-#: association/models.py:70 templates/association/search.html:117
-#: templates/association/search.html:141 templates/sidebar.html:13
+#: association/models.py:70 templates/association/search.html:120
+#: templates/association/search.html:144 templates/sidebar.html:13
 msgid "Area"
 msgstr ""
 
@@ -207,7 +207,7 @@ msgid "Start context"
 msgstr ""
 
 #: membershipperson/models.py:209 templates/membershipperson/create.html:119
-#: templates/membershipperson/edit.html:106
+#: templates/membershipperson/edit.html:107
 msgid "End context"
 msgstr ""
 
@@ -215,9 +215,11 @@ msgstr ""
 msgid "Membership Person"
 msgstr ""
 
-#: organization/forms.py:8 organization/forms.py:24 person/forms.py:9
-msgid "Name is required"
-msgstr ""
+#: organization/forms.py:8
+#, fuzzy
+#| msgid "Person"
+msgid "Unit name is required"
+msgstr "Personne"
 
 #: organization/forms.py:10
 msgid "Classification is required"
@@ -229,6 +231,10 @@ msgstr ""
 
 #: organization/forms.py:23
 msgid "Geography type is required"
+msgstr ""
+
+#: organization/forms.py:24 person/forms.py:9
+msgid "Name is required"
 msgstr ""
 
 #: organization/forms.py:25
@@ -260,10 +266,6 @@ msgstr "Anglais"
 
 #: sfm_pc/settings.py:151 tests/test_settings.py:129
 msgid "Spanish"
-msgstr ""
-
-#: sfm_pc/utils.py:500
-msgid "Object sources"
 msgstr ""
 
 #: source/forms.py:7
@@ -311,37 +313,38 @@ msgstr ""
 msgid "Primary"
 msgstr ""
 
-#: templates/account/email.html:34
+#. Translators: For a user to make an email address their primary one
+#: templates/account/email.html:35
 msgid "Make Primary"
 msgstr ""
 
-#: templates/account/email.html:35
+#: templates/account/email.html:36
 msgid "Re-send Verification"
 msgstr ""
 
-#: templates/account/email.html:36
+#: templates/account/email.html:37
 msgid "Remove"
 msgstr ""
 
-#: templates/account/email.html:43
+#: templates/account/email.html:44
 msgid "Warning:"
 msgstr ""
 
-#: templates/account/email.html:43
+#: templates/account/email.html:44
 msgid ""
 "You currently do not have any e-mail address set up. You should really add "
 "an e-mail address so you can receive notifications, reset your password, etc."
 msgstr ""
 
-#: templates/account/email.html:48
+#: templates/account/email.html:49
 msgid "Add E-mail Address"
 msgstr ""
 
-#: templates/account/email.html:53
+#: templates/account/email.html:54
 msgid "Add E-mail"
 msgstr ""
 
-#: templates/account/email.html:62
+#: templates/account/email.html:63
 msgid "Do you really want to remove the selected e-mail address?"
 msgstr ""
 
@@ -506,7 +509,7 @@ msgstr ""
 #: templates/account/password_change.html:8
 #: templates/account/password_change.html:13
 #: templates/account/password_reset_from_key.html:4
-#: templates/account/password_reset_from_key.html:7
+#: templates/account/password_reset_from_key.html:8
 #: templates/account/password_reset_from_key_done.html:4
 #: templates/account/password_reset_from_key_done.html:7
 msgid "Change Password"
@@ -539,11 +542,12 @@ msgid ""
 "within a few minutes."
 msgstr ""
 
-#: templates/account/password_reset_from_key.html:7
+#. Translators: To communicate that the user does not have a valid password reset link
+#: templates/account/password_reset_from_key.html:8
 msgid "Bad Token"
 msgstr ""
 
-#: templates/account/password_reset_from_key.html:11
+#: templates/account/password_reset_from_key.html:12
 #, python-format
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
@@ -551,11 +555,11 @@ msgid ""
 "a>."
 msgstr ""
 
-#: templates/account/password_reset_from_key.html:17
+#: templates/account/password_reset_from_key.html:18
 msgid "change password"
 msgstr ""
 
-#: templates/account/password_reset_from_key.html:20
+#: templates/account/password_reset_from_key.html:21
 #: templates/account/password_reset_from_key_done.html:8
 msgid "Your password is now changed."
 msgstr ""
@@ -753,19 +757,19 @@ msgstr ""
 msgid "View map"
 msgstr ""
 
-#: templates/area/search.html:71 templates/association/search.html:125
+#: templates/area/search.html:71 templates/association/search.html:128
 #: templates/composition/search.html:125 templates/emplacement/search.html:125
 #: templates/membershipperson/search.html:123
 #: templates/organization/search.html:149 templates/person/search.html:115
-#: templates/site/search.html:78 templates/violation/search.html:181
+#: templates/site/search.html:80 templates/violation/search.html:181
 msgid "Results"
 msgstr ""
 
-#: templates/area/search.html:73 templates/association/search.html:127
+#: templates/area/search.html:73 templates/association/search.html:130
 #: templates/composition/search.html:127 templates/emplacement/search.html:127
 #: templates/membershipperson/search.html:125
 #: templates/organization/search.html:151 templates/person/search.html:117
-#: templates/site/search.html:80 templates/violation/search.html:183
+#: templates/site/search.html:82 templates/violation/search.html:183
 msgid "Export"
 msgstr ""
 
@@ -773,7 +777,7 @@ msgstr ""
 msgid "Association"
 msgstr ""
 
-#: templates/association/edit.html:36 templates/association/search.html:114
+#: templates/association/edit.html:36 templates/association/search.html:117
 #: templates/composition/edit.html:47 templates/composition/search.html:114
 #: templates/emplacement/edit.html:36 templates/emplacement/search.html:114
 msgid "With"
@@ -783,7 +787,8 @@ msgstr ""
 msgid "Search Area Association"
 msgstr ""
 
-#: templates/association/search.html:25 templates/association/search.html:64
+#. Translators: The date format for days, e.g., 28
+#: templates/association/search.html:25 templates/association/search.html:65
 #: templates/composition/search.html:19 templates/composition/search.html:58
 #: templates/emplacement/search.html:25 templates/emplacement/search.html:64
 #: templates/membershipperson/search.html:44
@@ -793,7 +798,7 @@ msgstr ""
 msgid "dd"
 msgstr ""
 
-#: templates/association/search.html:33 templates/association/search.html:72
+#: templates/association/search.html:33 templates/association/search.html:73
 #: templates/composition/search.html:27 templates/composition/search.html:66
 #: templates/emplacement/search.html:33 templates/emplacement/search.html:72
 #: templates/membershipperson/search.html:52
@@ -804,7 +809,8 @@ msgstr ""
 msgid "Month"
 msgstr ""
 
-#: templates/association/search.html:35 templates/association/search.html:74
+#. Translators: The date format for months, e.g., 11
+#: templates/association/search.html:35 templates/association/search.html:76
 #: templates/composition/search.html:29 templates/composition/search.html:68
 #: templates/emplacement/search.html:35 templates/emplacement/search.html:74
 #: templates/membershipperson/search.html:54
@@ -813,7 +819,7 @@ msgstr ""
 msgid "mm"
 msgstr ""
 
-#: templates/association/search.html:36 templates/association/search.html:75
+#: templates/association/search.html:36 templates/association/search.html:77
 #: templates/composition/search.html:30 templates/composition/search.html:69
 #: templates/emplacement/search.html:36 templates/emplacement/search.html:75
 #: templates/membershipperson/search.html:55
@@ -824,7 +830,7 @@ msgstr ""
 msgid "January"
 msgstr ""
 
-#: templates/association/search.html:37 templates/association/search.html:76
+#: templates/association/search.html:37 templates/association/search.html:78
 #: templates/composition/search.html:31 templates/composition/search.html:70
 #: templates/emplacement/search.html:37 templates/emplacement/search.html:76
 #: templates/membershipperson/search.html:56
@@ -835,7 +841,7 @@ msgstr ""
 msgid "February"
 msgstr ""
 
-#: templates/association/search.html:38 templates/association/search.html:77
+#: templates/association/search.html:38 templates/association/search.html:79
 #: templates/composition/search.html:32 templates/composition/search.html:71
 #: templates/emplacement/search.html:38 templates/emplacement/search.html:77
 #: templates/membershipperson/search.html:57
@@ -846,7 +852,7 @@ msgstr ""
 msgid "March"
 msgstr ""
 
-#: templates/association/search.html:39 templates/association/search.html:78
+#: templates/association/search.html:39 templates/association/search.html:80
 #: templates/composition/search.html:33 templates/composition/search.html:72
 #: templates/emplacement/search.html:39 templates/emplacement/search.html:78
 #: templates/membershipperson/search.html:58
@@ -857,7 +863,7 @@ msgstr ""
 msgid "April"
 msgstr ""
 
-#: templates/association/search.html:40 templates/association/search.html:79
+#: templates/association/search.html:40 templates/association/search.html:81
 #: templates/composition/search.html:34 templates/composition/search.html:73
 #: templates/emplacement/search.html:40 templates/emplacement/search.html:79
 #: templates/membershipperson/search.html:59
@@ -868,7 +874,7 @@ msgstr ""
 msgid "May"
 msgstr ""
 
-#: templates/association/search.html:41 templates/association/search.html:80
+#: templates/association/search.html:41 templates/association/search.html:82
 #: templates/composition/search.html:35 templates/composition/search.html:74
 #: templates/emplacement/search.html:41 templates/emplacement/search.html:80
 #: templates/membershipperson/search.html:60
@@ -879,7 +885,7 @@ msgstr ""
 msgid "June"
 msgstr ""
 
-#: templates/association/search.html:42 templates/association/search.html:81
+#: templates/association/search.html:42 templates/association/search.html:83
 #: templates/composition/search.html:36 templates/composition/search.html:75
 #: templates/emplacement/search.html:42 templates/emplacement/search.html:81
 #: templates/membershipperson/search.html:61
@@ -890,7 +896,7 @@ msgstr ""
 msgid "July"
 msgstr ""
 
-#: templates/association/search.html:43 templates/association/search.html:82
+#: templates/association/search.html:43 templates/association/search.html:84
 #: templates/composition/search.html:37 templates/composition/search.html:76
 #: templates/emplacement/search.html:43 templates/emplacement/search.html:82
 #: templates/membershipperson/search.html:62
@@ -901,7 +907,7 @@ msgstr ""
 msgid "August"
 msgstr ""
 
-#: templates/association/search.html:44 templates/association/search.html:83
+#: templates/association/search.html:44 templates/association/search.html:85
 #: templates/composition/search.html:38 templates/composition/search.html:77
 #: templates/emplacement/search.html:44 templates/emplacement/search.html:83
 #: templates/membershipperson/search.html:63
@@ -912,7 +918,7 @@ msgstr ""
 msgid "September"
 msgstr ""
 
-#: templates/association/search.html:45 templates/association/search.html:84
+#: templates/association/search.html:45 templates/association/search.html:86
 #: templates/composition/search.html:39 templates/composition/search.html:78
 #: templates/emplacement/search.html:45 templates/emplacement/search.html:84
 #: templates/membershipperson/search.html:64
@@ -923,7 +929,7 @@ msgstr ""
 msgid "October"
 msgstr ""
 
-#: templates/association/search.html:46 templates/association/search.html:85
+#: templates/association/search.html:46 templates/association/search.html:87
 #: templates/composition/search.html:40 templates/composition/search.html:79
 #: templates/emplacement/search.html:46 templates/emplacement/search.html:85
 #: templates/membershipperson/search.html:65
@@ -934,7 +940,7 @@ msgstr ""
 msgid "November"
 msgstr ""
 
-#: templates/association/search.html:47 templates/association/search.html:86
+#: templates/association/search.html:47 templates/association/search.html:88
 #: templates/composition/search.html:41 templates/composition/search.html:80
 #: templates/emplacement/search.html:47 templates/emplacement/search.html:86
 #: templates/membershipperson/search.html:66
@@ -945,7 +951,7 @@ msgstr ""
 msgid "December"
 msgstr ""
 
-#: templates/association/search.html:52 templates/association/search.html:91
+#: templates/association/search.html:52 templates/association/search.html:93
 #: templates/composition/search.html:46 templates/composition/search.html:85
 #: templates/emplacement/search.html:52 templates/emplacement/search.html:91
 #: templates/membershipperson/search.html:71
@@ -956,7 +962,8 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
-#: templates/association/search.html:54 templates/association/search.html:93
+#. Translators: The date format for year, e.g., 2017
+#: templates/association/search.html:54 templates/association/search.html:96
 #: templates/composition/search.html:48 templates/composition/search.html:87
 #: templates/emplacement/search.html:54 templates/emplacement/search.html:93
 #: templates/membershipperson/search.html:73
@@ -965,12 +972,12 @@ msgstr ""
 msgid "yyyy"
 msgstr ""
 
-#: templates/association/search.html:103 templates/composition/edit.html:37
+#: templates/association/search.html:106 templates/composition/edit.html:37
 #: templates/emplacement/search.html:103
 msgid "Relations"
 msgstr ""
 
-#: templates/association/search.html:110 templates/emplacement/search.html:110
+#: templates/association/search.html:113 templates/emplacement/search.html:110
 msgid "Enter organization name"
 msgstr ""
 
@@ -1019,7 +1026,7 @@ msgstr ""
 msgid "Contents"
 msgstr ""
 
-#: templates/base_modal.html:10 templates/modals/source.html:34
+#: templates/base_modal.html:10 templates/modals/source.html:35
 #: templates/modals/translate.html:24 templates/modals/version.html:26
 msgid "Close"
 msgstr ""
@@ -1136,7 +1143,7 @@ msgid "Remove this membership"
 msgstr "Retirer cette personne "
 
 #: templates/membershiporganization/create.html:69
-msgid "First & last citation dates"
+msgid "First and last citation dates"
 msgstr ""
 
 #: templates/membershipperson/create.html:15
@@ -1150,7 +1157,7 @@ msgstr ""
 
 #: templates/membershipperson/create.html:55
 #: templates/membershipperson/edit.html:36
-msgid "Role & Rank"
+msgid "Role and Rank"
 msgstr ""
 
 #: templates/membershipperson/create.html:58
@@ -1167,15 +1174,15 @@ msgstr ""
 #: templates/membershipperson/create.html:104
 #: templates/membershipperson/create.html:131
 #: templates/membershipperson/create.html:133
-#: templates/membershipperson/edit.html:89
-#: templates/membershipperson/edit.html:91
-#: templates/membershipperson/edit.html:118
-#: templates/membershipperson/edit.html:120
+#: templates/membershipperson/edit.html:90
+#: templates/membershipperson/edit.html:92
+#: templates/membershipperson/edit.html:119
+#: templates/membershipperson/edit.html:121
 msgid "Real context?"
 msgstr ""
 
 #: templates/membershipperson/create.html:148
-#: templates/membershipperson/edit.html:135
+#: templates/membershipperson/edit.html:136
 msgid "Citation dates"
 msgstr ""
 
@@ -1203,28 +1210,29 @@ msgstr ""
 msgid "View/Edit Sources"
 msgstr ""
 
-#: templates/modals/source.html:9 templates/partials/version_list.html:22
+#. Translators: The level of confidence that the user has in a source, when entering it into the system
+#: templates/modals/source.html:10 templates/partials/version_list.html:22
 msgid "Confidence"
 msgstr ""
 
-#: templates/modals/source.html:12 violation/models.py:18
+#: templates/modals/source.html:13 violation/models.py:18
 msgid "Low"
 msgstr "Basse"
 
-#: templates/modals/source.html:13 violation/models.py:19
+#: templates/modals/source.html:14 violation/models.py:19
 msgid "Medium"
 msgstr "Moyenne"
 
-#: templates/modals/source.html:14 violation/models.py:20
+#: templates/modals/source.html:15 violation/models.py:20
 msgid "High"
 msgstr "Haute"
 
-#: templates/modals/source.html:21 templates/modals/source.html:24
+#: templates/modals/source.html:22 templates/modals/source.html:25
 #: templates/modals/translate.html:20
 msgid "Add"
 msgstr ""
 
-#: templates/modals/source.html:28 templates/modals/version.html:10
+#: templates/modals/source.html:29 templates/modals/version.html:10
 #: templates/organization/detail.html:46 templates/organization/detail.html:64
 #: templates/partials/source_search_results.html:3
 #: templates/partials/version_list.html:25 templates/person/detail.html:28
@@ -1282,7 +1290,7 @@ msgstr ""
 
 #: templates/organization/create-geography.html:112
 #: templates/organization/create-geography.html:199
-msgid "Start & end dates"
+msgid "Start and end dates"
 msgstr ""
 
 #: templates/organization/create-geography.html:137
@@ -1305,31 +1313,31 @@ msgstr "Retirer cette personne "
 msgid "Describe any units found in"
 msgstr ""
 
-#: templates/organization/create.html:33 templates/organization/create.html:163
+#: templates/organization/create.html:33 templates/organization/create.html:162
 #, fuzzy
 #| msgid "Person"
 msgid "Unit name"
 msgstr "Personne"
 
-#: templates/organization/create.html:54 templates/organization/create.html:172
+#: templates/organization/create.html:53 templates/organization/create.html:171
 #: templates/organization/detail.html:104
 #: templates/organization/detail.html:155
 #: templates/organization/detail.html:206
 #: templates/organization/detail.html:257 templates/organization/edit.html:40
-#: templates/person/create.html:54 templates/person/create.html:154
+#: templates/person/create.html:54 templates/person/create.html:152
 #: templates/person/edit.html:35
 #, fuzzy
 #| msgid "Aliases"
 msgid "Aliases"
 msgstr "Alias"
 
-#: templates/organization/create.html:98 templates/organization/create.html:186
+#: templates/organization/create.html:97 templates/organization/create.html:185
 #: templates/organization/edit.html:78 templates/person/create.html:70
-#: templates/person/create.html:161 templates/person/edit.html:54
+#: templates/person/create.html:159 templates/person/edit.html:54
 msgid "Division identifier"
 msgstr ""
 
-#: templates/organization/create.html:198
+#: templates/organization/create.html:197
 #, fuzzy
 #| msgid "Remove this person"
 msgid "Remove this unit"
@@ -1359,8 +1367,8 @@ msgid "Memberships"
 msgstr ""
 
 #: templates/organization/detail.html:41 templates/organization/detail.html:59
-#: templates/organization/detail.html:149 templates/person/create.html:92
-#: templates/person/create.html:168
+#: templates/organization/detail.html:149 templates/person/create.html:91
+#: templates/person/create.html:166
 msgid "Member units"
 msgstr ""
 
@@ -1428,10 +1436,6 @@ msgstr "Organisation"
 
 #: templates/organization/search.html:7
 msgid "Search an organization"
-msgstr ""
-
-#: templates/organization/search.html:9
-msgid "</"
 msgstr ""
 
 #: templates/organization/search.html:15 templates/person/search.html:15
@@ -1618,23 +1622,17 @@ msgstr ""
 msgid "Describe any personnel found in"
 msgstr ""
 
-#: templates/person/create.html:100
+#: templates/person/create.html:99
 msgid "A person must belong to at least one unit."
 msgstr ""
 
-#: templates/person/create.html:111
-#, fuzzy
-#| msgid "Person"
-msgid "Remove Person"
-msgstr "Personne"
-
-#: templates/person/create.html:127
-msgid "Add another person"
-msgstr ""
-
-#: templates/person/create.html:183
+#: templates/person/create.html:109 templates/person/create.html:180
 msgid "Remove this person"
 msgstr "Retirer cette personne "
+
+#: templates/person/create.html:125
+msgid "Add another person"
+msgstr ""
 
 #: templates/person/detail.html:10
 msgid "Edit"
@@ -1717,19 +1715,21 @@ msgstr ""
 msgid "Search Site"
 msgstr ""
 
-#: templates/site/search.html:67 templates/violation/search.html:142
+#. Translators: Refers to the name of the Openstreet map
+#: templates/site/search.html:68 templates/violation/search.html:142
 msgid "GeoName name"
 msgstr ""
 
-#: templates/site/search.html:68 templates/site/search.html:92
+#: templates/site/search.html:69 templates/site/search.html:94
 #: templates/violation/search.html:143 templates/violation/search.html:196
 #, fuzzy
 #| msgid "Name"
 msgid "GeoName"
 msgstr "Nom"
 
-#: templates/site/search.html:71 templates/site/search.html:72
-#: templates/site/search.html:93 templates/violation/search.html:146
+#. Translators: Refers to the ID of the Openstreet map
+#: templates/site/search.html:73 templates/site/search.html:74
+#: templates/site/search.html:95 templates/violation/search.html:146
 #: templates/violation/search.html:147
 msgid "GeoName ID"
 msgstr ""
@@ -1776,6 +1776,11 @@ msgstr ""
 #: violation/models.py:172
 msgid "Event Perpetrator Classification"
 msgstr ""
+
+#, fuzzy
+#~| msgid "Person"
+#~ msgid "Remove Person"
+#~ msgstr "Personne"
 
 #~ msgid "Notes"
 #~ msgstr "Notes"
