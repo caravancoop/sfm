@@ -43,8 +43,6 @@ class MembershipPersonCreate(BaseFormSetView):
         context['back_url'] = reverse_lazy('create-person')
         context['skip_url'] = reverse_lazy('create-geography')
 
-        print(context)
-
         return context
 
     def get_initial(self):
