@@ -93,7 +93,7 @@
       'Spanish': 'es',
     }
     // Get stored item, prepend to array, and remove duplicate
-    previousSelectedLang = localStorage.getItem("language")
+    currentSelectedLang = localStorage.getItem("language")
     
     if (previousSelectedLang != null) {
       dataArray.unshift(previousSelectedLang)
