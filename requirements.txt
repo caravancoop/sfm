@@ -28,4 +28,3 @@ datefinder==0.6.0
 raven
 django-debug-toolbar
 pysolr==3.6.0
-more-itertools==3.2.0
