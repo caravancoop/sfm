@@ -251,4 +251,3 @@ OSM_DATA = [
         'country_code': 'sd',
     },
 ]
-
