@@ -1,5 +1,6 @@
 import json
 
+from django.forms import modelformset_factory
 from django.contrib import messages
 from django.views.generic import DetailView
 from django.http import HttpResponse
@@ -158,6 +159,15 @@ class OrganizationCreate(BaseFormSetView):
         context['back_url'] = reverse_lazy('create-source')
         context['skip_url'] = reverse_lazy('create-person')
 
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('organizations') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('organizations')
+            self.initFormset(form_data)
+
+            context['formset'] = self.get_formset_context(self.formset)
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -174,31 +184,44 @@ class OrganizationCreate(BaseFormSetView):
 
         return self.validateFormSet()
 
-    def formset_invalid(self, formset):
-        response = super().formset_invalid(formset)
+    def get_formset_context(self, formset):
 
         for index, form in enumerate(formset.forms):
-            alias_ids = formset.data.get('form-{}-alias'.format(index))
-            classification_ids = formset.data.get('form-{}-classification'.format(index))
+
+            alias_ids = form.data.get('form-{}-alias'.format(index))
+            classification_ids = form.data.get('form-{}-classification'.format(index))
 
             form.aliases = []
             form.classifications = []
 
             if alias_ids:
 
-                actual_ids = []
-
                 for alias_id in alias_ids:
                     try:
-                        actual_ids.append(int(alias_id))
+                        alias_id = int(alias_id)
+                        alias = Alias.objects.get(id=alias_id)
                     except ValueError:
-                        pass
-
-                form.aliases = OrganizationAlias.objects.filter(id__in=actual_ids)
+                        alias = {'id': alias_id, 'value': alias_id}
+                    form.aliases.append(alias)
 
             if classification_ids:
-                form.classifications = OrganizationClassification.objects.filter(id__in=classification_ids)
 
+                for class_id in classification_ids:
+                    try:
+                        class_id = int(class_id)
+                        classification = Classification.objects.get(id=class_id)
+                    except ValueError:
+                        classification = {'id': class_id,
+                                          'value': class_id}
+                    form.classifications.append(classification)
+
+        return formset
+
+    def formset_invalid(self, formset):
+
+        formset = self.get_formset_context(formset)
+
+        response = super().formset_invalid(formset)
         return response
 
     def formset_valid(self, formset):
@@ -257,6 +280,7 @@ class OrganizationCreate(BaseFormSetView):
                 organization = Organization.create(org_info)
 
             organization.update(org_info)
+            formset.data[name_id_key] = organization.id
 
             # Save aliases first
 
@@ -306,6 +330,11 @@ class OrganizationCreate(BaseFormSetView):
                                                  for o in self.organizations]
 
         response = super().formset_valid(formset)
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['organizations'] = formset.data
 
         return response
 

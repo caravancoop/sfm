@@ -74,8 +74,8 @@
                             <label class="col-sm-2 control-label">{% trans "Aliases" %}</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
-                                    {% for alias in form.cleaned_data.aliases %}
-                                        <option value="{{ alias.id }}" selected=true>{{ alias.value.value }}</option>
+                                    {% for alias in form.aliases %}
+                                        <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
                                     {% endfor %}
                                 </select>
                                 {% for alias in form.aliases %}
@@ -113,11 +113,11 @@
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-classification" class="form-control class-field" name="form-{{ form_id }}-classification" multiple="multiple">
                                     {% for classification in form.classifications %}
-                                        <option value="{{ classification.id }}" selected=true>{{ classification.value.value }}</option>
+                                        <option value="{{ classification.id }}" selected=true>{{ classification.value }}</option>
                                     {% endfor %}
                                 </select>
                                 {% for classification in form.classifications %}
-                                    <input type="hidden" value="{{ classification.value.value }}" name="form-{{ form_id }}-classification_text" id="id_form-{{ form_id }}-classification_text" />
+                                    <input type="hidden" value="{{ classification.value }}" name="form-{{ form_id }}-classification_text" id="id_form-{{ form_id }}-classification_text" />
                                 {% endfor %}
                                 {% if form.classification.errors %}
                                     {% for error in form.classification.errors %}
@@ -331,34 +331,6 @@
         minimumInputLength: 2,
         selectOnClose: true,
         tags: true,
-        allowClear: true,
-        placeholder: ''
-    }
-    var name_opts = {
-        ajax: {
-            url: "{% url 'organization-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': -1,
-                                'text': params.term }]};
-                }
-            }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2,
-        selectOnClose: true,
-        tags: true,
-        allowClear: true,
-        placeholder: ''
     }
 
     var alias_opts = {
@@ -382,6 +354,32 @@
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
+        selectOnClose: true,
+        tags: true,
+    }
+
+    var name_opts = {
+        ajax: {
+            url: "{% url 'organization-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                    return {results: [{
+                                'id': -1,
+                                'text': params.term }]};
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        minimumInputLength: 2,
+        selectOnClose: true,
         tags: true,
         allowClear: true,
         placeholder: ''
@@ -423,7 +421,7 @@
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-FORMS_ADDED').val(form_count);
 
-        {% if formset.errors %}
+        {% if formset or formset.errors %}
             {% for form in formset %}
                 {% with form_id=forloop.counter0 %}
 
