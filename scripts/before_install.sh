@@ -9,6 +9,9 @@ set -euo pipefail
 
 # Copy translation files
 if [ -d /home/datamade/sfm-cms/locale/ ]; then
+	if [ -d /tmp/locale/ ]; then
+		rm -Rf /tmp/locale/
+	fi
 	cp -R /home/datamade/sfm-cms/locale/ /tmp/;
 fi
 
