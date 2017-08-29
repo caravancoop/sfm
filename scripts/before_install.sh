@@ -7,6 +7,11 @@
 # scripts.
 set -euo pipefail
 
+# Copy translation files
+if [ -d /home/datamade/sfm-cms/locale/ ]; then
+	cp -R /home/datamade/sfm-cms/locale/ /tmp/;
+fi
+
 # Create a fresh project directory. (This is mainly to ensure that 
 # these scripts work on a bare server.)
 rm -Rf /home/datamade/sfm-cms
