@@ -2,11 +2,12 @@
 {% load staticfiles %}
 {% load i18n %}
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
-  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
-<style>
-.submit { margin-top: 10px; }
-</style>
+    <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+    <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    <style>
+    .submit { margin-top: 10px; }
+    </style>
 {% endblock %}
 {% block content %}
 {% include 'partials/nav-wizard.html' %}
@@ -15,6 +16,14 @@
     <p>{% trans "Describe any geographies related to organizations found in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
+
+
+<div id="geosite-coordinates-map" style="height:200px;"></div>
+                                    
+                    
+
+
+
 <form method="post" action="" class="form-horizontal">
     {% csrf_token %}
     {{ formset.management_form }}
@@ -312,9 +321,14 @@ function addForm(e){
         var value = e.params.data.value;
         $(osmname_field + '_text').val(value);
         if (isNaN($(osmname_field + ' :selected').attr('value'))) {
-            $(oamname_field + ' :selected').attr('value','-1');
+            $(osmname_field + ' :selected').attr('value','-1');
         }
         $(field_prefix + '-geotype').val(e.params.data.type);
+
+        // IN HERE: write the logic to add geographies to the map
+        // What do you need? The cooridantes and the type...e.params.data.type
+        // You can get the coordinates by passing them in the data object (see: sfm-pc/views.py, line 409)
+
     });
 
     $(".select2-selection").on("focus", function () {
@@ -347,5 +361,32 @@ function deleteForm(e){
 }
 
 </script>
+
+
+<!-- Test map -->
+<script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        // What is this? An object, e.g., {"coordinates": [-8.806709885338764, 6.489529984867852], "type": "Point"}
+        // var geom = '{{ relation.value.geojson|safe }}';
+        var geom = {"coordinates": [-8.806709885338764, 6.489529984867852], "type": "Point"}
+        var map = L.map('geosite-coordinates-map');
+        var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    { attribution: attribution, detectRetina: true }).addTo(map);
+        var geom_layer = L.geoJSON(geom).addTo(map);
+        map.fitBounds(geom_layer.getBounds());
+
+        // How to add another point to the map?
+        var geom = {"coordinates": [-103.38460891248891, 20.634513980828114], "type": "Point"};
+        var geom_layer = L.geoJSON(geom).addTo(map);
+        map.fitBounds(geom_layer.getBounds());
+        // {% if relation.value.geom_type == 'Point' %}
+        //     map.setZoom(10);
+        // {% endif %}
+    })
+</script>
+
+
 
 {% endblock %}

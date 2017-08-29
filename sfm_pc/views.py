@@ -368,6 +368,8 @@ class Countries(TemplateView):
 def osm_autocomplete(request):
     term = request.GET.get('q')
     geo_type = request.GET.get('geo_type')
+    print("geo", geo_type)
+    print("term", term)
 
     q_args = [term]
 
