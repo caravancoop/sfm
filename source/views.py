@@ -20,23 +20,35 @@ class SourceCreate(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['publication_uuid'] = str(uuid4())
 
-        pub_title = self.request.POST.get('publication_title')
-        if pub_title:
-            context['publication_title'] = pub_title
+        existing_forms = self.request.session.get('forms', {})
 
-        pub_country = self.request.POST.get('publication_country')
-        if pub_country:
-            context['publication_country'] = pub_country
+        if existing_forms and existing_forms.get('source'):
+
+            context['form'] = existing_forms.get('source')
+
+            publication_id = context['form'].cleaned_data['publication']
+            publication = Publication.objects.get(id=publication_id)
+
+            context['publication_title'] = publication.title
+            context['publication_country'] = publication.country
+
+        else:
+
+            context['publication_uuid'] = str(uuid4())
+
+            pub_title = self.request.POST.get('publication_title')
+            if pub_title:
+                context['publication_title'] = pub_title
+
+            pub_country = self.request.POST.get('publication_country')
+            if pub_country:
+                context['publication_country'] = pub_country
+
+            if self.request.session.get('source_id'):
+                del self.request.session['source_id']
 
         context['countries'] = Country.objects.all()
-
-        if self.request.session.get('source_id'):
-            del self.request.session['source_id']
-
-        # Highlight "new source" tab
-        context['new_source_tab'] = 'tab-selected'
 
         return context
 
@@ -75,6 +87,11 @@ class SourceCreate(FormView):
                                                        user=self.request.user)
 
         self.request.session['source_id'] = source.id
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['source'] = form
         return response
 
 def source_autocomplete(request):
