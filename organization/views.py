@@ -1,6 +1,5 @@
 import json
 
-from django.forms import modelformset_factory
 from django.contrib import messages
 from django.views.generic import DetailView
 from django.http import HttpResponse
@@ -152,8 +151,8 @@ class OrganizationCreate(BaseFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['confidence_levels'] = CONFIDENCE_LEVELS
 
+        context['confidence_levels'] = CONFIDENCE_LEVELS
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
 
         context['back_url'] = reverse_lazy('create-source')
@@ -167,6 +166,7 @@ class OrganizationCreate(BaseFormSetView):
             self.initFormset(form_data)
 
             context['formset'] = self.get_formset_context(self.formset)
+            context['browsing'] = True
 
         return context
 

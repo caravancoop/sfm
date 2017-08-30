@@ -25,11 +25,16 @@ class SourceCreate(FormView):
 
         if existing_forms and existing_forms.get('source'):
 
-            context['form'] = existing_forms.get('source')
+            form_data = existing_forms.get('source')
 
-            publication_id = context['form'].cleaned_data['publication']
+            form = SourceForm(form_data)
+
+            context['form'] = form
+
+            publication_id = form_data['publication']
             publication = Publication.objects.get(id=publication_id)
 
+            context['publication_uuid'] = publication_id
             context['publication_title'] = publication.title
             context['publication_country'] = publication.country
 
@@ -91,7 +96,7 @@ class SourceCreate(FormView):
         if not self.request.session.get('forms'):
             self.request.session['forms'] = {}
 
-        self.request.session['forms']['source'] = form
+        self.request.session['forms']['source'] = form.data
         return response
 
 def source_autocomplete(request):

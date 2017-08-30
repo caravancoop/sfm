@@ -195,32 +195,69 @@ class PersonCreate(BaseFormSetView):
         context['back_url'] = reverse_lazy('create-organization')
         context['skip_url'] = reverse_lazy('create-geography')
 
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('people') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('people')
+            self.initFormset(form_data)
+
+            context['formset'] = self.get_formset_context(self.formset)
+            context['browsing'] = True
+
         return context
 
-    def formset_invalid(self, formset):
-        response = super().formset_invalid(formset)
+    def get_formset_context(self, formset):
 
         for index, form in enumerate(formset.forms):
-            alias_ids = formset.data.get('form-{}-alias'.format(index))
+
+            alias_ids = form.data.get('form-{}-alias'.format(index))
+            org_ids = form.data.get('form-{}-orgs'.format(index))
+
+            form.aliases = []
+            form.organizations = []
+
             if alias_ids:
+
                 for alias_id in alias_ids:
                     try:
-                        person_alias = PersonAlias.objects.get(id=alias_id)
+                        alias_id = int(alias_id)
+                        alias = Alias.objects.get(id=alias_id)
                     except ValueError:
-                        person_alias = None
-                    
-                    if person_alias:
-                        try:
-                            form.aliases.append(org_alias)
-                        except AttributeError:
-                            form.aliases = [org_alias]
+                        alias = {'id': alias_id, 'value': alias_id}
+                    form.aliases.append(alias)
+
+            if org_ids:
+
+                for org_id in org_ids:
+                    org_id = int(org_id)
+                    org = Organization.objects.get(id=org_id)
+                    form.organizations.append(org)
+
+        return formset
+
+    def post(self, request, *args, **kwargs):
+
+        form_data = {}
+
+        for key, value in request.POST.items():
+            if ('alias' in key or 'orgs' in key) and 'confidence' not in key:
+                form_data[key] = request.POST.getlist(key)
             else:
-                form.aliases = None
-        
+                form_data[key] = request.POST.get(key)
+
+        self.initFormset(form_data)
+
+        return self.validateFormSet()
+
+    def formset_invalid(self, formset):
+
+        formset = self.get_formset_context(formset)
+
+        response = super().formset_invalid(formset)
         return response
 
     def formset_valid(self, formset):
-        response = super().formset_valid(formset)
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
 
         self.people = []
@@ -232,9 +269,6 @@ class PersonCreate(BaseFormSetView):
             first = True
 
             form_prefix = 'form-{0}-'.format(i)
-
-            form_keys = [k for k in formset.data.keys() \
-                             if k.startswith(form_prefix)]
 
             name_id_key = 'form-{0}-name'.format(i)
             name_text_key = 'form-{0}-name_text'.format(i)
@@ -267,6 +301,7 @@ class PersonCreate(BaseFormSetView):
 
             elif name_id == '-1':
                 person = Person.create(person_info)
+                formset.data[name_id_key] = person.id
 
             else:
                 person = Person.objects.get(id=name_id)
@@ -278,24 +313,26 @@ class PersonCreate(BaseFormSetView):
             alias_confidence = int(formset.data.get(form_prefix +
                                                     'alias_confidence', 1))
 
-            aliases = formset.data.getlist(alias_text_key)
+            aliases = formset.data.get(alias_text_key)
 
-            for alias in aliases:
+            if aliases:
 
-                alias_obj, created = Alias.objects.get_or_create(value=alias)
+                for alias in aliases:
 
-                pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
-                                                                    value=alias_obj,
-                                                                    lang=get_language(),
-                                                                    confidence=alias_confidence)
+                    alias_obj, created = Alias.objects.get_or_create(value=alias)
 
-                pa_obj.sources.add(self.source)
-                pa_obj.save()
+                    pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
+                                                                        value=alias_obj,
+                                                                        lang=get_language(),
+                                                                        confidence=alias_confidence)
+
+                    pa_obj.sources.add(self.source)
+                    pa_obj.save()
 
             self.people.append(person)
 
             orgs_key = 'form-{0}-orgs'.format(i)
-            orgs = formset.data.getlist(orgs_key)
+            orgs = formset.data.get(orgs_key)
             orgs_confidence = int(formset.data.get(form_prefix +
                                                    'orgs_confidence', 1))
 
@@ -324,6 +361,14 @@ class PersonCreate(BaseFormSetView):
         self.request.session['people'] = [{'id': p.id, 'name': p.name.get_value().value} \
                                                      for p in self.people]
         self.request.session['memberships'] = self.memberships
+
+        response = super().formset_valid(formset)
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['people'] = formset.data
+
         return response
 
 def person_autocomplete(request):

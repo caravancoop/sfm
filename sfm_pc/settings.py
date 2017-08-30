@@ -257,5 +257,3 @@ OSM_DATA = [
 MESSAGE_TAGS = {
     messages.SUCCESS: 'alert-success'
 }
-
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'

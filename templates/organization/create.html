@@ -421,7 +421,7 @@
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-FORMS_ADDED').val(form_count);
 
-        {% if formset or formset.errors %}
+        {% if formset.errors or browsing %}
             {% for form in formset %}
                 {% with form_id=forloop.counter0 %}
 

@@ -75,7 +75,13 @@
                             <label class="col-sm-2 control-label">{% trans "Aliases" %}</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-alias" class="form-control alias-field" name="form-{{ form_id }}-alias" multiple="multiple">
+                                    {% for alias in form.aliases %}
+                                        <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
+                                    {% endfor %}
                                 </select>
+                                {% for alias in form.aliases %}
+                                    <input type="hidden" name="form-{{ form_id }}-alias_text" id="id_form-{{ form_id }}-alias_text" value="{{ alias.value }}" />
+                                {% endfor %}
                                 {% if form.alias.errors %}
                                     {% for error in form.alias.errors %}
                                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -144,8 +150,11 @@
                             <label class="col-sm-2 control-label" for="id_form-{{ form_id }}-orgs">{% trans "Member units" %}</label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-orgs" class="form-control orgs-field" name="form-{{ form_id }}-orgs" multiple="multiple">
-                                        {% for organization in form.cleaned_data.orgs %}
+                                        {% for organization in form.organizations %}
                                             <option value="{{ organization.id }}" selected=true>{{ organization.name }}</option>
+                                        {% endfor %}
+                                        {% for organization in organizations %}
+                                            <option value="{{ organization.id }}">{{ organization.name }}</option>
                                         {% endfor %}
                                     </select>
                                         {% if form.orgs.errors %}
@@ -337,8 +346,8 @@
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
+        selectOnClose: true,
         tags: true,
-        allowClear: true
     }
     var division_opts = {
         ajax: {
@@ -366,35 +375,14 @@
         placeholder: ''
     }
     var orgs_opts = {
-        ajax: {
-            url: "{% url 'organization-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return {q: params.term};
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': params.term,
-                                'text': params.term }]};
-                }
-            }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2,
-        tags: true,
-        allowClear: true
+        minimumResultsForSearch: 6
     }
     var confidence_opts = {
         minimumResultsForSearch: Infinity
     }
 
     $(document).ready(function(e) {
-        {% if formset.errors %}
+        {% if formset.errors or browsing %}
             {% for form in formset %}
                 {% with form_id=forloop.counter0 %}
 
@@ -466,6 +454,28 @@
         form_num ++;
     }
 
+    function multipleSelect(e) {
+        console.log('new field selected!')
+        var value = e.params.data.text;
+        var name = $(e.target).prop('name') + '_text';
+        var form_id = $(e.target).prop('name').split('-')[1]
+        var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
+        $('#person-form').append(hidden_input);
+    }
+
+    function multipleUnSelect(e) {
+        console.log('field unselected!')
+        var value = e.params.data.text;
+        var inputs = $('#person-form').find('input[value="'+ value + '"]');
+        var form_id = $(e.target).prop('name').split('-')[1];
+
+        $.each(inputs, function(i, input){
+            if ($(input).data('form_id') == form_id){
+                $(input).remove();
+            }
+        });
+    }
+
     function activateInputs(name_field, alias_field, division_field, orgs_field, confidence_field) {
 
         $(name_field).select2(name_opts);
@@ -474,25 +484,11 @@
         $(orgs_field).select2(orgs_opts);
         $(confidence_field).select2(confidence_opts);
 
-        $(alias_field, orgs_field).on('select2:select', function(e){
-            var value = e.params.data.text;
-            var name = $(e.target).prop('name') + '_text';
-            var form_id = $(e.target).prop('name').split('-')[1]
-            var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
-            $('#person-form').append(hidden_input);
-        });
+        $(alias_field).on('select2:select', multipleSelect);
+        $(alias_field).on('select2:unselect', multipleUnSelect);
 
-        $(alias_field, orgs_field).on('select2:unselect', function(e){
-            var value = e.params.data.text;
-            var inputs = $('#person-form').find('input[value="'+ value + '"]');
-            var form_id = $(e.target).prop('name').split('-')[1]
-
-            $.each(inputs, function(i, input){
-                if ($(input).data('form_id') == form_id){
-                    $(input).remove();
-                }
-            })
-        });
+        $(orgs_field).on('select2:select', multipleSelect);
+        $(orgs_field).on('select2:unselect', multipleUnSelect);
 
         $(name_field).on('select2:select', function(e){
             var value = e.params.data.text;
