@@ -456,6 +456,14 @@ class OrganizationCreateGeography(BaseFormSetView):
         context = super().get_context_data(**kwargs)
 
         organizations = self.request.session['organizations']
+        memberships = self.request.session.get('memberships', [])
+
+        if len(memberships):
+            context['back_url'] = reverse_lazy('create-membership') 
+            context['skip_url'] = reverse_lazy('create-event')
+        else:
+            context['back_url'] = reverse_lazy('create-person') 
+            context['skip_url'] = reverse_lazy('create-event')
 
         context['organizations'] = organizations
         context['source'] = Source.objects.get(id=self.request.session['source_id'])

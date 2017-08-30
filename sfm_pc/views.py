@@ -395,7 +395,6 @@ def osm_autocomplete(request):
     results = []
 
     for result in search_results:
-
         map_image = None
 
         if hasattr(result, 'geometry'):
