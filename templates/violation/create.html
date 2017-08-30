@@ -24,6 +24,7 @@
         {% for form in formset %}
             {% with form_id=forloop.counter0 %}
                 <div id="form-{{ form_id }}-wrapper">
+                    <input type="hidden" name="form-{{ form_id }}-violation_id" id="id_form-{{ form_id }}-violation_id" value="{{form.cleaned_data.violation_id }}" />
                     <div class="row">
                         <div class="col-sm-2"></div>
                         <div class="col-sm-8"><p><strong>{% trans "Value" %}</strong></p></div>
@@ -307,6 +308,7 @@
 <script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/EJS" id="formTemplate">
 <div id="form-<%= form_id %>-wrapper">
+    <input type="hidden" name="form-<%= form_id %>-violation_id" id="id_form-<%= form_id %>-violation_id" value="-1" />
     <div class="row">
         <div class="col-sm-2"></div>
         <div class="col-sm-8"><p><strong>{% trans "Value" %}</strong></p></div>

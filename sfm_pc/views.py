@@ -41,8 +41,17 @@ class Dashboard(TemplateView):
         context = super().get_context_data(**kwargs)
 
         # Clear form cookies
-        if self.request.session.get('forms'):
-            del self.request.session['forms']
+        form_cookies = [
+            'forms',
+            'memberships',
+            'people',
+            'organizations',
+            'source_id'
+        ]
+
+        for cookie in form_cookies:
+            if self.request.session.get(cookie):
+                del self.request.session[cookie]
 
         return context
 

@@ -86,14 +86,31 @@ class ViolationCreate(FormSetView):
         context['back_url'] = reverse_lazy('create-geography')
         context['skip_url'] = reverse_lazy('set-confidence')
 
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('violations') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('violations')
+            self.initFormset(form_data)
+
+            context['formset'] = self.formset
+            context['browsing'] = True
+
         return context
 
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
 
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['violations'] = formset.data.copy()
+
         for i in range(0, num_forms):
             form_prefix = 'form-{0}-'.format(i)
+
+            violation_id = int(formset.data.get(form_prefix + 'violation_id', -1))
 
             startdate = formset.data[form_prefix + 'startdate']
             enddate = formset.data[form_prefix + 'enddate']
@@ -200,7 +217,12 @@ class ViolationCreate(FormSetView):
                 }
             }
 
-            violation = Violation.create(violation_data)
+            if violation_id == -1:
+                violation = Violation.create(violation_data)
+                self.request.session['forms']['violations'][form_prefix + 'violation_id'] = violation.id
+            else:
+                violation = Violation.objects.get(id=int(violation_id))
+                violation.update(violation_data)
 
             if vtypes:
                 for vtype in vtypes:
@@ -228,10 +250,10 @@ class ViolationCreate(FormSetView):
                         perp = Person.create(info)
 
                     vp_obj, created = ViolationPerpetrator.objects.get_or_create(value=perp,
-                                                                                 object_ref=violation,
-                                                                                 confidence=perp_confidence)
+                                                                                 object_ref=violation)
 
                     vp_obj.sources.add(source)
+                    vp_obj.confidence = perp_confidence
                     vp_obj.save()
 
             if orgs:
@@ -250,10 +272,10 @@ class ViolationCreate(FormSetView):
                         organization = Organization.create(info)
 
                     vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
-                                                                                              object_ref=violation,
-                                                                                              confidence=orgs_confidence)
+                                                                                              object_ref=violation)
 
                     vpo_obj.sources.add(source)
+                    vpo_obj.confidence = orgs_confidence
                     vpo_obj.save()
 
         response = super().formset_valid(formset)

@@ -35,15 +35,26 @@ class MembershipPersonCreate(BaseFormSetView):
         context['confidence_levels'] = CONFIDENCE_LEVELS
 
         context['organizations'] = self.request.session.get('organizations')
-        context['people'] = self.request.session['people']
+        context['people'] = self.request.session.get('people')
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         context['memberships'] = self.request.session['memberships']
+
         context['roles'] = [{'id': r.id, 'value': r.value} for r in Role.objects.all()]
         context['ranks'] = [{'id': r.id, 'value': r.value} for r in Rank.objects.all()]
         context['contexts'] = [{'id': c.id, 'value': c.value} for c in Context.objects.all()]
 
         context['back_url'] = reverse_lazy('create-person')
         context['skip_url'] = reverse_lazy('create-geography')
+
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('memberships') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('memberships')
+            self.initFormset(form_data)
+
+            context['formset'] = self.formset
+            context['browsing'] = True
 
         return context
 
@@ -120,7 +131,13 @@ class MembershipPersonCreate(BaseFormSetView):
 
             membership.update(mem_data)
 
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['memberships'] = formset.data
+
         response = super().formset_valid(formset)
+
         return response
 
 class MembershipPersonUpdate(BaseUpdateView):
