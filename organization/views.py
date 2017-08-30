@@ -50,6 +50,8 @@ class OrganizationDetail(DetailView):
             if association.object_ref.area.get_value().value.osmid.get_value():
                 context['areas'].append(association.object_ref.area.get_value().value)
 
+        print(context['areas'], "!!!@@")
+
         context['parents'] = []
         parents = context['organization'].parent_organization.all()
         for parent in parents:

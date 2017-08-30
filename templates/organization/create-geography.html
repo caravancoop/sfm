@@ -348,7 +348,8 @@ function addForm(e){
         // Add a feature group to the map
         layerGroup = new L.layerGroup(geom_layers).addTo(map);
         featureGroup = new L.featureGroup(geom_layers);
-        map.fitBounds(featureGroup.getBounds());
+        // map.fitBounds(featureGroup.getBounds());
+        map.fitBounds(featureGroup.getBounds(), {padding: [25, 25]});
     });
 
     $(".select2-selection").on("focus", function () {
@@ -394,11 +395,11 @@ $(document).ready(function() {
     $('#add-form').on('click', addForm);
     $('.remove-form').on('click', deleteForm);
 
-    // Basic map ... show the whole world?
+    // Initial map: shows entire world.
     attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 { attribution: attribution, detectRetina: true }).addTo(map);
-    map.fitWorld();
+    map.fitWorld({padding: [-110, -110]});
 });
 </script>
 {% endblock %}

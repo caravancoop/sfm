@@ -313,7 +313,7 @@ def osm_autocomplete(request):
 
     for result in search_results:
         map_image = None
-
+        
         if hasattr(result, 'geometry'):
             latlng = '{0},{1}'.format(result.latitude, result.longitude)
             map_image = 'https://maps.googleapis.com/maps/api/staticmap'
