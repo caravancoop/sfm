@@ -46,6 +46,16 @@ class CompositionCreate(BaseFormSetView):
         context['back_url'] = reverse_lazy('create-organization')
         context['skip_url'] = reverse_lazy('create-organization-membership')
 
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('compositions') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('compositions')
+            self.initFormset(form_data)
+
+            context['formset'] = self.formset
+            context['browsing'] = True
+
         return context
 
     def formset_valid(self, formset):
@@ -135,15 +145,20 @@ class CompositionCreate(BaseFormSetView):
                 composition_info['Composition_CompositionParent'] = {
                     'value': organization,
                     'confidence': rel_type_confidence,
-                    'sources': [source]
+                    'sources': sources
                 }
                 composition_info['Composition_CompositionChild'] = {
                     'value': related_organization,
                     'confidence': rel_type_confidence,
-                    'sources': [source]
+                    'sources': sources
                 }
 
             composition.update(composition_info)
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['compositions'] = formset.data
 
         response = super().formset_valid(formset)
         return response

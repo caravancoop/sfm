@@ -40,6 +40,16 @@ class MembershipOrganizationCreate(BaseFormSetView):
         context['back_url'] = reverse_lazy('create-composition')
         context['skip_url'] = reverse_lazy('create-person')
 
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('org_memberships') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('org_memberships')
+            self.initFormset(form_data)
+
+            context['formset'] = self.formset
+            context['browsing'] = True
+
         return context
 
     def formset_valid(self, formset):
@@ -96,10 +106,31 @@ class MembershipOrganizationCreate(BaseFormSetView):
                               self.sourcesList(membership, 'organization'))
                 membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
 
+                member_fields = [
+                    'MembershipOrganization_MembershipOrganizationMember',
+                    'MembershipOrganization_MembershipOrganizationOrganization'
+                ]
+
+                for field in member_fields:
+                    membership_info[field]['confidence'] = organization_confidence
+
+                date_fields = [
+                    'MembershipOrganization_MembershipOrganizationFirstCitedDate',
+                    'MembershipOrganization_MembershipOrganizationLastCitedDate'
+                ]
+
+                for field in date_fields:
+                    membership_info[field]['confidence'] = date_confidence
+
                 membership.update(membership_info)
 
             except MembershipOrganization.DoesNotExist:
                 membership = MembershipOrganization.create(membership_info)
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['org_memberships'] = formset.data
 
         response = super().formset_valid(formset)
         return response

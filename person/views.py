@@ -192,7 +192,15 @@ class PersonCreate(BaseFormSetView):
         context['organizations'] = self.request.session.get('organizations')
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
 
-        context['back_url'] = reverse_lazy('create-organization')
+        if context['organizations']:
+            if len(context['organizations']) > 1:
+                back_url = reverse_lazy('create-organization-membership')
+            else:
+                back_url = reverse_lazy('create-organization')
+        else:
+            back_url = reverse_lazy('create-organization')
+
+        context['back_url'] = back_url
         context['skip_url'] = reverse_lazy('create-geography')
 
         existing_forms = self.request.session.get('forms', {})
