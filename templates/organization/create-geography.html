@@ -15,151 +15,150 @@
     <h2><i class="fa fa-fw fa-map-marker"></i> {% trans "Geographies" %}</h2>
     <p>{% trans "Describe any geographies related to organizations found in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
-</div>
-
-
-<div id="geosite-coordinates-map" style="height:200px;"></div>
-                                    
+</div>                                    
                     
-
-
-
-<form method="post" action="" class="form-horizontal">
-    {% csrf_token %}
-    {{ formset.management_form }}
-    <input type="hidden" value="0" name="form-FORMS_ADDED" id="id_form-FORMS_ADDED" />
-    <div id="dynamic-form-wrapper">
-        {% if formset.errors %}
-            {% for form in formset %}
-                {% with form_id=forloop.counter0 %}
-                    <div id="form-{{ form_id }}-wrapper">
-                    {% if form.orgs.errors %}
-                        <div class="form-group hass-eror has-feedback">
-                    {% else %}
-                        <div class="form-group">
-                    {% endif %}
-                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-org">{% trans "Organization" %} </label>
-                            <div class="col-sm-8">
-                                <select id="id_form-{{ form_id }}-org" class="form-control org-field" name="form-{{ form_id }}-org">
-                                    {% for organization in organizations %}
-                                        <option value="{{ organization.id }}">{{ organization.name }}</option>
-                                    {% endfor %}
-                                </select>
-                                {% if form.org.errors %}
-                                    {% for error in form.org.errors %}
-                                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% if form.geography_type.errors %}
-                        <div class="form-group has-error has-feedback">
-                    {% else %}
-                        <div class="form-group">
-                    {% endif %}
-                            <label class="control-label col-sm-2">{% trans "Geography type" %}</label>
-                            <div class="col-sm-8">
-                                <select id="id_form-{{ form_id }}-geography_type" class="geography-type form-control" name="form-{{ form_id }}-geography_type">
-                                    <option value="">--------</option>
-                                    {% for geo_type in form.fields.geography_type.choices %}
-                                        {% if geo_type.0 == form.cleaned_data.geography_type %}
-                                            <option value="{{ geo_type.0 }}" selected=true>{{ geo_type.1 }}</option>
-                                        {% else %}
-                                            <option value="{{ geo_type.0 }}">{{ geo_type.1 }}</option>
+<div class="row">
+    <div class="col-md-7">
+        <form method="post" action="" class="form-horizontal">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            <input type="hidden" value="0" name="form-FORMS_ADDED" id="id_form-FORMS_ADDED" />
+            <div id="dynamic-form-wrapper">
+                {% if formset.errors %}
+                    {% for form in formset %}
+                        {% with form_id=forloop.counter0 %}
+                            <div id="form-{{ form_id }}-wrapper">
+                            {% if form.orgs.errors %}
+                                <div class="form-group hass-eror has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                    <label class="control-label col-sm-2" for="id_form-{{ form_id }}-org">{% trans "Organization" %} </label>
+                                    <div class="col-sm-8">
+                                        <select id="id_form-{{ form_id }}-org" class="form-control org-field" name="form-{{ form_id }}-org">
+                                            {% for organization in organizations %}
+                                                <option value="{{ organization.id }}">{{ organization.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.org.errors %}
+                                            {% for error in form.org.errors %}
+                                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                            {% endfor %}
                                         {% endif %}
-                                    {% endfor %}
-                                </select>
-                                {% if form.geography_type.errors %}
-                                    {% for error in form.geography_type.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                    {% endfor %}
-                                {% endif %}
+                                    </div>
+                                </div>
+                            {% if form.geography_type.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                    <label class="control-label col-sm-2">{% trans "Geography type" %}</label>
+                                    <div class="col-sm-8">
+                                        <select id="id_form-{{ form_id }}-geography_type" class="geography-type form-control" name="form-{{ form_id }}-geography_type">
+                                            <option value="">--------</option>
+                                            {% for geo_type in form.fields.geography_type.choices %}
+                                                {% if geo_type.0 == form.cleaned_data.geography_type %}
+                                                    <option value="{{ geo_type.0 }}" selected=true>{{ geo_type.1 }}</option>
+                                                {% else %}
+                                                    <option value="{{ geo_type.0 }}">{{ geo_type.1 }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.geography_type.errors %}
+                                            {% for error in form.geography_type.errors %}
+                                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% if form.name.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                    <label class="control-label col-sm-2">{% trans "Name" %}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="form-{{ form_id }}-name" id="id_form-{{ form_id }}-name" value="{{ form.cleaned_data.name }}" class="form-control" />
+                                        {% if form.name.errors %}
+                                            {% for error in form.name.errors %}
+                                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% if form.osm_id.errors %}
+                                <div class="form-group has-error has-feedback">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                                    <label class="control-label col-sm-2" for="id_form-{{ form_id }}-osm_id">{% trans "OSM ID" %}</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" class="osm_id-field" id="id_form-{{ form_id }}-osm_id" name="form-{{ form_id }}-osm_id">
+                                            {% if form.cleaned_data.osmname %}
+                                                <option value="{{ form.cleaned_data.osm_id }}" selected=true>{{ form.cleaned_data.osm_id_text }}</option>
+                                            {% endif %}
+                                        </select>
+                                        {% if form.osmname.errors %}
+                                           {% for error in form.osmname.errors %}
+                                               <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                           {% endfor %}
+                                        {% endif %}
+                                        <input type="hidden" name="form-{{ form_id }}-osm_id_text" id="id_form-{{ form_id }}-osm_id_text" value="{{ form.cleaned_data.osm_id_text }}" />
+                                        <input type="hidden" name="form-{{ form_id }}-geotype" id="id_form-{{ form_id }}-geotype" value="{{ form.cleaned_data.geotype }}" />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    {% if form.name.errors %}
-                        <div class="form-group has-error has-feedback">
-                    {% else %}
-                        <div class="form-group">
-                    {% endif %}
-                            <label class="control-label col-sm-2">{% trans "Name" %}</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="form-{{ form_id }}-name" id="id_form-{{ form_id }}-name" value="{{ form.cleaned_data.name }}" class="form-control" />
-                                {% if form.name.errors %}
-                                    {% for error in form.name.errors %}
+                        {% if form.startdate.errors or form.enddate.errors %}
+                            <div class="form-group has-error has-feedback">
+                        {% else %}
+                            <div class="form-group">
+                        {% endif %}
+                                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startdate">{% trans "Start and end dates" %}</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-startdate" name="form-{{ form_id }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
+                                    {% if form.startdate.errors %}
+                                        {% for error in form.startdate.errors %}
                                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% if form.osm_id.errors %}
-                        <div class="form-group has-error has-feedback">
-                    {% else %}
-                        <div class="form-group">
-                    {% endif %}
-                            <label class="control-label col-sm-2" for="id_form-{{ form_id }}-osm_id">{% trans "OSM ID" %}</label>
-                            <div class="col-sm-8">
-                                <select class="form-control" class="osm_id-field" id="id_form-{{ form_id }}-osm_id" name="form-{{ form_id }}-osm_id">
-                                    {% if form.cleaned_data.osmname %}
-                                        <option value="{{ form.cleaned_data.osm_id }}" selected=true>{{ form.cleaned_data.osm_id_text }}</option>
+                                        {% endfor %}
                                     {% endif %}
-                                </select>
-                                {% if form.osmname.errors %}
-                                   {% for error in form.osmname.errors %}
-                                       <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                   {% endfor %}
-                                {% endif %}
-                                <input type="hidden" name="form-{{ form_id }}-osm_id_text" id="id_form-{{ form_id }}-osm_id_text" value="{{ form.cleaned_data.osm_id_text }}" />
-                                <input type="hidden" name="form-{{ form_id }}-geotype" id="id_form-{{ form_id }}-geotype" value="{{ form.cleaned_data.geotype }}" />
+                                </div>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-enddate" name="form-{{ form_id }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
+                                    {% if form.enddate.errors %}
+                                        {% for error in form.enddate.errors %}
+                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% if form.startdate.errors or form.enddate.errors %}
-                    <div class="form-group has-error has-feedback">
-                {% else %}
-                    <div class="form-group">
+                        {% endwith %}
+                    {% endfor %}
                 {% endif %}
-                        <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startdate">{% trans "Start and end dates" %}</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-startdate" name="form-{{ form_id }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
-                            {% if form.startdate.errors %}
-                                {% for error in form.startdate.errors %}
-                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-enddate" name="form-{{ form_id }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
-                            {% if form.enddate.errors %}
-                                {% for error in form.enddate.errors %}
-                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                    </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-12" id="manage-forms">
+                    <button id="add-form" type="button" class="btn btn-link"><i class="fa fa-fw fa-plus-circle"></i> {% trans "Add another geography" %}</button>
                 </div>
+            </div>
+            <br />
+
+            {% if organizations|length > 1 %}
+                {% with has_next=True back_url='create-composition' skip_url='create-event' %}
+                    {% include 'partials/back_skip_next.html' %}
                 {% endwith %}
-            {% endfor %}
-        {% endif %}
+            {% else %}
+                {% with has_next=True back_url='create-person' skip_url='create-event' %}
+                    {% include 'partials/back_skip_next.html' %}
+                {% endwith %}
+            {% endif %}
+
+        </form>
     </div>
-    <div class="form-group">
-        <div class="col-sm-12" id="manage-forms">
-            <button id="add-form" type="button" class="btn btn-link"><i class="fa fa-fw fa-plus-circle"></i> {% trans "Add another geography" %}</button>
-        </div>
+    <div class="col-md-5">
+        <div id="geosite-coordinates-map" style="height:200px;"></div>
     </div>
-    <br />
-
-    {% if organizations|length > 1 %}
-        {% with has_next=True back_url='create-composition' skip_url='create-event' %}
-            {% include 'partials/back_skip_next.html' %}
-        {% endwith %}
-    {% else %}
-        {% with has_next=True back_url='create-person' skip_url='create-event' %}
-            {% include 'partials/back_skip_next.html' %}
-        {% endwith %}
-    {% endif %}
-
-
-</form>
+</div>
 
 {% endblock %}
 
@@ -241,8 +240,11 @@
         </div>
     </div>
 </script>
+<script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
 <script type="text/javascript">
+// Global variables
 var form_num = 0;
+var map = L.map('geosite-coordinates-map');
 var osm_opts = {
     ajax: {
         url: "{% url 'osm-autocomplete' %}",
@@ -284,22 +286,7 @@ var osm_opts = {
         return template.render(data);
     }
 };
-$(document).ready(function() {
-    {% if formset.errors %}
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
-        $('.osm_id-field').select2(osm_opts);
-    {% else %}
-        addForm(null);
-    {% endif %}
-
-    var form_count = $('#dynamic-form').children().length;
-    $('#id_form-FORMS_ADDED').val(form_count);
-
-    $('#add-form').on('click', addForm);
-    $('.remove-form').on('click', deleteForm);
-
-});
-
+// Helper functions
 function addForm(e){
     if (e){
         e.preventDefault();
@@ -317,6 +304,7 @@ function addForm(e){
 
     $('#remove_form-' +  form_num).on('click', deleteForm);
 
+    // Select an OSM name and add it to map
     $(osmname_field).on('select2:select', function(e){
         var value = e.params.data.value;
         $(osmname_field + '_text').val(value);
@@ -325,10 +313,18 @@ function addForm(e){
         }
         $(field_prefix + '-geotype').val(e.params.data.type);
 
-        // IN HERE: write the logic to add geographies to the map
-        // What do you need? The cooridantes and the type...e.params.data.type
-        // You can get the coordinates by passing them in the data object (see: sfm-pc/views.py, line 409)
+        latitude = e.params.data.lat
+        longitude = e.params.data.long
+        type = e.params.data.type
+        console.log(latitude, longitude, type)
 
+        var geom = {"coordinates": [longitude, latitude], "type": type}
+        // var geom = {"coordinates": [-8.806709885338764, 6.489529984867852], "type": "Point"}
+        var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    { attribution: attribution, detectRetina: true }).addTo(map);
+        var geom_layer = L.geoJSON(geom).addTo(map);
+        map.fitBounds(geom_layer.getBounds());
     });
 
     $(".select2-selection").on("focus", function () {
@@ -359,34 +355,21 @@ function deleteForm(e){
 
     form_num --;
 }
+// Page loads
+$(document).ready(function() {
+    {% if formset.errors %}
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
+        $('.osm_id-field').select2(osm_opts);
+    {% else %}
+        addForm(null);
+    {% endif %}
 
+    var form_count = $('#dynamic-form').children().length;
+    $('#id_form-FORMS_ADDED').val(form_count);
+
+    $('#add-form').on('click', addForm);
+    $('.remove-form').on('click', deleteForm);
+
+});
 </script>
-
-
-<!-- Test map -->
-<script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
-<script type="text/javascript">
-    $(document).ready(function(){
-        // What is this? An object, e.g., {"coordinates": [-8.806709885338764, 6.489529984867852], "type": "Point"}
-        // var geom = '{{ relation.value.geojson|safe }}';
-        var geom = {"coordinates": [-8.806709885338764, 6.489529984867852], "type": "Point"}
-        var map = L.map('geosite-coordinates-map');
-        var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    { attribution: attribution, detectRetina: true }).addTo(map);
-        var geom_layer = L.geoJSON(geom).addTo(map);
-        map.fitBounds(geom_layer.getBounds());
-
-        // How to add another point to the map?
-        var geom = {"coordinates": [-103.38460891248891, 20.634513980828114], "type": "Point"};
-        var geom_layer = L.geoJSON(geom).addTo(map);
-        map.fitBounds(geom_layer.getBounds());
-        // {% if relation.value.geom_type == 'Point' %}
-        //     map.setZoom(10);
-        // {% endif %}
-    })
-</script>
-
-
-
 {% endblock %}

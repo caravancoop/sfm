@@ -368,8 +368,6 @@ class Countries(TemplateView):
 def osm_autocomplete(request):
     term = request.GET.get('q')
     geo_type = request.GET.get('geo_type')
-    print("geo", geo_type)
-    print("term", term)
 
     q_args = [term]
 
@@ -411,8 +409,10 @@ def osm_autocomplete(request):
             'value': result.name,
             'id': result.id,
             'map_image': map_image,
-            'type': result.feature_type,
+            'type': result.feature_type.capitalize(),
             'admin_level': result.admin_level,
+            'lat': result.latitude,
+            'long': result.longitude,
         })
 
     results.sort(key=lambda x:x['text'])
