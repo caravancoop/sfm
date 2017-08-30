@@ -317,11 +317,8 @@ function addForm(e){
         }
         $(field_prefix + '-geotype').val(e.params.data.type);
 
-        latitude = e.params.data.lat
-        longitude = e.params.data.long
-        type = e.params.data.type
-        geom = {"coordinates": [longitude, latitude], "type": type, "id": osmname_field}
-
+        geom = e.params.data.geojson;
+        geom["id"] = osmname_field;
         removeGeography(osmname_field);
         geographies.push(geom);
         addLayerToMap();
