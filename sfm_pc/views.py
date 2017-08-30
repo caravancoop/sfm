@@ -312,7 +312,6 @@ def osm_autocomplete(request):
     results = []
 
     for result in search_results:
-
         map_image = None
 
         if hasattr(result, 'geometry'):
@@ -326,8 +325,10 @@ def osm_autocomplete(request):
             'value': result.name,
             'id': result.id,
             'map_image': map_image,
-            'type': result.feature_type,
+            'type': result.feature_type.capitalize(),
             'admin_level': result.admin_level,
+            'lat': result.latitude,
+            'long': result.longitude,
         })
 
     results.sort(key=lambda x:x['text'])
