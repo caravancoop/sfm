@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
+from complex_fields.models import CONFIDENCE_LEVELS
 
 from sfm_pc.base_views import BaseFormSetView
 
@@ -31,12 +32,23 @@ class MembershipOrganizationCreate(BaseFormSetView):
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
+        context['confidence_levels'] = CONFIDENCE_LEVELS
 
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         context['organizations'] = self.request.session.get('organizations')
 
         context['back_url'] = reverse_lazy('create-composition')
         context['skip_url'] = reverse_lazy('create-person')
+
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('org_memberships') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('org_memberships')
+            self.initFormset(form_data)
+
+            context['formset'] = self.formset
+            context['browsing'] = True
 
         return context
 
@@ -53,30 +65,36 @@ class MembershipOrganizationCreate(BaseFormSetView):
             organization_id = formset.data[form_prefix + 'organization']
             organization = Organization.objects.get(id=organization_id)
 
+            organization_confidence = int(formset.data.get(form_prefix +
+                                                           'organization_confidence', 1))
+
             membership_info = {
                 'MembershipOrganization_MembershipOrganizationMember': {
                     'value': member_organization,
-                    'confidence': 1,
+                    'confidence': organization_confidence,
                     'sources': [source],
                 },
                 'MembershipOrganization_MembershipOrganizationOrganization': {
                     'value': organization,
-                    'confidence': 1,
+                    'confidence': organization_confidence,
                     'sources': [source]
                 },
             }
 
+            date_confidence = int(formset.data.get(form_prefix +
+                                                   'date_confidence', 1))
+
             if formset.data.get(form_prefix + 'firstciteddate'):
                 membership_info['MembershipOrganization_MembershipOrganizationFirstCitedDate'] = {
                     'value': formset.data[form_prefix + 'firstciteddate'],
-                    'confidence': 1,
+                    'confidence': date_confidence,
                     'sources': [source]
                 }
 
             if formset.data.get(form_prefix + 'lastciteddate'):
                 membership_info['MembershipOrganization_MembershipOrganizationLastCitedDate'] = {
                     'value': formset.data[form_prefix + 'lastciteddate'],
-                    'confidence': 1,
+                    'confidence': date_confidence,
                     'sources': [source]
                 }
 
@@ -87,10 +105,32 @@ class MembershipOrganizationCreate(BaseFormSetView):
                 sources = set(self.sourcesList(membership, 'member') + \
                               self.sourcesList(membership, 'organization'))
                 membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
+
+                member_fields = [
+                    'MembershipOrganization_MembershipOrganizationMember',
+                    'MembershipOrganization_MembershipOrganizationOrganization'
+                ]
+
+                for field in member_fields:
+                    membership_info[field]['confidence'] = organization_confidence
+
+                date_fields = [
+                    'MembershipOrganization_MembershipOrganizationFirstCitedDate',
+                    'MembershipOrganization_MembershipOrganizationLastCitedDate'
+                ]
+
+                for field in date_fields:
+                    membership_info[field]['confidence'] = date_confidence
+
                 membership.update(membership_info)
 
             except MembershipOrganization.DoesNotExist:
                 membership = MembershipOrganization.create(membership_info)
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['org_memberships'] = formset.data
 
         response = super().formset_valid(formset)
         return response

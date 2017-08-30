@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.db import connection
 from django.utils.translation import get_language
 from django.core.urlresolvers import reverse_lazy
+from complex_fields.models import CONFIDENCE_LEVELS
 
 from source.models import Source
 from geosite.models import Geosite
@@ -151,10 +152,21 @@ class OrganizationCreate(BaseFormSetView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['confidence_levels'] = CONFIDENCE_LEVELS
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
 
         context['back_url'] = reverse_lazy('create-source')
         context['skip_url'] = reverse_lazy('create-person')
+
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('organizations') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('organizations')
+            self.initFormset(form_data)
+
+            context['formset'] = self.get_formset_context(self.formset)
+            context['browsing'] = True
 
         return context
 
@@ -163,7 +175,7 @@ class OrganizationCreate(BaseFormSetView):
         form_data = {}
 
         for key, value in request.POST.items():
-            if 'alias' in key or 'classification' in key:
+            if ('alias' in key or 'classification' in key) and 'confidence' not in key:
                 form_data[key] = request.POST.getlist(key)
             else:
                 form_data[key] = request.POST.get(key)
@@ -172,31 +184,44 @@ class OrganizationCreate(BaseFormSetView):
 
         return self.validateFormSet()
 
-    def formset_invalid(self, formset):
-        response = super().formset_invalid(formset)
+    def get_formset_context(self, formset):
 
         for index, form in enumerate(formset.forms):
-            alias_ids = formset.data.get('form-{}-alias'.format(index))
-            classification_ids = formset.data.get('form-{}-classification'.format(index))
+
+            alias_ids = form.data.get('form-{}-alias'.format(index))
+            classification_ids = form.data.get('form-{}-classification'.format(index))
 
             form.aliases = []
             form.classifications = []
 
             if alias_ids:
 
-                actual_ids = []
-
                 for alias_id in alias_ids:
                     try:
-                        actual_ids.append(int(alias_id))
+                        alias_id = int(alias_id)
+                        alias = Alias.objects.get(id=alias_id)
                     except ValueError:
-                        pass
-
-                form.aliases = OrganizationAlias.objects.filter(id__in=actual_ids)
+                        alias = {'id': alias_id, 'value': alias_id}
+                    form.aliases.append(alias)
 
             if classification_ids:
-                form.classifications = OrganizationClassification.objects.filter(id__in=classification_ids)
 
+                for class_id in classification_ids:
+                    try:
+                        class_id = int(class_id)
+                        classification = Classification.objects.get(id=class_id)
+                    except ValueError:
+                        classification = {'id': class_id,
+                                          'value': class_id}
+                    form.classifications.append(classification)
+
+        return formset
+
+    def formset_invalid(self, formset):
+
+        formset = self.get_formset_context(formset)
+
+        response = super().formset_invalid(formset)
         return response
 
     def formset_valid(self, formset):
@@ -214,7 +239,12 @@ class OrganizationCreate(BaseFormSetView):
 
             name_id_key = 'form-{}-name'.format(i)
             name_text_key = 'form-{}-name_text'.format(i)
+            name_confidence_key = 'form-{}-name_confidence'.format(i)
+
             division_id_key = 'form-{}-division_id'.format(i)
+            division_confidence_key = 'form-{}-division_confidence'.format(i)
+
+            classification_confidence_key = 'form-{}-classification_confidence'.format(i)
 
             try:
                 name_id = formset.data[name_id_key]
@@ -222,17 +252,20 @@ class OrganizationCreate(BaseFormSetView):
                 continue
 
             name_text = formset.data[name_text_key]
+            name_confidence = int(formset.data.get(name_confidence_key, 1))
+
             division_id = formset.data[division_id_key]
+            division_confidence = int(formset.data.get(division_confidence_key, 1))
 
             org_info = {
                 'Organization_OrganizationName': {
                     'value': name_text,
-                    'confidence': 1,
+                    'confidence': name_confidence,
                     'sources': [self.source]
                 },
                 'Organization_OrganizationDivisionId': {
                     'value': division_id,
-                    'confidence': 1,
+                    'confidence': division_confidence,
                     'sources': [self.source],
                 }
             }
@@ -247,6 +280,7 @@ class OrganizationCreate(BaseFormSetView):
                 organization = Organization.create(org_info)
 
             organization.update(org_info)
+            formset.data[name_id_key] = organization.id
 
             # Save aliases first
 
@@ -254,13 +288,17 @@ class OrganizationCreate(BaseFormSetView):
 
             if aliases:
 
+                alias_confidence_key = 'form-{}-alias_confidence'.format(i)
+                alias_confidence = formset.data.get(alias_confidence_key, 1)
+
                 for alias in aliases:
 
                     alias_obj, created = Alias.objects.get_or_create(value=alias)
 
                     oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
                                                                               object_ref=organization,
-                                                                              lang=get_language())
+                                                                              lang=get_language(),
+                                                                              confidence=alias_confidence)
                     oa_obj.sources.add(self.source)
                     oa_obj.save()
 
@@ -269,13 +307,18 @@ class OrganizationCreate(BaseFormSetView):
             classifications = formset.data.get(form_prefix + 'classification_text')
 
             if classifications:
+
+                classification_confidence_key = 'form-{}-classification_confidence'.format(i)
+                classification_confidence = formset.data.get(classification_confidence_key, 1)
+
                 for classification in classifications:
 
                     class_obj, created = Classification.objects.get_or_create(value=classification)
 
                     oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
                                                                                        object_ref=organization,
-                                                                                       lang=get_language())
+                                                                                       lang=get_language(),
+                                                                                       confidence=classification_confidence)
                     oc_obj.sources.add(self.source)
                     oc_obj.save()
 
@@ -287,6 +330,11 @@ class OrganizationCreate(BaseFormSetView):
                                                  for o in self.organizations]
 
         response = super().formset_valid(formset)
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['organizations'] = formset.data
 
         return response
 
@@ -454,6 +502,7 @@ class OrganizationCreateGeography(BaseFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['confidence_levels'] = CONFIDENCE_LEVELS
 
         organizations = self.request.session['organizations']
 

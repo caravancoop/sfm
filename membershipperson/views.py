@@ -15,6 +15,7 @@ from django.db import DEFAULT_DB_ALIAS
 from django.core.urlresolvers import reverse_lazy
 
 from extra_views import FormSetView
+from complex_fields.models import CONFIDENCE_LEVELS
 
 from membershipperson.models import MembershipPerson, Role, Rank, Context
 from membershipperson.forms import MembershipPersonForm
@@ -31,17 +32,29 @@ class MembershipPersonCreate(BaseFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+        context['confidence_levels'] = CONFIDENCE_LEVELS
+
         context['organizations'] = self.request.session.get('organizations')
-        context['people'] = self.request.session['people']
+        context['people'] = self.request.session.get('people')
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         context['memberships'] = self.request.session['memberships']
+
         context['roles'] = [{'id': r.id, 'value': r.value} for r in Role.objects.all()]
         context['ranks'] = [{'id': r.id, 'value': r.value} for r in Rank.objects.all()]
         context['contexts'] = [{'id': c.id, 'value': c.value} for c in Context.objects.all()]
 
         context['back_url'] = reverse_lazy('create-person')
         context['skip_url'] = reverse_lazy('create-geography')
+
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('memberships') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('memberships')
+            self.initFormset(form_data)
+
+            context['formset'] = self.formset
+            context['browsing'] = True
 
         return context
 
@@ -54,58 +67,77 @@ class MembershipPersonCreate(BaseFormSetView):
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+
         for i in range(0, num_forms):
             form_prefix = 'form-{0}-'.format(i)
-            
-            form_keys = [k for k in formset.data.keys() \
-                             if k.startswith(form_prefix)]
+
             membership = MembershipPerson.objects.get(id=formset.data[form_prefix + 'membership'])
+
             mem_data = {}
+
+            rank_role_confidence = int(formset.data.get(form_prefix +
+                                                        'rank_role_confidence', 1))
             if formset.data[form_prefix + 'role']:
                 mem_data['MembershipPerson_MembershipPersonRole'] = {
                     'value': Role.objects.get(id=formset.data[form_prefix + 'role']),
-                    'confidence': 1,
-                    'sources': [source]
-                }
-            if formset.data[form_prefix + 'title']:
-                mem_data['MembershipPerson_MembershipPersonTitle'] = {
-                    'value': formset.data[form_prefix + 'title'],
-                    'confidence': 1,
+                    'confidence': rank_role_confidence,
                     'sources': [source]
                 }
             if formset.data[form_prefix + 'rank']:
                 mem_data['MembershipPerson_MembershipPersonRank'] = {
                     'value': Rank.objects.get(id=formset.data[form_prefix + 'rank']),
-                    'confidence': 1,
+                    'confidence': rank_role_confidence,
                     'sources': [source]
                 }
+
+            title_confidence = int(formset.data.get(form_prefix +
+                                                    'title_confidence', 1))
+            if formset.data[form_prefix + 'title']:
+                mem_data['MembershipPerson_MembershipPersonTitle'] = {
+                    'value': formset.data[form_prefix + 'title'],
+                    'confidence': title_confidence,
+                    'sources': [source]
+                }
+
+            startcontext_confidence = int(formset.data.get(form_prefix +
+                                                           'startcontext_confidence', 1))
             if formset.data[form_prefix + 'startcontext']:
                 mem_data['MembershipPerson_MembershipStartContext'] = {
                     'value': formset.data[form_prefix + 'startcontext'],
-                    'confidence': 1,
+                    'confidence': startcontext_confidence,
                     'sources': [source]
                 }
             if formset.data.get(form_prefix + 'realstart'):
                 mem_data['MembershipPerson_MembershipPersonRealStart'] = {
                     'value': formset.data[form_prefix + 'realstart'],
-                    'confidence': 1,
+                    'confidence': startcontext_confidence,
                     'sources': [source]
                 }
+
+            endcontext_confidence = int(formset.data.get(form_prefix +
+                                                         'endcontext_confidence', 1))
             if formset.data[form_prefix + 'endcontext']:
                 mem_data['MembershipPerson_MembershipEndContext'] = {
                     'value': formset.data[form_prefix + 'endcontext'],
-                    'confidence': 1,
+                    'confidence': endcontext_confidence,
                     'sources': [source]
                 }
             if formset.data.get(form_prefix + 'realend'):
                 mem_data['MembershipPerson_MembershipRealEnd'] = {
                     'value': formset.data[form_prefix + 'realend'],
-                    'confidence': 1,
+                    'confidence': endcontext_confidence,
                     'sources': [source]
                 }
+
             membership.update(mem_data)
- 
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['memberships'] = formset.data
+
         response = super().formset_valid(formset)
+
         return response
 
 class MembershipPersonUpdate(BaseUpdateView):
