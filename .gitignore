@@ -27,3 +27,4 @@ settings_local.py
 /scripts/app_start.sh
 /scripts/app_stop.sh
 /scripts/backup_translations.sh
+/scripts/sfm-cron
