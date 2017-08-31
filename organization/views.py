@@ -49,9 +49,6 @@ class OrganizationDetail(DetailView):
         for association in associations:
             if association.object_ref.area.get_value().value.osmid.get_value():
                 context['areas'].append(association.object_ref.area.get_value().value)
-
-        print(context['sites'], "sitess")
-        print(context['areas'], "areasss")
         
         context['parents'] = []
         parents = context['organization'].parent_organization.all()
