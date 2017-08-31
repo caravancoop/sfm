@@ -210,3 +210,9 @@ OSM_DATA = [
 ]
 
 SOLR_URL = ''
+
+CONFIDENCE_LEVELS = (
+    ('1', _('Low')),
+    ('2', _('Medium')),
+    ('3', _('High')),
+)
