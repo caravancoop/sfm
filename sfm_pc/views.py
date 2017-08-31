@@ -2,6 +2,7 @@ import json
 from uuid import uuid4
 from collections import OrderedDict, namedtuple
 
+from django.conf import settings
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import FormView
@@ -31,7 +32,6 @@ from sfm_pc.templatetags.render_from_source import get_relations, \
 from sfm_pc.utils import import_class, get_osm_by_id
 from sfm_pc.forms import MergeForm
 from sfm_pc.base_views import UtilityMixin
-from sfm_pc.settings import CONFIDENCE_LEVELS
 
 
 class Dashboard(TemplateView):
@@ -112,7 +112,7 @@ class SetConfidence(TemplateView):
         context['relations'] = OrderedDict(sorted(context['relations'].items(),
                                            key=lambda x: x[0]._meta.object_name))
 
-        context['confidence_levels'] = CONFIDENCE_LEVELS
+        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
 
         return context
 

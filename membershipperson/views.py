@@ -3,6 +3,7 @@ import csv
 
 from datetime import date
 
+from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import DeleteView, FormView
@@ -21,7 +22,7 @@ from membershipperson.forms import MembershipPersonForm
 from source.models import Source
 from sfm_pc.utils import deleted_in_str
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
-from sfm_pc.settings import CONFIDENCE_LEVELS
+
 
 class MembershipPersonCreate(BaseFormSetView):
     template_name = 'membershipperson/create.html'
@@ -32,7 +33,7 @@ class MembershipPersonCreate(BaseFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['confidence_levels'] = CONFIDENCE_LEVELS
+        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
 
         context['organizations'] = self.request.session.get('organizations')
         context['people'] = self.request.session.get('people')

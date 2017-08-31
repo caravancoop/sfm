@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.db import connection
 from django.utils.translation import get_language
 from django.core.urlresolvers import reverse_lazy
+from django.conf import settings
 
 from source.models import Source
 from geosite.models import Geosite
@@ -18,7 +19,6 @@ from organization.models import Organization, OrganizationAlias, Alias, \
 
 from sfm_pc.utils import get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
-from sfm_pc.settings import CONFIDENCE_LEVELS
 
 
 class OrganizationDetail(DetailView):
@@ -152,7 +152,7 @@ class OrganizationCreate(BaseFormSetView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['confidence_levels'] = CONFIDENCE_LEVELS
+        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
 
         context['back_url'] = reverse_lazy('create-source')
@@ -502,7 +502,7 @@ class OrganizationCreateGeography(BaseFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['confidence_levels'] = CONFIDENCE_LEVELS
+        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
 
         organizations = self.request.session['organizations']
         memberships = self.request.session.get('memberships', [])

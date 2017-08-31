@@ -1,36 +1,36 @@
 from django import forms
 
+from django.conf import settings
 from django_date_extensions.fields import ApproximateDateFormField
 
 from leaflet.forms.widgets import LeafletWidget
 from .models import ViolationLocation
 
-from sfm_pc.settings import CONFIDENCE_LEVELS
 
 class ViolationForm(forms.Form):
     startdate = ApproximateDateFormField(required=True)
     enddate = ApproximateDateFormField(required=True)
-    date_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    date_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     locationdescription = forms.CharField(required=False)
-    locationdescription_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    locationdescription_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     geotype = forms.CharField(required=False)
     osm_id = forms.CharField(required=False)
     osm_id_text = forms.CharField(required=False)
-    osm_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    osm_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     description = forms.CharField(required=True)
-    description_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    description_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     perpetrators = forms.CharField(required=False)
-    perp_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    perp_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     orgs = forms.CharField(required=False)
-    orgs_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    orgs_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     vtype = forms.CharField(required=False)
-    type_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    type_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
 
 class ZoneForm(forms.ModelForm):

@@ -3,6 +3,7 @@ import csv
 
 from datetime import date
 
+from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
@@ -25,7 +26,7 @@ from source.models import Source
 from membershipperson.models import MembershipPerson, Role
 from sfm_pc.utils import deleted_in_str, chain_of_command
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
-from sfm_pc.settings import CONFIDENCE_LEVELS
+
 
 class PersonDetail(DetailView):
     model = Person
@@ -187,7 +188,7 @@ class PersonCreate(BaseFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['confidence_levels'] = CONFIDENCE_LEVELS
+        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
 
         context['organizations'] = self.request.session.get('organizations')
         context['source'] = Source.objects.get(id=self.request.session['source_id'])

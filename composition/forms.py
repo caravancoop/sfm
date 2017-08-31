@@ -1,22 +1,22 @@
 from django import forms
+from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateFormField
 
 from composition.models import Classification
 from organization.models import Organization
-from sfm_pc.settings import CONFIDENCE_LEVELS
 
 
 class CompositionForm(forms.Form):
     related_organization = forms.ModelChoiceField(queryset=Organization.objects.all())
-    related_org_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    related_org_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     relationship_type = forms.ChoiceField(choices=(('parent', 'Parent',), ('child', 'Child',)))
-    relationship_type_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    relationship_type_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     classification = forms.ModelChoiceField(queryset=Classification.objects.all())
-    classification_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    classification_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
-    date_confidence = forms.ChoiceField(choices=CONFIDENCE_LEVELS)
+    date_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
