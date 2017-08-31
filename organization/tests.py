@@ -51,11 +51,12 @@ class OrganizationTest(TestCase):
 
     def getRandomOrganization(self):
         from django.db.models.aggregates import Count
-        from random import randint
+        import random
 
         count = Organization.objects.aggregate(count=Count('id'))['count']
 
-        random_index = randint(0, count - 1)
+        random.seed(256)
+        random_index = random.randint(0, count - 1)
 
         return Organization.objects.all()[random_index]
 
