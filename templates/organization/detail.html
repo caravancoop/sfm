@@ -384,6 +384,7 @@
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
+                console.log("sitess!!!")
                 var center_x = {{ sites.0.coordinates.get_value.value.x|safe }};
                 var center_y = {{ sites.0.coordinates.get_value.value.y|safe }};
                 var site_map = L.map('osm_site_map').setView([center_y, center_x], 10);
@@ -404,10 +405,10 @@
     {% if areas %}
         <script type="text/javascript">
             function onEachFeature(feature, layer){
-                console.log(feature);
                 layer.bindPopup(feature.properties.name);
             }
             $(document).ready(function(){
+                console.log("AREasss!!")
                 var area_map = L.map('osm_area_map');
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
