@@ -292,7 +292,8 @@ def osm_autocomplete(request):
         SELECT
           *,
           ST_X(ST_Centroid(geometry)) AS longitude,
-          ST_Y(ST_Centroid(geometry)) AS latitude
+          ST_Y(ST_Centroid(geometry)) AS latitude,
+          ST_asgeojson(ST_Simplify(geometry, 0.01))::json AS geojson
         FROM osm_data
         WHERE plainto_tsquery('english', %s) @@ search_index
     '''
@@ -313,7 +314,6 @@ def osm_autocomplete(request):
 
     for result in search_results:
         map_image = None
-
         if hasattr(result, 'geometry'):
             latlng = '{0},{1}'.format(result.latitude, result.longitude)
             map_image = 'https://maps.googleapis.com/maps/api/staticmap'
@@ -329,6 +329,7 @@ def osm_autocomplete(request):
             'admin_level': result.admin_level,
             'lat': result.latitude,
             'long': result.longitude,
+            'geojson': result.geojson,
         })
 
     results.sort(key=lambda x:x['text'])

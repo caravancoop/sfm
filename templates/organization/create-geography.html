@@ -299,14 +299,16 @@ function addForm(e){
 
     $(osmname_field).select2(osm_opts);
 
-    $('#remove_form-' +  form_num).on('click', deleteForm);
+    $('#remove_form-' +  form_num).on('click', function(e){
+        deleteForm(e);
+        removeExistingLayer();
+        removeGeography(osmname_field);
+        addLayerToMap();
+    });
 
     // Select an OSM name and add it to map
     $(osmname_field).on('select2:select', function(e){
-        // Is there a layer? If yes, remove it.
-        if (typeof layerGroup !== 'undefined') {
-            layerGroup.remove();
-        }
+        removeExistingLayer();
 
         var value = e.params.data.value;
         $(osmname_field + '_text').val(value);
@@ -315,40 +317,11 @@ function addForm(e){
         }
         $(field_prefix + '-geotype').val(e.params.data.type);
 
-        latitude = e.params.data.lat
-        longitude = e.params.data.long
-        type = e.params.data.type
-
-        geom = {"coordinates": [longitude, latitude], "type": type, "id": osmname_field}
-
-        // Does a geography with the same id exist?
-        var found = geographies.some(function (el) {
-            return el.id === osmname_field;
-        });
-
-        // If yes, delete it
-        if (found == true) {
-            index = $.map(geographies, function(obj, index) {
-                if(obj.id == osmname_field) {
-                    return index;
-                }
-            });
-            geographies.splice(index, 1);
-        }
-
-        geographies.push(geom)
-
-        // Create array of layers
-        var geom_layers = [];
-        $.each(geographies, function(index, geom){
-            geom_layer = L.geoJSON(geom);
-            geom_layers.push(geom_layer);
-        });
-
-        // Add a feature group to the map
-        layerGroup = new L.layerGroup(geom_layers).addTo(map);
-        featureGroup = new L.featureGroup(geom_layers);
-        map.fitBounds(featureGroup.getBounds());
+        geom = e.params.data.geojson;
+        geom["id"] = osmname_field;
+        removeGeography(osmname_field);
+        geographies.push(geom);
+        addLayerToMap();
     });
 
     $(".select2-selection").on("focus", function () {
@@ -365,6 +338,44 @@ function addForm(e){
     $('#id_form-FORMS_ADDED').val(forms_added);
 
     form_num ++;
+}
+
+function removeExistingLayer(){
+    // Is there a layer? If yes, remove it.
+    if (typeof layerGroup !== 'undefined') {
+        layerGroup.remove();
+    };
+}
+
+function removeGeography(osmname_field){
+    // Does a geography with the same id exist?
+    var found = geographies.some(function (el) {
+        return el.id === osmname_field;
+    });
+
+    // If yes, delete it
+    if (found == true) {
+        index = $.map(geographies, function(obj, index) {
+            if(obj.id == osmname_field) {
+                return index;
+            }
+        });
+        geographies.splice(index, 1);
+    };
+}
+
+function addLayerToMap(){
+    // Create array of layers
+    var geom_layers = [];
+    $.each(geographies, function(index, geom){
+        geom_layer = L.geoJSON(geom);
+        geom_layers.push(geom_layer);
+    });
+
+    // Add a feature group to the map
+    layerGroup = new L.layerGroup(geom_layers).addTo(map);
+    featureGroup = new L.featureGroup(geom_layers);
+    map.fitBounds(featureGroup.getBounds(), {padding: [25, 25]});
 }
 
 function deleteForm(e){
@@ -394,11 +405,11 @@ $(document).ready(function() {
     $('#add-form').on('click', addForm);
     $('.remove-form').on('click', deleteForm);
 
-    // Basic map ... show the whole world?
+    // Initial map: shows entire world.
     attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 { attribution: attribution, detectRetina: true }).addTo(map);
-    map.fitWorld();
+    map.fitWorld({padding: [-110, -110]});
 });
 </script>
 {% endblock %}
