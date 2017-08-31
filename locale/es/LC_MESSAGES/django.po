@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-31 12:12-0500\n"
+"POT-Creation-Date: 2017-08-31 15:04-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgstr ""
 #: templates/person/create.html:226 templates/person/detail.html:111
 #: templates/person/search.html:21 templates/person/search.html:128
 #: templates/site/search.html:23 templates/site/search.html:93
-#: templates/violation/detail.html:123 templates/violation/detail.html:155
+#: templates/violation/detail.html:128 templates/violation/detail.html:160
 msgid "Name"
 msgstr ""
 
@@ -49,7 +49,7 @@ msgstr ""
 #: templates/organization/create.html:269 templates/organization/edit.html:59
 #: templates/organization/search.html:30 templates/organization/search.html:164
 #: templates/partials/organization_list_table.html:26
-#: templates/violation/detail.html:157
+#: templates/violation/detail.html:162
 msgid "Classification"
 msgstr ""
 
@@ -212,7 +212,7 @@ msgstr ""
 msgid "End context"
 msgstr ""
 
-#: membershipperson/views.py:222
+#: membershipperson/views.py:223
 msgid "Membership Person"
 msgstr ""
 
@@ -224,7 +224,7 @@ msgstr ""
 msgid "Classification is required"
 msgstr ""
 
-#: organization/forms.py:20 person/forms.py:21
+#: organization/forms.py:20 person/forms.py:20
 msgid "Division ID is required"
 msgstr ""
 
@@ -232,7 +232,7 @@ msgstr ""
 msgid "Geography type is required"
 msgstr ""
 
-#: organization/forms.py:32 person/forms.py:11
+#: organization/forms.py:32 person/forms.py:10
 msgid "Name is required"
 msgstr ""
 
@@ -245,7 +245,7 @@ msgstr ""
 msgid "Alias"
 msgstr ""
 
-#: person/views.py:467 templates/person/search.html:7
+#: person/views.py:468 templates/person/search.html:7
 msgid "Person"
 msgstr ""
 
@@ -254,29 +254,32 @@ msgid "Please add a source for this information"
 msgstr ""
 
 #: sfm_pc/settings.py:150 sfm_pc/templatetags/language_url.py:16
-#: tests/test_settings.py:127
+#: templates/base.html:102 tests/test_settings.py:127
 msgid "French"
 msgstr ""
 
 #: sfm_pc/settings.py:151 sfm_pc/templatetags/language_url.py:15
-#: tests/test_settings.py:128
+#: templates/base.html:103 tests/test_settings.py:128
 msgid "English"
 msgstr ""
 
 #: sfm_pc/settings.py:152 sfm_pc/templatetags/language_url.py:17
-#: tests/test_settings.py:129
+#: templates/base.html:104 tests/test_settings.py:129
 msgid "Spanish"
 msgstr ""
 
 #: sfm_pc/settings.py:262 templates/modals/source.html:13
+#: tests/test_settings.py:215
 msgid "Low"
 msgstr ""
 
 #: sfm_pc/settings.py:263 templates/modals/source.html:14
+#: tests/test_settings.py:216
 msgid "Medium"
 msgstr ""
 
 #: sfm_pc/settings.py:264 templates/modals/source.html:15
+#: tests/test_settings.py:217
 msgid "High"
 msgstr ""
 
@@ -1283,8 +1286,8 @@ msgstr ""
 #: templates/organization/detail.html:46 templates/organization/detail.html:64
 #: templates/partials/source_search_results.html:3
 #: templates/partials/version_list.html:25 templates/person/detail.html:28
-#: templates/person/detail.html:40 templates/violation/detail.html:72
-#: templates/violation/detail.html:86
+#: templates/person/detail.html:40 templates/violation/detail.html:77
+#: templates/violation/detail.html:91
 msgid "Sources"
 msgstr ""
 
@@ -1360,8 +1363,8 @@ msgstr ""
 #: templates/organization/detail.html:206
 #: templates/organization/detail.html:257 templates/organization/edit.html:40
 #: templates/person/create.html:75 templates/person/create.html:241
-#: templates/person/edit.html:35 templates/violation/detail.html:124
-#: templates/violation/detail.html:156
+#: templates/person/edit.html:35 templates/violation/detail.html:129
+#: templates/violation/detail.html:161
 msgid "Aliases"
 msgstr ""
 
@@ -1390,7 +1393,7 @@ msgid "Are you sure you want to remove this unit? All data will be lost."
 msgstr ""
 
 #: templates/organization/detail.html:16 templates/person/detail.html:10
-#: templates/violation/detail.html:31
+#: templates/violation/detail.html:36
 msgid "Edit"
 msgstr ""
 
@@ -1438,8 +1441,8 @@ msgstr ""
 
 #: templates/organization/detail.html:47 templates/organization/detail.html:65
 #: templates/partials/version_list.html:5 templates/person/detail.html:29
-#: templates/person/detail.html:41 templates/violation/detail.html:73
-#: templates/violation/detail.html:87
+#: templates/person/detail.html:41 templates/violation/detail.html:78
+#: templates/violation/detail.html:92
 msgid "Changelog"
 msgstr ""
 
@@ -1458,19 +1461,22 @@ msgstr ""
 msgid "Incident"
 msgstr ""
 
-#: templates/organization/detail.html:348 templates/violation/detail.html:17
+#: templates/organization/detail.html:348 templates/violation/detail.html:18
 msgid "in"
 msgstr ""
 
-#: templates/organization/detail.html:351 templates/violation/detail.html:23
+#. Translators: The word "between" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.
+#: templates/organization/detail.html:351 templates/violation/detail.html:26
 msgid "between"
 msgstr ""
 
-#: templates/organization/detail.html:353 templates/violation/detail.html:26
+#. Translators: The word "starting" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.
+#: templates/organization/detail.html:353 templates/violation/detail.html:30
 msgid "starting"
 msgstr ""
 
-#: templates/organization/detail.html:355 templates/violation/detail.html:28
+#. Translators: The word "ending" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.
+#: templates/organization/detail.html:355 templates/violation/detail.html:33
 msgid "ending"
 msgstr ""
 
@@ -1633,8 +1639,8 @@ msgstr ""
 
 #: templates/partials/violation_list_table.html:25
 #: templates/violation/create.html:38 templates/violation/create.html:318
-#: templates/violation/detail.html:69 templates/violation/detail.html:83
-#: templates/violation/detail.html:107 violation/models.py:127
+#: templates/violation/detail.html:74 templates/violation/detail.html:88
+#: templates/violation/detail.html:112 violation/models.py:127
 msgid "Description"
 msgstr ""
 
@@ -1645,15 +1651,15 @@ msgstr ""
 
 #: templates/partials/violation_list_table.html:28
 #: templates/search/search.html:63 templates/violation/create.html:217
-#: templates/violation/create.html:399 templates/violation/detail.html:68
-#: templates/violation/detail.html:82 templates/violation/detail.html:96
+#: templates/violation/create.html:399 templates/violation/detail.html:73
+#: templates/violation/detail.html:87 templates/violation/detail.html:101
 #: violation/models.py:120
 msgid "Location"
 msgstr ""
 
 #: templates/partials/violation_list_table.html:35
-#: templates/violation/detail.html:70 templates/violation/detail.html:84
-#: templates/violation/detail.html:119
+#: templates/violation/detail.html:75 templates/violation/detail.html:89
+#: templates/violation/detail.html:124
 msgid "Perpetrators"
 msgstr ""
 
@@ -2038,24 +2044,25 @@ msgstr ""
 msgid "Start and end date"
 msgstr ""
 
-#: templates/violation/detail.html:21
+#. Translators: The word "on" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date]" Words in [brackets] indicate variable text.
+#: templates/violation/detail.html:23
 msgid "on"
 msgstr ""
 
-#: templates/violation/detail.html:23
+#: templates/violation/detail.html:26
 msgid "and"
 msgstr ""
 
-#: templates/violation/detail.html:36
+#: templates/violation/detail.html:41
 msgid "Location:"
 msgstr ""
 
-#: templates/violation/detail.html:44
+#: templates/violation/detail.html:49
 msgid "Country:"
 msgstr ""
 
-#: templates/violation/detail.html:71 templates/violation/detail.html:85
-#: templates/violation/detail.html:151
+#: templates/violation/detail.html:76 templates/violation/detail.html:90
+#: templates/violation/detail.html:156
 msgid "Perpetrator organizations"
 msgstr ""
 
