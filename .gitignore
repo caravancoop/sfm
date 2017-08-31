@@ -26,3 +26,4 @@ settings_local.py
 /scripts/after_install.sh
 /scripts/app_start.sh
 /scripts/app_stop.sh
+/scripts/backup_translations.sh
