@@ -2,6 +2,7 @@ import json
 import csv
 from datetime import date
 
+from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
@@ -16,7 +17,6 @@ from django.shortcuts import redirect
 from django.conf import settings
 
 from extra_views import FormSetView
-from complex_fields.models import CONFIDENCE_LEVELS
 
 from violation.models import Violation, Type, ViolationType, \
     ViolationPerpetrator, ViolationPerpetratorOrganization
@@ -26,6 +26,7 @@ from organization.models import Organization
 from violation.forms import ZoneForm, ViolationForm
 from sfm_pc.utils import deleted_in_str, get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
+
 
 class ViolationDetail(DetailView):
     model = Violation
@@ -72,7 +73,7 @@ class ViolationCreate(FormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['confidence_levels'] = CONFIDENCE_LEVELS
+        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
 
         organizations = self.request.session.get('organizations')
         people = self.request.session.get('people')

@@ -13,7 +13,7 @@
     <h1 class="page-title">
         <i class="fa fa-fw fa-users"></i> {{ organization.name.get_value }}
         <small>
-            <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">Edit</a>
+            <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">{% trans "Edit" %}</a>
         </small>
     </h1>
     {% if organization.aliases.get_list %}
@@ -392,7 +392,7 @@
                             { attribution: attribution, detectRetina: true }).addTo(site_map);
                 var markers = L.featureGroup();
                 {% for site in sites %}
-                    var mark = L.marker([{{ site.coordinates.get_value.value.y }},{{ site.coordinates.get_value.value.x }}]);
+                    var mark = L.marker([{{ site.coordinates.get_value.value.y|safe }},{{ site.coordinates.get_value.value.x|safe }}]);
                     mark.bindPopup("{{ site.osmname }}");
                     markers.addLayer(mark);
                 {% endfor %}
@@ -404,7 +404,6 @@
     {% if areas %}
         <script type="text/javascript">
             function onEachFeature(feature, layer){
-                console.log(feature);
                 layer.bindPopup(feature.properties.name);
             }
             $(document).ready(function(){

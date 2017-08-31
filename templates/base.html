@@ -99,9 +99,9 @@
 
     // Attach click event to dropdown, which reloads page with new language code 
     transObj = {
-      'French': 'fr',
-      'English': 'en',
-      'Spanish': 'es',
+        '{% trans "French" %}': 'fr',
+        '{% trans "English" %}': 'en',
+        '{% trans "Spanish" %}': 'es',
     }
 
     $('.lang-select-box').on('change', function (evt) {

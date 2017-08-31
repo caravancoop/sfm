@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-28 15:49+0000\n"
-"PO-Revision-Date: 2017-08-24 18:51+0000\n"
+"POT-Creation-Date: 2017-08-31 15:01-0500\n"
+"PO-Revision-Date: 2017-08-31 16:44+0000\n"
 "Last-Translator: b'  <reginafcompton@datamade.us>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -22,8 +22,8 @@ msgstr ""
 #: area/models.py:50 geosite/models.py:42 organization/models.py:43
 #: person/models.py:46 templates/area/search.html:24
 #: templates/area/search.html:84
-#: templates/organization/create-geography.html:75
-#: templates/organization/create-geography.html:185
+#: templates/organization/create-geography.html:79
+#: templates/organization/create-geography.html:188
 #: templates/organization/detail.html:103
 #: templates/organization/detail.html:154
 #: templates/organization/detail.html:205
@@ -31,10 +31,11 @@ msgstr ""
 #: templates/organization/detail.html:307 templates/organization/search.html:22
 #: templates/organization/search.html:162
 #: templates/partials/organization_list_table.html:10
-#: templates/partials/person_list_table.html:13 templates/person/create.html:34
-#: templates/person/create.html:144 templates/person/detail.html:111
+#: templates/partials/person_list_table.html:13 templates/person/create.html:39
+#: templates/person/create.html:226 templates/person/detail.html:111
 #: templates/person/search.html:21 templates/person/search.html:128
 #: templates/site/search.html:23 templates/site/search.html:93
+#: templates/violation/detail.html:128 templates/violation/detail.html:160
 msgid "Name"
 msgstr "Nom"
 
@@ -45,10 +46,11 @@ msgstr ""
 #: area/models.py:67 composition/models.py:73 organization/models.py:69
 #: templates/area/search.html:28 templates/area/search.html:85
 #: templates/composition/search.html:97 templates/composition/search.html:140
-#: templates/organization/create.html:75 templates/organization/create.html:178
-#: templates/organization/edit.html:59 templates/organization/search.html:30
-#: templates/organization/search.html:164
+#: templates/organization/create.html:112
+#: templates/organization/create.html:269 templates/organization/edit.html:59
+#: templates/organization/search.html:30 templates/organization/search.html:164
 #: templates/partials/organization_list_table.html:26
+#: templates/violation/detail.html:162
 msgid "Classification"
 msgstr "Classification"
 
@@ -57,12 +59,12 @@ msgid "OSM name"
 msgstr ""
 
 #: area/models.py:86 geosite/models.py:85
-#: templates/organization/create-geography.html:90 violation/models.py:113
+#: templates/organization/create-geography.html:94 violation/models.py:106
 msgid "OSM ID"
 msgstr ""
 
 #: area/models.py:109 geosite/models.py:93 organization/models.py:85
-#: person/models.py:69 violation/models.py:120
+#: person/models.py:69 violation/models.py:113
 msgid "Division ID"
 msgstr ""
 
@@ -73,8 +75,8 @@ msgstr ""
 #: templates/membershipperson/search.html:139
 #: templates/organization/detail.html:311
 #: templates/organization/search.html:166 templates/person/detail.html:67
-#: templates/violation/search.html:17 templates/violation/search.html:194
-#: violation/models.py:70
+#: templates/search/search.html:83 templates/violation/search.html:17
+#: templates/violation/search.html:194 violation/models.py:63
 msgid "Start date"
 msgstr ""
 
@@ -85,8 +87,8 @@ msgstr ""
 #: templates/membershipperson/search.html:140
 #: templates/organization/detail.html:312
 #: templates/organization/search.html:167 templates/person/detail.html:68
-#: templates/violation/search.html:56 templates/violation/search.html:195
-#: violation/models.py:77
+#: templates/search/search.html:84 templates/violation/search.html:56
+#: templates/violation/search.html:195 violation/models.py:70
 msgid "End date"
 msgstr ""
 
@@ -94,9 +96,9 @@ msgstr ""
 #: membershiporganization/models.py:65 membershipperson/models.py:136
 #: templates/association/search.html:112 templates/association/search.html:143
 #: templates/emplacement/search.html:109 templates/emplacement/search.html:140
-#: templates/membershiporganization/create.html:44
-#: templates/organization/create-geography.html:32
-#: templates/organization/create-geography.html:164
+#: templates/membershiporganization/create.html:50
+#: templates/organization/create-geography.html:36
+#: templates/organization/create-geography.html:167
 #: templates/organization/edit.html:10 templates/person/detail.html:63
 #: templates/sidebar.html:10 templates/violation/search.html:198
 msgid "Organization"
@@ -127,13 +129,13 @@ msgstr ""
 
 #: geosite/models.py:52 templates/site/search.html:27
 #: templates/site/search.html:28 templates/violation/search.html:97
-#: templates/violation/search.html:98 violation/models.py:92
+#: templates/violation/search.html:98 violation/models.py:85
 msgid "Admin level 1"
 msgstr ""
 
 #: geosite/models.py:60 templates/site/search.html:31
 #: templates/site/search.html:32 templates/violation/search.html:101
-#: templates/violation/search.html:102 violation/models.py:99
+#: templates/violation/search.html:102 violation/models.py:92
 msgid "Admin level 2"
 msgstr ""
 
@@ -176,7 +178,7 @@ msgstr ""
 msgid "Role"
 msgstr ""
 
-#: membershipperson/models.py:153 templates/membershipperson/create.html:40
+#: membershipperson/models.py:153 templates/membershipperson/create.html:45
 #: templates/membershipperson/edit.html:21
 #: templates/membershipperson/search.html:35
 #: templates/membershipperson/search.html:137
@@ -201,43 +203,43 @@ msgstr ""
 msgid "Real end date"
 msgstr ""
 
-#: membershipperson/models.py:201 templates/membershipperson/create.html:90
+#: membershipperson/models.py:201 templates/membershipperson/create.html:127
 #: templates/membershipperson/edit.html:77
 msgid "Start context"
 msgstr ""
 
-#: membershipperson/models.py:209 templates/membershipperson/create.html:119
+#: membershipperson/models.py:209 templates/membershipperson/create.html:172
 #: templates/membershipperson/edit.html:107
 msgid "End context"
 msgstr ""
 
-#: membershipperson/views.py:186
+#: membershipperson/views.py:223
 msgid "Membership Person"
 msgstr ""
 
-#: organization/forms.py:8
+#: organization/forms.py:9
 #, fuzzy
 #| msgid "Person"
 msgid "Unit name is required"
 msgstr "Personne"
 
-#: organization/forms.py:10
+#: organization/forms.py:13
 msgid "Classification is required"
 msgstr ""
 
-#: organization/forms.py:13 person/forms.py:13
+#: organization/forms.py:20 person/forms.py:20
 msgid "Division ID is required"
 msgstr ""
 
-#: organization/forms.py:23
+#: organization/forms.py:31
 msgid "Geography type is required"
 msgstr ""
 
-#: organization/forms.py:24 person/forms.py:9
+#: organization/forms.py:32 person/forms.py:10
 msgid "Name is required"
 msgstr ""
 
-#: organization/forms.py:25
+#: organization/forms.py:33
 msgid "OSM ID is required"
 msgstr ""
 
@@ -248,7 +250,7 @@ msgstr ""
 msgid "Alias"
 msgstr "Alias"
 
-#: person/views.py:398 templates/person/search.html:7
+#: person/views.py:468 templates/person/search.html:7
 msgid "Person"
 msgstr "Personne"
 
@@ -256,17 +258,35 @@ msgstr "Personne"
 msgid "Please add a source for this information"
 msgstr ""
 
-#: sfm_pc/settings.py:149 tests/test_settings.py:127
+#: sfm_pc/settings.py:150 sfm_pc/templatetags/language_url.py:16
+#: templates/base.html:102 tests/test_settings.py:127
 msgid "French"
 msgstr "Français"
 
-#: sfm_pc/settings.py:150 tests/test_settings.py:128
+#: sfm_pc/settings.py:151 sfm_pc/templatetags/language_url.py:15
+#: templates/base.html:103 tests/test_settings.py:128
 msgid "English"
 msgstr "Anglais"
 
-#: sfm_pc/settings.py:151 tests/test_settings.py:129
+#: sfm_pc/settings.py:152 sfm_pc/templatetags/language_url.py:17
+#: templates/base.html:104 tests/test_settings.py:129
 msgid "Spanish"
-msgstr ""
+msgstr "Espagnol"
+
+#: sfm_pc/settings.py:262 templates/modals/source.html:13
+#: tests/test_settings.py:215
+msgid "Low"
+msgstr "Basse"
+
+#: sfm_pc/settings.py:263 templates/modals/source.html:14
+#: tests/test_settings.py:216
+msgid "Medium"
+msgstr "Moyenne"
+
+#: sfm_pc/settings.py:264 templates/modals/source.html:15
+#: tests/test_settings.py:217
+msgid "High"
+msgstr "Haute"
 
 #: source/forms.py:7
 msgid "Title is required"
@@ -322,7 +342,9 @@ msgstr ""
 msgid "Re-send Verification"
 msgstr ""
 
-#: templates/account/email.html:37
+#: templates/account/email.html:37 templates/composition/create.html:219
+#: templates/membershiporganization/create.html:148
+#: templates/organization/create.html:221
 msgid "Remove"
 msgstr ""
 
@@ -653,8 +675,10 @@ msgid "Properties"
 msgstr ""
 
 #: templates/area/edit.html:47 templates/association/edit.html:46
-#: templates/composition/edit.html:57 templates/delete_confirm.html:18
-#: templates/emplacement/edit.html:46 templates/site/edit.html:53
+#: templates/composition/create.html:217 templates/composition/edit.html:57
+#: templates/delete_confirm.html:18 templates/emplacement/edit.html:46
+#: templates/membershiporganization/create.html:146
+#: templates/organization/create.html:219 templates/site/edit.html:53
 #: templates/violation/edit.html:170
 msgid "Cancel"
 msgstr ""
@@ -981,44 +1005,47 @@ msgstr ""
 msgid "Enter organization name"
 msgstr ""
 
-#: templates/base.html:27
+#: templates/base.html:28
 msgid "A tool from"
 msgstr ""
 
-#: templates/base.html:44
+#: templates/base.html:45
 msgid "Countries"
 msgstr ""
 
-#: templates/base.html:45 templates/partials/nav-wizard.html:7
+#: templates/base.html:46 templates/partials/nav-wizard.html:7
 #: templates/partials/person_search_results.html:5
-#: templates/person/create.html:15
+#: templates/person/create.html:15 templates/search/search.html:41
+#: templates/sfm/dashboard.html:22
 #, fuzzy
 #| msgid "Person"
 msgid "Personnel"
 msgstr "Personne"
 
-#: templates/base.html:46 templates/organization/create.html:14
+#: templates/base.html:47 templates/organization/create.html:14
 #: templates/partials/nav-wizard.html:6
 #: templates/partials/organization_search_results.html:5
+#: templates/search/search.html:42 templates/sfm/dashboard.html:26
 msgid "Units"
 msgstr ""
 
-#: templates/base.html:47 templates/organization/detail.html:45
+#: templates/base.html:48 templates/organization/detail.html:45
 #: templates/organization/detail.html:63 templates/organization/detail.html:339
 #: templates/partials/nav-wizard.html:10
 #: templates/partials/violation_search_results.html:5
+#: templates/search/search.html:43 templates/sfm/dashboard.html:30
 msgid "Incidents"
 msgstr ""
 
-#: templates/base.html:48
+#: templates/base.html:49
 msgid "Help"
 msgstr ""
 
-#: templates/base.html:52
+#: templates/base.html:53
 msgid "New source"
 msgstr ""
 
-#: templates/base.html:56
+#: templates/base.html:57
 msgid "Logout"
 msgstr ""
 
@@ -1049,20 +1076,75 @@ msgstr ""
 msgid "Remove this relationship"
 msgstr "Retirer cette personne "
 
-#: templates/composition/create.html:38
+#: templates/composition/create.html:35
+#: templates/membershiporganization/create.html:42
+#: templates/membershipperson/create.html:37
+#: templates/organization/create.html:30 templates/organization/create.html:235
+#: templates/partials/version_list.html:21 templates/person/create.html:30
+#: templates/person/create.html:222 templates/violation/create.html:30
+#: templates/violation/create.html:314
+msgid "Value"
+msgstr ""
+
+#. Translators: The level of confidence that the user has in a source, when entering it into the system
+#: templates/composition/create.html:36
+#: templates/membershiporganization/create.html:43
+#: templates/membershipperson/create.html:38 templates/modals/source.html:10
+#: templates/organization/create.html:31 templates/organization/create.html:236
+#: templates/partials/version_list.html:22 templates/person/create.html:31
+#: templates/person/create.html:223 templates/violation/create.html:31
+#: templates/violation/create.html:315
+msgid "Confidence"
+msgstr ""
+
+#: templates/composition/create.html:43
 msgid "Relationship type"
 msgstr ""
 
-#: templates/composition/create.html:61
+#: templates/composition/create.html:82
 #, fuzzy
 #| msgid "Organization"
 msgid "Related organization"
 msgstr "Organisation"
 
-#: templates/composition/create.html:87
+#: templates/composition/create.html:123
 #, fuzzy
 #| msgid "Classification"
 msgid "Relationship classification"
+msgstr "Classification"
+
+#: templates/composition/create.html:162
+#: templates/organization/create-geography.html:116
+#: templates/organization/create-geography.html:202
+#: templates/violation/create.html:108
+msgid "Start and end dates"
+msgstr ""
+
+#: templates/composition/create.html:211
+#, fuzzy
+#| msgid "Remove this person"
+msgid "Remove relationship"
+msgstr "Retirer cette personne "
+
+#: templates/composition/create.html:214
+msgid ""
+"Are you sure you want to remove this relationship? All data will be lost."
+msgstr ""
+
+#: templates/composition/create.html:231
+msgid "Parent or child"
+msgstr ""
+
+#: templates/composition/create.html:236
+#, fuzzy
+#| msgid "Organization"
+msgid "Select an organization"
+msgstr "Organisation"
+
+#: templates/composition/create.html:241
+#, fuzzy
+#| msgid "Classification"
+msgid "Select a classification"
 msgstr "Classification"
 
 #: templates/composition/edit.html:9 templates/sidebar.html:11
@@ -1142,8 +1224,18 @@ msgstr ""
 msgid "Remove this membership"
 msgstr "Retirer cette personne "
 
-#: templates/membershiporganization/create.html:69
+#: templates/membershiporganization/create.html:91
 msgid "First and last citation dates"
+msgstr ""
+
+#: templates/membershiporganization/create.html:140
+#, fuzzy
+#| msgid "Remove this person"
+msgid "Remove membership"
+msgstr "Retirer cette personne "
+
+#: templates/membershiporganization/create.html:143
+msgid "Are you sure you want to remove this membership? All data will be lost."
 msgstr ""
 
 #: templates/membershipperson/create.html:15
@@ -1155,25 +1247,25 @@ msgstr ""
 msgid "Describe positions held by personnel in"
 msgstr ""
 
-#: templates/membershipperson/create.html:55
+#: templates/membershipperson/create.html:76
 #: templates/membershipperson/edit.html:36
 msgid "Role and Rank"
 msgstr ""
 
-#: templates/membershipperson/create.html:58
+#: templates/membershipperson/create.html:79
 #: templates/membershipperson/edit.html:39
 msgid "Select a Role"
 msgstr ""
 
-#: templates/membershipperson/create.html:72
+#: templates/membershipperson/create.html:93
 #: templates/membershipperson/edit.html:56
 msgid "Select a Rank"
 msgstr ""
 
-#: templates/membershipperson/create.html:102
-#: templates/membershipperson/create.html:104
-#: templates/membershipperson/create.html:131
-#: templates/membershipperson/create.html:133
+#: templates/membershipperson/create.html:139
+#: templates/membershipperson/create.html:141
+#: templates/membershipperson/create.html:184
+#: templates/membershipperson/create.html:186
 #: templates/membershipperson/edit.html:90
 #: templates/membershipperson/edit.html:92
 #: templates/membershipperson/edit.html:119
@@ -1181,7 +1273,7 @@ msgstr ""
 msgid "Real context?"
 msgstr ""
 
-#: templates/membershipperson/create.html:148
+#: templates/membershipperson/create.html:217
 #: templates/membershipperson/edit.html:136
 msgid "Citation dates"
 msgstr ""
@@ -1210,23 +1302,6 @@ msgstr ""
 msgid "View/Edit Sources"
 msgstr ""
 
-#. Translators: The level of confidence that the user has in a source, when entering it into the system
-#: templates/modals/source.html:10 templates/partials/version_list.html:22
-msgid "Confidence"
-msgstr ""
-
-#: templates/modals/source.html:13 violation/models.py:18
-msgid "Low"
-msgstr "Basse"
-
-#: templates/modals/source.html:14 violation/models.py:19
-msgid "Medium"
-msgstr "Moyenne"
-
-#: templates/modals/source.html:15 violation/models.py:20
-msgid "High"
-msgstr "Haute"
-
 #: templates/modals/source.html:22 templates/modals/source.html:25
 #: templates/modals/translate.html:20
 msgid "Add"
@@ -1236,7 +1311,8 @@ msgstr ""
 #: templates/organization/detail.html:46 templates/organization/detail.html:64
 #: templates/partials/source_search_results.html:3
 #: templates/partials/version_list.html:25 templates/person/detail.html:28
-#: templates/person/detail.html:40
+#: templates/person/detail.html:40 templates/violation/detail.html:77
+#: templates/violation/detail.html:91
 msgid "Sources"
 msgstr ""
 
@@ -1274,36 +1350,31 @@ msgstr ""
 msgid "Choose Language"
 msgstr ""
 
-#: templates/organization/create-geography.html:14
+#: templates/organization/create-geography.html:15
 #: templates/partials/nav-wizard.html:9
 msgid "Geographies"
 msgstr ""
 
-#: templates/organization/create-geography.html:15
+#: templates/organization/create-geography.html:16
 msgid "Describe any geographies related to organizations found in"
 msgstr ""
 
-#: templates/organization/create-geography.html:51
-#: templates/organization/create-geography.html:174
+#: templates/organization/create-geography.html:55
+#: templates/organization/create-geography.html:177
 msgid "Geography type"
 msgstr ""
 
-#: templates/organization/create-geography.html:112
-#: templates/organization/create-geography.html:199
-msgid "Start and end dates"
-msgstr ""
-
-#: templates/organization/create-geography.html:137
+#: templates/organization/create-geography.html:147
 msgid "Add another geography"
 msgstr ""
 
-#: templates/organization/create-geography.html:191 violation/models.py:106
+#: templates/organization/create-geography.html:194 violation/models.py:99
 #, fuzzy
 #| msgid "Name"
 msgid "OSM Name"
 msgstr "Nom"
 
-#: templates/organization/create-geography.html:211
+#: templates/organization/create-geography.html:214
 #, fuzzy
 #| msgid "Remove this person"
 msgid "Remove this geography"
@@ -1313,35 +1384,57 @@ msgstr "Retirer cette personne "
 msgid "Describe any units found in"
 msgstr ""
 
-#: templates/organization/create.html:33 templates/organization/create.html:162
+#: templates/organization/create.html:38 templates/organization/create.html:239
 #, fuzzy
 #| msgid "Person"
 msgid "Unit name"
 msgstr "Personne"
 
-#: templates/organization/create.html:53 templates/organization/create.html:171
+#: templates/organization/create.html:74 templates/organization/create.html:255
 #: templates/organization/detail.html:104
 #: templates/organization/detail.html:155
 #: templates/organization/detail.html:206
 #: templates/organization/detail.html:257 templates/organization/edit.html:40
-#: templates/person/create.html:54 templates/person/create.html:152
-#: templates/person/edit.html:35
+#: templates/person/create.html:75 templates/person/create.html:241
+#: templates/person/edit.html:35 templates/violation/detail.html:129
+#: templates/violation/detail.html:161
 #, fuzzy
 #| msgid "Aliases"
 msgid "Aliases"
 msgstr "Alias"
 
-#: templates/organization/create.html:97 templates/organization/create.html:185
-#: templates/organization/edit.html:78 templates/person/create.html:70
-#: templates/person/create.html:159 templates/person/edit.html:54
+#: templates/organization/create.html:150
+#: templates/organization/create.html:283 templates/organization/edit.html:78
+#: templates/person/create.html:113 templates/person/create.html:255
+#: templates/person/edit.html:54
 msgid "Division identifier"
 msgstr ""
 
-#: templates/organization/create.html:197
+#: templates/organization/create.html:185
+#: templates/organization/create.html:301
 #, fuzzy
 #| msgid "Remove this person"
 msgid "Remove this unit"
 msgstr "Retirer cette personne "
+
+#: templates/organization/create.html:198
+msgid "Add another unit"
+msgstr ""
+
+#: templates/organization/create.html:213
+#, fuzzy
+#| msgid "Remove this person"
+msgid "Remove unit"
+msgstr "Retirer cette personne "
+
+#: templates/organization/create.html:216
+msgid "Are you sure you want to remove this unit? All data will be lost."
+msgstr ""
+
+#: templates/organization/detail.html:16 templates/person/detail.html:10
+#: templates/violation/detail.html:36
+msgid "Edit"
+msgstr ""
 
 #: templates/organization/detail.html:20 templates/person/detail.html:14
 #, fuzzy
@@ -1367,8 +1460,8 @@ msgid "Memberships"
 msgstr ""
 
 #: templates/organization/detail.html:41 templates/organization/detail.html:59
-#: templates/organization/detail.html:149 templates/person/create.html:91
-#: templates/person/create.html:166
+#: templates/organization/detail.html:149 templates/person/create.html:150
+#: templates/person/create.html:269
 msgid "Member units"
 msgstr ""
 
@@ -1391,7 +1484,8 @@ msgstr "Personne"
 
 #: templates/organization/detail.html:47 templates/organization/detail.html:65
 #: templates/partials/version_list.html:5 templates/person/detail.html:29
-#: templates/person/detail.html:41
+#: templates/person/detail.html:41 templates/violation/detail.html:78
+#: templates/violation/detail.html:92
 msgid "Changelog"
 msgstr ""
 
@@ -1408,23 +1502,26 @@ msgstr ""
 msgid "Classifications"
 msgstr "Classification"
 
-#: templates/organization/detail.html:346
+#: templates/organization/detail.html:346 templates/violation/detail.html:15
 msgid "Incident"
 msgstr ""
 
-#: templates/organization/detail.html:348
+#: templates/organization/detail.html:348 templates/violation/detail.html:18
 msgid "in"
 msgstr ""
 
-#: templates/organization/detail.html:351
+#. Translators: The word "between" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.
+#: templates/organization/detail.html:351 templates/violation/detail.html:26
 msgid "between"
 msgstr ""
 
-#: templates/organization/detail.html:353
+#. Translators: The word "starting" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.
+#: templates/organization/detail.html:353 templates/violation/detail.html:30
 msgid "starting"
 msgstr ""
 
-#: templates/organization/detail.html:355
+#. Translators: The word "ending" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.
+#: templates/organization/detail.html:355 templates/violation/detail.html:33
 msgid "ending"
 msgstr ""
 
@@ -1439,6 +1536,7 @@ msgid "Search an organization"
 msgstr ""
 
 #: templates/organization/search.html:15 templates/person/search.html:15
+#: templates/sfm/dashboard.html:13
 msgid "Search"
 msgstr ""
 
@@ -1463,7 +1561,7 @@ msgid "Superior Unit"
 msgstr ""
 
 #: templates/partials/back_skip_next.html:7
-#: templates/partials/pagination.html:16
+#: templates/partials/pagination.html:16 templates/source/create.html:143
 msgid "Next"
 msgstr ""
 
@@ -1479,7 +1577,7 @@ msgstr ""
 msgid "Skip"
 msgstr ""
 
-#: templates/partials/nav-wizard.html:5
+#: templates/partials/nav-wizard.html:5 templates/source/create.html:15
 msgid "Create source"
 msgstr ""
 
@@ -1549,12 +1647,14 @@ msgid "Publication date"
 msgstr ""
 
 #: templates/partials/source_search_results.html:9
+#: templates/source/create.html:56
 #, fuzzy
 #| msgid "Classification"
 msgid "Publication"
 msgstr "Classification"
 
 #: templates/partials/source_search_results.html:10
+#: templates/source/create.html:76
 msgid "Publication country"
 msgstr ""
 
@@ -1562,10 +1662,6 @@ msgstr ""
 msgid ""
 "Select an attribute below to review the changes our staff have made to this "
 "entity."
-msgstr ""
-
-#: templates/partials/version_list.html:21
-msgid "Value"
 msgstr ""
 
 #: templates/partials/version_list.html:23
@@ -1592,19 +1688,29 @@ msgstr ""
 msgid "End Date"
 msgstr ""
 
-#: templates/partials/violation_list_table.html:25 violation/models.py:134
+#: templates/partials/violation_list_table.html:25
+#: templates/violation/create.html:38 templates/violation/create.html:318
+#: templates/violation/detail.html:74 templates/violation/detail.html:88
+#: templates/violation/detail.html:112 violation/models.py:127
 msgid "Description"
 msgstr ""
 
 #: templates/partials/violation_list_table.html:26
+#: templates/violation/create.html:69
 msgid "Violation types"
 msgstr ""
 
-#: templates/partials/violation_list_table.html:28 violation/models.py:127
+#: templates/partials/violation_list_table.html:28
+#: templates/search/search.html:63 templates/violation/create.html:217
+#: templates/violation/create.html:399 templates/violation/detail.html:73
+#: templates/violation/detail.html:87 templates/violation/detail.html:101
+#: violation/models.py:120
 msgid "Location"
 msgstr ""
 
 #: templates/partials/violation_list_table.html:35
+#: templates/violation/detail.html:75 templates/violation/detail.html:89
+#: templates/violation/detail.html:124
 msgid "Perpetrators"
 msgstr ""
 
@@ -1622,20 +1728,16 @@ msgstr ""
 msgid "Describe any personnel found in"
 msgstr ""
 
-#: templates/person/create.html:99
+#: templates/person/create.html:161
 msgid "A person must belong to at least one unit."
 msgstr ""
 
-#: templates/person/create.html:109 templates/person/create.html:180
+#: templates/person/create.html:187 templates/person/create.html:290
 msgid "Remove this person"
 msgstr "Retirer cette personne "
 
-#: templates/person/create.html:125
+#: templates/person/create.html:202
 msgid "Add another person"
-msgstr ""
-
-#: templates/person/detail.html:10
-msgid "Edit"
 msgstr ""
 
 #: templates/person/detail.html:24 templates/person/detail.html:36
@@ -1693,6 +1795,210 @@ msgstr ""
 msgid "Death date"
 msgstr ""
 
+#: templates/search/search.html:21
+msgid "Search for"
+msgstr ""
+
+#: templates/search/search.html:23
+msgid "Go!"
+msgstr ""
+
+#: templates/search/search.html:35 templates/sfm/dashboard.html:18
+msgid "I'm looking for..."
+msgstr ""
+
+#: templates/search/search.html:48
+msgid "Clear all filters"
+msgstr ""
+
+#: templates/search/search.html:58
+msgid "General filters"
+msgstr ""
+
+#: templates/search/search.html:82
+msgid "Date"
+msgstr ""
+
+#. Translators: Please preserve the "strong" and "i" tags, which display an icon. Use the single quote around 'fa fa-w fa-user'.
+#: templates/search/search.html:95
+msgid "Filters for <strong><i class='fa fa-fw fa-user'></i>Personnel</strong>"
+msgstr ""
+
+#: templates/search/search.html:133
+msgid "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>"
+msgstr ""
+
+#: templates/search/search.html:165
+msgid ""
+"Filters for <strong><i class='fa fa-fw fa-exclamation-triangle'></"
+"i>Incidents</strong>"
+msgstr ""
+
+#: templates/search/search.html:207
+msgid "results found"
+msgstr ""
+
+#: templates/search/search.html:207 templates/search/search.html:225
+msgid "for"
+msgstr ""
+
+#: templates/search/search.html:225 templates/source/create.html:188
+#: templates/source/create.html:197
+msgid "No results found"
+msgstr ""
+
+#: templates/search/search.html:226
+msgid "For better results, try adjusting your search filters."
+msgstr ""
+
+#: templates/search/search.html:227
+msgid "Think we're missing something?"
+msgstr ""
+
+#: templates/search/search.html:227
+msgid "Let us know!"
+msgstr ""
+
+#: templates/sfm/countries.html:10
+msgid "Egypt"
+msgstr ""
+
+#: templates/sfm/countries.html:20 templates/sfm/countries.html:60
+#: templates/sfm/countries.html:98 templates/sfm/countries.html:136
+msgid "Browse data"
+msgstr ""
+
+#. Translators: Please keep the "strong" tags, which display the numbers in bold
+#: templates/sfm/countries.html:22
+msgid "Browse <strong>580</strong> persons"
+msgstr ""
+
+#: templates/sfm/countries.html:23
+msgid "Browse <strong>2300</strong> units"
+msgstr ""
+
+#: templates/sfm/countries.html:26 templates/sfm/countries.html:65
+#: templates/sfm/countries.html:103 templates/sfm/countries.html:141
+msgid "Back in time"
+msgstr ""
+
+#: templates/sfm/countries.html:27
+msgid "The Arab Spring"
+msgstr ""
+
+#: templates/sfm/countries.html:28
+msgid "Presidential election 2014"
+msgstr ""
+
+#: templates/sfm/countries.html:29
+msgid "Mubarrak presidency"
+msgstr ""
+
+#: templates/sfm/countries.html:34 templates/sfm/countries.html:72
+#: templates/sfm/countries.html:110 templates/sfm/countries.html:148
+msgid "Background"
+msgstr ""
+
+#: templates/sfm/countries.html:36 templates/sfm/countries.html:74
+#: templates/sfm/countries.html:112 templates/sfm/countries.html:150
+msgid "Read full background"
+msgstr ""
+
+#: templates/sfm/countries.html:50
+msgid "Kenya"
+msgstr ""
+
+#: templates/sfm/countries.html:61
+msgid "Browse <strong>800</strong> persons"
+msgstr ""
+
+#: templates/sfm/countries.html:62
+msgid "Browse <strong>1300</strong> units"
+msgstr ""
+
+#: templates/sfm/countries.html:66
+msgid "Election 2008"
+msgstr ""
+
+#: templates/sfm/countries.html:67
+msgid "Al-Shabab counter terror"
+msgstr ""
+
+#: templates/sfm/countries.html:88
+msgid "Mexico"
+msgstr ""
+
+#: templates/sfm/countries.html:99
+msgid "Browse <strong>574</strong> persons"
+msgstr ""
+
+#: templates/sfm/countries.html:100
+msgid "Browse <strong>1500</strong> units"
+msgstr ""
+
+#: templates/sfm/countries.html:104
+msgid "Caledron administration"
+msgstr ""
+
+#: templates/sfm/countries.html:105
+msgid "Drug war"
+msgstr ""
+
+#: templates/sfm/countries.html:126
+msgid "Nigeria"
+msgstr ""
+
+#: templates/sfm/countries.html:137
+msgid "Browse <strong>584</strong> persons"
+msgstr ""
+
+#: templates/sfm/countries.html:138
+msgid "Browse <strong>2331</strong> units"
+msgstr ""
+
+#: templates/sfm/countries.html:142
+msgid "Boko Haram counter-insurgency"
+msgstr ""
+
+#: templates/sfm/countries.html:143
+msgid "Operation Pulo Shield"
+msgstr ""
+
+#. Translators: Please keep the "strong" tags, which display the numbers in bold
+#: templates/sfm/dashboard.html:9
+msgid ""
+"Investigate <strong>police</strong> and <strong>military commanders</"
+"strong>, <strong>units</strong> and <strong>areas of operation</strong>"
+msgstr ""
+
+#: templates/sfm/dashboard.html:11
+msgid "Enter a person or unit name, location or keyword..."
+msgstr ""
+
+#: templates/sfm/dashboard.html:34
+msgid "Everything"
+msgstr ""
+
+#: templates/sfm/dashboard.html:43
+msgid "Learn more"
+msgstr ""
+
+#: templates/sfm/dashboard.html:51
+msgid "<strong>What is</strong> WhoWasInCommand?"
+msgstr ""
+
+#: templates/sfm/dashboard.html:54
+msgid "Simple illustration showing the research process"
+msgstr ""
+
+#: templates/sfm/dashboard.html:63
+msgid "<strong>How to use</strong> WhoWasInCommand"
+msgstr ""
+
+#: templates/sfm/dashboard.html:66
+msgid "Simple FAQ, text, and links to stuff about methods and data"
+msgstr ""
+
 #: templates/sidebar.html:9
 #, fuzzy
 #| msgid "Person"
@@ -1734,6 +2040,101 @@ msgstr "Nom"
 msgid "GeoName ID"
 msgstr ""
 
+#: templates/source/create.html:16
+msgid "Describe where you are getting your information."
+msgstr ""
+
+#: templates/source/create.html:26
+msgid "Source title"
+msgstr ""
+
+#: templates/source/create.html:41
+msgid "Date published"
+msgstr ""
+
+#: templates/source/create.html:100
+msgid "Source URL"
+msgstr ""
+
+#: templates/source/create.html:115
+msgid "Page number"
+msgstr ""
+
+#: templates/source/create.html:130
+msgid "Accessed date"
+msgstr ""
+
+#: templates/source/create.html:185
+msgid "Please enter two or more characters..."
+msgstr ""
+
+#: templates/violation/create.html:15
+msgid "Describe any incidents found in"
+msgstr ""
+
+#: templates/violation/create.html:147 templates/violation/create.html:365
+#, fuzzy
+#| msgid "Classification"
+msgid "Perpetrator units"
+msgstr "Classification"
+
+#: templates/violation/create.html:182 templates/violation/create.html:382
+#, fuzzy
+#| msgid "Classification"
+msgid "Perpetrator personnel"
+msgstr "Classification"
+
+#: templates/violation/create.html:254 templates/violation/create.html:415
+#: templates/violation/search.html:105 templates/violation/search.html:106
+#: violation/models.py:78
+msgid "Location description"
+msgstr ""
+
+#: templates/violation/create.html:278 templates/violation/create.html:430
+#, fuzzy
+#| msgid "Remove this person"
+msgid "Remove this incident"
+msgstr "Retirer cette personne "
+
+#: templates/violation/create.html:293
+msgid "Add new incident"
+msgstr ""
+
+#: templates/violation/create.html:331 templates/violation/search.html:157
+#: templates/violation/search.html:158
+msgid "Violation type"
+msgstr ""
+
+#: templates/violation/create.html:348
+msgid "Start and end date"
+msgstr ""
+
+#. Translators: The word "on" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date]" Words in [brackets] indicate variable text.
+#: templates/violation/detail.html:23
+msgid "on"
+msgstr ""
+
+#: templates/violation/detail.html:26
+msgid "and"
+msgstr ""
+
+#: templates/violation/detail.html:41
+#, fuzzy
+#| msgid "Classification"
+msgid "Location:"
+msgstr "Classification"
+
+#: templates/violation/detail.html:49
+msgid "Country:"
+msgstr ""
+
+#: templates/violation/detail.html:76 templates/violation/detail.html:90
+#: templates/violation/detail.html:156
+#, fuzzy
+#| msgid "Classification"
+msgid "Perpetrator organizations"
+msgstr "Classification"
+
 #: templates/violation/edit.html:12
 msgid "Event"
 msgstr ""
@@ -1742,17 +2143,8 @@ msgstr ""
 msgid "Search Violations"
 msgstr ""
 
-#: templates/violation/search.html:105 templates/violation/search.html:106
-#: violation/models.py:85
-msgid "Location description"
-msgstr ""
-
 #: templates/violation/search.html:150 templates/violation/search.html:151
 msgid "Source"
-msgstr ""
-
-#: templates/violation/search.html:157 templates/violation/search.html:158
-msgid "Violation type"
 msgstr ""
 
 #: templates/violation/search.html:161 templates/violation/search.html:162
@@ -1760,25 +2152,24 @@ msgid "Violation description"
 msgstr ""
 
 #: templates/violation/search.html:168 templates/violation/search.html:169
-#: templates/violation/search.html:197 violation/models.py:141
+#: templates/violation/search.html:197 violation/models.py:134
 msgid "Perpetrator"
 msgstr ""
 
 #: templates/violation/search.html:172 templates/violation/search.html:173
-#: violation/models.py:148
+#: violation/models.py:141
 msgid "Perpetrator Organization"
 msgstr ""
 
-#: violation/models.py:157
+#: violation/models.py:150
 msgid "Event Type"
 msgstr ""
 
-#: violation/models.py:172
+#: violation/models.py:165
 msgid "Event Perpetrator Classification"
 msgstr ""
 
 #, fuzzy
-#~| msgid "Person"
 #~ msgid "Remove Person"
 #~ msgstr "Personne"
 

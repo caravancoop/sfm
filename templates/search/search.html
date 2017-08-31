@@ -18,9 +18,9 @@
                     {% endfor %}
                 {% endfor %}
 
-                <input type="text" class="form-control input-lg" placeholder="Search for {{ search_term }}..." name="q" {% if query %}value="{{ query }}{% endif %}">
+                <input type="text" class="form-control input-lg" placeholder="{% trans 'Search for' %} {{ search_term }}..." name="q" {% if query %}value="{{ query }}{% endif %}">
                 <span class="input-group-btn">
-                    <button class="btn btn-default btn-lg" type="submit">Go!</button>
+                    <button class="btn btn-default btn-lg" type="submit">{% trans "Go!" %}</button>
                 </span>
             </div>
         </div>
@@ -32,20 +32,20 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <strong><i class="fa fa-fw fa-search"></i> I'm looking for...</strong>
+                        <strong><i class="fa fa-fw fa-search"></i> {% trans "I'm looking for..." %}</strong>
                     </h4>
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
                         <select id="entity-type" name="entity_type" class="form-control" multiple="multiple">
-                            <option value="Person" {% if 'Person' in entity_types %}selected=true{% endif %}>Personnel</option>
-                            <option value="Organization" {% if 'Organization' in entity_types %}selected=true{% endif %}>Units</option>
-                            <option value="Violation" {% if 'Violation' in entity_types %}selected=true{% endif %}>Incidents</option>
+                            <option value="Person" {% if 'Person' in entity_types %}selected=true{% endif %}>{% trans "Personnel" %}</option>
+                            <option value="Organization" {% if 'Organization' in entity_types %}selected=true{% endif %}>{% trans "Units" %}</option>
+                            <option value="Violation" {% if 'Violation' in entity_types %}selected=true{% endif %}>{% trans "Incidents" %}</option>
                         </select>
                     </div>
                         {% if selected_facets %}
                         <a href="{% url 'search' %}{% if query %}?q={{ query }}{% endif %}" class="btn btn-sm btn-default">
-                                <i class="fa fa-fw fa-times"></i>Clear all filters
+                                <i class="fa fa-fw fa-times"></i>{% trans "Clear all filters" %}
                             </a>
                         {% endif %}
                 </div>
@@ -55,12 +55,12 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <strong><i class="fa fa-fw fa-filter"></i>General filters</strong>
+                        <strong><i class="fa fa-fw fa-filter"></i>{% trans "General filters" %}</strong>
                     </h4>
                 </div>
                 <div class="panel-body" id="general-filters">
                     <div class="form-group">
-                        <strong><i class="fa fa-fw fa-globe"></i>Location</strong>
+                        <strong><i class="fa fa-fw fa-globe"></i>{% trans "Location" %}</strong>
                         <div class="select2-input-buffer">
                             <select id="location-filter" name="osm_id" class="form-control">
                                 {% if osm %}
@@ -79,9 +79,9 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <strong><i class="fa fa-fw fa-calendar"></i>Date</strong>
-                        <input type="text" class="form-control datepicker select2-input-buffer" id="id_start_date" name="start_date" placeholder="Start date" value="{{ start_date }}" />
-                        <input type="text" class="form-control datepicker select2-input-buffer" id="id_end_date" name="end_date" placeholder="End date" value="{{ end_date }}" />
+                        <strong><i class="fa fa-fw fa-calendar"></i>{% trans "Date" %}</strong>
+                        <input type="text" class="form-control datepicker select2-input-buffer" id="id_start_date" name="start_date" placeholder="{% trans 'Start date' %}" value="{{ start_date }}" />
+                        <input type="text" class="form-control datepicker select2-input-buffer" id="id_end_date" name="end_date" placeholder="{% trans 'End date' %}" value="{{ end_date }}" />
                     </div>
                 </div>
             </div>
@@ -91,7 +91,8 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            Filters for <strong><i class="fa fa-fw fa-user"></i>Personnel</strong>
+                            {% comment %}Translators: Please preserve the "strong" and "i" tags, which display an icon. Use the single quote around 'fa fa-w fa-user'. {% endcomment %}
+                            {% trans "Filters for <strong><i class='fa fa-fw fa-user'></i>Personnel</strong>" %}
                         </h4>
                     </div>
                     <!-- Facets -->
@@ -129,7 +130,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            Filters for <strong><i class="fa fa-fw fa-users"></i>Units</strong>
+                            {% trans "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>" %}
                         </h4>
                     </div>
                     <!-- Facets -->
@@ -161,7 +162,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            Filters for <strong><i class="fa fa-fw fa-exclamation-triangle"></i>Incidents</strong>
+                            {% trans "Filters for <strong><i class='fa fa-fw fa-exclamation-triangle'></i>Incidents</strong>" %}
                         </h4>
                     </div>
                     <!-- Facets -->
@@ -203,7 +204,7 @@
     </form>
     <div class="col-xs-12 col-sm-8 pull-right">
     {% if results %}
-        <h1>{{ hits.global|intcomma }} results found {% if query %}for &ldquo;{{ query }}&rdquo;{% endif %}</h1>
+        <h1>{{ hits.global|intcomma }} {% trans "results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query }}&rdquo;{% endif %}</h1>
 
         {% if 'Person' in results.keys %}
             {% with objects=results.Person hit_count=hits.Person %}
@@ -221,9 +222,9 @@
             {% endwith %}
         {% endif %}
     {% else %}
-        <h1>No results found {% if query %}for &ldquo;{{ query  }}&rdquo;{% endif %}</h1>
-        <p>For better results, try adjusting your search filters.</p>
-        <p>Think we're missing something? <a href="#">Let us know!</a></p>
+        <h1>{% trans "No results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query  }}&rdquo;{% endif %}</h1>
+        <p>{% trans "For better results, try adjusting your search filters." %}</p>
+        <p>{% trans "Think we're missing something?" %} <a href="#">{% trans "Let us know!" %}</a></p>
     {% endif %}
     </div>
 </div>
