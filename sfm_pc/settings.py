@@ -269,3 +269,9 @@ CONFIDENCE_LEVELS = (
     ('2', _('Medium')),
     ('3', _('High')),
 )
+
+OPEN_ENDED_CHOICES = (
+    ('Y', _('Yes')),
+    ('N', _('No')),
+    ('E', _('Exact'))
+)
