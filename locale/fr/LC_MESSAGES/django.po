@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-31 09:52-0500\n"
-"PO-Revision-Date: 2017-08-31 14:19+0000\n"
+"POT-Creation-Date: 2017-08-31 10:27-0500\n"
+"PO-Revision-Date: 2017-08-31 15:28+0000\n"
 "Last-Translator: b'  <reginafcompton@datamade.us>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -28,13 +28,15 @@ msgstr ""
 #: templates/organization/detail.html:154
 #: templates/organization/detail.html:205
 #: templates/organization/detail.html:256
-#: templates/organization/detail.html:307 templates/organization/search.html:22
+#: templates/organization/detail.html:307
+#: templates/organization/search.html:22
 #: templates/organization/search.html:162
 #: templates/partials/organization_list_table.html:10
-#: templates/partials/person_list_table.html:13 templates/person/create.html:39
-#: templates/person/create.html:226 templates/person/detail.html:111
-#: templates/person/search.html:21 templates/person/search.html:128
-#: templates/site/search.html:23 templates/site/search.html:93
+#: templates/partials/person_list_table.html:13
+#: templates/person/create.html:39 templates/person/create.html:226
+#: templates/person/detail.html:111 templates/person/search.html:21
+#: templates/person/search.html:128 templates/site/search.html:23
+#: templates/site/search.html:93
 msgid "Name"
 msgstr "Nom"
 
@@ -47,7 +49,8 @@ msgstr ""
 #: templates/composition/search.html:97 templates/composition/search.html:140
 #: templates/organization/create.html:112
 #: templates/organization/create.html:269 templates/organization/edit.html:59
-#: templates/organization/search.html:30 templates/organization/search.html:164
+#: templates/organization/search.html:30
+#: templates/organization/search.html:164
 #: templates/partials/organization_list_table.html:26
 msgid "Classification"
 msgstr "Classification"
@@ -256,17 +259,20 @@ msgstr "Personne"
 msgid "Please add a source for this information"
 msgstr ""
 
-#: sfm_pc/settings.py:150 tests/test_settings.py:127
+#: sfm_pc/settings.py:150 sfm_pc/templatetags/language_url.py:16
+#: tests/test_settings.py:127
 msgid "French"
 msgstr "Français"
 
-#: sfm_pc/settings.py:151 tests/test_settings.py:128
+#: sfm_pc/settings.py:151 sfm_pc/templatetags/language_url.py:15
+#: tests/test_settings.py:128
 msgid "English"
 msgstr "Anglais"
 
-#: sfm_pc/settings.py:152 tests/test_settings.py:129
+#: sfm_pc/settings.py:152 sfm_pc/templatetags/language_url.py:17
+#: tests/test_settings.py:129
 msgid "Spanish"
-msgstr ""
+msgstr "Espanol"
 
 #: source/forms.py:7
 msgid "Title is required"
@@ -335,7 +341,8 @@ msgstr ""
 #: templates/account/email.html:44
 msgid ""
 "You currently do not have any e-mail address set up. You should really add "
-"an e-mail address so you can receive notifications, reset your password, etc."
+"an e-mail address so you can receive notifications, reset your password, "
+"etc."
 msgstr ""
 
 #: templates/account/email.html:49
@@ -355,9 +362,7 @@ msgstr ""
 msgid ""
 "Hello from %(site_name)s!\n"
 "\n"
-"You're receiving this e-mail because user %(user_display)s at "
-"%(site_domain)s has given yours as an e-mail address to connect their "
-"account.\n"
+"You're receiving this e-mail because user %(user_display)s at %(site_domain)s has given yours as an e-mail address to connect their account.\n"
 "\n"
 "To confirm this is correct, go to %(activate_url)s\n"
 msgstr ""
@@ -378,10 +383,8 @@ msgstr ""
 msgid ""
 "Hello from %(site_name)s!\n"
 "\n"
-"You're receiving this e-mail because you or someone else has requested a "
-"password for your user account at %(site_domain)s.\n"
-"It can be safely ignored if you did not request a password reset. Click the "
-"link below to reset your password."
+"You're receiving this e-mail because you or someone else has requested a password for your user account at %(site_domain)s.\n"
+"It can be safely ignored if you did not request a password reset. Click the link below to reset your password."
 msgstr ""
 
 #: templates/account/email/password_reset_key_message.txt:8
@@ -421,15 +424,15 @@ msgstr ""
 #: templates/account/email_confirm.html:27
 #, python-format
 msgid ""
-"This e-mail confirmation link expired or is invalid. Please <a href="
-"\"%(email_url)s\">issue a new e-mail confirmation request</a>."
+"This e-mail confirmation link expired or is invalid. Please <a "
+"href=\"%(email_url)s\">issue a new e-mail confirmation request</a>."
 msgstr ""
 
 #: templates/account/email_confirmed.html:15
 #, python-format
 msgid ""
-"You have confirmed that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-"
-"mail address for user %(user_display)s."
+"You have confirmed that <a href=\"mailto:%(email)s\">%(email)s</a> is an "
+"e-mail address for user %(user_display)s."
 msgstr ""
 
 #: templates/account/login.html:6 templates/account/login.html:25
@@ -526,8 +529,8 @@ msgstr ""
 
 #: templates/account/password_reset.html:15
 msgid ""
-"Forgotten your password? Enter your e-mail address below, and we'll send you "
-"an e-mail allowing you to reset it."
+"Forgotten your password? Enter your e-mail address below, and we'll send you"
+" an e-mail allowing you to reset it."
 msgstr ""
 
 #: templates/account/password_reset.html:20
@@ -544,7 +547,8 @@ msgid ""
 "within a few minutes."
 msgstr ""
 
-#. Translators: To communicate that the user does not have a valid password reset link
+#. Translators: To communicate that the user does not have a valid password
+#. reset link
 #: templates/account/password_reset_from_key.html:8
 msgid "Bad Token"
 msgstr ""
@@ -553,8 +557,8 @@ msgstr ""
 #, python-format
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
-"used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</"
-"a>."
+"used.  Please request a <a href=\"%(passwd_reset_url)s\">new password "
+"reset</a>."
 msgstr ""
 
 #: templates/account/password_reset_from_key.html:18
@@ -634,8 +638,8 @@ msgstr ""
 #: templates/account/verified_email_required.html:20
 #, python-format
 msgid ""
-"<strong>Note:</strong> you can still <a href=\"%(email_url)s\">change your e-"
-"mail address</a>."
+"<strong>Note:</strong> you can still <a href=\"%(email_url)s\">change your "
+"e-mail address</a>."
 msgstr ""
 
 #: templates/area/edit.html:11
@@ -677,7 +681,8 @@ msgstr ""
 
 #: templates/area/search.html:10 templates/association/edit.html:11
 #: templates/association/search.html:9 templates/emplacement/edit.html:11
-#: templates/emplacement/search.html:9 templates/membershipperson/search.html:9
+#: templates/emplacement/search.html:9
+#: templates/membershipperson/search.html:9
 #: templates/organization/search.html:9 templates/person/search.html:9
 #: templates/site/search.html:9
 msgid "Add New"
@@ -696,9 +701,9 @@ msgstr ""
 #: templates/composition/search.html:99
 #: templates/membershipperson/search.html:19
 #: templates/membershipperson/search.html:28
-#: templates/organization/search.html:32 templates/organization/search.html:124
-#: templates/person/search.html:86 templates/site/search.html:40
-#: templates/violation/search.html:114
+#: templates/organization/search.html:32
+#: templates/organization/search.html:124 templates/person/search.html:86
+#: templates/site/search.html:40 templates/violation/search.html:114
 msgid "Choose"
 msgstr ""
 
@@ -894,9 +899,9 @@ msgstr ""
 #: templates/emplacement/search.html:42 templates/emplacement/search.html:81
 #: templates/membershipperson/search.html:61
 #: templates/membershipperson/search.html:100
-#: templates/organization/search.html:61 templates/organization/search.html:100
-#: templates/person/search.html:61 templates/violation/search.html:36
-#: templates/violation/search.html:75
+#: templates/organization/search.html:61
+#: templates/organization/search.html:100 templates/person/search.html:61
+#: templates/violation/search.html:36 templates/violation/search.html:75
 msgid "July"
 msgstr ""
 
@@ -905,9 +910,9 @@ msgstr ""
 #: templates/emplacement/search.html:43 templates/emplacement/search.html:82
 #: templates/membershipperson/search.html:62
 #: templates/membershipperson/search.html:101
-#: templates/organization/search.html:62 templates/organization/search.html:101
-#: templates/person/search.html:62 templates/violation/search.html:37
-#: templates/violation/search.html:76
+#: templates/organization/search.html:62
+#: templates/organization/search.html:101 templates/person/search.html:62
+#: templates/violation/search.html:37 templates/violation/search.html:76
 msgid "August"
 msgstr ""
 
@@ -916,9 +921,9 @@ msgstr ""
 #: templates/emplacement/search.html:44 templates/emplacement/search.html:83
 #: templates/membershipperson/search.html:63
 #: templates/membershipperson/search.html:102
-#: templates/organization/search.html:63 templates/organization/search.html:102
-#: templates/person/search.html:63 templates/violation/search.html:38
-#: templates/violation/search.html:77
+#: templates/organization/search.html:63
+#: templates/organization/search.html:102 templates/person/search.html:63
+#: templates/violation/search.html:38 templates/violation/search.html:77
 msgid "September"
 msgstr ""
 
@@ -927,9 +932,9 @@ msgstr ""
 #: templates/emplacement/search.html:45 templates/emplacement/search.html:84
 #: templates/membershipperson/search.html:64
 #: templates/membershipperson/search.html:103
-#: templates/organization/search.html:64 templates/organization/search.html:103
-#: templates/person/search.html:64 templates/violation/search.html:39
-#: templates/violation/search.html:78
+#: templates/organization/search.html:64
+#: templates/organization/search.html:103 templates/person/search.html:64
+#: templates/violation/search.html:39 templates/violation/search.html:78
 msgid "October"
 msgstr ""
 
@@ -938,9 +943,9 @@ msgstr ""
 #: templates/emplacement/search.html:46 templates/emplacement/search.html:85
 #: templates/membershipperson/search.html:65
 #: templates/membershipperson/search.html:104
-#: templates/organization/search.html:65 templates/organization/search.html:104
-#: templates/person/search.html:65 templates/violation/search.html:40
-#: templates/violation/search.html:79
+#: templates/organization/search.html:65
+#: templates/organization/search.html:104 templates/person/search.html:65
+#: templates/violation/search.html:40 templates/violation/search.html:79
 msgid "November"
 msgstr ""
 
@@ -949,9 +954,9 @@ msgstr ""
 #: templates/emplacement/search.html:47 templates/emplacement/search.html:86
 #: templates/membershipperson/search.html:66
 #: templates/membershipperson/search.html:105
-#: templates/organization/search.html:66 templates/organization/search.html:105
-#: templates/person/search.html:66 templates/violation/search.html:41
-#: templates/violation/search.html:80
+#: templates/organization/search.html:66
+#: templates/organization/search.html:105 templates/person/search.html:66
+#: templates/violation/search.html:41 templates/violation/search.html:80
 msgid "December"
 msgstr ""
 
@@ -960,9 +965,9 @@ msgstr ""
 #: templates/emplacement/search.html:52 templates/emplacement/search.html:91
 #: templates/membershipperson/search.html:71
 #: templates/membershipperson/search.html:110
-#: templates/organization/search.html:71 templates/organization/search.html:110
-#: templates/person/search.html:71 templates/violation/search.html:46
-#: templates/violation/search.html:85
+#: templates/organization/search.html:71
+#: templates/organization/search.html:110 templates/person/search.html:71
+#: templates/violation/search.html:46 templates/violation/search.html:85
 msgid "Year"
 msgstr ""
 
@@ -995,7 +1000,7 @@ msgstr ""
 
 #: templates/base.html:46 templates/partials/nav-wizard.html:7
 #: templates/partials/person_search_results.html:5
-#: templates/person/create.html:15
+#: templates/person/create.html:15 templates/sfm/dashboard.html:22
 #, fuzzy
 #| msgid "Person"
 msgid "Personnel"
@@ -1004,13 +1009,16 @@ msgstr "Personne"
 #: templates/base.html:47 templates/organization/create.html:14
 #: templates/partials/nav-wizard.html:6
 #: templates/partials/organization_search_results.html:5
+#: templates/sfm/dashboard.html:26
 msgid "Units"
 msgstr ""
 
 #: templates/base.html:48 templates/organization/detail.html:45
-#: templates/organization/detail.html:63 templates/organization/detail.html:339
+#: templates/organization/detail.html:63
+#: templates/organization/detail.html:339
 #: templates/partials/nav-wizard.html:10
 #: templates/partials/violation_search_results.html:5
+#: templates/sfm/dashboard.html:30
 msgid "Incidents"
 msgstr ""
 
@@ -1056,18 +1064,21 @@ msgstr "Retirer cette personne "
 #: templates/composition/create.html:35
 #: templates/membershiporganization/create.html:42
 #: templates/membershipperson/create.html:37
-#: templates/organization/create.html:30 templates/organization/create.html:235
+#: templates/organization/create.html:30
+#: templates/organization/create.html:235
 #: templates/partials/version_list.html:21 templates/person/create.html:30
 #: templates/person/create.html:222 templates/violation/create.html:30
 #: templates/violation/create.html:314
 msgid "Value"
 msgstr ""
 
-#. Translators: The level of confidence that the user has in a source, when entering it into the system
+#. Translators: The level of confidence that the user has in a source, when
+#. entering it into the system
 #: templates/composition/create.html:36
 #: templates/membershiporganization/create.html:43
 #: templates/membershipperson/create.html:38 templates/modals/source.html:10
-#: templates/organization/create.html:31 templates/organization/create.html:236
+#: templates/organization/create.html:31
+#: templates/organization/create.html:236
 #: templates/partials/version_list.html:22 templates/person/create.html:31
 #: templates/person/create.html:223 templates/violation/create.html:31
 #: templates/violation/create.html:315
@@ -1212,7 +1223,8 @@ msgid "Remove membership"
 msgstr "Retirer cette personne "
 
 #: templates/membershiporganization/create.html:143
-msgid "Are you sure you want to remove this membership? All data will be lost."
+msgid ""
+"Are you sure you want to remove this membership? All data will be lost."
 msgstr ""
 
 #: templates/membershipperson/create.html:15
@@ -1372,13 +1384,15 @@ msgstr "Retirer cette personne "
 msgid "Describe any units found in"
 msgstr ""
 
-#: templates/organization/create.html:38 templates/organization/create.html:239
+#: templates/organization/create.html:38
+#: templates/organization/create.html:239
 #, fuzzy
 #| msgid "Person"
 msgid "Unit name"
 msgstr "Personne"
 
-#: templates/organization/create.html:74 templates/organization/create.html:255
+#: templates/organization/create.html:74
+#: templates/organization/create.html:255
 #: templates/organization/detail.html:104
 #: templates/organization/detail.html:155
 #: templates/organization/detail.html:206
@@ -1514,6 +1528,7 @@ msgid "Search an organization"
 msgstr ""
 
 #: templates/organization/search.html:15 templates/person/search.html:15
+#: templates/sfm/dashboard.html:13
 msgid "Search"
 msgstr ""
 
@@ -1778,7 +1793,8 @@ msgstr ""
 msgid "Browse data"
 msgstr ""
 
-#. Translators: Please keep the "strong" tags, which displays the numbers in bold
+#. Translators: Please keep the "strong" tags, which display the numbers in
+#. bold
 #: templates/sfm/countries.html:22
 msgid "Browse <strong>580</strong> persons"
 msgstr ""
@@ -1872,6 +1888,47 @@ msgstr ""
 
 #: templates/sfm/countries.html:143
 msgid "Operation Pulo Shield"
+msgstr ""
+
+#. Translators: Please keep the "strong" tags, which display the numbers in
+#. bold
+#: templates/sfm/dashboard.html:9
+msgid ""
+"Investigate <strong>police</strong> and <strong>military "
+"commanders</strong>, <strong>units</strong> and <strong>areas of "
+"operation</strong>"
+msgstr ""
+
+#: templates/sfm/dashboard.html:11
+msgid "Enter a person or unit name, location or keyword..."
+msgstr ""
+
+#: templates/sfm/dashboard.html:18
+msgid "I'm looking for..."
+msgstr ""
+
+#: templates/sfm/dashboard.html:34
+msgid "Everything"
+msgstr ""
+
+#: templates/sfm/dashboard.html:43
+msgid "Learn more"
+msgstr ""
+
+#: templates/sfm/dashboard.html:51
+msgid "<strong>What is</strong> WhoWasInCommand?"
+msgstr ""
+
+#: templates/sfm/dashboard.html:54
+msgid "Simple illustration showing the research process"
+msgstr ""
+
+#: templates/sfm/dashboard.html:63
+msgid "<strong>How to use</strong> WhoWasInCommand"
+msgstr ""
+
+#: templates/sfm/dashboard.html:66
+msgid "Simple FAQ, text, and links to stuff about methods and data"
 msgstr ""
 
 #: templates/sidebar.html:9

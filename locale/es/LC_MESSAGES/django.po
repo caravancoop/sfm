@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-31 09:52-0500\n"
+"POT-Creation-Date: 2017-08-31 09:58-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -251,15 +251,18 @@ msgstr ""
 msgid "Please add a source for this information"
 msgstr ""
 
-#: sfm_pc/settings.py:150 tests/test_settings.py:127
+#: sfm_pc/settings.py:150 sfm_pc/templatetags/language_url.py:16
+#: tests/test_settings.py:127
 msgid "French"
 msgstr ""
 
-#: sfm_pc/settings.py:151 tests/test_settings.py:128
+#: sfm_pc/settings.py:151 sfm_pc/templatetags/language_url.py:15
+#: tests/test_settings.py:128
 msgid "English"
 msgstr ""
 
-#: sfm_pc/settings.py:152 tests/test_settings.py:129
+#: sfm_pc/settings.py:152 sfm_pc/templatetags/language_url.py:17
+#: tests/test_settings.py:129
 msgid "Spanish"
 msgstr ""
 

@@ -5,32 +5,33 @@
     <div class="col-sm-12">
         <div class="jumbotron">
             <form action='{% url 'search' %}' method='GET'>
-                <p>Investigate <strong>police</strong> and <strong>military commanders</strong>, <strong>units</strong> and <strong>areas of operation</strong></p>
+                {% comment %}Translators: Please keep the "strong" tags, which display the numbers in bold{% endcomment %}
+                <p>{% trans "Investigate <strong>police</strong> and <strong>military commanders</strong>, <strong>units</strong> and <strong>areas of operation</strong>" %}</p>
                 <div class="row input-group input-group-lg">
-                    <input type="text" class="form-control" placeholder="Enter a person or unit name, location or keyword..." name="q">
+                    <input type="text" class="form-control" placeholder="{% trans 'Enter a person or unit name, location or keyword...' %}" name="q">
                     <span class="input-group-btn">
-                        <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> Search</button>
+                        <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> {% trans "Search" %}</button>
                     </span>
                 </div>
                 <div class="row">
                     <div class="col-sm-12">
-                        <p class="small"><strong><i class="fa fa-fw fa-search"></i> I'm looking for...</strong></p>
+                        <p class="small"><strong><i class="fa fa-fw fa-search"></i> {% trans "I'm looking for..." %}</strong></p>
                         <div class="entities btn-group" data-toggle="buttons">
                             <label class="btn btn-default">
                                 <input type="checkbox" autocomplete="off" name='entity_type' value='Person' />
-                                <i class="fa fa-fw fa-user"></i> Personnel
+                                <i class="fa fa-fw fa-user"></i> {% trans "Personnel" %}
                             </label>
                             <label class="btn btn-default">
                                 <input type="checkbox" name="entity_type" value="Organization" />
-                                <i class="fa fa-fw fa-users"></i> Units
+                                <i class="fa fa-fw fa-users"></i> {% trans "Units" %}
                             </label>
                             <label class="btn btn-default">
                                 <input type="checkbox" name="entity_type" value="Violation" />
-                                <i class="fa fa-fw fa-exclamation-triangle"></i> Incidents
+                                <i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}
                             </label>
                             <label class="btn btn-default active">
                                 <input type="checkbox" name="" value="" checked>
-                                <i class="fa fa-fw fa-thumbs-up"></i> Everything
+                                <i class="fa fa-fw fa-thumbs-up"></i> {% trans "Everything" %}
                             </label>
                         </div>
                     </div>
@@ -39,7 +40,7 @@
         </div>
     </div>
     <div class="col-sm-12">
-        <a href="#">Learn more <i class="fa fa-fw fa-arrow-right"></i></a>
+        <a href="#">{% trans "Learn more" %} <i class="fa fa-fw fa-arrow-right"></i></a>
     </div>
 </div>
 <hr />
@@ -47,10 +48,10 @@
     <div class="col-sm-12">
         <div class="panel panel-default" style="min-height:150px">
             <div class="panel-heading">
-                <h4><strong>What is</strong> WhoWasInCommand?</h4>
+                <h4>{% trans "<strong>What is</strong> WhoWasInCommand?" %}</h4>
             </div>
             <div class="panel-body">
-                <p><em>Simple illustration showing the research process</em></p>
+                <p><em>{% trans "Simple illustration showing the research process" %}</em></p>
             </div>
         </div>
     </div>
@@ -59,10 +60,10 @@
     <div class="col-sm-12">
         <div class="panel panel-default" style="min-height:150px">
             <div class="panel-heading">
-                <h4><strong>How to use</strong> WhoWasInCommand</h4>
+                <h4>{% trans "<strong>How to use</strong> WhoWasInCommand" %}</h4>
             </div>
             <div class="panel-body">
-                <p><em>Simple FAQ, text, and links to stuff about methods and data</em></p>
+                <p><em>{% trans "Simple FAQ, text, and links to stuff about methods and data" %}</em></p>
             </div>
         </div>
     </div>
