@@ -198,6 +198,7 @@ LOGIN_URL = reverse_lazy('account_login')
 LOGIN_REDIRECT_URL = '/'
 
 AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
