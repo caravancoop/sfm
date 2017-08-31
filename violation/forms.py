@@ -1,11 +1,11 @@
 from django import forms
 
 from django_date_extensions.fields import ApproximateDateFormField
-from complex_fields.models import CONFIDENCE_LEVELS
 
 from leaflet.forms.widgets import LeafletWidget
 from .models import ViolationLocation
 
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 class ViolationForm(forms.Form):
     startdate = ApproximateDateFormField(required=True)

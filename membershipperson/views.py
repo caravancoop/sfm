@@ -15,13 +15,13 @@ from django.db import DEFAULT_DB_ALIAS
 from django.core.urlresolvers import reverse_lazy
 
 from extra_views import FormSetView
-from complex_fields.models import CONFIDENCE_LEVELS
 
 from membershipperson.models import MembershipPerson, Role, Rank, Context
 from membershipperson.forms import MembershipPersonForm
 from source.models import Source
 from sfm_pc.utils import deleted_in_str
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 class MembershipPersonCreate(BaseFormSetView):
     template_name = 'membershipperson/create.html'

@@ -16,7 +16,6 @@ from django.shortcuts import redirect
 from django.conf import settings
 
 from extra_views import FormSetView
-from complex_fields.models import CONFIDENCE_LEVELS
 
 from violation.models import Violation, Type, ViolationType, \
     ViolationPerpetrator, ViolationPerpetratorOrganization
@@ -26,6 +25,7 @@ from organization.models import Organization
 from violation.forms import ZoneForm, ViolationForm
 from sfm_pc.utils import deleted_in_str, get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 class ViolationDetail(DetailView):
     model = Violation

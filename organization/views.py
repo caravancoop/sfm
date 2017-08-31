@@ -6,7 +6,6 @@ from django.http import HttpResponse
 from django.db import connection
 from django.utils.translation import get_language
 from django.core.urlresolvers import reverse_lazy
-from complex_fields.models import CONFIDENCE_LEVELS
 
 from source.models import Source
 from geosite.models import Geosite
@@ -19,6 +18,7 @@ from organization.models import Organization, OrganizationAlias, Alias, \
 
 from sfm_pc.utils import get_osm_by_id, get_hierarchy_by_id
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 
 class OrganizationDetail(DetailView):

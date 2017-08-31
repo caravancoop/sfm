@@ -17,7 +17,6 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
 from extra_views import FormSetView
-from complex_fields.models import CONFIDENCE_LEVELS
 
 from person.models import Person, PersonName, PersonAlias, Alias
 from person.forms import PersonForm
@@ -26,6 +25,7 @@ from source.models import Source
 from membershipperson.models import MembershipPerson, Role
 from sfm_pc.utils import deleted_in_str, chain_of_command
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 class PersonDetail(DetailView):
     model = Person

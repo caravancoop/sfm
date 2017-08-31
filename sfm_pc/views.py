@@ -28,10 +28,10 @@ from violation.models import Violation
 from membershipperson.models import MembershipPerson
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
-from complex_fields.models import CONFIDENCE_LEVELS
 from sfm_pc.utils import import_class, get_osm_by_id
 from sfm_pc.forms import MergeForm
 from sfm_pc.base_views import UtilityMixin
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 
 class Dashboard(TemplateView):

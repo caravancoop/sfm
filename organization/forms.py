@@ -3,7 +3,7 @@ from django import forms
 from django_date_extensions.fields import ApproximateDateFormField
 from django.utils.translation import ugettext as _
 
-from complex_fields.models import CONFIDENCE_LEVELS
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 class OrganizationForm(forms.Form):
     name = forms.CharField(error_messages={'required': _('Unit name is required')})

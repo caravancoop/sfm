@@ -12,28 +12,28 @@
 
 {% block header %}
     <h2 class="page-title">
-        <i class="fa fa-fw fa-exclamation-triangle"></i> Incident
+        <i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incident" %}
         {% if violation.geoname %}
-            in <strong>{{ violation.geoname }}</strong>
+            {% trans "in" %} <strong>{{ violation.geoname }}</strong>
         {% endif %}
         {% if violation.startdate.get_value and violation.enddate.get_value %}
             {% if violation.startdate.get_value.value == violation.enddate.get_value.value %}
-                on <strong>{{ violation.startdate.get_value }}</strong>
+                {% trans "on" %} <strong>{{ violation.startdate.get_value }}</strong>
             {% else %}
-                between <strong>{{ violation.startdate.get_value }}</strong> and <strong>{{ violation.enddate.get_value }}</strong>
+                {% trans "between" %} <strong>{{ violation.startdate.get_value }}</strong> {% trans "and" %} <strong>{{ violation.enddate.get_value }}</strong>
             {% endif %}
         {% elif violation.startdate.get_value %}
-            starting <strong>{{ violation.startdate.get_value }}</strong>
+            {% trans "starting" %} <strong>{{ violation.startdate.get_value }}</strong>
         {% elif violation.enddate.get_value %}
-            ending <strong>{{ violation.enddate.get_value }}</strong>
+            {% trans "ending" %} <strong>{{ violation.enddate.get_value }}</strong>
         {% endif %}
         <small>
-            <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">Edit</a>
+            <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">{% trans "Edit" %}</a>
         </small>
     </h2>
 
     {% if violation.locationdescription.get_value or violation.adminlevel1.get_value or violation.adminlevel2.get_value %}
-        <h4>Location:
+        <h4>{% trans "Location:" %}
             <strong>
                 {% render_location_string violation countries=False %}
             </strong>
@@ -41,7 +41,7 @@
     {% endif %}
 
     {% if violation.division_id.get_value %}
-        <h4>Country: <strong>{{ violation.division_id.get_value | country_name }}</strong></h4>
+        <h4>{% trans "Country:" %} <strong>{{ violation.division_id.get_value | country_name }}</strong></h4>"
     {% endif %}
 
     {% if violation.types.get_list %}
@@ -65,12 +65,12 @@
 {% block sidebar %}
     {% has_versions violation as changelog %}
 
-    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> Location </a></li>{% endif %}
-    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> Description </a></li>{% endif %}
-    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</a></li>{% endif %}
-    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</li>{% endif %}
-    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
-    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
+    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
+    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 
 {% endblock %}
 
@@ -79,12 +79,12 @@
 {% block sidebar_mobile %}
     {% has_versions violation as changelog %}
 
-    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> Location </a></li>{% endif %}
-    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> Description </a></li>{% endif %}
-    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</a></li>{% endif %}
-    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</li>{% endif %}
-    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> Sources</a></li>{% endif %}
-    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> Changelog</a></li>{% endif %}
+    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
+    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
+    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 
 {% endblock %}
 
@@ -93,7 +93,7 @@
     {% if location %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="location"><i class="fa fa-fw fa-map-marker"></i> Location</h3>
+            <h3 id="location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %}</h3>
             <hr />
             <div id="geoname_map" style="height:300px;"></div>
             <h4><strong>{% render_location_string violation %}</strong></h4>
@@ -104,7 +104,7 @@
     {% if violation.description %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="description"><i class="fa fa-fw fa-file-text-o"></i> Description</h3>
+            <h3 id="description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %}</h3>
             <hr />
             {% with N=1 description=violation.description %}
                 {% include 'partials/violation_description.html' %}
@@ -116,12 +116,12 @@
     {% if violation.violationperpetrator_set.all %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="perpetrators"><i class="fa fa-fw fa-user"></i> Perpetrators</h3>
+            <h3 id="perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</h3>
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Aliases</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -148,13 +148,13 @@
     {% if violation.violationperpetratororganization_set.all %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="perpetrator-organizations"><i class="fa fa-fw fa-users"></i> Perpetrator organizations</h3>
+            <h3 id="perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</h3>
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Aliases</th>
-                        <th>Classification</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classification" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -198,7 +198,7 @@
             $(document).ready(function(){
                 var center_x = {{ location.x|safe }};
                 var center_y = {{ location.y|safe }};
-                var map = L.map('geoname_map').setView([center_y, center_x], 10);
+                var map = L.map('geoname_map').([center_y, center_x], 10);
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             { attribution: attribution, detectRetina: true }).addTo(map);

@@ -1,8 +1,8 @@
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
-from complex_fields.models import CONFIDENCE_LEVELS
 
 from sfm_pc.base_views import BaseFormSetView
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 from source.models import Source
 from membershiporganization.forms import MembershipOrganizationForm

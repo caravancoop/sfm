@@ -91,7 +91,8 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            {% trans "Filters for <strong><i class="fa fa-fw fa-user"></i>Personnel</strong>" %}
+                            {% comment %}Translators: Please preserve the "strong" and "i" tags, which display an icon. Use the single quote around 'fa fa-w fa-user'. {% endcomment %}
+                            {% trans "Filters for <strong><i class='fa fa-fw fa-user'></i>Personnel</strong>" %}
                         </h4>
                     </div>
                     <!-- Facets -->
@@ -129,7 +130,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            {% trans "Filters for <strong><i class="fa fa-fw fa-users"></i>Units</strong>" %}
+                            {% trans "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>" %}
                         </h4>
                     </div>
                     <!-- Facets -->
@@ -203,7 +204,7 @@
     </form>
     <div class="col-xs-12 col-sm-8 pull-right">
     {% if results %}
-        <h1>{{ hits.global|intcomma }} results found {% if query %}for &ldquo;{{ query }}&rdquo;{% endif %}</h1>
+        <h1>{{ hits.global|intcomma }} {% trans "results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query }}&rdquo;{% endif %}</h1>
 
         {% if 'Person' in results.keys %}
             {% with objects=results.Person hit_count=hits.Person %}

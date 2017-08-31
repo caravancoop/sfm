@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from complex_fields.models import CONFIDENCE_LEVELS
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 
 class PersonForm(forms.Form):

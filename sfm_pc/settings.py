@@ -257,3 +257,9 @@ OSM_DATA = [
 MESSAGE_TAGS = {
     messages.SUCCESS: 'alert-success'
 }
+
+CONFIDENCE_LEVELS = (
+    ('1', _('Low')),
+    ('2', _('Medium')),
+    ('3', _('High')),
+)

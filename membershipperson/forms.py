@@ -3,8 +3,7 @@ from django import forms
 from django_date_extensions.fields import ApproximateDateFormField
 
 from membershipperson.models import MembershipPerson
-
-from complex_fields.models import CONFIDENCE_LEVELS
+from sfm_pc.settings import CONFIDENCE_LEVELS
 
 
 class MembershipPersonForm(forms.Form):
