@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext as _
+from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -14,14 +15,17 @@ class Association(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, AssociationStartDate)
+        self.realstart = ComplexFieldContainer(self, AssociationRealStart)
+
         self.enddate = ComplexFieldContainer(self, AssociationEndDate)
-        self.organization = ComplexFieldContainer(self, AssociationOrganization)
-        self.area = ComplexFieldContainer(self, AssociationArea)
-        
         self.open_ended = ComplexFieldContainer(self, AssociationOpenEnded)
 
-        self.complex_fields = [self.startdate, self.enddate, self.organization,
-                               self.area, self.open_ended]
+        self.organization = ComplexFieldContainer(self, AssociationOrganization)
+        self.area = ComplexFieldContainer(self, AssociationArea)
+
+
+        self.complex_fields = [self.startdate, self.realstart, self.enddate,
+                               self.open_ended, self.organization, self.area]
 
         self.required_fields = [
             "Association_AssociationOrganization",
@@ -41,6 +45,14 @@ class AssociationStartDate(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = ApproximateDateField()
     field_name = _("Start date")
+
+
+@versioned
+@sourced_optional
+class AssociationRealStart(ComplexField):
+    object_ref = models.ForeignKey('Association')
+    value = models.NullBooleanField(default=None)
+    field_name = _("Real start date")
 
 
 @versioned
@@ -72,8 +84,10 @@ class AssociationArea(ComplexField):
     def __str__(self):
         return str(self.value)
 
+
 @versioned
+@sourced
 class AssociationOpenEnded(ComplexField):
     object_ref = models.ForeignKey('Association')
-    value = models.NullBooleanField(default=None, blank=True, null=True)
+    value = models.CharField(default=None, max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Open ended")

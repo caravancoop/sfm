@@ -23,7 +23,10 @@ class Violation(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, ViolationStartDate)
+        self.first_allegation = ComplexFieldContainer(self, ViolationFirstAllegation)
         self.enddate = ComplexFieldContainer(self, ViolationEndDate)
+        self.last_update = ComplexFieldContainer(self, ViolationLastUpdate)
+        self.status = ComplexFieldContainer(self, ViolationStatus)
         self.locationdescription = ComplexFieldContainer(
             self, ViolationLocationDescription
         )
@@ -41,12 +44,14 @@ class Violation(models.Model, BaseModel):
         self.perpetratorclassification = ComplexFieldContainer(
             self, ViolationPerpetratorClassification
         )
-        
+
         self.types = ComplexFieldListContainer(self, ViolationType)
 
-        self.complex_fields = [self.startdate, self.enddate, self.locationdescription,
-                               self.adminlevel1, self.adminlevel2, self.osmname,
-                               self.osmid, self.location, self.description, 
+        self.complex_fields = [self.startdate, self.first_allegation,
+                               self.enddate, self.last_update, self.status,
+                               self.locationdescription, self.adminlevel1,
+                               self.adminlevel2, self.osmname, self.osmid,
+                               self.location, self.description,
                                self.division_id]
 
         self.required_fields = [self.description, self.startdate, self.enddate]
@@ -55,20 +60,48 @@ class Violation(models.Model, BaseModel):
     def get_value(self):
         return self.description.get_value()
 
+
 @versioned
 @sourced
 class ViolationStartDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Start date")
-    
+
+
+@versioned
+@sourced
+class ViolationFirstAllegation(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("First allegation")
+
+
 @versioned
 @sourced
 class ViolationEndDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("End date")
-    
+
+
+@versioned
+@sourced
+class ViolationLastUpdate(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("Last update")
+
+
+@translated
+@versioned
+@sourced
+class ViolationStatus(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Current status")
+
+
 @translated
 @versioned
 @sourced

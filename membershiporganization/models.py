@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
+from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -17,10 +18,13 @@ class MembershipOrganization(models.Model, BaseModel):
         self.member = ComplexFieldContainer(self, MembershipOrganizationMember)
         self.organization = ComplexFieldContainer(self, MembershipOrganizationOrganization)
         self.firstciteddate = ComplexFieldContainer(self, MembershipOrganizationFirstCitedDate)
+        self.realstart = ComplexFieldContainer(self, MembershipOrganizationRealStart)
         self.lastciteddate = ComplexFieldContainer(self, MembershipOrganizationLastCitedDate)
+        self.open_ended = ComplexFieldContainer(self, MembershipOrganizationOpenEnded)
 
         self.complex_fields = [self.member, self.organization,
-                               self.firstciteddate, self.lastciteddate]
+                               self.firstciteddate, self.lastciteddate,
+                               self.realstart, self.open_ended]
 
         self.required_fields = [
             "MembershipOrganization_MembershipOrganizationMember",
@@ -88,3 +92,19 @@ class MembershipOrganizationLastCitedDate(ComplexField):
 
     class Meta:
         db_table = 'membershiporganization_lcd'
+
+
+@versioned
+@sourced_optional
+class MembershipOrganizationRealStart(ComplexField):
+    object_ref = models.ForeignKey('MembershipOrganization')
+    value = models.NullBooleanField(default=None)
+    field_name = _("Real start date")
+
+
+@versioned
+@sourced_optional
+class MembershipOrganizationOpenEnded(ComplexField):
+    object_ref = models.ForeignKey('MembershipOrganization')
+    value = models.CharField(default=None, max_length=1, choices=settings.OPEN_ENDED_CHOICES)
+    field_name = _("Open ended")
