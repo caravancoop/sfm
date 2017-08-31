@@ -13,7 +13,7 @@
     <h1 class="page-title">
         <i class="fa fa-fw fa-users"></i> {{ organization.name.get_value }}
         <small>
-            <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">Edit</a>
+            <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">{% trans "Edit" %}</a>
         </small>
     </h1>
     {% if organization.aliases.get_list %}
