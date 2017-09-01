@@ -5,7 +5,7 @@ from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
 
-from complex_fields.model_decorators import versioned, sourced
+from complex_fields.model_decorators import versioned, sourced, sourced_optional
 
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
@@ -106,5 +106,5 @@ class MembershipOrganizationRealStart(ComplexField):
 @sourced_optional
 class MembershipOrganizationOpenEnded(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
-    value = models.CharField(default=None, max_length=1, choices=settings.OPEN_ENDED_CHOICES)
+    value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Open ended")

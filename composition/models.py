@@ -88,5 +88,5 @@ class Classification(models.Model):
 @sourced_optional
 class CompositionOpenEnded(ComplexField):
     object_ref = models.ForeignKey(Composition)
-    value = models.CharField(default=None, max_length=1, choices=settings.OPEN_ENDED_CHOICES)
+    value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Open ended")

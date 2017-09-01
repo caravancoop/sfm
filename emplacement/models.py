@@ -56,7 +56,7 @@ class EmplacementEndDate(ComplexField):
 @sourced
 class EmplacementOpenEnded(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
-    value = models.CharField(default=None, max_length=1, choices=settings.OPEN_ENDED_CHOICES)
+    value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Open ended")
 
 
