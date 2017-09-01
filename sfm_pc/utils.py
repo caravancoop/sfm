@@ -146,16 +146,24 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
         lowest_index = min(g[0] for g in group)
         orgs = [o[1] for o in group]
 
+        start_date = None
+        if orgs[0].start_date:
+            start_date = orgs[0].start_date.isoformat()
+
+        end_date = None
+        if orgs[0].end_date:
+            end_date = orgs[0].end_date.isoformat()
+
         trimmed = {
-            'id': org_id,
+            'id': str(org_id),
             'label': orgs[0].name,
-            'name': orgs[0].name,
-            'other_names': list({o.alias.strip() for o in orgs if o.alias}),
-            'classifications': list({o.classification.strip() for o in orgs if o.classification}),
-            'division_id': orgs[0].division_id,
-            'date_first_cited': orgs[0].start_date,
-            'date_last_cited': orgs[0].end_date,
-            'commander': orgs[0].commander,
+            # 'name': orgs[0].name,
+            # 'other_names': list({o.alias.strip() for o in orgs if o.alias}),
+            # 'classifications': list({o.classification.strip() for o in orgs if o.classification}),
+            # 'division_id': orgs[0].division_id,
+            # 'date_first_cited': start_date,
+            # 'date_last_cited': end_date,
+            # 'commander': orgs[0].commander,
             # 'parent_id': orgs[0].parent_id
         }
 
@@ -561,7 +569,7 @@ def format_facets(facet_dict):
 
     return out
 
-def get_command_nodes(org_id):
+def get_command_edges(org_id):
     edge_list = get_org_hierarchy_by_id(org_id)
 
     # Iterate over the edge_list, and create nodes

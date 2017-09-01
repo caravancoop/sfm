@@ -89,7 +89,7 @@
     </div>
     {% endif %}
 
-    {% if chain_of_command %}
+    {% if edge_list and node_list %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</h3>
@@ -165,36 +165,60 @@
             {% render_versions person %}
         {% endif %}
 
+
+    <style type="text/css">
+        #org-chart-container {
+            width: 600px;
+            height: 400px;
+            border: 1px solid lightgray;
+        }
+    </style>
 {% endblock %}
 
 {% block extra_js %}
-    {% if chain_of_command %}
-        <!-- Org chart work is in progress; disabled for now -->
-        <!-- script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script -->
+    {% if edge_list and node_list %}
+        <script src="{% static 'js/vis.js' %}"></script>
         <script>
-
         $(document).ready(function() {
-
+            // Jean: could you explain why you implemented this Ajax call to get data?
             // Retrieve the graph data as JSON
             {% with member=memberships|first %}
                 var command_url = "{% url 'chain-of-command' member.organization.get_value.value.uuid %}";
             {% endwith %}
 
-            /*
-            $.getJSON(command_url, function(data) {
-                // Print hierarchy
-                console.log(data);
+            // Build chart
+            var nodes = new vis.DataSet({{node_list|safe}});
+            var edges = new vis.DataSet({{edge_list|safe}});
 
-                // Load charts library
-                google.charts.load('current', {packages:['orgchart']});
-                google.charts.setOnLoadCallback(drawChart);
+            var container = document.getElementById('org-chart-container');
+            var data = {
+                nodes: nodes,
+                edges: edges,
+            };
 
-            });
+            var options = {
+                nodes:{
+                    shape: 'box',
+                    fixed: {
+                      x:true,
+                      y:true,
+                    },
+                    shapeProperties: {
+                      borderRadius: 2,
+                    },
+                },
+                layout: {
+                    hierarchical: {
+                      enabled: true,
+                      levelSeparation: 100, // Distance between levels
+                      nodeSpacing: 200, // Distance between nodes
+                      direction: 'DU',        // Inverts chart
+                    }
+                }
+            };
 
-            function drawChart() {
-                var dataTable = new google.visualization.DataTable();
-            }
-            */
+            var network = new vis.Network(container, data, options);
+
         });
         </script>
     {% endif %}
