@@ -60,7 +60,7 @@ class PersonDetail(DetailView):
             # Get the chain of command
             command = chain_of_command(org.uuid)
             context['chain_of_command'].append(json.dumps(command))
-
+            print(context['chain_of_command'], 'chain....')
             # Next, get some info about subordinates
 
             # Start by getting all child organizations for the member org

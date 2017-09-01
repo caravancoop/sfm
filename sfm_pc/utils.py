@@ -232,7 +232,7 @@ def chain_of_command(org_id):
     Returns a JSON object that we can use to build a hierarchy tree.
     '''
     # Generate the hierarchy as an edge list
-    hierarchy = get_org_hierarchy_by_id(org_id)
+    edge_list = get_org_hierarchy_by_id(org_id)
 
     # Get some info about this org (the root node)
     # TODO: Make sure this grabs the right membership
@@ -268,14 +268,15 @@ def chain_of_command(org_id):
         'children': []
     }
 
-    if len(hierarchy) > 0:
+    if len(edge_list) > 0:
+        # If it has a child, then use this flag, however it is specific to the library...so this can be undone.
         out['relationship'] = '001'
     else:
         out['relationship'] = '000'
 
     # The output key has to be called "children" for the JS lib to work,
     # but what we actually want is the parents!
-    out['children'] = get_parents(hierarchy, out['id'])
+    out['children'] = get_parents(edge_list, out['id'])
 
     return out
 
@@ -304,6 +305,7 @@ def get_parents(edgelist, org_id):
 
             parent_info['children'] = get_parents(edgelist, parent['id'])
 
+            # Again, for the JS library...not necessarily needed.
             if len(parent_info['children']) > 0:
                 if len(found_parents) > 1:
                     parent_info['relationship'] = '111'
@@ -320,6 +322,7 @@ def get_parents(edgelist, org_id):
 
         return []
 
+# this makes an edge list that shows the parent relationships (see child_id)
 def get_org_hierarchy_by_id(org_id, when=None, sources=False):
     '''
     org_id: uuid for the organization
