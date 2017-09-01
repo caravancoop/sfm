@@ -148,6 +148,7 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
 
         trimmed = {
             'id': org_id,
+            'label': orgs[0].name,
             'name': orgs[0].name,
             'other_names': list({o.alias.strip() for o in orgs if o.alias}),
             'classifications': list({o.classification.strip() for o in orgs if o.classification}),
@@ -180,7 +181,7 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
 
     return hierarchy
 
-
+# Can we delete this? It appears in ajax/views.py...does that play an import role somewhere?
 def get_chain_of_command(org_id):
     # Generate the hierarchy as an edge list
     hierarchy = get_org_hierarchy_by_id(org_id)
@@ -227,6 +228,7 @@ def get_chain_of_command(org_id):
 
     return out
 
+# (Same as above!) Can we delete this? It appears in ajax/views.py...does that play an import role somewhere?
 def chain_of_command(org_id):
     '''
     Returns a JSON object that we can use to build a hierarchy tree.
@@ -280,6 +282,7 @@ def chain_of_command(org_id):
 
     return out
 
+# Delete worthy? We only use this function in chain_of_command. If we delete that, then we can also delete this.
 def get_parents(edgelist, org_id):
 
     parents = []
@@ -557,3 +560,13 @@ def format_facets(facet_dict):
         out[ftype] = updated_facets
 
     return out
+
+def get_command_nodes(org_id):
+    edge_list = get_org_hierarchy_by_id(org_id)
+
+    # Iterate over the edge_list, and create nodes
+    nodes = []
+    for command in edge_list:
+        nodes.append({'from': command['id'], 'to': command['child_id']})
+
+    return nodes

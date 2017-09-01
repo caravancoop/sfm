@@ -24,7 +24,7 @@ from person.forms import PersonForm
 from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, Role
-from sfm_pc.utils import deleted_in_str, chain_of_command
+from sfm_pc.utils import deleted_in_str, get_org_hierarchy_by_id, get_command_nodes
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -58,9 +58,20 @@ class PersonDetail(DetailView):
             org = membership.object_ref.organization.get_value().value
 
             # Get the chain of command
-            command = chain_of_command(org.uuid)
-            context['chain_of_command'].append(json.dumps(command))
-            print(context['chain_of_command'], 'chain....')
+            # command = chain_of_command(org.uuid)
+            # context['chain_of_command'].append(json.dumps(command))
+
+            # Get edge list
+            edge_list = get_org_hierarchy_by_id(org.uuid)
+            context['edge_list'].append(json.dumps(edge_list))
+
+            # Get nodes
+            node_list = get_command_nodes(org.uuid)
+            context['node_list'] = node_list
+
+            print(edge_list, "HEREE!")
+            print(node_list, "HEREE!")
+
             # Next, get some info about subordinates
 
             # Start by getting all child organizations for the member org
