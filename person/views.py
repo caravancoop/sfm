@@ -66,11 +66,9 @@ class PersonDetail(DetailView):
 
             last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
             node_list = get_org_hierarchy_by_id(org.uuid, when=last_cited)
-            # context['node_list'].append(json.dumps(node_list))
-
             edge_list = get_command_edges(org.uuid, when=last_cited)
-            # context['edge_list'].append(json.dumps(edge_list))
 
+            command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
             command_chain['nodes'] = json.dumps(node_list)
             command_chain['edges'] = json.dumps(edge_list)
             context['command_chain'].append(json.dumps(command_chain))
@@ -174,9 +172,6 @@ class PersonDetail(DetailView):
         events = context['person'].violationperpetrator_set.all()
         for event in events:
             context['events'].append(event.object_ref)
-
-        print(context['node_list'])
-        print(context['edge_list'])
 
         return context
 

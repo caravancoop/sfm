@@ -154,9 +154,12 @@ a.collapsed .show-less {
 /* Command chain chart */
 /* ============= */
 
-#org-chart-container {
-    width: 600px;
+.chart-cell {
     height: 400px;
+}
+
+.carousel-cell {
+  width: 100%; 
 }
 
 /* ============= */

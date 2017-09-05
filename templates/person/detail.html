@@ -96,13 +96,13 @@
             
             <hr />
 
-            <div class="command-charts-carousel">
+            <!-- <div class="command-charts-carousel"> -->
+              <!-- <div class="carousel-cell">this and that</div>
               <div class="carousel-cell">this and that</div>
-              <div class="carousel-cell">this and that</div>
-              <div class="carousel-cell">this and that</div>
-            </div>
+              <div class="carousel-cell">this and that</div> -->
+            <!-- </div> -->
 
-            <div id="org-chart-container" class="org-chart-container"></div>
+            <div id="org-chart-container" class="command-charts-carousel"></div>
         </div>
     </div>
     {% endif %}
@@ -180,118 +180,79 @@
         <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
         <script>
         $(document).ready(function() {
+            // Add divs to carousel
+            $.each({{command_chain|safe}}, function( index, value ) {
+                cellID = "command-chart-" + index
+                cellYearID = "command-chart-year-" + index
+                $('#org-chart-container').append('<div class="carousel-cell"><div class="chart-cell" id="' + cellID + '"></div><div id="' + cellYearID + '"></div></div>');
+            });
 
-            $('.command-charts-carousel').flickity({
+            // Initialize carousel
+            $('#org-chart-container').flickity({
                 initialIndex: 1,
                 wrapAround: true
             });
-
-            
-            // Build chart
+        
+            // Build charts and add year
             $.each({{command_chain|safe}}, function( index, value ) {
-                    cellID = "command-chart-" + 
-                    $('#org-chart-container').append('<div class="carousel-cell" id="command-chart-' + index + '"">this and that</div>');
+                cellID = "command-chart-" + index
+                cellYearID = "command-chart-year-" + index
 
-                    obj = JSON.parse(value)
-                    node_list = JSON.parse(obj['nodes'])
-                    edge_list = JSON.parse(obj['edges'])
+                obj = JSON.parse(value);
+                node_list = JSON.parse(obj['nodes']);
+                edge_list = JSON.parse(obj['edges']);
+                when = obj['when'];
 
-                    var nodes = new vis.DataSet(node_list);
-                    var edges = new vis.DataSet(edge_list);
+                var nodes = new vis.DataSet(node_list);
+                var edges = new vis.DataSet(edge_list);
 
-                    var container = document.getElementById('org-chart-container');
-                    var data = {
-                        nodes: nodes,
-                        edges: edges,
-                    };
+                var container = document.getElementById(cellID);
+                var data = {
+                    nodes: nodes,
+                    edges: edges,
+                };
 
-                    var options = {
-                        nodes:{
-                            shape: 'box',
-                            fixed: {
-                              x:true,
-                              y:true,
-                            },
-                            shapeProperties: {
-                              borderRadius: 2,
-                            },
-                            color: {
-                                background: '#f4f4f4',
+                var options = {
+                    nodes:{
+                        shape: 'box',
+                        fixed: {
+                          x:true,
+                          y:true,
+                        },
+                        shapeProperties: {
+                          borderRadius: 2,
+                        },
+                        color: {
+                            background: '#f4f4f4',
+                            border: '#D6D6D6',
+                            highlight: { // Change color of node on click
+                                background: '#EBEBEB',
                                 border: '#D6D6D6',
-                                highlight: { // Change color of node on click
-                                    background: '#EBEBEB',
-                                    border: '#D6D6D6',
-                                },
-                            },
-                            font: {
-                                color: '#777777',
-                                face: 'Open Sans',
                             },
                         },
-                        layout: {
-                            hierarchical: {
-                              enabled: true,
-                              levelSeparation: 100, // Distance between levels
-                              nodeSpacing: 300, // Distance between nodes
-                              direction: 'DU',        // Inverts chart
-                            }
+                        font: {
+                            color: '#777777',
+                            face: 'Open Sans',
                         },
-                        interaction: {
-                            zoomView: false,
-                            dragView: false,
-                        },
-                    };
+                    },
+                    layout: {
+                        hierarchical: {
+                          enabled: true,
+                          levelSeparation: 100, // Distance between levels
+                          nodeSpacing: 300, // Distance between nodes
+                          direction: 'DU', // Inverts chart
+                        }
+                    },
+                    interaction: {
+                        zoomView: false,
+                        dragView: false,
+                    },
+                };
 
-                    var network = new vis.Network(container, data, options);
+                var network = new vis.Network(container, data, options);
+                
+                $('#' + cellYearID).append(when);
             });
-            // var nodes = new vis.DataSet({{node_list.4|safe}});
-            // var edges = new vis.DataSet({{edge_list.4|safe}});
-
-            // var container = document.getElementById('org-chart-container');
-            // var data = {
-            //     nodes: nodes,
-            //     edges: edges,
-            // };
-
-            // var options = {
-            //     nodes:{
-            //         shape: 'box',
-            //         fixed: {
-            //           x:true,
-            //           y:true,
-            //         },
-            //         shapeProperties: {
-            //           borderRadius: 2,
-            //         },
-            //         color: {
-            //             background: '#f4f4f4',
-            //             border: '#D6D6D6',
-            //             highlight: { // Change color of node on click
-            //                 background: '#EBEBEB',
-            //                 border: '#D6D6D6',
-            //             },
-            //         },
-            //         font: {
-            //             color: '#777777',
-            //             face: 'Open Sans',
-            //         },
-            //     },
-            //     layout: {
-            //         hierarchical: {
-            //           enabled: true,
-            //           levelSeparation: 100, // Distance between levels
-            //           nodeSpacing: 300, // Distance between nodes
-            //           direction: 'DU',        // Inverts chart
-            //         }
-            //     },
-            //     interaction: {
-            //         zoomView: false,
-            //         dragView: false,
-            //     },
-            // };
-
-            // var network = new vis.Network(container, data, options);
-
         });
         </script>
     {% endif %}
