@@ -151,6 +151,15 @@ a.collapsed .show-less {
 }
 
 /* ============= */
+/* Command chain chart */
+/* ============= */
+
+#org-chart-container {
+    width: 600px;
+    height: 400px;
+}
+
+/* ============= */
 /* media queries */
 /* ============= */
 

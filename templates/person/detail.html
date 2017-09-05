@@ -164,20 +164,11 @@
         {% if changelog %}
             {% render_versions person %}
         {% endif %}
-
-
-    <style type="text/css">
-        #org-chart-container {
-            width: 600px;
-            height: 400px;
-            border: 1px solid lightgray;
-        }
-    </style>
 {% endblock %}
 
 {% block extra_js %}
     {% if edge_list and node_list %}
-        <script src="{% static 'js/vis.js' %}"></script>
+        <script src="{% static 'js/vis.min.js' %}"></script>
         <script>
         $(document).ready(function() {
             // Jean: could you explain why you implemented this Ajax call to get data?
@@ -185,6 +176,12 @@
             {% with member=memberships|first %}
                 var command_url = "{% url 'chain-of-command' member.organization.get_value.value.uuid %}";
             {% endwith %}
+
+            // Should we continue in this mode, we need two ajax calls: one for nodes, another for edges...
+            $.getJSON(command_url, function(data) {
+                // Print hierarchy
+                console.log(data);
+            });
 
             // Build chart
             var nodes = new vis.DataSet({{node_list|safe}});
@@ -206,15 +203,31 @@
                     shapeProperties: {
                       borderRadius: 2,
                     },
+                    color: {
+                        background: '#f4f4f4',
+                        border: '#D6D6D6',
+                        highlight: { // Change color of node on click
+                            background: '#EBEBEB',
+                            border: '#D6D6D6',
+                        },
+                    },
+                    font: {
+                        color: '#777777',
+                        face: 'Open Sans',
+                    },
                 },
                 layout: {
                     hierarchical: {
                       enabled: true,
                       levelSeparation: 100, // Distance between levels
-                      nodeSpacing: 200, // Distance between nodes
+                      nodeSpacing: 300, // Distance between nodes
                       direction: 'DU',        // Inverts chart
                     }
-                }
+                },
+                interaction: {
+                    zoomView: false,
+                    dragView: false,
+                },
             };
 
             var network = new vis.Network(container, data, options);
