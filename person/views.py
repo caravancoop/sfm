@@ -49,6 +49,8 @@ class PersonDetail(DetailView):
         context['memberships'] = []
         context['chain_of_command'] = []
         context['subordinates'] = []
+        context['node_list'] = []
+        context['edge_list'] = []
         for membership in memberships:
 
             # Store the raw memberships for use in the template
@@ -58,12 +60,14 @@ class PersonDetail(DetailView):
             org = membership.object_ref.organization.get_value().value
 
             # Get edge list
-            node_list = get_org_hierarchy_by_id(org.uuid)
-            context['node_list'] = json.dumps(node_list)
+            last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
+
+            node_list = get_org_hierarchy_by_id(org.uuid, when=last_cited)
+            context['node_list'].append(json.dumps(node_list))
 
             # Get nodes
             edge_list = get_command_edges(org.uuid)
-            context['edge_list'] = json.dumps(edge_list)
+            context['edge_list'].append(json.dumps(edge_list))
 
             # Next, get some info about subordinates
 
@@ -164,6 +168,9 @@ class PersonDetail(DetailView):
         events = context['person'].violationperpetrator_set.all()
         for event in events:
             context['events'].append(event.object_ref)
+
+        print(context['node_list'])
+        print(context['edge_list'])
 
         return context
 

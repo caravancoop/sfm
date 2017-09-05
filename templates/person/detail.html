@@ -169,23 +169,15 @@
 {% block extra_js %}
     {% if edge_list and node_list %}
         <script src="{% static 'js/vis.min.js' %}"></script>
+        <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
         <script>
         $(document).ready(function() {
-            // Jean: could you explain why you implemented this Ajax call to get data?
-            // Retrieve the graph data as JSON
-            {% with member=memberships|first %}
-                var command_url = "{% url 'chain-of-command' member.organization.get_value.value.uuid %}";
-            {% endwith %}
 
-            // Should we continue in this mode, we need two ajax calls: one for nodes, another for edges...
-            $.getJSON(command_url, function(data) {
-                // Print hierarchy
-                console.log(data);
-            });
+
 
             // Build chart
-            var nodes = new vis.DataSet({{node_list|safe}});
-            var edges = new vis.DataSet({{edge_list|safe}});
+            var nodes = new vis.DataSet({{node_list.4|safe}});
+            var edges = new vis.DataSet({{edge_list.4|safe}});
 
             var container = document.getElementById('org-chart-container');
             var data = {

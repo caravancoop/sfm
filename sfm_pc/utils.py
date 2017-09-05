@@ -385,7 +385,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
     q_args = [org_id, org_id]
     if when:
         hierarchy = '''
-            {}
+            {hierarchy}
             AND CASE 
               WHEN (start_date IS NOT NULL AND 
                     end_date IS NOT NULL AND 
@@ -412,7 +412,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
                     open_ended IS TRUE)
               THEN TRUE
             END
-        '''.format(hierarchy)
+        '''.format(hierarchy=hierarchy, when=when)
         q_args.extend([when] * 5)
 
     hierarchy = '{} ORDER BY id'.format(hierarchy)
@@ -491,6 +491,7 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
             END
         '''.format(hierarchy)
         q_args.extend([when] * 5)
+
 
     hierarchy = '{} ORDER BY id'.format(hierarchy)
 
