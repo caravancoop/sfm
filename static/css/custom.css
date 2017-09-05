@@ -154,12 +154,23 @@ a.collapsed .show-less {
 /* Command chain chart */
 /* ============= */
 
-.chart-cell {
-    height: 400px;
-}
-
 .carousel-cell {
   width: 100%; 
+}
+
+.chart-cell {
+    height: 350px;
+}
+
+.chart-date {
+    margin: auto;
+    width: 100%;
+    min-height: 20px;
+    padding: 4px;
+    margin-bottom: 20px;
+    background-color: #f4f4f4;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
 }
 
 /* ============= */

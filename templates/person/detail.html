@@ -93,16 +93,9 @@
     <div class="row">
         <div class="col-sm-12">
             <h3 id="chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</h3>
-            
             <hr />
-
-            <!-- <div class="command-charts-carousel"> -->
-              <!-- <div class="carousel-cell">this and that</div>
-              <div class="carousel-cell">this and that</div>
-              <div class="carousel-cell">this and that</div> -->
-            <!-- </div> -->
-
             <div id="org-chart-container" class="command-charts-carousel"></div>
+            <br>
         </div>
     </div>
     {% endif %}
@@ -184,14 +177,16 @@
             $.each({{command_chain|safe}}, function( index, value ) {
                 cellID = "command-chart-" + index
                 cellYearID = "command-chart-year-" + index
-                $('#org-chart-container').append('<div class="carousel-cell"><div class="chart-cell" id="' + cellID + '"></div><div id="' + cellYearID + '"></div></div>');
+                $('#org-chart-container').append('<div class="carousel-cell"><div class="chart-cell" id="' + cellID + '"></div><div class="chart-date text-center" id="' + cellYearID + '"></div></div>');
             });
 
             // Initialize carousel
-            $('#org-chart-container').flickity({
-                initialIndex: 1,
-                wrapAround: true
-            });
+            if (({{command_chain|safe}}).length > 1) {
+                $('#org-chart-container').flickity({
+                    initialIndex: 0,
+                    wrapAround: true
+                });
+            }
         
             // Build charts and add year
             $.each({{command_chain|safe}}, function( index, value ) {

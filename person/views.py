@@ -35,6 +35,7 @@ class PersonDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # NOTE: this sort does not work as expected...
         last_cited_attr = '-object_ref__membershippersonlastciteddate'
         memberships = context['person'].membershippersonmember_set\
                         .order_by(last_cited_attr)
@@ -49,11 +50,9 @@ class PersonDetail(DetailView):
         context['memberships'] = []
         context['chain_of_command'] = []
         context['subordinates'] = []
-        context['node_list'] = []
-        context['edge_list'] = []
         context['command_chain'] = []
 
-        for membership in memberships:
+        for membership in memberships.reverse():
 
             # Store the raw memberships for use in the template
             context['memberships'].append(membership.object_ref)
@@ -61,17 +60,18 @@ class PersonDetail(DetailView):
             # Grab the org object
             org = membership.object_ref.organization.get_value().value
 
-            # Create an object of edges and nodes for the charts carousel 
-            command_chain = {}
+            if membership.object_ref.lastciteddate.get_value():
+                # Create an object of edges and nodes for the charts carousel 
+                command_chain = {}
 
-            last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
-            node_list = get_org_hierarchy_by_id(org.uuid, when=last_cited)
-            edge_list = get_command_edges(org.uuid, when=last_cited)
+                last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
+                node_list = get_org_hierarchy_by_id(org.uuid, when=last_cited)
+                edge_list = get_command_edges(org.uuid, when=last_cited)
 
-            command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
-            command_chain['nodes'] = json.dumps(node_list)
-            command_chain['edges'] = json.dumps(edge_list)
-            context['command_chain'].append(json.dumps(command_chain))
+                command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
+                command_chain['nodes'] = json.dumps(node_list)
+                command_chain['edges'] = json.dumps(edge_list)
+                context['command_chain'].append(json.dumps(command_chain))
 
             # Next, get some info about subordinates
 
