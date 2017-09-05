@@ -154,9 +154,16 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
         if orgs[0].end_date:
             end_date = orgs[0].end_date.isoformat()
 
+        label = orgs[0].name
+        if orgs[0].commander:
+            label = orgs[0].name + '/n' + orgs[0].commander
+
+        import pdb
+        pdb.set_trace()
         trimmed = {
             'id': str(org_id),
-            'label': orgs[0].name,
+            'label': str(label),
+            'detail_id': str(orgs[0].id),
             # 'name': orgs[0].name,
             # 'other_names': list({o.alias.strip() for o in orgs if o.alias}),
             # 'classifications': list({o.classification.strip() for o in orgs if o.classification}),

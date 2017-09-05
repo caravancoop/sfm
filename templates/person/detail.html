@@ -172,6 +172,8 @@
         <script src="{% static 'js/vis.min.js' %}"></script>
         <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
         <script>
+        var org_count = ({{command_chain|safe}}).length
+        
         $(document).ready(function() {
             // Add divs to carousel
             $.each({{command_chain|safe}}, function( index, value ) {
@@ -181,10 +183,10 @@
             });
 
             // Initialize carousel
-            if (({{command_chain|safe}}).length > 1) {
+            if (org_count > 1) {
                 $('#org-chart-container').flickity({
-                    initialIndex: 0,
-                    wrapAround: true
+                    initialIndex: org_count - 1,
+                    wrapAround: true,
                 });
             }
         
@@ -245,9 +247,19 @@
                 };
 
                 var network = new vis.Network(container, data, options);
+
+            network.on("selectNode", function (params) {
+                if (params.nodes.length === 1) {
+                    var node = nodes.get(params.nodes[0]);
+                    console.log(node, "$$$$$")
+                    // window.open(node.division_id, '_blank');
+                }
+            });
                 
                 $('#' + cellYearID).append(when);
             });
+
+
         });
         </script>
     {% endif %}

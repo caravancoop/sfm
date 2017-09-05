@@ -173,6 +173,13 @@ a.collapsed .show-less {
     box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
 }
 
+.flickity-page-dots .dot {
+  height: 4px;
+  width: 40px;
+  margin: 0;
+  border-radius: 0;
+}
+
 /* ============= */
 /* media queries */
 /* ============= */
