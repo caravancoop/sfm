@@ -10,6 +10,7 @@ from person.models import Person
 from violation.models import Violation
 from sfm_pc.utils import get_osm_by_id, format_facets
 
+import pprint
 
 SEARCH_ENTITY_TYPES = {
 #    'Source': Source,
@@ -223,6 +224,16 @@ def search(request):
         # Search that bad boy!
         response = solr.search(etype_query, **search_context)
 
+        print('Query: ', etype_query)
+        print()
+        print('Context: ')
+        pprint.pprint(search_context)
+        print()
+        print('Response: ')
+        pprint.pprint(getattr(response, 'docs', None))
+        print('--------')
+        print()
+
         if response.hits > result_count:
             pages[etype]['has_next'] = True
             pages[etype]['next_page_number'] = pagination + 1
@@ -240,6 +251,10 @@ def search(request):
 
     # Determine total result count
     hits['global'] = sum(count for count in hits.values())
+
+    print('Final results: ')
+    pprint.pprint(results)
+    print('===============')
 
     context = {
         'results': results,
