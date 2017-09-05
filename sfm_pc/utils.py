@@ -570,8 +570,8 @@ def format_facets(facet_dict):
 
     return out
 
-def get_command_edges(org_id):
-    edge_list = get_org_hierarchy_by_id(org_id)
+def get_command_edges(org_id, when=None):
+    edge_list = get_org_hierarchy_by_id(org_id, when=when)
 
     # Iterate over the edge_list, and create nodes
     nodes = []

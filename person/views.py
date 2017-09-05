@@ -51,6 +51,8 @@ class PersonDetail(DetailView):
         context['subordinates'] = []
         context['node_list'] = []
         context['edge_list'] = []
+        context['command_chain'] = []
+
         for membership in memberships:
 
             # Store the raw memberships for use in the template
@@ -59,15 +61,19 @@ class PersonDetail(DetailView):
             # Grab the org object
             org = membership.object_ref.organization.get_value().value
 
-            # Get edge list
+            # Create an object of edges and nodes for the charts carousel 
+            command_chain = {}
+
             last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
-
             node_list = get_org_hierarchy_by_id(org.uuid, when=last_cited)
-            context['node_list'].append(json.dumps(node_list))
+            # context['node_list'].append(json.dumps(node_list))
 
-            # Get nodes
-            edge_list = get_command_edges(org.uuid)
-            context['edge_list'].append(json.dumps(edge_list))
+            edge_list = get_command_edges(org.uuid, when=last_cited)
+            # context['edge_list'].append(json.dumps(edge_list))
+
+            command_chain['nodes'] = json.dumps(node_list)
+            command_chain['edges'] = json.dumps(edge_list)
+            context['command_chain'].append(json.dumps(command_chain))
 
             # Next, get some info about subordinates
 
