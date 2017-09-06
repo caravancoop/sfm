@@ -6,7 +6,7 @@ from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
 
-from complex_fields.model_decorators import versioned, sourced
+from complex_fields.model_decorators import versioned, sourced, sourced_optional
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 from organization.models import Organization, Alias
@@ -18,6 +18,7 @@ class Emplacement(models.Model, BaseModel):
         super().__init__(*args, **kwargs)
         self.startdate = complexfieldcontainer(self, emplacementstartdate)
         self.enddate = ComplexFieldContainer(self, EmplacementEndDate)
+        self.realstart = ComplexFieldContainer(self, EmplacementRealStart)
         self.open_ended = ComplexFieldContainer(self, EmplacementOpenEnded)
         self.organization = ComplexFieldContainer(self, EmplacementOrganization)
         self.site = ComplexFieldContainer(self, EmplacementSite)
@@ -45,6 +46,14 @@ class EmplacementStartDate(ComplexField):
 
 
 @versioned
+@sourced_optional
+class EmplacementRealStart(ComplexField):
+    object_ref = models.ForeignKey('Emplacement')
+    value = models.NullBooleanField(default=None, blank=True, null=True)
+    field_name = _("Real start date")
+
+
+@versioned
 @sourced
 class EmplacementEndDate(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
@@ -53,7 +62,7 @@ class EmplacementEndDate(ComplexField):
 
 
 @versioned
-@sourced
+@sourced_optional
 class EmplacementOpenEnded(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)

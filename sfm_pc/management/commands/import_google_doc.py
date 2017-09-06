@@ -5,6 +5,7 @@ import re
 from uuid import uuid4
 from datetime import datetime, date
 import csv
+import string
 
 import httplib2
 
@@ -224,47 +225,69 @@ class Command(UtilityMixin, BaseCommand):
 
         return parsed
 
+    @property
+    def col(self, alph):
+        '''
+        Return a numeric index for an alphabetic column name, like:
+
+            `'BA' -> 53`
+
+        '''
+        assert isinstance(alph, str)
+
+        # Reverse the string and enforce lowercase
+        alph = (alph[-1:0:-1] + alph[0]).lower()
+
+        # Treat alphabetic column names like base-26 numerics
+        total = 0
+        for idx, letter in enumerate(alph):
+            place = (26 ** idx)
+            val = string.ascii_lowercase.index(letter) + 1
+            total += (place * val)
+
+        return total
+
     def create_organization(self, org_data):
         organization = None
 
         org_positions = {
             'Name': {
-                'value': 1,
-                'confidence': 3,
-                'source': 2,
+                'value': self.col('B'),
+                'confidence': self.col('D'),
+                'source': self.col('C'),
             },
             'Alias': {
-                'value': 4,
-                'confidence': 6,
-                'source': 5,
+                'value': self.col('E'),
+                'confidence': self.col('G'),
+                'source': self.col('F'),
             },
             'Classification': {
-                'value': 7,
-                'confidence': 9,
-                'source': 8,
+                'value': self.col('H'),
+                'confidence': self.col('J'),
+                'source': self.col('I'),
             },
             'DivisionId': {
-                'value': 10,
+                'value': self.col('K'),
                 'confidence': None,
                 'source': None,
             },
             'FirstCitedDate': {
-                'value': 11,
-                'confidence': 16,
-                'source': 15,
+                'value': self.col('L'),
+                'confidence': self.col('Q'),
+                'source': self.col('P'),
             },
             'RealStart': {
-                'value': 17,
+                'value': self.col('R'),
                 'confidence': None,
                 'source': None,
             }
             'LastCitedDate': {
-                'value': 18,
-                'confidence': 23,
-                'source': 22,
+                'value': self.col('S'),
+                'confidence': self.col('X'),
+                'source': self.col('W'),
             }
             'OpenEnded': {
-                'value': 24,
+                'value': self.col('Y'),
                 'confidence': None,
                 'source': None,
             }
@@ -272,32 +295,32 @@ class Command(UtilityMixin, BaseCommand):
 
         composition_positions = {
             'Parent': {
-                'value': 24,
-                'confidence': 26,
-                'source': 25,
+                'value': self.col('Z'),
+                'confidence': self.col('AB'),
+                'source': self.col('AA'),
             },
             'Classification': {
-                'value': 27,
-                'confidence': 29,
-                'source': 28,
+                'value': self.col('AC'),
+                'confidence': self.col('AE'),
+                'source': self.col('AD'),
             },
             'StartDate': {
-                'value': 30,
-                'confidence': 35,
-                'source': 34,
+                'value': self.col('AF'),
+                'confidence': self.col('AK'),
+                'source': self.col('AJ'),
             },
             'RealStart': {
-                'value': 36,
+                'value': self.col('AL'),
                 'confidence': None,
                 'source': None,
             },
             'EndDate': {
-                'value': 37,
-                'confidence': 42,
-                'source': 41,
+                'value': self.col('AM'),
+                'confidence': self.col('AR'),
+                'source': self.col('AQ'),
             },
             'OpenEnded': {
-                'value': 43,
+                'value': self.col('AS'),
                 'confidence': None,
                 'source': None,
             },
@@ -305,43 +328,43 @@ class Command(UtilityMixin, BaseCommand):
 
         area_positions = {
             'OSMId': {
-                'value': 77,
-                'confidence': 80,
-                'source': 79,
+                'value': self.col('BY'),
+                'confidence': self.col('CB'),
+                'source': self.col('CA'),
             },
         }
 
         site_positions = {
             'OSMId': {
-                'value': 54,
-                'confidence': 56,
-                'source': 55,
+                'value': self.col('BB'),
+                'confidence': self.col('BD'),
+                'source': self.col('BC'),
             },
         }
 
         membership_positions = {
             'OrganizationOrganization': {
-                'value': 95,
-                'confidence': 97,
-                'source': 96,
+                'value': self.col('CQ'),
+                'confidence': self.col('CS'),
+                'source': self.col('CR'),
             },
             'FirstCitedDate': {
-                'value': 98,
-                'confidence': 103,
-                'source': 102,
+                'value': self.col('CT'),
+                'confidence': self.col('CY'),
+                'source': self.col('CX'),
             },
             'RealStart': {
-                'value': 104,
+                'value': self.col('CZ'),
                 'confidence': None,
                 'source': None,
             },
             'LastCitedDate': {
-                'value': 105,
-                'confidence': 110,
-                'source': 109,
+                'value': self.col('DA'),
+                'confidence': self.col('DF'),
+                'source': self.col('DE'),
             },
             'OpenEnded': {
-                'value': 111,
+                'value': self.col('DG'),
                 'confidence': None,
                 'source': None,
             },
@@ -499,19 +522,6 @@ class Command(UtilityMixin, BaseCommand):
                         except Composition.DoesNotExist:
                             composition = Composition.create(comp_info)
 
-                        try:
-                            comp_openended = org_data[composition_positions['OpenEnded']['value']]
-                        except IndexError:
-                            comp_openended = None
-
-                        if comp_openended:
-
-                            with reversion.create_revision():
-                                open_ended, created = CompositionOpenEnded.objects.get_or_create(value=comp_openended,
-                                                                                                 object_ref=composition)
-                                composition.save()
-                                reversion.set_user(self.user)
-
                         self.make_relation('StartDate',
                                            composition_positions['StartDate'],
                                            org_data,
@@ -619,13 +629,18 @@ class Command(UtilityMixin, BaseCommand):
                         # The SFM team stores this specific value as Y/N in the
                         # sheets, but we want it to be Y/N/E
                         open_ended = membership_positions['OpenEnded']
-                        if open_ended = 'N':
+                        if open_ended = 'Y':
                             open_ended = 'E'
+                        else:
+                            open_neded = 'Y'
 
-                        self.make_relation('OpenEnded',
-                                           membership_positions['OpenEnded'],
-                                           org_data,
-                                           membership)
+                        with reversion.create_revision():
+                            mem_open_ended, created = MembershipOrganizationOpenEnded\
+                                                      .objects\
+                                                      .get_or_create(value=open_ended,
+                                                                     object_ref=membership)
+                            membership.save()
+                            reversion.set_user(self.user)
 
                     else:
                         self.log_error('Member organization for {} does not have source or confidence'.format(member_org_name))
@@ -801,31 +816,33 @@ class Command(UtilityMixin, BaseCommand):
             return None
 
     def make_area(self, osm_id, org_data, organization):
+
         positions = {
             'OSMName': {
-                'confidence': 80,
-                'source': 79,
+                'value': self.col('BX'),
+                'confidence': self.col('CB'),
+                'source': self.col('CA'),
             },
         }
 
         relation_positions = {
             'StartDate': {
-                'value': 81,
-                'confidence': 86,
-                'source': 85,
+                'value': self.col('CC'),
+                'confidence': self.col('CH'),
+                'source': self.col('CG'),
             },
             'RealStart': {
-                'value': 87,
+                'value': self.col('CI'),
                 'confidence': None,
                 'source': None,
             },
             'EndDate': {
-                'value': 88,
-                'confidence': 93,
-                'source': 92,
+                'value': self.col('CJ'),
+                'confidence': self.col('CO'),
+                'source': self.col('CN'),
             },
             'OpenEnded': {
-                'value': 94,
+                'value': self.col('CP'),
                 'confidence': None,
                 'source': None,
             },
@@ -916,16 +933,6 @@ class Command(UtilityMixin, BaseCommand):
             except Association.DoesNotExist:
                 assoc = Association.create(area_info)
 
-            ass_openended = org_data[relation_positions['OpenEnded']['value']]
-
-            if ass_openended:
-
-                with reversion.create_revision():
-                    open_ended, created = AssociationOpenEnded.objects.get_or_create(value=ass_openended,
-                                                                                     object_ref=assoc)
-                    assoc.save()
-                    reversion.set_user(self.user)
-
             for field_name, positions in relation_positions.items():
 
                 self.make_relation(field_name,
@@ -938,46 +945,64 @@ class Command(UtilityMixin, BaseCommand):
                          org_data,
                          organization):
 
+        exact_loc_data = {
+            'lng_or_name': self.col('AW'),
+            'lat_or_id': self.col('AX'),
+            'confidence': self.col('AZ'),
+            'source': self.col('AY')
+        }
+
         positions = {
             'AdminLevel1': {
-                'value': 31,
-                'osmid': 32,
-                'confidence': 34,
-                'source': 33,
+                'value': self.col('BE'),
+                'osmid': self.col('BF'),
+                'confidence': self.col('BH'),
+                'source': self.col('BG'),
             },
+            # Headquarters
             'Name': {
-                'value': 24,
-                'confidence': 26,
-                'source': 25,
+                'value': self.col('AT'),
+                'confidence': self.col('AV'),
+                'source': self.col('AU'),
             },
             'OSMName': {
-                'value': 27,
-                'osmid': 28,
-                'confidence': 30,
-                'source': 29
+                'value': self.col('BA'),
+                'osmid': self.col('BB'),
+                'confidence': self.col('BD'),
+                'source': self.col('BC')
             },
             'OSMId': {
-                'value': 28,
-                'osmid': 28,
-                'confidence': 30,
-                'source': 29
+                'value': self.col('BB'),
+                'osmid': self.col('BB'),
+                'confidence': self.col('BD'),
+                'source': self.col('BC')
             }
         }
 
         relation_positions = {
             'StartDate': {
-                'value': 36,
-                'confidence': 38,
-                'source': 37,
+                'value': self.col('BJ'),
+                'confidence': self.col('BO'),
+                'source': self.col('BN'),
             },
+            'RealStart': {
+                'value': self.col('BP'),
+                'confidence': None,
+                'source': None
+            }
             'EndDate': {
-                'value': 40,
-                'confidence': 42,
-                'source': 41,
+                'value': self.col('BQ'),
+                'confidence': self.col('BV'),
+                'source': self.col('BU'),
             },
+            'OpenEnded': {
+                'value': self.col('BW'),
+                'confidence': None,
+                'source': None
+            }
         }
 
-        site_data = {}
+        exact_location = self.get_exact_location(exact_loc_data)
 
         try:
             osm_geo = get_osm_by_id(osm_id)
@@ -1099,6 +1124,7 @@ class Command(UtilityMixin, BaseCommand):
                     'confidence': name_confidence,
                     'sources': name_sources,
                 },
+                'Emplacement_EmplacementExactLocation': exact_location,
             }
 
             try:
@@ -1135,6 +1161,49 @@ class Command(UtilityMixin, BaseCommand):
 
         else:
             self.log_error('Could not find OSM ID {}'.format(osm_id))
+
+    def make_exact_location(self, exact_location_data, object_ref):
+
+        lng_or_name = exact_location_data['lng_or_name']
+        lat_or_id = exact_location_data['lat_or_id']
+
+        try:
+            assert (lng_or_name is not None and lat_or_id is not None)
+        except AssertionError:
+            return None
+
+        # Figure out if it's OSM Name/ID pair, or coordinate pair
+        try:
+            int(lng_or_name)
+            data_is_coords = True
+        except ValueError:
+            data_is_coords = False
+
+        if data_is_coords:
+
+            lat, lng = lng_or_name, lat_or_id
+
+            # TODO: Need to figure out how to turn coordinates into a Geosite
+            return None
+
+        else:
+            osmname, osmid = lng_or_name, lat_or_id
+
+            try:
+                geo = get_osm_by_id(osmid)
+            except DataError:
+                self.log_error('OSMName ID for {0} does not seem valid: {1}'.format(osmname, osmid))
+                return None
+
+            if geo and confidence and sources:
+
+                site_data['Geosite_Geosite{}'.format(attribute)] = {
+                    'value': value,
+                    'confidence': confidence,
+                    'sources': sources,
+                }
+            # TODO: Figure out way to save
+        return
 
     def create_sources(self, sources_string):
 

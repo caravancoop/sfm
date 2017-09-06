@@ -18,7 +18,7 @@ class Composition(models.Model, BaseModel):
         self.startdate = ComplexFieldContainer(self, CompositionStartDate)
         self.realstart = ComplexFieldContainer(self, CompositionRealStart)
         self.enddate = ComplexFieldContainer(self, CompositionEndDate)
-        self.open_ended = ComplexFieldContainer(self, CompositionRealStart)
+        self.open_ended = ComplexFieldContainer(self, CompositionOpenEnded)
         self.classification = ComplexFieldContainer(self, CompositionClassification)
 
         self.open_ended = ComplexFieldContainer(self, CompositionOpenEnded)
@@ -58,6 +58,14 @@ class CompositionStartDate(ComplexField):
     object_ref = models.ForeignKey(Composition)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Start date")
+
+
+@versioned
+@sourced_optional
+class CompositionRealStart(ComplexField):
+    object_ref = models.ForeignKey('Composition')
+    value = models.NullBooleanField(default=None, blank=True, null=True)
+    field_name = _("Real start date")
 
 
 @versioned
