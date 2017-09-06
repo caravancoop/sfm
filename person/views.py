@@ -2,6 +2,7 @@ import json
 import csv
 
 from datetime import date
+from collections import namedtuple
 
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -13,6 +14,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
+from django.db import connection
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
@@ -23,7 +25,7 @@ from person.models import Person, PersonName, PersonAlias, Alias
 from person.forms import PersonForm
 from organization.models import Organization
 from source.models import Source
-from membershipperson.models import MembershipPerson, Role
+from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
 from sfm_pc.utils import deleted_in_str, get_org_hierarchy_by_id, get_command_edges
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
@@ -40,19 +42,48 @@ class PersonDetail(DetailView):
         memberships = context['person'].membershippersonmember_set\
                         .order_by(last_cited_attr)
 
+
+        # Use SQL...
+        membership_query = '''
+            SELECT * FROM membershipperson
+            WHERE member_id='{}' 
+            ORDER BY last_cited DESC
+        '''.format(context['person'].uuid)
+
+        cursor = connection.cursor()
+        cursor.execute(membership_query)
+
+        columns = [c[0] for c in cursor.description]
+        results_tuple = namedtuple('Membership', columns)
+
+        # List of membership tuples
+        membership_tuple = [results_tuple(*r) for r in cursor]
+        
+
         # Start by getting the most recent membership for the "Last seen as"
         # description
-        if len(memberships) > 0:
-            last_membership = memberships[0]
+        # if len(memberships) > 0:
+        #     last_membership = memberships[0]
 
-            context['last_seen_as'] = last_membership.object_ref.short_description
+        #     context['last_seen_as'] = last_membership.object_ref.short_description
+
+        if len(membership_tuple) > 0:
+            last_membership_id = membership_tuple[0].id
+            membershipperson = MembershipPerson.objects.get(id=last_membership_id)
+
+            context['last_seen_as'] = membershipperson.short_description
 
         context['memberships'] = []
         context['chain_of_command'] = []
         context['subordinates'] = []
         context['command_chain'] = []
 
-        for membership in memberships.reverse():
+        for membership_t in membership_tuple:
+            membership = MembershipPersonMember.objects.get(object_ref__id=membership_t.id)
+        #     print(type(membership), '4444')
+
+        # for membership in memberships:
+        #     print(type(membership), "$$$")
 
             # Store the raw memberships for use in the template
             context['memberships'].append(membership.object_ref)
@@ -73,10 +104,7 @@ class PersonDetail(DetailView):
                 command_chain['edges'] = json.dumps(edge_list)
                 context['command_chain'].append(json.dumps(command_chain))
 
-
-
             # Next, get some info about subordinates
-
             # Start by getting all child organizations for the member org
             child_compositions = org.child_organization.all()
 
