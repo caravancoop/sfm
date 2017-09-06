@@ -280,16 +280,21 @@ class Command(UtilityMixin, BaseCommand):
                 'value': self.col('R'),
                 'confidence': None,
                 'source': None,
-            }
+            },
             'LastCitedDate': {
                 'value': self.col('S'),
                 'confidence': self.col('X'),
                 'source': self.col('W'),
-            }
+            },
             'OpenEnded': {
                 'value': self.col('Y'),
                 'confidence': None,
                 'source': None,
+            },
+            'Headquarters': {
+                'value': self.col('AT'),
+                'confidence': self.col('AV'),
+                'source': self.col('AU')
             }
         }
 
@@ -539,6 +544,11 @@ class Command(UtilityMixin, BaseCommand):
 
                         self.make_relation('OpenEnded',
                                            composition_positions['OpenEnded'],
+                                           org_data,
+                                           composition)
+
+                        self.make_relation('Headquarters',
+                                           composition_positions['Headquarters'],
                                            org_data,
                                            composition)
 
@@ -945,13 +955,6 @@ class Command(UtilityMixin, BaseCommand):
                          org_data,
                          organization):
 
-        exact_loc_data = {
-            'lng_or_name': self.col('AW'),
-            'lat_or_id': self.col('AX'),
-            'confidence': self.col('AZ'),
-            'source': self.col('AY')
-        }
-
         positions = {
             'AdminLevel1': {
                 'value': self.col('BE'),
@@ -959,19 +962,27 @@ class Command(UtilityMixin, BaseCommand):
                 'confidence': self.col('BH'),
                 'source': self.col('BG'),
             },
-            # Headquarters
-            'Name': {
+            # This doesn't correspond directly to a model attribute
+            # but we'll use it to unpack data about the highest
+            # level of resolution available to us
+            'ExactLocation': {
+                'lng_or_name': self.col('AW'),
+                'lat_or_id': self.col('AX'),
+                'confidence': self.col('AZ'),
+                'source': self.col('AY')
+            },
+            'Headquarters': {
                 'value': self.col('AT'),
                 'confidence': self.col('AV'),
-                'source': self.col('AU'),
+                'source': self.col('AU')
             },
-            'OSMName': {
+            'AdminName': {
                 'value': self.col('BA'),
                 'osmid': self.col('BB'),
                 'confidence': self.col('BD'),
                 'source': self.col('BC')
             },
-            'OSMId': {
+            'AdminId': {
                 'value': self.col('BB'),
                 'osmid': self.col('BB'),
                 'confidence': self.col('BD'),
@@ -1002,129 +1013,36 @@ class Command(UtilityMixin, BaseCommand):
             }
         }
 
-        exact_location = self.get_exact_location(exact_loc_data)
+        exact_location = self.get_exact_location(postiions['ExactLocation'], org_data)
+
+        if exact_location.get('id') and exact_location.get('name'):
+            osm_id = exact_location['id']
+            site_name = exact_location['name']
+        else:
+            osm_id = org_data[positions['AdminId']['value']]
+            site_name = org_data[positions['AdminName']['value']]
 
         try:
             osm_geo = get_osm_by_id(osm_id)
         except DataError:
             osm_geo = None
+            self.log_error('OSM ID for Site {1} does not seem valid: {2}'.format(site_name, osm_id))
 
         if osm_geo:
 
-            names = [
-                org_data[positions['Name']['value']],
-                org_data[positions['OSMName']['value']],
-                org_data[positions['AdminLevel1']['value']],
-            ]
-
-            name = ', '.join([n for n in names if n])
-
-            try:
-                site = Geosite.objects.get(geositeosmid__value=osm_geo.id,
-                                           geositename__value=name)
-            except Geosite.DoesNotExist:
-                with reversion.create_revision():
-                    site = Geosite()
-                    site.save()
-                    reversion.set_user(self.user)
-
-            name_confidence = self.get_confidence(org_data[positions['Name']['confidence']])
-            name_sources = self.create_sources(org_data[positions['Name']['source']])
-
-
-            if name and name_confidence and name_sources:
-
-                site_data['Geosite_GeositeName'] = {
-                    'value': name,
-                    'confidence': name_confidence,
-                    'sources': name_sources,
-                }
-
-            else:
-                missing = []
-                if not name_confidence:
-                    missing.append('confidence')
-                if not name_sources:
-                    missing.append('sources')
-
-                self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
-
-            # Get Coordinates
-            try:
-               geo = get_osm_by_id(osm_id)
-            except DataError:
-                self.log_error('OSMName ID for {0} for Site {1} does not seem valid: {2}'.format(value, name, attr_osm_id))
-                geo = None
-
-            if geo:
-                confidence = self.get_confidence(org_data[positions['OSMId']['confidence']])
-                sources = self.create_sources(org_data[positions['OSMId']['source']])
-
-                if confidence and sources:
-
-                    site_data['Geosite_GeositeCoordinates'] = {
-                        'value': geo.geometry,
-                        'confidence': confidence,
-                        'sources': sources,
-                    }
-
-                else:
-                    missing = []
-                    if not confidence:
-                        missing.append('confidence')
-                    if not sources:
-                        missing.append('sources')
-
-                    self.log_error('OSMId {0} did not have {1}'.format(value, ', '.join(missing)))
-
-            for attribute in ['AdminLevel1', 'OSMName', 'OSMId']:
-
-                confidence = self.get_confidence(org_data[positions[attribute]['confidence']])
-                sources = self.create_sources(org_data[positions[attribute]['source']])
-                value = org_data[positions[attribute]['value']]
-                attr_osm_id = org_data[positions[attribute]['osmid']]
-
-                try:
-                   geo = get_osm_by_id(attr_osm_id)
-                except DataError:
-                    self.log_error('OSMName ID for {0} for Site {1} does not seem valid: {2}'.format(value, name, attr_osm_id))
-                    geo = None
-
-                if geo and confidence and sources:
-
-                    site_data['Geosite_Geosite{}'.format(attribute)] = {
-                        'value': value,
-                        'confidence': confidence,
-                        'sources': sources,
-                    }
-
-                else:
-                    missing = []
-                    if not confidence:
-                        missing.append('confidence')
-                    if not sources:
-                        missing.append('sources')
-
-                    self.log_error('{0} {1} did not have {2}'.format(attribute, value, ', '.join(missing)))
-
-            try:
-                site.update(site_data)
-            except TypeError:
-                # Probably means that the geometry is wrong
-                self.log_error('OSM ID "{0}" for site "{1}" does not seem to be a node'.format(geo.id, geo.name))
+            site = self.get_or_create_site(osm_id, exact_location, org_data, positions)
 
             emp_data = {
                 'Emplacement_EmplacementOrganization': {
                     'value': organization,
-                    'confidence': name_confidence,
-                    'sources': name_sources,
+                    'confidence': org_data[positions['AdminName']['confidence']],
+                    'sources': org_data[positions['AdminName']['confidence']],
                 },
                 'Emplacement_EmplacementSite': {
                     'value': site,
-                    'confidence': name_confidence,
-                    'sources': name_sources,
-                },
-                'Emplacement_EmplacementExactLocation': exact_location,
+                    'confidence': org_data[positions['AdminName']['confidence']],
+                    'sources': org_data[positions['AdminName']['confidence']],
+                }
             }
 
             try:
@@ -1132,25 +1050,6 @@ class Command(UtilityMixin, BaseCommand):
                                                       emplacementsite__value=site)
             except Emplacement.DoesNotExist:
                 emplacement = Emplacement.create(emp_data)
-
-            try:
-                emp_openended = org_data[43]
-            except IndexError:
-                emp_openended = None
-
-            if emp_openended:
-                if 'Y' in emp_openended:
-                    emp_openended = True
-                elif 'N' in emp_openended:
-                    emp_openended = False
-                else:
-                    emp_openended = None
-
-                with reversion.create_revision():
-                    open_ended, created = EmplacementOpenEnded.objects.get_or_create(value=emp_openended,
-                                                                                     object_ref=emplacement)
-                    emplacement.save()
-                    reversion.set_user(self.user)
 
             for field_name, positions in relation_positions.items():
 
@@ -1162,38 +1061,114 @@ class Command(UtilityMixin, BaseCommand):
         else:
             self.log_error('Could not find OSM ID {}'.format(osm_id))
 
-    def make_exact_location(self, exact_location_data, object_ref):
+    def get_or_create_site(self, osm_id, exact_location, data, positions):
 
-        lng_or_name = exact_location_data['lng_or_name']
-        lat_or_id = exact_location_data['lat_or_id']
+        names = [
+            exact_location.get('name'),
+            data[positions['AdminName']['value']],
+            data[positions['AdminLevel1']['value']],
+        ]
+
+        name = ', '.join([n for n in names if n])
 
         try:
-            assert (lng_or_name is not None and lat_or_id is not None)
-        except AssertionError:
-            return None
+            site = Geosite.objects.get(geositeosmid__value=osm_geo.id,
+                                        geositename__value=name)
+        except Geosite.DoesNotExist:
+            with reversion.create_revision():
+                site = Geosite()
+                site.save()
+                reversion.set_user(self.user)
 
-        # Figure out if it's OSM Name/ID pair, or coordinate pair
-        try:
-            int(lng_or_name)
-            data_is_coords = True
-        except ValueError:
-            data_is_coords = False
+        name_confidence = self.get_confidence(data[positions['AdminName']['confidence']])
+        name_sources = self.create_sources(data[positions['AdminName']['source']])
 
-        if data_is_coords:
+        if name and name_confidence and name_sources:
 
-            lat, lng = lng_or_name, lat_or_id
-
-            # TODO: Need to figure out how to turn coordinates into a Geosite
-            return None
+            site_data['Geosite_GeositeName'] = {
+                'value': name,
+                'confidence': name_confidence,
+                'sources': name_sources,
+            }
 
         else:
-            osmname, osmid = lng_or_name, lat_or_id
+            missing = []
+            if not name_confidence:
+                missing.append('confidence')
+            if not name_sources:
+                missing.append('sources')
+
+            self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
+
+        # Get Coordinates
+        if exact_location.get('coords'):
+            geo = exact_location['coords']
+            confidence = self.get_confidence(data[positions['ExactLocation']['confidence']])
+            sources = self.create_sources(data[positions['ExactLocation']['source']])
+        else:
+            geo = osm_geo.geometry
+            confidence = self.get_confidence(data[positions['AdminId']['confidence']])
+            sources = self.create_sources(data[positions['AdminId']['source']])
+
+        if confidence and sources:
+
+            site_data['Geosite_GeositeCoordinates'] = {
+                'value': geo,
+                'confidence': confidence,
+                'sources': sources,
+            }
+
+        else:
+            missing = []
+            if not confidence:
+                missing.append('confidence')
+            if not sources:
+                missing.append('sources')
+
+            self.log_error('Coordinates for OSM ID {0} did not have {1}'.format(osm_id, ', '.join(missing)))
+
+        # Exact location, if it exists
+        if exact_location.get('name') and exact_location.get('id'):
+
+            confidence = self.get_confidence(org_data[positions['ExactLocation']['confidence']])
+            sources = self.create_sources(org_data[positions['ExactLocation']['source']])
+
+            if confidence and sources:
+
+                site_data['Geosite_GeositeLocationName'] = {
+                    'value': exact_location.get('name'),
+                    'confidence': confidence,
+                    'sources': sources,
+                }
+
+                site_data['Geosite_GeositeLocationId'] = {
+                    'value': exact_location.get('id'),
+                    'confidence': confidence,
+                    'sources': sources,
+                }
+
+            else:
+                missing = []
+                if not confidence:
+                    missing.append('confidence')
+                if not sources:
+                    missing.append('sources')
+
+                self.log_error('Exact location for OSM ID {0} did not have {1}'.format(osm_id, ', '.join(missing)))
+
+        # Process the rest of the OSM data
+        for attribute in ['AdminLevel1', 'AdminName', 'AdminId']:
+
+            confidence = self.get_confidence(data[positions[attribute]['confidence']])
+            sources = self.create_sources(data[positions[attribute]['source']])
+            value = data[positions[attribute]['value']]
+            attr_osm_id = data[positions[attribute]['osmid']]
 
             try:
-                geo = get_osm_by_id(osmid)
+                geo = get_osm_by_id(attr_osm_id)
             except DataError:
-                self.log_error('OSMName ID for {0} does not seem valid: {1}'.format(osmname, osmid))
-                return None
+                self.log_error('OSMName ID for Site {0} does not seem valid: {1}'.format(site_name, attr_osm_id))
+                geo = None
 
             if geo and confidence and sources:
 
@@ -1202,8 +1177,55 @@ class Command(UtilityMixin, BaseCommand):
                     'confidence': confidence,
                     'sources': sources,
                 }
-            # TODO: Figure out way to save
-        return
+
+            else:
+                missing = []
+                if not confidence:
+                    missing.append('confidence')
+                if not sources:
+                    missing.append('sources')
+
+                self.log_error('{0} {1} did not have {2}'.format(attribute, value, ', '.join(missing)))
+
+        try:
+            site.update(site_data)
+        except TypeError:
+            # Probably means that the geometry is wrong
+            self.log_error('OSM ID "{0}" for site "{1}" does not seem to be a node'.format(osm_id, site_name))
+
+        return site
+
+    def get_exact_location(self, positions, data):
+
+        lng_or_name = data[positions['lng_or_name']['value']]
+        lat_or_id = data[positions['lat_or_id']['value']]
+
+        try:
+            assert (lng_or_name is not None and lat_or_id is not None)
+        except AssertionError:
+            return None
+
+        exact_location = {}
+
+        # Figure out if it's OSM Name/ID pair, or coordinate pair
+        try:
+
+            int(lng_or_name)
+            exact_location['coords'] = [lng_or_name, lat_or_id]
+
+        except ValueError:
+
+            # This is a name/ID pair
+            exact_location['name'], exact_location['id'] = lng_or_name, lat_or_id
+
+            try:
+                geo = get_osm_by_id(exact_location['id'])
+                exact_location['coords'] = geo.geometry
+            except DataError:
+                self.log_error('OSM ID for {0} does not seem valid: {1}'.format(exact_location['name'],
+                                                                                    exact_location['id'])
+
+        return exact_location
 
     def create_sources(self, sources_string):
 
@@ -1304,59 +1326,69 @@ class Command(UtilityMixin, BaseCommand):
 
         person_positions = {
             'Name': {
-                'value': 1,
-                'confidence': 3,
-                'source': 2,
+                'value': self.col('B'),
+                'confidence': self.col('D'),
+                'source': self.col('C'),
             },
             'Alias': {
-                'value': 4,
-                'confidence': 6,
-                'source': 5,
+                'value': self.col('E'),
+                'confidence': self.col('G'),
+                'source': self.col('F'),
             },
             'DivisionId': {
-                'value': 7,
+                'value': self.col('H'),
             },
         }
         membership_positions = {
             'Organization': {
-                'value': 8,
-                'confidence': 10,
-                'source': 9,
+                'value': self.col('I'),
+                'confidence': self.col('K'),
+                'source': self.col('J'),
             },
             'Role': {
-                'value': 11,
-                'confidence': 13,
-                'source': 12,
+                'value': self.col('L'),
+                'confidence': self.col('N'),
+                'source': self.col('M'),
             },
             'Title': {
-                'value': 14,
-                'confidence': 16,
-                'source': 15,
+                'value': self.col('O'),
+                'confidence': self.col('Q'),
+                'source': self.col('P'),
             },
             'Rank': {
-                'value': 17,
-                'confidence': 19,
-                'source': 18,
+                'value': self.col('R'),
+                'confidence': self.col('T'),
+                'source': self.col('S'),
             },
             'FirstCitedDate': {
-                'value': 20,
-                'confidence': 22,
-                'source': 21,
+                'value': self.col('U'),
+                'confidence': self.col('Z'),
+                'source': self.col('Y'),
+            },
+            'RealStart': {
+                'value': self.col('AA'),
+                'confidence': None,
+                'source': None,
             },
             'StartContext': {
-                'value': 24,
-                'confidence': 26,
-                'source': 25,
+                'value': self.col('AB'),
+                'confidence': self.col('AD'),
+                'source': self.col('AC'),
             },
             'LastCitedDate': {
-                'value': 27,
-                'confidence': 29,
-                'source': 28,
+                'value': self.col('AE'),
+                'confidence': self.col('AJ'),
+                'source': self.col('AI'),
+            },
+            'RealEnd': {
+                'value': self.col('AK'),
+                'confidence': None,
+                'source': None,
             },
             'EndContext': {
-                'value': 31,
-                'confidence': 33,
-                'source': 32,
+                'value': self.col('AL'),
+                'confidence': self.col('AN'),
+                'source': self.col('AM'),
             },
         }
 
@@ -1492,6 +1524,11 @@ class Command(UtilityMixin, BaseCommand):
                                    person_data,
                                    membership)
 
+                self.make_relation('RealStart',
+                                   membership_positions['RealStart'],
+                                   person_data,
+                                   membership)
+
                 self.make_relation('StartContext',
                                    membership_positions['StartContext'],
                                    person_data,
@@ -1499,6 +1536,11 @@ class Command(UtilityMixin, BaseCommand):
 
                 self.make_relation('LastCitedDate',
                                    membership_positions['LastCitedDate'],
+                                   person_data,
+                                   membership)
+
+                self.make_relation('RealEnd',
+                                   membership_positions['RealEnd'],
                                    person_data,
                                    membership)
 
@@ -1513,55 +1555,86 @@ class Command(UtilityMixin, BaseCommand):
                 self.log_error('{} did not have a confidence or source'.format(name_value))
 
     def create_event(self, event_data):
+
         positions = {
             'StartDate': {
-                'value': 1,
-                'source': 14,
+                'value': self.col('B'),
+                'source': self.col('AF'),
                 'model_field': 'violationstartdate',
             },
             'EndDate': {
-                'value': 2,
-                'source': 14,
+                'value': self.col('F'),
+                'source': self.col('AF'),
                 'model_field': 'violationenddate',
             },
+            # AKA "date of publication"
+            'FirstAllegation': {
+                'value': self.col('J'),
+                'source': self.col('AF'),
+                'model_field': 'violationfirstallegation',
+            },
+            'LastUpdated': {
+                'value': self.col('N'),
+                'source': self.col('AF'),
+                'model_field': 'violationlastupdated',
+            },
+            'Status': {
+                'value': self.col('R'),
+                'source': self.col('AF'),
+                'model_field': 'violationstatus',
+            },
             'LocationDescription': {
-                'value': 3,
-                'source': 14,
+                'value': self.col('S'),
+                'source': self.col('AF'),
                 'model_field': 'violationlocationdescription',
             },
+            'ExactLocation': {
+                'lng_or_name': self.col('T'),
+                'lat_or_id': self.col('U')
+                'source': self.col('AF'),
+                'model_field': 'violationexactlocation',
+            },
             'DivisionId': {
-                'value': 8,
-                'source': 14,
+                'value': self.col('Z'),
+                'source': self.col('AF'),
             },
             'Type': {
-                'value': 9,
-                'source': 14,
+                'value': self.col('AA'),
+                'source': self.col('AF'),
                 'model_field': 'violationtype',
             },
             'Description': {
-                'value': 10,
-                'source': 14,
+                'value': self.col('AB'),
+                'source': self.col('AF'),
                 'model_field': 'violationdescription',
             },
-            'OSMId': {
-                'value': 5,
-                'source': 14,
+            'AdminName': {
+                'value': self.col('V'),
+                'source': self.col('AF'),
             },
-            'AdminLevel1': {
-                'value': 6,
-                'source': 14,
+            'AdminId': {
+                'value': self.col('W'),
+                'source': self.col('AF'),
+            },
+            'AdminLevel1Name': {
+                'value': self.col('X'),
+                'source': self.col('AF'),
+            },
+            'AdminLevel1Id': {
+                'value': self.col('Y'),
+                'source': self.col('AF'),
             },
             'Perpetrator': {
-                'value': 11,
-                'source': 14
+                'value': self.col('AC'),
+                'source': self.col('AF')
             },
             'PerpetratorOrganization': {
-                'value': 12,
-                'source': 14
+                'value': self.col('AD'),
+                'source': self.col('AF')
             },
             'PerpetratorClassification': {
-                'value': 13,
-                'source': 14
+                'value': self.col('AE'),
+                'source': self.col('AF')
             }
         }
 
@@ -1577,6 +1650,21 @@ class Command(UtilityMixin, BaseCommand):
 
         self.make_relation('EndDate',
                            positions['EndDate'],
+                           event_data,
+                           violation)
+
+        self.make_relation('FirstAllegation',
+                           positions['FirstAllegation'],
+                           event_data,
+                           violation)
+
+        self.make_relation('LastUpdated',
+                           positions['LastUpdated'],
+                           event_data,
+                           violation)
+
+        self.make_relation('Status',
+                           positions['Status'],
                            event_data,
                            violation)
 
@@ -1601,70 +1689,72 @@ class Command(UtilityMixin, BaseCommand):
                            violation)
 
         try:
-            sources = self.create_sources(event_data[positions['OSMId']['source']])
+            # All data in this sheet use the same source
+            sources = self.create_sources(event_data[positions['Type']['source']])
         except IndexError:
             self.log_error('Row seems to be blank')
             return None
 
         # Make OSM stuff
 
-        try:
-            osm_id = event_data[positions['OSMId']['value']]
-        except IndexError:
-            osm_id = None
+        exact_location = self.get_exact_location(positions['ExactLocation'], event_data)
+
+        if exact_location.get('id') and exact_location.get('name'):
+            osm_id = exact_location['id']
+            site_name = exact_location['name']
+        else:
+            osm_id = event_data[positions['AdminId']['value']]
+            site_name = event_data[positions['AdminName']['value']]
 
         event_info = {}
 
-        if osm_id:
+        try:
+            geo = get_osm_by_id(osm_id)
+        except DataError:
+            self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, osm_id))
+            geo = None
 
-            try:
-                geo = get_osm_by_id(osm_id)
-            except DataError:
-                self.log_error('OSM ID for Site does not seem valid: {}'.format(osm_id))
-                geo = None
+        if geo:
 
+            hierarchy = get_hierarchy_by_id(osm_id)
 
-            if geo:
-                hierarchy = get_hierarchy_by_id(geo.id)
+            admin1 = org_data[positions['AdminLevel1Name']['value']]
+            admin2 = org_data[positions['AdminLevel1Name']['value']]
 
-                admin1 = None
-                admin2 = None
+            if hierarchy:
+                for member in hierarchy:
+                    if member.admin_level == 6 and not admin1:
+                        admin1 = member.name
+                    elif member.admin_level == 4 and not admin2:
+                        admin2 = member.name
 
-                if hierarchy:
-                    for member in hierarchy:
-                        if member.admin_level == 6:
-                            admin1 = member.name
-                        elif member.admin_level == 4:
-                            admin2 = member.name
-
-
-                event_info.update({
-                    'Violation_ViolationAdminLevel2': {
-                        'value': admin2,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                    'Violation_ViolationAdminLevel1': {
-                        'value': admin1,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                    'Violation_ViolationOSMName': {
-                        'value': geo.name,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                    'Violation_ViolationOSMId': {
-                        'value': geo.id,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                    'Violation_ViolationLocation': {
-                        'value': geo.geometry,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                })
+            event_info.update({
+                'Violation_ViolationAdminLevel2': {
+                    'value': admin2,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationAdminLevel1': {
+                    'value': admin1,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationOSMName': {
+                    'value': geo.name,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationOSMId': {
+                    'value': geo.id,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationLocation': {
+                    'value': geo.geometry,
+                    'sources': sources,
+                    'confidence': 1
+                },
+            })
 
         country_code = event_data[positions['DivisionId']['value']]
 
@@ -1710,8 +1800,6 @@ class Command(UtilityMixin, BaseCommand):
                         vp.sources.add(source)
                     vp.save()
                     reversion.set_user(self.user)
-
-
 
         try:
             perp_org = event_data[positions['PerpetratorOrganization']['value']]

@@ -13,11 +13,20 @@ class Geosite(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, GeositeName)
+
+        # OSM Name/ID of the smallest containing administrative unit
+        self.admin_name = ComplexFieldContainer(self, GeositeAdminName)
+        self.admin_id = ComplexFieldContainer(self, GeositeAdminID)
+
+        # Larger administrative units (name only)
         self.adminlevel1 = ComplexFieldContainer(self, GeositeAdminLevel1)
         self.adminlevel2 = ComplexFieldContainer(self, GeositeAdminLevel2)
+
+        # Coordinates and OSM Name/ID of the exact location
         self.coordinates = ComplexFieldContainer(self, GeositeCoordinates)
-        self.osmname = ComplexFieldContainer(self, GeositeOSMName)
-        self.osmid = ComplexFieldContainer(self, GeositeOSMId)
+        self.location_name = ComplexFieldContainer(self, GeositeLocationName)
+        self.location_id = ComplexFieldContainer(self, GeositeLocationId)
+
         self.division_id = ComplexFieldContainer(self, GeositeDivisionId)
 
         self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
@@ -43,6 +52,23 @@ class GeositeName(ComplexField):
     
     def __str__(self):
         return self.value
+
+
+@versioned
+@sourced
+class GeositeAdminName(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("OSM name")
+
+
+@versioned
+@sourced
+class GeositeAdminId(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = models.BigIntegerField(default=None, blank=True, null=True)
+    field_name = _("OSM ID")
+
 
 @versioned
 @sourced
@@ -71,18 +97,18 @@ class GeositeCoordinates(ComplexField):
 
 @versioned
 @sourced
-class GeositeOSMName(ComplexField):
+class GeositeLocationName(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("OSM name")
+    field_name = _("Location name")
 
 
 @versioned
 @sourced
-class GeositeOSMId(ComplexField):
+class GeositeLocationId(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.BigIntegerField(default=None, blank=True, null=True)
-    field_name = _("OSM ID")
+    field_name = _("Location ID")
 
 
 @versioned

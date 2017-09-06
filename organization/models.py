@@ -23,13 +23,15 @@ class Organization(models.Model, BaseModel):
         self.aliases = ComplexFieldListContainer(self, OrganizationAlias)
         self.classification = ComplexFieldListContainer(self, OrganizationClassification)
         self.division_id = ComplexFieldContainer(self, OrganizationDivisionId)
+        self.headquarters = ComplexFieldContainer(self, OrganizationHeadquarters)
         self.firstciteddate = ComplexFieldContainer(self, OrganizationFirstCitedDate)
         self.lastciteddate = ComplexFieldContainer(self, OrganizationLastCitedDate)
         self.realstart = ComplexFieldContainer(self, OrganizationRealStart)
         self.open_ended = ComplexFieldContainer(self, OrganizationOpenEnded)
 
         self.complex_fields = [self.name, self.division_id, self.firstciteddate,
-                               self.lastciteddate, self.realstart, self.open_ended]
+                               self.lastciteddate, self.realstart, self.open_ended,
+                               self.headquarters]
 
         self.required_fields = [
             "Organization_OrganizationName",
@@ -94,6 +96,14 @@ class OrganizationDivisionId(ComplexField):
 
     def __str__(self):
         return self.value
+
+
+@versioned
+@sourced
+class OrganizationHeadquarters(ComplexField):
+    object_ref = models.ForeignKey('Organization')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Headquarters")
 
 
 @versioned

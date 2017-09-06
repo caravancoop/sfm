@@ -22,11 +22,10 @@ class Emplacement(models.Model, BaseModel):
         self.open_ended = ComplexFieldContainer(self, EmplacementOpenEnded)
         self.organization = ComplexFieldContainer(self, EmplacementOrganization)
         self.site = ComplexFieldContainer(self, EmplacementSite)
-        self.exact_location = ComplexFieldContainer(self, EmplacementSite)
         self.aliases = ComplexFieldListContainer(self, EmplacementAlias)
 
         self.complex_fields = [self.startdate, self.enddate, self.organization,
-                               self.site, self.exact_location, self.open_ended]
+                               self.site, self.open_ended]
 
         self.required_fields = [
             "Emplacement_EmplacementOrganization",
