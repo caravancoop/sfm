@@ -248,31 +248,56 @@ class Command(UtilityMixin, BaseCommand):
                 'confidence': None,
                 'source': None,
             },
+            'FirstCitedDate': {
+                'value': 11,
+                'confidence': 16,
+                'source': 15,
+            },
+            'RealStart': {
+                'value': 17,
+                'confidence': None,
+                'source': None,
+            }
+            'LastCitedDate': {
+                'value': 18,
+                'confidence': 23,
+                'source': 22,
+            }
+            'OpenEnded': {
+                'value': 24,
+                'confidence': None,
+                'source': None,
+            }
         }
 
         composition_positions = {
             'Parent': {
-                'value': 11,
-                'confidence': 13,
-                'source': 12,
-            },
-            'StartDate': {
-                'value': 17,
-                'confidence': 19,
-                'source': 18,
-            },
-            'EndDate': {
-                'value': 20,
-                'confidence': 22,
-                'source': 21,
+                'value': 24,
+                'confidence': 26,
+                'source': 25,
             },
             'Classification': {
-                'value': 14,
-                'confidence': 16,
-                'source': 15,
+                'value': 27,
+                'confidence': 29,
+                'source': 28,
+            },
+            'StartDate': {
+                'value': 30,
+                'confidence': 35,
+                'source': 34,
+            },
+            'RealStart': {
+                'value': 36,
+                'confidence': None,
+                'source': None,
+            },
+            'EndDate': {
+                'value': 37,
+                'confidence': 42,
+                'source': 41,
             },
             'OpenEnded': {
-                'value': 23,
+                'value': 43,
                 'confidence': None,
                 'source': None,
             },
@@ -280,37 +305,46 @@ class Command(UtilityMixin, BaseCommand):
 
         area_positions = {
             'OSMId': {
-                'value': 45,
-                'confidence': 48,
-                'source': 47,
+                'value': 77,
+                'confidence': 80,
+                'source': 79,
             },
         }
 
         site_positions = {
             'OSMId': {
-                'value': 28,
-                'confidence': 30,
-                'source': 29,
+                'value': 54,
+                'confidence': 56,
+                'source': 55,
             },
         }
 
         membership_positions = {
             'OrganizationOrganization': {
-                'value': 56,
-                'confidence': 58,
-                'source': 57,
+                'value': 95,
+                'confidence': 97,
+                'source': 96,
             },
             'FirstCitedDate': {
-                'value': 59,
-                'confidence': 61,
-                'source': 60,
+                'value': 98,
+                'confidence': 103,
+                'source': 102,
+            },
+            'RealStart': {
+                'value': 104,
+                'confidence': None,
+                'source': None,
             },
             'LastCitedDate': {
-                'value': 62,
-                'confidence': 64,
-                'source': 63,
+                'value': 105,
+                'confidence': 110,
+                'source': 109,
             },
-
+            'OpenEnded': {
+                'value': 111,
+                'confidence': None,
+                'source': None,
+            },
         }
 
         # Need to get or create name first
@@ -372,6 +406,16 @@ class Command(UtilityMixin, BaseCommand):
                                                     org_positions['Classification'],
                                                     org_data,
                                                     organization)
+
+                self.make_relation('RealStart',
+                                    org_positions['RealStart'],
+                                    org_data,
+                                    organization)
+
+                self.make_relation('OpenEnded',
+                                    org_positions['OpenEnded'],
+                                    org_data,
+                                    organization)
 
                 # Create Emplacements
                 try:
@@ -461,12 +505,6 @@ class Command(UtilityMixin, BaseCommand):
                             comp_openended = None
 
                         if comp_openended:
-                            if 'Y' in comp_openended:
-                                comp_openended = True
-                            elif 'N' in comp_openended:
-                                comp_openended = False
-                            else:
-                                comp_openended = None
 
                             with reversion.create_revision():
                                 open_ended, created = CompositionOpenEnded.objects.get_or_create(value=comp_openended,
@@ -481,6 +519,16 @@ class Command(UtilityMixin, BaseCommand):
 
                         self.make_relation('EndDate',
                                            composition_positions['EndDate'],
+                                           org_data,
+                                           composition)
+
+                        self.make_relation('RealStart',
+                                           composition_positions['RealStart'],
+                                           org_data,
+                                           composition)
+
+                        self.make_relation('OpenEnded',
+                                           composition_positions['OpenEnded'],
                                            org_data,
                                            composition)
 
@@ -558,8 +606,24 @@ class Command(UtilityMixin, BaseCommand):
                                            org_data,
                                            membership)
 
+                        self.make_relation('RealStart',
+                                           membership_positions['RealStart'],
+                                           org_data,
+                                           membership)
+
                         self.make_relation('FirstCitedDate',
                                            membership_positions['FirstCitedDate'],
+                                           org_data,
+                                           membership)
+
+                        # The SFM team stores this specific value as Y/N in the
+                        # sheets, but we want it to be Y/N/E
+                        open_ended = membership_positions['OpenEnded']
+                        if open_ended = 'N':
+                            open_ended = 'E'
+
+                        self.make_relation('OpenEnded',
+                                           membership_positions['OpenEnded'],
                                            org_data,
                                            membership)
 
@@ -739,21 +803,31 @@ class Command(UtilityMixin, BaseCommand):
     def make_area(self, osm_id, org_data, organization):
         positions = {
             'OSMName': {
-                'confidence': 48,
-                'source': 47,
+                'confidence': 80,
+                'source': 79,
             },
         }
 
         relation_positions = {
             'StartDate': {
-                'value': 49,
-                'confidence': 51,
-                'source': 50,
+                'value': 81,
+                'confidence': 86,
+                'source': 85,
+            },
+            'RealStart': {
+                'value': 87,
+                'confidence': None,
+                'source': None,
             },
             'EndDate': {
-                'value': 52,
-                'confidence': 54,
-                'source': 53,
+                'value': 88,
+                'confidence': 93,
+                'source': 92,
+            },
+            'OpenEnded': {
+                'value': 94,
+                'confidence': None,
+                'source': None,
             },
         }
 
@@ -842,19 +916,9 @@ class Command(UtilityMixin, BaseCommand):
             except Association.DoesNotExist:
                 assoc = Association.create(area_info)
 
-            try:
-                ass_openended = org_data[55]
-            except IndexError:
-                ass_openended = None
-
+            ass_openended = org_data[relation_positions['OpenEnded']['value']]
 
             if ass_openended:
-                if 'Y' in ass_openended:
-                    ass_openended = True
-                elif 'N' in ass_openended:
-                    ass_openended = False
-                else:
-                    ass_openended = None
 
                 with reversion.create_revision():
                     open_ended, created = AssociationOpenEnded.objects.get_or_create(value=ass_openended,
