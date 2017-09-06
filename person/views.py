@@ -39,15 +39,15 @@ class PersonDetail(DetailView):
 
         # NOTE: this sort does not work as expected...
         last_cited_attr = '-object_ref__membershippersonlastciteddate'
-        memberships = context['person'].membershippersonmember_set\
-                        .order_by(last_cited_attr)
+        # memberships = context['person'].membershippersonmember_set\
+        #                 .order_by(last_cited_attr)
 
 
         # Use SQL...
         membership_query = '''
             SELECT * FROM membershipperson
             WHERE member_id='{}' 
-            ORDER BY last_cited DESC
+            ORDER BY last_cited::date DESC
         '''.format(context['person'].uuid)
 
         cursor = connection.cursor()
@@ -57,18 +57,12 @@ class PersonDetail(DetailView):
         results_tuple = namedtuple('Membership', columns)
 
         # List of membership tuples
-        membership_tuple = [results_tuple(*r) for r in cursor]
+        memberships = [results_tuple(*r) for r in cursor]
         
 
-        # Start by getting the most recent membership for the "Last seen as"
-        # description
-        # if len(memberships) > 0:
-        #     last_membership = memberships[0]
-
-        #     context['last_seen_as'] = last_membership.object_ref.short_description
-
-        if len(membership_tuple) > 0:
-            last_membership_id = membership_tuple[0].id
+        # Start by getting the most recent membership for the "Last seen as" description
+        if len(memberships) > 0:
+            last_membership_id = memberships[0].id
             membershipperson = MembershipPerson.objects.get(id=last_membership_id)
 
             context['last_seen_as'] = membershipperson.short_description
@@ -78,12 +72,8 @@ class PersonDetail(DetailView):
         context['subordinates'] = []
         context['command_chain'] = []
 
-        for membership_t in membership_tuple:
-            membership = MembershipPersonMember.objects.get(object_ref__id=membership_t.id)
-        #     print(type(membership), '4444')
-
-        # for membership in memberships:
-        #     print(type(membership), "$$$")
+        for membership_tuple in memberships:
+            membership = MembershipPersonMember.objects.get(object_ref__id=membership_tuple.id)
 
             # Store the raw memberships for use in the template
             context['memberships'].append(membership.object_ref)
@@ -198,6 +188,7 @@ class PersonDetail(DetailView):
 
                         context['subordinates'].append(info)
 
+        context['command_chain'].reverse()
         context['events'] = []
         events = context['person'].violationperpetrator_set.all()
         for event in events:
