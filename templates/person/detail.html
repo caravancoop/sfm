@@ -174,9 +174,18 @@
         <script>
         var org_count = ({{command_chain|safe}}).length
         
+        function addMultiFont(node_list) {
+            new_list = node_list.map(function(item) {
+                item['font'] = {multi: true};
+                return item
+            });
+
+            return new_list
+        }; 
+
         $(document).ready(function() {
             // Add divs to carousel
-            $.each({{command_chain|safe}}, function( index, value ) {
+            $.each({{command_chain|safe}}, function(index, value) {
                 cellID = "command-chart-" + index
                 cellYearID = "command-chart-year-" + index
                 $('#org-chart-container').append('<div class="carousel-cell"><div class="chart-cell" id="' + cellID + '"></div><div class="chart-date text-center" id="' + cellYearID + '"></div></div>');
@@ -191,25 +200,25 @@
             }
         
             // Build charts and add year
-            $.each({{command_chain|safe}}, function( index, value ) {
+            $.each({{command_chain|safe}}, function(index, value) {
                 cellID = "command-chart-" + index
                 cellYearID = "command-chart-year-" + index
 
                 obj = JSON.parse(value);
-                node_list = JSON.parse(obj['nodes']);
+                node_list = addMultiFont(JSON.parse(obj['nodes']));
                 edge_list = JSON.parse(obj['edges']);
                 when = obj['when'];
 
-                var nodes = new vis.DataSet(node_list);
-                var edges = new vis.DataSet(edge_list);
+                nodes = new vis.DataSet(node_list);
+                edges = new vis.DataSet(edge_list);
 
-                var container = document.getElementById(cellID);
-                var data = {
+                container = document.getElementById(cellID);
+                data = {
                     nodes: nodes,
                     edges: edges,
                 };
 
-                var options = {
+                options = {
                     nodes:{
                         shape: 'box',
                         fixed: {
@@ -246,20 +255,23 @@
                     },
                 };
 
-                var network = new vis.Network(container, data, options);
+                network = new vis.Network(container, data, options);
 
-            network.on("selectNode", function (params) {
-                if (params.nodes.length === 1) {
-                    var node = nodes.get(params.nodes[0]);
-                    console.log(node, "$$$$$")
-                    // window.open(node.division_id, '_blank');
-                }
-            });
-                
                 $('#' + cellYearID).append(when);
+
+                // Bind click event to individual nodes
+                network.on("selectNode", function (params) {
+                    if (params.nodes.length === 1) {
+                        node = nodes.get(params.nodes[0]);
+                        // Get URL pieces for redirect
+                        base_url = window.location.origin + '/';
+                        lang = '{{request.LANGUAGE_CODE}}';
+                        org_detail_path = node.url;
+                        window.location = base_url + lang + org_detail_path;
+                    }
+                });
+                
             });
-
-
         });
         </script>
     {% endif %}

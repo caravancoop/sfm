@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.db import connection
 
+
 CONFIDENCE_MAP = {
     'low': 1,
     'medium': 2,
@@ -154,24 +155,14 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
         if orgs[0].end_date:
             end_date = orgs[0].end_date.isoformat()
 
-        label = orgs[0].name
+        label = '<b>' + orgs[0].name + '</b>' + '\n\n' + 'Unknown commander'
         if orgs[0].commander:
-            label = orgs[0].name + '/n' + orgs[0].commander
+            label = '<b>' + orgs[0].name + '</b>' + '\n\n' + orgs[0].commander
 
-        import pdb
-        pdb.set_trace()
         trimmed = {
             'id': str(org_id),
             'label': str(label),
-            'detail_id': str(orgs[0].id),
-            # 'name': orgs[0].name,
-            # 'other_names': list({o.alias.strip() for o in orgs if o.alias}),
-            # 'classifications': list({o.classification.strip() for o in orgs if o.classification}),
-            # 'division_id': orgs[0].division_id,
-            # 'date_first_cited': start_date,
-            # 'date_last_cited': end_date,
-            # 'commander': orgs[0].commander,
-            # 'parent_id': orgs[0].parent_id
+            'url': '/organization/detail/' + str(orgs[0].org_org_id) + '/',
         }
 
         trimmed[rel_field] = getattr(orgs[0], rel_field)
@@ -350,6 +341,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
         WITH RECURSIVE children AS (
           SELECT
             o.*,
+            NULL::VARCHAR AS org_org_id,
             NULL::VARCHAR AS child_id,
             NULL::VARCHAR AS child_name,
             NULL::DATE AS start_date,
@@ -363,6 +355,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
           UNION
           SELECT
             o.*,
+            org_org.id::VARCHAR as org_org_id,
             h.child_id::VARCHAR AS child_id,
             children.name AS child_name,
             h.start_date::date,
@@ -372,6 +365,8 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             ccc.confidence,
             person.name
           FROM organization AS o
+          JOIN organization_organization as org_org
+            on o.id = org_org.uuid
           JOIN composition AS h
             ON o.id = h.parent_id
           JOIN composition_compositionparent AS ccc

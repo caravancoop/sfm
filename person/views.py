@@ -73,6 +73,8 @@ class PersonDetail(DetailView):
                 command_chain['edges'] = json.dumps(edge_list)
                 context['command_chain'].append(json.dumps(command_chain))
 
+
+
             # Next, get some info about subordinates
 
             # Start by getting all child organizations for the member org
