@@ -23,7 +23,7 @@
     {% has_versions person as changelog %}
     {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
-    {% if chain_of_command %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
@@ -35,7 +35,7 @@
     {% has_versions person as changelog %}
     {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
-    {% if chain_of_command %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
@@ -197,7 +197,7 @@
                     initialIndex: org_count - 1,
                     wrapAround: true,
                 });
-            }
+            };
         
             // Build charts and add year
             $.each({{command_chain|safe}}, function(index, value) {
@@ -263,11 +263,7 @@
                 network.on("selectNode", function (params) {
                     if (params.nodes.length === 1) {
                         node = nodes.get(params.nodes[0]);
-                        // Get URL pieces for redirect
-                        base_url = window.location.origin + '/';
-                        lang = '{{request.LANGUAGE_CODE}}';
-                        org_detail_path = node.url;
-                        window.location = base_url + lang + org_detail_path;
+                        window.location = node.url;
                     }
                 });
                 

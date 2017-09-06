@@ -37,13 +37,7 @@ class PersonDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # NOTE: this sort does not work as expected...
-        last_cited_attr = '-object_ref__membershippersonlastciteddate'
-        # memberships = context['person'].membershippersonmember_set\
-        #                 .order_by(last_cited_attr)
-
-
-        # Use SQL...
+        # Use SQL, instead of the Django ORM. Django cannot accurately sort by last_cited, an instance of ApproximateDate: Django orders by ApproximateDate's string format, which "pretty prints" as a date and its suffix in the first position, e.g., "10th March 2004."
         membership_query = '''
             SELECT * FROM membershipperson
             WHERE member_id='{}' 
@@ -58,7 +52,6 @@ class PersonDetail(DetailView):
 
         # List of membership tuples
         memberships = [results_tuple(*r) for r in cursor]
-        
 
         # Start by getting the most recent membership for the "Last seen as" description
         if len(memberships) > 0:
@@ -68,7 +61,6 @@ class PersonDetail(DetailView):
             context['last_seen_as'] = membershipperson.short_description
 
         context['memberships'] = []
-        context['chain_of_command'] = []
         context['subordinates'] = []
         context['command_chain'] = []
 
@@ -86,8 +78,17 @@ class PersonDetail(DetailView):
                 command_chain = {}
 
                 last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
-                node_list = get_org_hierarchy_by_id(org.uuid, when=last_cited)
+                node_list_raw = get_org_hierarchy_by_id(org.uuid, when=last_cited)
                 edge_list = get_command_edges(org.uuid, when=last_cited)
+
+                # Add a unique URL to individual nodes for redirect to organization detail view
+                node_list = []
+                for node in node_list_raw:
+                    detail_id = node['detail_id']
+                    url = self.request.build_absolute_uri('/') + self.request.LANGUAGE_CODE + '/organization/detail/' + detail_id + '/'
+                    node['url'] = url
+
+                    node_list.append(node)
 
                 command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
                 command_chain['nodes'] = json.dumps(node_list)
@@ -131,6 +132,8 @@ class PersonDetail(DetailView):
 
                     commander_end = Q(object_ref__membershippersonlastciteddate__value__gte=mem_start)
                     end_is_null = Q(object_ref__membershippersonlastciteddate__value__isnull=True)
+
+                    last_cited_attr = '-object_ref__membershippersonlastciteddate'
 
                     commanders = child.membershippersonorganization_set\
                                       .filter(commander_start |\

@@ -131,6 +131,7 @@ def get_hierarchy_by_id(osm_id):
     return hierarchy
 
 def generate_hierarchy(query, q_args, rel_field, sources=False):
+
     cursor = connection.cursor()
     cursor.execute(query, q_args)
 
@@ -162,7 +163,7 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
         trimmed = {
             'id': str(org_id),
             'label': str(label),
-            'url': '/organization/detail/' + str(orgs[0].org_org_id) + '/',
+            'detail_id': str(orgs[0].org_org_id)
         }
 
         trimmed[rel_field] = getattr(orgs[0], rel_field)
@@ -186,150 +187,6 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
     hierarchy = [i[1] for i in sorted(trimmed_hierarchy, key=lambda x: x[0])]
 
     return hierarchy
-
-# Can we delete this? It appears in ajax/views.py...does that play an import role somewhere?
-def get_chain_of_command(org_id):
-    # Generate the hierarchy as an edge list
-    hierarchy = get_org_hierarchy_by_id(org_id)
-
-    # Get some info about this org (the root node)
-    # TODO: Make sure this grabs the right membership
-    org_query = '''
-        SELECT
-          o.name,
-          person.name AS commander
-        FROM organization as o
-        LEFT JOIN membershipperson AS mem
-          ON o.id = mem.organization_id
-        LEFT JOIN person
-          ON person.id = mem.member_id
-        WHERE o.id = %s
-        LIMIT 1
-    '''
-
-    cursor = connection.cursor()
-    cursor.execute(org_query, [org_id])
-
-    result = list(row for row in cursor)[0]
-
-    org_info = {'name': result[0], 'commander': result[1]}
-
-    out = {
-        'nodes': [
-                    [
-                        1,
-                        {
-                            'label': org_info['name']
-                        }
-                    ],
-                    [
-                        2,
-                        {
-                            'label': 'hi!'
-                        }
-                    ]
-                ],
-        'edges': [[1, 2]]
-    }
-
-    return out
-
-# (Same as above!) Can we delete this? It appears in ajax/views.py...does that play an import role somewhere?
-def chain_of_command(org_id):
-    '''
-    Returns a JSON object that we can use to build a hierarchy tree.
-    '''
-    # Generate the hierarchy as an edge list
-    edge_list = get_org_hierarchy_by_id(org_id)
-
-    # Get some info about this org (the root node)
-    # TODO: Make sure this grabs the right membership
-    org_query = '''
-        SELECT
-          o.name,
-          person.name AS commander
-        FROM organization as o
-        LEFT JOIN membershipperson AS mem
-          ON o.id = mem.organization_id
-        LEFT JOIN person
-          ON person.id = mem.member_id
-        WHERE o.id = %s
-        LIMIT 1
-    '''
-
-    cursor = connection.cursor()
-    cursor.execute(org_query, [org_id])
-
-    result = list(row for row in cursor)[0]
-
-    org_info = {'name': result[0], 'commander': result[1]}
-
-    # Skeleton for the output JSON, starting with the root node
-    # c.f. https://github.com/dabeng/OrgChart#structure-of-datasource
-    out = {
-        'id': str(org_id),
-        'className': 'rootNode',
-        'collapsed': False,
-        'nodeTitlePro': org_info['name'],
-        'nodeContentPro': org_info['commander'],
-        'relationship': '',
-        'children': []
-    }
-
-    if len(edge_list) > 0:
-        # If it has a child, then use this flag, however it is specific to the library...so this can be undone.
-        out['relationship'] = '001'
-    else:
-        out['relationship'] = '000'
-
-    # The output key has to be called "children" for the JS lib to work,
-    # but what we actually want is the parents!
-    out['children'] = get_parents(edge_list, out['id'])
-
-    return out
-
-# Delete worthy? We only use this function in chain_of_command. If we delete that, then we can also delete this.
-def get_parents(edgelist, org_id):
-
-    parents = []
-
-    found_parents = []
-    for unit in edgelist:
-        if str(unit['child_id']) == str(org_id):
-            found_parents.append(unit)
-
-    if found_parents:
-
-        for parent in found_parents:
-
-            parent_info = {
-                'id': str(parent['id']),
-                'className': 'childNode',
-                'collapsed': False,
-                'nodeTitlePro': parent['name'],
-                'nodeContentPro': parent['commander'],
-                'relationship': '',
-                'children': []
-            }
-
-            parent_info['children'] = get_parents(edgelist, parent['id'])
-
-            # Again, for the JS library...not necessarily needed.
-            if len(parent_info['children']) > 0:
-                if len(found_parents) > 1:
-                    parent_info['relationship'] = '111'
-                else:
-                    parent_info['relationship'] = '101'
-            else:
-                parent_info['relationship'] = '100'
-
-            parents.append(parent_info)
-
-        return parents
-
-    else:
-
-        return []
 
 # this makes an edge list that shows the parent relationships (see child_id)
 def get_org_hierarchy_by_id(org_id, when=None, sources=False):

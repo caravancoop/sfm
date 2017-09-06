@@ -35,6 +35,11 @@ except ImportError:
     INTERNAL_IPS = []
 
 try:
+    from .settings_local import BASE_URL
+except ImportError:
+    BASE_URL = ''
+
+try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
         SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL
 except ImportError as e:
