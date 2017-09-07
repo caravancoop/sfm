@@ -85,9 +85,9 @@ class PersonDetail(DetailView):
                 node_list = []
                 for node in node_list_raw:
                     detail_id = node['detail_id']
-                    url = self.request.build_absolute_uri('/') + self.request.LANGUAGE_CODE + '/organization/detail/' + detail_id + '/'
+                    # Cast as a string to make it JSON serializable
+                    url = str(reverse_lazy('detail_organization', args=[detail_id]))
                     node['url'] = url
-
                     node_list.append(node)
 
                 command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
@@ -107,7 +107,7 @@ class PersonDetail(DetailView):
                 mem_start = date(1000, 1, 1)
                 no_start = True
             else:
-                mem_start = mem_start.value
+                mem_start = repr(mem_start.value)
 
             mem_end = membership.object_ref.lastciteddate.get_value()
             no_end = False
@@ -115,36 +115,41 @@ class PersonDetail(DetailView):
                 mem_end = date.today()
                 no_end = True
             else:
-                mem_end = mem_end.value
+                mem_end = repr(mem_end.value)
 
             # Get the commanders of each child organization
             # (Unfortunately, this requires two more iterations)
             if child_compositions:
                 for composition in child_compositions:
-                    child = composition.object_ref.child.get_value().value
-
                     # Start and end date attributes for filtering:
                     # We want only the personnel who were commanders of child
                     # organizations during this membership
                     # (also allowing for null dates)
-                    commander_start = Q(object_ref__membershippersonfirstciteddate__value__lte=mem_end)
-                    start_is_null = Q(object_ref__membershippersonfirstciteddate__value__isnull=True)
+                    child = composition.object_ref.child.get_value().value
+                    child_id = child.uuid
 
-                    commander_end = Q(object_ref__membershippersonlastciteddate__value__gte=mem_start)
-                    end_is_null = Q(object_ref__membershippersonlastciteddate__value__isnull=True)
+                    child_commanders_query = '''
+                        SELECT * FROM membershipperson
+                        WHERE organization_id='{child_id}'
+                        AND (first_cited <= '{mem_end}' or first_cited is Null)
+                        AND (last_cited >= '{mem_start}' or last_cited is Null)
+                    '''.format(child_id=child_id,
+                               mem_end=mem_end,
+                               mem_start=mem_start)
 
-                    last_cited_attr = '-object_ref__membershippersonlastciteddate'
 
-                    commanders = child.membershippersonorganization_set\
-                                      .filter(commander_start |\
-                                              start_is_null)\
-                                      .filter(commander_end |\
-                                              end_is_null)\
-                                      .order_by(last_cited_attr)
+                    cursor = connection.cursor()
+                    cursor.execute(child_commanders_query)
 
-                    for commander in commanders:
+                    columns = [c[0] for c in cursor.description]
+                    results_tuple = namedtuple('Commander', columns)
+
+                    commanders = [results_tuple(*r) for r in cursor]
+
+                    for commander_tuple in commanders:
                         # We need to calculate time overlap, so use a dict to
                         # stash information about this commander
+                        commander = MembershipPersonMember.objects.get(object_ref__id=commander_tuple.id)
                         info = {}
                         info['commander'] = commander.object_ref
                         info['organization'] = child
@@ -161,8 +166,7 @@ class PersonDetail(DetailView):
                             overlap_start = c_start.value
                         else:
                             # Once we have "ongoing" attributes, we'll be able to
-                            # determine ongoing overlap; for now, mark it as
-                            # "unknown"
+                            # determine ongoing overlap; for now, mark it as "unknown"
                             overlap_start = 'Unknown'
 
                         if c_end and not no_start:
@@ -185,12 +189,15 @@ class PersonDetail(DetailView):
                         else:
                             overlap_duration = 'Unknown'
 
+                        info['last_cited'] = repr(commander.object_ref.lastciteddate.get_value().value)
                         info['overlap_start'] = overlap_start
                         info['overlap_end'] = overlap_end
                         info['overlap_duration'] = overlap_duration
 
                         context['subordinates'].append(info)
 
+        # Order the list of memberships, so they render in the "Subordinates" table in descending chronological order.
+        context['subordinates'] = sorted(context['subordinates'], key=lambda membership: membership['last_cited'], reverse=True)
         context['command_chain'].reverse()
         context['events'] = []
         events = context['person'].violationperpetrator_set.all()
