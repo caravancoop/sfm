@@ -183,7 +183,8 @@
             return new_list
         }; 
 
-        $(document).ready(function() {
+        $(window).load(function () {
+        // $(document).ready(function() {
             // Add divs to carousel
             $.each({{command_chain|safe}}, function(index, value) {
                 cellID = "command-chart-" + index
@@ -193,9 +194,10 @@
 
             // Initialize carousel
             if (org_count > 1) {
-                $('#org-chart-container').flickity({
+                var orgCarousel = $('#org-chart-container').flickity({
                     initialIndex: org_count - 1,
                     wrapAround: true,
+                    draggable: true,
                 });
             };
         
@@ -235,6 +237,10 @@
                                 background: '#EBEBEB',
                                 border: '#D6D6D6',
                             },
+                            hover: {
+                                background:'#e0e0e0',
+                                border:'#D6D6D6',
+                            },
                         },
                         font: {
                             color: '#777777',
@@ -252,6 +258,7 @@
                     interaction: {
                         zoomView: false,
                         dragView: false,
+                        hover:true,
                     },
                 };
 
@@ -266,7 +273,16 @@
                         window.location = node.url;
                     }
                 });
-                
+
+                // Transform cursor (from hand into pointed finger and back again)
+                network.on("hoverNode", function (params) {
+                    network.canvas.body.container.style.cursor = 'pointer'
+                });
+
+                network.on("blurNode", function (params) {
+                    network.canvas.body.container.style.cursor = 'default'
+                });
+
             });
         });
         </script>
