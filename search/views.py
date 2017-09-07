@@ -10,6 +10,7 @@ from person.models import Person
 from violation.models import Violation
 from sfm_pc.utils import get_osm_by_id, format_facets
 
+import pprint
 
 SEARCH_ENTITY_TYPES = {
 #    'Source': Source,
