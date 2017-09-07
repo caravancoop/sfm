@@ -7,7 +7,8 @@ from django.conf import settings
 from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import versioned, sourced, sourced_optional
-from complex_fields.models import ComplexField, ComplexFieldContainer
+from complex_fields.models import (ComplexField, ComplexFieldContainer,
+                                   ComplexFieldListContainer)
 from complex_fields.base_models import BaseModel
 from organization.models import Organization, Alias
 from geosite.models import Geosite
@@ -16,7 +17,7 @@ from geosite.models import Geosite
 class Emplacement(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.startdate = complexfieldcontainer(self, emplacementstartdate)
+        self.startdate = ComplexFieldContainer(self, EmplacementStartDate)
         self.enddate = ComplexFieldContainer(self, EmplacementEndDate)
         self.realstart = ComplexFieldContainer(self, EmplacementRealStart)
         self.open_ended = ComplexFieldContainer(self, EmplacementOpenEnded)

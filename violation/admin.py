@@ -3,10 +3,8 @@ import reversion
 from django.contrib import admin
 
 from .models import Violation, ViolationStartDate, ViolationEndDate, \
-    ViolationLocationDescription, ViolationAdminLevel1, \
-    ViolationAdminLevel2, ViolationOSMName, ViolationOSMId, \
-    ViolationLocation, ViolationDescription, ViolationPerpetrator, \
-    ViolationPerpetratorOrganization, ViolationType, Type
+    ViolationLocationDescription, ViolationDescription, ViolationPerpetrator, \
+    ViolationPerpetratorOrganization, ViolationType, Type, ViolationSite
 
 
 class ViolationAdmin(admin.ModelAdmin):
@@ -21,31 +19,15 @@ class ViolationEndDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
+class ViolationDescriptionAdmin(reversion.admin.VersionAdmin):
+    pass
+
+
 class ViolationLocationDescriptionAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class ViolationAdminLevel1Admin(reversion.admin.VersionAdmin):
-    pass
-
-
-class ViolationAdminLevel2Admin(reversion.admin.VersionAdmin):
-    pass
-
-
-class ViolationOSMNameAdmin(reversion.admin.VersionAdmin):
-    pass
-
-
-class ViolationOSMIdAdmin(reversion.admin.VersionAdmin):
-    pass
-
-
-class ViolationLocationAdmin(reversion.admin.VersionAdmin):
-    pass
-
-
-class ViolationDescriptionAdmin(reversion.admin.VersionAdmin):
+class ViolationSiteAdmin(reversion.admin.VersionAdmin):
     pass
 
 
@@ -70,11 +52,7 @@ admin.site.register(ViolationType, ViolationTypeAdmin)
 admin.site.register(ViolationPerpetratorOrganization, ViolationPerpetratorOrganizationAdmin)
 admin.site.register(ViolationPerpetrator, ViolationPerpetratorAdmin)
 admin.site.register(ViolationDescription, ViolationDescriptionAdmin)
-admin.site.register(ViolationLocation, ViolationLocationAdmin)
-admin.site.register(ViolationOSMId, ViolationOSMIdAdmin)
-admin.site.register(ViolationOSMName, ViolationOSMNameAdmin)
-admin.site.register(ViolationAdminLevel2, ViolationAdminLevel2Admin)
-admin.site.register(ViolationAdminLevel1, ViolationAdminLevel1Admin)
 admin.site.register(ViolationLocationDescription, ViolationLocationDescriptionAdmin)
+admin.site.register(ViolationSite, ViolationSiteAdmin)
 admin.site.register(ViolationEndDate, ViolationEndDateAdmin)
 admin.site.register(ViolationStartDate, ViolationStartDateAdmin)

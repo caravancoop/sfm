@@ -86,7 +86,7 @@ class AssociationArea(ComplexField):
 
 
 @versioned
-@sourced
+@sourced_optional
 class AssociationOpenEnded(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)

@@ -20,11 +20,11 @@ class MembershipOrganization(models.Model, BaseModel):
         self.firstciteddate = ComplexFieldContainer(self, MembershipOrganizationFirstCitedDate)
         self.realstart = ComplexFieldContainer(self, MembershipOrganizationRealStart)
         self.lastciteddate = ComplexFieldContainer(self, MembershipOrganizationLastCitedDate)
-        self.open_ended = ComplexFieldContainer(self, MembershipOrganizationOpenEnded)
+        self.realend= ComplexFieldContainer(self, MembershipOrganizationRealEnd)
 
         self.complex_fields = [self.member, self.organization,
                                self.firstciteddate, self.lastciteddate,
-                               self.realstart, self.open_ended]
+                               self.realstart, self.realend]
 
         self.required_fields = [
             "MembershipOrganization_MembershipOrganizationMember",
@@ -104,7 +104,7 @@ class MembershipOrganizationRealStart(ComplexField):
 
 @versioned
 @sourced_optional
-class MembershipOrganizationOpenEnded(ComplexField):
+class MembershipOrganizationRealEnd(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization')
-    value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
-    field_name = _("Open ended")
+    value = models.NullBooleanField(default=None)
+    field_name = _("Real end date")

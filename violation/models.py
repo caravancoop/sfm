@@ -22,16 +22,26 @@ class Violation(models.Model, BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Dates and status
         self.startdate = ComplexFieldContainer(self, ViolationStartDate)
         self.first_allegation = ComplexFieldContainer(self, ViolationFirstAllegation)
         self.enddate = ComplexFieldContainer(self, ViolationEndDate)
         self.last_update = ComplexFieldContainer(self, ViolationLastUpdate)
         self.status = ComplexFieldContainer(self, ViolationStatus)
+
+        # Location fields
         self.locationdescription = ComplexFieldContainer(
             self, ViolationLocationDescription
         )
+        self.adminlevel1 = ComplexFieldContainer(self, ViolationAdminLevel1)
+        self.adminlevel2 = ComplexFieldContainer(self, ViolationAdminLevel2)
+        self.osmname = ComplexFieldContainer(self, ViolationOSMName)
+        self.osmid = ComplexFieldContainer(self, ViolationOSMId)
         self.division_id = ComplexFieldContainer(self, ViolationDivisionId)
         self.location = ComplexFieldContainer(self, ViolationLocation)
+        self.site = ComplexFieldContainer(self, ViolationSite)
+
+        # Descriptions and other attributes
         self.description = ComplexFieldContainer(self, ViolationDescription)
         self.perpetrator = ComplexFieldListContainer(self, ViolationPerpetrator)
         self.perpetratororganization = ComplexFieldListContainer(
@@ -40,7 +50,6 @@ class Violation(models.Model, BaseModel):
         self.perpetratorclassification = ComplexFieldContainer(
             self, ViolationPerpetratorClassification
         )
-
         self.types = ComplexFieldListContainer(self, ViolationType)
 
         self.complex_fields = [self.startdate, self.first_allegation,
@@ -107,10 +116,59 @@ class ViolationLocationDescription(ComplexField):
 
 @versioned
 @sourced
+class ViolationAdminLevel1(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Admin level 1")
+
+
+@versioned
+@sourced
+class ViolationAdminLevel2(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Admin level 2")
+
+
+@versioned
+@sourced
+class ViolationOSMName(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("OSM Name")
+
+
+@versioned
+@sourced
+class ViolationOSMId(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("OSM ID")
+
+
+@versioned
+@sourced
+class ViolationDivisionId(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Division ID")
+
+
+@versioned
+@sourced
 class ViolationLocation(ComplexField):
     object_ref = models.ForeignKey('Violation')
-    value = models.ForeignKey(Geosite, default=None, blank=True, null=True)
+    value = models.PointField(default=None, blank=True, null=True)
+    objects = models.GeoManager()
     field_name = _("Location")
+
+
+@versioned
+@sourced
+class ViolationSite(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = models.ForeignKey(Geosite, default=None, blank=True, null=True)
+    field_name = _("Site")
 
 
 @versioned

@@ -16,7 +16,7 @@ class Geosite(models.Model, BaseModel):
 
         # OSM Name/ID of the smallest containing administrative unit
         self.admin_name = ComplexFieldContainer(self, GeositeAdminName)
-        self.admin_id = ComplexFieldContainer(self, GeositeAdminID)
+        self.admin_id = ComplexFieldContainer(self, GeositeAdminId)
 
         # Larger administrative units (name only)
         self.adminlevel1 = ComplexFieldContainer(self, GeositeAdminLevel1)
@@ -29,9 +29,10 @@ class Geosite(models.Model, BaseModel):
 
         self.division_id = ComplexFieldContainer(self, GeositeDivisionId)
 
-        self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
-                               self.coordinates, self.osmname, self.osmid,
-                               self.division_id]
+        self.complex_fields = [self.name, self.admin_name, self.admin_id,
+                               self.adminlevel1, self.adminlevel2,
+                               self.coordinates, self.location_name,
+                               self.location_id, self.division_id]
 
         self.required_fields = ["Geosite_GeositeName"]
 
