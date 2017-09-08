@@ -17,7 +17,7 @@ from organization.forms import OrganizationForm, OrganizationGeographyForm
 from organization.models import Organization, OrganizationAlias, Alias, \
     OrganizationClassification, Classification
 
-from sfm_pc.utils import get_osm_by_id, get_hierarchy_by_id
+from sfm_pc.utils import get_osm_by_id, get_hierarchy_by_id, get_org_hierarchy_by_id, get_command_edges
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -52,8 +52,22 @@ class OrganizationDetail(DetailView):
 
         context['parents'] = []
         parents = context['organization'].parent_organization.all()
+        print(parents)
         for parent in parents:
             context['parents'].append(parent.object_ref.parent.get_value().value)
+
+        # Also show parents of parents?
+        node_list = get_org_hierarchy_by_id(context['organization'].uuid)
+        edge_list = get_command_edges(context['organization'].uuid)
+        print(node_list)
+        print(edge_list)
+        context['node_list'] = json.dumps(node_list)
+        context['edge_list'] = json.dumps(edge_list)
+        # context['command_chain'].append(json.dumps(command_chain))
+        # Yes, but this suggests something different, then the parent_organization relation.
+
+        # import pdb
+        # pdb.set_trace()
 
         context['subsidiaries'] = []
         children = context['organization'].child_organization.all()

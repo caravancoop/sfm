@@ -241,6 +241,20 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+
+    {% if node_list %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent chart - Test" %}</h3>
+            <hr />
+            <div id="org-chart-container" class="command-charts-carousel"></div>
+            <br>
+        </div>
+    </div>
+    {% endif %}
+
+
         </div>
     </div>
     {% endif %}
@@ -374,6 +388,15 @@
             {% render_versions organization %}
         {% endif %}
 
+
+
+<style type="text/css">
+        #org-chart-container {
+            width: 400px;
+            height: 400px;
+            border: 1px solid lightgray;
+        }
+    </style>
 {% endblock %}
 
 {% block extra_js %}
@@ -422,6 +445,114 @@
                 areas.addTo(area_map);
                 area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
             });
+        </script>
+    {% endif %}
+
+
+    <!-- Test! -->
+    {% if node_list %}
+        <script src="{% static 'js/vis.min.js' %}"></script>
+        <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
+        <script>
+        // var org_count = ({{command_chain|safe}}).length
+        
+        function addMultiFont(node_list) {
+            new_list = node_list.map(function(item) {
+                item['font'] = {multi: true};
+                return item
+            });
+
+            return new_list
+        }; 
+
+        $(document).ready(function() {
+            console.log("wheeeee!!!!!")
+            // Build charts and add year
+            // $.each({{command_chain|safe}}, function(index, value) {
+            //     cellID = "command-chart-" + index
+            //     cellYearID = "command-chart-year-" + index
+
+            //     obj = JSON.parse(value);
+            //     node_list = addMultiFont(JSON.parse(obj['nodes']));
+            //     edge_list = JSON.parse(obj['edges']);
+            //     when = obj['when'];
+
+                nodes = new vis.DataSet({{node_list|safe}});
+                edges = new vis.DataSet({{edge_list|safe}});
+
+                container = document.getElementById("org-chart-container");
+                data = {
+                    nodes: nodes,
+                    edges: edges,
+                };
+
+                options = {
+                    nodes:{
+                        shape: 'box',
+                        // fixed: {
+                        //   x:true,
+                        //   y:true,
+                        // },
+                        shapeProperties: {
+                          borderRadius: 2,
+                        },
+                        color: {
+                            background: '#f4f4f4',
+                            border: '#D6D6D6',
+                            highlight: { // Change color of node on click
+                                background: '#EBEBEB',
+                                border: '#D6D6D6',
+                            },
+                            hover: {
+                                background:'#e0e0e0',
+                                border:'#D6D6D6',
+                            },
+                        },
+                        font: {
+                            color: '#777777',
+                            face: 'Open Sans',
+                        },
+                    },
+                    layout: {
+                        hierarchical: {
+                          // enabled: true,
+                          levelSeparation: 100, // Distance between levels
+                          nodeSpacing: 300, // Distance between nodes
+                          direction: 'UD', // Inverts chart
+                          sortMethod: 'directed',
+                          // parentCentralization: true,
+                        }
+                    },
+                    interaction: {
+                        zoomView: false,
+                        dragView: true,
+                        hover:true,
+                    },
+                };
+
+                network = new vis.Network(container, data, options);
+
+                // $('#' + cellYearID).append(when);
+
+                // // Bind click event to individual nodes
+                // network.on("selectNode", function (params) {
+                //     if (params.nodes.length === 1) {
+                //         node = nodes.get(params.nodes[0]);
+                //         window.location = node.url;
+                //     }
+                // });
+
+                // // Transform cursor (from hand into pointed finger and back again)
+                // network.on("hoverNode", function (params) {
+                //     network.canvas.body.container.style.cursor = 'pointer'
+                // });
+
+                // network.on("blurNode", function (params) {
+                //     network.canvas.body.container.style.cursor = 'default'
+                // });
+
+            // });
+        });
         </script>
     {% endif %}
 {% endblock %}
