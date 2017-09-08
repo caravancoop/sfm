@@ -81,14 +81,32 @@ class PersonDetail(DetailView):
                 node_list_raw = get_org_hierarchy_by_id(org.uuid, when=last_cited)
                 edge_list = get_command_edges(org.uuid, when=last_cited)
 
+                # (1) Push the org into the node_list_raw
+                # label = '<b>' + str(org.name) + '</b>' + '\n\n' + 'Unknown commander'
+                # # if org.commander:
+                # #     label = '<b>' + str(org.name) + '</b>' + '\n\n' + str(org.commander)
+
+                # first_child = {
+                #     'id': str(org.uuid),
+                #     'label': str(label),
+                #     'detail_id': ''
+                # }
+
+                # node_list_raw.append(first_child)
+
+                # (2) Extract the needed fields from the node, OR made the datetime objects serializable!
+
                 # Add a unique URL to individual nodes for redirect to organization detail view
                 node_list = []
                 for node in node_list_raw:
-                    detail_id = node['detail_id']
-                    # Cast as a string to make it JSON serializable
-                    url = str(reverse_lazy('detail_organization', args=[detail_id]))
-                    node['url'] = url
-                    node_list.append(node)
+                    if node['detail_id']:
+                        detail_id = node['detail_id']
+                        # Cast as a string to make it JSON serializable
+                        url = str(reverse_lazy('detail_organization', args=[detail_id]))
+                        node['url'] = url
+                        node_list.append(node)
+
+                print(node_list, "$$$$")
 
                 command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
                 command_chain['nodes'] = json.dumps(node_list)
