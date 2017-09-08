@@ -128,7 +128,7 @@ class OrganizationList(PaginatedList):
     orderby_lookup = {
         'name': 'organizationname__value',
         'parent': 'parent_organization__object_ref__compositionparent__value__organizationname__value',
-        'osmname': 'emplacementorganization__object_ref__emplacementsite__value__geositeosmname__value',
+        'osmname': 'emplacementorganization__object_ref__emplacementsite__value__geositeadminname__value',
         'admin1': 'emplacementorganization__object_ref__emplacementsite__value__geositeadminlevel1__value',
         'classification': 'organizationclassification__value__value'
     }
