@@ -2,7 +2,10 @@ CREATE MATERIALIZED VIEW violation AS
   SELECT 
     vv.uuid AS id,
     vvsd.value AS start_date,
+    vvfa.value AS first_allegation,
     vved.value AS end_date,
+    vvlu.value AS last_update,
+    vvstat.value AS status,
     vvld.value AS location_description,
     vval1.value AS admin_level_1,
     vval2.value AS admin_level_2,
@@ -18,8 +21,14 @@ CREATE MATERIALIZED VIEW violation AS
   FROM violation_violation AS vv
   LEFT JOIN violation_violationstartdate AS vvsd
     ON vv.id = vvsd.object_ref_id
+  LEFT JOIN violation_violationfirstallegation AS vvfa
+    ON vv.id = vvfa.object_ref_id
   LEFT JOIN violation_violationenddate AS vved
     ON vv.id = vved.object_ref_id
+  LEFT JOIN violation_violationlastupdate AS vvlu
+    ON vv.id = vvlu.object_ref_id
+  LEFT JOIN violation_violationstatus AS vvstat
+    ON vv.id = vvstat.object_ref_id
   LEFT JOIN violation_violationlocationdescription AS vvld
     ON vv.id = vvld.object_ref_id
   LEFT JOIN violation_violationadminlevel1 AS vval1

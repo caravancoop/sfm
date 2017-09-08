@@ -33,18 +33,22 @@ class Command(BaseCommand):
             view_name = view.rsplit('_', 1)[0]
             
             if options['recreate']:
-                
+                self.stdout.write(self.style.SUCCESS('Recreating view from %s' %
+                                                     file_path))
                 with connection.cursor() as c:
                     c.execute('DROP MATERIALIZED VIEW IF EXISTS {}'.format(view_name))
                 
                 self.createView(file_path)
 
             elif options['refresh']:
-
+                self.stdout.write(self.style.SUCCESS('Refreshing view for %s' %
+                                                     view_name))
                 with connection.cursor() as c:
                     c.execute('REFRESH MATERIALIZED VIEW {}'.format(view_name))
             
             else:
+                self.stdout.write(self.style.SUCCESS('Recreating views from %s' %
+                                                     file_path))
                 self.createView(file_path)
 
     def createView(self, file_path):
