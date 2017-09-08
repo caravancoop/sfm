@@ -6,7 +6,8 @@ from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
 
-from complex_fields.model_decorators import versioned, sourced, sourced_optional
+from complex_fields.model_decorators import (versioned, sourced, sourced_optional,
+                                             translated)
 from complex_fields.models import (ComplexField, ComplexFieldContainer,
                                    ComplexFieldListContainer)
 from complex_fields.base_models import BaseModel
@@ -85,9 +86,17 @@ class EmplacementSite(ComplexField):
     field_name = _("Site")
 
 
+@translated
 @versioned
 @sourced
 class EmplacementAlias(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
-    value = models.ForeignKey(Alias, default=None, blank=True, null=True)
+    value = models.ForeignKey('Alias', default=None, blank=True, null=True)
     field_name = _("Alias")
+
+
+class Alias(models.Model):
+    value = models.TextField()
+
+    def __str__(self):
+        return self.value

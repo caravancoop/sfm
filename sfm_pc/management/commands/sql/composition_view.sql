@@ -4,6 +4,7 @@ CREATE MATERIALIZED VIEW composition AS
     oop.uuid AS parent_id,
     ooc.uuid AS child_id,
     ccsd.value AS start_date,
+    ccrs.value AS real_start,
     cced.value AS end_date,
     cls.value AS classification,
     ccoe.value AS open_ended
@@ -18,6 +19,8 @@ CREATE MATERIALIZED VIEW composition AS
     ON ccc.value_id = ooc.id
   LEFT JOIN composition_compositionstartdate AS ccsd
     ON cc.id = ccsd.object_ref_id
+  LEFT JOIN composition_compositionrealstart AS ccrs
+    ON cc.id = ccrs.object_ref_id
   LEFT JOIN composition_compositionenddate AS cced
     ON cc.id = cced.object_ref_id
   LEFT JOIN composition_compositionclassification AS ccf

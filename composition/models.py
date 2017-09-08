@@ -21,8 +21,6 @@ class Composition(models.Model, BaseModel):
         self.open_ended = ComplexFieldContainer(self, CompositionOpenEnded)
         self.classification = ComplexFieldContainer(self, CompositionClassification)
 
-        self.open_ended = ComplexFieldContainer(self, CompositionOpenEnded)
-
         self.complex_fields = [self.parent, self.child, self.startdate,
                                self.realstart, self.enddate, self.open_ended,
                                self.classification]

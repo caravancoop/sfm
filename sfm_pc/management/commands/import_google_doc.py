@@ -426,30 +426,16 @@ class Command(UtilityMixin, BaseCommand):
                 except Organization.DoesNotExist:
                     organization = Organization.create(org_info)
 
-                aliases = self.make_relation('Alias',
-                                             org_positions['Alias'],
-                                             org_data,
-                                             organization)
+                org_attributes = ['Alias', 'Classification', 'FirstCitedDate',
+                                  'LastCitedDate', 'RealStart', 'OpenEnded',
+                                  'Headquarters']
 
-                classification = self.make_relation('Classification',
-                                                    org_positions['Classification'],
-                                                    org_data,
-                                                    organization)
+                for attr in org_attributes:
 
-                self.make_relation('RealStart',
-                                    org_positions['RealStart'],
-                                    org_data,
-                                    organization)
-
-                self.make_relation('OpenEnded',
-                                    org_positions['OpenEnded'],
-                                    org_data,
-                                    organization)
-
-                self.make_relation('Headquarters',
-                                    org_positions['Headquarters'],
-                                    org_data,
-                                    organization)
+                    self.make_relation(attr,
+                                       org_positions[attr],
+                                       org_data,
+                                       organization)
 
                 # Create Emplacements
                 try:
