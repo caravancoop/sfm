@@ -39,7 +39,6 @@ urlpatterns = i18n_patterns(
     url(r'^admin/', include(admin.site.urls)),
 
     # Ajax calls
-    url(r'^ajax/', include('ajax.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^logout/$', logout_then_login, {'login_url': '/accounts/login'}, name="logout"),
 

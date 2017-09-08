@@ -23,7 +23,7 @@
     {% has_versions person as changelog %}
     {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
-    {% if chain_of_command %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
@@ -35,7 +35,7 @@
     {% has_versions person as changelog %}
     {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
-    {% if chain_of_command %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
@@ -89,12 +89,13 @@
     </div>
     {% endif %}
 
-    {% if chain_of_command %}
+    {% if command_chain %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</h3>
             <hr />
-            <div id="org-chart-container" class="org-chart-container"></div>
+            <div id="org-chart-container" class="command-charts-carousel"></div>
+            <br>
         </div>
     </div>
     {% endif %}
@@ -164,37 +165,124 @@
         {% if changelog %}
             {% render_versions person %}
         {% endif %}
-
 {% endblock %}
 
 {% block extra_js %}
-    {% if chain_of_command %}
-        <!-- Org chart work is in progress; disabled for now -->
-        <!-- script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script -->
+    {% if command_chain %}
+        <script src="{% static 'js/vis.min.js' %}"></script>
+        <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
         <script>
-
-        $(document).ready(function() {
-
-            // Retrieve the graph data as JSON
-            {% with member=memberships|first %}
-                var command_url = "{% url 'chain-of-command' member.organization.get_value.value.uuid %}";
-            {% endwith %}
-
-            /*
-            $.getJSON(command_url, function(data) {
-                // Print hierarchy
-                console.log(data);
-
-                // Load charts library
-                google.charts.load('current', {packages:['orgchart']});
-                google.charts.setOnLoadCallback(drawChart);
-
+        var org_count = ({{command_chain|safe}}).length
+        
+        function addMultiFont(node_list) {
+            new_list = node_list.map(function(item) {
+                item['font'] = {multi: true};
+                return item
             });
 
-            function drawChart() {
-                var dataTable = new google.visualization.DataTable();
-            }
-            */
+            return new_list
+        }; 
+
+        $(document).ready(function() {
+            // Add divs to carousel
+            $.each({{command_chain|safe}}, function(index, value) {
+                cellID = "command-chart-" + index
+                cellYearID = "command-chart-year-" + index
+                $('#org-chart-container').append('<div class="carousel-cell"><div class="chart-cell" id="' + cellID + '"></div><div class="chart-date text-center" id="' + cellYearID + '"></div></div>');
+            });
+
+            // Initialize carousel
+            if (org_count > 1) {
+                var orgCarousel = $('#org-chart-container').flickity({
+                    initialIndex: org_count - 1,
+                    wrapAround: true,
+                    draggable: true,
+                });
+            };
+        
+            // Build charts and add year
+            $.each({{command_chain|safe}}, function(index, value) {
+                cellID = "command-chart-" + index
+                cellYearID = "command-chart-year-" + index
+
+                obj = JSON.parse(value);
+                node_list = addMultiFont(JSON.parse(obj['nodes']));
+                edge_list = JSON.parse(obj['edges']);
+                when = obj['when'];
+
+                nodes = new vis.DataSet(node_list);
+                edges = new vis.DataSet(edge_list);
+
+                container = document.getElementById(cellID);
+                data = {
+                    nodes: nodes,
+                    edges: edges,
+                };
+
+                options = {
+                    nodes:{
+                        shape: 'box',
+                        fixed: {
+                          x:true,
+                          y:true,
+                        },
+                        shapeProperties: {
+                          borderRadius: 2,
+                        },
+                        color: {
+                            background: '#f4f4f4',
+                            border: '#D6D6D6',
+                            highlight: { // Change color of node on click
+                                background: '#EBEBEB',
+                                border: '#D6D6D6',
+                            },
+                            hover: {
+                                background:'#e0e0e0',
+                                border:'#D6D6D6',
+                            },
+                        },
+                        font: {
+                            color: '#777777',
+                            face: 'Open Sans',
+                        },
+                    },
+                    layout: {
+                        hierarchical: {
+                          enabled: true,
+                          levelSeparation: 100, // Distance between levels
+                          nodeSpacing: 300, // Distance between nodes
+                          direction: 'DU', // Inverts chart
+                        }
+                    },
+                    interaction: {
+                        zoomView: false,
+                        dragView: false,
+                        hover:true,
+                    },
+                };
+
+                network = new vis.Network(container, data, options);
+
+                $('#' + cellYearID).append(when);
+
+                // Bind click event to individual nodes
+                network.on("selectNode", function (params) {
+                    if (params.nodes.length === 1) {
+                        node = nodes.get(params.nodes[0]);
+                        window.location = node.url;
+                    }
+                });
+
+                // Transform cursor (from hand into pointed finger and back again)
+                network.on("hoverNode", function (params) {
+                    network.canvas.body.container.style.cursor = 'pointer'
+                });
+
+                network.on("blurNode", function (params) {
+                    network.canvas.body.container.style.cursor = 'default'
+                });
+
+            });
         });
         </script>
     {% endif %}
