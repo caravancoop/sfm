@@ -183,8 +183,7 @@
             return new_list
         }; 
 
-        $(window).load(function () {
-        // $(document).ready(function() {
+        $(document).ready(function() {
             // Add divs to carousel
             $.each({{command_chain|safe}}, function(index, value) {
                 cellID = "command-chart-" + index
