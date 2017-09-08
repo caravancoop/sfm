@@ -41,7 +41,7 @@ class OrganizationDetail(DetailView):
         context['sites'] = []
         emplacements = context['organization'].emplacementorganization_set.all()
         for emplacement in emplacements:
-            if emplacement.object_ref.site.get_value().value.osmid.get_value():
+            if emplacement.object_ref.site.get_value().value.admin_id.get_value():
                 context['sites'].append(emplacement.object_ref.site.get_value().value)
 
         context['areas'] = []
