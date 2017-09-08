@@ -195,13 +195,14 @@ class PersonDetail(DetailView):
                         info['overlap_duration'] = overlap_duration
 
                         # Do not add last_cited as a key to info, if last_cited does not exist.
-                        # Then, when ordering context['subordinates'], place the 'subordinates' without last_cited in last position (see below).
+                        # Then, when ordering context['subordinates'], place the memberships without last_cited in last position (see below).
                         last_cited = commander.object_ref.lastciteddate.get_value()
                         if last_cited:
                             info['last_cited'] = last_cited.value
 
                         context['subordinates'].append(info)
 
+        # Order the list of memberships, so they render in the "Subordinates" table in descending chronological order.
         context['subordinates'] = sorted(context['subordinates'], key=lambda m: ('last_cited' not in m, m.get('last_cited', None)), reverse=True)
         context['command_chain'].reverse()
         context['events'] = []
