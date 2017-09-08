@@ -2,6 +2,7 @@ import json
 import csv
 
 from datetime import date
+from collections import namedtuple
 
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -13,6 +14,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
+from django.db import connection
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
@@ -23,8 +25,8 @@ from person.models import Person, PersonName, PersonAlias, Alias
 from person.forms import PersonForm
 from organization.models import Organization
 from source.models import Source
-from membershipperson.models import MembershipPerson, Role
-from sfm_pc.utils import deleted_in_str, chain_of_command
+from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
+from sfm_pc.utils import deleted_in_str, get_org_hierarchy_by_id, get_command_edges
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -35,21 +37,35 @@ class PersonDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        last_cited_attr = '-object_ref__membershippersonlastciteddate'
-        memberships = context['person'].membershippersonmember_set\
-                        .order_by(last_cited_attr)
+        # Use SQL, instead of the Django ORM. Django cannot accurately sort by last_cited, an instance of ApproximateDate: Django orders by ApproximateDate's string format, which "pretty prints" as a date and its suffix in the first position, e.g., "10th March 2004."
+        membership_query = '''
+            SELECT * FROM membershipperson
+            WHERE member_id='{}' 
+            ORDER BY last_cited::date DESC
+        '''.format(context['person'].uuid)
 
-        # Start by getting the most recent membership for the "Last seen as"
-        # description
+        cursor = connection.cursor()
+        cursor.execute(membership_query)
+
+        columns = [c[0] for c in cursor.description]
+        results_tuple = namedtuple('Membership', columns)
+
+        # List of membership tuples
+        memberships = [results_tuple(*r) for r in cursor]
+
+        # Start by getting the most recent membership for the "Last seen as" description
         if len(memberships) > 0:
-            last_membership = memberships[0]
+            last_membership_id = memberships[0].id
+            membershipperson = MembershipPerson.objects.get(id=last_membership_id)
 
-            context['last_seen_as'] = last_membership.object_ref.short_description
+            context['last_seen_as'] = membershipperson.short_description
 
         context['memberships'] = []
-        context['chain_of_command'] = []
         context['subordinates'] = []
-        for membership in memberships:
+        context['command_chain'] = []
+
+        for membership_tuple in memberships:
+            membership = MembershipPersonMember.objects.get(object_ref__id=membership_tuple.id)
 
             # Store the raw memberships for use in the template
             context['memberships'].append(membership.object_ref)
@@ -57,12 +73,29 @@ class PersonDetail(DetailView):
             # Grab the org object
             org = membership.object_ref.organization.get_value().value
 
-            # Get the chain of command
-            command = chain_of_command(org.uuid)
-            context['chain_of_command'].append(json.dumps(command))
+            if membership.object_ref.lastciteddate.get_value():
+                # Create an object of edges and nodes for the charts carousel 
+                command_chain = {}
+
+                last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
+                node_list_raw = get_org_hierarchy_by_id(org.uuid, when=last_cited)
+                edge_list = get_command_edges(org.uuid, when=last_cited)
+
+                # Add a unique URL to individual nodes for redirect to organization detail view
+                node_list = []
+                for node in node_list_raw:
+                    detail_id = node['detail_id']
+                    # Cast as a string to make it JSON serializable
+                    url = str(reverse_lazy('detail_organization', args=[detail_id]))
+                    node['url'] = url
+                    node_list.append(node)
+
+                command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
+                command_chain['nodes'] = json.dumps(node_list)
+                command_chain['edges'] = json.dumps(edge_list)
+                context['command_chain'].append(json.dumps(command_chain))
 
             # Next, get some info about subordinates
-
             # Start by getting all child organizations for the member org
             child_compositions = org.child_organization.all()
 
@@ -74,7 +107,7 @@ class PersonDetail(DetailView):
                 mem_start = date(1000, 1, 1)
                 no_start = True
             else:
-                mem_start = mem_start.value
+                mem_start = repr(mem_start.value)
 
             mem_end = membership.object_ref.lastciteddate.get_value()
             no_end = False
@@ -82,34 +115,41 @@ class PersonDetail(DetailView):
                 mem_end = date.today()
                 no_end = True
             else:
-                mem_end = mem_end.value
+                mem_end = repr(mem_end.value)
 
             # Get the commanders of each child organization
             # (Unfortunately, this requires two more iterations)
             if child_compositions:
                 for composition in child_compositions:
-                    child = composition.object_ref.child.get_value().value
-
                     # Start and end date attributes for filtering:
                     # We want only the personnel who were commanders of child
                     # organizations during this membership
                     # (also allowing for null dates)
-                    commander_start = Q(object_ref__membershippersonfirstciteddate__value__lte=mem_end)
-                    start_is_null = Q(object_ref__membershippersonfirstciteddate__value__isnull=True)
+                    child = composition.object_ref.child.get_value().value
+                    child_id = child.uuid
 
-                    commander_end = Q(object_ref__membershippersonlastciteddate__value__gte=mem_start)
-                    end_is_null = Q(object_ref__membershippersonlastciteddate__value__isnull=True)
+                    child_commanders_query = '''
+                        SELECT * FROM membershipperson
+                        WHERE organization_id='{child_id}'
+                        AND (first_cited <= '{mem_end}' or first_cited is Null)
+                        AND (last_cited >= '{mem_start}' or last_cited is Null)
+                    '''.format(child_id=child_id,
+                               mem_end=mem_end,
+                               mem_start=mem_start)
 
-                    commanders = child.membershippersonorganization_set\
-                                      .filter(commander_start |\
-                                              start_is_null)\
-                                      .filter(commander_end |\
-                                              end_is_null)\
-                                      .order_by(last_cited_attr)
 
-                    for commander in commanders:
+                    cursor = connection.cursor()
+                    cursor.execute(child_commanders_query)
+
+                    columns = [c[0] for c in cursor.description]
+                    results_tuple = namedtuple('Commander', columns)
+
+                    commanders = [results_tuple(*r) for r in cursor]
+
+                    for commander_tuple in commanders:
                         # We need to calculate time overlap, so use a dict to
                         # stash information about this commander
+                        commander = MembershipPersonMember.objects.get(object_ref__id=commander_tuple.id)
                         info = {}
                         info['commander'] = commander.object_ref
                         info['organization'] = child
@@ -126,8 +166,7 @@ class PersonDetail(DetailView):
                             overlap_start = c_start.value
                         else:
                             # Once we have "ongoing" attributes, we'll be able to
-                            # determine ongoing overlap; for now, mark it as
-                            # "unknown"
+                            # determine ongoing overlap; for now, mark it as "unknown"
                             overlap_start = 'Unknown'
 
                         if c_end and not no_start:
@@ -150,12 +189,16 @@ class PersonDetail(DetailView):
                         else:
                             overlap_duration = 'Unknown'
 
+                        info['last_cited'] = repr(commander.object_ref.lastciteddate.get_value().value)
                         info['overlap_start'] = overlap_start
                         info['overlap_end'] = overlap_end
                         info['overlap_duration'] = overlap_duration
 
                         context['subordinates'].append(info)
 
+        # Order the list of memberships, so they render in the "Subordinates" table in descending chronological order.
+        context['subordinates'] = sorted(context['subordinates'], key=lambda membership: membership['last_cited'], reverse=True)
+        context['command_chain'].reverse()
         context['events'] = []
         events = context['person'].violationperpetrator_set.all()
         for event in events:

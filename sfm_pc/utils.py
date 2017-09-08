@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.db import connection
 
+
 CONFIDENCE_MAP = {
     'low': 1,
     'medium': 2,
@@ -130,6 +131,7 @@ def get_hierarchy_by_id(osm_id):
     return hierarchy
 
 def generate_hierarchy(query, q_args, rel_field, sources=False):
+
     cursor = connection.cursor()
     cursor.execute(query, q_args)
 
@@ -146,16 +148,22 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
         lowest_index = min(g[0] for g in group)
         orgs = [o[1] for o in group]
 
+        start_date = None
+        if orgs[0].start_date:
+            start_date = orgs[0].start_date.isoformat()
+
+        end_date = None
+        if orgs[0].end_date:
+            end_date = orgs[0].end_date.isoformat()
+
+        label = '<b>' + orgs[0].name + '</b>' + '\n\n' + 'Unknown commander'
+        if orgs[0].commander:
+            label = '<b>' + orgs[0].name + '</b>' + '\n\n' + orgs[0].commander
+
         trimmed = {
-            'id': org_id,
-            'name': orgs[0].name,
-            'other_names': list({o.alias.strip() for o in orgs if o.alias}),
-            'classifications': list({o.classification.strip() for o in orgs if o.classification}),
-            'division_id': orgs[0].division_id,
-            'date_first_cited': orgs[0].start_date,
-            'date_last_cited': orgs[0].end_date,
-            'commander': orgs[0].commander,
-            # 'parent_id': orgs[0].parent_id
+            'id': str(org_id),
+            'label': str(label),
+            'detail_id': str(orgs[0].org_org_id)
         }
 
         trimmed[rel_field] = getattr(orgs[0], rel_field)
@@ -180,146 +188,7 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
 
     return hierarchy
 
-
-def get_chain_of_command(org_id):
-    # Generate the hierarchy as an edge list
-    hierarchy = get_org_hierarchy_by_id(org_id)
-
-    # Get some info about this org (the root node)
-    # TODO: Make sure this grabs the right membership
-    org_query = '''
-        SELECT
-          o.name,
-          person.name AS commander
-        FROM organization as o
-        LEFT JOIN membershipperson AS mem
-          ON o.id = mem.organization_id
-        LEFT JOIN person
-          ON person.id = mem.member_id
-        WHERE o.id = %s
-        LIMIT 1
-    '''
-
-    cursor = connection.cursor()
-    cursor.execute(org_query, [org_id])
-
-    result = list(row for row in cursor)[0]
-
-    org_info = {'name': result[0], 'commander': result[1]}
-
-    out = {
-        'nodes': [
-                    [
-                        1,
-                        {
-                            'label': org_info['name']
-                        }
-                    ],
-                    [
-                        2,
-                        {
-                            'label': 'hi!'
-                        }
-                    ]
-                ],
-        'edges': [[1, 2]]
-    }
-
-    return out
-
-def chain_of_command(org_id):
-    '''
-    Returns a JSON object that we can use to build a hierarchy tree.
-    '''
-    # Generate the hierarchy as an edge list
-    hierarchy = get_org_hierarchy_by_id(org_id)
-
-    # Get some info about this org (the root node)
-    # TODO: Make sure this grabs the right membership
-    org_query = '''
-        SELECT
-          o.name,
-          person.name AS commander
-        FROM organization as o
-        LEFT JOIN membershipperson AS mem
-          ON o.id = mem.organization_id
-        LEFT JOIN person
-          ON person.id = mem.member_id
-        WHERE o.id = %s
-        LIMIT 1
-    '''
-
-    cursor = connection.cursor()
-    cursor.execute(org_query, [org_id])
-
-    result = list(row for row in cursor)[0]
-
-    org_info = {'name': result[0], 'commander': result[1]}
-
-    # Skeleton for the output JSON, starting with the root node
-    # c.f. https://github.com/dabeng/OrgChart#structure-of-datasource
-    out = {
-        'id': str(org_id),
-        'className': 'rootNode',
-        'collapsed': False,
-        'nodeTitlePro': org_info['name'],
-        'nodeContentPro': org_info['commander'],
-        'relationship': '',
-        'children': []
-    }
-
-    if len(hierarchy) > 0:
-        out['relationship'] = '001'
-    else:
-        out['relationship'] = '000'
-
-    # The output key has to be called "children" for the JS lib to work,
-    # but what we actually want is the parents!
-    out['children'] = get_parents(hierarchy, out['id'])
-
-    return out
-
-def get_parents(edgelist, org_id):
-
-    parents = []
-
-    found_parents = []
-    for unit in edgelist:
-        if str(unit['child_id']) == str(org_id):
-            found_parents.append(unit)
-
-    if found_parents:
-
-        for parent in found_parents:
-
-            parent_info = {
-                'id': str(parent['id']),
-                'className': 'childNode',
-                'collapsed': False,
-                'nodeTitlePro': parent['name'],
-                'nodeContentPro': parent['commander'],
-                'relationship': '',
-                'children': []
-            }
-
-            parent_info['children'] = get_parents(edgelist, parent['id'])
-
-            if len(parent_info['children']) > 0:
-                if len(found_parents) > 1:
-                    parent_info['relationship'] = '111'
-                else:
-                    parent_info['relationship'] = '101'
-            else:
-                parent_info['relationship'] = '100'
-
-            parents.append(parent_info)
-
-        return parents
-
-    else:
-
-        return []
-
+# this makes an edge list that shows the parent relationships (see child_id)
 def get_org_hierarchy_by_id(org_id, when=None, sources=False):
     '''
     org_id: uuid for the organization
@@ -329,6 +198,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
         WITH RECURSIVE children AS (
           SELECT
             o.*,
+            NULL::VARCHAR AS org_org_id,
             NULL::VARCHAR AS child_id,
             NULL::VARCHAR AS child_name,
             NULL::DATE AS start_date,
@@ -342,6 +212,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
           UNION
           SELECT
             o.*,
+            org_org.id::VARCHAR as org_org_id,
             h.child_id::VARCHAR AS child_id,
             children.name AS child_name,
             h.start_date::date,
@@ -351,6 +222,8 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             ccc.confidence,
             person.name
           FROM organization AS o
+          JOIN organization_organization as org_org
+            on o.id = org_org.uuid
           JOIN composition AS h
             ON o.id = h.parent_id
           JOIN composition_compositionparent AS ccc
@@ -371,7 +244,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
     q_args = [org_id, org_id]
     if when:
         hierarchy = '''
-            {}
+            {hierarchy}
             AND CASE 
               WHEN (start_date IS NOT NULL AND 
                     end_date IS NOT NULL AND 
@@ -398,7 +271,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
                     open_ended IS TRUE)
               THEN TRUE
             END
-        '''.format(hierarchy)
+        '''.format(hierarchy=hierarchy, when=when)
         q_args.extend([when] * 5)
 
     hierarchy = '{} ORDER BY id'.format(hierarchy)
@@ -478,6 +351,7 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
         '''.format(hierarchy)
         q_args.extend([when] * 5)
 
+
     hierarchy = '{} ORDER BY id'.format(hierarchy)
 
     hierarchy = generate_hierarchy(hierarchy, q_args, 'parent_id', sources=sources)
@@ -554,3 +428,13 @@ def format_facets(facet_dict):
         out[ftype] = updated_facets
 
     return out
+
+def get_command_edges(org_id, when=None):
+    edge_list = get_org_hierarchy_by_id(org_id, when=when)
+
+    # Iterate over the edge_list, and create nodes
+    nodes = []
+    for command in edge_list:
+        nodes.append({'from': command['id'], 'to': command['child_id']})
+
+    return nodes
