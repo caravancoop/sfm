@@ -189,15 +189,13 @@ class PersonDetail(DetailView):
                         else:
                             overlap_duration = 'Unknown'
 
-                        info['last_cited'] = repr(commander.object_ref.lastciteddate.get_value().value)
                         info['overlap_start'] = overlap_start
                         info['overlap_end'] = overlap_end
                         info['overlap_duration'] = overlap_duration
 
                         context['subordinates'].append(info)
 
-        # Order the list of memberships, so they render in the "Subordinates" table in descending chronological order.
-        context['subordinates'] = sorted(context['subordinates'], key=lambda membership: membership['last_cited'], reverse=True)
+        context['subordinates'] = sorted(context['subordinates'], key=lambda m: (m['overlap_end'] if m['overlap_end'] != 'Unknown' else date(1, 1, 1)), reverse=True)
         context['command_chain'].reverse()
         context['events'] = []
         events = context['person'].violationperpetrator_set.all()
