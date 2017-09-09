@@ -224,9 +224,6 @@ def search(request):
         # Search that bad boy!
         response = solr.search(etype_query, **search_context)
 
-        import pdb
-        pdb.set_trace()
-
         if response.hits > result_count:
             pages[etype]['has_next'] = True
             pages[etype]['next_page_number'] = pagination + 1

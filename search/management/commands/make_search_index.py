@@ -40,12 +40,25 @@ class Command(BaseCommand):
             default=None,
             help="Specify a specific record ID to index"
         )
+        parser.add_argument(
+            '--recreate',
+            action='store_true',
+            dest='recreate',
+            default=False,
+            help="Delete all existing documents before creating the search index."
+        )
 
     def handle(self, *args, **options):
 
+        # Get command line args
         entity_types = [e.strip() for e in options['entity_types'].split(',')]
         update = options.get('update')
         doc_id = options.get('doc_id')
+        recreate = options.get('recreate')
+
+        if recreate:
+            self.stdout.write(self.style.SUCCESS('Dropping current search index...'))
+            self.searcher.delete(q='*:*')
 
         for entity_type in entity_types:
 
@@ -392,12 +405,11 @@ class Command(BaseCommand):
                     perp_org_name = perp_org_results['name']
                     perp_org_aliases = perp_org_results['aliases']
 
-            for lst in (perp_name, perp_aliases, perp_org_name, perp_org_aliases):
+            for lst in ([perp_name], perp_aliases, [perp_org_name], perp_org_aliases):
                 if lst:
                     content.extend(lst)
 
             content = '; '.join(content)
-
 
             document = {
                 'id': violation['id'],
