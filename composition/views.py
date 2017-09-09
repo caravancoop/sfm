@@ -1,5 +1,6 @@
 import json
 
+from django import forms
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse
@@ -9,7 +10,7 @@ from django.shortcuts import redirect
 from source.models import Source
 from organization.models import Organization
 from composition.models import Composition, Classification
-from composition.forms import CompositionForm
+from composition.forms import CompositionForm, BaseCompositionFormSet
 from sfm_pc.base_views import BaseFormSetView
 
 
@@ -17,6 +18,7 @@ from sfm_pc.base_views import BaseFormSetView
 class CompositionCreate(BaseFormSetView):
     template_name = 'composition/create.html'
     form_class = CompositionForm
+    formset_class = BaseCompositionFormSet
     success_url = reverse_lazy('create-organization-membership')
     extra = 0
     max_num = None

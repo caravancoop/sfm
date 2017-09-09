@@ -15,6 +15,16 @@
     <p>{% trans "Describe how units are related to one another in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
+{% for error in formset.non_form_errors %}
+<div class="row">
+    <div class="alert alert-danger" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {{ error }}
+    </div>
+</div>
+{% endfor %}
 <div class="row">
     <form method="post" action="" id="org-form" class="form-horizontal">
         {% csrf_token %}
