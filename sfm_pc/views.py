@@ -286,6 +286,9 @@ def osm_autocomplete(request):
     term = request.GET.get('q')
     geo_type = request.GET.get('geo_type')
 
+    # Optional request param to search by OSM ID, instead of by text
+    search_by_id = request.GET.get('search_by_id')
+
     q_args = [term]
 
     query = '''
@@ -295,12 +298,19 @@ def osm_autocomplete(request):
           ST_Y(ST_Centroid(geometry)) AS latitude,
           ST_asgeojson(ST_Simplify(geometry, 0.01))::json AS geojson
         FROM osm_data
-        WHERE plainto_tsquery('english', %s) @@ search_index
     '''
+
+    if search_by_id:
+        q_args[0] += '%%'
+        query = "{} WHERE id::text LIKE %s".format(query)
+    else:
+        query = "{} WHERE plainto_tsquery('english', %s) @@ search_index".format(query)
 
     if geo_type:
         query = '{} AND feature_type = %s'.format(query)
         q_args.append(geo_type)
+
+    query = '{} LIMIT 10'.format(query)
 
     cursor = connection.cursor()
     cursor.execute(query, q_args)
