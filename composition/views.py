@@ -92,33 +92,44 @@ class CompositionCreate(BaseFormSetView):
             enddate_confidence = int(formset.data.get(form_prefix +
                                                       'enddate_confidence', 1))
 
-            if formset.data.get(form_prefix + 'startdate'):
+            startdate = formset.data.get(form_prefix + 'startdate')
+            realstart = formset.data.get(form_prefix + 'realstart'):
+            enddate = formset.data.get(form_prefix + 'enddate')
+            open_ended = formset.data.get(form_prefix + 'open_ended', 'N')
+
+            if startdate:
 
                 composition_info['Composition_CompositionStartDate'] = {
-                    'value': formset.data[form_prefix + 'startdate'],
+                    'value': startdate,
                     'confidence': startdate_confidence,
                     'sources': [source]
                 }
 
-                if formset.data.get(form_prefix + 'realstart'):
 
-                    composition_info['Composition_CompositionRealStart'] = {
-                        'value': formset.data[form_prefix + 'realstart'],
-                        'confidence': startdate_confidence,
-                        'sources': [source]
-                    }
+                if realstart:
+                    realstart = True
+                else:
+                    realstart = False
+
+                composition_info['Composition_CompositionRealStart'] = {
+                    'value': realstart,
+                    'confidence': startdate_confidence,
+                    'sources': [source]
+                }
 
 
-            if formset.data.get(form_prefix + 'enddate'):
+            if enddate:
 
                 composition_info['Composition_CompositionEndDate'] = {
-                    'value': formset.data[form_prefix + 'enddate'],
+                    'value': enddate,
                     'confidence': enddate_confidence,
                     'sources': [source]
                 }
 
-            open_ended = formset.data.get(form_prefix + 'open_ended', 'N')
-
+            # We want to record a value for open_ended no matter what, since
+            # it can't be null. 'N' is effectively the null value, and form
+            # validation enforces the proper logic with regard to the existence
+            # of the enddate field.
             composition_info['Composition_CompositionOpenEnded'] = {
                 'value': formset.data[form_prefix + 'open_ended'],
                 'confidence': enddate_confidence,

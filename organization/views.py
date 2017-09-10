@@ -13,7 +13,8 @@ from geosite.models import Geosite
 from emplacement.models import Emplacement
 from area.models import Area
 from association.models import Association
-from organization.forms import OrganizationForm, OrganizationGeographyForm
+from organization.forms import (OrganizationForm, OrganizationGeographyForm,
+                                BaseOrganizationFormSet)
 from organization.models import Organization, OrganizationAlias, Alias, \
     OrganizationClassification, Classification
 
@@ -145,6 +146,7 @@ class OrganizationList(PaginatedList):
 class OrganizationCreate(BaseFormSetView):
     template_name = 'organization/create.html'
     form_class = OrganizationForm
+    formset_class = BaseOrganizationFormSet
     success_url = reverse_lazy('create-composition')
     extra = 1
     max_num = None
@@ -153,6 +155,8 @@ class OrganizationCreate(BaseFormSetView):
         context = super().get_context_data(**kwargs)
 
         context['confidence_levels'] = settings.CONFIDENCE_LEVELS
+        context['open_ended_choices'] = settings.OPEN_ENDED_CHOICES
+
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
 
         context['back_url'] = reverse_lazy('create-source')
@@ -237,25 +241,15 @@ class OrganizationCreate(BaseFormSetView):
 
             form_prefix = 'form-{}-'.format(i)
 
-            name_id_key = 'form-{}-name'.format(i)
-            name_text_key = 'form-{}-name_text'.format(i)
-            name_confidence_key = 'form-{}-name_confidence'.format(i)
+            # Name, division, and headquarters
+            name_id = formset.data.get(form_prefix + 'name')
+            name_text = formset.data.get(form_prefix + 'name_text')
+            name_confidence = int(formset.data.get(form_prefix +
+                                                   'name_confidence', 1))
 
-            division_id_key = 'form-{}-division_id'.format(i)
-            division_confidence_key = 'form-{}-division_confidence'.format(i)
-
-            classification_confidence_key = 'form-{}-classification_confidence'.format(i)
-
-            try:
-                name_id = formset.data[name_id_key]
-            except KeyError:
-                continue
-
-            name_text = formset.data[name_text_key]
-            name_confidence = int(formset.data.get(name_confidence_key, 1))
-
-            division_id = formset.data[division_id_key]
-            division_confidence = int(formset.data.get(division_confidence_key, 1))
+            division_id = formset.data.get(form_prefix + 'division_id')
+            division_confidence = int(formset.data.get(form_prefix +
+                                                       'division_confidence', 1))
 
             org_info = {
                 'Organization_OrganizationName': {
@@ -270,26 +264,107 @@ class OrganizationCreate(BaseFormSetView):
                 }
             }
 
+            # Headquarters
+            headquarters = formset.data.get(form_prefix + 'headquarters')
+
+            if headquarters:
+
+                headquarters_confidence = int(formset.data.get(form_prefix +
+                                                               'headquarters_confidence', 1))
+
+                org_info['Organization_OrganizationHeadquarters'] = {
+                    'value': headquarters,
+                    'confidence': headquarters_confidence,
+                    'sources': [self.source]
+                }
+
+            # Dates
+            firstciteddate = formset.data.get(form_prefix + 'firstciteddate')
+            realstart = formset.data.get(form_prefix + 'realstart')
+
+            if realstart:
+                realstart = True
+
+            lastciteddate = formset.data.get(form_prefix + 'lastciteddate')
+            open_ended = formset.data.get(form_prefix + 'open_ended', 'N')
+
+            firstciteddate_confidence = int(formset.data.get(form_prefix +
+                                                              'firstciteddate_confidence', 1))
+            lastciteddate_confidence = int(formset.data.get(form_prefix +
+                                                            'lastciteddate_confidence', 1))
+
+            if firstciteddate:
+
+                org_info['Organization_OrganizationFirstCitedDate'] = {
+                    'value': firstciteddate,
+                    'confidence': firstciteddate_confidence,
+                    'sources': [self.source]
+                }
+
+                if realstart:
+
+                    org_info['Organization_OrganizationRealStart'] = {
+                        'value': realstart,
+                        'confidence': firstciteddate_confidence,
+                        'sources': [self.source]
+                    }
+
+            if lastciteddate:
+
+                org_info['Organization_OrganizationLastCitedDate'] = {
+                    'value': lastciteddate,
+                    'confidence': lastciteddate_confidence,
+                    'sources': [self.source]
+                }
+
+            org_info['Organization_OrganizationOpenEnded'] = {
+                'value': open_ended,
+                'confidence': lastciteddate_confidence,
+                'sources': [self.source]
+            }
+
             try:
                 organization = Organization.objects.get(id=name_id)
-                sources = self.sourcesList(organization, 'name')
 
-                org_info["Organization_OrganizationName"]['sources'] = sources
+                name_sources = self.sourcesList(organization, 'name')
+                division_sources = self.sourcesList(organization, 'division_id')
+
+                org_info["Organization_OrganizationName"]['sources'] = name_sources
+                org_info["Organization_OrganizationDivisionId"]['sources'] = division_sources
+
+                if headquarters:
+                    headquarters_sources = self.sourcesList(organization, 'headquarters')
+                    org_info["Organization_OrganizationHeadquarters"]['sources'] = headquarters_sources
+
+                if first_cited_date:
+                    firstciteddate_sources = self.sourcesList(organization, 'firstciteddate')
+                    org_info["Organization_OrganizationFirstCitedDate"]['sources'] = firstciteddate_sources
+
+                if realstart:
+                    realstart_sources = self.sourcesList(organization, 'realstart')
+                    org_info["Organization_OrganizationRealStart"]['sources'] = realstart_sources
+
+                if last_cited_date:
+                    lastciteddate_sources = self.sourcesList(organization, 'lastciteddate')
+                    org_info["Organization_OrganizationLastCitedDate"]['sources'] = lastciteddate_sources
+
+                if open_ended:
+                    open_ended_sources = self.sourcesList(organization, 'open_ended')
+                    org_info["Organization_OrganizationOpenEnded"]['sources'] = open_ended_sources
 
             except (Organization.DoesNotExist, ValueError):
                 organization = Organization.create(org_info)
 
             organization.update(org_info)
-            formset.data[name_id_key] = organization.id
+            formset.data[form_prefix + 'name_id'] = organization.id
 
-            # Save aliases first
-
+            # Aliases
             aliases = formset.data.get(form_prefix + 'alias_text')
 
             if aliases:
 
-                alias_confidence_key = 'form-{}-alias_confidence'.format(i)
-                alias_confidence = formset.data.get(alias_confidence_key, 1)
+                alias_confidence = int(formset.data.get(form_prefix +
+                                                        'alias_confidence', 1))
 
                 for alias in aliases:
 
@@ -297,19 +372,18 @@ class OrganizationCreate(BaseFormSetView):
 
                     oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
                                                                               object_ref=organization,
-                                                                              lang=get_language(),
-                                                                              confidence=alias_confidence)
+                                                                              lang=get_language())
                     oa_obj.sources.add(self.source)
+                    oa_obj.confidence = alias_confidence
                     oa_obj.save()
 
-            # Next do classifications
-
+            # Classifications
             classifications = formset.data.get(form_prefix + 'classification_text')
 
             if classifications:
 
-                classification_confidence_key = 'form-{}-classification_confidence'.format(i)
-                classification_confidence = formset.data.get(classification_confidence_key, 1)
+                classification_confidence = int(formset.data.get(form_prefix +
+                                                                 'classification_confidence', 1))
 
                 for classification in classifications:
 
@@ -317,9 +391,9 @@ class OrganizationCreate(BaseFormSetView):
 
                     oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
                                                                                        object_ref=organization,
-                                                                                       lang=get_language(),
-                                                                                       confidence=classification_confidence)
+                                                                                       lang=get_language())
                     oc_obj.sources.add(self.source)
+                    oc_obj.confidence = classification_confidence
                     oc_obj.save()
 
             self.organizations.append(organization)

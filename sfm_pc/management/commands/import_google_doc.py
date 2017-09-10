@@ -33,7 +33,7 @@ from countries_plus.models import Country
 
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
-    OrganizationClassification, OrganizationName
+    OrganizationClassification, OrganizationName, OrganizationRealStart
 
 from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id, \
     CONFIDENCE_MAP
@@ -427,7 +427,7 @@ class Command(UtilityMixin, BaseCommand):
                     organization = Organization.create(org_info)
 
                 org_attributes = ['Alias', 'Classification', 'FirstCitedDate',
-                                  'LastCitedDate', 'RealStart', 'OpenEnded',
+                                  'LastCitedDate', 'OpenEnded',
                                   'Headquarters']
 
                 for attr in org_attributes:
@@ -436,6 +436,23 @@ class Command(UtilityMixin, BaseCommand):
                                        org_positions[attr],
                                        org_data,
                                        organization)
+
+                # We have to convert the 'Y'/'N' in the RealStart field to bool
+                real_start = org_data[org_positions['RealStart']['value']]
+
+                if real_start == 'Y':
+                    real_start = True
+                elif real_start == 'N':
+                    real_start = False
+                else:
+                    real_start = None
+
+                with reversion.create_revision():
+                    realstart, created = OrganizationRealStart\
+                                         .objects\
+                                         .get_or_create(value=realstart,
+                                                        object_ref=organization)
+                    reversion.set_user(self.user)
 
                 # Create Emplacements
                 try:
