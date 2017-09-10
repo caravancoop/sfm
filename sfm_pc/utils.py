@@ -437,12 +437,19 @@ def format_facets(facet_dict):
 
     return out
 
-def get_command_edges(org_id, when=None):
-    hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
-    # Iterate over the hierarchy_list, and create nodes
+def get_command_edges(org_id, when=None, parents=True):
+
     edges = []
+    if parents:
+        hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
+        from_key, to_key = 'id', 'child_id'
+    else:
+        hierarchy_list = get_child_orgs_by_id(org_id, when=when)
+        from_key, to_key = 'parent_id', 'id'
+
+    # Iterate over the hierarchy_list, and create nodes
     for org in hierarchy_list:
-        edges.append({'from': str(org['id']), 'to': org['child_id']})
+        edges.append({'from': str(org[from_key]), 'to': org[to_key]})
 
     return edges
 

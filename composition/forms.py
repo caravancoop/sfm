@@ -1,45 +1,75 @@
+import datetime
+
 from django import forms
 from django.forms import BaseFormSet
 from django.conf import settings
+from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
 
 from composition.models import Classification
 from organization.models import Organization
-
+from sfm_pc.utils import get_command_edges
 
 class CompositionForm(forms.Form):
-    organization = forms.ModelChoiceField(queryset=Organization.objects.all())
-    related_organization = forms.ModelChoiceField(queryset=Organization.objects.all())
-    related_org_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    parent = forms.CharField()
+    parent_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
-    relationship_type = forms.ChoiceField(choices=(('parent', 'Parent',), ('child', 'Child',)))
-    relationship_type_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    child = forms.CharField()
+    child_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     classification = forms.ModelChoiceField(queryset=Classification.objects.all())
     classification_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     startdate = ApproximateDateFormField(required=False)
+    realstart = forms.BooleanField(required=False)
+    startdate_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+
     enddate = ApproximateDateFormField(required=False)
-    date_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    open_ended = forms.ChoiceField(choices=settings.OPEN_ENDED_CHOICES)
+    enddate_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
 
 class BaseCompositionFormSet(BaseFormSet):
 
     def clean(self):
-        '''
-        Custom form validation to check for recursive command hierarchies.
-        '''
-        # Don't bother doing any validation if there are outstanding errors
+
+        for form in self.forms:
+            # Check end date/open-ended pair
+            open_ended = form.cleaned_data.get('open_ended')
+            if open_ended == 'E':
+
+                try:
+                    # An end date must exist if the value of open_ended is "exact"
+                    assert form.cleaned_data.get('enddate')
+                except AssertionError:
+                    msg = _('If the value of open-ended is "Exact", an end date is required.')
+                    form.add_error('enddate', msg)
+
+            # Check for parent/child fields that refer to the same org
+            parent = form.cleaned_data.get('parent')
+            child = form.cleaned_data.get('child')
+
+            try:
+                assert parent != child
+            except AssertionError:
+                msg = _('Parent and Child fields must refer to different units.')
+                for field in ('parent', 'child'):
+                    form.add_error(field, msg)
+
+        # Since the next check can be pretty expensive, don't bother doing any
+        # further validation if there are outstanding errors
         if any(self.errors):
             return
 
+        # Check for recursive command structures
         try:
             assert not self.is_recursive()
         except AssertionError:
-            msg = ('It looks like your command hierarchy is recursive. Double-' +
+            msg = _('It looks like your command hierarchy is recursive. Double-' +
                    'check to make sure unit command flows in one direction.')
             raise forms.ValidationError(msg)
+
 
     def is_recursive(self):
         '''
@@ -48,34 +78,42 @@ class BaseCompositionFormSet(BaseFormSet):
         '''
         decision = False
 
-        # Produce an edgelist representing the command hierarchy, and a list
-        # of parent organizations
-        edgelist, parents = [], []
+        # Produce an edgelist representing the command hierarchy, and a set
+        # of all units labelled in the form
+        edgelist, orgs = [], set()
         for form in self.forms:
 
-            organization_id = form.cleaned_data['organization']
-            related_organization_id = form.cleaned_data['related_organization']
-            rel_type = form.cleaned_data['relationship_type']
+            parent_id = form.cleaned_data['parent']
+            parent = Organization.objects.get(id=parent_id)
+            parent_uuid = str(parent.uuid)
 
-            if rel_type == 'child':
-                parents.append(related_organization_id)
-                edge = {'parent': related_organization_id, 'child': organization_id}
+            child_id = form.cleaned_data['child']
+            child = Organization.objects.get(id=child_id)
+            child_uuid = str(child.uuid)
 
-            elif rel_type == 'parent':
-                parents.append(organization_id)
-                edge = {'parent': organization_id, 'child': related_organization_id}
+            orgs.update((parent_uuid, child_uuid))
+            edgelist.append({'from': parent_uuid, 'to': child_uuid})
 
-            else:
-                msg = ('Unknown relationship type: %s' % str(rel_type))
-                raise forms.ValidationError(msg)
+            # If we already have compositions on file for these units, add those
+            # relationships to the edgelist
+            when = str(datetime.date.today())
+            if form.cleaned_data.get('enddate'):
+                open_ended = form.cleaned_data.get('open_ended')
+                if not open_ended == 'Y':
+                    when = form.cleaned_data['enddate']
 
-            edgelist.append(edge)
+            for org_id in (parent_uuid, child_uuid):
+                parent_edgelist = get_command_edges(org_id, when=when, parents=True)
+                child_edgelist = get_command_edges(org_id, when=when, parents=False)
 
-        # For each parent unit in the edgelist, recurse its command hierarchy
+                for lst in (parent_edgelist, child_edgelist):
+                    edgelist.extend(lst)
+
+        # For each unit in the form, recurse its command hierarchy
         # and check whether the given unit reappears
-        for parent in parents:
+        for org in orgs:
 
-            clean_hierarchy = self.check_hierarchy(parent, parent, edgelist)
+            clean_hierarchy = self.check_hierarchy(org, org, edgelist)
 
             if not clean_hierarchy:
                 decision = True
@@ -88,7 +126,7 @@ class BaseCompositionFormSet(BaseFormSet):
         Recurse an edgelist to check whether an "ancestor" appears more than
         once.
         '''
-        children = list(edge['child'] for edge in edgelist if edge['parent'] == parent)
+        children = list(edge['to'] for edge in edgelist if edge['from'] == parent)
 
         if len(children) > 0:
             for child in children:
