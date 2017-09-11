@@ -156,6 +156,7 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
         if orgs[0].end_date:
             end_date = orgs[0].end_date.isoformat()
 
+        # Create a label, which we display on the charts for person and unit "parents."
         label = '<b>' + orgs[0].name + '</b>' + '\n\n' + 'Unknown commander'
         if orgs[0].commander:
             label = '<b>' + orgs[0].name + '</b>' + '\n\n' + orgs[0].commander
@@ -436,12 +437,25 @@ def format_facets(facet_dict):
 
     return out
 
-def get_command_edges(org_id, when=None):
-    edge_list = get_org_hierarchy_by_id(org_id, when=when)
+def get_chart_edges(org_id, when=None):
+    hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
+    # Iterate over the hierarchy_list, and create nodes
+    edges = []
+    for org in hierarchy_list:
+        edges.append({'from': str(org['id']), 'to': org['child_id']})
 
-    # Iterate over the edge_list, and create nodes
+    return edges
+
+def get_chart_nodes(org_id, when=None):
+    hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
+    # Iterate over the hierarchy_list, and convert/modify hierarchy object, as needed.
     nodes = []
-    for command in edge_list:
-        nodes.append({'from': command['id'], 'to': command['child_id']})
+    for org in hierarchy_list:
+        trimmed = {
+            'id': str(org['id']),
+            'label': org['label'],
+            'detail_id': org['detail_id']
+        }
+        nodes.append(trimmed)
 
     return nodes
