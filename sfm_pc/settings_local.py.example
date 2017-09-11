@@ -1,4 +1,3 @@
-import os
 import raven
 
 
@@ -44,5 +43,4 @@ SOLR_URL = 'http://127.0.0.1:8983/solr/sfm'
 
 RAVEN_CONFIG = {
     'dsn': 'https://<key>:<secret>@sentry.io/<project>',
-    'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
 }
