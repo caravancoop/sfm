@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
 from django.db import connection
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
@@ -26,7 +26,7 @@ from person.forms import PersonForm
 from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
-from sfm_pc.utils import deleted_in_str, get_org_hierarchy_by_id, get_command_edges
+from sfm_pc.utils import deleted_in_str, get_org_hierarchy_by_id, get_command_edges, get_command_nodes
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -78,16 +78,31 @@ class PersonDetail(DetailView):
                 command_chain = {}
 
                 last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
-                node_list_raw = get_org_hierarchy_by_id(org.uuid, when=last_cited)
+                node_list_raw = get_command_nodes(org.uuid, when=last_cited)
                 edge_list = get_command_edges(org.uuid, when=last_cited)
+
+                # Create a "from" link for the person and their org.
+                edge_list.append({'from': str(org.uuid)})
+
+                # Push the person and their org in the node_list.
+                label = '<b>' + str(org.name) + '</b>' + '\n\n' + str(membership.object_ref.member.get_value().value.name)
+
+                person_on_detail = {
+                    'id': str(org.uuid),
+                    'label': str(label),
+                    'detail_id': ''
+                }
+
+                node_list_raw.append(person_on_detail)
 
                 # Add a unique URL to individual nodes for redirect to organization detail view
                 node_list = []
                 for node in node_list_raw:
-                    detail_id = node['detail_id']
-                    # Cast as a string to make it JSON serializable
-                    url = str(reverse_lazy('detail_organization', args=[detail_id]))
-                    node['url'] = url
+                    if node['detail_id']:
+                        detail_id = node['detail_id']
+                        # Cast as a string to make it JSON serializable
+                        url = reverse('detail_organization', args=[detail_id])
+                        node['url'] = url
                     node_list.append(node)
 
                 command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
