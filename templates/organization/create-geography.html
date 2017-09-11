@@ -32,7 +32,7 @@
                         {% else %}
                             <div class="form-group">
                         {% endif %}
-                                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-org">{% trans "Organization" %} </label>
+                                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-org">{% trans "Unit" %} </label>
                                 <div class="col-sm-8">
                                     <select id="id_form-{{ form_id }}-org" class="form-control org-field" name="form-{{ form_id }}-org">
                                         {% for organization in organizations %}
@@ -163,7 +163,7 @@
 <script id="formTemplate" type="text/EJS">
     <div id="form-<%= form_id %>-wrapper">
         <div class="form-group">
-            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-org">{% trans "Organization" %} </label>
+            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-org">{% trans "Unit" %} </label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-org" class="form-control org-field" name="form-<%= form_id %>-org">
                     {% for organization in organizations %}

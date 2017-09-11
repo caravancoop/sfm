@@ -575,6 +575,7 @@ class OrganizationCreateGeography(BaseFormSetView):
     required_session_data = ['organizations']
 
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
         context['confidence_levels'] = settings.CONFIDENCE_LEVELS
 
@@ -582,10 +583,10 @@ class OrganizationCreateGeography(BaseFormSetView):
         memberships = self.request.session.get('memberships', [])
 
         if len(memberships):
-            context['back_url'] = reverse_lazy('create-membership') 
+            context['back_url'] = reverse_lazy('create-membership')
             context['skip_url'] = reverse_lazy('create-event')
         else:
-            context['back_url'] = reverse_lazy('create-person') 
+            context['back_url'] = reverse_lazy('create-person')
             context['skip_url'] = reverse_lazy('create-event')
 
         context['organizations'] = organizations
