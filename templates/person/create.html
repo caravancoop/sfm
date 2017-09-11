@@ -455,7 +455,6 @@
     }
 
     function multipleSelect(e) {
-        console.log('new field selected!')
         var value = e.params.data.text;
         var name = $(e.target).prop('name') + '_text';
         var form_id = $(e.target).prop('name').split('-')[1]
@@ -464,7 +463,6 @@
     }
 
     function multipleUnSelect(e) {
-        console.log('field unselected!')
         var value = e.params.data.text;
         var inputs = $('#person-form').find('input[value="'+ value + '"]');
         var form_id = $(e.target).prop('name').split('-')[1];

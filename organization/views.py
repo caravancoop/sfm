@@ -578,6 +578,7 @@ class OrganizationCreateGeography(BaseFormSetView):
 
         context = super().get_context_data(**kwargs)
         context['confidence_levels'] = settings.CONFIDENCE_LEVELS
+        context['open_ended_choices'] = settings.OPEN_ENDED_CHOICES
 
         organizations = self.request.session['organizations']
         memberships = self.request.session.get('memberships', [])
@@ -594,6 +595,16 @@ class OrganizationCreateGeography(BaseFormSetView):
 
         form = self.form_class()
         context['geo_types'] = form.fields['geography_type'].choices
+
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('geographies') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('geographies')
+            self.initFormset(form_data)
+
+            context['formset'] = self.get_formset_context(self.formset)
+            context['browsing'] = True
 
         return context
 
@@ -625,12 +636,25 @@ class OrganizationCreateGeography(BaseFormSetView):
 
             division_id = 'ocd-division/country:{}'.format(country_code)
 
-            if formset.data[form_prefix + 'geography_type'] == 'Site':
+            org_confidence = int(formset.data.get(form_prefix +
+                                                  'org_confidence', 1))
+            geotype_confidence = int(formset.data.get(form_prefix +
+                                                      'geotype_confidence', 1))
+            name_confidence = int(formset.data.get(form_prefix +
+                                                   'name_confidence', 1))
+            osm_id_confidence = int(formset.data.get(form_prefix +
+                                                     'osm_id_confidence', 1))
+            startdate_confidence = int(formset.data.get(form_prefix +
+                                                        'startdate_confidence', 1))
+            enddate_confidence = int(formset.data.get(form_prefix +
+                                                      'enddate_confidence', 1))
 
-                site, created = Geosite.objects.get_or_create(geositeosmid__value=geo.id)
+            if formset.data.get(form_prefix + 'geography_type') == 'Site':
+
+                site, created = Geosite.objects.get_or_create(geositeadminid__value=geo.id)
 
                 names = [
-                    formset.data[form_prefix + 'name'],
+                    formset.data.get(form_prefix + 'name'),
                     geo.name,
                     admin1,
                 ]
@@ -640,37 +664,37 @@ class OrganizationCreateGeography(BaseFormSetView):
                 site_data = {
                     'Geosite_GeositeName': {
                         'value': name,
-                        'confidence': 1,
+                        'confidence': name_confidence,
                         'sources': [source]
                     },
-                    'Geosite_GeositeOSMName': {
+                    'Geosite_GeositeAdminName': {
                         'value': geo.name,
-                        'confidence': 1,
+                        'confidence': osm_id_confidence,
                         'sources': [source]
                     },
-                    'Geosite_GeositeOSMId': {
+                    'Geosite_GeositeAdminId': {
                         'value': geo.id,
-                        'confidence': 1,
+                        'confidence': osm_id_confidence,
                         'sources': [source]
                     },
                     'Geosite_GeositeDivisionId': {
                         'value': division_id,
-                        'confidence': 1,
+                        'confidence': osm_id_confidence,
                         'sources': [source]
                     },
                     'Geosite_GeositeAdminLevel1': {
                         'value': admin1,
-                        'confidence': 1,
+                        'confidence': osm_id_confidence,
                         'sources': [source]
                     },
                     'Geosite_GeositeAdminLevel2': {
                         'value': admin2,
-                        'confidence': 1,
+                        'confidence': osm_id_confidence,
                         'sources': [source]
                     },
                     'Geosite_GeositeCoordinates': {
                         'value': coords,
-                        'confidence': 1,
+                        'confidence': osm_id_confidence,
                         'sources': [source]
                     }
                 }
@@ -681,27 +705,41 @@ class OrganizationCreateGeography(BaseFormSetView):
                 emp_data = {
                     'Emplacement_EmplacementOrganization': {
                         'value': Organization.objects.get(id=org_id),
-                        'confidence': 1,
+                        'confidence': org_confidence,
                         'sources': [source]
                     },
                     'Emplacement_EmplacementSite': {
                         'value': site,
-                        'confidence': 1,
+                        'confidence': osm_id_confidence,
                         'sources': [source]
                     },
                 }
 
-                if formset.data[form_prefix + 'startdate']:
+                if formset.data.get(form_prefix + 'startdate'):
                     emp_data['Emplacement_EmplacementStartDate'] = {
                         'value': formset.data[form_prefix + 'startdate'],
-                        'confidence': 1,
+                        'confidence': startdate_confidence,
                         'sources': [source]
                     }
 
-                if formset.data[form_prefix + 'enddate']:
+                    if formset.data.get(form_prefix + 'realstart'):
+                        emp_data['Emplacement_EmplacementRealStart'] = {
+                            'value': formset.data[form_prefix + 'realstart'],
+                            'confidence': startdate_confidence,
+                            'sources': [source]
+                        }
+
+                if formset.data.get(form_prefix + 'enddate'):
                     emp_data['Emplacement_EmplacementEndDate'] = {
                         'value': formset.data[form_prefix + 'enddate'],
-                        'confidence': 1,
+                        'confidence': enddate_confidence,
+                        'sources': [source]
+                    }
+
+                if formset.data.get(form_prefix + 'open_ended'):
+                    emp_data['Emplacement_EmplacementOpenEnded'] = {
+                        'value': formset.data[form_prefix + 'open_ended'],
+                        'confidence': enddate_confidence,
                         'sources': [source]
                     }
 
@@ -715,28 +753,28 @@ class OrganizationCreateGeography(BaseFormSetView):
 
                     area_data = {
                         'Area_AreaName': {
-                            'value': formset.data[form_prefix + 'name'],
-                            'confidence': 1,
+                            'value': formset.data.get(form_prefix + 'name'),
+                            'confidence': name_confidence,
                             'sources': [source]
                         },
                         'Area_AreaOSMName': {
                             'value': geo.name,
-                            'confidence': 1,
+                            'confidence': osm_id_confidence,
                             'sources': [source]
                         },
                         'Area_AreaOSMId': {
                             'value': geo.id,
-                            'confidence': 1,
+                            'confidence': osm_id_confidence,
                             'sources': [source]
                         },
                         'Area_AreaDivisionId': {
                             'value': division_id,
-                            'confidence': 1,
+                            'confidence': osm_id_confidence,
                             'sources': [source]
                         },
                         'Area_AreaGeometry': {
                             'value': geo.geometry,
-                            'confidence': 1,
+                            'confidence': osm_id_confidence,
                             'sources': [source]
                         }
                     }
@@ -746,29 +784,53 @@ class OrganizationCreateGeography(BaseFormSetView):
                                                                    associationarea__value=area.id)
 
                 assoc_data = {
-                    'Association_AssociationStartDate': {
-                        'value': formset.data[form_prefix + 'startdate'],
-                        'confidence': 1,
-                        'sources': [source]
-                    },
-                    'Association_AssociationEndDate': {
-                        'value': formset.data[form_prefix + 'enddate'],
-                        'confidence': 1,
-                        'sources': [source]
-                    },
                     'Association_AssociationOrganization': {
                         'value': Organization.objects.get(id=org_id),
-                        'confidence': 1,
+                        'confidence': org_confidence,
                         'sources': [source]
                     },
                     'Association_AssociationArea': {
                         'value': area,
-                        'confidence': 1,
+                        'confidence': osm_id_confidence,
                         'sources': [source]
                     }
                 }
+
+                if formset.data.get(form_prefix + 'startdate'):
+                    assoc_data['Association_AssociationStartDate'] = {
+                        'value': formset.data[form_prefix + 'startdate'],
+                        'confidence': startdate_confidence,
+                        'sources': [source]
+                    }
+
+                    if formset.data.get(form_prefix + 'realstart'):
+                        assoc_data['Association_AssociationRealStart'] = {
+                            'value': formset.data[form_prefix + 'realstart'],
+                            'confidence': startdate_confidence,
+                            'sources': [source]
+                        }
+
+                if formset.data.get(form_prefix + 'enddate'):
+                    assoc_data['Association_AssociationEndDate'] = {
+                        'value': formset.data[form_prefix + 'enddate'],
+                        'confidence': enddate_confidence,
+                        'sources': [source]
+                    }
+
+                if formset.data.get(form_prefix + 'open_ended'):
+                    assoc_data['Association_AssociationOpenEnded'] = {
+                        'value': formset.data[form_prefix + 'open_ended'],
+                        'confidence': enddate_confidence,
+                        'sources': [source]
+                    }
+
                 assoc.update(assoc_data)
 
         response = super().formset_valid(formset)
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['geographies'] = formset.data
 
         return response

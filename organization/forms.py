@@ -58,15 +58,31 @@ class BaseOrganizationFormSet(forms.BaseFormSet):
 
 
 class OrganizationGeographyForm(forms.Form):
-    geography_type = forms.ChoiceField(choices=(('Site', 'Site'), ('Area', 'Area'), ),
+
+    geography_type = forms.ChoiceField(choices=(('Site', 'Site'), ('Area', 'Area of Operation'), ),
                                        error_messages={'required': _('Geography type is required')})
+    geotype_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+
     name = forms.CharField(error_messages={'required': _('Name is required')})
+    name_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+
     osm_id = forms.CharField(error_messages={'required': _('OSM ID is required')})
+    osm_id_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
     osm_id_text = forms.CharField()
+
     startdate = ApproximateDateFormField(required=False)
+    realstart = forms.BooleanField(required=False)
+    startdate_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
+
     enddate = ApproximateDateFormField(required=False)
+    open_ended = forms.ChoiceField(required=False, choices=settings.OPEN_ENDED_CHOICES)
+    enddate_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
+
     org = forms.CharField()
-    geotype = forms.CharField()
+    org_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+
+    # For use in rendering the map; not saved to the database
+    geotype = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
