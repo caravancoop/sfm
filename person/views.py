@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
 from django.db import connection
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
@@ -101,7 +101,7 @@ class PersonDetail(DetailView):
                     if node['detail_id']:
                         detail_id = node['detail_id']
                         # Cast as a string to make it JSON serializable
-                        url = str(reverse_lazy('detail_organization', args=[detail_id]))
+                        url = reverse('detail_organization', args=[detail_id])
                         node['url'] = url
                     node_list.append(node)
 
