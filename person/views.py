@@ -81,19 +81,19 @@ class PersonDetail(DetailView):
                 node_list_raw = get_chart_nodes(org.uuid, when=last_cited)
                 edge_list = get_chart_edges(org.uuid, when=last_cited)
 
-                # (1) Push the org into the node_list_raw
-                # label = '<b>' + str(org.name) + '</b>' + '\n\n' + 'Unknown commander'
-                # # if org.commander:
-                # #     label = '<b>' + str(org.name) + '</b>' + '\n\n' + str(org.commander)
+                # Create a "from" link for the person and their org.
+                edge_list.append({'from': str(org.uuid)})
 
-                # first_child = {
-                #     'id': str(org.uuid),
-                #     'label': str(label),
-                #     'detail_id': ''
-                # }
+                # Push the person and their org in the node_list.
+                label = '<b>' + str(org.name) + '</b>' + '\n\n' + str(membership.object_ref.member.get_value().value.name)
 
-                # node_list_raw.append(first_child)
+                person_on_detail = {
+                    'id': str(org.uuid),
+                    'label': str(label),
+                    'detail_id': ''
+                }
 
+                node_list_raw.append(person_on_detail)
 
                 # Add a unique URL to individual nodes for redirect to organization detail view
                 node_list = []
@@ -103,9 +103,7 @@ class PersonDetail(DetailView):
                         # Cast as a string to make it JSON serializable
                         url = str(reverse_lazy('detail_organization', args=[detail_id]))
                         node['url'] = url
-                        node_list.append(node)
-
-                print(node_list, "$$$$")
+                    node_list.append(node)
 
                 command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
                 command_chain['nodes'] = json.dumps(node_list)
