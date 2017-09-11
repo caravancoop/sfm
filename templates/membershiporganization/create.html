@@ -36,7 +36,7 @@
                     </button>
 
                 </h4>
-                <hr />
+                <br />
                 <div class="row">
                     <div class="col-sm-2"></div>
                     <div class="col-sm-8"><p><strong>{% trans "Value" %}</strong></p></div>
@@ -47,7 +47,8 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="col-sm-2 control-label">{% trans "Organization" %}</label>
+                {% comment %}translators: the label here is declaring that one unit is a "member of" another unit{% endcomment %}
+                <label class="col-sm-2 control-label">{% trans "Member of" %}</label>
                         <div class="col-sm-8">
                             <select id="id_form-{{ forloop.counter0 }}-organization" class="form-control organization-field" name="form-{{ forloop.counter0 }}-organization">
                                 {% for org in organizations %}
@@ -160,8 +161,6 @@
         $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: '0d'});
 
         $('.organization-field').select2({
-            placeholder: '',
-            allowClear: true,
             minimumResultsForSearch: Infinity
         });
 
