@@ -1,3 +1,6 @@
+import raven
+
+
 DATABASE_URL='postgis://localhost:5432/sfm-db'
 GOOGLE_MAPS_KEY='KEY FROM GOOGLE'
 
@@ -27,6 +30,7 @@ CACHES = {
 
 EXTRA_APPS = (
     'debug_toolbar',
+    'raven.contrib.django.raven_compat',
 )
 
 EXTRA_MIDDLEWARE_CLASSES = (
@@ -37,3 +41,6 @@ INTERNAL_IPS = ['127.0.0.1']
 
 SOLR_URL = 'http://127.0.0.1:8983/solr/sfm'
 
+RAVEN_CONFIG = {
+    'dsn': 'https://<key>:<secret>@sentry.io/<project>',
+}

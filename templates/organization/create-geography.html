@@ -15,8 +15,7 @@
     <h2><i class="fa fa-fw fa-map-marker"></i> {% trans "Geographies" %}</h2>
     <p>{% trans "Describe any geographies related to organizations found in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
-</div>                                    
-                    
+</div>
 <form method="post" action="" class="form-horizontal">
     {% csrf_token %}
     {{ formset.management_form }}
@@ -191,7 +190,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-osmname">{% trans "OSM Name" %}</label>
+            <label class="control-label col-sm-2" for="id_form-<%= form_id %>-osmname">{% trans "OSM ID" %}</label>
             <div class="col-sm-8">
                 <select class="form-control" id="id_form-<%= form_id %>-osm_id" name="form-<%= form_id %>-osm_id"></select>
                 <input type="hidden" name="form-<%= form_id %>-osm_id_text" id="id_form-<%= form_id %>-osm_id_text" />
@@ -257,7 +256,10 @@ var osm_opts = {
                 geo_type = 'boundary';
             }
 
-            var qparams = {q: params.term}
+            var qparams = {
+                q: params.term,
+                search_by_id: 'true'
+            }
 
             if (geo_type){
                 qparams['geo_type'] = geo_type;
