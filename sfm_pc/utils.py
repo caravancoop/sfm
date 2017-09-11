@@ -246,10 +246,10 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             ON person.id = mem.member_id
           JOIN children
             ON children.id = h.child_id
-        ) SELECT * FROM children
+        ) SELECT * FROM children WHERE id != %s
     '''
 
-    q_args = [org_id]
+    q_args = [org_id, org_id]
     if when:
         hierarchy = '''
             {hierarchy}
@@ -323,7 +323,7 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
             ON cccs.source_id = ss.id
           JOIN parents
             ON parents.id = h.parent_id
-        ) SELECT * FROM parents
+        ) SELECT * FROM parents WHERE id != %s
     '''
 
     q_args = [org_id, org_id]

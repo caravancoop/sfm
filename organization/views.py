@@ -5,7 +5,7 @@ from django.views.generic import DetailView
 from django.http import HttpResponse
 from django.db import connection
 from django.utils.translation import get_language
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.conf import settings
 
 from source.models import Source
@@ -17,7 +17,7 @@ from organization.forms import OrganizationForm, OrganizationGeographyForm
 from organization.models import Organization, OrganizationAlias, Alias, \
     OrganizationClassification, Classification
 
-from sfm_pc.utils import get_osm_by_id, get_hierarchy_by_id, get_org_hierarchy_by_id, get_command_edges
+from sfm_pc.utils import get_osm_by_id, get_hierarchy_by_id, get_org_hierarchy_by_id,  get_command_edges, get_command_nodes
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -51,23 +51,48 @@ class OrganizationDetail(DetailView):
                 context['areas'].append(association.object_ref.area.get_value().value)
 
         context['parents'] = []
+        context['parents_chain'] = []
         parents = context['organization'].parent_organization.all()
-        print(parents)
+        # "parent" is a CompositionChild
         for parent in parents:
+            parents_chain = {}
             context['parents'].append(parent.object_ref.parent.get_value().value)
 
-        # Also show parents of parents?
-        node_list = get_org_hierarchy_by_id(context['organization'].uuid)
-        edge_list = get_command_edges(context['organization'].uuid)
-        print(node_list)
-        print(edge_list)
-        context['node_list'] = json.dumps(node_list)
-        context['edge_list'] = json.dumps(edge_list)
-        # context['command_chain'].append(json.dumps(command_chain))
-        # Yes, but this suggests something different, then the parent_organization relation.
+            enddate = None
+            if parent.object_ref.enddate.get_value():
+                enddate = repr(parent.object_ref.enddate.get_value().value)
+                parents_chain['when'] = str(parent.object_ref.enddate.get_value().value)
 
-        # import pdb
-        # pdb.set_trace()
+            node_list_raw = get_command_nodes(parent.value.uuid, when=enddate)
+            edge_list = get_command_edges(parent.value.uuid, when=enddate)
+
+            # Create a "from" link for the person and their org.
+            edge_list.append({'from': str(parent.value.uuid)})
+
+            # Push the person and their org in the node_list.
+            label = '<b>' + str(parent.value.name) + '</b>'
+
+            org_on_detail = {
+                'id': str(parent.value.uuid),
+                'label': str(label),
+                'detail_id': ''
+            }
+
+            node_list_raw.append(org_on_detail)
+
+            # Add a unique URL to individual nodes for redirect to organization detail view
+            node_list = []
+            for node in node_list_raw:
+                if node['detail_id']:
+                    detail_id = node['detail_id']
+                    # Cast as a string to make it JSON serializable
+                    url = reverse('detail_organization', args=[detail_id])
+                    node['url'] = url
+                node_list.append(node)
+
+            parents_chain['nodes'] = json.dumps(node_list)
+            parents_chain['edges'] = json.dumps(edge_list)
+            context['parents_chain'].append(json.dumps(parents_chain))
 
         context['subsidiaries'] = []
         children = context['organization'].child_organization.all()
