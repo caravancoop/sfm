@@ -15,21 +15,21 @@ class OrganizationForm(forms.Form):
     classification_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     alias = forms.CharField(required=False)
-    alias_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    alias_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
 
     division_id = forms.CharField(error_messages={'required': _('Division ID is required')})
     division_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     headquarters = forms.CharField(required=False)
-    headquarters_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    headquarters_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
 
     firstciteddate = ApproximateDateFormField(required=False)
     realstart = forms.BooleanField(required=False)
-    firstciteddate_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    firstciteddate_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
 
     lastciteddate = ApproximateDateFormField(required=False)
-    open_ended = forms.ChoiceField(choices=settings.OPEN_ENDED_CHOICES)
-    lastciteddate_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    open_ended = forms.ChoiceField(required=False, choices=settings.OPEN_ENDED_CHOICES)
+    lastciteddate_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

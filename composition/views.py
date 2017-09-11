@@ -93,7 +93,7 @@ class CompositionCreate(BaseFormSetView):
                                                       'enddate_confidence', 1))
 
             startdate = formset.data.get(form_prefix + 'startdate')
-            realstart = formset.data.get(form_prefix + 'realstart'):
+            realstart = formset.data.get(form_prefix + 'realstart')
             enddate = formset.data.get(form_prefix + 'enddate')
             open_ended = formset.data.get(form_prefix + 'open_ended', 'N')
 

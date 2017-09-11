@@ -336,7 +336,7 @@ class OrganizationCreate(BaseFormSetView):
                     headquarters_sources = self.sourcesList(organization, 'headquarters')
                     org_info["Organization_OrganizationHeadquarters"]['sources'] = headquarters_sources
 
-                if first_cited_date:
+                if firstciteddate:
                     firstciteddate_sources = self.sourcesList(organization, 'firstciteddate')
                     org_info["Organization_OrganizationFirstCitedDate"]['sources'] = firstciteddate_sources
 
@@ -344,7 +344,7 @@ class OrganizationCreate(BaseFormSetView):
                     realstart_sources = self.sourcesList(organization, 'realstart')
                     org_info["Organization_OrganizationRealStart"]['sources'] = realstart_sources
 
-                if last_cited_date:
+                if lastciteddate:
                     lastciteddate_sources = self.sourcesList(organization, 'lastciteddate')
                     org_info["Organization_OrganizationLastCitedDate"]['sources'] = lastciteddate_sources
 
