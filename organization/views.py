@@ -356,7 +356,7 @@ class OrganizationCreate(BaseFormSetView):
                 organization = Organization.create(org_info)
 
             organization.update(org_info)
-            formset.data[form_prefix + 'name_id'] = organization.id
+            formset.data[form_prefix + 'name'] = organization.id
 
             # Aliases
             aliases = formset.data.get(form_prefix + 'alias_text')

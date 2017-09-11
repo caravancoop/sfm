@@ -432,7 +432,7 @@
         <div class="form-group">
             <label class="control-label col-sm-2" for="id_form-<%= form_id %>-firstciteddate">{% trans "First citation date" %}</label>
             <div class="col-sm-4">
-                <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-firstciteddate" name="form-<%= form_id %>-firstciteddate" placeholder='{% trans "YYY-MM-DD" %}' />
+                <input type="text" class="form-control datepicker" id="id_form-<%= form_id %>-firstciteddate" name="form-<%= form_id %>-firstciteddate" placeholder='{% trans "YYYY-MM-DD" %}' />
             </div>
             <div class="col-sm-4">
                 <label for="id_form-<%= form_id %>-realstart" class="checkbox-inline">
@@ -592,8 +592,6 @@
 
     $(document).ready(function(e) {
 
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: '0d'});
-
         var form_count = $('#dynamic-form').children().length;
         $('#id_form-FORMS_ADDED').val(form_count);
 
@@ -724,6 +722,8 @@
     }
 
     function activateInputs(name_field, alias_field, class_field, division_field, confidence_field) {
+
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: '0d'});
 
         $(name_field).select2(name_opts);
         $(alias_field).select2(alias_opts);
