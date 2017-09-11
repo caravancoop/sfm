@@ -437,7 +437,7 @@ def format_facets(facet_dict):
 
     return out
 
-def get_chart_edges(org_id, when=None):
+def get_command_edges(org_id, when=None):
     hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
     # Iterate over the hierarchy_list, and create nodes
     edges = []
@@ -446,7 +446,7 @@ def get_chart_edges(org_id, when=None):
 
     return edges
 
-def get_chart_nodes(org_id, when=None):
+def get_command_nodes(org_id, when=None):
     hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
     # Iterate over the hierarchy_list, and convert/modify hierarchy object, as needed.
     nodes = []

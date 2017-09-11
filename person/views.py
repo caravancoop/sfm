@@ -26,7 +26,7 @@ from person.forms import PersonForm
 from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
-from sfm_pc.utils import deleted_in_str, get_org_hierarchy_by_id, get_chart_edges, get_chart_nodes
+from sfm_pc.utils import deleted_in_str, get_org_hierarchy_by_id, get_command_edges, get_command_nodes
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -78,8 +78,8 @@ class PersonDetail(DetailView):
                 command_chain = {}
 
                 last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
-                node_list_raw = get_chart_nodes(org.uuid, when=last_cited)
-                edge_list = get_chart_edges(org.uuid, when=last_cited)
+                node_list_raw = get_command_nodes(org.uuid, when=last_cited)
+                edge_list = get_command_edges(org.uuid, when=last_cited)
 
                 # Create a "from" link for the person and their org.
                 edge_list.append({'from': str(org.uuid)})
