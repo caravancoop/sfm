@@ -301,6 +301,10 @@ def osm_autocomplete(request):
     '''
 
     if search_by_id:
+        # We want to search for text that begins with the query term, which uses
+        # SQL "string%" wildcard syntax. But because of the Django DB API's
+        # particular string formatting idiosyncracies, we need to append the %
+        # directly to the search term before formatting it into the query.
         q_args[0] += '%%'
         query = "{} WHERE id::text LIKE %s".format(query)
     else:
