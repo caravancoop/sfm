@@ -423,6 +423,15 @@ class PersonCreate(BaseFormSetView):
                 })
                 first = False
 
+            # Queue up to be added to search index
+            to_index = self.request.session.get('index')
+
+            if not to_index:
+                self.request.session['index'] = {}
+
+            self.request.session['index'][str(person.uuid)] = 'people'
+
+
         self.request.session['people'] = [{'id': p.id, 'name': p.name.get_value().value} \
                                                      for p in self.people]
         self.request.session['memberships'] = self.memberships

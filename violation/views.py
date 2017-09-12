@@ -4,6 +4,7 @@ from datetime import date
 
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.management import call_command
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
 from django.views.generic.edit import DeleteView, FormView
@@ -388,7 +389,7 @@ class ViolationCreate(FormSetView):
             # Foreignkey objects
             if vtypes:
                 for vtype in vtypes:
-                    type_obj = Type.objects.get(id=vtype)
+                    type_obj = Type.objects.get(id=int(vtype))
                     vt_obj, created = ViolationType.objects.get_or_create(value=type_obj,
                                                                           object_ref=violation,
                                                                           lang=get_language())
@@ -440,9 +441,29 @@ class ViolationCreate(FormSetView):
                     vpo_obj.confidence = orgs_confidence
                     vpo_obj.save()
 
+            # Queue up to be added to search index
+            to_index = self.request.session.get('index')
+
+            if not to_index:
+                self.request.session['index'] = {}
+
+            self.request.session['index'][str(violation.uuid)] = 'violations'
+
         response = super().formset_valid(formset)
 
-        success_message = _('Thanks for adding a new source! The database has been updated.')
+        # Refresh materialized views
+        call_command('make_flattened_views', refresh=True)
+
+        # Refresh search index with new entities
+        to_index = self.request.session.get('index')
+        if to_index:
+            for uuid, etype in to_index.items():
+                call_command('make_search_index', doc_id=uuid, entity_types=etype)
+
+        # Add source to the search index
+        call_command('make_search_index', doc_id=source.id, entity_types='sources')
+
+        success_message = _('Thanks for adding a new source! The database and search index have been updated.')
         messages.add_message(self.request, messages.SUCCESS, success_message)
 
         return response

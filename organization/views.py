@@ -398,6 +398,14 @@ class OrganizationCreate(BaseFormSetView):
 
             self.organizations.append(organization)
 
+            # Queue up to be added to search index
+            to_index = self.request.session.get('index')
+
+            if not to_index:
+                self.request.session['index'] = {}
+
+            self.request.session['index'][str(organization.uuid)] = 'organizations'
+
             actual_form_index += 1
 
         self.request.session['organizations'] = [{'id': o.id, 'name': o.name.get_value().value}

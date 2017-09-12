@@ -32,7 +32,7 @@ class Command(BaseCommand):
             '--entity-types',
             dest='entity_types',
             help='Comma separated list of entity types to index',
-            default="people,organizations,sources,events"
+            default="people,organizations,sources,violations"
         )
         parser.add_argument(
             '--id',
@@ -282,8 +282,8 @@ class Command(BaseCommand):
 
         self.add_to_index(documents)
 
-    def index_events(self, doc_id=None, update=False):
-        self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing events ... '))
+    def index_violations(self, doc_id=None, update=False):
+        self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing violations ... '))
 
         violation_query = '''
             SELECT
