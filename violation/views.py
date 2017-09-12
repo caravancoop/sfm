@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import get_language
+from django.utils.translation import ugettext as _
 from django.shortcuts import redirect
 from django.conf import settings
 
@@ -21,6 +22,7 @@ from extra_views import FormSetView
 from violation.models import Violation, Type, ViolationType, \
     ViolationPerpetrator, ViolationPerpetratorOrganization
 from source.models import Source
+from geosite.models import Geosite
 from person.models import Person
 from organization.models import Organization
 from violation.forms import ZoneForm, ViolationForm
@@ -114,18 +116,34 @@ class ViolationCreate(FormSetView):
             violation_id = int(formset.data.get(form_prefix + 'violation_id', -1))
 
             startdate = formset.data[form_prefix + 'startdate']
+            startdate_confidence = int(formset.data.get(form_prefix +
+                                                        'startdate_confidence', 1))
             enddate = formset.data[form_prefix + 'enddate']
-            date_confidence = int(formset.data.get(form_prefix +
-                                                   'date_confidence', 1))
+            enddate_confidence = int(formset.data.get(form_prefix +
+                                                      'enddate_confidence', 1))
+
+            firstallegation = formset.data.get(form_prefix + 'firstallegation')
+            firstallegation_confidence = int(formset.data.get(form_prefix +
+                                                              'firstallegation_confidence', 1))
+
+            lastupdate = formset.data.get(form_prefix + 'lastupdate')
+            lastupdate_confidence = int(formset.data.get(form_prefix +
+                                                         'lastupdate_confidence', 1))
+
+            status = formset.data.get(form_prefix + 'status')
+            status_confidence = int(formset.data.get(form_prefix +
+                                                     'status_confidence', 1))
 
             locationdescription = formset.data.get(form_prefix + 'locationdescription')
             locationdescription_confidence = int(formset.data.get(form_prefix +
                                                                   'locationdescription_confidence', 1))
 
             geoid = formset.data.get(form_prefix + 'osm_id')
-            geotype = formset.data.get(form_prefix + 'geotype')
             osm_confidence = int(formset.data.get(form_prefix +
                                                   'osm_confidence', 1))
+
+            exactloc_id = formset.data.get(form_prefix + 'exactlocation_id')
+            exactloc_confidence = formset.data.get(form_prefix + 'exactlocation_confidence')
 
             description = formset.data[form_prefix + 'description']
             description_confidence = int(formset.data.get(form_prefix +
@@ -143,6 +161,7 @@ class ViolationCreate(FormSetView):
             type_confidence = int(formset.data.get(form_prefix +
                                                    'type_confidence', 1))
 
+            # Administrative locations
             if geoid:
                 geo = get_osm_by_id(geoid)
                 geo_id, geo_name, geo_geometry = geo.id, geo.name, geo.geometry
@@ -165,11 +184,148 @@ class ViolationCreate(FormSetView):
                     elif member.admin_level == 4:
                         admin2 = member.name
 
+            # Exact location
+            if exactloc_id:
+
+                site, created = Geosite.objects.get_or_create(geositelocationid__value=exactloc_id)
+                
+                # If we don't have this site yet, create a new one using OSM
+                # data
+                if created:
+
+                    exactloc_geo = get_osm_by_id(exactloc_id)
+
+                    if not admin1 and not admin2 and not division_id:
+                        hierarchy = get_hierarchy_by_id(geoid)
+                        if hierarchy:
+                            for member in hierarchy:
+                                if member.admin_level == 6:
+                                    admin1 = member.name
+                                elif member.admin_level == 4:
+                                    admin2 = member.name
+
+                    exactloc_name = getattr(exactloc_geo, 'name')
+
+                    coords = getattr(exactloc_geo, 'geometry')
+                    if not coords and geo:
+                        coords = getattr(geo, 'geometry')
+
+                    country_code = getattr(exactloc_geo, 'country_code')
+
+                    if country_code:
+                        country_code = country_code.lower()
+                        division_id = 'ocd-division/country:{}'.format(country_code)
+
+                    names = [
+                        exactloc_name,
+                        geo_name,
+                        admin1,
+                    ]
+                        
+                    name = ', '.join([n for n in names if n])
+
+                    # Required field
+                    site_data = {
+                        'Geosite_GeositeName': {
+                            'value': name,
+                            'confidence': exactloc_confidence,
+                            'sources': [source]
+                        },
+                    }
+
+                    # Optional fields
+                    potential_fields = {
+                        'Geosite_GeositeAdminName': {
+                            'value': geo_name,
+                            'confidence': osm_confidence,
+                            'sources': [source]
+                        },
+                        'Geosite_GeositeAdminId': {
+                            'value': geo_id,
+                            'confidence': osm_confidence,
+                            'sources': [source]
+                        },
+                        'Geosite_GeositeDivisionId': {
+                            'value': division_id,
+                            'confidence': exactloc_confidence,
+                            'sources': [source]
+                        },
+                        'Geosite_GeositeAdminLevel1': {
+                            'value': admin1,
+                            'confidence': exactloc_confidence,
+                            'sources': [source]
+                        },
+                        'Geosite_GeositeAdminLevel2': {
+                            'value': admin2,
+                            'confidence': exactloc_confidence,
+                            'sources': [source]
+                        },
+                        'Geosite_GeositeCoordinates': {
+                            'value': coords,
+                            'confidence': exactloc_confidence,
+                            'sources': [source]
+                        },
+                        'Geosite_GeositeLocationId': {
+                            'value': exactloc_id,
+                            'confidence': exactloc_confidence,
+                            'sources': [source]
+                        },
+                        'Geosite_GeositeLocationName': {
+                            'value': exactloc_name,
+                            'confidence': exactloc_confidence,
+                            'sources': [source]
+                        },
+                    }
+
+                    for field, vals in potential_fields.items():
+                        if vals['value']:
+                            site_data[field] = {
+                                'value': vals['value'],
+                                'sources': vals['sources'],
+                                'confidence': vals['confidence']
+                            }
+
+                    site.update(site_data)
+
+            else:
+                site = None
+
+            # Instantiate the data dict with the required fields, which must
+            # exist
             violation_data = {
                 'Violation_ViolationDescription': {
                    'value': description,
                    'sources': [source],
                    'confidence': description_confidence
+                },
+                'Violation_ViolationStartDate': {
+                    'value': startdate,
+                    'sources': [source],
+                    'confidence': startdate_confidence
+                },
+                'Violation_ViolationEndDate': {
+                    'value': enddate,
+                    'sources': [source],
+                    'confidence': enddate_confidence
+                },
+            }
+    
+            # Define optional fields
+            optional_fields = {
+                'Violation_ViolationFirstAllegation': {
+                    'value': firstallegation,
+                    'sources': [source],
+                    'confidence': firstallegation_confidence
+                },
+                'Violation_ViolationLastUpdate': {
+                    'value': lastupdate,
+                    'sources': [source],
+                    'confidence': lastupdate_confidence
+                },
+                'Violation_ViolationStatus': {
+                    'value': status,
+                    'sources': [source],
+                    'confidence': status_confidence
                 },
                 'Violation_ViolationLocationDescription': {
                     'value': locationdescription,
@@ -206,17 +362,21 @@ class ViolationCreate(FormSetView):
                     'sources': [source],
                     'confidence': osm_confidence
                 },
-                'Violation_ViolationStartDate': {
-                    'value': startdate,
+                'Violation_ViolationSite': {
+                    'value': site,
                     'sources': [source],
-                    'confidence': date_confidence
+                    'confidence': exactloc_confidence
                 },
-                'Violation_ViolationEndDate': {
-                    'value': enddate,
-                    'sources': [source],
-                    'confidence': date_confidence
-                }
             }
+
+            for field, vals in optional_fields.items():
+                # Only add optional fields if they have existent values
+                if vals['value']:
+                    violation_data[field] = {
+                        'value': vals['value'],
+                        'sources': vals['sources'],
+                        'confidence': vals['confidence']
+                    }
 
             if violation_id == -1:
                 violation = Violation.create(violation_data)
@@ -225,14 +385,15 @@ class ViolationCreate(FormSetView):
                 violation = Violation.objects.get(id=int(violation_id))
                 violation.update(violation_data)
 
+            # Foreignkey objects
             if vtypes:
                 for vtype in vtypes:
                     type_obj = Type.objects.get(id=vtype)
                     vt_obj, created = ViolationType.objects.get_or_create(value=type_obj,
                                                                           object_ref=violation,
-                                                                          lang=get_language(),
-                                                                          confidence=type_confidence)
+                                                                          lang=get_language())
                     vt_obj.sources.add(source)
+                    vt_obj.confidence = type_confidence
                     vt_obj.save()
 
             if perpetrators:
@@ -281,7 +442,7 @@ class ViolationCreate(FormSetView):
 
         response = super().formset_valid(formset)
 
-        success_message = 'Thanks for adding a new source! The database has been updated.'
+        success_message = _('Thanks for adding a new source! The database has been updated.')
         messages.add_message(self.request, messages.SUCCESS, success_message)
 
         return response

@@ -195,16 +195,16 @@
                                     </select>
                                     <input type="hidden" name="form-{{ form_id }}-exactlocation_text" id="id_form-{{ form_id }}-exactlocation_text" value="{{ form.cleaned_data.exactlocation_text }}"/>
                                     <input type="hidden" name="form-{{ form_id }}-exactlocation_geotype" id="id_form-{{ form_id }}-exactlocation_geotype" value="{{ form.cleaned_data.exactlocation_geotype }}"/>
-                                    {% if form.exactlocation_id.errors or form.osm_id_text.errors or form.geotype.errors %}
-                                    {% for error in form.exactlocation_id.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                    {% endfor %}
-                                    {% for error in form.osm_id_text.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                    {% endfor %}
-                                    {% for error in form.geotype.errors %}
-                                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                    {% endfor %}
+                                    {% if form.exactlocation_id.errors or form.exactlocation_text.errors or form.exactlocation_geotype.errors %}
+                                        {% for error in form.exactlocation_id.errors %}
+                                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                        {% for error in form.exactlocation_text.errors %}
+                                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
+                                        {% for error in form.exactlocation_geotype.errors %}
+                                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                        {% endfor %}
                                     {% endif %}
                                 </div>
                                 <div class="col-sm-2">
