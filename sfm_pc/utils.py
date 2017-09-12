@@ -211,7 +211,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             NULL::VARCHAR AS child_name,
             NULL::DATE AS start_date,
             NULL::DATE AS end_date,
-            NULL::BOOL AS open_ended,
+            NULL::VARCHAR AS comp_open_ended,
             NULL::VARCHAR AS source,
             NULL::VARCHAR AS confidence,
             NULL::VARCHAR AS commander
@@ -225,7 +225,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             children.name AS child_name,
             h.start_date::date,
             h.end_date::date,
-            h.open_ended,
+            h.open_ended AS comp_open_ended,
             row_to_json(ss.*)::VARCHAR AS source,
             ccc.confidence,
             person.name
@@ -256,27 +256,27 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             AND CASE 
               WHEN (start_date IS NOT NULL AND 
                     end_date IS NOT NULL AND 
-                    open_ended = FALSE)
+                    comp_open_ended IN ('N', 'E'))
               THEN (%s::date BETWEEN start_date::date AND end_date::date)
               WHEN (start_date IS NOT NULL AND
                     end_date IS NOT NULL AND
-                    open_ended = TRUE)
+                    comp_open_ended = 'Y')
               THEN (%s::date BETWEEN start_date::date AND NOW()::date)
               WHEN (start_date IS NOT NULL AND
                     end_date IS NULL AND
-                    open_ended = FALSE)
+                    comp_open_ended IN ('N', 'E'))
               THEN (start_date::date = %s::date)
               WHEN (start_date IS NOT NULL AND
                     end_date IS NULL AND
-                    open_ended = TRUE)
+                    comp_open_ended = 'Y')
               THEN (%s::date BETWEEN start_date::date AND NOW()::date)
               WHEN (start_date IS NULL AND
                     end_date IS NOT NULL AND
-                    open_ended = FALSE)
+                    comp_open_ended IN ('N', 'E'))
               THEN (end_date::date = %s)
               WHEN (start_date IS NULL AND 
                     end_date IS NOT NULL AND
-                    open_ended IS TRUE)
+                    comp_open_ended = 'Y')
               THEN TRUE
             END
         '''.format(hierarchy=hierarchy, when=when)
@@ -297,7 +297,7 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
             NULL::VARCHAR AS parent_name,
             NULL::DATE AS start_date,
             NULL::DATE AS end_date,
-            NULL::BOOL AS open_ended,
+            NULL::VARCHAR AS comp_open_ended,
             NULL::VARCHAR AS source,
             NULL::VARCHAR AS confidence
           FROM organization As o
@@ -309,7 +309,7 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
             parents.name AS parent_name,
             h.start_date::date,
             h.end_date::date,
-            h.open_ended,
+            h.open_ended AS comp_open_ended,
             row_to_json(ss.*)::VARCHAR AS source,
             ccc.confidence
           FROM organization AS o
@@ -333,27 +333,27 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
             AND CASE 
               WHEN (start_date IS NOT NULL AND 
                     end_date IS NOT NULL AND 
-                    open_ended = FALSE)
+                    comp_open_ended IN ('N', 'E'))
               THEN (%s::date BETWEEN start_date::date AND end_date::date)
               WHEN (start_date IS NOT NULL AND
                     end_date IS NOT NULL AND
-                    open_ended = TRUE)
+                    comp_open_ended = 'Y')
               THEN (%s::date BETWEEN start_date::date AND NOW()::date)
               WHEN (start_date IS NOT NULL AND
                     end_date IS NULL AND
-                    open_ended = FALSE)
+                    comp_open_ended IN ('N', 'E'))
               THEN (start_date::date = %s::date)
               WHEN (start_date IS NOT NULL AND
                     end_date IS NULL AND
-                    open_ended = TRUE)
+                    comp_open_ended = 'Y')
               THEN (%s::date BETWEEN start_date::date AND NOW()::date)
               WHEN (start_date IS NULL AND
                     end_date IS NOT NULL AND
-                    open_ended = FALSE)
+                    comp_open_ended IN ('N', 'E'))
               THEN (end_date::date = %s)
               WHEN (start_date IS NULL AND 
                     end_date IS NOT NULL AND
-                    open_ended IS TRUE)
+                    comp_open_ended = 'Y')
               THEN TRUE
             END
         '''.format(hierarchy)
@@ -437,12 +437,19 @@ def format_facets(facet_dict):
 
     return out
 
-def get_command_edges(org_id, when=None):
-    hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
-    # Iterate over the hierarchy_list, and create nodes
+def get_command_edges(org_id, when=None, parents=True):
+
     edges = []
+    if parents:
+        hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
+        from_key, to_key = 'id', 'child_id'
+    else:
+        hierarchy_list = get_child_orgs_by_id(org_id, when=when)
+        from_key, to_key = 'parent_id', 'id'
+
+    # Iterate over the hierarchy_list, and create nodes
     for org in hierarchy_list:
-        edges.append({'from': str(org['id']), 'to': org['child_id']})
+        edges.append({'from': str(org[from_key]), 'to': org[to_key]})
 
     return edges
 

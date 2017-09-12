@@ -3,8 +3,8 @@ import reversion
 from django.contrib import admin
 
 from .models import (Geosite, GeositeName, GeositeAdminLevel1,
-                     GeositeAdminLevel2, GeositeCoordinates,
-                     GeositeOSMName, GeositeOSMId)
+                     GeositeAdminLevel2, GeositeAdminName, GeositeAdminId,
+                     GeositeCoordinates, GeositeLocationName, GeositeLocationId)
 
 
 class GeositeAdmin(admin.ModelAdmin):
@@ -19,6 +19,14 @@ class GeositeAdminLevel1Admin(reversion.admin.VersionAdmin):
     pass
 
 
+class GeositeAdminNameAdmin(reversion.admin.VersionAdmin):
+    pass
+
+
+class GeositeAdminIdAdmin(reversion.admin.VersionAdmin):
+    pass
+
+
 class GeositeAdminLevel2Admin(reversion.admin.VersionAdmin):
     pass
 
@@ -27,11 +35,11 @@ class GeositeCoordinatesAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class GeositeOSMNameAdmin(reversion.admin.VersionAdmin):
+class GeositeLocationNameAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class GeositeOSMIdAdmin(reversion.admin.VersionAdmin):
+class GeositeLocationIdAdmin(reversion.admin.VersionAdmin):
     pass
 
 
@@ -40,5 +48,5 @@ admin.site.register(GeositeName, GeositeNameAdmin)
 admin.site.register(GeositeAdminLevel1, GeositeAdminLevel1Admin)
 admin.site.register(GeositeAdminLevel2, GeositeAdminLevel2Admin)
 admin.site.register(GeositeCoordinates, GeositeCoordinatesAdmin)
-admin.site.register(GeositeOSMName, GeositeOSMNameAdmin)
-admin.site.register(GeositeOSMId, GeositeOSMIdAdmin)
+admin.site.register(GeositeLocationName, GeositeLocationNameAdmin)
+admin.site.register(GeositeLocationId, GeositeLocationIdAdmin)

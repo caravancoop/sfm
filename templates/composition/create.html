@@ -15,16 +15,25 @@
     <p>{% trans "Describe how units are related to one another in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
     <hr />
 </div>
+{% for error in formset.non_form_errors %}
+<div class="row">
+    <div class="alert alert-danger" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {{ error }}
+    </div>
+</div>
+{% endfor %}
 <div class="row">
     <form method="post" action="" id="org-form" class="form-horizontal">
         {% csrf_token %}
         {{ formset.management_form }}
         {% for form in formset %}
-            {% with organization=organizations|from_index:forloop.counter0 %}
+            {% with org_pair=org_pairs|from_index:forloop.counter0 %}
                 <div id="form-{{ forloop.counter0 }}-wrapper">
-                <input type="hidden" value="{{ organization.id }}" name="form-{{ forloop.counter0 }}-organization" />
                 <h4>
-                    {% trans "Relationships for" %} <strong>{{ organization.name }}</strong>
+                    {% trans "Relationship" %} <strong>&#35;{{ forloop.counter }}</strong>
                     <button class="btn btn-link btn-sm remove-relationship" type="button" data-form_id="{{ forloop.counter0 }}">
                         <i class="fa fa-fw fa-times"> </i> {% trans "Remove this relationship" %}
                     </button>
@@ -35,56 +44,23 @@
                     <div class="col-sm-8"><p><strong>{% trans "Value" %}</strong></p></div>
                     <div class="col-sm-2"><p><strong>{% trans "Confidence" %}</strong></p></div>
                 </div>
-                {% if form.relationship_type.errors or form.relationship_type_confidence.errors %}
+                {% if form.parent.errors or form.parent_confidence.errors %}
                     <div class="form-group has-error has-feedback">
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="col-sm-2 control-label">{% trans "Relationship type" %}</label>
+                        <label class="col-sm-2 control-label">{% trans "Parent unit" %}</label>
                         <div class="col-sm-8">
-                            <select id="id_form-{{ forloop.counter0 }}-relationship_type" class="form-control relationship-type-field" name="form-{{ forloop.counter0 }}-relationship_type">
-                                {% for type in relationship_types %}
-                                    {% if form.cleaned_data.relationship_type == type %}
-                                        <option value="{{ type.0 }}" selected=true>{{ type.1 }}</option>
-                                    {% else %}
-                                        <option value="{{ type.0 }}">{{ type.1 }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                            {% if form.relationship_type.errors %}
-                                {% for error in form.relationship_type.errors %}
-                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="col-sm-2">
-                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-relationship_type_confidence" name="form-{{ forloop.counter0 }}-relationship_type_confidence">
-                                {% for value, name in confidence_levels %}
-                                    {% if form.cleaned_data.relationship_type_confidence == value %}
-                                        <option value="{{ value }}" selected=true>{{ name }}</option>
-                                    {% else %}
-                                        <option value="{{ value }}">{{ name }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                            {% if form.relationship_type_confidence.errors %}
-                                {% for error in form.relationship_type_confidence.errors %}
-                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                    </div>
-                {% if form.related_organization.errors or form.related_org_confidence.errors %}
-                    <div class="form-group has-error has-feedback">
-                {% else %}
-                    <div class="form-group">
-                {% endif %}
-                        <label class="col-sm-2 control-label">{% trans "Related organization" %}</label>
-                        <div class="col-sm-8">
-                            <select id="id_form-{{ forloop.counter0 }}-related_organization" class="form-control organization-field" name="form-{{ forloop.counter0 }}-related_organization">
+                            <select id="id_form-{{ forloop.counter0 }}-parent" class="form-control organization-field" name="form-{{ forloop.counter0 }}-parent">
                                 {% for org in organizations %}
-                                    {% if org.id != organization.id %}
-                                        {% if form.cleaned_data.related_organization.id == org.id %}
+                                    {% if form.cleaned_data %}
+                                        {% if form.cleaned_data.parent == org.id %}
+                                            <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
+                                        {% else %}
+                                            <option value="{{ org.id }}">{{ org.name }}</option>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if org_pair|first == org.id %}
                                             <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
                                         {% else %}
                                             <option value="{{ org.id }}">{{ org.name }}</option>
@@ -92,24 +68,72 @@
                                     {% endif %}
                                 {% endfor %}
                             </select>
-                            {% if form.related_organization.errors %}
-                                {% for error in form.related_organization.errors %}
+                            {% if form.parent.errors %}
+                                {% for error in form.parent.errors %}
                                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                 {% endfor %}
                             {% endif %}
                         </div>
                         <div class="col-sm-2">
-                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-related_org_confidence" name="form-{{ forloop.counter0 }}-related_org_confidence">
+                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-parent_confidence" name="form-{{ forloop.counter0 }}-parent_confidence">
                                 {% for value, name in confidence_levels %}
-                                    {% if form.cleaned_data.related_org_confidence == value %}
+                                    {% if form.cleaned_data.parent_confidence == value %}
                                         <option value="{{ value }}" selected=true>{{ name }}</option>
                                     {% else %}
                                         <option value="{{ value }}">{{ name }}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
-                            {% if form.related_org_confidence.errors %}
-                                {% for error in form.related_org_confidence.errors %}
+                            {% if form.parent_confidence.errors %}
+                                {% for error in form.parent_confidence.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {{ form.cleaned_data.child }}
+                {% if form.child.errors or form.child_confidence.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="col-sm-2 control-label">{% trans "Child unit" %}</label>
+                        <div class="col-sm-8">
+                            <select id="id_form-{{ forloop.counter0 }}-child" class="form-control organization-field" name="form-{{ forloop.counter0 }}-child">
+                                {% for org in organizations %}
+                                    {% if form.cleaned_data %}
+                                        {% if form.cleaned_data.child == org.id %}
+                                            <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
+                                        {% else %}
+                                            <option value="{{ org.id }}">{{ org.name }}</option>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if org_pair|last == org.id %}
+                                            <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
+                                        {% else %}
+                                            <option value="{{ org.id }}">{{ org.name }}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.child.errors %}
+                                {% for error in form.child.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-child_confidence" name="form-{{ forloop.counter0 }}-child_confidence">
+                                {% for value, name in confidence_levels %}
+                                    {% if form.cleaned_data.child_confidence == value %}
+                                        <option value="{{ value }}" selected=true>{{ name }}</option>
+                                    {% else %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.child_confidence.errors %}
+                                {% for error in form.child_confidence.errors %}
                                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                 {% endfor %}
                             {% endif %}
@@ -120,7 +144,7 @@
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                        <label class="col-sm-2 control-label">{% trans "Relationship classification" %}</label>
+                        <label class="col-sm-2 control-label">{% trans "Relationship type" %}</label>
                         <div class="col-sm-8">
                             <select id="id_form-{{ forloop.counter0 }}-classification" class="form-control classification-field" name="form-{{ forloop.counter0 }}-classification">
                                 {% for classification in classifications %}
@@ -154,14 +178,14 @@
                             {% endif %}
                         </div>
                     </div>
-                {% if form.startdate.errors or form.enddate.errors or form.date_confidence.errors %}
+                {% if form.startdate.errors or form.startdate_confidence.errors or form.realstart.errors %}
                     <div class="form-group has-error has-feedback">
                 {% else %}
                     <div class="form-group">
                 {% endif %}
-                <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-startdate">{% trans "Start and end dates" %}</label>
+                    <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-startdate">{% trans "First citation date" %}</label>
                         <div class="col-sm-4">
-                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-startdate" name="form-{{ forloop.counter0 }}-startdate" placeholder="Start date" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-startdate" name="form-{{ forloop.counter0 }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
                             {% if form.startdate.errors %}
                                 {% for error in form.startdate.errors %}
                                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -169,25 +193,75 @@
                             {% endif %}
                         </div>
                         <div class="col-sm-4">
-                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-enddate" name="form-{{ forloop.counter0 }}-enddate" placeholder="End date" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
-                            {% if form.enddate.errors %}
-                                {% for error in form.enddate.errors %}
+                            <label for="id_form-{{ forloop.counter0 }}-realstart" class="checkbox-inline">
+                                <input type="checkbox" id="id_form-{{ forloop.counter0 }}-realstart" name="form-{{ forloop.counter0 }}-realstart" {% if form.cleaned_data.realstart %}checked{% endif %} > {% trans "This is the start date of the relationship" %}
+                            </label>
+                            {% if form.realstart.errors %}
+                                {% for error in form.realstart.errors %}
                                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                 {% endfor %}
                             {% endif %}
                         </div>
                         <div class="col-sm-2">
-                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-date_confidence" name="form-{{ forloop.counter0 }}-date_confidence">
+                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-startdate_confidence" name="form-{{ forloop.counter0 }}-startdate_confidence">
                                 {% for value, name in confidence_levels %}
-                                    {% if form.cleaned_data.date_confidence == value %}
+                                    {% if form.cleaned_data.startdate_confidence == value %}
                                         <option value="{{ value }}" selected=true>{{ name }}</option>
                                     {% else %}
                                         <option value="{{ value }}">{{ name }}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
-                            {% if form.date_confidence.errors %}
-                                {% for error in form.date_confidence.errors %}
+                            {% if form.startdate_confidence.errors %}
+                                {% for error in form.startdate_confidence.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% if form.enddate.errors or form.enddate_confidence.errors or form.open_ended.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                    <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-enddate">{% trans "Last citation" %}</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-enddate" name="form-{{ forloop.counter0 }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
+                            {% if form.enddate.errors %}
+                                {% for error in form.enddate.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-open_ended">{% trans "Open-ended?" %}</label>
+                        <div class="col-sm-2">
+                            <select class="form-control open-ended-field" id="id_form-{{ forloop.counter0 }}-open_ended" name="form-{{ forloop.counter0 }}-open_ended">
+                                {% for value, name in open_ended_choices %}
+                                    {% if form.cleaned_data.open_ended == value %}
+                                        <option value="{{ value }}" selected=true>{{ name }}</option>
+                                    {% else %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.open_ended.errors %}
+                                {% for error in form.open_ended.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-enddate_confidence" name="form-{{ forloop.counter0 }}-enddate_confidence">
+                                {% for value, name in confidence_levels %}
+                                    {% if form.cleaned_data.enddate_confidence == value %}
+                                        <option value="{{ value }}" selected=true>{{ name }}</option>
+                                    {% else %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.enddate_confidence.errors %}
+                                {% for error in form.enddate_confidence.errors %}
                                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                                 {% endfor %}
                             {% endif %}
@@ -227,11 +301,6 @@
 <script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/javascript">
 
-    var rel_type_opts = {
-        placeholder: '{% trans "Parent or child" %}',
-        minimumResultsForSearch: Infinity
-    }
-
     var org_opts = {
         placeholder: '{% trans "Select an organization" %}',
         minimumResultsForSearch: Infinity
@@ -246,14 +315,16 @@
         minimumResultsForSearch: Infinity
     }
 
+    var open_ended_opts = confidence_opts
+
     $(document).ready(function(e){
 
         $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: '0d'});
 
-        $('.relationship-type-field').select2(rel_type_opts);
         $('.organization-field').select2(org_opts);
         $('.classification-field').select2(classification_opts);
         $('.confidence-field').select2(confidence_opts);
+        $('.open-ended-field').select2(open_ended_opts);
 
         $('.remove-relationship').on('click', deleteForm);
     });
@@ -264,7 +335,6 @@
         console.log(e.target)
         var wrapper_id = '#form-' + form_id + '-wrapper';
 
-        console.log(wrapper_id)
         $('#delete-confirm').data('wrapper_id', wrapper_id);
         $('#delete-confirm').off();
 

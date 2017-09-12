@@ -1,5 +1,7 @@
 import json
+from itertools import combinations
 
+from django import forms
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse
@@ -9,23 +11,37 @@ from django.shortcuts import redirect
 from source.models import Source
 from organization.models import Organization
 from composition.models import Composition, Classification
-from composition.forms import CompositionForm
+from composition.forms import CompositionForm, BaseCompositionFormSet
 from sfm_pc.base_views import BaseFormSetView
-
 
 
 class CompositionCreate(BaseFormSetView):
     template_name = 'composition/create.html'
     form_class = CompositionForm
+    formset_class = BaseCompositionFormSet
     success_url = reverse_lazy('create-organization-membership')
     extra = 0
     max_num = None
 
+    def get_org_pairs(self, orgs):
+
+        org_ids = [org['id'] for org in orgs]
+
+        return list(combinations(org_ids, 2))
+
     def get_initial(self):
+
         data = []
-        if self.request.session.get('organizations'):
-            for i in self.request.session['organizations']:
+
+        created_orgs = self.request.session.get('organizations')
+
+        if created_orgs:
+            # Generate forms for each unique combination of orgs
+            org_pairs = self.get_org_pairs(created_orgs)
+
+            for pair in org_pairs:
                 data.append({})
+
         return data
 
     def get(self, request, *args, **kwargs):
@@ -38,11 +54,13 @@ class CompositionCreate(BaseFormSetView):
 
         context = super().get_context_data(**kwargs)
         context['confidence_levels'] = settings.CONFIDENCE_LEVELS
+        context['open_ended_choices'] = settings.OPEN_ENDED_CHOICES
 
         context['classifications'] = Classification.objects.all()
-        context['relationship_types'] = self.form_class().fields['relationship_type'].choices
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
         context['organizations'] = self.request.session.get('organizations')
+
+        context['org_pairs'] = self.get_org_pairs(context['organizations'])
 
         context['back_url'] = reverse_lazy('create-organization')
         context['skip_url'] = reverse_lazy('create-organization-membership')
@@ -68,23 +86,57 @@ class CompositionCreate(BaseFormSetView):
 
             composition_info = {}
 
-            date_confidence = int(formset.data.get(form_prefix + 'date_confidence', 1))
+            # Dates
+            startdate_confidence = int(formset.data.get(form_prefix +
+                                                        'startdate_confidence', 1))
+            enddate_confidence = int(formset.data.get(form_prefix +
+                                                      'enddate_confidence', 1))
 
-            if formset.data.get(form_prefix + 'startdate'):
+            startdate = formset.data.get(form_prefix + 'startdate')
+            realstart = formset.data.get(form_prefix + 'realstart')
+            enddate = formset.data.get(form_prefix + 'enddate')
+            open_ended = formset.data.get(form_prefix + 'open_ended', 'N')
+
+            if startdate:
 
                 composition_info['Composition_CompositionStartDate'] = {
-                    'value': formset.data[form_prefix + 'startdate'],
-                    'confidence': date_confidence,
+                    'value': startdate,
+                    'confidence': startdate_confidence,
                     'sources': [source]
                 }
 
-            if formset.data.get(form_prefix + 'enddate'):
+
+                if realstart:
+                    realstart = True
+                else:
+                    realstart = False
+
+                composition_info['Composition_CompositionRealStart'] = {
+                    'value': realstart,
+                    'confidence': startdate_confidence,
+                    'sources': [source]
+                }
+
+
+            if enddate:
+
                 composition_info['Composition_CompositionEndDate'] = {
-                    'value': formset.data[form_prefix + 'enddate'],
-                    'confidence': date_confidence,
+                    'value': enddate,
+                    'confidence': enddate_confidence,
                     'sources': [source]
                 }
 
+            # We want to record a value for open_ended no matter what, since
+            # it can't be null. 'N' is effectively the null value, and form
+            # validation enforces the proper logic with regard to the existence
+            # of the enddate field.
+            composition_info['Composition_CompositionOpenEnded'] = {
+                'value': formset.data[form_prefix + 'open_ended'],
+                'confidence': enddate_confidence,
+                'sources': [source]
+            }
+
+            # Relationship classification
             classification_id = formset.data[form_prefix + 'classification']
             classification = Classification.objects.get(id=classification_id)
             classification_confidence = int(formset.data.get(form_prefix +
@@ -96,63 +148,38 @@ class CompositionCreate(BaseFormSetView):
                 'sources': [source]
             }
 
-            organization_id = formset.data[form_prefix + 'organization']
-            organization = Organization.objects.get(id=organization_id)
+            # Parent and child orgs
+            parent_id = formset.data[form_prefix + 'parent']
+            parent = Organization.objects.get(id=parent_id)
+            parent_confidence = int(formset.data.get(form_prefix +
+                                                     'parent_confidence', 1))
 
-            related_organization_id = formset.data[form_prefix + 'related_organization']
-            related_organization = Organization.objects.get(id=related_organization_id)
-            related_org_confidence = int(formset.data.get(form_prefix +
-                                                          'related_org_confidence', 1))
+            child_id = formset.data[form_prefix + 'child']
+            child = Organization.objects.get(id=child_id)
+            child_confidence = int(formset.data.get(form_prefix +
+                                                    'child_confidence', 1))
 
-            rel_type = formset.data[form_prefix + 'relationship_type']
-            rel_type_confidence = int(formset.data.get(form_prefix +
-                                                       'relationship_type_confidence', 1))
+            composition, created = Composition.objects.get_or_create(compositionparent__value=parent,
+                                                                     compositionchild__value=child)
 
-            if rel_type == 'child':
+            if created:
+                parent_sources = [source]
+                child_sources = parent_sources
+            else:
+                self.source = source
+                parent_sources = self.sourcesList(composition, 'parent')
+                child_sources = self.sourcesList(composition, 'child')
 
-                composition, created = Composition.objects.get_or_create(compositionparent__value=related_organization,
-                                                                         compositionchild__value=organization)
-
-                if created:
-                    sources = [source]
-
-                else:
-                    self.source = source
-                    sources = self.sourcesList(composition, 'child')
-
-                composition_info['Composition_CompositionChild'] = {
-                    'value': organization,
-                    'confidence': rel_type_confidence,
-                    'sources': sources
-                }
-                composition_info['Composition_CompositionParent'] = {
-                    'value': related_organization,
-                    'confidence': rel_type_confidence,
-                    'sources': sources
-                }
-
-            elif rel_type == 'parent':
-
-                composition, created = Composition.objects.get_or_create(compositionchild__value=related_organization,
-                                                                         compositionparent__value=organization)
-
-                if created:
-                    sources = [source]
-
-                else:
-                    self.source = source
-                    sources = self.sourcesList(composition, 'parent')
-
-                composition_info['Composition_CompositionParent'] = {
-                    'value': organization,
-                    'confidence': rel_type_confidence,
-                    'sources': sources
-                }
-                composition_info['Composition_CompositionChild'] = {
-                    'value': related_organization,
-                    'confidence': rel_type_confidence,
-                    'sources': sources
-                }
+            composition_info['Composition_CompositionParent'] = {
+                'value': parent,
+                'confidence': parent_confidence,
+                'sources': parent_sources
+            }
+            composition_info['Composition_CompositionChild'] = {
+                'value': child,
+                'confidence': child_confidence,
+                'sources': child_sources
+            }
 
             composition.update(composition_info)
 

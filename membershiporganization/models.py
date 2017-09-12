@@ -1,10 +1,11 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
+from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
 
-from complex_fields.model_decorators import versioned, sourced
+from complex_fields.model_decorators import versioned, sourced, sourced_optional
 
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
@@ -17,10 +18,13 @@ class MembershipOrganization(models.Model, BaseModel):
         self.member = ComplexFieldContainer(self, MembershipOrganizationMember)
         self.organization = ComplexFieldContainer(self, MembershipOrganizationOrganization)
         self.firstciteddate = ComplexFieldContainer(self, MembershipOrganizationFirstCitedDate)
+        self.realstart = ComplexFieldContainer(self, MembershipOrganizationRealStart)
         self.lastciteddate = ComplexFieldContainer(self, MembershipOrganizationLastCitedDate)
+        self.realend= ComplexFieldContainer(self, MembershipOrganizationRealEnd)
 
         self.complex_fields = [self.member, self.organization,
-                               self.firstciteddate, self.lastciteddate]
+                               self.firstciteddate, self.lastciteddate,
+                               self.realstart, self.realend]
 
         self.required_fields = [
             "MembershipOrganization_MembershipOrganizationMember",
@@ -88,3 +92,19 @@ class MembershipOrganizationLastCitedDate(ComplexField):
 
     class Meta:
         db_table = 'membershiporganization_lcd'
+
+
+@versioned
+@sourced_optional
+class MembershipOrganizationRealStart(ComplexField):
+    object_ref = models.ForeignKey('MembershipOrganization')
+    value = models.NullBooleanField(default=None)
+    field_name = _("Real start date")
+
+
+@versioned
+@sourced_optional
+class MembershipOrganizationRealEnd(ComplexField):
+    object_ref = models.ForeignKey('MembershipOrganization')
+    value = models.NullBooleanField(default=None)
+    field_name = _("Real end date")

@@ -32,7 +32,7 @@ class Command(BaseCommand):
             '--entity-types',
             dest='entity_types',
             help='Comma separated list of entity types to index',
-            default="people,organizations,sources,events"
+            default="people,organizations,sources,violations"
         )
         parser.add_argument(
             '--id',
@@ -40,12 +40,25 @@ class Command(BaseCommand):
             default=None,
             help="Specify a specific record ID to index"
         )
+        parser.add_argument(
+            '--recreate',
+            action='store_true',
+            dest='recreate',
+            default=False,
+            help="Delete all existing documents before creating the search index."
+        )
 
     def handle(self, *args, **options):
 
+        # Get command line args
         entity_types = [e.strip() for e in options['entity_types'].split(',')]
         update = options.get('update')
         doc_id = options.get('doc_id')
+        recreate = options.get('recreate')
+
+        if recreate:
+            self.stdout.write(self.style.SUCCESS('Dropping current search index...'))
+            self.searcher.delete(q='*:*')
 
         for entity_type in entity_types:
 
@@ -196,8 +209,8 @@ class Command(BaseCommand):
                   role,
                   rank,
                   title,
-                  first_cited::timestamp AS first_cited,
-                  last_cited::timestamp AS last_cited,
+                  mp.first_cited::timestamp AS first_cited,
+                  mp.last_cited::timestamp AS last_cited,
                   ST_AsText(
                     COALESCE(g.coordinates,
                              ST_Centroid(a.geometry))) AS location
@@ -213,14 +226,19 @@ class Command(BaseCommand):
                 LEFT JOIN area AS a
                   ON ass.area_id = a.id
                 WHERE member_id = %s
-                ORDER BY member_id, COALESCE(last_cited, first_cited) DESC
+                ORDER BY member_id, COALESCE(mp.last_cited, mp.first_cited) DESC
             '''
 
             membership_cursor = connection.cursor()
             membership_cursor.execute(memberships, [person['id']])
             member_columns = [c[0] for c in membership_cursor.description]
 
-            membership = dict(zip(member_columns, membership_cursor.fetchone()))
+            member_row = membership_cursor.fetchone()
+
+            if not member_row:
+                continue
+
+            membership = dict(zip(member_columns, member_row))
 
             content = [person['name']]
 
@@ -264,8 +282,8 @@ class Command(BaseCommand):
 
         self.add_to_index(documents)
 
-    def index_events(self, doc_id=None, update=False):
-        self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing events ... '))
+    def index_violations(self, doc_id=None, update=False):
+        self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing violations ... '))
 
         violation_query = '''
             SELECT
@@ -291,9 +309,9 @@ class Command(BaseCommand):
                 AS perp_class
             FROM violation AS v
             LEFT JOIN geosite as g
-              ON (g.osm_id::varchar = v.osm_id)
+              ON (g.admin_id::varchar = v.osm_id)
             LEFT JOIN area AS a
-              ON (a.osmid = g.osm_id)
+              ON (a.osmid = g.admin_id)
         '''
 
         if doc_id:
@@ -319,7 +337,9 @@ class Command(BaseCommand):
                 continue
 
             # Global index on the description field
-            content = violation['description']
+            content = []
+            if violation['description']:
+                content.append(violation['description'])
 
             # To build location descriptions, start with the most reliable
             locations = [violation['admin_level_2']]
@@ -384,6 +404,12 @@ class Command(BaseCommand):
 
                     perp_org_name = perp_org_results['name']
                     perp_org_aliases = perp_org_results['aliases']
+
+            for lst in ([perp_name], perp_aliases, [perp_org_name], perp_org_aliases):
+                if lst:
+                    content.extend(lst)
+
+            content = '; '.join(content)
 
             document = {
                 'id': violation['id'],

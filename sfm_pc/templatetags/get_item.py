@@ -7,4 +7,7 @@ register = template.Library()
 
 @register.filter
 def from_index(value, i):
-    return value[i]
+    try:
+        return value[i]
+    except (TypeError, IndexError):
+        return None

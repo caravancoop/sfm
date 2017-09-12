@@ -137,9 +137,9 @@ class EventDetailView(JSONAPIView):
                       THEN (daterange((v.start_date::date - INTERVAL '30 days')::date, 
                                       (v.end_date::date + INTERVAL '30 days')::date) &&
                             daterange(e.start_date::date, e.end_date::date))
-                    WHEN (e.start_date IS NOT NULL AND e.end_date IS NULL AND e.open_ended IS FALSE)
+                    WHEN (e.start_date IS NOT NULL AND e.end_date IS NULL AND e.open_ended IN ('N', 'E'))
                       THEN (e.start_date::date BETWEEN v.start_date::date AND v.end_date::date)
-                    WHEN (e.start_date IS NOT NULL AND e.end_date IS NULL AND e.open_ended IS TRUE)
+                    WHEN (e.start_date IS NOT NULL AND e.end_date IS NULL AND e.open_ended = 'Y')
                       THEN (daterange((v.start_date::date - INTERVAL '30 days')::date, 
                                       (v.end_date::date + INTERVAL '30 days')::date) &&
                             daterange(e.start_date::date, NOW()::date))
@@ -171,13 +171,13 @@ class EventDetailView(JSONAPIView):
                                       (v.end_date::date + INTERVAL '30 days')::date) &&
                             daterange((ass.start_date::date - INTERVAL '2 day')::date, 
                                       (ass.end_date::date + INTERVAL '1 day')::date))
-                    WHEN (ass.start_date IS NOT NULL AND ass.end_date IS NULL AND ass.open_ended IS FALSE)
+                    WHEN (ass.start_date IS NOT NULL AND ass.end_date IS NULL AND ass.open_ended IN ('N', 'E'))
                       THEN (ass.start_date::date 
                             BETWEEN 
                               (v.start_date::date - INTERVAL '30 days')::date AND 
                               (v.end_date::date + INTERVAL '30 days')::date
                            )
-                    WHEN (ass.start_date IS NOT NULL AND ass.end_date IS NULL AND ass.open_ended IS TRUE)
+                    WHEN (ass.start_date IS NOT NULL AND ass.end_date IS NULL AND ass.open_ended = 'Y')
                       THEN (daterange((v.start_date::date - INTERVAL '30 days')::date, 
                                       (v.end_date::date + INTERVAL '30 days')::date) &&
                             daterange(ass.start_date::date, NOW()::date))
@@ -259,7 +259,7 @@ class OrganizationMapView(JSONAPIView):
             WHERE ass.organization_id = %s
               AND ass.start_date::date <= %s 
               AND (ass.end_date::date >= %s OR 
-                   ass.open_ended = TRUE OR
+                   ass.open_ended = 'Y' OR
                    ass.end_date IS NULL)
         '''
 
@@ -276,7 +276,7 @@ class OrganizationMapView(JSONAPIView):
             SELECT
               site.osm_id AS id,
               site.name,
-              site.osmname AS location,
+              site.admin_name AS location,
               site.admin_level_1,
               site.admin_level_2,
               emplacement.start_date,
@@ -288,7 +288,7 @@ class OrganizationMapView(JSONAPIView):
             WHERE emplacement.organization_id = %s
               AND emplacement.start_date::date <= %s 
               AND (emplacement.end_date::date >= %s OR 
-                   emplacement.open_ended = TRUE OR
+                   emplacement.open_ended = 'Y' OR
                    emplacement.end_date IS NULL)
         '''
 

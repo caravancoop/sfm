@@ -5,6 +5,7 @@ import re
 from uuid import uuid4
 from datetime import datetime, date
 import csv
+import string
 
 import httplib2
 
@@ -19,6 +20,7 @@ from django.db.utils import DataError
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.text import slugify
 from django.contrib.auth.models import User
+from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
@@ -31,7 +33,7 @@ from countries_plus.models import Country
 
 from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
-    OrganizationClassification, OrganizationName
+    OrganizationClassification, OrganizationName, OrganizationRealStart
 
 from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id, \
     CONFIDENCE_MAP
@@ -44,7 +46,8 @@ from association.models import Association, AssociationOpenEnded
 from composition.models import Composition, CompositionOpenEnded
 from person.models import Person, PersonName, PersonAlias
 from membershipperson.models import MembershipPerson
-from membershiporganization.models import MembershipOrganization
+from membershiporganization.models import (MembershipOrganization,
+                                        MembershipOrganizationRealEnd)
 from violation.models import Violation, Type, ViolationPerpetrator, \
     ViolationPerpetratorOrganization, ViolationDescription
 
@@ -212,10 +215,10 @@ class Command(UtilityMixin, BaseCommand):
             return CONFIDENCE_MAP[key]
         else:
             return 1
-    
+
     def parse_date(self, value):
         parsed = None
-        for date_format in ['%Y', '%B %Y', '%m/%d/%Y']:
+        for date_format in ['%Y', '%B %Y', '%m/%d/%Y', '%m/%Y']:
             try:
                 parsed = datetime.strptime(value, date_format)
                 break
@@ -224,93 +227,153 @@ class Command(UtilityMixin, BaseCommand):
 
         return parsed
 
+    def col(self, alph):
+        '''
+        Return a numeric index for an alphabetic column name, like:
+
+            `'BA' -> 53`
+        '''
+        assert isinstance(alph, str)
+
+        # Reverse the string and enforce lowercase
+        alph = alph[::-1].lower()
+
+        # Treat alphabetic column names like base-26 numerics.
+        # Start at -1, since we want the result to be 0-indexed.
+        total = -1
+        for idx, letter in enumerate(alph):
+            place = (26 ** idx)
+            val = string.ascii_lowercase.index(letter) + 1
+            total += (place * val)
+
+        return total
+
     def create_organization(self, org_data):
         organization = None
 
         org_positions = {
             'Name': {
-                'value': 1,
-                'confidence': 3,
-                'source': 2,
+                'value': self.col('B'),
+                'confidence': self.col('D'),
+                'source': self.col('C'),
             },
             'Alias': {
-                'value': 4,
-                'confidence': 6,
-                'source': 5,
+                'value': self.col('E'),
+                'confidence': self.col('G'),
+                'source': self.col('F'),
             },
             'Classification': {
-                'value': 7,
-                'confidence': 9,
-                'source': 8,
+                'value': self.col('H'),
+                'confidence': self.col('J'),
+                'source': self.col('I'),
             },
             'DivisionId': {
-                'value': 10,
-                'confidence': None,
+                'value': self.col('K'),
+                'confidence': self.col('B'),
                 'source': None,
             },
+            'FirstCitedDate': {
+                'value': self.col('L'),
+                'confidence': self.col('Q'),
+                'source': self.col('P'),
+            },
+            'RealStart': {
+                'value': self.col('R'),
+                'confidence': self.col('Q'),
+                'source': None,
+            },
+            'LastCitedDate': {
+                'value': self.col('S'),
+                'confidence': self.col('X'),
+                'source': self.col('W'),
+            },
+            'OpenEnded': {
+                'value': self.col('Y'),
+                'confidence': self.col('X'),
+                'source': None,
+            },
+            'Headquarters': {
+                'value': self.col('AT'),
+                'confidence': self.col('AV'),
+                'source': self.col('AU')
+            }
         }
 
         composition_positions = {
             'Parent': {
-                'value': 11,
-                'confidence': 13,
-                'source': 12,
-            },
-            'StartDate': {
-                'value': 17,
-                'confidence': 19,
-                'source': 18,
-            },
-            'EndDate': {
-                'value': 20,
-                'confidence': 22,
-                'source': 21,
+                'value': self.col('Z'),
+                'confidence': self.col('AB'),
+                'source': self.col('AA'),
             },
             'Classification': {
-                'value': 14,
-                'confidence': 16,
-                'source': 15,
+                'value': self.col('AC'),
+                'confidence': self.col('AE'),
+                'source': self.col('AD'),
+            },
+            'StartDate': {
+                'value': self.col('AF'),
+                'confidence': self.col('AK'),
+                'source': self.col('AJ'),
+            },
+            'RealStart': {
+                'value': self.col('AL'),
+                'confidence': self.col('AK'),
+                'source': None,
+            },
+            'EndDate': {
+                'value': self.col('AM'),
+                'confidence': self.col('AR'),
+                'source': self.col('AQ'),
             },
             'OpenEnded': {
-                'value': 23,
-                'confidence': None,
+                'value': self.col('AS'),
+                'confidence': self.col('AR'),
                 'source': None,
             },
         }
 
         area_positions = {
             'OSMId': {
-                'value': 45,
-                'confidence': 48,
-                'source': 47,
+                'value': self.col('BY'),
+                'confidence': self.col('CB'),
+                'source': self.col('CA'),
             },
         }
 
         site_positions = {
             'OSMId': {
-                'value': 28,
-                'confidence': 30,
-                'source': 29,
+                'value': self.col('BB'),
+                'confidence': self.col('BD'),
+                'source': self.col('BC'),
             },
         }
 
         membership_positions = {
             'OrganizationOrganization': {
-                'value': 56,
-                'confidence': 58,
-                'source': 57,
+                'value': self.col('CQ'),
+                'confidence': self.col('CS'),
+                'source': self.col('CR'),
             },
             'FirstCitedDate': {
-                'value': 59,
-                'confidence': 61,
-                'source': 60,
+                'value': self.col('CT'),
+                'confidence': self.col('CY'),
+                'source': self.col('CX'),
+            },
+            'RealStart': {
+                'value': self.col('CZ'),
+                'confidence': self.col('CY'),
+                'source': None,
             },
             'LastCitedDate': {
-                'value': 62,
-                'confidence': 64,
-                'source': 63,
+                'value': self.col('DA'),
+                'confidence': self.col('DF'),
+                'source': self.col('DE'),
             },
-
+            'RealEnd': {
+                'value': self.col('DG'),
+                'confidence': self.col('DF'),
+                'source': None,
+            },
         }
 
         # Need to get or create name first
@@ -363,15 +426,33 @@ class Command(UtilityMixin, BaseCommand):
                 except Organization.DoesNotExist:
                     organization = Organization.create(org_info)
 
-                aliases = self.make_relation('Alias',
-                                             org_positions['Alias'],
-                                             org_data,
-                                             organization)
+                org_attributes = ['Alias', 'Classification', 'FirstCitedDate',
+                                  'LastCitedDate', 'OpenEnded',
+                                  'Headquarters']
 
-                classification = self.make_relation('Classification',
-                                                    org_positions['Classification'],
-                                                    org_data,
-                                                    organization)
+                for attr in org_attributes:
+
+                    self.make_relation(attr,
+                                       org_positions[attr],
+                                       org_data,
+                                       organization)
+
+                # We have to convert the 'Y'/'N' in the RealStart field to bool
+                real_start = org_data[org_positions['RealStart']['value']]
+
+                if real_start == 'Y':
+                    real_start = True
+                elif real_start == 'N':
+                    real_start = False
+                else:
+                    real_start = None
+
+                with reversion.create_revision():
+                    realstart, created = OrganizationRealStart\
+                                         .objects\
+                                         .get_or_create(value=realstart,
+                                                        object_ref=organization)
+                    reversion.set_user(self.user)
 
                 # Create Emplacements
                 try:
@@ -455,25 +536,6 @@ class Command(UtilityMixin, BaseCommand):
                         except Composition.DoesNotExist:
                             composition = Composition.create(comp_info)
 
-                        try:
-                            comp_openended = org_data[composition_positions['OpenEnded']['value']]
-                        except IndexError:
-                            comp_openended = None
-
-                        if comp_openended:
-                            if 'Y' in comp_openended:
-                                comp_openended = True
-                            elif 'N' in comp_openended:
-                                comp_openended = False
-                            else:
-                                comp_openended = None
-
-                            with reversion.create_revision():
-                                open_ended, created = CompositionOpenEnded.objects.get_or_create(value=comp_openended,
-                                                                                                 object_ref=composition)
-                                composition.save()
-                                reversion.set_user(self.user)
-
                         self.make_relation('StartDate',
                                            composition_positions['StartDate'],
                                            org_data,
@@ -481,6 +543,16 @@ class Command(UtilityMixin, BaseCommand):
 
                         self.make_relation('EndDate',
                                            composition_positions['EndDate'],
+                                           org_data,
+                                           composition)
+
+                        self.make_relation('RealStart',
+                                           composition_positions['RealStart'],
+                                           org_data,
+                                           composition)
+
+                        self.make_relation('OpenEnded',
+                                           composition_positions['OpenEnded'],
                                            org_data,
                                            composition)
 
@@ -558,10 +630,37 @@ class Command(UtilityMixin, BaseCommand):
                                            org_data,
                                            membership)
 
+                        self.make_relation('RealStart',
+                                           membership_positions['RealStart'],
+                                           org_data,
+                                           membership)
+
                         self.make_relation('FirstCitedDate',
                                            membership_positions['FirstCitedDate'],
                                            org_data,
                                            membership)
+
+                        try:
+                            mem_realend = org_data[membership_positions['RealEnd']['value']]
+                        except IndexError:
+                            mem_realend = None
+
+                        if mem_realend:
+
+                            if 'Y' in mem_realend:
+                                mem_realend = True
+                            elif 'N' in mem_realend:
+                                mem_realend = False
+                            else:
+                                mem_realend = None
+
+                        with reversion.create_revision():
+                            mem_realend, created = MembershipOrganizationRealEnd\
+                                                   .objects\
+                                                   .get_or_create(value=mem_realend,
+                                                                  object_ref=membership)
+                            membership.save()
+                            reversion.set_user(self.user)
 
                     else:
                         self.log_error('Member organization for {} does not have source or confidence'.format(member_org_name))
@@ -588,16 +687,22 @@ class Command(UtilityMixin, BaseCommand):
                       positions,
                       data,
                       instance,
-                      required=False):
+                      required=False,
+                      require_confidence=True):
 
         value_position = positions['value']
+
+        if not require_confidence:
+            confidence_required = False
+        else:
+            confidence_required = instance.confidence_required
 
         try:
             confidence_position = positions['confidence']
         except KeyError:
             confidence_position = None
 
-            if instance.confidence_required:
+            if confidence_required:
                 self.log_error('No confidence for {}'.format(field_name))
                 return None
 
@@ -614,31 +719,47 @@ class Command(UtilityMixin, BaseCommand):
             return None
 
         elif value:
-            try:
-                confidence = self.get_confidence(data[confidence_position])
-            except (KeyError, IndexError, TypeError):
-                confidence = 1
-                if instance.confidence_required:
-                    self.log_error('No confidence for {}'.format(field_name))
-                    return None
-
-            try:
-                sources = self.create_sources(data[source_position])
-            except IndexError:
-                self.log_error('No source for {}'.format(field_name))
-                return None
 
             app_name = instance._meta.model_name
             model_name = instance._meta.object_name
 
-            if sources and confidence:
-                import_path = '{app_name}.models.{model_name}{field_name}'
+            import_path = '{app_name}.models.{model_name}{field_name}'
 
-                relation_path = import_path.format(app_name=app_name,
-                                                   model_name=model_name,
-                                                   field_name=field_name)
+            relation_path = import_path.format(app_name=app_name,
+                                                model_name=model_name,
+                                                field_name=field_name)
 
-                relation_model = import_class(relation_path)
+            relation_model = import_class(relation_path)
+
+            source_required = getattr(relation_model, 'source_required', False)
+
+            try:
+                confidence = self.get_confidence(data[confidence_position])
+            except (KeyError, IndexError, TypeError):
+                confidence = 1
+                if confidence_required:
+                    self.log_error('No confidence for {}'.format(field_name))
+                    return None
+
+            if not source_position:
+
+                if source_required:
+                    self.log_error('No source for {}'.format(field_name))
+                    return None
+                else:
+                    sources = []
+            else:
+
+                try:
+                    sources = self.create_sources(data[source_position])
+                except IndexError:
+                    if source_required:
+                        self.log_error('No source for {}'.format(field_name))
+                        return None
+                    else:
+                        sources = []
+
+            if (sources or not source_required) and (confidence or not confidence_required):
 
                 if isinstance(relation_model._meta.get_field('value'), models.ForeignKey):
                     value_rel_path_fmt = '{app_name}.models.{field_name}'
@@ -653,9 +774,7 @@ class Command(UtilityMixin, BaseCommand):
                         value_model = import_class(value_rel_path)
 
                     value_objects = []
-                    for value_text in value.split(';'):
-
-                        value_text = value_text.strip()
+                    for value_text in [val.strip() for val in value.split(';')]:
 
                         if value_model == Type:
                             with reversion.create_revision():
@@ -737,23 +856,35 @@ class Command(UtilityMixin, BaseCommand):
             return None
 
     def make_area(self, osm_id, org_data, organization):
+
         positions = {
             'OSMName': {
-                'confidence': 48,
-                'source': 47,
+                'value': self.col('BX'),
+                'confidence': self.col('CB'),
+                'source': self.col('CA'),
             },
         }
 
         relation_positions = {
             'StartDate': {
-                'value': 49,
-                'confidence': 51,
-                'source': 50,
+                'value': self.col('CC'),
+                'confidence': self.col('CH'),
+                'source': self.col('CG'),
+            },
+            'RealStart': {
+                'value': self.col('CI'),
+                'confidence': self.col('CH'),
+                'source': None,
             },
             'EndDate': {
-                'value': 52,
-                'confidence': 54,
-                'source': 53,
+                'value': self.col('CJ'),
+                'confidence': self.col('CO'),
+                'source': self.col('CN'),
+            },
+            'OpenEnded': {
+                'value': self.col('CP'),
+                'confidence': self.col('CO'),
+                'source': None,
             },
         }
 
@@ -842,26 +973,6 @@ class Command(UtilityMixin, BaseCommand):
             except Association.DoesNotExist:
                 assoc = Association.create(area_info)
 
-            try:
-                ass_openended = org_data[55]
-            except IndexError:
-                ass_openended = None
-
-
-            if ass_openended:
-                if 'Y' in ass_openended:
-                    ass_openended = True
-                elif 'N' in ass_openended:
-                    ass_openended = False
-                else:
-                    ass_openended = None
-
-                with reversion.create_revision():
-                    open_ended, created = AssociationOpenEnded.objects.get_or_create(value=ass_openended,
-                                                                                     object_ref=assoc)
-                    assoc.save()
-                    reversion.set_user(self.user)
-
             for field_name, positions in relation_positions.items():
 
                 self.make_relation(field_name,
@@ -876,191 +987,113 @@ class Command(UtilityMixin, BaseCommand):
 
         positions = {
             'AdminLevel1': {
-                'value': 31,
-                'osmid': 32,
-                'confidence': 34,
-                'source': 33,
+                'value': self.col('BE'),
+                'osmid': self.col('BF'),
+                'confidence': self.col('BH'),
+                'source': self.col('BG'),
             },
-            'Name': {
-                'value': 24,
-                'confidence': 26,
-                'source': 25,
+            # This doesn't correspond directly to a model attribute
+            # but we'll use it to unpack data about the highest
+            # level of resolution available to us
+            'ExactLocation': {
+                'lng_or_name': self.col('AW'),
+                'lat_or_id': self.col('AX'),
+                'confidence': self.col('AZ'),
+                'source': self.col('AY')
             },
-            'OSMName': {
-                'value': 27,
-                'osmid': 28,
-                'confidence': 30,
-                'source': 29
+            'Headquarters': {
+                'value': self.col('AT'),
+                'confidence': self.col('AV'),
+                'source': self.col('AU')
             },
-            'OSMId': {
-                'value': 28,
-                'osmid': 28,
-                'confidence': 30,
-                'source': 29
+            'AdminName': {
+                'value': self.col('BA'),
+                'osmid': self.col('BB'),
+                'confidence': self.col('BD'),
+                'source': self.col('BC')
+            },
+            'AdminId': {
+                'value': self.col('BB'),
+                'osmid': self.col('BB'),
+                'confidence': self.col('BD'),
+                'source': self.col('BC')
             }
         }
 
         relation_positions = {
             'StartDate': {
-                'value': 36,
-                'confidence': 38,
-                'source': 37,
+                'value': self.col('BJ'),
+                'confidence': self.col('BO'),
+                'source': self.col('BN'),
+            },
+            'RealStart': {
+                'value': self.col('BP'),
+                'confidence': self.col('BO'),
+                'source': None
             },
             'EndDate': {
-                'value': 40,
-                'confidence': 42,
-                'source': 41,
+                'value': self.col('BQ'),
+                'confidence': self.col('BV'),
+                'source': self.col('BU'),
             },
+            'OpenEnded': {
+                'value': self.col('BW'),
+                'confidence': self.col('BV'),
+                'source': None
+            }
         }
 
-        site_data = {}
+        exact_location = self.get_exact_location(positions, org_data)
+
+        if exact_location.get('id') and exact_location.get('name'):
+            osm_id = exact_location['id']
+            site_name = exact_location['name']
+        else:
+            osm_id = org_data[positions['AdminId']['value']]
+            site_name = org_data[positions['AdminName']['value']]
 
         try:
             osm_geo = get_osm_by_id(osm_id)
         except DataError:
             osm_geo = None
+            self.log_error('OSM ID for Site {1} does not seem valid: {2}'.format(site_name, osm_id))
 
         if osm_geo:
 
-            names = [
-                org_data[positions['Name']['value']],
-                org_data[positions['OSMName']['value']],
-                org_data[positions['AdminLevel1']['value']],
-            ]
+            site = self.get_or_create_site(osm_geo, exact_location, org_data, positions)
+            confidence = self.get_confidence(org_data[positions['AdminName']['confidence']])
+            sources = self.create_sources(org_data[positions['AdminName']['source']])
 
-            name = ', '.join([n for n in names if n])
+            if sources and confidence:
 
-            try:
-                site = Geosite.objects.get(geositeosmid__value=osm_geo.id,
-                                           geositename__value=name)
-            except Geosite.DoesNotExist:
-                with reversion.create_revision():
-                    site = Geosite()
-                    site.save()
-                    reversion.set_user(self.user)
-
-            name_confidence = self.get_confidence(org_data[positions['Name']['confidence']])
-            name_sources = self.create_sources(org_data[positions['Name']['source']])
-
-
-            if name and name_confidence and name_sources:
-
-                site_data['Geosite_GeositeName'] = {
-                    'value': name,
-                    'confidence': name_confidence,
-                    'sources': name_sources,
+                emp_data = {
+                    'Emplacement_EmplacementOrganization': {
+                        'value': organization,
+                        'confidence': confidence,
+                        'sources': sources
+                    },
+                    'Emplacement_EmplacementSite': {
+                        'value': site,
+                        'confidence': confidence,
+                        'sources': sources
+                    }
                 }
+
+                try:
+                    emplacement = Emplacement.objects.get(emplacementorganization__value=organization,
+                                                        emplacementsite__value=site)
+                except Emplacement.DoesNotExist:
+                    emplacement = Emplacement.create(emp_data)
 
             else:
                 missing = []
-                if not name_confidence:
+                if not confidence:
                     missing.append('confidence')
-                if not name_sources:
+                if not sources:
                     missing.append('sources')
 
-                self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
-
-            # Get Coordinates
-            try:
-               geo = get_osm_by_id(osm_id)
-            except DataError:
-                self.log_error('OSMName ID for {0} for Site {1} does not seem valid: {2}'.format(value, name, attr_osm_id))
-                geo = None
-
-            if geo:
-                confidence = self.get_confidence(org_data[positions['OSMId']['confidence']])
-                sources = self.create_sources(org_data[positions['OSMId']['source']])
-
-                if confidence and sources:
-
-                    site_data['Geosite_GeositeCoordinates'] = {
-                        'value': geo.geometry,
-                        'confidence': confidence,
-                        'sources': sources,
-                    }
-
-                else:
-                    missing = []
-                    if not confidence:
-                        missing.append('confidence')
-                    if not sources:
-                        missing.append('sources')
-
-                    self.log_error('OSMId {0} did not have {1}'.format(value, ', '.join(missing)))
-
-            for attribute in ['AdminLevel1', 'OSMName', 'OSMId']:
-
-                confidence = self.get_confidence(org_data[positions[attribute]['confidence']])
-                sources = self.create_sources(org_data[positions[attribute]['source']])
-                value = org_data[positions[attribute]['value']]
-                attr_osm_id = org_data[positions[attribute]['osmid']]
-
-                try:
-                   geo = get_osm_by_id(attr_osm_id)
-                except DataError:
-                    self.log_error('OSMName ID for {0} for Site {1} does not seem valid: {2}'.format(value, name, attr_osm_id))
-                    geo = None
-
-                if geo and confidence and sources:
-
-                    site_data['Geosite_Geosite{}'.format(attribute)] = {
-                        'value': value,
-                        'confidence': confidence,
-                        'sources': sources,
-                    }
-
-                else:
-                    missing = []
-                    if not confidence:
-                        missing.append('confidence')
-                    if not sources:
-                        missing.append('sources')
-
-                    self.log_error('{0} {1} did not have {2}'.format(attribute, value, ', '.join(missing)))
-
-            try:
-                site.update(site_data)
-            except TypeError:
-                # Probably means that the geometry is wrong
-                self.log_error('OSM ID "{0}" for site "{1}" does not seem to be a node'.format(geo.id, geo.name))
-
-            emp_data = {
-                'Emplacement_EmplacementOrganization': {
-                    'value': organization,
-                    'confidence': name_confidence,
-                    'sources': name_sources,
-                },
-                'Emplacement_EmplacementSite': {
-                    'value': site,
-                    'confidence': name_confidence,
-                    'sources': name_sources,
-                },
-            }
-
-            try:
-                emplacement = Emplacement.objects.get(emplacementorganization__value=organization,
-                                                      emplacementsite__value=site)
-            except Emplacement.DoesNotExist:
-                emplacement = Emplacement.create(emp_data)
-
-            try:
-                emp_openended = org_data[43]
-            except IndexError:
-                emp_openended = None
-
-            if emp_openended:
-                if 'Y' in emp_openended:
-                    emp_openended = True
-                elif 'N' in emp_openended:
-                    emp_openended = False
-                else:
-                    emp_openended = None
-
-                with reversion.create_revision():
-                    open_ended, created = EmplacementOpenEnded.objects.get_or_create(value=emp_openended,
-                                                                                     object_ref=emplacement)
-                    emplacement.save()
-                    reversion.set_user(self.user)
+                self.log_error('Emplacement for org {0} did not have {1}'.format(organization.name.get_value().value,
+                                                                                 ', '.join(missing)))
 
             for field_name, positions in relation_positions.items():
 
@@ -1072,12 +1105,231 @@ class Command(UtilityMixin, BaseCommand):
         else:
             self.log_error('Could not find OSM ID {}'.format(osm_id))
 
+    def get_or_create_site(self, osm, exact_location, data, positions):
+        '''
+        Helper method to get or create a Geosite based on spreadsheet data.
+
+        Params:
+            * osm: OSMFeature
+            * exact_location: dictionary returned from get_exact_location()
+            * data: the spreadsheet data, as an array
+            * positions: nested dictionaries documenting the index, confidence,
+              and source values for each model represented in the sheet.
+
+        Returns:
+            * Geosite object.
+        '''
+
+        names = [
+            exact_location.get('name'),
+            data[positions['AdminName']['value']],
+            data[positions['AdminLevel1']['value']],
+        ]
+
+        name = ', '.join([n for n in names if n])
+
+        try:
+            site = Geosite.objects.get(geositeadminid__value=osm.id,
+                                       geositeadminname__value=name)
+        except Geosite.DoesNotExist:
+            with reversion.create_revision():
+                site = Geosite()
+                site.save()
+                reversion.set_user(self.user)
+
+        if positions['AdminName'].get('confidence'):
+            name_confidence = self.get_confidence(data[positions['AdminName']['confidence']])
+        else:
+            name_confidence = 1
+
+        name_sources = self.create_sources(data[positions['AdminName']['source']])
+
+        site_data = {}
+
+        if name and name_confidence and name_sources:
+
+            site_data['Geosite_GeositeName'] = {
+                'value': name,
+                'confidence': name_confidence,
+                'sources': name_sources,
+            }
+
+        else:
+            missing = []
+            if not name_confidence:
+                missing.append('confidence')
+            if not name_sources:
+                missing.append('sources')
+
+            self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
+
+        # Get Coordinates
+        point_string = 'POINT({lng} {lat})'
+
+        if exact_location.get('coords'):
+            coords = exact_location['coords']
+            confidence_key = 'ExactLocation'
+        else:
+            coords = (str(osm.st_x), str(osm.st_y))
+            confidence_key = 'AdminId'
+
+        coord_geo = GEOSGeometry(point_string.format(lng=coords[0], lat=coords[1]), srid=4326)
+
+        if positions[confidence_key].get('confidence'):
+            confidence = self.get_confidence(data[positions['AdminId']['confidence']])
+        else:
+            confidence = 1
+
+        sources = self.create_sources(data[positions['AdminId']['source']])
+
+        if confidence and sources:
+
+            site_data['Geosite_GeositeCoordinates'] = {
+                'value': coord_geo,
+                'confidence': confidence,
+                'sources': sources,
+            }
+
+        else:
+            missing = []
+            if not confidence:
+                missing.append('confidence')
+            if not sources:
+                missing.append('sources')
+
+            self.log_error('Coordinates for OSM ID {0} did not have {1}'.format(osm.id, ', '.join(missing)))
+
+        # Exact location, if it exists
+        if exact_location.get('name') and exact_location.get('id'):
+
+            if positions['ExactLocation'].get('confidence'):
+                confidence = self.get_confidence(org_data[positions['ExactLocation']['confidence']])
+            else:
+                confidence = 1
+
+            sources = self.create_sources(org_data[positions['ExactLocation']['source']])
+
+            if confidence and sources:
+
+                site_data['Geosite_GeositeLocationName'] = {
+                    'value': exact_location.get('name'),
+                    'confidence': confidence,
+                    'sources': sources,
+                }
+
+                site_data['Geosite_GeositeLocationId'] = {
+                    'value': exact_location.get('id'),
+                    'confidence': confidence,
+                    'sources': sources,
+                }
+
+            else:
+                missing = []
+                if not confidence:
+                    missing.append('confidence')
+                if not sources:
+                    missing.append('sources')
+
+                self.log_error('Exact location for OSM ID {0} did not have {1}'.format(osm.id, ', '.join(missing)))
+
+        # Process the rest of the OSM data
+        for attribute in ['AdminLevel1', 'AdminName', 'AdminId']:
+
+            if positions[attribute].get('confidence'):
+                confidence = self.get_confidence(data[positions[attribute]['confidence']])
+            else:
+                confidence = 1
+
+            sources = self.create_sources(data[positions[attribute]['source']])
+            value = data[positions[attribute]['value']]
+            attr_osm_id = data[positions[attribute]['osmid']]
+
+            try:
+                geo = get_osm_by_id(attr_osm_id)
+            except DataError:
+                self.log_error('OSMName ID for Site {0} does not seem valid: {1}'.format(site.name, attr_osm_id))
+                geo = None
+
+            if geo and confidence and sources:
+
+                site_data['Geosite_Geosite{}'.format(attribute)] = {
+                    'value': value,
+                    'confidence': confidence,
+                    'sources': sources,
+                }
+
+            else:
+                missing = []
+                if not confidence:
+                    missing.append('confidence')
+                if not sources:
+                    missing.append('sources')
+
+                self.log_error('{0} {1} did not have {2}'.format(attribute, value, ', '.join(missing)))
+
+        try:
+            site.update(site_data)
+        except TypeError as e:
+            # Probably means that the geometry is wrong
+            self.log_error('OSM ID "{0}" for site "{1}" does not seem to be a node'.format(osm.id, site.name))
+
+        return site
+
+    def get_exact_location(self, positions, data):
+        '''
+        Helper method for figuring out the data type of an "Exact Location" and
+        returning relevant info.
+
+        Params:
+            * data: the spreadsheet data, as an array
+            * positions: nested dictionaries documenting the index, confidence,
+              and source values for each model represented in the sheet.
+        Returns:
+            * dictionary with the following values:
+                - id: OSM ID or None
+                - name: OSM Name or None
+                - coords: Coordinate pair
+        '''
+        exact_location = {}
+
+        lng_or_name = data[positions['ExactLocation']['lng_or_name']]
+        lat_or_id = data[positions['ExactLocation']['lat_or_id']]
+
+        try:
+            assert (lng_or_name and lat_or_id)
+        except AssertionError:
+            # The field is empty, so return an empty dict
+            return exact_location
+
+        # Figure out if it's OSM Name/ID pair, or coordinate pair
+        try:
+
+            int(lng_or_name)
+            exact_location['coords'] = (lng_or_name, lat_or_id)
+            point_string = 'POINT({lng} {lat})'.format(lng=lng_or_name,
+                                                       lat=lat_or_id)
+            exact_location['coords'] = GEOSGeometry(point_string, srid=4326)
+
+        except ValueError:
+
+            # This is a name/ID pair
+            exact_location['name'], exact_location['id'] = lng_or_name, lat_or_id
+
+            try:
+                geo = get_osm_by_id(exact_location['id'])
+                exact_location['coords'] = geo.geometry
+            except DataError:
+                self.log_error('OSM ID for {0} does not seem valid: {1}'.format(exact_location['name'],
+                                                                                exact_location['id']))
+
+        return exact_location
+
     def create_sources(self, sources_string):
 
         sources = []
         unparsed = []
 
-        for source in sources_string.split(';'):
+        for source in [src.strip() for src in sources_string.split(';')]:
 
             date_gen = datefinder.find_dates(source, index=True)
 
@@ -1171,59 +1423,69 @@ class Command(UtilityMixin, BaseCommand):
 
         person_positions = {
             'Name': {
-                'value': 1,
-                'confidence': 3,
-                'source': 2,
+                'value': self.col('B'),
+                'confidence': self.col('D'),
+                'source': self.col('C'),
             },
             'Alias': {
-                'value': 4,
-                'confidence': 6,
-                'source': 5,
+                'value': self.col('E'),
+                'confidence': self.col('G'),
+                'source': self.col('F'),
             },
             'DivisionId': {
-                'value': 7,
+                'value': self.col('H'),
             },
         }
         membership_positions = {
             'Organization': {
-                'value': 8,
-                'confidence': 10,
-                'source': 9,
+                'value': self.col('I'),
+                'confidence': self.col('K'),
+                'source': self.col('J'),
             },
             'Role': {
-                'value': 11,
-                'confidence': 13,
-                'source': 12,
+                'value': self.col('L'),
+                'confidence': self.col('N'),
+                'source': self.col('M'),
             },
             'Title': {
-                'value': 14,
-                'confidence': 16,
-                'source': 15,
+                'value': self.col('O'),
+                'confidence': self.col('Q'),
+                'source': self.col('P'),
             },
             'Rank': {
-                'value': 17,
-                'confidence': 19,
-                'source': 18,
+                'value': self.col('R'),
+                'confidence': self.col('T'),
+                'source': self.col('S'),
             },
             'FirstCitedDate': {
-                'value': 20,
-                'confidence': 22,
-                'source': 21,
+                'value': self.col('U'),
+                'confidence': self.col('Z'),
+                'source': self.col('Y'),
+            },
+            'RealStart': {
+                'value': self.col('AA'),
+                'confidence': self.col('Z'),
+                'source': None,
             },
             'StartContext': {
-                'value': 24,
-                'confidence': 26,
-                'source': 25,
+                'value': self.col('AB'),
+                'confidence': self.col('AD'),
+                'source': self.col('AC'),
             },
             'LastCitedDate': {
-                'value': 27,
-                'confidence': 29,
-                'source': 28,
+                'value': self.col('AE'),
+                'confidence': self.col('AJ'),
+                'source': self.col('AI'),
+            },
+            'RealEnd': {
+                'value': self.col('AK'),
+                'confidence': self.col('AJ'),
+                'source': None,
             },
             'EndContext': {
-                'value': 31,
-                'confidence': 33,
-                'source': 32,
+                'value': self.col('AL'),
+                'confidence': self.col('AN'),
+                'source': self.col('AM'),
             },
         }
 
@@ -1359,6 +1621,11 @@ class Command(UtilityMixin, BaseCommand):
                                    person_data,
                                    membership)
 
+                self.make_relation('RealStart',
+                                   membership_positions['RealStart'],
+                                   person_data,
+                                   membership)
+
                 self.make_relation('StartContext',
                                    membership_positions['StartContext'],
                                    person_data,
@@ -1366,6 +1633,11 @@ class Command(UtilityMixin, BaseCommand):
 
                 self.make_relation('LastCitedDate',
                                    membership_positions['LastCitedDate'],
+                                   person_data,
+                                   membership)
+
+                self.make_relation('RealEnd',
+                                   membership_positions['RealEnd'],
                                    person_data,
                                    membership)
 
@@ -1380,55 +1652,89 @@ class Command(UtilityMixin, BaseCommand):
                 self.log_error('{} did not have a confidence or source'.format(name_value))
 
     def create_event(self, event_data):
+
         positions = {
             'StartDate': {
-                'value': 1,
-                'source': 14,
+                'value': self.col('B'),
+                'source': self.col('AF'),
                 'model_field': 'violationstartdate',
             },
             'EndDate': {
-                'value': 2,
-                'source': 14,
+                'value': self.col('F'),
+                'source': self.col('AF'),
                 'model_field': 'violationenddate',
             },
+            # AKA "date of publication"
+            'FirstAllegation': {
+                'value': self.col('J'),
+                'source': self.col('AF'),
+                'model_field': 'violationfirstallegation',
+            },
+            'LastUpdated': {
+                'value': self.col('N'),
+                'source': self.col('AF'),
+                'model_field': 'violationlastupdated',
+            },
+            'Status': {
+                'value': self.col('R'),
+                'source': self.col('AF'),
+                'model_field': 'violationstatus',
+            },
             'LocationDescription': {
-                'value': 3,
-                'source': 14,
+                'value': self.col('S'),
+                'source': self.col('AF'),
                 'model_field': 'violationlocationdescription',
             },
+            'ExactLocation': {
+                'lng_or_name': self.col('T'),
+                'lat_or_id': self.col('U'),
+                'source': self.col('AF'),
+                'model_field': 'violationexactlocation',
+            },
             'DivisionId': {
-                'value': 8,
-                'source': 14,
+                'value': self.col('Z'),
+                'source': self.col('AF'),
             },
             'Type': {
-                'value': 9,
-                'source': 14,
+                'value': self.col('AA'),
+                'source': self.col('AF'),
                 'model_field': 'violationtype',
             },
             'Description': {
-                'value': 10,
-                'source': 14,
+                'value': self.col('AB'),
+                'source': self.col('AF'),
                 'model_field': 'violationdescription',
             },
-            'OSMId': {
-                'value': 5,
-                'source': 14,
+            'AdminName': {
+                'osmid': self.col('W'),
+                'value': self.col('V'),
+                'source': self.col('AF'),
+            },
+            'AdminId': {
+                'osmid': self.col('W'),
+                'value': self.col('W'),
+                'source': self.col('AF'),
+            },
+            'AdminLevel1Name': {
+                'value': self.col('X'),
+                'source': self.col('AF'),
             },
             'AdminLevel1': {
-                'value': 6,
-                'source': 14,
+                'osmid': self.col('Y'),
+                'value': self.col('X'),
+                'source': self.col('AF'),
             },
             'Perpetrator': {
-                'value': 11,
-                'source': 14
+                'value': self.col('AC'),
+                'source': self.col('AF')
             },
             'PerpetratorOrganization': {
-                'value': 12,
-                'source': 14
+                'value': self.col('AD'),
+                'source': self.col('AF')
             },
             'PerpetratorClassification': {
-                'value': 13,
-                'source': 14
+                'value': self.col('AE'),
+                'source': self.col('AF')
             }
         }
 
@@ -1437,101 +1743,91 @@ class Command(UtilityMixin, BaseCommand):
             violation.save()
             reversion.set_user(self.user)
 
-        self.make_relation('StartDate',
-                           positions['StartDate'],
-                           event_data,
-                           violation)
+        simple_attrs = ('StartDate', 'EndDate', 'FirstAllegation', 'LastUpdated',
+                        'Status', 'LocationDescription', 'Type', 'Description')
 
-        self.make_relation('EndDate',
-                           positions['EndDate'],
-                           event_data,
-                           violation)
+        for attr in simple_attrs:
 
-        self.make_relation('LocationDescription',
-                           positions['LocationDescription'],
-                           event_data,
-                           violation)
-
-        self.make_relation('Type',
-                           positions['Type'],
-                           event_data,
-                           violation)
-
-        self.make_relation('Description',
-                           positions['Description'],
-                           event_data,
-                           violation)
-
-        self.make_relation('AdminLevel1',
-                           positions['AdminLevel1'],
-                           event_data,
-                           violation)
+            self.make_relation(attr,
+                               positions[attr],
+                               event_data,
+                               violation,
+                               require_confidence=False)
 
         try:
-            sources = self.create_sources(event_data[positions['OSMId']['source']])
+            # All data in this sheet use the same source
+            sources = self.create_sources(event_data[positions['Type']['source']])
         except IndexError:
-            self.log_error('Row seems to be blank')
+            self.log_error('Row does not have required source column')
             return None
 
         # Make OSM stuff
 
-        try:
-            osm_id = event_data[positions['OSMId']['value']]
-        except IndexError:
-            osm_id = None
+        exact_location = self.get_exact_location(positions, event_data)
+
+        if exact_location.get('id') and exact_location.get('name'):
+            osm_id = exact_location['id']
+            site_name = exact_location['name']
+        else:
+            osm_id = event_data[positions['AdminId']['value']]
+            site_name = event_data[positions['AdminName']['value']]
 
         event_info = {}
 
-        if osm_id:
+        try:
+            geo = get_osm_by_id(osm_id)
+        except DataError:
+            self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, osm_id))
+            geo = None
 
-            try:
-                geo = get_osm_by_id(osm_id)
-            except DataError:
-                self.log_error('OSM ID for Site does not seem valid: {}'.format(osm_id))
-                geo = None
+        if geo:
 
+            hierarchy = get_hierarchy_by_id(osm_id)
 
-            if geo:
-                hierarchy = get_hierarchy_by_id(geo.id)
+            admin1 = event_data[positions['AdminLevel1Name']['value']]
+            admin2 = None
 
-                admin1 = None
-                admin2 = None
+            if hierarchy:
+                for member in hierarchy:
+                    if member.admin_level == 6 and not admin1:
+                        admin1 = member.name
+                    elif member.admin_level == 4:
+                        admin2 = member.name
 
-                if hierarchy:
-                    for member in hierarchy:
-                        if member.admin_level == 6:
-                            admin1 = member.name
-                        elif member.admin_level == 4:
-                            admin2 = member.name
+            site = self.get_or_create_site(geo, exact_location, event_data, positions)
 
-
-                event_info.update({
-                    'Violation_ViolationAdminLevel2': {
-                        'value': admin2,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                    'Violation_ViolationAdminLevel1': {
-                        'value': admin1,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                    'Violation_ViolationOSMName': {
-                        'value': geo.name,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                    'Violation_ViolationOSMId': {
-                        'value': geo.id,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                    'Violation_ViolationLocation': {
-                        'value': geo.geometry,
-                        'sources': sources,
-                        'confidence': 1
-                    },
-                })
+            event_info.update({
+                'Violation_ViolationAdminLevel2': {
+                    'value': admin2,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationAdminLevel1': {
+                    'value': admin1,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationOSMName': {
+                    'value': site.admin_name,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationOSMId': {
+                    'value': site.admin_id,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationLocation': {
+                    'value': site.coordinates.get_value().value,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationSite': {
+                    'value': site,
+                    'sources': sources,
+                    'confidence': 1
+                },
+            })
 
         country_code = event_data[positions['DivisionId']['value']]
 
@@ -1556,7 +1852,8 @@ class Command(UtilityMixin, BaseCommand):
 
         if perpetrator:
 
-            perps = perpetrator.split(';')
+            perps = [perp.strip() for perp in perpetrator.split(';')]
+
             for perp in perps:
                 try:
                     person = Person.objects.get(personname__value=perp)
@@ -1578,15 +1875,13 @@ class Command(UtilityMixin, BaseCommand):
                     vp.save()
                     reversion.set_user(self.user)
 
-
-
         try:
             perp_org = event_data[positions['PerpetratorOrganization']['value']]
         except IndexError:
             perp_org = None
 
         if perp_org:
-            for org in perp_org.split(';'):
+            for org in [perp.strip() for perp in perp_org.split(';')]:
 
                 try:
                     organization = Organization.objects.get(organizationname__value=org)
@@ -1612,4 +1907,5 @@ class Command(UtilityMixin, BaseCommand):
         self.make_relation('PerpetratorClassification',
                            positions['PerpetratorClassification'],
                            event_data,
-                           violation)
+                           violation,
+                           require_confidence=False)

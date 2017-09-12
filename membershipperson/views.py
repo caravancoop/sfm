@@ -78,13 +78,14 @@ class MembershipPersonCreate(BaseFormSetView):
 
             rank_role_confidence = int(formset.data.get(form_prefix +
                                                         'rank_role_confidence', 1))
-            if formset.data[form_prefix + 'role']:
+            if formset.data.get(form_prefix + 'role'):
                 mem_data['MembershipPerson_MembershipPersonRole'] = {
                     'value': Role.objects.get(id=formset.data[form_prefix + 'role']),
                     'confidence': rank_role_confidence,
                     'sources': [source]
                 }
-            if formset.data[form_prefix + 'rank']:
+
+            if formset.data.get(form_prefix + 'rank'):
                 mem_data['MembershipPerson_MembershipPersonRank'] = {
                     'value': Rank.objects.get(id=formset.data[form_prefix + 'rank']),
                     'confidence': rank_role_confidence,
@@ -93,7 +94,7 @@ class MembershipPersonCreate(BaseFormSetView):
 
             title_confidence = int(formset.data.get(form_prefix +
                                                     'title_confidence', 1))
-            if formset.data[form_prefix + 'title']:
+            if formset.data.get(form_prefix + 'title'):
                 mem_data['MembershipPerson_MembershipPersonTitle'] = {
                     'value': formset.data[form_prefix + 'title'],
                     'confidence': title_confidence,
@@ -102,33 +103,59 @@ class MembershipPersonCreate(BaseFormSetView):
 
             startcontext_confidence = int(formset.data.get(form_prefix +
                                                            'startcontext_confidence', 1))
-            if formset.data[form_prefix + 'startcontext']:
+
+            endcontext_confidence = int(formset.data.get(form_prefix +
+                                                         'endcontext_confidence', 1))
+
+            if formset.data.get(form_prefix + 'startcontext'):
                 mem_data['MembershipPerson_MembershipStartContext'] = {
                     'value': formset.data[form_prefix + 'startcontext'],
                     'confidence': startcontext_confidence,
                     'sources': [source]
                 }
-            if formset.data.get(form_prefix + 'realstart'):
-                mem_data['MembershipPerson_MembershipPersonRealStart'] = {
-                    'value': formset.data[form_prefix + 'realstart'],
-                    'confidence': startcontext_confidence,
-                    'sources': [source]
-                }
 
-            endcontext_confidence = int(formset.data.get(form_prefix +
-                                                         'endcontext_confidence', 1))
-            if formset.data[form_prefix + 'endcontext']:
+            if formset.data.get(form_prefix + 'endcontext'):
                 mem_data['MembershipPerson_MembershipEndContext'] = {
                     'value': formset.data[form_prefix + 'endcontext'],
                     'confidence': endcontext_confidence,
                     'sources': [source]
                 }
-            if formset.data.get(form_prefix + 'realend'):
-                mem_data['MembershipPerson_MembershipRealEnd'] = {
-                    'value': formset.data[form_prefix + 'realend'],
-                    'confidence': endcontext_confidence,
+
+            firstciteddate_confidence = int(formset.data.get(form_prefix +
+                                                             'firstciteddate_confidence', 1))
+
+            lastciteddate_confidence = int(formset.data.get(form_prefix +
+                                                            'lastciteddate_confidence', 1))
+
+            if formset.data.get(form_prefix + 'firstciteddate'):
+                mem_data['MembershipPerson_MembershipPersonFirstCitedDate'] = {
+                    'value': formset.data[form_prefix + 'firstciteddate'],
+                    'confidence': firstciteddate_confidence,
                     'sources': [source]
                 }
+
+                # RealStart is only pertinent if a firstciteddate exists
+                if formset.data.get(form_prefix + 'realstart'):
+                    mem_data['MembershipPerson_MembershipPersonRealStart'] = {
+                        'value': formset.data[form_prefix + 'realstart'],
+                        'confidence': firstciteddate_confidence,
+                        'sources': [source]
+                    }
+
+            if formset.data.get(form_prefix + 'lastciteddate'):
+                mem_data['MembershipPerson_MembershipPersonFirstCitedDate'] = {
+                    'value': formset.data[form_prefix + 'lastciteddate'],
+                    'confidence': lastciteddate_confidence,
+                    'sources': [source]
+                }
+
+                # RealEnd is only pertinent if a lastciteddate exists
+                if formset.data.get(form_prefix + 'realend'):
+                    mem_data['MembershipPerson_MembershipRealEnd'] = {
+                        'value': formset.data[form_prefix + 'realend'],
+                        'confidence': lastciteddate_confidence,
+                        'sources': [source]
+                    }
 
             membership.update(mem_data)
 

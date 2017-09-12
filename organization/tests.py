@@ -81,6 +81,14 @@ class OrganizationTest(TestCase):
             'form-0-alias': [],
             'form-0-alias_confidence': 1,
             'form-0-classification': [1, 2],
+            'form-0-headquarters': 'Bolo',
+            'form-0-headquarters_confidence': 1,
+            'form-0-firstciteddate': '2001-01-01',
+            'form-0-realstart': True,
+            'form-0-firstciteddate_confidence': 1,
+            'form-0-lastciteddate': '2001-01-02',
+            'form-0-open_ended': 'Y',
+            'form-0-lastciteddate_confidence': 1
         }
 
         org_ids = []
@@ -113,6 +121,36 @@ class OrganizationTest(TestCase):
                 'form-{}-alias_confidence'.format(index): 1,
                 'form-{}-classification'.format(index): classification_ids,
             }
+
+            hq = organization.headquarters.get_value()
+            if hq:
+                hq = hq.value
+                data['form-{}-headquarters'.format(index)] = hq,
+                data['form-{}-headquarters_confidence'.format(index)] = 1
+
+            fcd = organization.firstciteddate.get_value()
+            if fcd:
+                fcd = fcd.value
+                data['form-{}-firstciteddate'.format(index)] = fcd,
+                data['form-{}-firstciteddate_confidence'.format(index)] = 1
+
+            lcd = organization.lastciteddate.get_value()
+            if lcd:
+                lcd = lcd.value
+                data['form-{}-lastciteddate'.format(index)] = lcd,
+                data['form-{}-lastciteddate_confidence'.format(index)] = 1
+
+            open_ended = organization.open_ended.get_value()
+            if open_ended:
+                open_ended = open_ended.value
+                data['form-{}-open_ended'.format(index)] = open_ended,
+                data['form-{}-open_ended_confidence'.format(index)] = 1
+
+            realstart = organization.realstart.get_value()
+            if realstart:
+                realstart = realstart.value
+                data['form-{}-realstart'.format(index)] = realstart,
+                data['form-{}-realstart_confidence'.format(index)] = 1
 
             org_ids.append(organization.id)
             post_data.update(data)

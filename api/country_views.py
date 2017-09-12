@@ -229,53 +229,53 @@ class CountryMapView(JSONAPIView):
               AND ((CASE 
                      WHEN (e.start_date IS NOT NULL AND 
                            e.end_date IS NOT NULL AND 
-                           e.open_ended = FALSE)
+                           e.open_ended IN ('N', 'E'))
                      THEN (%s::date BETWEEN e.start_date::date AND e.end_date::date)
                      WHEN (e.start_date IS NOT NULL AND
                            e.end_date IS NOT NULL AND
-                           e.open_ended = TRUE)
+                           e.open_ended = 'Y')
                      THEN (%s::date BETWEEN e.start_date::date AND NOW()::date)
                      WHEN (e.start_date IS NOT NULL AND
                            e.end_date IS NULL AND
-                           e.open_ended = FALSE)
+                           e.open_ended IN ('N', 'E'))
                      THEN (e.start_date::date = %s::date)
                      WHEN (e.start_date IS NOT NULL AND
                            e.end_date IS NULL AND
-                           e.open_ended = TRUE)
+                           e.open_ended = 'Y')
                      THEN (%s::date BETWEEN e.start_date::date AND NOW()::date)
                      WHEN (e.start_date IS NULL AND
                            e.end_date IS NOT NULL AND
-                           e.open_ended = FALSE)
+                           e.open_ended IN ('N', 'E'))
                      THEN (e.end_date::date = %s)
                      WHEN (e.start_date IS NULL AND 
                            e.end_date IS NOT NULL AND
-                           e.open_ended IS TRUE)
+                           e.open_ended = 'Y')
                      THEN TRUE
                   END) 
               OR (CASE 
                     WHEN (ass.start_date IS NOT NULL AND 
                           ass.end_date IS NOT NULL AND 
-                          ass.open_ended = FALSE)
+                          ass.open_ended IN ('N', 'E'))
                     THEN (%s::date BETWEEN ass.start_date::date AND ass.end_date::date)
                     WHEN (ass.start_date IS NOT NULL AND
                           ass.end_date IS NOT NULL AND
-                          ass.open_ended = TRUE)
+                          ass.open_ended = 'Y')
                     THEN (%s::date BETWEEN ass.start_date::date AND NOW()::date)
                     WHEN (ass.start_date IS NOT NULL AND
                           ass.end_date IS NULL AND
-                          ass.open_ended = FALSE)
+                          ass.open_ended IN ('N', 'E'))
                     THEN (ass.start_date::date = %s::date)
                     WHEN (ass.start_date IS NOT NULL AND
                           ass.end_date IS NULL AND
-                          ass.open_ended = TRUE)
+                          ass.open_ended = 'Y')
                     THEN (%s::date BETWEEN ass.start_date::date AND NOW()::date)
                     WHEN (ass.start_date IS NULL AND
                           ass.end_date IS NOT NULL AND
-                          ass.open_ended = FALSE)
+                          ass.open_ended IN ('N', 'E'))
                     THEN (ass.end_date::date = %s)
                     WHEN (ass.start_date IS NULL AND 
                           ass.end_date IS NOT NULL AND
-                          ass.open_ended IS TRUE)
+                          ass.open_ended = 'Y')
                     THEN TRUE
                   END))
         '''
