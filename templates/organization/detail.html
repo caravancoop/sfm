@@ -194,53 +194,17 @@
     </div>
     {% endif %}
 
-    {% if parents %}
+    {% if parents_chain %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</h3>
-            <hr />
-            <table class="table table-condensed">
-                <thead>
-                    <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Aliases" %}</th>
-                        <th>{% trans "Classifications" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for parent in parents %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'detail_organization' parent.id %}">
-                                    {{ parent.name }}
-                                </a>
-                            </td>
-                            <td>
-                                {% for alias in parent.aliases.get_list %}
-                                    {% if not forloop.last %}
-                                        {{ alias }},
-                                    {% else %}
-                                        {{ alias }}
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
-                            <td>
-                                {% for classification in parent.classifications %}
-                                    {% if not forloop.last %}
-                                        {{ classification }},
-                                    {% else %}
-                                        {{ classification }}
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
-                            <td>{{ parent.first_cited }}</td>
-                            <td>{{ parent.last_cited }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="row">
+                <div class="col-sm-12">
+                    <h3 id="chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</h3>
+                    <hr />
+                    <div id="org-chart-container" class="command-charts-carousel"></div>
+                    <br>
+                </div>
+            </div>
         </div>
     </div>
     {% endif %}
@@ -422,6 +386,129 @@
                 areas.addTo(area_map);
                 area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
             });
+        </script>
+    {% endif %}
+
+    {% if parents_chain %}
+        <script src="{% static 'js/vis.min.js' %}"></script>
+        <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
+        <script>
+        var org_count = ({{parents_chain|safe}}).length
+        
+        function addMultiFont(node_list) {
+            new_list = node_list.map(function(item) {
+                item['font'] = {multi: true};
+                return item
+            });
+
+            return new_list
+        }; 
+
+        $(document).ready(function() {
+            // Add divs to carousel
+            $.each({{parents_chain|safe}}, function(index, value) {
+                cellID = "command-chart-" + index
+                cellYearID = "command-chart-year-" + index
+                $('#org-chart-container').append('<div class="carousel-cell"><div class="chart-cell" id="' + cellID + '"></div><div class="chart-date text-center" id="' + cellYearID + '"></div></div>');
+            });
+
+            // Initialize carousel
+            if (org_count > 1) {
+                var orgCarousel = $('#org-chart-container').flickity({
+                    initialIndex: org_count - 1,
+                    wrapAround: true,
+                    draggable: true,
+                });
+            };
+        
+            // Build charts and add year
+            $.each({{parents_chain|safe}}, function(index, value) {
+                cellID = "command-chart-" + index
+                cellYearID = "command-chart-year-" + index
+
+                obj = JSON.parse(value);
+                node_list = addMultiFont(JSON.parse(obj['nodes']));
+                edge_list = JSON.parse(obj['edges']);
+                when = obj['when'];
+
+                nodes = new vis.DataSet(node_list);
+                edges = new vis.DataSet(edge_list);
+
+                container = document.getElementById(cellID);
+                data = {
+                    nodes: nodes,
+                    edges: edges,
+                };
+
+                options = {
+                    nodes:{
+                        shape: 'box',
+                        fixed: {
+                          x:true,
+                          y:true,
+                        },
+                        shapeProperties: {
+                          borderRadius: 2,
+                        },
+                        color: {
+                            background: '#f4f4f4',
+                            border: '#D6D6D6',
+                            highlight: { // Change color of node on click
+                                background: '#EBEBEB',
+                                border: '#D6D6D6',
+                            },
+                            hover: {
+                                background:'#e0e0e0',
+                                border:'#D6D6D6',
+                            },
+                        },
+                        font: {
+                            color: '#777777',
+                            face: 'Open Sans',
+                        },
+                    },
+                    layout: {
+                        hierarchical: {
+                          levelSeparation: 100, // Distance between levels
+                          nodeSpacing: 300, // Distance between nodes
+                          direction: 'UD', // Inverts chart
+                          sortMethod: 'directed',
+                        }
+                    },
+                    interaction: {
+                        zoomView: false,
+                        dragView: false,
+                        hover:true,
+                    },
+                };
+
+                network = new vis.Network(container, data, options);
+
+                if (typeof when != 'undefined') {
+                    $('#' + cellYearID).append(when);
+                } else {
+                    $('#' + cellYearID).append('No known end date');
+                }
+
+                // Bind click event to individual nodes
+                network.on("selectNode", function (params) {
+                    if (params.nodes.length === 1) {
+                        node = nodes.get(params.nodes[0]);
+                        window.location = node.url;
+                    }
+                });
+
+                // Transform cursor (from hand into pointed finger and back again)
+                network.on("hoverNode", function (params) {
+                    network.canvas.body.container.style.cursor = 'pointer'
+                });
+
+                network.on("blurNode", function (params) {
+                    network.canvas.body.container.style.cursor = 'default'
+                });
+
+            });
+        });
         </script>
     {% endif %}
 {% endblock %}
