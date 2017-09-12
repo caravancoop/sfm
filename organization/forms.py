@@ -70,6 +70,10 @@ class OrganizationGeographyForm(forms.Form):
     osm_id_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
     osm_id_text = forms.CharField()
 
+    exactlocation_id = forms.CharField(required=False)
+    exactlocation_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
+    exactlocation_text = forms.CharField(required=False)
+
     startdate = ApproximateDateFormField(required=False)
     realstart = forms.BooleanField(required=False)
     startdate_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
@@ -83,6 +87,7 @@ class OrganizationGeographyForm(forms.Form):
 
     # For use in rendering the map; not saved to the database
     geotype = forms.CharField(required=False)
+    exactlocation_geotype = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

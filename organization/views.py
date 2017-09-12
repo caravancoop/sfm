@@ -631,7 +631,6 @@ class OrganizationCreateGeography(BaseFormSetView):
                     elif member.admin_level == 4:
                         admin2 = member.name
 
-            coords = getattr(geo, 'geometry')
             country_code = geo.country_code.lower()
 
             division_id = 'ocd-division/country:{}'.format(country_code)
@@ -651,13 +650,36 @@ class OrganizationCreateGeography(BaseFormSetView):
 
             if formset.data.get(form_prefix + 'geography_type') == 'Site':
 
-                site, created = Geosite.objects.get_or_create(geositeadminid__value=geo.id)
-
                 names = [
                     formset.data.get(form_prefix + 'name'),
                     geo.name,
                     admin1,
                 ]
+
+                exactloc_id = formset.data.get(form_prefix + 'exactlocation_id')
+                # If the Exact Location exists, prefer it to the Admin levels
+                if exactloc_id:
+                    exactloc_confidence = int(formset.data.get(form_prefix +
+                                                               'exactlocation_confidence', 1))
+                    exactloc_geo = get_osm_by_id(exactloc_id)
+
+                    names.insert(1, exactloc_geo.name)
+
+                    geosite_id = exactloc_geo.id
+                    coords = getattr(exactloc_geo, 'geometry')
+                    coord_confidence = exactloc_confidence
+
+                    if not coords:
+                        coords = getattr(geo, 'geometry')
+
+                    site, created = Geosite.objects.get_or_create(geositelocationid__value=geosite_id)
+
+                else:
+                    geosite_id = geo.id
+                    coords = getattr(geo, 'geometry')
+                    coord_confidence = osm_id_confidence
+
+                    site, created = Geosite.objects.get_or_create(geositeadminid__value=geosite_id)
 
                 name = ', '.join([n for n in names if n])
 
@@ -694,10 +716,23 @@ class OrganizationCreateGeography(BaseFormSetView):
                     },
                     'Geosite_GeositeCoordinates': {
                         'value': coords,
-                        'confidence': osm_id_confidence,
+                        'confidence': coord_confidence,
                         'sources': [source]
                     }
                 }
+
+                if exactloc_id and exactloc_geo:
+                    site_data['Geosite_GeositeLocationId'] = {
+                        'value': exactloc_geo.id,
+                        'confidence': exactloc_confidence,
+                        'sources': [source]
+                    }
+                    site_data['Geosite_GeositeLocationName'] = {
+                        'value': exactloc_geo.name,
+                        'confidence': exactloc_confidence,
+                        'sources': [source]
+                    }
+
                 site.update(site_data)
 
                 emp, created = Emplacement.objects.get_or_create(emplacementorganization__value=org_id,
@@ -710,7 +745,7 @@ class OrganizationCreateGeography(BaseFormSetView):
                     },
                     'Emplacement_EmplacementSite': {
                         'value': site,
-                        'confidence': osm_id_confidence,
+                        'confidence': coord_confidence,
                         'sources': [source]
                     },
                 }
