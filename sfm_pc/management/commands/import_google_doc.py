@@ -1721,7 +1721,7 @@ class Command(UtilityMixin, BaseCommand):
             },
             'AdminLevel1': {
                 'osmid': self.col('Y'),
-                'value': self.col('Y'),
+                'value': self.col('X'),
                 'source': self.col('AF'),
             },
             'Perpetrator': {
