@@ -91,7 +91,11 @@
                         <td>
                             {% with emplacement=object.emplacementorganization_set.last %}
                                 {% with site=emplacement.object_ref.emplacementsite_set.last %}
-                                    <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.osmid.get_value }}">{{ site }}</a>
+                                    {% if site.value.location_id.get_value %}
+                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.location_id.get_value }}">{{ site }}</a>
+                                    {% else %}
+                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.admin_id.get_value }}">{{ site }}</a>
+                                    {% endif %}
                                 {% endwith %}
                             {% endwith %}
                         </td>
