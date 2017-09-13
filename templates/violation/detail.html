@@ -73,7 +73,7 @@
     {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
     {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
-    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 
@@ -87,7 +87,7 @@
     {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
     {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
-    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 
@@ -203,7 +203,7 @@
             $(document).ready(function(){
                 var center_x = {{ location.x|safe }};
                 var center_y = {{ location.y|safe }};
-                var map = L.map('geoname_map').([center_y, center_x], 10);
+                var map = L.map('geoname_map').setView([center_y, center_x], 10);
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             { attribution: attribution, detectRetina: true }).addTo(map);
