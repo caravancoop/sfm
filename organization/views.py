@@ -7,6 +7,7 @@ from django.db import connection
 from django.utils.translation import get_language
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from source.models import Source
 from geosite.models import Geosite
@@ -134,7 +135,7 @@ class OrganizationList(PaginatedList):
         return context
 
 
-class OrganizationCreate(BaseFormSetView):
+class OrganizationCreate(LoginRequiredMixin, BaseFormSetView):
     template_name = 'organization/create.html'
     form_class = OrganizationForm
     formset_class = BaseOrganizationFormSet
@@ -413,7 +414,7 @@ class OrganizationCreate(BaseFormSetView):
         return response
 
 
-class OrganizationUpdate(BaseUpdateView):
+class OrganizationUpdate(LoginRequiredMixin, BaseUpdateView):
     template_name = 'organization/edit.html'
     form_class = OrganizationForm
     success_url = reverse_lazy('dashboard')
@@ -579,7 +580,7 @@ def alias_autocomplete(request):
     return HttpResponse(json.dumps(results), content_type='application/json')
 
 
-class OrganizationCreateGeography(BaseFormSetView):
+class OrganizationCreateGeography(LoginRequiredMixin, BaseFormSetView):
     template_name = 'organization/create-geography.html'
     form_class = OrganizationGeographyForm
     success_url = reverse_lazy('create-event')

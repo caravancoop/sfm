@@ -4,6 +4,7 @@ from uuid import uuid4
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from complex_fields.models import ComplexFieldContainer
 
@@ -13,7 +14,7 @@ from source.models import Source, Publication
 from source.forms import SourceForm
 
 
-class SourceCreate(FormView):
+class SourceCreate(LoginRequiredMixin, FormView):
     template_name = 'source/create.html'
     form_class = SourceForm
     success_url = reverse_lazy('create-organization')

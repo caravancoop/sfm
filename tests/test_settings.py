@@ -73,7 +73,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'reversion.middleware.RevisionMiddleware',
-    'sfm_pc.utils.RequireLoginMiddleware',
 )
 
 ROOT_URLCONF = 'sfm_pc.urls'
@@ -161,15 +160,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
-LOGIN_REQUIRED_URLS = (
-    r'/(.*)$',
-)
-LOGIN_REQUIRED_URLS_EXCEPTIONS = (
-    r'.*/login(.*)$',
-    r'.*/logout(.*)$',
-    r'.*/admin(.*)$',
-    r'.*/api(.*)$',
 )
 
 LOGIN_URL = reverse_lazy('account_login')

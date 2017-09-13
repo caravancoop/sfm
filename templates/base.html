@@ -49,7 +49,11 @@
                 <li class="{{ organization_tab }}"><a href="{% url 'search' %}?entity_type=Organization"><i class="fa fa-fw fa-users"></i> {% trans "Units" %}</a></li>
                 <li class="{{ violation_tab }}"><a href="{% url 'search' %}?entity_type=Violation"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>
                 <li class="{{ help_tab }}"><a href="#"><i class="fa fa-fw fa-question-circle"></i> {% trans "Help" %}</a></li>
-                {% if user.is_authenticated %}<li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> {% trans "Logout" %}</a></li>{% endif %}
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> {% trans "Logout" %}</a></li>{% endif %}
+                {% else %}
+                    <li><a href="/accounts/login"><i class="fa fa-fw fa-sign-in"></i> {% trans "Login" %}</a></li>
+                {% endif %}
                 <li><select class="lang-select-box"></select></li>
             </ul>
         </div>

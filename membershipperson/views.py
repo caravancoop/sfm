@@ -15,6 +15,7 @@ from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from extra_views import FormSetView
 
@@ -25,7 +26,7 @@ from sfm_pc.utils import deleted_in_str
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
 
 
-class MembershipPersonCreate(BaseFormSetView):
+class MembershipPersonCreate(LoginRequiredMixin, BaseFormSetView):
     template_name = 'membershipperson/create.html'
     form_class = MembershipPersonForm
     success_url = reverse_lazy('create-geography')
@@ -178,7 +179,7 @@ class MembershipPersonCreate(BaseFormSetView):
 
         return response
 
-class MembershipPersonUpdate(BaseUpdateView):
+class MembershipPersonUpdate(LoginRequiredMixin, BaseUpdateView):
     template_name = 'membershipperson/edit.html'
     form_class = MembershipPersonForm
     success_url = reverse_lazy('dashboard')
@@ -275,7 +276,7 @@ class MembershipPersonUpdate(BaseUpdateView):
 ###                                       ###
 #############################################
 
-class MembershipPersonDelete(DeleteView):
+class MembershipPersonDelete(LoginRequiredMixin, DeleteView):
     model = MembershipPerson
     template_name = "delete_confirm.html"
 

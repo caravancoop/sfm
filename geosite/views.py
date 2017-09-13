@@ -9,13 +9,14 @@ from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import ZoneForm
 from .models import Geosite
 from sfm_pc.utils import deleted_in_str
 
 
-class GeositeDelete(DeleteView):
+class GeositeDelete(LoginRequiredMixin, DeleteView):
     model = Geosite
     template_name = "delete_confirm.html"
 
@@ -103,7 +104,7 @@ def site_search(request):
     }))
 
 
-class SiteUpdate(TemplateView):
+class SiteUpdate(LoginRequiredMixin, TemplateView):
     template_name = 'site/edit.html'
 
     def post(self, request, *args, **kwargs):
@@ -139,7 +140,7 @@ class SiteUpdate(TemplateView):
         return context
 
 
-class SiteCreate(TemplateView):
+class SiteCreate(LoginRequiredMixin, TemplateView):
     template_name = 'site/edit.html'
 
     def post(self, request, *args, **kwargs):
