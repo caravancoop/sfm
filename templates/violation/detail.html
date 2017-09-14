@@ -33,9 +33,6 @@
             {% comment %}Translators: The word "ending" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
             {% trans "ending" %} <strong>{% cite violation.enddate.get_value %}</strong>
         {% endif %}
-        <!-- small>
-            <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">{% trans "Edit" %}</a>
-        </small -->
         <small class="pull-right">
             <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">

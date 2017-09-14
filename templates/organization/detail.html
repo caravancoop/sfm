@@ -13,9 +13,6 @@
 {% block header %}
     <h1 class="page-title">
         <i class="fa fa-fw fa-users"></i> {% cite organization.name.get_value %}
-        <!-- small>
-            <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">{% trans "Edit" %}</a>
-         </small -->
         <small class="pull-right">
             <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
