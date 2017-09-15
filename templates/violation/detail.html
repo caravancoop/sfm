@@ -14,8 +14,8 @@
     <h2 class="page-title">
         <i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incident" %}
         {% comment %}Translators: The word "in" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date>] Words in [brackets] indicate variable text.{% endcomment %}
-        {% if violation.geoname %}
-            {% trans "in" %} <strong>{{ violation.geoname }}</strong>
+        {% if violation.osmname %}
+            {% trans "in" %} <strong>{{ violation.osmname }}</strong>
         {% endif %}
         {% if violation.startdate.get_value and violation.enddate.get_value %}
             {% if violation.startdate.get_value.value == violation.enddate.get_value.value %}

@@ -45,15 +45,6 @@ class ViolationDetail(DetailView):
             if location.value:
                 context['location'] = location.value
 
-        exactloc_site = context['violation'].site.get_value()
-
-        # If an exact location exists, its coordinates should take preference
-        # over the rest of the OSM data
-        if exactloc_site:
-            coords = exactloc_site.value.coordinates.get_value()
-            if coords:
-                context['location'] = coords.value
-
         return context
 
 class ViolationList(PaginatedList):
