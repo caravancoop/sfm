@@ -68,7 +68,7 @@ class MembershipPerson(models.Model, BaseModel):
 
         else:
             # Length must be 0, so use a generic title
-            description = 'Member'
+            description = _('Member')
 
         # Member organization
         description += ' '
@@ -77,7 +77,10 @@ class MembershipPerson(models.Model, BaseModel):
 
         href = reverse('detail_organization', args=(organization.id,))
 
-        org_string = 'of <strong><a href="{href}">{org}</a></strong>'
+        # Translators: This is part of the string "{Rank} of {unit}"
+        joiner = _('of')
+
+        org_string = joiner + ' <strong><a href="{href}">{org}</a></strong>'
 
         description += org_string.format(org=organization,
                                          href=href)
@@ -97,7 +100,11 @@ class MembershipPerson(models.Model, BaseModel):
 
         last_cited = obj.lastciteddate.get_value()
         if last_cited:
-            description += 'on <strong>%s</strong>' % last_cited
+            # Translators: This is part of the "Last seen as" string for a person,
+            # as in "last seen as {rank} of {unit} on {date}"
+            date_joiner = _('on')
+            date_string = date_joiner + ' <strong>%s</strong>' % last_cited
+            description += date_string
 
         return description
 

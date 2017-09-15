@@ -34,7 +34,7 @@ from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 class ViolationDetail(DetailView):
     model = Violation
     template_name = 'violation/detail.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -44,6 +44,15 @@ class ViolationDetail(DetailView):
             location = context['violation'].location.get_value()
             if location.value:
                 context['location'] = location.value
+
+        exactloc_site = context['violation'].site.get_value()
+
+        # If an exact location exists, its coordinates should take preference
+        # over the rest of the OSM data
+        if exactloc_site:
+            coords = exactloc_site.value.coordinates.get_value()
+            if coords:
+                context['location'] = coords.value
 
         return context
 
@@ -59,7 +68,6 @@ class ViolationList(PaginatedList):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        print('Getting incident context...')
 
         # Highlight the correct nav tab in the template
         context['violation_tab'] = 'selected-tab'
