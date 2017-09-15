@@ -4,7 +4,8 @@ from django.contrib import admin
 
 from .models import Violation, ViolationStartDate, ViolationEndDate, \
     ViolationLocationDescription, ViolationDescription, ViolationPerpetrator, \
-    ViolationPerpetratorOrganization, ViolationType, Type, ViolationSite
+    ViolationPerpetratorOrganization, ViolationType, Type, ViolationLocationName, \
+    ViolationLocationId
 
 
 class ViolationAdmin(admin.ModelAdmin):
@@ -27,7 +28,11 @@ class ViolationLocationDescriptionAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class ViolationSiteAdmin(reversion.admin.VersionAdmin):
+class ViolationLocationNameAdmin(reversion.admin.VersionAdmin):
+    pass
+
+
+class ViolationLocationIdAdmin(reversion.admin.VersionAdmin):
     pass
 
 
@@ -53,6 +58,7 @@ admin.site.register(ViolationPerpetratorOrganization, ViolationPerpetratorOrgani
 admin.site.register(ViolationPerpetrator, ViolationPerpetratorAdmin)
 admin.site.register(ViolationDescription, ViolationDescriptionAdmin)
 admin.site.register(ViolationLocationDescription, ViolationLocationDescriptionAdmin)
-admin.site.register(ViolationSite, ViolationSiteAdmin)
+admin.site.register(ViolationLocationName, ViolationLocationNameAdmin)
+admin.site.register(ViolationLocationId, ViolationLocationIdAdmin)
 admin.site.register(ViolationEndDate, ViolationEndDateAdmin)
 admin.site.register(ViolationStartDate, ViolationStartDateAdmin)

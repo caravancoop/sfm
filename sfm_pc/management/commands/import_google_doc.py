@@ -1278,7 +1278,9 @@ class Command(UtilityMixin, BaseCommand):
     def get_exact_location(self, positions, data):
         '''
         Helper method for figuring out the data type of an "Exact Location" and
-        returning relevant info.
+        returning relevant info. SFM staff sometimes record Exact Locations as
+        OSM ID/Name pairs, and sometimes as coordinates, so we have to do some
+        parsing to get the right attributes.
 
         Params:
             * data: the spreadsheet data, as an array
@@ -1319,8 +1321,8 @@ class Command(UtilityMixin, BaseCommand):
                 geo = get_osm_by_id(exact_location['id'])
                 exact_location['coords'] = geo.geometry
             except DataError:
-                self.log_error('OSM ID for {0} does not seem valid: {1}'.format(exact_location['name'],
-                                                                                exact_location['id']))
+                self.log_error('OSM ID for exact location {0} does not seem valid: {1}'.format(exact_location['name'],
+                                                                                               exact_location['id']))
 
         return exact_location
 
@@ -1762,30 +1764,45 @@ class Command(UtilityMixin, BaseCommand):
             return None
 
         # Make OSM stuff
+        admin_id = event_data[positions['AdminId']['value']]
+        admin_name = event_data[positions['AdminName']['value']]
 
         exact_location = self.get_exact_location(positions, event_data)
 
-        if exact_location.get('id') and exact_location.get('name'):
-            osm_id = exact_location['id']
-            site_name = exact_location['name']
-        else:
-            osm_id = event_data[positions['AdminId']['value']]
-            site_name = event_data[positions['AdminName']['value']]
+        coords = exact_location.get('coords')
+        exactloc_id = exact_location.get('id')
+        exactloc_name = exact_location.get('name')
 
         event_info = {}
 
+        if exactloc_name and exactloc_id:
+            event_info.update({
+                'Violation_ViolationLocationName': {
+                    'value': exactloc_name,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationLocationId': {
+                    'value': exactloc_,
+                    'sources': sources,
+                    'confidence': 1
+                },
+            })
+
+        geo, admin1, admin2 = None, None, None
         try:
             geo = get_osm_by_id(osm_id)
         except DataError:
             self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, osm_id))
-            geo = None
 
         if geo:
+
+            if not coords:
+                coords = geo.geometry
 
             hierarchy = get_hierarchy_by_id(osm_id)
 
             admin1 = event_data[positions['AdminLevel1Name']['value']]
-            admin2 = None
 
             if hierarchy:
                 for member in hierarchy:
@@ -1793,8 +1810,6 @@ class Command(UtilityMixin, BaseCommand):
                         admin1 = member.name
                     elif member.admin_level == 4:
                         admin2 = member.name
-
-            site = self.get_or_create_site(geo, exact_location, event_data, positions)
 
             event_info.update({
                 'Violation_ViolationAdminLevel2': {
@@ -1808,22 +1823,20 @@ class Command(UtilityMixin, BaseCommand):
                     'confidence': 1
                 },
                 'Violation_ViolationOSMName': {
-                    'value': site.admin_name,
+                    'value': geo.name,
                     'sources': sources,
                     'confidence': 1
                 },
                 'Violation_ViolationOSMId': {
-                    'value': site.admin_id,
+                    'value': geo.id,
                     'sources': sources,
                     'confidence': 1
                 },
+
+        if coords:
+            event_info.update({
                 'Violation_ViolationLocation': {
-                    'value': site.coordinates.get_value().value,
-                    'sources': sources,
-                    'confidence': 1
-                },
-                'Violation_ViolationSite': {
-                    'value': site,
+                    'value': coords,
                     'sources': sources,
                     'confidence': 1
                 },
