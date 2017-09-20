@@ -63,7 +63,8 @@ class Command(UtilityMixin, BaseCommand):
             dest='doc_id',
             #default='16cRBkrnXE5iGm8JXD7LSqbeFOg_anhVp2YAzYTRYDgU',
             #default='1EyS55ZkqqkpeYsNKDuIzgUOV-n8TJr5yoEa2Z6a4Duk',
-            default='1bK1pLB3IEXhoPoOMPA1hWWsitgzHlXHrzhh3tRW0iHs',
+            #default='1bK1pLB3IEXhoPoOMPA1hWWsitgzHlXHrzhh3tRW0iHs',
+            default='1A5vefTmsM92fKL1goF8ngdZwtiDZbkyQM3qrJmywOww',
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(
@@ -75,7 +76,7 @@ class Command(UtilityMixin, BaseCommand):
         parser.add_argument(
             '--country_code',
             dest='country_code',
-            default='ng',
+            default='mx',
             help='Two letter ISO code for the country that the Google Sheets are about'
         )
 
@@ -438,7 +439,10 @@ class Command(UtilityMixin, BaseCommand):
                                        organization)
 
                 # We have to convert the 'Y'/'N' in the RealStart field to bool
-                real_start = org_data[org_positions['RealStart']['value']]
+                try:
+                    real_start = org_data[org_positions['RealStart']['value']]
+                except IndexError:
+                    real_start = None
 
                 if real_start == 'Y':
                     real_start = True
@@ -450,7 +454,7 @@ class Command(UtilityMixin, BaseCommand):
                 with reversion.create_revision():
                     realstart, created = OrganizationRealStart\
                                          .objects\
-                                         .get_or_create(value=realstart,
+                                         .get_or_create(value=real_start,
                                                         object_ref=organization)
                     reversion.set_user(self.user)
 
@@ -1791,16 +1795,22 @@ class Command(UtilityMixin, BaseCommand):
 
         geo, admin1, admin2 = None, None, None
         try:
-            geo = get_osm_by_id(osm_id)
+            geo = get_osm_by_id(admin_id)
         except DataError:
-            self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, osm_id))
+            self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, admin_id))
 
         if geo:
 
             if not coords:
-                coords = geo.geometry
 
-            hierarchy = get_hierarchy_by_id(osm_id)
+                point_string = 'POINT({lng} {lat})'
+
+                point = (str(geo.st_x), str(geo.st_y))
+
+                coords = GEOSGeometry(point_string.format(lng=point[0], lat=point[1]),
+                                      srid=4326)
+
+            hierarchy = get_hierarchy_by_id(admin_id)
 
             admin1 = event_data[positions['AdminLevel1Name']['value']]
 
@@ -1832,6 +1842,7 @@ class Command(UtilityMixin, BaseCommand):
                     'sources': sources,
                     'confidence': 1
                 },
+            })
 
         if coords:
             event_info.update({
