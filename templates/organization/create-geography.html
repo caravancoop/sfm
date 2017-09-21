@@ -477,16 +477,16 @@
 <script type="textEJS" id="osmResult">
     <div class="row">
         <% if(map_image) { %>
-            <div class="col-sm-2">
+            <div class="col-sm-4">
                 <img src="<%= map_image %>" height=100 width=100 />
             </div>
         <% } %>
         <% if (map_image) { %>
-            <div class="col-sm-10">
+            <div class="col-sm-8">
         <% } else { %>
-            <div class="col-sm-10 col-sm-offset-2">
+            <div class="col-sm-8 col-sm-offset-4">
         <% }%>
-            <h5><%= value %> <small>(OSM ID: <%= id %>, Admin level <%= admin_level %>)</small></h5>
+            <h5>OSM ID: <strong><%= id %></strong> (<%= value %>)</h5>
         </div>
     </div>
 </script>

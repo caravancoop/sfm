@@ -331,7 +331,7 @@ def osm_autocomplete(request):
         if hasattr(result, 'geometry'):
             latlng = '{0},{1}'.format(result.latitude, result.longitude)
             map_image = 'https://maps.googleapis.com/maps/api/staticmap'
-            map_image = '{0}?center={1}&zoom=10&size=100x100&key={2}&scale=2'.format(map_image,
+            map_image = '{0}?center={1}&zoom=9&size=100x100&key={2}&scale=2'.format(map_image,
                                                                                      latlng,
                                                                                      settings.GOOGLE_MAPS_KEY)
         results.append({
