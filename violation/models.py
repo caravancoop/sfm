@@ -39,7 +39,8 @@ class Violation(models.Model, BaseModel):
         self.osmid = ComplexFieldContainer(self, ViolationOSMId)
         self.division_id = ComplexFieldContainer(self, ViolationDivisionId)
         self.location = ComplexFieldContainer(self, ViolationLocation)
-        self.site = ComplexFieldContainer(self, ViolationSite)
+        self.location_name = ComplexFieldContainer(self, ViolationLocationName)
+        self.location_id = ComplexFieldContainer(self, ViolationLocationId)
 
         # Descriptions and other attributes
         self.description = ComplexFieldContainer(self, ViolationDescription)
@@ -165,10 +166,18 @@ class ViolationLocation(ComplexField):
 
 @versioned
 @sourced
-class ViolationSite(ComplexField):
+class ViolationLocationName(ComplexField):
     object_ref = models.ForeignKey('Violation')
-    value = models.ForeignKey(Geosite, default=None, blank=True, null=True)
-    field_name = _("Site")
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Exact location name")
+
+
+@versioned
+@sourced
+class ViolationLocationId(ComplexField):
+    object_ref = models.ForeignKey('Violation')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Exact location ID")
 
 
 @versioned

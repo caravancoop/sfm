@@ -45,15 +45,6 @@ class ViolationDetail(DetailView):
             if location.value:
                 context['location'] = location.value
 
-        exactloc_site = context['violation'].site.get_value()
-
-        # If an exact location exists, its coordinates should take preference
-        # over the rest of the OSM data
-        if exactloc_site:
-            coords = exactloc_site.value.coordinates.get_value()
-            if coords:
-                context['location'] = coords.value
-
         return context
 
 class ViolationList(PaginatedList):
@@ -173,12 +164,12 @@ class ViolationCreate(FormSetView):
             # Administrative locations
             if geoid:
                 geo = get_osm_by_id(geoid)
-                geo_id, geo_name, geo_geometry = geo.id, geo.name, geo.geometry
+                geo_id, geo_name, coords = geo.id, geo.name, geo.geometry
                 country_code = geo.country_code.lower()
                 division_id = 'ocd-division/country:{}'.format(country_code)
                 hierarchy = get_hierarchy_by_id(geoid)
             else:
-                geo, geo_id, geo_name, geo_geometry = None, None, None, None
+                geo, geo_id, geo_name, coords = None, None, None, None
                 country_code = None
                 division_id = None
                 hierarchy = None
@@ -196,108 +187,27 @@ class ViolationCreate(FormSetView):
             # Exact location
             if exactloc_id:
 
-                site, created = Geosite.objects.get_or_create(geositelocationid__value=exactloc_id)
-                
-                # If we don't have this site yet, create a new one using OSM
-                # data
-                if created:
+                exactloc_geo = get_osm_by_id(exactloc_id)
 
-                    exactloc_geo = get_osm_by_id(exactloc_id)
+                # If we don't have higher-order geographic information for
+                # this place yet, see if the exact location can help us
+                # find it
+                if not admin1 and not admin2 and not division_id:
+                    hierarchy = get_hierarchy_by_id(geoid)
+                    if hierarchy:
+                        for member in hierarchy:
+                            if member.admin_level == 6:
+                                admin1 = member.name
+                            elif member.admin_level == 4:
+                                admin2 = member.name
 
-                    if not admin1 and not admin2 and not division_id:
-                        hierarchy = get_hierarchy_by_id(geoid)
-                        if hierarchy:
-                            for member in hierarchy:
-                                if member.admin_level == 6:
-                                    admin1 = member.name
-                                elif member.admin_level == 4:
-                                    admin2 = member.name
+                exactloc_name = getattr(exactloc_geo, 'name')
 
-                    exactloc_name = getattr(exactloc_geo, 'name')
-
-                    coords = getattr(exactloc_geo, 'geometry')
-                    if not coords and geo:
-                        coords = getattr(geo, 'geometry')
-
-                    country_code = getattr(exactloc_geo, 'country_code')
-
-                    if country_code:
-                        country_code = country_code.lower()
-                        division_id = 'ocd-division/country:{}'.format(country_code)
-
-                    names = [
-                        exactloc_name,
-                        geo_name,
-                        admin1,
-                    ]
-                        
-                    name = ', '.join([n for n in names if n])
-
-                    # Required field
-                    site_data = {
-                        'Geosite_GeositeName': {
-                            'value': name,
-                            'confidence': exactloc_confidence,
-                            'sources': [source]
-                        },
-                    }
-
-                    # Optional fields
-                    potential_fields = {
-                        'Geosite_GeositeAdminName': {
-                            'value': geo_name,
-                            'confidence': osm_confidence,
-                            'sources': [source]
-                        },
-                        'Geosite_GeositeAdminId': {
-                            'value': geo_id,
-                            'confidence': osm_confidence,
-                            'sources': [source]
-                        },
-                        'Geosite_GeositeDivisionId': {
-                            'value': division_id,
-                            'confidence': exactloc_confidence,
-                            'sources': [source]
-                        },
-                        'Geosite_GeositeAdminLevel1': {
-                            'value': admin1,
-                            'confidence': exactloc_confidence,
-                            'sources': [source]
-                        },
-                        'Geosite_GeositeAdminLevel2': {
-                            'value': admin2,
-                            'confidence': exactloc_confidence,
-                            'sources': [source]
-                        },
-                        'Geosite_GeositeCoordinates': {
-                            'value': coords,
-                            'confidence': exactloc_confidence,
-                            'sources': [source]
-                        },
-                        'Geosite_GeositeLocationId': {
-                            'value': exactloc_id,
-                            'confidence': exactloc_confidence,
-                            'sources': [source]
-                        },
-                        'Geosite_GeositeLocationName': {
-                            'value': exactloc_name,
-                            'confidence': exactloc_confidence,
-                            'sources': [source]
-                        },
-                    }
-
-                    for field, vals in potential_fields.items():
-                        if vals['value']:
-                            site_data[field] = {
-                                'value': vals['value'],
-                                'sources': vals['sources'],
-                                'confidence': vals['confidence']
-                            }
-
-                    site.update(site_data)
+                # Prefer coordinates from the exact location, if exists
+                coords = getattr(exactloc_geo, 'geometry')
 
             else:
-                site = None
+                exactloc_name = None
 
             # Instantiate the data dict with the required fields, which must
             # exist
@@ -318,7 +228,7 @@ class ViolationCreate(FormSetView):
                     'confidence': enddate_confidence
                 },
             }
-    
+
             # Define optional fields
             optional_fields = {
                 'Violation_ViolationFirstAllegation': {
@@ -367,12 +277,17 @@ class ViolationCreate(FormSetView):
                     'confidence': osm_confidence
                 },
                 'Violation_ViolationLocation': {
-                    'value': geo_geometry,
+                    'value': coords,
                     'sources': [source],
                     'confidence': osm_confidence
                 },
-                'Violation_ViolationSite': {
-                    'value': site,
+                'Violation_ViolationLocationName': {
+                    'value': exactloc_name,
+                    'sources': [source],
+                    'confidence': exactloc_confidence
+                },
+                'Violation_ViolationLocationId': {
+                    'value': exactloc_id,
                     'sources': [source],
                     'confidence': exactloc_confidence
                 },

@@ -40,15 +40,10 @@ def render_location_string(obj, countries=True):
     context = {'locations': []}
 
     locations = [obj.locationdescription.get_value(),
+                 obj.location_name.get_value(),
                  obj.osmname.get_value(),
                  obj.adminlevel1.get_value(),
                  obj.adminlevel2.get_value()]
-
-    exactloc = obj.site.get_value()
-    if exactloc:
-        exactloc_name = exactloc.value.location_name.get_value()
-        if exactloc_name:
-            locations.insert(exactloc_name.value, 1)
 
     remove_nulls = [loc for loc in locations if loc is not None]
     context['locations'] = [loc.value for loc in remove_nulls

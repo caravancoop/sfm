@@ -63,7 +63,8 @@ class Command(UtilityMixin, BaseCommand):
             dest='doc_id',
             #default='16cRBkrnXE5iGm8JXD7LSqbeFOg_anhVp2YAzYTRYDgU',
             #default='1EyS55ZkqqkpeYsNKDuIzgUOV-n8TJr5yoEa2Z6a4Duk',
-            default='1bK1pLB3IEXhoPoOMPA1hWWsitgzHlXHrzhh3tRW0iHs',
+            #default='1bK1pLB3IEXhoPoOMPA1hWWsitgzHlXHrzhh3tRW0iHs',
+            default='1A5vefTmsM92fKL1goF8ngdZwtiDZbkyQM3qrJmywOww',
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(
@@ -75,7 +76,7 @@ class Command(UtilityMixin, BaseCommand):
         parser.add_argument(
             '--country_code',
             dest='country_code',
-            default='ng',
+            default='mx',
             help='Two letter ISO code for the country that the Google Sheets are about'
         )
 
@@ -438,7 +439,10 @@ class Command(UtilityMixin, BaseCommand):
                                        organization)
 
                 # We have to convert the 'Y'/'N' in the RealStart field to bool
-                real_start = org_data[org_positions['RealStart']['value']]
+                try:
+                    real_start = org_data[org_positions['RealStart']['value']]
+                except IndexError:
+                    real_start = None
 
                 if real_start == 'Y':
                     real_start = True
@@ -450,7 +454,7 @@ class Command(UtilityMixin, BaseCommand):
                 with reversion.create_revision():
                     realstart, created = OrganizationRealStart\
                                          .objects\
-                                         .get_or_create(value=realstart,
+                                         .get_or_create(value=real_start,
                                                         object_ref=organization)
                     reversion.set_user(self.user)
 
@@ -774,7 +778,7 @@ class Command(UtilityMixin, BaseCommand):
                         value_model = import_class(value_rel_path)
 
                     value_objects = []
-                    for value_text in [val.strip() for val in value.split(';')]:
+                    for value_text in [val.strip() for val in value.split(';') if val.strip()]:
 
                         if value_model == Type:
                             with reversion.create_revision():
@@ -1278,7 +1282,9 @@ class Command(UtilityMixin, BaseCommand):
     def get_exact_location(self, positions, data):
         '''
         Helper method for figuring out the data type of an "Exact Location" and
-        returning relevant info.
+        returning relevant info. SFM staff sometimes record Exact Locations as
+        OSM ID/Name pairs, and sometimes as coordinates, so we have to do some
+        parsing to get the right attributes.
 
         Params:
             * data: the spreadsheet data, as an array
@@ -1319,8 +1325,8 @@ class Command(UtilityMixin, BaseCommand):
                 geo = get_osm_by_id(exact_location['id'])
                 exact_location['coords'] = geo.geometry
             except DataError:
-                self.log_error('OSM ID for {0} does not seem valid: {1}'.format(exact_location['name'],
-                                                                                exact_location['id']))
+                self.log_error('OSM ID for exact location {0} does not seem valid: {1}'.format(exact_location['name'],
+                                                                                               exact_location['id']))
 
         return exact_location
 
@@ -1329,7 +1335,7 @@ class Command(UtilityMixin, BaseCommand):
         sources = []
         unparsed = []
 
-        for source in [src.strip() for src in sources_string.split(';')]:
+        for source in [src.strip() for src in sources_string.split(';') if src.strip()]:
 
             date_gen = datefinder.find_dates(source, index=True)
 
@@ -1762,30 +1768,51 @@ class Command(UtilityMixin, BaseCommand):
             return None
 
         # Make OSM stuff
+        admin_id = event_data[positions['AdminId']['value']]
+        admin_name = event_data[positions['AdminName']['value']]
 
         exact_location = self.get_exact_location(positions, event_data)
 
-        if exact_location.get('id') and exact_location.get('name'):
-            osm_id = exact_location['id']
-            site_name = exact_location['name']
-        else:
-            osm_id = event_data[positions['AdminId']['value']]
-            site_name = event_data[positions['AdminName']['value']]
+        coords = exact_location.get('coords')
+        exactloc_id = exact_location.get('id')
+        exactloc_name = exact_location.get('name')
 
         event_info = {}
 
+        if exactloc_name and exactloc_id:
+            event_info.update({
+                'Violation_ViolationLocationName': {
+                    'value': exactloc_name,
+                    'sources': sources,
+                    'confidence': 1
+                },
+                'Violation_ViolationLocationId': {
+                    'value': exactloc_,
+                    'sources': sources,
+                    'confidence': 1
+                },
+            })
+
+        geo, admin1, admin2 = None, None, None
         try:
-            geo = get_osm_by_id(osm_id)
+            geo = get_osm_by_id(admin_id)
         except DataError:
-            self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, osm_id))
-            geo = None
+            self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, admin_id))
 
         if geo:
 
-            hierarchy = get_hierarchy_by_id(osm_id)
+            if not coords:
+
+                point_string = 'POINT({lng} {lat})'
+
+                point = (str(geo.st_x), str(geo.st_y))
+
+                coords = GEOSGeometry(point_string.format(lng=point[0], lat=point[1]),
+                                      srid=4326)
+
+            hierarchy = get_hierarchy_by_id(admin_id)
 
             admin1 = event_data[positions['AdminLevel1Name']['value']]
-            admin2 = None
 
             if hierarchy:
                 for member in hierarchy:
@@ -1793,8 +1820,6 @@ class Command(UtilityMixin, BaseCommand):
                         admin1 = member.name
                     elif member.admin_level == 4:
                         admin2 = member.name
-
-            site = self.get_or_create_site(geo, exact_location, event_data, positions)
 
             event_info.update({
                 'Violation_ViolationAdminLevel2': {
@@ -1808,22 +1833,21 @@ class Command(UtilityMixin, BaseCommand):
                     'confidence': 1
                 },
                 'Violation_ViolationOSMName': {
-                    'value': site.admin_name,
+                    'value': geo.name,
                     'sources': sources,
                     'confidence': 1
                 },
                 'Violation_ViolationOSMId': {
-                    'value': site.admin_id,
+                    'value': geo.id,
                     'sources': sources,
                     'confidence': 1
                 },
+            })
+
+        if coords:
+            event_info.update({
                 'Violation_ViolationLocation': {
-                    'value': site.coordinates.get_value().value,
-                    'sources': sources,
-                    'confidence': 1
-                },
-                'Violation_ViolationSite': {
-                    'value': site,
+                    'value': coords,
                     'sources': sources,
                     'confidence': 1
                 },
@@ -1852,7 +1876,7 @@ class Command(UtilityMixin, BaseCommand):
 
         if perpetrator:
 
-            perps = [perp.strip() for perp in perpetrator.split(';')]
+            perps = [perp.strip() for perp in perpetrator.split(';') if perp.strip()]
 
             for perp in perps:
                 try:
@@ -1881,7 +1905,10 @@ class Command(UtilityMixin, BaseCommand):
             perp_org = None
 
         if perp_org:
-            for org in [perp.strip() for perp in perp_org.split(';')]:
+
+            orgs = [perp.strip() for perp in perp_org.split(';') if perp.strip()]
+
+            for org in orgs:
 
                 try:
                     organization = Organization.objects.get(organizationname__value=org)
