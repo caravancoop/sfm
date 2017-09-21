@@ -778,7 +778,7 @@ class Command(UtilityMixin, BaseCommand):
                         value_model = import_class(value_rel_path)
 
                     value_objects = []
-                    for value_text in [val.strip() for val in value.split(';')]:
+                    for value_text in [val.strip() for val in value.split(';') if val.strip()]:
 
                         if value_model == Type:
                             with reversion.create_revision():
@@ -1335,7 +1335,7 @@ class Command(UtilityMixin, BaseCommand):
         sources = []
         unparsed = []
 
-        for source in [src.strip() for src in sources_string.split(';')]:
+        for source in [src.strip() for src in sources_string.split(';') if src.strip()]:
 
             date_gen = datefinder.find_dates(source, index=True)
 
@@ -1876,7 +1876,7 @@ class Command(UtilityMixin, BaseCommand):
 
         if perpetrator:
 
-            perps = [perp.strip() for perp in perpetrator.split(';')]
+            perps = [perp.strip() for perp in perpetrator.split(';') if perp.strip()]
 
             for perp in perps:
                 try:
@@ -1905,7 +1905,10 @@ class Command(UtilityMixin, BaseCommand):
             perp_org = None
 
         if perp_org:
-            for org in [perp.strip() for perp in perp_org.split(';')]:
+
+            orgs = [perp.strip() for perp in perp_org.split(';') if perp.strip()]
+
+            for org in orgs:
 
                 try:
                     organization = Organization.objects.get(organizationname__value=org)
