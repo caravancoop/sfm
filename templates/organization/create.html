@@ -736,16 +736,85 @@
 
         $(name_field).on('select2:select', function(e){
             var value = e.params.data.text;
-            $(name_field).find(':selected').prop('selected', false);
-            $(name_field + '_text').val(value);
             $(name_field + ' :selected').attr('value', e.params.data.id);
             $(name_field + ' :selected').text(value);
+            $(name_field + '_text').val(value);
+
+            // If this unit already exists, fill out info we already know
+            if (e.params.data.id !== -1) {
+
+                console.log(e.params.data);
+
+                var form_prefix = '#id_form-' + (form_num - 1);
+
+                // Simple, out-of-the-box form inputs
+                var simple_attrs = ['headquarters', 'firstciteddate',
+                                    'lastciteddate', 'open_ended'];
+
+                for (var idx = 0; idx < simple_attrs.length; idx++) {
+                    var key = simple_attrs[idx];
+                    var input = form_prefix + '-' + key;
+
+                    $(input).val(e.params.data[key]);
+                }
+
+                // HTML checkboxes
+                var checkboxes = ['realstart']
+
+                for (var idx = 0; idx < checkboxes.length; idx++) {
+                    var key = checkboxes[idx];
+                    var input = form_prefix + '-' + key;
+
+                    $(input).prop('checked', e.params.data[key]);
+                }
+
+                // Inputs that use AJAX
+                var complex_attrs = ['division_id'];
+
+                for (var idx = 0; idx < complex_attrs.length; idx++) {
+                    var key = complex_attrs[idx];
+                    var input = form_prefix + '-' + key;
+
+                    var data_dict = e.params.data[key];
+                    var new_option = new Option(data_dict.text, data_dict.id, false, true);
+                    $(input).append(new_option);
+                    $(input).trigger('change');
+                }
+
+                // Multiselect inputs
+                var lst_attrs = ['classification', 'alias', 'blah'];
+
+                for (var idx = 0; idx < lst_attrs.length; idx++) {
+                    var key = lst_attrs[idx];
+                    var input = form_prefix + '-' + key;
+
+                    var data_arr = e.params.data[key];
+                    console.log(data_arr);
+                    console.log(input);
+                    for (var i = 0; i < data_arr.length; i++) {
+                        var new_option = new Option(data_arr[i].text, data_arr[i].id, false, true);
+                        $(input).append(new_option);
+                        $(input).trigger('change');
+                    }
+                }
+
+                // Update confidences
+                var all_attrs = simple_attrs.concat(checkboxes, complex_attrs, lst_attrs);
+
+                for (var idx = 0; idx < all_attrs.length; idx++) {
+                    var key = all_attrs[idx];
+                    var confidence_input = form_prefix + '-' + key;
+
+                    var confidence = e.params.data[key];
+                    $(confidence_input).val(confidence);
+                    $(input).trigger('change');
+                }
+            }
         });
 
         $(name_field).on('select2:unselect', function(e){
-            var value = e.params.data.text;
-            $(name_field).find(':selected').prop('selected', false);
-            $(name_field + '_text').val('');
+            $(name_field).val(null).trigger('change');
+            $(name_field + '_text').val(null);
         });
 
         $(class_field).on('select2:select', multipleSelect);
