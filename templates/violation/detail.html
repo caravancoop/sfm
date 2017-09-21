@@ -14,8 +14,8 @@
     <h2 class="page-title">
         <i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incident" %}
         {% comment %}Translators: The word "in" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date>] Words in [brackets] indicate variable text.{% endcomment %}
-        {% if violation.osmname %}
-            {% trans "in" %} <strong>{{ violation.osmname }}</strong>
+        {% if violation.osmname.get_value %}
+            {% trans "in" %} <strong>{{ violation.osmname.get_value }}</strong>
         {% endif %}
         {% if violation.startdate.get_value and violation.enddate.get_value %}
             {% if violation.startdate.get_value.value == violation.enddate.get_value.value %}
@@ -46,7 +46,7 @@
     {% endif %}
 
     {% if violation.division_id.get_value %}
-        <h4>{% trans "Country:" %} <strong>{{ violation.division_id.get_value | country_name }}</strong></h4>"
+        <h4>{% trans "Country:" %} <strong>{{ violation.division_id.get_value | country_name }}</strong></h4>
     {% endif %}
 
     {% if violation.types.get_list %}
