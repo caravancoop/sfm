@@ -66,6 +66,145 @@ class RequireLoginMiddleware(object):
         # Explicitly return None for all non-matching requests
         return None
 
+
+class AutofillAttributes(object):
+    '''
+    Helper class for getting attributes that we already know about entities
+    based on autocomplete queries.
+    '''
+
+    def __init__(self, objects=[], simple_attrs=[], complex_attrs=[],
+                 list_attrs=[], set_attrs={}):
+
+        # Model objects that we want to query
+        self.objects = objects
+
+        # Simple (non-complex) fields
+        self.simple_attrs = simple_attrs
+
+        # Complex single-select fields
+        self.complex_attrs = complex_attrs
+
+        # Complex multiselect fields
+        self.list_attrs = list_attrs
+
+        # Querysets from foreign key relationships
+        # (Requires both the attr name, and the foreign key name)
+        self.set_attrs = set_attrs
+
+    @property
+    def attrs(self):
+
+        collected_attrs = []
+
+        for obj in self.objects:
+
+            obj_data = {
+                'text': str(obj.name),
+                'id': obj.id
+            }
+
+            # Add optional attributes, with confidence values, to the results
+            for attr in self.simple_attrs:
+
+                try:
+                    val = getattr(obj, attr).get_value()
+                except AttributeError:
+                    val = None
+
+                if val:
+                    display_value = str(val.value)
+                    attr_confidence = val.confidence
+                else:
+                    display_value = ''
+                    attr_confidence = '1'
+
+                obj_data[attr] = display_value
+                obj_data[attr + '_confidence'] = attr_confidence
+
+            # Differentiate id/text for complex attributes
+            for attr in self.complex_attrs:
+
+                try:
+                    val = getattr(obj, attr).get_value()
+                except AttributeError:
+                    val = None
+
+                if val:
+                    val_id = val.id
+                    val_text = str(val.value)
+                    attr_confidence = val.confidence
+                else:
+                    val_id, val_text = '', ''
+                    attr_confidence = '1'
+
+                obj_data[attr] = {}
+                obj_data[attr]['id'] = val_id
+                obj_data[attr]['text'] = val_text
+                obj_data[attr + '_confidence'] = attr_confidence
+
+            # Add optional attributes that are lists
+            for attr in self.list_attrs:
+
+                try:
+                    lst = getattr(obj, attr).get_list()
+                except AttributeError:
+                    lst = []
+
+                lst_no_nulls = [inst.get_value() for inst in lst if inst.get_value()]
+
+                if any(lst_no_nulls):
+                    lst_confidence = lst_no_nulls[0].confidence
+                else:
+                    lst_confidence = '1'
+
+                cleaned_lst = []
+                for inst in lst_no_nulls:
+                    cleaned_lst.append({
+                        'id': inst.id,
+                        'text': str(inst.value)
+                    })
+
+                obj_data[attr] = cleaned_lst
+                obj_data[attr + '_confidence'] = lst_confidence
+
+            # Add objects corresponding to foreign keys
+            for attr, fkey in self.set_attrs.items():
+
+                try:
+                    lst = getattr(obj, attr).all()
+                except AttributeError:
+                    lst = []
+
+                lst_refs = [getattr(inst.object_ref, fkey) for inst in lst
+                            if getattr(inst.object_ref, fkey, None)]
+
+                lst_values = [inst.get_value().value for inst in lst_refs if inst.get_value()]
+
+                # We need to traverse the relationship again due to the particular
+                # membership relationships on complex fields
+                lst_values = [inst.get_value() for inst in lst_values if inst.get_value()]
+
+                if any(lst_values):
+                    lst_confidence = lst_values[0].confidence
+                else:
+                    lst_confidence = '1'
+
+                cleaned_lst = []
+                for inst in lst_values:
+                    cleaned_lst.append({
+                        'id': inst.id,
+                        'text': str(inst.value)
+                    })
+
+                obj_data[attr] = cleaned_lst
+                obj_data[attr + '_confidence'] = lst_confidence
+
+            collected_attrs.append(obj_data)
+
+        return collected_attrs
+
+
 def class_for_name(class_name, module_name="person.models"):
     if class_name == "Membershipperson":
         class_name = "MembershipPerson"

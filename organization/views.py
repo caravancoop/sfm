@@ -18,7 +18,9 @@ from organization.forms import (OrganizationForm, OrganizationGeographyForm,
 from organization.models import Organization, OrganizationAlias, Alias, \
     OrganizationClassification, Classification
 
-from sfm_pc.utils import get_osm_by_id, get_hierarchy_by_id, get_org_hierarchy_by_id,  get_command_edges, get_command_nodes
+from sfm_pc.utils import (get_osm_by_id, get_hierarchy_by_id,
+                          get_org_hierarchy_by_id,  get_command_edges,
+                          get_command_nodes, AutofillAttributes)
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -592,82 +594,26 @@ def organization_autocomplete(request):
     term = request.GET.get('q')
     organizations = Organization.objects.filter(organizationname__value__icontains=term).all()
 
-    results = []
-    for organization in organizations:
+    simple_attrs = [
+        'headquarters',
+        'firstciteddate',
+        'realstart',
+        'lastciteddate',
+        'open_ended'
+    ]
 
-        org_data = {
-            'text': str(organization.name),
-            'id': organization.id
-        }
+    complex_attrs = ['division_id']
 
-        optional_attrs = {
-            'headquarters': organization.headquarters.get_value(),
-            'firstciteddate': organization.firstciteddate.get_value(),
-            'realstart': organization.realstart.get_value(),
-            'lastciteddate': organization.lastciteddate.get_value(),
-            'open_ended': organization.open_ended.get_value()
-        }
+    list_attrs = ['alias', 'classification']
 
-        complex_attrs = {
-            'division_id': organization.division_id.get_value(),
-        }
+    autofill = AutofillAttributes(objects=organizations,
+                                  simple_attrs=simple_attrs,
+                                  complex_attrs=complex_attrs,
+                                  list_attrs=list_attrs)
 
-        list_attrs = {
-            'alias': organization.aliases.get_list(),
-            'classification': organization.classification.get_list(),
-        }
+    attrs = autofill.attrs
 
-        # Add optional attributes, with confidence values, to the results
-        for attr, val in optional_attrs.items():
-
-            if val:
-                display_value = str(val.value)
-                attr_confidence = val.confidence
-            else:
-                display_value = ''
-                attr_confidence = '1'
-
-            org_data[attr] = display_value
-            org_data[attr + '_confidence'] = attr_confidence
-
-        # Differentiate id/text for complex attributes
-        for attr, val in complex_attrs.items():
-
-            if val:
-                val_id = val.id
-                val_text = str(val.value)
-                attr_confidence = val.confidence
-            else:
-                val_id, val_text = '', ''
-                attr_confidence = '1'
-
-            org_data[attr] = {}
-            org_data[attr]['id'] = val_id
-            org_data[attr]['text'] = val_text
-            org_data[attr + '_confidence'] = attr_confidence
-
-        # Add optional attributes that are lists
-        for attr, lst in list_attrs.items():
-            lst_no_nulls = [obj.get_value() for obj in lst if obj.get_value()]
-
-            if any(lst_no_nulls):
-                lst_confidence = lst_no_nulls[0].confidence
-            else:
-                lst_confidence = '1'
-
-            cleaned_lst = []
-            for obj in lst_no_nulls:
-                cleaned_lst.append({
-                    'id': obj.id,
-                    'text': str(obj.value)
-                })
-
-            org_data[attr] = cleaned_lst
-            org_data[attr + '_confidence'] = lst_confidence
-
-        results.append(org_data)
-
-    return HttpResponse(json.dumps(results), content_type='application/json')
+    return HttpResponse(json.dumps(attrs), content_type='application/json')
 
 
 def alias_autocomplete(request):

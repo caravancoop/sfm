@@ -26,7 +26,8 @@ from person.forms import PersonForm
 from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
-from sfm_pc.utils import deleted_in_str, get_org_hierarchy_by_id, get_command_edges, get_command_nodes
+from sfm_pc.utils import (deleted_in_str, get_org_hierarchy_by_id,
+                          get_command_edges, get_command_nodes, AutofillAttributes)
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -402,6 +403,9 @@ class PersonCreate(BaseFormSetView):
                                                    'orgs_confidence', 1))
 
             for org in orgs:
+
+                organization = Organization.objects.get(id=org)
+
                 mem_data = {
                     'MembershipPerson_MembershipPersonMember': {
                         'value': person,
@@ -414,13 +418,24 @@ class PersonCreate(BaseFormSetView):
                         'sources': [self.source],
                     }
                 }
-                membership = MembershipPerson.create(mem_data)
-                self.memberships.append({
-                    'person': str(person.name),
-                    'organization': str(Organization.objects.get(id=org).name),
-                    'membership': membership.id,
-                    'first': first
-                })
+
+                membership, created = MembershipPerson.objects.get_or_create(membershippersonmember__value=person,
+                                                                             membershippersonorganization__value=organization)
+
+                # We only care about updating new memberships, since we show
+                # the user old memberships that weren't necessarily part of this
+                # source
+                if created:
+
+                    membership.update(mem_data)
+
+                    self.memberships.append({
+                        'person': str(person.name),
+                        'organization': str(organization.name),
+                        'membership': membership.id,
+                        'first': first
+                    })
+
                 first = False
 
             # Queue up to be added to search index
@@ -448,13 +463,21 @@ class PersonCreate(BaseFormSetView):
 def person_autocomplete(request):
     term = request.GET.get('q')
     people = Person.objects.filter(personname__value__icontains=term).all()
-    results = []
-    for person in people:
-        results.append({
-            'text': str(person.name),
-            'id': person.id,
-        })
-    return HttpResponse(json.dumps(results), content_type='application/json')
+
+    complex_attrs = ['division_id']
+
+    list_attrs = ['aliases', 'classification']
+
+    set_attrs = {'membershippersonmember_set': 'organization'}
+
+    autofill = AutofillAttributes(objects=people,
+                                  set_attrs=set_attrs,
+                                  complex_attrs=complex_attrs,
+                                  list_attrs=list_attrs)
+
+    attrs = autofill.attrs
+
+    return HttpResponse(json.dumps(attrs), content_type='application/json')
 
 def alias_autocomplete(request):
     term = request.GET.get('q')
