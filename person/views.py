@@ -446,7 +446,6 @@ class PersonCreate(BaseFormSetView):
 
             self.request.session['index'][str(person.uuid)] = 'people'
 
-
         self.request.session['people'] = [{'id': p.id, 'name': p.name.get_value().value} \
                                                      for p in self.people]
         self.request.session['memberships'] = self.memberships
@@ -457,6 +456,7 @@ class PersonCreate(BaseFormSetView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['people'] = formset.data
+        self.request.session.modified = True
 
         return response
 

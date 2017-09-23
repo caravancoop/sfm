@@ -569,19 +569,12 @@
             },
             cache: true,
             processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': params.term,
-                                'text': params.term }]};
-                }
+                return { results: data };
             }
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
         selectOnClose: true,
-        tags: true,
         allowClear: true,
         placeholder: ''
     }
@@ -763,7 +756,9 @@
                     var key = checkboxes[idx];
                     var input = form_prefix + '-' + key;
 
-                    $(input).prop('checked', e.params.data[key]);
+                    if (e.params.data[key] === 'True') {
+                        $(input).prop('checked', true);
+                    }
                 }
 
                 // Inputs that use AJAX
@@ -774,24 +769,35 @@
                     var input = form_prefix + '-' + key;
 
                     var data_dict = e.params.data[key];
-                    var new_option = new Option(data_dict.text, data_dict.id, false, true);
+                    var new_option = new Option(data_dict.text, data_dict.text, true, true);
                     $(input).append(new_option);
                     $(input).trigger('change');
                 }
 
                 // Multiselect inputs
-                // Last empty object is necessary due to a bug in select2
-                var lst_attrs = ['classification', 'alias', {}];
+                // We need the bogus last element of the array to account for a
+                // select2 bug that sometimes fails to fill out the last element
+                var lst_attrs = ['aliases', 'classification'];
 
                 for (var idx = 0; idx < lst_attrs.length; idx++) {
                     var key = lst_attrs[idx];
-                    var input = form_prefix + '-' + key;
+                    if (key === 'aliases') {
+                        var input = form_prefix + '-' + 'alias';
+                    } else {
+                        var input = form_prefix + '-' + key;
+                    }
 
                     var data_arr = e.params.data[key];
 
                     for (var i = 0; i < data_arr.length; i++) {
-                        var new_option = new Option(data_arr[i].text, data_arr[i].id, false, true);
+                        new_option = new Option(data_arr[i].text, data_arr[i].id, true, true);
                         $(input).append(new_option);
+                        $(input).trigger({
+                            type: 'select2:select',
+                            params: {
+                                data: data_arr[i]
+                            }
+                        });
                     }
 
                     $(input).trigger('change');
@@ -801,18 +807,19 @@
                 var all_attrs = simple_attrs.concat(checkboxes, complex_attrs, lst_attrs);
 
                 for (var idx = 0; idx < all_attrs.length; idx++) {
-                    var key = all_attrs[idx];
+                    var key = all_attrs[idx] + '_confidence';
                     var confidence_input = form_prefix + '-' + key;
 
                     var confidence = e.params.data[key];
                     $(confidence_input).val(confidence);
-                    $(input).trigger('change');
+                    $(confidence_input).trigger('change');
                 }
             }
         });
 
         $(name_field).on('select2:unselect', function(e){
             $(name_field).val(null).trigger('change');
+            $(name_field).empty()
             $(name_field + '_text').val(null);
         });
 
@@ -826,6 +833,10 @@
             $(division_field + ' :selected').text(value);
         });
 
+        $(division_field).on('select2:unselect', function(e){
+            $(division_field).val(null).trigger('change');
+            $(division_field).empty()
+        });
     }
 </script>
 {% endblock %}

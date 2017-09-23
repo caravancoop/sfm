@@ -172,6 +172,7 @@ class MembershipPersonCreate(BaseFormSetView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['memberships'] = formset.data
+        self.request.session.modified = True
 
         response = super().formset_valid(formset)
 

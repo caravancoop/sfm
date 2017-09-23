@@ -244,7 +244,7 @@ class OrganizationCreate(BaseFormSetView):
                 for alias_id in alias_ids:
                     try:
                         alias_id = int(alias_id)
-                        alias = Alias.objects.get(id=alias_id)
+                        alias = OrganizationAlias.objects.get(id=alias_id)
                     except ValueError:
                         alias = {'id': alias_id, 'value': alias_id}
                     form.aliases.append(alias)
@@ -254,7 +254,7 @@ class OrganizationCreate(BaseFormSetView):
                 for class_id in classification_ids:
                     try:
                         class_id = int(class_id)
-                        classification = Classification.objects.get(id=class_id)
+                        classification = OrganizationClassification.objects.get(id=class_id)
                     except ValueError:
                         classification = {'id': class_id,
                                           'value': class_id}
@@ -400,7 +400,7 @@ class OrganizationCreate(BaseFormSetView):
             formset.data[form_prefix + 'name'] = organization.id
 
             # Aliases
-            aliases = formset.data.get(form_prefix + 'alias_text')
+            aliases = formset.data.get(form_prefix + 'alias')
 
             if aliases:
 
@@ -409,17 +409,23 @@ class OrganizationCreate(BaseFormSetView):
 
                 for alias in aliases:
 
-                    alias_obj, created = Alias.objects.get_or_create(value=alias)
+                    try:
+                        # If the `value` property is a string, the alias is new
+                        alias_id = int(alias)
+                        oa_obj = OrganizationAlias.objects.get(id=alias_id)
 
-                    oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
-                                                                              object_ref=organization,
-                                                                              lang=get_language())
+                    except ValueError:
+                        alias_obj, created = Alias.objects.get_or_create(value=alias)
+
+                        oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
+                                                                                  object_ref=organization,
+                                                                                  lang=get_language())
                     oa_obj.sources.add(self.source)
                     oa_obj.confidence = alias_confidence
                     oa_obj.save()
 
             # Classifications
-            classifications = formset.data.get(form_prefix + 'classification_text')
+            classifications = formset.data.get(form_prefix + 'classification')
 
             if classifications:
 
@@ -428,11 +434,16 @@ class OrganizationCreate(BaseFormSetView):
 
                 for classification in classifications:
 
-                    class_obj, created = Classification.objects.get_or_create(value=classification)
+                    try:
+                        class_id = int(classification)
+                        oc_obj = OrganizationClassification.objects.get(id=class_id)
 
-                    oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
-                                                                                       object_ref=organization,
-                                                                                       lang=get_language())
+                    except ValueError:
+                        class_obj, created = Classification.objects.get_or_create(value=classification)
+
+                        oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
+                                                                                        object_ref=organization,
+                                                                                        lang=get_language())
                     oc_obj.sources.add(self.source)
                     oc_obj.confidence = classification_confidence
                     oc_obj.save()
@@ -458,6 +469,7 @@ class OrganizationCreate(BaseFormSetView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['organizations'] = formset.data
+        self.request.session.modified = True
 
         return response
 
@@ -604,7 +616,7 @@ def organization_autocomplete(request):
 
     complex_attrs = ['division_id']
 
-    list_attrs = ['alias', 'classification']
+    list_attrs = ['aliases', 'classification']
 
     autofill = AutofillAttributes(objects=organizations,
                                   simple_attrs=simple_attrs,
@@ -929,5 +941,6 @@ class OrganizationCreateGeography(BaseFormSetView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['geographies'] = formset.data
+        self.request.session.modified = True
 
         return response

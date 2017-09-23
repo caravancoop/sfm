@@ -113,7 +113,10 @@ class AutofillAttributes(object):
                     val = None
 
                 if val:
-                    display_value = str(val.value)
+                    if attr.endswith('date'):
+                        display_value = repr(val.value)
+                    else:
+                        display_value = str(val.value)
                     attr_confidence = val.confidence
                 else:
                     display_value = ''

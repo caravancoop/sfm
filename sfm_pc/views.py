@@ -53,6 +53,8 @@ class Dashboard(TemplateView):
             if self.request.session.get(cookie):
                 del self.request.session[cookie]
 
+        self.request.session.modified = True
+
         return context
 
 class SetConfidence(TemplateView):

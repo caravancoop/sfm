@@ -359,18 +359,12 @@
             },
             cache: true,
             processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': params.term,
-                                'text': params.term }]};
-                }
+                return { results: data };
             }
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
-        tags: true,
+        selectOnClose: true,
         allowClear: true,
         placeholder: ''
     }
@@ -497,12 +491,10 @@
             // If this person already exists, fill out info we already know
             if (e.params.data.id !== -1) {
 
-                console.log(e.params.data);
-
                 var form_prefix = '#id_form-' + (form_num - 1);
 
                 // Simple, out-of-the-box form inputs
-                var simple_attrs = []
+                var simple_attrs = [];
 
                 for (var idx = 0; idx < simple_attrs.length; idx++) {
                     var key = simple_attrs[idx];
@@ -512,7 +504,7 @@
                 }
 
                 // HTML checkboxes
-                var checkboxes = []
+                var checkboxes = [];
 
                 for (var idx = 0; idx < checkboxes.length; idx++) {
                     var key = checkboxes[idx];
@@ -529,13 +521,12 @@
                     var input = form_prefix + '-' + key;
 
                     var data_dict = e.params.data[key];
-                    var new_option = new Option(data_dict.text, data_dict.id, false, true);
+                    var new_option = new Option(data_dict.text, data_dict.text, false, true);
                     $(input).append(new_option);
                     $(input).trigger('change');
                 }
 
                 // Multiselect inputs
-                // Last empty object is necessary due to a bug in select2
                 var lst_attrs = ['aliases'];
 
                 for (var idx = 0; idx < lst_attrs.length; idx++) {
@@ -562,15 +553,10 @@
 
                     var input = form_prefix + '-' + key;
 
-                    console.log(input)
-
                     var data_arr = e.params.data[attr];
-
-                    console.log(data_arr)
 
                     for (var i = 0; i < data_arr.length; i++) {
                         var new_option = new Option(data_arr[i].text, data_arr[i].id, false, true);
-                        console.log(new_option)
                         $(input).append(new_option);
                     }
 
@@ -582,18 +568,19 @@
                                                     lst_attrs, set_attrs);
 
                 for (var idx = 0; idx < all_attrs.length; idx++) {
-                    var key = all_attrs[idx];
+                    var key = all_attrs[idx] + '_confidence';
                     var confidence_input = form_prefix + '-' + key;
 
                     var confidence = e.params.data[key];
                     $(confidence_input).val(confidence);
-                    $(input).trigger('change');
+                    $(confidence_input).trigger('change');
                 }
             }
         });
 
         $(name_field).on('select2:unselect', function(e){
             $(name_field).val(null).trigger('change');
+            $(name_field).empty()
             $(name_field + '_text').val(null);
         });
 
@@ -602,6 +589,11 @@
             $(division_field + ' :selected').prop('selected', false);
             $(division_field + ' :selected').attr('value', e.params.data.id);
             $(division_field + ' :selected').text(value);
+        });
+
+        $(division_field).on('select2:unselect', function(e){
+            $(division_field).val(null).trigger('change');
+            $(division_field).empty()
         });
     }
 </script>
