@@ -74,42 +74,26 @@ class PersonDetail(DetailView):
             # Grab the org object
             org = membership.object_ref.organization.get_value().value
 
+            # Get info about chain of command
+            mem_data = {}
+
+            when = None
             if membership.object_ref.lastciteddate.get_value():
-                # Create an object of edges and nodes for the charts carousel 
-                command_chain = {}
+                when = repr(membership.object_ref.lastciteddate.get_value().value)
+                mem_data['when'] = when
 
-                last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
-                node_list_raw = get_command_nodes(org.uuid, when=last_cited)
-                edge_list = get_command_edges(org.uuid, when=last_cited)
+            org_id = str(org.uuid)
 
-                # Create a "from" link for the person and their org.
-                edge_list.append({'from': str(org.uuid)})
+            kwargs = {'org_id': org_id}
+            ajax_route = 'command-chain'
+            if when:
+                kwargs['when'] = when
+                ajax_route = 'command-chain-bounded'
 
-                # Push the person and their org in the node_list.
-                label = '<b>' + str(org.name) + '</b>' + '\n\n' + str(membership.object_ref.member.get_value().value.name)
+            command_chain_url = reverse(ajax_route, kwargs=kwargs)
 
-                person_on_detail = {
-                    'id': str(org.uuid),
-                    'label': str(label),
-                    'detail_id': ''
-                }
-
-                node_list_raw.append(person_on_detail)
-
-                # Add a unique URL to individual nodes for redirect to organization detail view
-                node_list = []
-                for node in node_list_raw:
-                    if node['detail_id']:
-                        detail_id = node['detail_id']
-                        # Cast as a string to make it JSON serializable
-                        url = reverse('detail_organization', args=[detail_id])
-                        node['url'] = url
-                    node_list.append(node)
-
-                command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
-                command_chain['nodes'] = json.dumps(node_list)
-                command_chain['edges'] = json.dumps(edge_list)
-                context['command_chain'].append(json.dumps(command_chain))
+            mem_data['url'] = command_chain_url
+            context['command_chain'].append(mem_data)
 
             # Next, get some info about subordinates
             # Start by getting all child organizations for the member org

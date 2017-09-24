@@ -9,7 +9,6 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.db import connection
 
-
 CONFIDENCE_MAP = {
     'low': 1,
     'medium': 2,
@@ -608,3 +607,4 @@ def get_command_nodes(org_id, when=None):
         nodes.append(trimmed)
 
     return nodes
+

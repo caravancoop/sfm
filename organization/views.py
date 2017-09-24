@@ -54,48 +54,33 @@ class OrganizationDetail(DetailView):
                 context['areas'].append(association.object_ref.area.get_value().value)
 
         context['parents'] = []
-        context['parents_chain'] = []
+        context['parents_list'] = []
         parents = context['organization'].parent_organization.all()
         # "parent" is a CompositionChild
         for parent in parents:
-            parents_chain = {}
+
             context['parents'].append(parent.object_ref.parent.get_value().value)
 
-            enddate = None
+            org_data = {'when': '', 'url': ''}
+
+            when = None
             if parent.object_ref.enddate.get_value():
-                enddate = repr(parent.object_ref.enddate.get_value().value)
-                parents_chain['when'] = str(parent.object_ref.enddate.get_value().value)
+                when = repr(parent.object_ref.enddate.get_value().value)
+                org_data['when'] = when
 
-            node_list_raw = get_command_nodes(parent.value.uuid, when=enddate)
-            edge_list = get_command_edges(parent.value.uuid, when=enddate)
+            org_id = str(parent.value.uuid)
 
-            # Create a "from" link for the person and their org.
-            edge_list.append({'from': str(parent.value.uuid)})
+            kwargs = {'org_id': org_id}
+            ajax_route = 'command-chain'
+            if when:
+                kwargs['when'] = when
+                ajax_route = 'command-chain-bounded'
 
-            # Push the person and their org in the node_list.
-            label = '<b>' + str(parent.value.name) + '</b>'
+            command_chain_url = reverse(ajax_route, kwargs=kwargs)
 
-            org_on_detail = {
-                'id': str(parent.value.uuid),
-                'label': str(label),
-                'detail_id': ''
-            }
+            org_data['url'] = command_chain_url
 
-            node_list_raw.append(org_on_detail)
-
-            # Add a unique URL to individual nodes for redirect to organization detail view
-            node_list = []
-            for node in node_list_raw:
-                if node['detail_id']:
-                    detail_id = node['detail_id']
-                    # Cast as a string to make it JSON serializable
-                    url = reverse('detail_organization', args=[detail_id])
-                    node['url'] = url
-                node_list.append(node)
-
-            parents_chain['nodes'] = json.dumps(node_list)
-            parents_chain['edges'] = json.dumps(edge_list)
-            context['parents_chain'].append(json.dumps(parents_chain))
+            context['parents_list'].append(org_data)
 
         context['subsidiaries'] = []
         children = context['organization'].child_organization.all()
