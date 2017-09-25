@@ -51,7 +51,9 @@ class OrganizationDetail(DetailView):
         associations = context['organization'].associationorganization_set.all()
         for association in associations:
             if association.object_ref.area.get_value().value.osmid.get_value():
-                context['areas'].append(association.object_ref.area.get_value().value)
+                geom = association.object_ref.area.get_value().value.geometry
+                area = geom.get_value().value.simplify(tolerance=0.01)
+                context['areas'].append(area)
 
         context['parents'] = []
         context['parents_list'] = []

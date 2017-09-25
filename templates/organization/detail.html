@@ -377,7 +377,7 @@
                             { attribution: attribution, detectRetina: true }).addTo(area_map);
                 var areas = L.featureGroup();
                 {% for area in areas %}
-                    var geom = {{ area.geometry.get_value.value.geojson|safe}};
+                    var geom = {{ area.geojson|safe}};
                     geom['properties'] = {'name': "{{ area.osmname }}"};
                     areas.addLayer(
                         L.geoJson(geom, {onEachFeature: onEachFeature})
