@@ -187,6 +187,7 @@ class CompositionCreate(BaseFormSetView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['compositions'] = formset.data
+        self.request.session.modified = True
 
         response = super().formset_valid(formset)
         return response

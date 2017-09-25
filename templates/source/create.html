@@ -56,7 +56,6 @@
             <label for="id_publication" class="control-label col-sm-2">{% trans "Publication" %}</label>
             <div class="col-sm-8">
                 <select id="id_publication" class="form-control" name="publication">
-                    <option value="None">---------</option>
                     <option value="{{ form.cleaned_data.publication }}" selected=true>{{ publication_title }}</option>
                 </select>
                 <input type="hidden" name="publication_title" id="id_publication_title" value="{{ publication_title }}">
@@ -179,6 +178,7 @@
             minimumInputLength: 2,
             tags: true,
             allowClear: true,
+            selectOnClose: true,
             placeholder: '',
             language: { 
                 inputTooShort: function () { 
@@ -192,6 +192,7 @@
         $('#id_publication_country').select2({
             allowClear: true,
             placeholder: '',
+            selectOnClose: true,
             language: { 
                 noResults: function (params) {
                   return '{% trans "No results found" %}';
@@ -204,6 +205,12 @@
                 var country_option = $('#id_publication_country').val(e.params.data.country);
                 country_option.trigger('change');
             }
+        });
+        $('#id_publication').on('select2:unselect', function(e){
+            var selector = '#id_publication';
+            $(selector).val(null).trigger('change');
+            $(selector + '_title').val(null);
+            $(selector + '_uuid').val(null);
         });
         $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
     });

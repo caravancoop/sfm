@@ -97,6 +97,8 @@ class SourceCreate(FormView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['source'] = form.data
+        self.request.session.modified = True
+
         return response
 
 def source_autocomplete(request):

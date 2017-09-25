@@ -13,7 +13,7 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.utils.translation import get_language
 from django.db import connection
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -29,7 +29,8 @@ from violation.models import Violation
 from membershipperson.models import MembershipPerson
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
-from sfm_pc.utils import import_class, get_osm_by_id
+from sfm_pc.utils import (import_class, get_osm_by_id, get_org_hierarchy_by_id,
+                          get_child_orgs_by_id)
 from sfm_pc.forms import MergeForm
 from sfm_pc.base_views import UtilityMixin
 
@@ -52,6 +53,8 @@ class Dashboard(TemplateView):
         for cookie in form_cookies:
             if self.request.session.get(cookie):
                 del self.request.session[cookie]
+
+        self.request.session.modified = True
 
         return context
 
@@ -331,7 +334,7 @@ def osm_autocomplete(request):
         if hasattr(result, 'geometry'):
             latlng = '{0},{1}'.format(result.latitude, result.longitude)
             map_image = 'https://maps.googleapis.com/maps/api/staticmap'
-            map_image = '{0}?center={1}&zoom=10&size=100x100&key={2}&scale=2'.format(map_image,
+            map_image = '{0}?center={1}&zoom=9&size=100x100&key={2}&scale=2'.format(map_image,
                                                                                      latlng,
                                                                                      settings.GOOGLE_MAPS_KEY)
         results.append({
@@ -360,3 +363,48 @@ def division_autocomplete(request):
             'id': 'ocd-division/country:{}'.format(country.iso.lower()),
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
+
+def command_chain(request, org_id='', when=None, parents=True):
+
+    index = request.GET.get('index', '')
+
+    nodes, edges = [], []
+
+    # Include the queried org in the nodelist and edgelist
+    queried_org = Organization.objects.get(uuid=org_id)
+
+    edges.append({'from': str(queried_org.uuid)})
+
+    label = '<b>' + str(queried_org.name) + '</b>'
+
+    org_on_detail = {
+        'id': str(queried_org.uuid),
+        'label': str(label),
+        'detail_id': '',
+        'url': ''
+    }
+
+    nodes.append(org_on_detail)
+
+    # Add hierarchy to nodelist and edgelist
+    if parents:
+        hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
+        from_key, to_key = 'id', 'child_id'
+    else:
+        hierarchy_list = get_child_orgs_by_id(org_id, when=when)
+        from_key, to_key = 'parent_id', 'id'
+
+    for org in hierarchy_list:
+        trimmed = {
+            'id': str(org[from_key]),
+            'label': org['label'],
+            'detail_id': org['detail_id'],
+            'url': reverse('detail_organization', args=[org['detail_id']])
+        }
+        nodes.append(trimmed)
+        edges.append({'from': str(org[from_key]), 'to': org[to_key]})
+
+    edgelist = {'nodes': nodes, 'edges': edges, 'index': index}
+
+    return HttpResponse(json.dumps(edgelist), content_type='application/json')
+

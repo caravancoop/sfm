@@ -18,7 +18,9 @@ from organization.forms import (OrganizationForm, OrganizationGeographyForm,
 from organization.models import Organization, OrganizationAlias, Alias, \
     OrganizationClassification, Classification
 
-from sfm_pc.utils import get_osm_by_id, get_hierarchy_by_id, get_org_hierarchy_by_id,  get_command_edges, get_command_nodes
+from sfm_pc.utils import (get_osm_by_id, get_hierarchy_by_id,
+                          get_org_hierarchy_by_id,  get_command_edges,
+                          get_command_nodes, AutofillAttributes)
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -52,48 +54,33 @@ class OrganizationDetail(DetailView):
                 context['areas'].append(association.object_ref.area.get_value().value)
 
         context['parents'] = []
-        context['parents_chain'] = []
+        context['parents_list'] = []
         parents = context['organization'].parent_organization.all()
         # "parent" is a CompositionChild
         for parent in parents:
-            parents_chain = {}
+
             context['parents'].append(parent.object_ref.parent.get_value().value)
 
-            enddate = None
+            org_data = {'when': '', 'url': ''}
+
+            when = None
             if parent.object_ref.enddate.get_value():
-                enddate = repr(parent.object_ref.enddate.get_value().value)
-                parents_chain['when'] = str(parent.object_ref.enddate.get_value().value)
+                when = repr(parent.object_ref.enddate.get_value().value)
+                org_data['when'] = when
 
-            node_list_raw = get_command_nodes(parent.value.uuid, when=enddate)
-            edge_list = get_command_edges(parent.value.uuid, when=enddate)
+            org_id = str(parent.value.uuid)
 
-            # Create a "from" link for the person and their org.
-            edge_list.append({'from': str(parent.value.uuid)})
+            kwargs = {'org_id': org_id}
+            ajax_route = 'command-chain'
+            if when:
+                kwargs['when'] = when
+                ajax_route = 'command-chain-bounded'
 
-            # Push the person and their org in the node_list.
-            label = '<b>' + str(parent.value.name) + '</b>'
+            command_chain_url = reverse(ajax_route, kwargs=kwargs)
 
-            org_on_detail = {
-                'id': str(parent.value.uuid),
-                'label': str(label),
-                'detail_id': ''
-            }
+            org_data['url'] = command_chain_url
 
-            node_list_raw.append(org_on_detail)
-
-            # Add a unique URL to individual nodes for redirect to organization detail view
-            node_list = []
-            for node in node_list_raw:
-                if node['detail_id']:
-                    detail_id = node['detail_id']
-                    # Cast as a string to make it JSON serializable
-                    url = reverse('detail_organization', args=[detail_id])
-                    node['url'] = url
-                node_list.append(node)
-
-            parents_chain['nodes'] = json.dumps(node_list)
-            parents_chain['edges'] = json.dumps(edge_list)
-            context['parents_chain'].append(json.dumps(parents_chain))
+            context['parents_list'].append(org_data)
 
         context['subsidiaries'] = []
         children = context['organization'].child_organization.all()
@@ -242,7 +229,7 @@ class OrganizationCreate(BaseFormSetView):
                 for alias_id in alias_ids:
                     try:
                         alias_id = int(alias_id)
-                        alias = Alias.objects.get(id=alias_id)
+                        alias = OrganizationAlias.objects.get(id=alias_id)
                     except ValueError:
                         alias = {'id': alias_id, 'value': alias_id}
                     form.aliases.append(alias)
@@ -252,7 +239,7 @@ class OrganizationCreate(BaseFormSetView):
                 for class_id in classification_ids:
                     try:
                         class_id = int(class_id)
-                        classification = Classification.objects.get(id=class_id)
+                        classification = OrganizationClassification.objects.get(id=class_id)
                     except ValueError:
                         classification = {'id': class_id,
                                           'value': class_id}
@@ -398,7 +385,7 @@ class OrganizationCreate(BaseFormSetView):
             formset.data[form_prefix + 'name'] = organization.id
 
             # Aliases
-            aliases = formset.data.get(form_prefix + 'alias_text')
+            aliases = formset.data.get(form_prefix + 'alias')
 
             if aliases:
 
@@ -407,17 +394,23 @@ class OrganizationCreate(BaseFormSetView):
 
                 for alias in aliases:
 
-                    alias_obj, created = Alias.objects.get_or_create(value=alias)
+                    try:
+                        # If the `value` property is a string, the alias is new
+                        alias_id = int(alias)
+                        oa_obj = OrganizationAlias.objects.get(id=alias_id)
 
-                    oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
-                                                                              object_ref=organization,
-                                                                              lang=get_language())
+                    except ValueError:
+                        alias_obj, created = Alias.objects.get_or_create(value=alias)
+
+                        oa_obj, created = OrganizationAlias.objects.get_or_create(value=alias_obj,
+                                                                                  object_ref=organization,
+                                                                                  lang=get_language())
                     oa_obj.sources.add(self.source)
                     oa_obj.confidence = alias_confidence
                     oa_obj.save()
 
             # Classifications
-            classifications = formset.data.get(form_prefix + 'classification_text')
+            classifications = formset.data.get(form_prefix + 'classification')
 
             if classifications:
 
@@ -426,11 +419,16 @@ class OrganizationCreate(BaseFormSetView):
 
                 for classification in classifications:
 
-                    class_obj, created = Classification.objects.get_or_create(value=classification)
+                    try:
+                        class_id = int(classification)
+                        oc_obj = OrganizationClassification.objects.get(id=class_id)
 
-                    oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
-                                                                                       object_ref=organization,
-                                                                                       lang=get_language())
+                    except ValueError:
+                        class_obj, created = Classification.objects.get_or_create(value=classification)
+
+                        oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
+                                                                                        object_ref=organization,
+                                                                                        lang=get_language())
                     oc_obj.sources.add(self.source)
                     oc_obj.confidence = classification_confidence
                     oc_obj.save()
@@ -456,6 +454,7 @@ class OrganizationCreate(BaseFormSetView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['organizations'] = formset.data
+        self.request.session.modified = True
 
         return response
 
@@ -592,13 +591,26 @@ def organization_autocomplete(request):
     term = request.GET.get('q')
     organizations = Organization.objects.filter(organizationname__value__icontains=term).all()
 
-    results = []
-    for organization in organizations:
-        results.append({
-            'text': str(organization.name),
-            'id': organization.id,
-        })
-    return HttpResponse(json.dumps(results), content_type='application/json')
+    simple_attrs = [
+        'headquarters',
+        'firstciteddate',
+        'realstart',
+        'lastciteddate',
+        'open_ended'
+    ]
+
+    complex_attrs = ['division_id']
+
+    list_attrs = ['aliases', 'classification']
+
+    autofill = AutofillAttributes(objects=organizations,
+                                  simple_attrs=simple_attrs,
+                                  complex_attrs=complex_attrs,
+                                  list_attrs=list_attrs)
+
+    attrs = autofill.attrs
+
+    return HttpResponse(json.dumps(attrs), content_type='application/json')
 
 
 def alias_autocomplete(request):
@@ -914,5 +926,6 @@ class OrganizationCreateGeography(BaseFormSetView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['geographies'] = formset.data
+        self.request.session.modified = True
 
         return response

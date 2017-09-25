@@ -170,120 +170,23 @@
 {% block extra_js %}
     {% if command_chain %}
         <script src="{% static 'js/vis.min.js' %}"></script>
+        <script src="{% static 'js/spin.min.js' %}"></script>
+        <script src="{% static 'js/jquery.spin.js' %}"></script>
+        <script src="{% static 'js/command_chart.js' %}"></script>
         <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
         <script>
-        var org_count = ({{command_chain|safe}}).length
-        
-        function addMultiFont(node_list) {
-            new_list = node_list.map(function(item) {
-                item['font'] = {multi: true};
-                return item
-            });
-
-            return new_list
-        }; 
 
         $(document).ready(function() {
-            // Add divs to carousel
-            $.each({{command_chain|safe}}, function(index, value) {
-                cellID = "command-chart-" + index
-                cellYearID = "command-chart-year-" + index
-                $('#org-chart-container').append('<div class="carousel-cell"><div class="chart-cell" id="' + cellID + '"></div><div class="chart-date text-center" id="' + cellYearID + '"></div></div>');
-            });
 
-            // Initialize carousel
-            if (org_count > 1) {
-                var orgCarousel = $('#org-chart-container').flickity({
-                    initialIndex: org_count - 1,
-                    wrapAround: true,
-                    draggable: true,
-                });
-            };
-        
-            // Build charts and add year
-            $.each({{command_chain|safe}}, function(index, value) {
-                cellID = "command-chart-" + index
-                cellYearID = "command-chart-year-" + index
+            var edgelists = {{command_chain|safe}};
 
-                obj = JSON.parse(value);
-                node_list = addMultiFont(JSON.parse(obj['nodes']));
-                edge_list = JSON.parse(obj['edges']);
-                when = obj['when'];
+            var chart = CommandChart;
+            chart.edgelists = edgelists;
 
-                nodes = new vis.DataSet(node_list);
-                edges = new vis.DataSet(edge_list);
-
-                container = document.getElementById(cellID);
-                data = {
-                    nodes: nodes,
-                    edges: edges,
-                };
-
-                options = {
-                    nodes:{
-                        shape: 'box',
-                        fixed: {
-                          x:true,
-                          y:true,
-                        },
-                        shapeProperties: {
-                          borderRadius: 2,
-                        },
-                        color: {
-                            background: '#f4f4f4',
-                            border: '#D6D6D6',
-                            highlight: { // Change color of node on click
-                                background: '#EBEBEB',
-                                border: '#D6D6D6',
-                            },
-                            hover: {
-                                background:'#e0e0e0',
-                                border:'#D6D6D6',
-                            },
-                        },
-                        font: {
-                            color: '#777777',
-                            face: 'Open Sans',
-                        },
-                    },
-                    layout: {
-                        hierarchical: {
-                          levelSeparation: 100, // Distance between levels
-                          nodeSpacing: 300, // Distance between nodes
-                          direction: 'UD', // Inverts chart
-                          sortMethod: 'directed',
-                        }
-                    },
-                    interaction: {
-                        zoomView: false,
-                        dragView: false,
-                        hover:true,
-                    },
-                };
-
-                network = new vis.Network(container, data, options);
-
-                $('#' + cellYearID).append(when);
-
-                // Bind click event to individual nodes
-                network.on("selectNode", function (params) {
-                    if (params.nodes.length === 1) {
-                        node = nodes.get(params.nodes[0]);
-                        window.location = node.url;
-                    }
-                });
-
-                // Transform cursor (from hand into pointed finger and back again)
-                network.on("hoverNode", function (params) {
-                    network.canvas.body.container.style.cursor = 'pointer'
-                });
-
-                network.on("blurNode", function (params) {
-                    network.canvas.body.container.style.cursor = 'default'
-                });
-
-            });
+            chart.initCarousel();
+            chart.show();
         });
+
         </script>
     {% endif %}
 {% endblock %}

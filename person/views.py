@@ -26,7 +26,8 @@ from person.forms import PersonForm
 from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
-from sfm_pc.utils import deleted_in_str, get_org_hierarchy_by_id, get_command_edges, get_command_nodes
+from sfm_pc.utils import (deleted_in_str, get_org_hierarchy_by_id,
+                          get_command_edges, get_command_nodes, AutofillAttributes)
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -73,42 +74,26 @@ class PersonDetail(DetailView):
             # Grab the org object
             org = membership.object_ref.organization.get_value().value
 
+            # Get info about chain of command
+            mem_data = {}
+
+            when = None
             if membership.object_ref.lastciteddate.get_value():
-                # Create an object of edges and nodes for the charts carousel 
-                command_chain = {}
+                when = repr(membership.object_ref.lastciteddate.get_value().value)
+                mem_data['when'] = when
 
-                last_cited = repr(membership.object_ref.lastciteddate.get_value().value)
-                node_list_raw = get_command_nodes(org.uuid, when=last_cited)
-                edge_list = get_command_edges(org.uuid, when=last_cited)
+            org_id = str(org.uuid)
 
-                # Create a "from" link for the person and their org.
-                edge_list.append({'from': str(org.uuid)})
+            kwargs = {'org_id': org_id}
+            ajax_route = 'command-chain'
+            if when:
+                kwargs['when'] = when
+                ajax_route = 'command-chain-bounded'
 
-                # Push the person and their org in the node_list.
-                label = '<b>' + str(org.name) + '</b>' + '\n\n' + str(membership.object_ref.member.get_value().value.name)
+            command_chain_url = reverse(ajax_route, kwargs=kwargs)
 
-                person_on_detail = {
-                    'id': str(org.uuid),
-                    'label': str(label),
-                    'detail_id': ''
-                }
-
-                node_list_raw.append(person_on_detail)
-
-                # Add a unique URL to individual nodes for redirect to organization detail view
-                node_list = []
-                for node in node_list_raw:
-                    if node['detail_id']:
-                        detail_id = node['detail_id']
-                        # Cast as a string to make it JSON serializable
-                        url = reverse('detail_organization', args=[detail_id])
-                        node['url'] = url
-                    node_list.append(node)
-
-                command_chain['when'] = str(membership.object_ref.lastciteddate.get_value().value)
-                command_chain['nodes'] = json.dumps(node_list)
-                command_chain['edges'] = json.dumps(edge_list)
-                context['command_chain'].append(json.dumps(command_chain))
+            mem_data['url'] = command_chain_url
+            context['command_chain'].append(mem_data)
 
             # Next, get some info about subordinates
             # Start by getting all child organizations for the member org
@@ -402,6 +387,9 @@ class PersonCreate(BaseFormSetView):
                                                    'orgs_confidence', 1))
 
             for org in orgs:
+
+                organization = Organization.objects.get(id=org)
+
                 mem_data = {
                     'MembershipPerson_MembershipPersonMember': {
                         'value': person,
@@ -414,13 +402,24 @@ class PersonCreate(BaseFormSetView):
                         'sources': [self.source],
                     }
                 }
-                membership = MembershipPerson.create(mem_data)
-                self.memberships.append({
-                    'person': str(person.name),
-                    'organization': str(Organization.objects.get(id=org).name),
-                    'membership': membership.id,
-                    'first': first
-                })
+
+                membership, created = MembershipPerson.objects.get_or_create(membershippersonmember__value=person,
+                                                                             membershippersonorganization__value=organization)
+
+                # We only care about updating new memberships, since we show
+                # the user old memberships that weren't necessarily part of this
+                # source
+                if created:
+
+                    membership.update(mem_data)
+
+                    self.memberships.append({
+                        'person': str(person.name),
+                        'organization': str(organization.name),
+                        'membership': membership.id,
+                        'first': first
+                    })
+
                 first = False
 
             # Queue up to be added to search index
@@ -430,7 +429,6 @@ class PersonCreate(BaseFormSetView):
                 self.request.session['index'] = {}
 
             self.request.session['index'][str(person.uuid)] = 'people'
-
 
         self.request.session['people'] = [{'id': p.id, 'name': p.name.get_value().value} \
                                                      for p in self.people]
@@ -442,19 +440,28 @@ class PersonCreate(BaseFormSetView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['people'] = formset.data
+        self.request.session.modified = True
 
         return response
 
 def person_autocomplete(request):
     term = request.GET.get('q')
     people = Person.objects.filter(personname__value__icontains=term).all()
-    results = []
-    for person in people:
-        results.append({
-            'text': str(person.name),
-            'id': person.id,
-        })
-    return HttpResponse(json.dumps(results), content_type='application/json')
+
+    complex_attrs = ['division_id']
+
+    list_attrs = ['aliases', 'classification']
+
+    set_attrs = {'membershippersonmember_set': 'organization'}
+
+    autofill = AutofillAttributes(objects=people,
+                                  set_attrs=set_attrs,
+                                  complex_attrs=complex_attrs,
+                                  list_attrs=list_attrs)
+
+    attrs = autofill.attrs
+
+    return HttpResponse(json.dumps(attrs), content_type='application/json')
 
 def alias_autocomplete(request):
     term = request.GET.get('q')

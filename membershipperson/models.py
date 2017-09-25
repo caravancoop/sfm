@@ -93,7 +93,7 @@ class MembershipPerson(models.Model, BaseModel):
             classifications = '/'.join(str(clss) for clss in classifications
                                        if clss is not None)
 
-        description += '(%s)' % classifications
+            description += '(%s)' % classifications
 
         # Last cited date
         description += ' '

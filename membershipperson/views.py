@@ -14,6 +14,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
 from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import redirect
 
 from extra_views import FormSetView
 
@@ -64,6 +65,14 @@ class MembershipPersonCreate(BaseFormSetView):
         for i in self.request.session['memberships']:
             data.append({})
         return data
+
+    def get(self, request, *args, **kwargs):
+        # Only show this view if the user created new memberships
+        if self.request.session.get('memberships'):
+            if len(request.session['memberships']) > 0:
+                return super().get(request, *args, **kwargs)
+
+        return redirect(reverse_lazy('create-geography'))
 
     def formset_valid(self, formset):
         source = Source.objects.get(id=self.request.session['source_id'])
@@ -163,6 +172,7 @@ class MembershipPersonCreate(BaseFormSetView):
             self.request.session['forms'] = {}
 
         self.request.session['forms']['memberships'] = formset.data
+        self.request.session.modified = True
 
         response = super().formset_valid(formset)
 

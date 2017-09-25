@@ -359,18 +359,12 @@
             },
             cache: true,
             processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': params.term,
-                                'text': params.term }]};
-                }
+                return { results: data };
             }
         },
         escapeMarkup: function(markup){ return markup; },
         minimumInputLength: 2,
-        tags: true,
+        selectOnClose: true,
         allowClear: true,
         placeholder: ''
     }
@@ -490,16 +484,104 @@
 
         $(name_field).on('select2:select', function(e){
             var value = e.params.data.text;
-            $(name_field).find(' :selected').prop('selected', false);
-            $(name_field + '_text').val(value);
             $(name_field + ' :selected').attr('value', e.params.data.id);
             $(name_field + ' :selected').text(value);
+            $(name_field + '_text').val(value);
+
+            // If this person already exists, fill out info we already know
+            if (e.params.data.id !== -1) {
+
+                var form_prefix = '#id_form-' + (form_num - 1);
+
+                // Simple, out-of-the-box form inputs
+                var simple_attrs = [];
+
+                for (var idx = 0; idx < simple_attrs.length; idx++) {
+                    var key = simple_attrs[idx];
+                    var input = form_prefix + '-' + key;
+
+                    $(input).val(e.params.data[key]);
+                }
+
+                // HTML checkboxes
+                var checkboxes = [];
+
+                for (var idx = 0; idx < checkboxes.length; idx++) {
+                    var key = checkboxes[idx];
+                    var input = form_prefix + '-' + key;
+
+                    $(input).prop('checked', e.params.data[key]);
+                }
+
+                // Inputs that use AJAX
+                var complex_attrs = ['division_id'];
+
+                for (var idx = 0; idx < complex_attrs.length; idx++) {
+                    var key = complex_attrs[idx];
+                    var input = form_prefix + '-' + key;
+
+                    var data_dict = e.params.data[key];
+                    var new_option = new Option(data_dict.text, data_dict.text, false, true);
+                    $(input).append(new_option);
+                    $(input).trigger('change');
+                }
+
+                // Multiselect inputs
+                var lst_attrs = ['aliases'];
+
+                for (var idx = 0; idx < lst_attrs.length; idx++) {
+                    var key = lst_attrs[idx];
+                    var input = form_prefix + '-' + 'alias';
+
+                    var data_arr = e.params.data[key];
+
+                    for (var i = 0; i < data_arr.length; i++) {
+                        var new_option = new Option(data_arr[i].text, data_arr[i].id, false, true);
+                        $(input).append(new_option);
+                    }
+
+                    $(input).trigger('change');
+                }
+
+                // Many-to-many foreign key relationships
+                var set_attrs = [['membershippersonmember_set', 'orgs']]
+
+                for (var idx = 0; idx < set_attrs.length; idx++) {
+                    var obj = set_attrs[idx];
+                    var attr = obj[0];
+                    var key = obj[1];
+
+                    var input = form_prefix + '-' + key;
+
+                    var data_arr = e.params.data[attr];
+
+                    for (var i = 0; i < data_arr.length; i++) {
+                        var new_option = new Option(data_arr[i].text, data_arr[i].id, false, true);
+                        $(input).append(new_option);
+                    }
+
+                    $(input).trigger('change');
+                }
+
+                // Update confidences
+                var all_attrs = simple_attrs.concat(checkboxes, complex_attrs,
+                                                    lst_attrs, set_attrs);
+
+                for (var idx = 0; idx < all_attrs.length; idx++) {
+                    var key = all_attrs[idx] + '_confidence';
+                    var confidence_input = form_prefix + '-' + key;
+
+                    var confidence = e.params.data[key];
+                    $(confidence_input).val(confidence);
+                    $(confidence_input).trigger('change');
+                }
+            }
         });
 
         $(name_field).on('select2:unselect', function(e){
-            var value = e.params.data.text;
-            $(name_field).find(':selected').prop('selected', false);
-            $(name_field + '_text').val('');
+            $(name_field).val(null).trigger('change');
+            $(name_field).empty()
+            $(name_field + '_text').val(null);
         });
 
         $(division_field).on('select2:select', function(e){
@@ -507,6 +589,11 @@
             $(division_field + ' :selected').prop('selected', false);
             $(division_field + ' :selected').attr('value', e.params.data.id);
             $(division_field + ' :selected').text(value);
+        });
+
+        $(division_field).on('select2:unselect', function(e){
+            $(division_field).val(null).trigger('change');
+            $(division_field).empty()
         });
     }
 </script>

@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
 from sfm_pc.views import Dashboard, osm_autocomplete, division_autocomplete, \
-    SetConfidence, EntityMergeView, Countries
+    SetConfidence, EntityMergeView, Countries, command_chain
 
 urlpatterns = i18n_patterns(
     url(r'^composition/', include('composition.urls')),
@@ -27,6 +27,8 @@ urlpatterns = i18n_patterns(
 
     url(r'^osm-autocomplete/$', osm_autocomplete, name="osm-autocomplete"),
     url(r'^division-autocomplete/$', division_autocomplete, name="division-autocomplete"),
+    url(r'^command-chain/(?P<org_id>[0-9a-f-]+)/$', command_chain, name="command-chain"),
+    url(r'^command-chain/(?P<org_id>[0-9a-f-]+)/(?P<when>[0-9-]+)/$', command_chain, name="command-chain-bounded"),
 
     url(r'^set-confidence/$', SetConfidence.as_view(), name='set-confidence'),
     # Dashboard
@@ -41,7 +43,6 @@ urlpatterns = i18n_patterns(
     # Ajax calls
     url(r'^accounts/', include('allauth.urls')),
     url(r'^logout/$', logout_then_login, {'login_url': '/accounts/login'}, name="logout"),
-
 )
 
 urlpatterns += (
