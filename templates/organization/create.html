@@ -113,12 +113,15 @@
                             <label class="col-sm-2 control-label">{% trans "Classification" %} </label>
                             <div class="col-sm-8">
                                 <select id="id_form-{{ form_id }}-classification" class="form-control class-field" name="form-{{ form_id }}-classification" multiple="multiple">
-                                    {% for classification in form.classifications %}
-                                        <option value="{{ classification.id }}" selected=true>{{ classification.value }}</option>
+                                    {% for classification in classifications %}
+                                            <option value="{{ classification.id }}"
+  {% if classification.id in form.classifications %}selected=true{% endif %}>
+                                                    {{ classification.value }}
+                                            </option>
                                     {% endfor %}
                                 </select>
                                 {% for classification in form.classifications %}
-                                    <input type="hidden" value="{{ classification.value }}" name="form-{{ form_id }}-classification_text" id="id_form-{{ form_id }}-classification_text" />
+                                    <input type="hidden" value="{{ classification.id }}" name="form-{{ form_id }}-classification_text" id="id_form-{{ form_id }}-classification_text" />
                                 {% endfor %}
                                 {% if form.classification.errors %}
                                     {% for error in form.classification.errors %}
@@ -391,6 +394,9 @@
             <label class="col-sm-2 control-label">{% trans "Classification" %}</label>
             <div class="col-sm-8">
                 <select id="id_form-<%= form_id %>-classification" class="form-control class-field" name="form-<%= form_id %>-classification" multiple="multiple">
+                {% for classification in classifications %}
+                    <option value="{{ classification.id }}">{{ classification.value }}</option>
+                {% endfor %}
                 </select>
             </div>
             <div class="col-sm-2">
@@ -482,29 +488,10 @@
 </script>
 <script type="text/javascript">
     var form_num = 0;
+
     var class_opts = {
-        ajax: {
-            url: "{% url 'org-classification-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': params.term,
-                                'text': params.term }]};
-                }
-            }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2,
+        minimumResultsForSearch: 6,
         selectOnClose: true,
-        tags: true,
     }
 
     var alias_opts = {

@@ -185,6 +185,7 @@ class OrganizationCreate(BaseFormSetView):
         context['confidence_levels'] = settings.CONFIDENCE_LEVELS
         context['open_ended_choices'] = settings.OPEN_ENDED_CHOICES
 
+        context['classifications'] = Classification.objects.all()
         context['source'] = Source.objects.get(id=self.request.session['source_id'])
 
         context['back_url'] = reverse_lazy('create-source')
@@ -238,14 +239,7 @@ class OrganizationCreate(BaseFormSetView):
 
             if classification_ids:
 
-                for class_id in classification_ids:
-                    try:
-                        class_id = int(class_id)
-                        classification = OrganizationClassification.objects.get(id=class_id)
-                    except ValueError:
-                        classification = {'id': class_id,
-                                          'value': class_id}
-                    form.classifications.append(classification)
+                form.classifications = [int(class_id) for class_id in classification_ids]
 
         return formset
 
@@ -421,16 +415,11 @@ class OrganizationCreate(BaseFormSetView):
 
                 for classification in classifications:
 
-                    try:
-                        class_id = int(classification)
-                        oc_obj = OrganizationClassification.objects.get(id=class_id)
+                    class_obj, created = Classification.objects.get_or_create(id=int(classification))
 
-                    except ValueError:
-                        class_obj, created = Classification.objects.get_or_create(value=classification)
-
-                        oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
-                                                                                        object_ref=organization,
-                                                                                        lang=get_language())
+                    oc_obj, created = OrganizationClassification.objects.get_or_create(value=class_obj,
+                                                                                       object_ref=organization,
+                                                                                       lang=get_language())
                     oc_obj.sources.add(self.source)
                     oc_obj.confidence = classification_confidence
                     oc_obj.save()

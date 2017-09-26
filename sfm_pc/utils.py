@@ -162,10 +162,18 @@ class AutofillAttributes(object):
 
                 cleaned_lst = []
                 for inst in lst_no_nulls:
-                    cleaned_lst.append({
-                        'id': inst.id,
-                        'text': str(inst.value)
-                    })
+                    if attr != 'classification':
+                        cleaned_lst.append({
+                            'id': inst.id,
+                            'text': str(inst.value)
+                        })
+                    else:
+                        # For classificaitons, we want to get the Classification
+                        # model, not the OrganizationClassification model
+                        cleaned_lst.append({
+                            'id': inst.value.id,
+                            'text': str(inst.value)
+                        })
 
                 obj_data[attr] = cleaned_lst
                 obj_data[attr + '_confidence'] = lst_confidence
