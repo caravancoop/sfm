@@ -1,0 +1,13 @@
+{{ object_value }}
+
+<a type="button" role="button" class="source-footnote" data-toggle="popover"
+   data-html="true" data-placement="top" data-content="{{ source_citation }}">
+    <span class="source-footnote-counter"></span>
+</a>
+
+{% if high_confidence %}
+<a type="button" role="button" class="confidence-footnote" data-toggle="popover"
+   data-html="true" data-placement="top" data-content="{{ confidence_citation }}">
+    <span class="confidence-footnote-counter">High confidence</span>
+</a>
+{% endif %}

@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load render_versions %}
+{% load citations %}
 
 {% block header %}
     <h1 class="page-title">
@@ -76,11 +77,11 @@
                                     {{ member.organization.get_value }}
                                 </a>
                             </td>
-                            <td>{{ member.rank.get_value }}</td>
-                            <td>{{ member.role.get_value }}</td>
-                            <td>{{ member.title.get_value|default:"" }}</td>
-                            <td>{{ member.firstciteddate }}</td>
-                            <td>{{ member.lastciteddate }}</td>
+                            <td>{% cite member.rank.get_value %}</td>
+                            <td>{% cite member.role.get_value %}</td>
+                            <td>{% cite member.title.get_value %}</td>
+                            <td>{% cite member.firstciteddate.get_value %}</td>
+                            <td>{% cite member.lastciteddate.get_value %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
