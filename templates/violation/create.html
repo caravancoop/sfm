@@ -450,6 +450,8 @@
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
 <script src="{% static "js/ejs_production.js" %}"></script>
+<script src="{% static "js/spin.min.js" %}"></script>
+<script src="{% static "js/jquery.spin.js" %}"></script>
 <script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
 <script type="text/EJS" id="formTemplate">
 <div id="form-<%= form_id %>-wrapper">
@@ -738,6 +740,26 @@
 
         $('#add-form').on('click', addForm);
         $('.remove-form').on('click', deleteForm);
+
+        $('button[type="submit"]').on('click', function(e) {
+            $('#dynamic-form').spin();
+        });
+
+        $('#skip-and-finish').on('click', function(e) {
+            // Empty all forms and submit them so that we can trigger an update
+            // of search index + materialized views
+            $('#dynamic-form').empty();
+            submit_html = "<div style='margin-top:100px;'>" +
+                                "<p class='text-center'>" +
+                                  "Submitting form..." +
+                                "</p>" +
+                              "</div>";
+            $('#dynamic-form').html(submit_html);
+            $('#dynamic-form').spin({top: '-75%'});
+            $('#id_form-FORMS_ADDED').val(0);
+            $('#id_form-TOTAL_FORMS').val(0);
+            $('form').submit();
+        })
     });
 
     function deleteForm(e){

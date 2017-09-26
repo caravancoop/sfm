@@ -36,7 +36,7 @@ class UtilityMixin(object):
         return list(set(s for s in sources if s))
 
 
-class BaseFormSetView(FormSetView, UtilityMixin, NeverCacheMixin):
+class BaseFormSetView(NeverCacheMixin, UtilityMixin, FormSetView):
 
     required_session_data = []
 
@@ -72,7 +72,7 @@ class BaseFormSetView(FormSetView, UtilityMixin, NeverCacheMixin):
             return self.formset_invalid(self.formset)
 
 
-class BaseUpdateView(FormView, UtilityMixin, NeverCacheMixin):
+class BaseUpdateView(NeverCacheMixin, UtilityMixin, FormView):
 
     def post(self, request, *args, **kwargs):
         self.checkSource(request)
@@ -96,7 +96,7 @@ class BaseUpdateView(FormView, UtilityMixin, NeverCacheMixin):
             return self.form_invalid(self.form)
 
 
-class PaginatedList(ListView, NeverCacheMixin):
+class PaginatedList(NeverCacheMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

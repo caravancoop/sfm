@@ -5,6 +5,7 @@ from datetime import date
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.management import call_command
+from django.core.cache import cache
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
 from django.views.generic.edit import DeleteView, FormView
@@ -66,7 +67,7 @@ class ViolationList(PaginatedList):
         return context
 
 
-class ViolationCreate(FormSetView):
+class ViolationCreate(BaseFormSetView):
     template_name = 'violation/create.html'
     form_class = ViolationForm
     success_url = reverse_lazy('dashboard')
@@ -373,6 +374,9 @@ class ViolationCreate(FormSetView):
             self.request.session['index'][str(violation.uuid)] = 'violations'
 
         response = super().formset_valid(formset)
+
+        # Clear cache so we can see new search results and detail views
+        cache.clear()
 
         # Refresh materialized views
         call_command('make_flattened_views', refresh=True)
