@@ -32,20 +32,23 @@ def cite(obj):
 
         source_citation = ''
         sources = obj.sources.all()
-        for idx, source in enumerate(sources):
-            info = (attr_map for attr_map in source_info if getattr(source, attr_map[1], None))
+        for idx, src in enumerate(sources):
+            info = ((attr_map[0], getattr(src, attr_map[1]))
+                     for attr_map in source_info if getattr(src, attr_map[1], None))
             if any(info):
-                if idx != 1:
-                    html = '<\hr>'
-                html += '\n'.join('<strong>{0}</strong>: {1}'.format(attr[0], attr[1]) for attr in info)
+                if idx != 0:
+                    html = '<hr/>'
+                else:
+                    html = ''
+                html += '<br/>'.join('<strong>{0}</strong>: {1}'.format(attr[0], attr[1]) for attr in info)
                 source_citation += html
 
         context['source_citation'] = source_citation
 
         confidence = obj.confidence
         if confidence == '3':
-            context['high_confidence'] = True
-            context['confidence_citation'] = _('We are very confident in the integrity of this information.')
+            context['confidence_citation'] = _('We are very confident in the ' +
+                                               'integrity of this information.')
 
     return context
 

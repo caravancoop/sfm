@@ -185,7 +185,40 @@ a.collapsed .show-less {
 /* ========= */
 
 .source-footnote {
+    min-width: 16px !important;
+    top: -.75em;
+    opacity: .9;
+    height: 16px !important;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 1em;
+    line-height: 0;
+    vertical-align: middle;
+    text-decoration: none;
+    background-color: #d9230f;
+    color: white;
+    cursor: pointer;
+}
 
+.source-footnote:hover {
+    opacity: .5;
+    color: white;
+    text-decoration: none;
+}
+
+.source-footnote:focus {
+    opacity: .5;
+    color: white;
+    text-decoration: none;
+    outline: none;
+}
+
+.popover-content {
+    width: 250px;
+    max-height: 200px;
+    overflow: auto;
 }
 
 .confidence-footnote {

@@ -174,10 +174,15 @@
         <script src="{% static 'js/spin.min.js' %}"></script>
         <script src="{% static 'js/jquery.spin.js' %}"></script>
         <script src="{% static 'js/command_chart.js' %}"></script>
+        <script src="{% static 'js/increment_footnotes.js' %}"></script>
         <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
         <script>
 
         $(document).ready(function() {
+
+            var fn = Footnotes;
+            fn.increment();
+            fn.initPopovers();
 
             var edgelists = {{command_chain|safe}};
 
