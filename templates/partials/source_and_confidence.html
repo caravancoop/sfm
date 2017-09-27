@@ -1,0 +1,23 @@
+{% load i18n %}
+
+{{ object_value }}
+
+{% if source_citation %}
+<sup>
+    <a type="button" role="button" class="source-footnote" data-toggle="popover"
+    data-html="true" data-placement="top" data-content="{{ source_citation }}"
+    title="Sources" data-trigger="focus" tabindex="0">
+        <span class="source-footnote-counter"></span>
+    </a>
+</sup>
+{% endif %}
+
+{% if confidence_citation %}
+<sup>
+    <a type="button" role="button" class="confidence-footnote" data-toggle="popover"
+    data-html="true" data-placement="top" data-content="{{ confidence_citation }}"
+    title="Confidence" data-trigger="focus" tabindex="0">
+        <span class="confidence-footnote-counter">{% trans "Confident" %}</span>
+    </a>
+</sup>
+{% endif %}

@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load render_versions %}
+{% load citations %}
 
 {% block header %}
     <h1 class="page-title">
@@ -76,11 +77,11 @@
                                     {{ member.organization.get_value }}
                                 </a>
                             </td>
-                            <td>{{ member.rank.get_value }}</td>
-                            <td>{{ member.role.get_value }}</td>
-                            <td>{{ member.title.get_value|default:"" }}</td>
-                            <td>{{ member.firstciteddate }}</td>
-                            <td>{{ member.lastciteddate }}</td>
+                            <td>{% cite member.rank.get_value %}</td>
+                            <td>{% cite member.role.get_value %}</td>
+                            <td>{% cite member.title.get_value %}</td>
+                            <td>{% cite member.firstciteddate.get_value %}</td>
+                            <td>{% cite member.lastciteddate.get_value %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -173,10 +174,15 @@
         <script src="{% static 'js/spin.min.js' %}"></script>
         <script src="{% static 'js/jquery.spin.js' %}"></script>
         <script src="{% static 'js/command_chart.js' %}"></script>
+        <script src="{% static 'js/increment_footnotes.js' %}"></script>
         <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
         <script>
 
         $(document).ready(function() {
+
+            var fn = Footnotes;
+            fn.increment();
+            fn.initPopovers();
 
             var edgelists = {{command_chain|safe}};
 
