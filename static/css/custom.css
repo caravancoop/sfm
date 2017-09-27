@@ -215,15 +215,28 @@ a.collapsed .show-less {
     outline: none;
 }
 
+.confidence-footnote {
+    margin-left: 5px;
+    border: 1px solid;
+    box-sizing: border-box;
+    border-radius: 5px;
+    padding: 1px;
+    cursor: pointer;
+}
+
+.confidence-footnote:hover,
+.confidence-footnote:focus {
+    cursor: pointer;
+    text-decoration: none;
+    outline: none;
+}
+
 .popover-content {
     width: 250px;
     max-height: 200px;
     overflow: auto;
 }
 
-.confidence-footnote {
-
-}
 
 /* ============= */
 /* media queries */

@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {{ object_value }}
 
 {% if source_citation %}
@@ -15,7 +17,7 @@
     <a type="button" role="button" class="confidence-footnote" data-toggle="popover"
     data-html="true" data-placement="top" data-content="{{ confidence_citation }}"
     title="Confidence" data-trigger="focus" tabindex="0">
-        <span class="confidence-footnote-counter">High confidence</span>
+        <span class="confidence-footnote-counter">{% trans "Confident" %}</span>
     </a>
 </sup>
 {% endif %}
