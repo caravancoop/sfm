@@ -1,21 +1,53 @@
 # Security Force Monitor: Backend
 
+## OS Level dependencies
+
+* Python 3.5
+* PostgreSQL 9.4+ 
+* PostGIS
+* osm2pgsql
+
 ## Development
 
     mkvirtualenv sfm
-    git clone git@github.com:caravancoop/sfm.git
-    cd sfm/sfm_pc
+    git clone git@github.com:security-force-monitor/sfm-cms.git
+    cd sfm-cms
 
 Install the requirements:
 
     pip install -r requirements.txt
+    
+Create a local settings file:
+
+    cp sfm_pc/settings_local.py.example sfm_pc/settings_local.py
+    # You can change some of the variables if you want, but it's not necessary to get the app running    
 
 Create a database:
 
     createdb sfm-db
     psql sfm-db -c "CREATE EXTENSION postgis;"
-    export DATABASE_URL=postgis://localhost/sfm-db
     ./manage.py migrate --noinput
+
+Load static data:
+
+```
+# Load fixtures for Violation Types, Organization classification types, and countries
+./manage.py loaddata violation_types
+./manage.py loaddata classification_types
+./manage.py update_countries_plus
+```
+
+Create Materialized Views for global search, and looking up a Geoname object based upon a geoname id: 
+
+    python manage.py import_osm
+    python manage.py import_google_doc
+    python manage.py make_flattened_views
+
+You're almost done! The last step is to get solr and the search index setup. Start by following the instructions in [SOLR-SETUP.md](https://github.com/security-force-monitor/sfm-cms/blob/master/SOLR-SETUP.md) to get solr installed and running on your machine.
+
+Then, create the search index: 
+
+    python manage.py make_search_index
 
 Create an admin user:
 
@@ -27,60 +59,34 @@ Start the web server:
 
 Open http://127.0.0.1:8000/ and sign in with your email and password.
 
-## Deployment
+## Translations
 
-    heroku apps:create
+We use [Django translation](https://docs.djangoproject.com/en/1.11/topics/i18n/translation/) together with [Rosetta](https://github.com/mbi/django-rosetta) and [django-complex-fields](https://github.com/security-force-monitor/complex_fields). 
 
-[Generate a secret key in Python](https://github.com/django/django/blob/master/django/core/management/commands/startproject.py):
+Template translations appear inside `trans` tags, like so:
 
 ```python
-from django.utils.crypto import get_random_string
-get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
+{% trans "Countries" %}
 ```
 
-Add configuration variables (replace `<SECRET-KEY>`):
+Model field and form error translations appear inside `_()` hooks, as such:
 
-    heroku config:set DJANGO_SECRET_KEY=<SECRET-KEY>
+```python
+from django.utils.translation import ugettext as _
 
-Add a [production tier PostgreSQL database](https://devcenter.heroku.com/articles/postgis) ($50/mo) to use PostGIS (replace `<DATABASE>`):
+...
 
-    heroku addons:create heroku-postgresql:standard-0
-    heroku pg:wait
-    heroku pg:psql
+field_name = _("End date")
+```
 
-In the PostgreSQL shell, run:
+This nomenclature signals that the text can be translated into the user's specified language. But first, someone with language expertise must provide the appropriate translation. Happily, Django can extract all translatable strings into a message file:
 
-    CREATE EXTENSION postgis;
+```bash
+django-admin.py makemessages -l es
+django-admin.py makemessages -l fr
+```
 
-To enable the [geo](https://github.com/cyberdelia/heroku-geo-buildpack/) buildpack for GeoDjango:
+This command generates a `.po` file for each language. Rosetta facilitates the editing and compiling of these files. Go to `/rosetta/`, and view the snippets of code, requiring translation, organized by language. Then, translate some text, click "Save and translate next block," and Rosetta compiles the code into Django-friendly translations.
 
-    heroku config:add BUILDPACK_URL=https://github.com/ddollar/heroku-buildpack-multi.git
 
-Use [Gemfury](#gemfury) to access dependencies in private repositories:
 
-    heroku addons:create gemfury:hello
-
-Deploy:
-
-    git push heroku dev:master
-
-Setup the database:
-
-    heroku run python manage.py migrate --noinput
-
-Create an admin user:
-
-    heroku run python manage.py createsuperuser
-
-Open the website:
-
-    heroku open
-
-### Gemfury
-
-    heroku config:get GEMFURY_URL
-    cd ../complex_fields
-    python setup.py sdist
-    curl -F package=@dist/django-complex-fields-0.1.0.tar.gz $GEMFURY_URL
-
-Replace the `--extra-index-url` in `requirements.txt` with your `GEMFURY_URL` if necessary.

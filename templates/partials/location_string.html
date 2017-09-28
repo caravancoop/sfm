@@ -1,0 +1,7 @@
+{% for location in locations %}
+    {% if not forloop.last %}
+        {{ location }},
+    {% else %}
+        {{ location }}
+    {% endif %}
+{% endfor %}

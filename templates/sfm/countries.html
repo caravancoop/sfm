@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default" style="min-height:150px">
+            <div class="panel-heading">
+                <h3><strong>{% trans 'Egypt' %}</strong></h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-4">
+                        <img class="img img-responsive img-thumbnail map-thumbnail center-block" src="{% static 'images/egypt.png' %}"></img>
+                    </div>
+                    <div class="col-xs-12 col-sm-8">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-4">
+                                <h4><strong><i class="fa fa-fw fa-search"></i> {% trans "Browse data" %}</strong></h4>
+                                {% comment %}Translators: Please keep the "strong" tags, which display the numbers in bold{% endcomment %}
+                                <a href="#"><p>{% trans "Browse <strong>580</strong> persons" %}</p></a>
+                                <a href="#"><p>{% trans "Browse <strong>2300</strong> units" %}</p></a>
+                            </div>
+                            <div class="col-xs-12 col-sm-8">
+                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Back in time" %}</strong></h4>
+                                <a href="#"><p>{% trans "The Arab Spring" %}</p></a>
+                                <a href="#"><p>{% trans "Presidential election 2014" %}</p></a>
+                                <a href="#"><p>{% trans "Mubarrak presidency" %}</p></a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h4><strong><i class="fa fa-fw fa-info-circle"></i> {% trans "Background" %}</strong></h4>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rutrum suscipit pretium. Ut ultricies lacinia libero, quis pellentesque lacus scelerisque sed. Sed orci purus, vehicula quis sapien a, feugiat eleifend dui. Sed ac felis nec mauris luctus posuere eget ac mauris.</p>
+                                <a href="#"><p>{% trans "Read full background" %}<i class="fa fa-fw fa-arrow-right"></i></p></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default" style="min-height:150px">
+            <div class="panel-heading">
+                <h3><strong>{% trans "Kenya" %}</strong></h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-4">
+                        <img class="img img-responsive img-thumbnail map-thumbnail center-block" src="{% static 'images/kenya.png' %}"></img>
+                    </div>
+                    <div class="col-xs-12 col-sm-8">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <h4><strong><i class="fa fa-fw fa-search"></i> {% trans "Browse data" %}</strong></h4>
+                                <a href="#"><p>{% trans "Browse <strong>800</strong> persons" %}</p></a>
+                                <a href="#"><p>{% trans "Browse <strong>1300</strong> units" %}</p></a>
+                            </div>
+                            <div class="col-xs-8">
+                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Back in time" %}</strong></h4>
+                                <a href="#"><p>{% trans "Election 2008" %}</p></a>
+                                <a href="#"><p>{% trans "Al-Shabab counter terror" %}</p></a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h4><strong><i class="fa fa-fw fa-info-circle"></i> {% trans "Background" %}</strong></h4>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rutrum suscipit pretium. Ut ultricies lacinia libero, quis pellentesque lacus scelerisque sed. Sed orci purus, vehicula quis sapien a, feugiat eleifend dui. Sed ac felis nec mauris luctus posuere eget ac mauris.</p>
+                                <a href="#"><p>{% trans "Read full background" %} <i class="fa fa-fw fa-arrow-right"></i></p></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default" style="min-height:150px">
+            <div class="panel-heading">
+                <h3><strong>{% trans "Mexico" %}</strong></h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-4">
+                        <img class="img img-responsive img-thumbnail map-thumbnail center-block" src="{% static 'images/mexico.png' %}"></img>
+                    </div>
+                    <div class="col-xs-12 col-sm-8">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <h4><strong><i class="fa fa-fw fa-search"></i> {% trans "Browse data" %}</strong></h4>
+                                <a href="#"><p>{% trans "Browse <strong>574</strong> persons" %}</p></a>
+                                <a href="#"><p>{% trans "Browse <strong>1500</strong> units" %}</p></a>
+                            </div>
+                            <div class="col-xs-8">
+                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Back in time" %}</strong></h4>
+                                <a href="#"><p>{% trans "Caledron administration" %}</p></a>
+                                <a href="#"><p>{% trans "Drug war" %}</p></a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h4><strong><i class="fa fa-fw fa-info-circle"></i> {% trans "Background" %}</strong></h4>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rutrum suscipit pretium. Ut ultricies lacinia libero, quis pellentesque lacus scelerisque sed. Sed orci purus, vehicula quis sapien a, feugiat eleifend dui. Sed ac felis nec mauris luctus posuere eget ac mauris.</p>
+                                <a href="#"><p>{% trans "Read full background" %} <i class="fa fa-fw fa-arrow-right"></i></p></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default" style="min-height:150px">
+            <div class="panel-heading">
+                <h3><strong>{% trans "Nigeria" %}</strong></h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-4">
+                        <img class="img img-responsive img-thumbnail map-thumbnail center-block" src="{% static 'images/nigeria.png' %}"></img>
+                    </div>
+                    <div class="col-xs-12 col-sm-8">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <h4><strong><i class="fa fa-fw fa-search"></i> {% trans "Browse data" %}</strong></h4>
+                                <a href="#"><p>{% trans "Browse <strong>584</strong> persons" %}</p></a>
+                                <a href="#"><p>{% trans "Browse <strong>2331</strong> units" %}</p></a>
+                            </div>
+                            <div class="col-xs-8">
+                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Back in time" %}</strong></h4>
+                                <a href="#"><p>{% trans "Boko Haram counter-insurgency" %}</p></a>
+                                <a href="#"><p>{% trans "Operation Pulo Shield" %}</p></a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h4><strong><i class="fa fa-fw fa-info-circle"></i> {% trans "Background" %}</strong></h4>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rutrum suscipit pretium. Ut ultricies lacinia libero, quis pellentesque lacus scelerisque sed. Sed orci purus, vehicula quis sapien a, feugiat eleifend dui. Sed ac felis nec mauris luctus posuere eget ac mauris.</p>
+                                <a href="#"><p>{% trans "Read full background" %} <i class="fa fa-fw fa-arrow-right"></i></p></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

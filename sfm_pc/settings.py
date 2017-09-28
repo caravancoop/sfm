@@ -15,21 +15,41 @@ import os
 import dj_database_url
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.messages import constants as messages
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+try:
+    from .settings_local import EXTRA_APPS
+except ImportError:
+    EXTRA_APPS = ()
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
+try:
+    from .settings_local import EXTRA_MIDDLEWARE_CLASSES
+except ImportError:
+    EXTRA_MIDDLEWARE_CLASSES = ()
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '!idj#^u1j+m7%(9&n)7koobtz1jb-=aao73e0b@uhdj5p*h$g9')
+try:
+    from .settings_local import INTERNAL_IPS
+except ImportError:
+    INTERNAL_IPS = []
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+try:
+    from .settings_local import RAVEN_CONFIG
+except ImportError:
+    RAVEN_CONFIG = {}
 
-ALLOWED_HOSTS = []
-
+try:
+    from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
+        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL
+except ImportError as e:
+    raise Exception('''DATABASE_URL, 
+                     GOOGLE_MAPS_KEY, 
+                     SECRET_KEY, 
+                     ALLOWED_HOSTS, 
+                     IMPORTER_USER, 
+                     SOLR_URL,
+                     OSM_API_KEY and DEBUG must be defined in settings_local.py''')
 
 # Application definition
 
@@ -42,7 +62,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'django.contrib.humanize',
     'django_date_extensions',
+    'rosetta',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -50,6 +72,7 @@ INSTALLED_APPS = (
     'countries_plus',
     'reversion',
     'leaflet',
+    'bootstrap_pagination',
     'complex_fields',
     'sfm_pc',
     'organization',
@@ -63,12 +86,17 @@ INSTALLED_APPS = (
     'geosite',
     'emplacement',
     'violation',
+    'search',
 )
+
+INSTALLED_APPS += EXTRA_APPS
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
@@ -78,6 +106,9 @@ MIDDLEWARE_CLASSES = (
     'reversion.middleware.RevisionMiddleware',
     'sfm_pc.utils.RequireLoginMiddleware',
 )
+
+# Debug toolbar middleware needs to be included as early as possible
+MIDDLEWARE_CLASSES = EXTRA_MIDDLEWARE_CLASSES + MIDDLEWARE_CLASSES
 
 ROOT_URLCONF = 'sfm_pc.urls'
 
@@ -94,6 +125,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -107,7 +141,6 @@ WSGI_APPLICATION = 'sfm_pc.wsgi.application'
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 # Parse database configuration from $DATABASE_URL
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgis://sfm-user:password@localhost/sfm-db')
 DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
@@ -129,7 +162,6 @@ LOCALE_PATHS = (
 
 LANGUAGE_CODE = 'en'
 
-
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
@@ -143,7 +175,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -164,19 +196,14 @@ LOGIN_REQUIRED_URLS_EXCEPTIONS = (
     r'.*/login(.*)$',
     r'.*/logout(.*)$',
     r'.*/admin(.*)$',
+    r'.*/api(.*)$',
 )
 
 LOGIN_URL = reverse_lazy('account_login')
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages"
-)
+LOGIN_REDIRECT_URL = '/'
 
 AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
@@ -193,9 +220,58 @@ ALLOWED_CLASS_FOR_NAME = [
     'Emplacement', 'Geosite', 'Violation'
 ]
 
-LEAFLET_CONFIG = {
-    'DEFAULT_CENTER': (15.0, 45.0),
-    'DEFAULT_ZOOM': 2,
-    'MIN_ZOOM': 2,
-    'MAX_ZOOM': 18,
+OSM_DATA = [
+    {
+        'country': 'Nigeria',
+        'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/nigeria_geojson.tgz',
+        'country_code': 'ng',
+    },
+    {
+        'country': 'Mexico',
+        'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/mexico_geojson.tgz',
+        'country_code': 'mx',
+    },
+    {
+        'country': 'Sierra Leone',
+        'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sierra-leone_geojson.tgz',
+        'country_code': 'sl',
+    },
+    {
+        'country': 'Democratic Republic of the Congo',
+        'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/congo-kinshasa_geojson.tgz',
+        'country_code': 'cd',
+    },
+    {
+        'country': 'Liberia',
+        'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/liberia_geojson.tgz',
+        'country_code': 'lr',
+    },
+    {
+        'country': 'Sudan',
+        'pbf_url': 'http://download.geofabrik.de/africa/sudan-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sudan_geojson.tgz',
+        'country_code': 'sd',
+    },
+]
+
+# Override built-in messages tags
+MESSAGE_TAGS = {
+    messages.SUCCESS: 'alert-success'
 }
+
+CONFIDENCE_LEVELS = (
+    ('1', _('Low')),
+    ('2', _('Medium')),
+    ('3', _('High')),
+)
+
+OPEN_ENDED_CHOICES = (
+    ('Y', _('Yes')),
+    ('N', _('No')),
+    ('E', _('Exact'))
+)

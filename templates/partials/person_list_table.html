@@ -1,0 +1,93 @@
+{% load tablesort %}
+{% load i18n %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                {% if merge == 'True' %}
+                    <th>{% trans "Select" %}</th>
+                {% endif %}
+                {% if canonical == 'True' %}
+                    <th>{% trans "Select canonical record" %}</th>
+                {% endif %}
+                <th>
+                    {% trans "Name" %}
+                    {% if sortable == 'True' %}
+                    <a href="{% url 'list-person' %}?{% query_transform request order_by='name' %}">
+                        <i class="fa fa-sort"></i>
+                    </a>
+                    {% endif %}
+                </th>
+                <th>{% trans "Also known as" %}</th>
+                <th>{% trans "Most recent rank" %}</th>
+                <th>{% trans "Most recent unit" %}</th>
+                <th>{% trans "First citation" %}</th>
+                <th>{% trans "Last citation" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+                <!-- Returns the object based on the language -->
+                {% if object.name.get_value %}
+                    <tr>
+                        {% if merge == 'True' %}
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" class="person_ids" data-entity_id="{{object.id}}">
+                                    </label>
+                                </div>
+                            </td>
+                        {% endif %}
+                        {% if canonical == 'True' %}
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="radio" name="canonical_record" value="{{ object.id }}">
+                                    </label>
+                                </div>
+                            </td>
+                        {% endif %}
+                        <!-- Name -->
+                        <td>
+                            <a href="{% url 'detail-person' object.id %}">{{ object.name.get_value }}</a>
+                        </td>
+                        <!-- Aliases -->
+                        <td>
+                            {% for alias in object.personalias_set.all %}
+                                {{ alias.value.value }}
+                                {% if not forloop.last %}<br />{% endif %}
+                            {% endfor %}
+                        </td>
+                        <!-- Most recent rank -->
+                        <td>
+                            {% with membership=object.membershippersonmember_set.last %}
+                                {{ membership.object_ref.rank.get_value }}
+                            {% endwith %}
+                        </td>
+                        <!-- Most recent unit -->
+                        <td>
+                            {% with membership=object.membershippersonmember_set.last %}
+                                {% with organization=membership.object_ref.membershippersonorganization_set.last %}
+                                    <a href="{% url 'detail_organization' organization.value.id %}">{{ organization.value.name.get_value }}</a>
+                                {% endwith %}
+                                <br />
+                            {% endwith %}
+                        </td>
+                        <!-- First citation -->
+                        <td>
+                            {% with membership=object.membershippersonmember_set.first %}
+                                {{ membership.object_ref.firstciteddate.get_value }}
+                            {% endwith %}
+                        </td>
+                        <!-- Last citation -->
+                        <td>
+                            {% with membership=object.membershippersonmember_set.last %}
+                                {{ membership.object_ref.lastciteddate.get_value }}
+                            {% endwith %}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+

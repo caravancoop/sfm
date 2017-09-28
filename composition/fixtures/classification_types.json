@@ -1,0 +1,23 @@
+[
+    {
+        "model": "composition.classification",
+        "pk": 1,
+        "fields": {
+            "value": "Administrative"
+        }
+    },
+    {
+        "model": "composition.classification",
+        "pk": 2,
+        "fields": {
+            "value": "Command"
+        }
+    },
+    {
+        "model": "composition.classification",
+        "pk": 3,
+        "fields": {
+            "value": "Informal"
+        }
+    }
+]

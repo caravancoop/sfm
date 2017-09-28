@@ -1,0 +1,204 @@
+/* Custom styles */
+
+body {
+    font-weight: 400;
+    font-size: 16px;
+}
+
+/* ====== *
+ * navbar *
+ * ====== */
+
+.pre-navbar {
+    /* Ad bar that sits above the navbar */
+    text-align: right;
+    display: block;
+    padding: 15px 20px;
+    background-color: #808080;
+    color: white
+}
+
+.pre-navbar > p {
+    /* Text in the ad bar */
+    margin: 0;
+}
+
+.pre-navbar > p > a {
+    /* Link in the ad bar should be white */
+    color: inherit;
+    text-decoration: underline;
+}
+
+.pre-navbar > p > a:hover {
+    font-weight: 500;
+}
+
+.jumbotron p.small {
+    font-size: 95%;
+    margin-top:10px;
+}
+
+.navbar {
+    background-color: #eeeeee;
+    margin-bottom: 50px;
+    border-bottom: none;
+}
+
+.navbar-header {
+    width: 100%;
+}
+
+.navbar-header > span.select2 {
+    margin-top: 10px;
+}
+
+.navbar-brand {
+    margin-top: 5px;
+    margin-left: 15px !important; /* override bootstrap default */
+    font-size: 2em;
+}
+
+.lang-select-box {
+    margin-top: 10px;
+}
+
+.selected-tab {
+    background-color: #fcfcfc;
+}
+
+.select2-input-buffer {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.map-thumbnail {
+    max-height: 300px;
+    margin-bottom: 10px;
+}
+
+.btn-default:hover {
+    background: #7a7a7a;
+    border: 1px solid #7a7a7a;
+}
+
+/* ====== *
+ * facets *
+ * ====== */
+
+.filter-heading {
+    color: inherit;
+}
+
+.filter-heading:hover {
+    color: inherit;
+    cursor: pointer;
+}
+
+.search-facet-list{
+    padding-left: 0;
+    list-style-type: none;
+}
+
+.badge-facet{
+    background-color: #D9D9D9;
+}
+
+.remove-filter-value{
+    background-color: #eee;
+    border-radius: 10px;
+    font-size: .8em;
+    padding: 0px 4px 1px 4px;
+}
+
+.filter-value:hover,
+.remove-filter-value:hover{
+    cursor: pointer;
+}
+
+.detail-header {
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 6px;
+}
+
+/* =======================  *
+ * show more/less logic for *
+ * long description boxes   *
+ * =======================  */
+
+a .show-more {
+    display: none;
+}
+
+a .show-less {
+    display: inline;
+}
+
+a.collapsed .show-more {
+    display: inline;
+}
+
+a.collapsed .show-less {
+    display: none;
+}
+
+.description-text:not(.in) {
+    min-height: 4.25em;
+    height: 4.25em;
+    display: block;
+    overflow: hidden;
+    visibility: visible;
+}
+
+/* ============= */
+/* Command chain chart */
+/* ============= */
+
+.carousel-cell {
+  width: 100%; 
+}
+
+.chart-cell {
+    height: 350px;
+}
+
+.chart-date {
+    margin: auto;
+    width: 100%;
+    min-height: 20px;
+    padding: 4px;
+    margin-bottom: 20px;
+    background-color: #f4f4f4;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+}
+
+.flickity-page-dots .dot {
+  height: 4px;
+  width: 40px;
+  margin: 0;
+  border-radius: 0;
+}
+
+/* ============= */
+/* media queries */
+/* ============= */
+
+@media (max-width: 465px) {
+    /* Responsive header styles for tiny screens */
+    .navbar-brand {
+        margin-left: 5px !important; /* override bootstrap default */
+        font-size: 1.5em;
+    }
+    .navbar-toggle {
+        margin-right: 0px;
+    }
+}
+
+@media (max-width: 380px) {
+    /* Brand needs to be even smaller on smallest screens */
+    .navbar-brand {
+        font-size: 1.3em;
+    }
+}
+

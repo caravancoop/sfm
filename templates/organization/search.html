@@ -6,7 +6,7 @@
     <div class="inner-title-wrapper">
       <h1 class="page-title">{% trans "Search an organization" %}</h1>
       <div class="pull-right">
-        <a href="/organization/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> Add New</a>
+        <a href="/organization/add/" class="btn sfm-btn-action"><i class="fa fa-plus"></i> {% trans "Add New" %}</a>
       </div>
     </div>
   </div>
@@ -146,9 +146,9 @@
 
   <div class="row">
     <div class="col-sm-12 form-group">
-      <label for="people_srch_post"><span id="result-number"></span> Results
+      <label for="people_srch_post"><span id="result-number"></span> {% trans "Results" %}
         <div class="actions">
-          <button type="button" id="export-csv" class="btn sfm-btn-action">Export <i class="fa fa-share-square-o"></i></button>
+          <button type="button" id="export-csv" class="btn sfm-btn-action">{% trans "Export" %} <i class="fa fa-share-square-o"></i></button>
         </div>
       </label>
     </div>

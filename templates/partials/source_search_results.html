@@ -1,0 +1,32 @@
+{% load i18n %}
+
+<h3>{% trans "Sources" %}</h3>
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Publication date" %}</th>
+            <th>{% trans "Publication" %}</th>
+            <th>{% trans "Publication country" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for object in objects %}
+            <tr>
+                <td>
+                    {{ object.title }}
+                </td>
+                <td>
+                    {{ object.publication.date }}
+                </td>
+                <td>
+                    {{ object.publication.title }}
+                </td>
+                <td>
+                    {{ object.publication.country }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

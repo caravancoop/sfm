@@ -1,0 +1,192 @@
+{% extends "base_detail.html" %}
+{% load i18n %}
+{% load static %}
+{% load render_versions %}
+
+{% block header %}
+    <h1 class="page-title">
+        <i class="fa fa-fw fa-user"></i> {{ person.name.get_value }}
+        <small>
+            <a href="{% url 'edit-person' person.id %}" class="btn btn-default">{% trans "Edit" %}</a>
+        </small>
+    </h1>
+    {% if person.aliases.get_list %}
+        <p>{% trans "Also known as:" %}
+            {% for alias in person.aliases.get_list %}
+            <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
+            {% endfor %}
+        </p>
+    {% endif %}
+{% endblock %}
+
+{% block sidebar %}
+    {% has_versions person as changelog %}
+    {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+{% endblock %}
+
+{# This is exactly the same as the previous sidebar #}
+{# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
+{% block sidebar_mobile %}
+    {% has_versions person as changelog %}
+    {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+{% endblock %}
+
+{% block details %}
+
+    {% if last_seen_as %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</h3>
+            <p>{{ last_seen_as|safe }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if memberships %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</h3>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Organization" %}</th>
+                        <th>{% trans "Rank" %}</th>
+                        <th>{% trans "Role" %}</th>
+                        <th>{% trans "Title" %}</th>
+                        <th>{% trans "Start date" %}</th>
+                        <th>{% trans "End date" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in memberships %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' member.organization.get_value.value.id %}">
+                                    {{ member.organization.get_value }}
+                                </a>
+                            </td>
+                            <td>{{ member.rank.get_value }}</td>
+                            <td>{{ member.role.get_value }}</td>
+                            <td>{{ member.title.get_value|default:"" }}</td>
+                            <td>{{ member.firstciteddate }}</td>
+                            <td>{{ member.lastciteddate }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if command_chain %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</h3>
+            <hr />
+            <div id="org-chart-container" class="command-charts-carousel"></div>
+            <br>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if subordinates %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</h3>
+            <small>{% trans "Commanders of units that were subordinate to any units commanded by this person" %}</small>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Rank" %}</th>
+                        <th>{% trans "Role" %}</th>
+                        <th>{% trans "Unit" %}</th>
+                        <th>{% trans "Start of overlap" %}</th>
+                        <th>{% trans "End of overlap" %}</th>
+                        <th>{% trans "Duration of overlap" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subordinate in subordinates %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'detail-person' subordinate.commander.member.get_value.value.id %}">
+                                {{ subordinate.commander.member.get_value }}
+                            </a>
+                        </td>
+                        <td>{{ subordinate.commander.rank.get_value }}</td>
+                        <td>{{ subordinate.commander.role.get_value }}</td>
+                        <td>
+                            <a href="{% url 'detail_organization' subordinate.organization.id %}">
+                                {{ subordinate.organization }}
+                            </a>
+                        </td>
+                        <td>{{ subordinate.overlap_start }}</td>
+                        <td>{{ subordinate.overlap_end }}</td>
+                        <td>{{ subordinate.overlap_duration }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if events %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>{% trans "Events" %}</h3>
+            <hr />
+            {% for event in events %}
+                <div class="row">
+                    <div class="col-sm-8">
+                        <p>{{ event.description.get_value }}</p>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% has_versions person as changelog %}
+        {% if changelog %}
+            {% render_versions person %}
+        {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    {% if command_chain %}
+        <script src="{% static 'js/vis.min.js' %}"></script>
+        <script src="{% static 'js/spin.min.js' %}"></script>
+        <script src="{% static 'js/jquery.spin.js' %}"></script>
+        <script src="{% static 'js/command_chart.js' %}"></script>
+        <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
+        <script>
+
+        $(document).ready(function() {
+
+            var edgelists = {{command_chain|safe}};
+
+            var chart = CommandChart;
+            chart.edgelists = edgelists;
+
+            chart.initCarousel();
+            chart.show();
+        });
+
+        </script>
+    {% endif %}
+{% endblock %}

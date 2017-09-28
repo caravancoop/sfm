@@ -2,19 +2,560 @@ import json
 import csv
 
 from datetime import date
+from collections import namedtuple
 
+from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.contrib.admin.util import NestedObjects
-from django.views.generic.edit import DeleteView
-from django.views.generic.base import TemplateView
+from django.contrib.admin.utils import NestedObjects
+from django.contrib import messages
+from django.views.generic.edit import DeleteView, FormView
+from django.views.generic import TemplateView, DetailView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.db.models import Q
+from django.db import connection
+from django.core.urlresolvers import reverse_lazy, reverse
+from django.utils.translation import ugettext as _
+from django.utils.translation import get_language
 
-from .models import Person, PersonName
-from membershipperson.models import MembershipPerson, Role
-from sfm_pc.utils import deleted_in_str
+from extra_views import FormSetView
 
+from person.models import Person, PersonName, PersonAlias, Alias
+from person.forms import PersonForm
+from organization.models import Organization
+from source.models import Source
+from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
+from sfm_pc.utils import (deleted_in_str, get_org_hierarchy_by_id,
+                          get_command_edges, get_command_nodes, AutofillAttributes)
+from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
+
+
+class PersonDetail(DetailView):
+    model = Person
+    template_name = 'person/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Use SQL, instead of the Django ORM. Django cannot accurately sort by last_cited, an instance of ApproximateDate: Django orders by ApproximateDate's string format, which "pretty prints" as a date and its suffix in the first position, e.g., "10th March 2004."
+        membership_query = '''
+            SELECT * FROM membershipperson
+            WHERE member_id='{}' 
+            ORDER BY last_cited::date DESC
+        '''.format(context['person'].uuid)
+
+        cursor = connection.cursor()
+        cursor.execute(membership_query)
+
+        columns = [c[0] for c in cursor.description]
+        results_tuple = namedtuple('Membership', columns)
+
+        # List of membership tuples
+        memberships = [results_tuple(*r) for r in cursor]
+
+        # Start by getting the most recent membership for the "Last seen as" description
+        if len(memberships) > 0:
+            last_membership_id = memberships[0].id
+            membershipperson = MembershipPerson.objects.get(id=last_membership_id)
+
+            context['last_seen_as'] = membershipperson.short_description
+
+        context['memberships'] = []
+        context['subordinates'] = []
+        context['command_chain'] = []
+
+        for membership_tuple in memberships:
+            membership = MembershipPersonMember.objects.get(object_ref__id=membership_tuple.id)
+
+            # Store the raw memberships for use in the template
+            context['memberships'].append(membership.object_ref)
+
+            # Grab the org object
+            org = membership.object_ref.organization.get_value().value
+
+            # Get info about chain of command
+            mem_data = {}
+
+            when = None
+            if membership.object_ref.lastciteddate.get_value():
+                when = repr(membership.object_ref.lastciteddate.get_value().value)
+                mem_data['when'] = when
+
+            org_id = str(org.uuid)
+
+            kwargs = {'org_id': org_id}
+            ajax_route = 'command-chain'
+            if when:
+                kwargs['when'] = when
+                ajax_route = 'command-chain-bounded'
+
+            command_chain_url = reverse(ajax_route, kwargs=kwargs)
+
+            mem_data['url'] = command_chain_url
+            context['command_chain'].append(mem_data)
+
+            # Next, get some info about subordinates
+            # Start by getting all child organizations for the member org
+            child_compositions = org.child_organization.all()
+
+            # Start and end date for this membership
+            mem_start = membership.object_ref.firstciteddate.get_value()
+            no_start = False
+            if mem_start is None:
+                # Make a bogus date that everything will be greater than
+                mem_start = date(1000, 1, 1)
+                no_start = True
+            else:
+                mem_start = repr(mem_start.value)
+
+            mem_end = membership.object_ref.lastciteddate.get_value()
+            no_end = False
+            if mem_end is None:
+                mem_end = date.today()
+                no_end = True
+            else:
+                mem_end = repr(mem_end.value)
+
+            # Get the commanders of each child organization
+            # (Unfortunately, this requires two more iterations)
+            if child_compositions:
+                for composition in child_compositions:
+                    # Start and end date attributes for filtering:
+                    # We want only the personnel who were commanders of child
+                    # organizations during this membership
+                    # (also allowing for null dates)
+                    child = composition.object_ref.child.get_value().value
+                    child_id = child.uuid
+
+                    child_commanders_query = '''
+                        SELECT * FROM membershipperson
+                        WHERE organization_id='{child_id}'
+                        AND (first_cited <= '{mem_end}' or first_cited is Null)
+                        AND (last_cited >= '{mem_start}' or last_cited is Null)
+                    '''.format(child_id=child_id,
+                               mem_end=mem_end,
+                               mem_start=mem_start)
+
+
+                    cursor = connection.cursor()
+                    cursor.execute(child_commanders_query)
+
+                    columns = [c[0] for c in cursor.description]
+                    results_tuple = namedtuple('Commander', columns)
+
+                    commanders = [results_tuple(*r) for r in cursor]
+
+                    for commander_tuple in commanders:
+                        # We need to calculate time overlap, so use a dict to
+                        # stash information about this commander
+                        commander = MembershipPersonMember.objects.get(object_ref__id=commander_tuple.id)
+                        info = {}
+                        info['commander'] = commander.object_ref
+                        info['organization'] = child
+
+                        # Get start of the overlap between these two people,
+                        # being sensitive to nulls
+
+                        # First, try to get the commander of the child unit's
+                        # start/end dates
+                        c_start = commander.object_ref.firstciteddate.get_value()
+                        c_end = commander.object_ref.lastciteddate.get_value()
+
+                        if c_start and not no_end:
+                            overlap_start = c_start.value
+                        else:
+                            # Once we have "ongoing" attributes, we'll be able to
+                            # determine ongoing overlap; for now, mark it as "unknown"
+                            overlap_start = 'Unknown'
+
+                        if c_end and not no_start:
+                            overlap_end = c_end.value
+                        else:
+                            # Ditto about "ongoing" attributes above
+                            overlap_end = 'Unknown'
+
+                        if overlap_start != 'Unknown' and overlap_end != 'Unknown':
+                            # Convert to date objects to calculate delta
+                            start = date(overlap_start.year,
+                                         overlap_start.month,
+                                         overlap_start.day)
+
+                            end = date(overlap_end.year,
+                                       overlap_end.month,
+                                       overlap_end.day)
+
+                            overlap_duration = (str((end - start).days) + ' days')
+                        else:
+                            overlap_duration = 'Unknown'
+
+                        info['overlap_start'] = overlap_start
+                        info['overlap_end'] = overlap_end
+                        info['overlap_duration'] = overlap_duration
+
+                        context['subordinates'].append(info)
+
+        context['subordinates'] = sorted(context['subordinates'], key=lambda m: (m['overlap_end'] if m['overlap_end'] != 'Unknown' else date(1, 1, 1)), reverse=True)
+        context['command_chain'].reverse()
+        context['events'] = []
+        events = context['person'].violationperpetrator_set.all()
+        for event in events:
+            context['events'].append(event.object_ref)
+
+        return context
+
+
+class PersonList(PaginatedList):
+    model = Person
+    template_name = 'person/list.html'
+    orderby_lookup = {
+        'name': 'personname__value',
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Highlight the correct nav tab in the template
+        context['person_tab'] = 'selected-tab'
+        context['search_term'] = 'a person'
+        return context
+
+class PersonCreate(BaseFormSetView):
+    template_name = 'person/create.html'
+    form_class = PersonForm
+    success_url = reverse_lazy('create-membership')
+    extra = 1
+    max_num = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
+
+        context['organizations'] = self.request.session.get('organizations')
+        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+
+        if context['organizations']:
+            if len(context['organizations']) > 1:
+                back_url = reverse_lazy('create-organization-membership')
+            else:
+                back_url = reverse_lazy('create-organization')
+        else:
+            back_url = reverse_lazy('create-organization')
+
+        context['back_url'] = back_url
+        context['skip_url'] = reverse_lazy('create-geography')
+
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('people') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('people')
+            self.initFormset(form_data)
+
+            context['formset'] = self.get_formset_context(self.formset)
+            context['browsing'] = True
+
+        return context
+
+    def get_formset_context(self, formset):
+
+        for index, form in enumerate(formset.forms):
+
+            alias_ids = form.data.get('form-{}-alias'.format(index))
+            org_ids = form.data.get('form-{}-orgs'.format(index))
+
+            form.aliases = []
+            form.organizations = []
+
+            if alias_ids:
+
+                for alias_id in alias_ids:
+                    try:
+                        alias_id = int(alias_id)
+                        alias = Alias.objects.get(id=alias_id)
+                    except ValueError:
+                        alias = {'id': alias_id, 'value': alias_id}
+                    form.aliases.append(alias)
+
+            if org_ids:
+
+                for org_id in org_ids:
+                    org_id = int(org_id)
+                    org = Organization.objects.get(id=org_id)
+                    form.organizations.append(org)
+
+        return formset
+
+    def post(self, request, *args, **kwargs):
+
+        form_data = {}
+
+        for key, value in request.POST.items():
+            if ('alias' in key or 'orgs' in key) and 'confidence' not in key:
+                form_data[key] = request.POST.getlist(key)
+            else:
+                form_data[key] = request.POST.get(key)
+
+        self.initFormset(form_data)
+
+        return self.validateFormSet()
+
+    def formset_invalid(self, formset):
+
+        formset = self.get_formset_context(formset)
+
+        response = super().formset_invalid(formset)
+        return response
+
+    def formset_valid(self, formset):
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
+
+        self.people = []
+        self.memberships = []
+
+        self.source = Source.objects.get(id=self.request.session['source_id'])
+
+        for i in range(0,num_forms):
+            first = True
+
+            form_prefix = 'form-{0}-'.format(i)
+
+            name_id_key = 'form-{0}-name'.format(i)
+            name_text_key = 'form-{0}-name_text'.format(i)
+            division_id_key = 'form-{}-division_id'.format(i)
+
+            name_id = formset.data[name_id_key]
+            name_text = formset.data[name_text_key]
+            division_id = formset.data[division_id_key]
+
+            name_confidence = int(formset.data.get(form_prefix +
+                                                   'name_confidence', 1))
+            division_confidence = int(formset.data.get(form_prefix +
+                                                       'division_confidence', 1))
+
+            person_info = {
+                'Person_PersonName': {
+                    'value': name_text,
+                    'confidence': name_confidence,
+                    'sources': [self.source],
+                },
+                'Person_PersonDivisionId': {
+                    'value': division_id,
+                    'confidence': division_confidence,
+                    'sources': [self.source],
+                }
+            }
+
+            if name_id == 'None':
+                return self.formset_invalid(formset)
+
+            elif name_id == '-1':
+                person = Person.create(person_info)
+                formset.data[name_id_key] = person.id
+
+            else:
+                person = Person.objects.get(id=name_id)
+                person_info['Person_PersonName']['sources'] = self.sourcesList(person, 'name')
+                person.update(person_info)
+
+            alias_id_key = 'form-{0}-alias'.format(i)
+            alias_text_key = 'form-{0}-alias_text'.format(i)
+            alias_confidence = int(formset.data.get(form_prefix +
+                                                    'alias_confidence', 1))
+
+            aliases = formset.data.get(alias_text_key)
+
+            if aliases:
+
+                for alias in aliases:
+
+                    alias_obj, created = Alias.objects.get_or_create(value=alias)
+
+                    pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
+                                                                        value=alias_obj,
+                                                                        lang=get_language(),
+                                                                        confidence=alias_confidence)
+
+                    pa_obj.sources.add(self.source)
+                    pa_obj.save()
+
+            self.people.append(person)
+
+            orgs_key = 'form-{0}-orgs'.format(i)
+            orgs = formset.data.get(orgs_key)
+            orgs_confidence = int(formset.data.get(form_prefix +
+                                                   'orgs_confidence', 1))
+
+            for org in orgs:
+
+                organization = Organization.objects.get(id=org)
+
+                mem_data = {
+                    'MembershipPerson_MembershipPersonMember': {
+                        'value': person,
+                        'confidence': orgs_confidence,
+                        'sources': [self.source],
+                    },
+                    'MembershipPerson_MembershipPersonOrganization': {
+                        'value': Organization.objects.get(id=org),
+                        'confidence': orgs_confidence,
+                        'sources': [self.source],
+                    }
+                }
+
+                membership, created = MembershipPerson.objects.get_or_create(membershippersonmember__value=person,
+                                                                             membershippersonorganization__value=organization)
+
+                # We only care about updating new memberships, since we show
+                # the user old memberships that weren't necessarily part of this
+                # source
+                if created:
+
+                    membership.update(mem_data)
+
+                    self.memberships.append({
+                        'person': str(person.name),
+                        'organization': str(organization.name),
+                        'membership': membership.id,
+                        'first': first
+                    })
+
+                first = False
+
+            # Queue up to be added to search index
+            to_index = self.request.session.get('index')
+
+            if not to_index:
+                self.request.session['index'] = {}
+
+            self.request.session['index'][str(person.uuid)] = 'people'
+
+        self.request.session['people'] = [{'id': p.id, 'name': p.name.get_value().value} \
+                                                     for p in self.people]
+        self.request.session['memberships'] = self.memberships
+
+        response = super().formset_valid(formset)
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['people'] = formset.data
+        self.request.session.modified = True
+
+        return response
+
+def person_autocomplete(request):
+    term = request.GET.get('q')
+    people = Person.objects.filter(personname__value__icontains=term).all()
+
+    complex_attrs = ['division_id']
+
+    list_attrs = ['aliases', 'classification']
+
+    set_attrs = {'membershippersonmember_set': 'organization'}
+
+    autofill = AutofillAttributes(objects=people,
+                                  set_attrs=set_attrs,
+                                  complex_attrs=complex_attrs,
+                                  list_attrs=list_attrs)
+
+    attrs = autofill.attrs
+
+    return HttpResponse(json.dumps(attrs), content_type='application/json')
+
+def alias_autocomplete(request):
+    term = request.GET.get('q')
+    alias_query = PersonAlias.objects.filter(value__value__icontains=term)
+    results = []
+    for alias in alias_query:
+        results.append({
+            'text': alias.value.value,
+            'id': alias.value.id
+        })
+    return HttpResponse(json.dumps(results), content_type='application/json')
+
+class PersonUpdate(BaseUpdateView):
+    template_name = 'person/edit.html'
+    form_class = PersonForm
+    success_url = reverse_lazy('dashboard')
+    sourced = True
+
+    def post(self, request, *args, **kwargs):
+
+        self.checkSource(request)
+        
+        self.aliases = request.POST.getlist('alias')
+
+        return self.validateForm()
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        person = Person.objects.get(pk=self.kwargs['pk'])
+        
+        person_info = {
+            'Person_PersonName': {
+                'value': form.cleaned_data['name_text'],
+                'confidence': 1,
+                'sources': self.sourcesList(person, 'name'),
+            },
+            'Person_PersonDivisionId': {
+                'value': form.cleaned_data['division_id'],
+                'confidence': 1,
+                'sources': self.sourcesList(person, 'division_id')
+            }
+        }
+        
+        person.update(person_info)
+
+        if self.aliases:
+            for alias in self.aliases:
+                
+                alias_obj, created = Alias.objects.get_or_create(value=alias)
+
+                pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
+                                                                    value=alias_obj,
+                                                                    lang=get_language())
+                
+                pa_obj.sources.add(self.source)
+                pa_obj.save()
+        
+        messages.add_message(self.request, 
+                             messages.INFO, 
+                             'Person {} saved!'.format(form.cleaned_data['name_text']))
+
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        person = Person.objects.get(pk=self.kwargs['pk'])
+        
+        form_data = {
+            'name': person.name.get_value(),
+            'aliases': [i.get_value() for i in person.aliases.get_list()],
+            'division_id': person.division_id.get_value(),
+        }
+        
+        context['form_data'] = form_data
+        context['title'] = _('Person')
+        context['source_object'] = person
+        context['memberships'] = MembershipPerson.objects.filter(
+            membershippersonmember__value=person
+        ).filter(membershippersonorganization__value__isnull=False)
+        context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
+
+        if not self.sourced:
+            context['source_error'] = 'Please include the source for your changes'
+
+
+        return context
+
+#############################################
+###                                       ###
+### Below here are currently unused views ###
+### which we'll probably need eventually  ###
+###                                       ###
+#############################################
 
 class PersonDelete(DeleteView):
     model = Person
@@ -32,20 +573,6 @@ class PersonDelete(DeleteView):
         obj = super(PersonDelete, self).get_object()
 
         return obj
-
-
-class PersonView(TemplateView):
-    template_name = 'person/search.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(PersonView, self).get_context_data(**kwargs)
-
-        context['year_range'] = range(1950, date.today().year + 1)
-        context['day_range'] = range(1, 32)
-        context['roles'] = Role.get_role_list()
-
-        return context
-
 
 def person_csv(request):
     response = HttpResponse(content_type='text/csv')
@@ -66,127 +593,3 @@ def person_csv(request):
     return response
 
 
-def person_search(request):
-    terms = request.GET.dict()
-
-    page = int(terms.get('page', 1))
-
-    person_query = Person.search(terms)
-
-    keys = ['name', 'alias', 'deathdate']
-
-    paginator = Paginator(person_query, 15)
-    try:
-        person_page = paginator.page(page)
-    except PageNotAnInteger:
-        person_page = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        person_page = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    persons = [
-        {
-            "id": person.id,
-            "name": str(person.name),
-            "alias": str(person.alias),
-            "deathdate": str(person.deathdate.get_value()),
-        }
-        for person in person_page
-    ]
-
-    html_paginator = render_to_string(
-        'paginator.html',
-        {'actual': page, 'min': page - 5, 'max': page + 5,
-         'paginator': person_page,
-         'pages': range(1, paginator.num_pages + 1)}
-    )
-
-    return HttpResponse(json.dumps({
-        'success': True,
-        'keys': keys,
-        'objects': persons,
-        'paginator': html_paginator,
-        'result_number': len(person_query)
-    }))
-
-
-class PersonUpdate(TemplateView):
-    template_name = 'person/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.POST.dict()['object'])
-        try:
-            person = Person.objects.get(pk=kwargs.get('pk'))
-        except Person.DoesNotExist:
-            msg = "This person does not exist, it should be created " \
-                  "before updating it."
-            return HttpResponse(msg, status=400)
-
-        (errors, data) = person.validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        person.update(data)
-        return HttpResponse(
-            json.dumps({"success": True, "id": person.id}),
-            content_type="application/json"
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super(PersonUpdate, self).get_context_data(**kwargs)
-        context['title'] = "Person"
-        context['person'] = Person.objects.get(pk=context.get('pk'))
-        context['memberships'] = MembershipPerson.objects.filter(
-            membershippersonmember__value=context['person']
-        ).filter(membershippersonorganization__value__isnull=False)
-
-        return context
-
-
-class PersonCreate(TemplateView):
-    template_name = 'person/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        data = json.loads(request.POST.dict()['object'])
-
-        (errors, data) = Person().validate(data)
-
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        person = Person.create(data)
-
-        return HttpResponse(
-            json.dumps({"success": True, "id": person.id}),
-            content_type="application/json"
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super(PersonCreate, self).get_context_data(**kwargs)
-        context['person'] = Person()
-
-        return context
-
-
-def person_autocomplete(request):
-    term = request.GET.dict()['term']
-
-    person_names = PersonName.objects.filter(value__icontains=term)
-
-    persons = [
-        {
-            'label': str(name.object_ref.name),
-            'value': str(name.object_ref_id)
-        }
-        for name in person_names
-    ]
-
-    return HttpResponse(json.dumps(persons))

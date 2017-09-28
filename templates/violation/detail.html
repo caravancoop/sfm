@@ -1,0 +1,214 @@
+{% extends "base_detail.html" %}
+{% load i18n %}
+{% load static %}
+{% load countries %}
+{% load render_versions %}
+
+{% if location %}
+    {% block extra_head %}
+         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    {% endblock %}
+{% endif %}
+
+{% block header %}
+    <h2 class="page-title">
+        <i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incident" %}
+        {% comment %}Translators: The word "in" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date>] Words in [brackets] indicate variable text.{% endcomment %}
+        {% if violation.osmname.get_value %}
+            {% trans "in" %} <strong>{{ violation.osmname.get_value }}</strong>
+        {% endif %}
+        {% if violation.startdate.get_value and violation.enddate.get_value %}
+            {% if violation.startdate.get_value.value == violation.enddate.get_value.value %}
+                {% comment %}Translators: The word "on" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date]" Words in [brackets] indicate variable text.{% endcomment %}
+                {% trans "on" %} <strong>{{ violation.startdate.get_value }}</strong>
+            {% else %}
+                {% comment %}Translators: The word "between" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
+                {% trans "between" %} <strong>{{ violation.startdate.get_value }}</strong> {% trans "and" %} <strong>{{ violation.enddate.get_value }}</strong>
+            {% endif %}
+        {% elif violation.startdate.get_value %}
+            {% comment %}Translators: The word "starting" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
+            {% trans "starting" %} <strong>{{ violation.startdate.get_value }}</strong>
+        {% elif violation.enddate.get_value %}
+            {% comment %}Translators: The word "ending" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
+            {% trans "ending" %} <strong>{{ violation.enddate.get_value }}</strong>
+        {% endif %}
+        <small>
+            <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">{% trans "Edit" %}</a>
+        </small>
+    </h2>
+
+    {% if violation.locationdescription.get_value or violation.adminlevel1.get_value or violation.adminlevel2.get_value %}
+        <h4>{% trans "Location:" %}
+            <strong>
+                {% render_location_string violation countries=False %}
+            </strong>
+        </h4>
+    {% endif %}
+
+    {% if violation.division_id.get_value %}
+        <h4>{% trans "Country:" %} <strong>{{ violation.division_id.get_value | country_name }}</strong></h4>
+    {% endif %}
+
+    {% if violation.types.get_list %}
+        <p>
+        {% for type in violation.types.get_list %}
+            <span class="label label-default">{{ type.get_value }}</span>&nbsp;
+        {% endfor %}
+        </p>
+    {% endif %}
+
+    {% if violation.perpetratorclassification.get_value %}
+        <p>
+            <span class="label label-default">
+                {{ violation.perpetratorclassification.get_value }}
+            </span>
+        </p>
+    {% endif %}
+
+{% endblock %}
+
+{% block sidebar %}
+    {% has_versions violation as changelog %}
+
+    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
+    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
+    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+
+{% endblock %}
+
+{# This is exactly the same as the previous sidebar #}
+{# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
+{% block sidebar_mobile %}
+    {% has_versions violation as changelog %}
+
+    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
+    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
+    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+
+{% endblock %}
+
+{% block details %}
+
+    {% if location %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %}</h3>
+            <hr />
+            <div id="geoname_map" style="height:300px;"></div>
+            <h4><strong>{% render_location_string violation %}</strong></h4>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if violation.description %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %}</h3>
+            <hr />
+            {% with N=1 description=violation.description %}
+                {% include 'partials/violation_description.html' %}
+            {% endwith %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if violation.violationperpetrator_set.all %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for person in violation.violationperpetrator_set.all %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail-person' person.value.id %}">
+                                    {{ person.value.get_value }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in person.value.aliases.get_list %}
+                                    {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if violation.violationperpetratororganization_set.all %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classification" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for organization in violation.violationperpetratororganization_set.all %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' organization.value.id %}">
+                                    {{ organization.value.get_value }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in organization.value.aliases.get_list %}
+                                    {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for classification in organization.value.classification.get_list %}
+                                    {{ classification.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                {% endfor %}
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% has_versions violation as changelog %}
+        {% if changelog %}
+            {% render_versions violation %}
+        {% endif %}
+
+{% endblock %}
+
+{% if location %}
+    {% block extra_js %}
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                var center_x = {{ location.x|safe }};
+                var center_y = {{ location.y|safe }};
+                var map = L.map('geoname_map').setView([center_y, center_x], 10);
+                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            { attribution: attribution, detectRetina: true }).addTo(map);
+                var marker = L.marker([center_y, center_x]).addTo(map);
+            })
+        </script>
+    {% endblock %}
+{% endif %}

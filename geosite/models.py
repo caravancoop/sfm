@@ -1,10 +1,8 @@
-import json
-
 from django.contrib.gis.db import models
 
+from django_date_extensions.fields import ApproximateDateField
+
 from django.utils.translation import ugettext as _
-from django.db.models import Max
-from django.contrib.gis import geos
 
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
@@ -15,14 +13,26 @@ class Geosite(models.Model, BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, GeositeName)
+
+        # OSM Name/ID of the smallest containing administrative unit
+        self.admin_name = ComplexFieldContainer(self, GeositeAdminName)
+        self.admin_id = ComplexFieldContainer(self, GeositeAdminId)
+
+        # Larger administrative units (name only)
         self.adminlevel1 = ComplexFieldContainer(self, GeositeAdminLevel1)
         self.adminlevel2 = ComplexFieldContainer(self, GeositeAdminLevel2)
-        self.coordinates = ComplexFieldContainer(self, GeositeCoordinates)
-        self.geoname = ComplexFieldContainer(self, GeositeGeoname)
-        self.geonameid = ComplexFieldContainer(self, GeositeGeonameId)
 
-        self.complex_fields = [self.name, self.adminlevel1, self.adminlevel2,
-                               self.coordinates, self.geoname, self.geonameid]
+        # Coordinates and OSM Name/ID of the exact location
+        self.coordinates = ComplexFieldContainer(self, GeositeCoordinates)
+        self.location_name = ComplexFieldContainer(self, GeositeLocationName)
+        self.location_id = ComplexFieldContainer(self, GeositeLocationId)
+
+        self.division_id = ComplexFieldContainer(self, GeositeDivisionId)
+
+        self.complex_fields = [self.name, self.admin_name, self.admin_id,
+                               self.adminlevel1, self.adminlevel2,
+                               self.coordinates, self.location_name,
+                               self.location_id, self.division_id]
 
         self.required_fields = ["Geosite_GeositeName"]
 
@@ -32,92 +42,6 @@ class Geosite(models.Model, BaseModel):
     def __str__(self):
         return str(self.name)
 
-    def validate(self, dict_values):
-        errors = {}
-
-        coordinates = dict_values['Geosite_GeositeCoordinates'].get("value")
-        if coordinates:
-            coord = json.loads(coordinates).get("coordinates")
-            if coord:
-                try:
-                    geos.Point(coord)
-                except TypeError:
-                    errors["Geosite_GeositeCoordinates"] = (
-                        "The coordinates must be a point, not a polygon"
-                    )
-
-        (base_errors, values) = super().validate(dict_values)
-        errors.update(base_errors)
-
-        return (errors, values)
-
-    @classmethod
-    def search(cls, terms):
-        order_by = terms.get('orderby')
-        if not order_by:
-            order_by = 'geositename__value'
-        elif order_by in ['name']:
-            order_by = 'geosite' + order_by + '__value'
-
-        direction = terms.get('direction')
-        if not direction:
-            direction = 'ASC'
-
-        dirsym = ''
-        if direction == 'DESC':
-            dirsym = '-'
-
-        geosite_query = (Geosite.objects
-                         .annotate(Max(order_by))
-                         .order_by(dirsym + order_by + "__max"))
-
-        name = terms.get('name')
-        if name:
-            geosite_query = geosite_query.filter(geositename__value__icontains=name)
-
-        admin1 = terms.get('adminlevel1')
-        if admin1:
-            geosite_query = geosite_query.filter(geositeadminlevel1__value__icontains=admin1)
-
-        admin2 = terms.get('adminlevel2')
-        if admin2:
-            geosite_query = geosite_query.filter(geositeadminlevel2__value__icontains=admin2)
-
-        latitude = terms.get('latitude')
-        longitude = terms.get('longitude')
-        if latitude and longitude:
-            try:
-                latitude = float(latitude)
-                longitude = float(longitude)
-            except ValueError:
-                latitude = 0
-                longitude = 0
-
-            point = geos.Point(latitude, longitude)
-            radius = terms.get('radius')
-            if radius:
-                try:
-                    radius = float(radius)
-                except ValueError:
-                    radius = 0
-                geosite_query = geosite_query.filter(
-                    geositecoordinates__value__dwithin=(point, radius)
-                )
-            else:
-                geosite_query = geosite_query.filter(
-                    geositecoordinates__value__bbcontains=point
-                )
-
-        geoname = terms.get('geoname')
-        if geoname:
-            geosite_query = geosite_query.filter(geositegeoname__value__icontains=geoname)
-
-        geonameid = terms.get('geonameid')
-        if geonameid:
-            geosite_query = geosite_query.filter(geositegeonameid__value=geonameid)
-
-        return geosite_query
-
 
 @translated
 @versioned
@@ -126,6 +50,25 @@ class GeositeName(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
+    
+    def __str__(self):
+        return self.value
+
+
+@versioned
+@sourced
+class GeositeAdminName(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("OSM name")
+
+
+@versioned
+@sourced
+class GeositeAdminId(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = models.BigIntegerField(default=None, blank=True, null=True)
+    field_name = _("OSM ID")
 
 
 @versioned
@@ -155,15 +98,39 @@ class GeositeCoordinates(ComplexField):
 
 @versioned
 @sourced
-class GeositeGeoname(ComplexField):
+class GeositeLocationName(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("GeoName name")
+    field_name = _("Location name")
 
 
 @versioned
 @sourced
-class GeositeGeonameId(ComplexField):
+class GeositeLocationId(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = models.BigIntegerField(default=None, blank=True, null=True)
+    field_name = _("Location ID")
+
+
+@versioned
+@sourced
+class GeositeDivisionId(ComplexField):
     object_ref = models.ForeignKey('Geosite')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("GeoName ID")
+    field_name = _("Division ID")
+
+
+@versioned
+@sourced
+class GeositeFirstCited(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("First cited")
+
+
+@versioned
+@sourced
+class GeositeLastCited(ComplexField):
+    object_ref = models.ForeignKey('Geosite')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("Last cited")

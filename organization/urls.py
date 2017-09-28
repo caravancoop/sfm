@@ -1,21 +1,23 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from .views import (OrganizationCreate, OrganizationView, OrganizationUpdate,
-                    classification_autocomplete, organization_autocomplete,
-                    organization_search, OrganizationDelete, organization_csv)
+from organization.views import OrganizationCreate, OrganizationUpdate, \
+    organization_autocomplete, alias_autocomplete, \
+    OrganizationCreateGeography, classification_autocomplete, OrganizationDetail, \
+    OrganizationList
 
-urlpatterns = patterns(
-    '',
-    url(r'^$', OrganizationView.as_view(), name='organizations'),
-    url(r'search/', organization_search, name='organization_search'),
-    url(r'add/$', OrganizationCreate.as_view(), name="add_organization"),
-    url(r'delete/(?P<pk>\d+)/$',
-        OrganizationDelete.as_view(success_url="/organization/"),
-        name='delete_organization'),
-    url(r'csv/', organization_csv, name='organization_csv'),
-    url(r'(?P<pk>\d+)/$', OrganizationUpdate.as_view(), name='edit_organization'),
-    url(r'classification/autocomplete', classification_autocomplete,
-        name="classification_autocomplete"),
-    url(r'autocomplete', organization_autocomplete,
-        name="organization_autocomplete"),
-)
+urlpatterns = [
+    url(r'^create/$',
+        OrganizationCreate.as_view(),
+        name="create-organization"),
+    url(r'edit/(?P<pk>\d+)/$', OrganizationUpdate.as_view(), name='edit_organization'),
+    url(r'detail/(?P<pk>\d+)/$', OrganizationDetail.as_view(), name='detail_organization'),
+    url(r'list/$', OrganizationList.as_view(), name='list-organization'),
+    url(r'name/autocomplete',
+        organization_autocomplete,
+        name="organization-autocomplete"),
+    url(r'^alias/autocomplete/$', alias_autocomplete, name="org-alias-autocomplete"),
+    url(r'^classification/autocomplete/$',
+        classification_autocomplete,
+        name="org-classification-autocomplete"),
+    url(r'^create/geography/$', OrganizationCreateGeography.as_view(), name="create-geography"),
+]

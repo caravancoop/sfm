@@ -1,0 +1,546 @@
+[
+    {
+        "model": "violation.type",
+        "pk": 1,
+        "fields": {
+            "code": "Violations of the right to life"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 2,
+        "fields": {
+            "code": "Violations against personal integrity"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 3,
+        "fields": {
+            "code": "Violations against the right to liberty"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 4,
+        "fields": {
+            "code": "Violations against the right to privacy"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 5,
+        "fields": {
+            "code": "Violations against the right to movement, right to residence"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 6,
+        "fields": {
+            "code": "Violations of the right to information"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 7,
+        "fields": {
+            "code": "Violations of the right to expression"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 8,
+        "fields": {
+            "code": "Violations of the right to belief/opinion"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 9,
+        "fields": {
+            "code": "Violations of rights of refugees"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 10,
+        "fields": {
+            "code": "Violations of the right to political participation"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 11,
+        "fields": {
+            "code": "Labour rights violations"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 12,
+        "fields": {
+            "code": "Violations of rights of aliens"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 13,
+        "fields": {
+            "code": "Violations of rights of persons with disabilities"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 14,
+        "fields": {
+            "code": "Violations of rights of accused persons"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 15,
+        "fields": {
+            "code": "Violations of rights of detained or imprisoned persons"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 16,
+        "fields": {
+            "code": "Violations of the rights of minorities"
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 1,
+        "fields": {
+            "value_id": 1,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 2,
+        "fields": {
+            "value_id": 2,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 3,
+        "fields": {
+            "value_id": 3,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 4,
+        "fields": {
+            "value_id": 4,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 5,
+        "fields": {
+            "value_id": 5,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 6,
+        "fields": {
+            "value_id": 6,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 7,
+        "fields": {
+            "value_id": 7,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 8,
+        "fields": {
+            "value_id": 8,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 9,
+        "fields": {
+            "value_id": 9,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 10,
+        "fields": {
+            "value_id": 10,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 11,
+        "fields": {
+            "value_id": 11,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 12,
+        "fields": {
+            "value_id": 12,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 13,
+        "fields": {
+            "value_id": 13,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 14,
+        "fields": {
+            "value_id": 14,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 15,
+        "fields": {
+            "value_id": 15,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 16,
+        "fields": {
+            "value_id": 16,
+            "object_ref_id": null,
+            "lang": "en",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 17,
+        "fields": {
+            "code": "Violaciones al derecho a la vida"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 18,
+        "fields": {
+            "code": "Violaciones al derecho a la seguridad e integridad personal"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 19,
+        "fields": {
+            "code": "Violaciones al derecho a la libertad personal"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 20,
+        "fields": {
+            "code": "Violaciones al derecho a la privacidad"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 21,
+        "fields": {
+            "code": "Violaciones al derecho a la libertad de tránsito y al derecho de residencia"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 22,
+        "fields": {
+            "code": "Violaciones al derecho a la libertad de recibir, buscar y difundir información"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 23,
+        "fields": {
+            "code": "Violaciones al derecho a la libertad de expresión"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 24,
+        "fields": {
+            "code": "Violaciones al derecho a la libertad de pensamiento y a la libertad de religión"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 25,
+        "fields": {
+            "code": "Violaciones a los derechos de los desplazados y de los refugiados"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 26,
+        "fields": {
+            "code": "Violaciones al derecho a la participación política"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 27,
+        "fields": {
+            "code": "Violaciones a los derechos laborales"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 28,
+        "fields": {
+            "code": "Violaciones a los derechos de los extranjeros"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 29,
+        "fields": {
+            "code": "Violaciones a los derechos de las personas con discapacidad"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 30,
+        "fields": {
+            "code": "Violaciones a los derechos de las personas acusadas"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 31,
+        "fields": {
+            "code": "Violaciones a los derechos de las personas detenidas o encarceladas"
+        }
+    },
+    {
+        "model": "violation.type",
+        "pk": 32,
+        "fields": {
+            "code": "Violaciones a los derechos de las minorías"
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 17,
+        "fields": {
+            "value_id": 17,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 18,
+        "fields": {
+            "value_id": 18,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 19,
+        "fields": {
+            "value_id": 19,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 20,
+        "fields": {
+            "value_id": 20,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 21,
+        "fields": {
+            "value_id": 21,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 22,
+        "fields": {
+            "value_id": 22,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 23,
+        "fields": {
+            "value_id": 23,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 24,
+        "fields": {
+            "value_id": 24,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 25,
+        "fields": {
+            "value_id": 25,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 26,
+        "fields": {
+            "value_id": 26,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 27,
+        "fields": {
+            "value_id": 27,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 28,
+        "fields": {
+            "value_id": 28,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 29,
+        "fields": {
+            "value_id": 29,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 30,
+        "fields": {
+            "value_id": 30,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 31,
+        "fields": {
+            "value_id": 31,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    },
+    {
+        "model": "violation.violationtype",
+        "pk": 32,
+        "fields": {
+            "value_id": 32,
+            "object_ref_id": null,
+            "lang": "es",
+            "confidence": 1
+        }
+    }
+]

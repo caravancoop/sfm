@@ -1,7 +1,7 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
-from django.contrib.gis import geos
-from django.db.models import Max
+
+from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
@@ -14,10 +14,13 @@ class Area(models.Model, BaseModel):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, AreaName)
         self.code = ComplexFieldContainer(self, AreaCode)
-        self.geoname = ComplexFieldContainer(self, AreaGeoName)
+        self.osmname = ComplexFieldContainer(self, AreaOSMName)
+        self.osmid = ComplexFieldContainer(self, AreaOSMId)
         self.geometry = ComplexFieldContainer(self, AreaGeometry)
+        self.division_id = ComplexFieldContainer(self, AreaDivisionId)
 
-        self.complex_fields = [self.name, self.code, self.geoname, self.geometry]
+        self.complex_fields = [self.name, self.code, self.osmname,
+                               self.geometry, self.division_id, self.osmid]
 
         self.required_fields = [
             "Area_AreaName",
@@ -37,82 +40,6 @@ class Area(models.Model, BaseModel):
         except cls.DoesNotExist:
             return None
 
-    def validate(self, dict_values):
-        errors = {}
-
-        coordinates = dict_values['Area_AreaGeometry'].get("value")
-        if coordinates:
-            try:
-                poly = geos.fromstr(coordinates)
-                if not isinstance(poly, geos.Polygon):
-                    errors["Area_AreaGeometry"] = (
-                        "The geometry must be a polygon, not a point"
-                    )
-            except TypeError:
-                errors["Area_AreaGeometry"] = (
-                    "Invalid data for a polygon"
-                )
-
-        (base_errors, values) = super().validate(dict_values)
-        errors.update(base_errors)
-
-        return (errors, values)
-
-    @classmethod
-    def search(cls, terms):
-        order_by = terms.get('orderby')
-        if not order_by:
-            order_by = 'areaname__value'
-        elif order_by in ['name']:
-            order_by = 'area' + order_by + '__value'
-
-        direction = terms.get('direction')
-        if not direction:
-            direction = 'ASC'
-
-        dirsym = ''
-        if direction == 'DESC':
-            dirsym = '-'
-
-        area_query = (Area.objects
-                      .annotate(Max(order_by))
-                      .order_by(dirsym + order_by + "__max"))
-
-        name = terms.get('name')
-        if name:
-            area_query = area_query.filter(areaname__value__icontains=name)
-
-        code = terms.get('classification')
-        if code:
-            area_query = area_query.filter(areacode__value=code)
-
-        latitude = terms.get('latitude')
-        longitude = terms.get('longitude')
-        if latitude and longitude:
-            try:
-                latitude = float(latitude)
-                longitude = float(longitude)
-            except ValueError:
-                latitude = 0
-                longitude = 0
-
-            point = geos.Point(latitude, longitude)
-            radius = terms.get('radius')
-            if radius:
-                try:
-                    radius = float(radius)
-                except ValueError:
-                    radius = 0
-                area_query = area_query.filter(
-                    areageometry__value__dwithin=(point, radius)
-                )
-            else:
-                area_query = area_query.filter(
-                    areageometry__value__bbcontains=point
-                )
-
-        return area_query
-
 
 @translated
 @versioned
@@ -127,7 +54,7 @@ class AreaName(ComplexField):
 @sourced_optional
 class AreaGeometry(ComplexField):
     object_ref = models.ForeignKey('Area')
-    value = models.PolygonField(default=None, blank=True, null=True)
+    value = models.MultiPolygonField(default=None, blank=True, null=True)
     objects = models.GeoManager()
     field_name = _("Location geometry")
 
@@ -142,10 +69,21 @@ class AreaCode(ComplexField):
 
 @versioned
 @sourced
-class AreaGeoName(ComplexField):
+class AreaOSMName(ComplexField):
     object_ref = models.ForeignKey('Area')
-    value = models.IntegerField(default=None, blank=True, null=True)
-    field_name = _("GeoName ID")
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("OSM name")
+
+    def __str__(self):
+        return self.value
+
+
+@versioned
+@sourced
+class AreaOSMId(ComplexField):
+    object_ref = models.ForeignKey('Area')
+    value = models.BigIntegerField(default=None, blank=True, null=True)
+    field_name = _("OSM ID")
 
 
 class Code(models.Model):
@@ -161,3 +99,11 @@ class Code(models.Model):
 
     def __str__(self):
         return self.value
+
+
+@versioned
+@sourced
+class AreaDivisionId(ComplexField):
+    object_ref = models.ForeignKey('Area')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Division ID")

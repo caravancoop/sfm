@@ -1,0 +1,52 @@
+{% load i18n %}
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3 id="changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</h3>
+        <hr />
+        <p>{% trans "Select an attribute below to review the changes our staff have made to this entity." %}</p>
+        {% for version in versions %}
+            {% for type_name, type_group in version.items %}
+                {% if type_group|last|last|length > 0 %} {# Only create tables for groups containing revisions #}
+                    {% if forloop.first %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#show-{{type_name|slugify}}">
+                            <a role="button" class="filter-heading">
+                                <h4><strong>{{ type_name }}</strong></h4>
+                            </a>
+                        </div>
+                        <div class="panel-body collapse" id="show-{{type_name|slugify}}">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <th>{% trans "Value" %}</th>
+                                    <th>{% trans "Confidence" %}</th>
+                                    <th>{% trans "Date created" %}</th>
+                                    <th>{% trans "User" %}</th>
+                                    <th>{% trans "Sources" %}</th>
+                                </thead>
+                                <tbody>
+                    {% endif %}
+                            {% for group, members in type_group %}
+                                {% for member in members %}
+                                    <tr>
+                                        <td>{{ member.object.value }}</td>
+                                        <td>{{ member.object.confidence }}</td>
+                                        <td>{{ member.revision.date_created }}</td>
+                                        <td>{{ member.revision.user }}</td>
+                                        <td>
+                                            {% for source in member.object.sources.all %}
+                                                {{ source.title }}{% if not forloop.last %},{% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>

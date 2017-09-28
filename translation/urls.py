@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from translation.views import translate, autocomplete_language
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'(?P<object_type>[a-zA-Z]+)/' +
         '(?P<object_id>[0-9]+)/' +
         '(?P<field_name>[a-zA-Z]+)/',
@@ -12,4 +11,4 @@ urlpatterns = patterns(
     url(r'languages/autocomplete/',
         autocomplete_language,
         name="translate_field"),
-)
+]

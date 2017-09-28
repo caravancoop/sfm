@@ -3,7 +3,7 @@ import csv
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.template.loader import render_to_string
-from django.contrib.admin.util import NestedObjects
+from django.contrib.admin.utils import NestedObjects
 from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
@@ -57,7 +57,7 @@ def area_csv(request):
             area.id,
             area.name.get_value(),
             area.code.get_value(),
-            area.geoname.get_value(),
+            area.osmname.get_value(),
             str(area.geometry.get_value()),
         ])
 
@@ -147,7 +147,6 @@ class AreaCreate(TemplateView):
     template_name = 'area/edit.html'
 
     def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
 
         (errors, data) = Area().validate(data)

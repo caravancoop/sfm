@@ -1,0 +1,413 @@
+{% extends "base_detail.html" %}
+{% load i18n %}
+{% load static %}
+{% load render_versions %}
+
+{% if sites %}
+    {% block extra_head %}
+         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    {% endblock %}
+{% endif %}
+
+{% block header %}
+    <h1 class="page-title">
+        <i class="fa fa-fw fa-users"></i> {{ organization.name.get_value }}
+        <small>
+            <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">{% trans "Edit" %}</a>
+        </small>
+    </h1>
+    {% if organization.aliases.get_list %}
+        <p>{% trans "Also known as:" %}
+            {% for alias in organization.aliases.get_list %}
+            <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
+            {% endfor %}
+        </p>
+    {% endif %}
+    {% if organization.classification.get_list %}
+        <p>
+        {% for classification in organization.classification.get_list %}
+            <span class="label label-default">{{ classification.get_value }}</span>&nbsp;
+        {% endfor %}
+        </p>
+    {% endif %}
+{% endblock %}
+
+{% block sidebar %}
+    {% has_versions organization as changelog %}
+
+    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
+    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
+    {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
+    {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</a></li>{% endif %}
+    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Command personnel" %}</a></li>{% endif %}
+    {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+
+{% endblock %}
+
+{# This is exactly the same as the previous sidebar #}
+{# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
+{% block sidebar_mobile %}
+    {% has_versions organization as changelog %}
+
+    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
+    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
+    {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
+    {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</a></li>{% endif %}
+    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Command personnel" %}</a></li>{% endif %}
+    {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+
+{% endblock %}
+
+{% block details %}
+
+    {% if areas %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %}</h3>
+            <hr />
+            <div id="osm_area_map" style="height:300px;"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if sites %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</h3>
+            <hr />
+            <div id="osm_site_map" style="height:300px;"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if memberships %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="parent-units">
+                <i class="fa fa-fw fa-sitemap fa-rotate-180"></i>
+                {% trans "Memberships" %}
+                <small>{% trans "Multi-unit organizations that this unit is part of." %}</small>
+            </h3>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classifications" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membership in memberships %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' membership.id %}">
+                                    {{ membership.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in membership.aliases %}
+                                    {% if not forloop.last %}
+                                        {{ alias }},
+                                    {% else %}
+                                        {{ alias }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for classification in membership.classifications %}
+                                    {% if not forloop.last %}
+                                        {{ classification }},
+                                    {% else %}
+                                        {{ classification }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ membership.first_cited }}</td>
+                            <td>{{ membership.last_cited }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if org_members %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</h3>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classifications" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membership in org_members %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' membership.id %}">
+                                    {{ membership.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in membership.aliases %}
+                                    {% if not forloop.last %}
+                                        {{ alias }},
+                                    {% else %}
+                                        {{ alias }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for classification in membership.classifications %}
+                                    {% if not forloop.last %}
+                                        {{ classification }},
+                                    {% else %}
+                                        {{ classification }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ membership.first_cited }}</td>
+                            <td>{{ membership.last_cited }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if parents_list %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h3 id="chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</h3>
+                    <hr />
+                    <div id="org-chart-container" class="command-charts-carousel"></div>
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if subsidiaries %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</h3>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classifications" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for child in subsidiaries %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail_organization' child.id %}">
+                                    {{ child.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for alias in child.aliases.get_list %}
+                                    {% if not forloop.last %}
+                                        {{ alias }},
+                                    {% else %}
+                                        {{ alias }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for classification in child.classifications %}
+                                    {% if not forloop.last %}
+                                        {{ classification }},
+                                    {% else %}
+                                        {{ classification }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ child.first_cited }}</td>
+                            <td>{{ child.last_cited }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if person_members %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Command personnel" %}</h3>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Rank" %}</th>
+                        <th>{% trans "Role" %}</th>
+                        <th>{% trans "Title" %}</th>
+                        <th>{% trans "Start date" %}</th>
+                        <th>{% trans "End date" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in person_members %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'detail-person' member.member.get_value.value.id %}">
+                                    {{ member.member.get_value }}
+                                </a>
+                            </td>
+                            <td>{{ member.rank.get_value }}</td>
+                            <td>{{ member.role.get_value }}</td>
+                            <td>{{ member.title.get_value|default:"" }}</td>
+                            <td>{{ member.firstciteddate }}</td>
+                            <td>{{ member.lastciteddate }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if events %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</h3>
+            <hr />
+            {% for event in events %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p>
+                            <a href="{% url 'detail_violation' event.id %}">
+                                {% trans "Incident" %}
+                                {% if event.osmname %}
+                                    {% trans "in" %} <strong>{{ event.osmname }}</strong>
+                                {% endif %}
+                                {% if event.startdate and event.enddate %}
+                                    {% trans "between" %} <strong>{{ event.startdate }}</strong> and <strong>{{ event.enddate }}</strong>
+                                {% elif event.startdate %}
+                                    {% trans "starting" %} <strong>{{ event.startdate }}</strong>
+                                {% elif event.enddate %}
+                                    {% trans "ending" %} <strong>{{ event.enddate }}</strong>
+                                {% endif %}
+                            </a>
+                        </p>
+                    </div>
+                    <div class="col-sm-12">
+                        <p>{{ event.description.get_value|truncatewords:50 }}</p>
+                    </div>
+                </div>
+                {% if not forloop.last %}
+                <hr />
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% has_versions organization as changelog %}
+        {% if changelog %}
+            {% render_versions organization %}
+        {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+    {% if sites or areas %}
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    {% endif %}
+    {% if sites %}
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                var center_x = {{ sites.0.coordinates.get_value.value.x|safe }};
+                var center_y = {{ sites.0.coordinates.get_value.value.y|safe }};
+                var site_map = L.map('osm_site_map').setView([center_y, center_x], 10);
+                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            { attribution: attribution, detectRetina: true }).addTo(site_map);
+                var markers = L.featureGroup();
+                {% for site in sites %}
+                    var mark = L.marker([{{ site.coordinates.get_value.value.y|safe }},{{ site.coordinates.get_value.value.x|safe }}]);
+                    mark.bindPopup("{{ site.osmname }}");
+                    markers.addLayer(mark);
+                {% endfor %}
+                markers.addTo(site_map);
+                site_map.fitBounds(markers.getBounds(), {'maxZoom': 11});
+            });
+        </script>
+    {% endif %}
+    {% if areas %}
+        <script type="text/javascript">
+            function onEachFeature(feature, layer){
+                layer.bindPopup(feature.properties.name);
+            }
+            $(document).ready(function(){
+                var area_map = L.map('osm_area_map');
+                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            { attribution: attribution, detectRetina: true }).addTo(area_map);
+                var areas = L.featureGroup();
+                {% for area in areas %}
+                    var geom = {{ area.geojson|safe}};
+                    geom['properties'] = {'name': "{{ area.osmname }}"};
+                    areas.addLayer(
+                        L.geoJson(geom, {onEachFeature: onEachFeature})
+                    );
+                {% endfor %}
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+            });
+        </script>
+    {% endif %}
+
+    {% if parents_list %}
+        <script src="{% static 'js/vis.min.js' %}"></script>
+        <script src="{% static 'js/spin.min.js' %}"></script>
+        <script src="{% static 'js/jquery.spin.js' %}"></script>
+        <script src="{% static 'js/command_chart.js' %}"></script>
+        <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
+        <script>
+
+        $(document).ready(function() {
+
+            var edgelists = {{parents_list|safe}};
+
+            var chart = CommandChart;
+            chart.edgelists = edgelists;
+
+            chart.initCarousel();
+            chart.show();
+
+        });
+        </script>
+    {% endif %}
+{% endblock %}

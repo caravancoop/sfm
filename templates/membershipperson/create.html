@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+{% load viewcomplexfield %}
+{% load staticfiles %}
+{% load i18n %}
+{% load get_item %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+<style>
+.submit { margin-top: 10px; }
+</style>
+{% endblock %}
+{% block content %}
+{% include 'partials/nav-wizard.html' %}
+<div class="row">
+    <h2><i class="fa fa-fw fa-sitemap"></i> {% trans "Positions" %}</h2>
+    <p>{% trans "Describe positions held by personnel in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <hr />
+</div>
+<form method="post" action="" id="person-form" class="form-horizontal">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+        {% with form_id=forloop.counter0 %}
+            {% if not forloop.first %}
+                <hr />
+            {% endif %}
+            <div class="col-sm-10 col-sm-offset-2">
+            {% with a_membership=memberships|from_index:form_id %}
+            <h3><i class="fa fa-fw fa-user"></i>{{ a_membership.person }} |
+                <small><i class="fa fa-fw fa-users"></i>{{ a_membership.organization }}</small>
+            </h3>
+                <input type="hidden" name="form-{{ form_id }}-membership" id="id_form-{{ form_id }}-person" value="{{ a_membership.membership }}">
+            {% endwith %}
+            </div>
+            <div class="row">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-8"><p><strong>{% trans "Value" %}</strong></p></div>
+                <div class="col-sm-2"><p><strong>{% trans "Confidence" %}</strong></p></div>
+            </div>
+            {% if form.title.errors or form.title_confidence.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-title">{% trans "Title" %}</label>
+                <div class="col-sm-8">
+                   <input type="text" class="form-control title-field" id="id_form-{{ form_id }}-title" name="form-{{ form_id }}-title" value="{{ form.cleaned_data.title }}" />
+                    {% if form.title.errors %}
+                       {% for error in form.title.errors %}
+                           <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                       {% endfor %}
+                   {% endif %}
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control confidence-field" id="id_form-{{ form_id }}-title_confidence" name="form-{{ form_id }}-title_confidence">
+                        {% for value, name in confidence_levels %}
+                            {% if form.cleaned_data.title_confidence == value %}
+                                <option value="{{ value }}" selected=true>{{ name }}</option>
+                            {% else %}
+                                <option value="{{ value }}">{{ name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.title_confidence.errors %}
+                        {% for error in form.title_confidence.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.role.errors or form.rank.errors or form.role_rank_confidence.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <label class="control-label col-sm-2">{% trans "Role and Rank" %}</label>
+                <div class="col-sm-4">
+                    <select id="id_form-{{ form_id }}-role" class="form-control role-field" name="form-{{ form_id }}-role">
+                        <option value="" selected="selected">-- {% trans "Select a Role" %} --</option>
+                        {% for role in roles %}
+                        <option value="{{ role.id }}">{{ role.value }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.role.errors %}
+                        {% for error in form.role.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                    <input type="hidden" name="form-{{ form_id }}-role-name_text" id="id_form-{{ form_id }}-role_text" />
+                </div>
+                <div class="col-sm-4">
+                    <select id="id_form-{{ form_id }}-rank" class="form-control rank-field" name="form-{{ form_id }}-rank">
+                        <option value="" selected="selected">-- {% trans "Select a Rank" %} --</option>
+                        {% for rank in ranks %}
+                        <option value="{{ rank.id }}">{{ rank.value }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.rank.errors %}
+                        {% for error in form.role.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                    <input type="hidden" name="form-{{ form_id }}-rank-name_text" id="id_form-{{ form_id }}-rank_text" />
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control confidence-field" id="id_form-{{ form_id }}-role_rank_confidence" name="form-{{ form_id }}-role_rank_confidence">
+                        {% for value, name in confidence_levels %}
+                            {% if form.cleaned_data.role_rank_confidence == value %}
+                                <option value="{{ value }}" selected=true>{{ name }}</option>
+                            {% else %}
+                                <option value="{{ value }}">{{ name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.role_rank_confidence.errors %}
+                        {% for error in form.role_rank_confidence.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.startcontext.errors or form.startcontext_confidence.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-startcontext">{% trans "Start context" %}</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control start-context-field" id="id_form-{{ form_id }}-startcontext" name="form-{{ form_id }}-startcontext" value="{{ form.cleaned_data.startcontext }}" placeholder='{% trans "Describe the circumstances surrounding the start of this membership" %}'/>
+                    {% if form.startcontext.errors %}
+                        {% for error in form.startcontext.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control confidence-field" id="id_form-{{ form_id }}-startcontext_confidence" name="form-{{ form_id }}-startcontext_confidence">
+                        {% for value, name in confidence_levels %}
+                            {% if form.cleaned_data.startcontext_confidence == value %}
+                                <option value="{{ value }}" selected=true>{{ name }}</option>
+                            {% else %}
+                                <option value="{{ value }}">{{ name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.startcontext_confidence.errors %}
+                        {% for error in form.startcontext_confidence.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.endcontext.errors or form.endcontext_confidence.errors %}
+            <div class="form-group has-error has-feedback">
+            {% else %}
+            <div class="form-group">
+            {% endif %}
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-endcontext">{% trans "End context" %}</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control end-context-field" id="id_form-{{ form_id }}-endcontext" name="form-{{ form_id }}-endcontext" value="{{ form.cleaned_data.endcontext }}" placeholder='{% trans "Describe the circumstances surrounding the end of this membership" %}'/>
+                    {% if form.endcontext.errors %}
+                        {% for error in form.endcontext.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control confidence-field" id="id_form-{{ form_id }}-endcontext_confidence" name="form-{{ form_id }}-endcontext_confidence">
+                        {% for value, name in confidence_levels %}
+                            {% if form.cleaned_data.endcontext_confidence == value %}
+                                <option value="{{ value }}" selected=true>{{ name }}</option>
+                            {% else %}
+                                <option value="{{ value }}">{{ name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.endcontext_confidence.errors %}
+                        {% for error in form.endcontext_confidence.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if form.firstciteddate.errors or form.realstart.errors or form.firstciteddate_confidence.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-firstciteddate">{% trans "First citation date" %}</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-firstciteddate" name="form-{{ form_id }}-firstciteddate" value="{{ form.cleaned_data.firstciteddate|date:'Y-m-d' }}" placeholder='{% trans "YYYY-MM-DD" %}' />
+                    {% if form.firstciteddate.errors %}
+                        {% for error in form.firstciteddate.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-4">
+                    <label for="id_form-{{ form_id }}-realstart" class="checkbox-inline">
+                        <input type="checkbox" id="id_form-{{ form_id }}-realstart" name="form-{{ form_id }}-realstart" {% if form.cleaned_data.realstart %}checked{% endif %} > {% trans "This is the start date of the membership" %}
+                    </label>
+                    {% if form.realstart.errors %}
+                        {% for error in form.realstart.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-firstciteddate_confidence" name="form-{{ forloop.counter0 }}-firstciteddate_confidence">
+                        {% for value, name in confidence_levels %}
+                            {% if form.cleaned_data.firstciteddate_confidence == value %}
+                                <option value="{{ value }}" selected=true>{{ name }}</option>
+                            {% else %}
+                                <option value="{{ value }}">{{ name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.firstciteddate_confidence.errors %}
+                        {% for error in form.firstciteddate_confidence.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        {% if form.lastciteddate.errors or form.realend.errors or form.lastciteddate_confidence.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+                <label class="control-label col-sm-2" for="id_form-{{ form_id }}-firstciteddate">{% trans "Last citation date" %}</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control datepicker" id="id_form-{{ form_id }}-lastciteddate" name="form-{{ form_id }}-lastciteddate" value="{{ form.cleaned_data.lastciteddate|date:'Y-m-d' }}" placeholder='{% trans "YYYY-MM-DD" %}' />
+                    {% if form.lastciteddate.errors %}
+                        {% for error in form.lastciteddate.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-4">
+                    <label for="id_form-{{ form_id }}-realend" class="checkbox-inline">
+                        <input type="checkbox" id="id_form-{{ form_id }}-realend" name="form-{{ form_id }}-realend" {% if form.cleaned_data.realend %}checked{% endif %} > {% trans "This is the end date of the membership" %}
+                    </label>
+                    {% if form.realend.errors %}
+                        {% for error in form.realend.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-lastciteddate_confidence" name="form-{{ forloop.counter0 }}-lastciteddate_confidence">
+                        {% for value, name in confidence_levels %}
+                            {% if form.cleaned_data.lastciteddate_confidence == value %}
+                                <option value="{{ value }}" selected=true>{{ name }}</option>
+                            {% else %}
+                                <option value="{{ value }}">{{ name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.lastciteddate_confidence.errors %}
+                        {% for error in form.lastciteddate_confidence.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endwith %}
+        {% if not forloop.last %}
+            <br />
+        {% endif %}
+    {% endfor %}
+    <br />
+    <hr />
+    {% with has_next=True %}
+        {% include 'partials/back_skip_next.html' %}
+    {% endwith %}
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+
+    $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
+
+    // Init select2s
+    $('.rank-field').select2({
+        placeholder: 'Select a rank',
+        allowClear: true
+    });
+    $('.role-field').select2({
+        placeholder: 'Select a role',
+        allowClear: true
+    });
+    $('.confidence-field').select2({
+        minimumResultsForSearch: Infinity
+    })
+});
+</script>
+{% endblock %}

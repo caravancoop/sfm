@@ -6,20 +6,20 @@
 <div class="modal-body row">
   <div class="modal_tr_info col-sm-8">
     <ul class="languages_list">
-      <h5 class="col-sm-6">Language</h5>
-      <h5 class="col-sm-6">Translation</h5>
+      <h5 class="col-sm-6">{% trans "Language" %}</h5>
+      <h5 class="col-sm-6">{% trans "Translation" %}</h5>
     </ul>
   </div>
   <div class="modal_tr_add col-sm-4">
-    <p>Add a Language:</p>
+    <p>{% trans "Add a Language:" %}</p>
     <div class="row">
       <input type="text" class="form-control col-sm-12 --lang-name" placeholder="Start typing...">
       <input type="hidden" class="form-control col-sm-12 --lang-code">
       <input type="text" class="form-control col-sm-12 --lang-trans" placeholder="Enter Translation">
     </div>
-    <button type="button" class="btn sfm-btn-action center-block addTranslation --lang-add-btn" >Add</btn>
+    <button type="button" class="btn sfm-btn-action center-block addTranslation --lang-add-btn" >{% trans "Add" %}</btn>
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">Close</button>
+    <button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">{% trans "Close" %}</button>
   </div>

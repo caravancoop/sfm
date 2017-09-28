@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<h3>{% trans "Organizations" %}</h3>
+<form class="form" method="POST">
+    {% csrf_token %}
+    {% with canonical='True' sortable='False' object_list=objects %}
+    {% include 'partials/organization_list_table.html' %}
+    {% endwith %}
+    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+</form>
