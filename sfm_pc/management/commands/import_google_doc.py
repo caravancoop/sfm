@@ -639,8 +639,26 @@ class Command(UtilityMixin, BaseCommand):
                         }
 
                         try:
+                            fcd = self.parse_date(org_data[membership_positions['FirstCitedDate']['value']])
+                        except IndexError:
+                            fcd = None
+
+                        if fcd:
+                            fcd = fcd.strftime('%Y-%m-%d')
+
+                        try:
+                            lcd = self.parse_date(org_data[membership_positions['LastCitedDate']['value']])
+                        except IndexError:
+                            lcd = None
+
+                        if lcd:
+                            lcd = lcd.strftime('%Y-%m-%d')
+
+                        try:
                             membership = MembershipOrganization.objects.get(membershiporganizationmember__value=organization,
-                                                                            membershiporganizationorganization__value=member_organization)
+                                                                            membershiporganizationorganization__value=member_organization,
+                                                                            membershiporganizationfirstciteddate__value=fcd,
+                                                                            membershiporganizationlastciteddate__value=lcd)
                             sources = set(self.sourcesList(membership, 'member') + \
                                           self.sourcesList(membership, 'organization'))
                             membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
