@@ -51,7 +51,8 @@ class Command(BaseCommand):
                                                      file_path))
                 self.createView(file_path)
 
-    def createView(self, file_path):
+    @classmethod
+    def createView(file_path):
         
         with open(file_path) as f:
             statements = f.read().split(';')

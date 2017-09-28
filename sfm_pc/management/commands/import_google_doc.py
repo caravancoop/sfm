@@ -15,9 +15,10 @@ from apiclient.discovery import build
 import datefinder
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db import models, transaction, IntegrityError
+from django.db import models, transaction, IntegrityError, connection
 from django.db.utils import DataError
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.management import call_command
 from django.utils.text import slugify
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
@@ -38,6 +39,7 @@ from organization.models import Organization, OrganizationAlias, \
 from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id, \
     CONFIDENCE_MAP
 from sfm_pc.base_views import UtilityMixin
+from sfm_pc.management.commands import make_flattened_views
 
 from geosite.models import Geosite
 from emplacement.models import Emplacement, EmplacementOpenEnded
@@ -45,7 +47,7 @@ from area.models import Area, AreaOSMId
 from association.models import Association, AssociationOpenEnded
 from composition.models import Composition, CompositionOpenEnded
 from person.models import Person, PersonName, PersonAlias
-from membershipperson.models import MembershipPerson
+from membershipperson.models import MembershipPerson, Role, Rank
 from membershiporganization.models import (MembershipOrganization,
                                         MembershipOrganizationRealEnd)
 from violation.models import Violation, Type, ViolationPerpetrator, \
@@ -78,6 +80,13 @@ class Command(UtilityMixin, BaseCommand):
             dest='country_code',
             default='mx',
             help='Two letter ISO code for the country that the Google Sheets are about'
+        )
+        parser.add_argument(
+            '--flush',
+            action='store_true',
+            dest='flush',
+            default=False,
+            help='Flush the existing database before importing data.'
         )
 
     def get_credentials(self):
@@ -119,6 +128,17 @@ class Command(UtilityMixin, BaseCommand):
 
     # @transaction.atomic
     def handle(self, *args, **options):
+
+        if options['flush']:
+            self.stdout.write(self.style.SUCCESS('Dropping current database...'))
+
+            # Flush database
+            this_dir = os.path.abspath(os.path.dirname(__file__))
+            flush_sql = os.path.join(this_dir, 'flush', 'flush.sql')
+            make_flattened_views.Command.createView(flush_sql)
+
+            # Recreate country codes
+            call_command('update_countries_plus')
 
         # Get a handle on the "user" that will be doing the work
         importer_user = settings.IMPORTER_USER
@@ -1514,7 +1534,7 @@ class Command(UtilityMixin, BaseCommand):
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
 
             if confidence and sources:
-                
+
                 country_code = person_data[person_positions['DivisionId']['value']]
                 division_id = 'ocd-division/country:{}'.format(country_code)
 
@@ -1593,12 +1613,52 @@ class Command(UtilityMixin, BaseCommand):
                         'value': organization,
                         'confidence': confidence,
                         'sources': sources,
-                    }
+                    },
                 }
 
                 try:
+                    fcd = self.parse_date(person_data[membership_positions['FirstCitedDate']['value']])
+                except IndexError:
+                    fcd = None
+
+                if fcd:
+                    fcd = fcd.strftime('%Y-%m-%d')
+
+                try:
+                    lcd = self.parse_date(person_data[membership_positions['LastCitedDate']['value']])
+                except IndexError:
+                    lcd = None
+
+                if lcd:
+                    lcd = lcd.strftime('%Y-%m-%d')
+
+                try:
+                    role_name = person_data[membership_positions['Role']['value']]
+                    role, _ = Role.objects.get_or_create(value=role_name)
+                    role = role.id
+                except IndexError:
+                    role = None
+
+                try:
+                    rank_name = person_data[membership_positions['Rank']['value']]
+                    rank, _ = Rank.objects.get_or_create(value=rank_name)
+                    rank = rank.id
+                except IndexError:
+                    rank = None
+
+                try:
+                    title = person_data[membership_positions['Title']['value']]
+                except IndexError:
+                    title = None
+
+                try:
                     membership = MembershipPerson.objects.get(membershippersonmember__value=person,
-                                                              membershippersonorganization__value=organization)
+                                                              membershippersonorganization__value=organization,
+                                                              membershippersonfirstciteddate__value=fcd,
+                                                              membershippersonlastciteddate__value=lcd,
+                                                              membershippersonrole__value=role,
+                                                              membershippersonrank__value=rank,
+                                                              membershippersontitle__value=title)
                     sources = set(self.sourcesList(membership, 'member') + \
                                   self.sourcesList(membership, 'organization'))
                     membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
