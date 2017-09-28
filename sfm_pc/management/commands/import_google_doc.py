@@ -36,10 +36,9 @@ from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName, OrganizationRealStart
 
-from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id, \
-    CONFIDENCE_MAP
+from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
+                          CONFIDENCE_MAP, execute_sql)
 from sfm_pc.base_views import UtilityMixin
-from sfm_pc.management.commands import make_flattened_views
 
 from geosite.models import Geosite
 from emplacement.models import Emplacement, EmplacementOpenEnded
@@ -135,7 +134,7 @@ class Command(UtilityMixin, BaseCommand):
             # Flush database
             this_dir = os.path.abspath(os.path.dirname(__file__))
             flush_sql = os.path.join(this_dir, 'flush', 'flush.sql')
-            make_flattened_views.Command.createView(flush_sql)
+            execute_sql(flush_sql)
 
             # Recreate country codes
             call_command('update_countries_plus')
@@ -239,9 +238,20 @@ class Command(UtilityMixin, BaseCommand):
 
     def parse_date(self, value):
         parsed = None
-        for date_format in ['%Y', '%B %Y', '%m/%d/%Y', '%m/%Y']:
+
+        # Map legal input formats to the way that we want to
+        # store them in the database
+        formats= {
+            '%Y': '%Y',
+            '%B %Y': '%Y-%m',
+            '%m/%Y': '%Y-%m',
+            '%m/%d/%Y': '%Y-%m-%d',
+        }
+
+        for in_format, out_format in formats.items():
             try:
-                parsed = datetime.strptime(value, date_format)
+                parsed_input = datetime.strptime(value, in_format)
+                parsed = datetime.strftime(parsed_input, out_format)
                 break
             except ValueError:
                 pass
@@ -643,16 +653,10 @@ class Command(UtilityMixin, BaseCommand):
                         except IndexError:
                             fcd = None
 
-                        if fcd:
-                            fcd = fcd.strftime('%Y-%m-%d')
-
                         try:
                             lcd = self.parse_date(org_data[membership_positions['LastCitedDate']['value']])
                         except IndexError:
                             lcd = None
-
-                        if lcd:
-                            lcd = lcd.strftime('%Y-%m-%d')
 
                         try:
                             membership = MembershipOrganization.objects.get(membershiporganizationmember__value=organization,
@@ -846,7 +850,7 @@ class Command(UtilityMixin, BaseCommand):
 
                     if parsed_value:
                         with reversion.create_revision():
-                            relation_instance, created = relation_model.objects.get_or_create(value=parsed_value.strftime('%Y-%m-%d'),
+                            relation_instance, created = relation_model.objects.get_or_create(value=parsed_value,
                                                                                               object_ref=instance,
                                                                                               lang='en')
                             reversion.set_user(self.user)

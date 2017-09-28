@@ -214,6 +214,16 @@ class AutofillAttributes(object):
 
         return collected_attrs
 
+def execute_sql(file_path):
+    '''
+    Execute arbitrary SQL code from a file location.
+    '''
+    with open(file_path) as f:
+        statements = f.read().split(';')
+
+        with connection.cursor() as c:
+            for statement in statements:
+                c.execute(statement.strip())
 
 def class_for_name(class_name, module_name="person.models"):
     if class_name == "Membershipperson":
