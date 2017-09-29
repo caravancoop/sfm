@@ -69,7 +69,7 @@ class Command(UtilityMixin, BaseCommand):
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(
-            '--entity_types',
+            '--entity-types',
             dest='entity_types',
             default='organization,person,event',
             help='Comma separated list of entity types to import'

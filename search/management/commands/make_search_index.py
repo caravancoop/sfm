@@ -10,6 +10,7 @@ import pysolr
 from search.search import Searcher
 from person.models import Person
 from membershipperson.models import MembershipPerson
+from organization.models import Organization
 from sfm_pc.templatetags.countries import country_name
 
 class Command(BaseCommand):
@@ -82,84 +83,134 @@ class Command(BaseCommand):
     def index_organizations(self, doc_id=None, update=False):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing organizations ... '))
 
-        organizations = '''
-            SELECT
-              o.id,
-              MAX(o.name) AS name,
-              array_agg(DISTINCT TRIM(o.alias))
-                FILTER (WHERE TRIM(o.alias) IS NOT NULL) AS other_names,
-              array_agg(DISTINCT TRIM(o.classification))
-                FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications,
-              ST_AsText(
-                COALESCE(MAX(g.coordinates),
-                         MAX(ST_Centroid(a.geometry)))) AS location,
-              COALESCE(MAX(e.start_date), MAX(ass.start_date))::timestamp AS start_date,
-              COALESCE(MAX(e.end_date), MAX(ass.end_date))::timestamp AS end_date
-            FROM organization AS o
-            LEFT JOIN emplacement AS e
-              ON o.id = e.organization_id
-            LEFT JOIN geosite as g
-              ON e.site_id = g.id
-            LEFT JOIN association AS ass
-              ON o.id = ass.organization_id
-            LEFT JOIN area AS a
-              ON ass.area_id = a.id
-        '''
-
-        # Optionally, filter the query so that we add just one specific record
         if doc_id:
-            organizations += '''
-                WHERE o.id = '{doc_id}'
-            '''.format(doc_id=doc_id)
-
-        # Finally, make sure to group the records by unique ID
-        organizations += '''
-            GROUP BY o.id
-        '''
-        country_cursor = connection.cursor()
+            orgs = Organization.objects.filter(uuid=doc_id)
+        else:
+            orgs = Organization.objects.all()
 
         documents = []
+        for organization in orgs:
 
-        org_cursor = connection.cursor()
-        org_cursor.execute(organizations)
-        columns = [c[0] for c in org_cursor.description]
+            org_id = str(organization.uuid)
 
-        for organization in org_cursor:
-            organization = dict(zip(columns, organization))
-
-            # Skip this record if we're updating and the document is already
-            # in the index
-            if update and self.check_index(organization['id']):
+            # Skip this record if we're updating and it already exists
+            if update and self.check_index(org_id):
                 continue
 
-            content = [organization['name']]
+            name = organization.name.get_value()
+            content = [name.value]
 
-            if organization['other_names']:
-                content.extend(n for n in organization['other_names'])
+            aliases = organization.aliases.get_list()
+            if aliases:
+                content.extend(al.get_value().value.value for al in aliases)
+
+            classes = organization.classification.get_list()
+            if classes:
+                content.extend(cl.get_value().value.value for cl in classes)
+
+            hq = organization.headquarters.get_value()
+            if hq:
+                content.extend([hq.value])
+
+            first_cited = organization.firstciteddate.get_value()
+            if first_cited:
+                first_cited = dateformat.format(first_cited.value, 'Y-m-d').replace('-00', '-01')
+                first_cited += 'T00:00:00Z'
+
+            last_cited = organization.lastciteddate.get_value()
+            if last_cited:
+                last_cited = dateformat.format(last_cited.value, 'Y-m-d').replace('-00', '-01')
+                last_cited += 'T00:00:00Z'
+
+            division_ids, countries = set(), set()
+
+            # Start by getting the division ID recorded for this org
+            org_division_id = organization.division_id.get_value()
+            if org_division_id:
+                division_ids.update([org_division_id.value])
+                org_country = country_name(org_division_id)
+                countries.update([org_country])
+
+            # Grab foreign key sets
+            emplacements = organization.emplacementorganization_set.all()
+
+            exactloc_names, admin_names, admin_l1_names = set(), set(), set()
+            for emp in emplacements:
+                emp = emp.object_ref
+                site = emp.site.get_value()
+                if site:
+                    site = site.value
+
+                    exactloc_name = site.location_name.get_value()
+                    if exactloc_name:
+                        exactloc_names.update([exactloc_name.value])
+
+                    admin_name = site.admin_name.get_value()
+                    if admin_name:
+                        admin_names.update([admin_name.value])
+
+                    admin_l1_name = site.adminlevel1.get_value()
+                    if admin_l1_name:
+                        admin_l1_names.update([admin_l1_name.value])
+
+                    emp_division_id = site.division_id.get_value()
+                    if emp_division_id:
+                        division_ids.update([emp_division_id.value])
+                        emp_country = country_name(emp_division_id)
+                        countries.update([emp_country])
+
+            areas = set()
+            assocs = organization.associationorganization_set.all()
+            for assoc in assocs:
+                area = assoc.object_ref.area.get_value()
+                if area:
+                    area_name = area.value.osmname.get_value()
+                    if area_name:
+                        areas.update([area_name.value])
+
+            parent_names, parent_ids = [], []
+            parents = organization.parent_organization.all()
+            for parent in parents:
+                # `parent_organization` returns a list of CompositionChilds,
+                # so we have to jump through some hoops to get the foreign
+                # key value
+                parent = parent.object_ref.parent.get_value().value
+                parent_ids.append(parent.id)
+                if parent.name.get_value():
+                    parent_names.append(parent.name.get_value().value)
+
+            # Convert sets to lists, for indexing
+            division_ids, countries = list(division_ids), list(countries)
+            exactloc_names, admin_names = list(exactloc_names), list(admin_names)
+            admin_l1_names, areas = list(admin_l1_names), list(areas)
+
+            # Add some attributes to the global index
+            for attr in (parent_names, countries, exactloc_names, admin_names,
+                         admin_l1_names, areas):
+                content.extend(attr)
 
             content = '; '.join(content)
 
-            start_date = None
-            end_date = None
-
-            if organization['start_date']:
-                start_date = organization['start_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
-
-            if organization['end_date']:
-                end_date = organization['end_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
-
             document = {
-                'id': organization['id'],
+                'id': org_id,
                 'entity_type': 'Organization',
                 'content': content,
-                'location': organization['location'],
-                'start_date_dt': start_date,
-                'end_date_dt': end_date,
-                'organization_name_s': organization['name'],
-                'organization_classification_ss': organization['classifications'],
-                'organization_alias_ss': organization['other_names'],
-                'organization_start_date_dt': start_date,
-                'organization_end_date_dt': end_date,
+                'location': '',  # disabled until we implement map search
+                'country_ss': countries,
+                'division_id_ss': division_ids,
+                'start_date_dt': first_cited,
+                'end_date_dt': last_cited,
+                'organization_name_s': name,
+                'organization_parent_name_ss': parent_names,
+                'organization_classification_ss': classes,
+                'organization_alias_ss': aliases,
+                'organization_headquarters_s': hq,
+                'organization_exact_location_ss': exactloc_names,
+                'organization_admin_ss': admin_names,
+                'organization_adminlevel1_ss': admin_l1_names,
+                'organization_area_ss': areas,
+                'organization_start_date_dt': first_cited,
+                'organization_end_date_dt': first_cited,
                 '_text_': content
             }
 
