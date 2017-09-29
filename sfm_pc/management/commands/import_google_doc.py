@@ -1648,16 +1648,10 @@ class Command(UtilityMixin, BaseCommand):
                 except IndexError:
                     fcd = None
 
-                if fcd:
-                    fcd = fcd.strftime('%Y-%m-%d')
-
                 try:
                     lcd = self.parse_date(person_data[membership_positions['LastCitedDate']['value']])
                 except IndexError:
                     lcd = None
-
-                if lcd:
-                    lcd = lcd.strftime('%Y-%m-%d')
 
                 try:
                     role_name = person_data[membership_positions['Role']['value']]
