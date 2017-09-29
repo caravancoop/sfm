@@ -15,9 +15,10 @@ from apiclient.discovery import build
 import datefinder
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db import models, transaction, IntegrityError
+from django.db import models, transaction, IntegrityError, connection
 from django.db.utils import DataError
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.management import call_command
 from django.utils.text import slugify
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
@@ -35,8 +36,8 @@ from source.models import Source, Publication
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName, OrganizationRealStart
 
-from sfm_pc.utils import import_class, get_osm_by_id, get_hierarchy_by_id, \
-    CONFIDENCE_MAP
+from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
+                          CONFIDENCE_MAP, execute_sql)
 from sfm_pc.base_views import UtilityMixin
 
 from geosite.models import Geosite
@@ -45,7 +46,7 @@ from area.models import Area, AreaOSMId
 from association.models import Association, AssociationOpenEnded
 from composition.models import Composition, CompositionOpenEnded
 from person.models import Person, PersonName, PersonAlias
-from membershipperson.models import MembershipPerson
+from membershipperson.models import MembershipPerson, Role, Rank
 from membershiporganization.models import (MembershipOrganization,
                                         MembershipOrganizationRealEnd)
 from violation.models import Violation, Type, ViolationPerpetrator, \
@@ -68,7 +69,7 @@ class Command(UtilityMixin, BaseCommand):
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(
-            '--entity_types',
+            '--entity-types',
             dest='entity_types',
             default='organization,person,event',
             help='Comma separated list of entity types to import'
@@ -78,6 +79,13 @@ class Command(UtilityMixin, BaseCommand):
             dest='country_code',
             default='mx',
             help='Two letter ISO code for the country that the Google Sheets are about'
+        )
+        parser.add_argument(
+            '--flush',
+            action='store_true',
+            dest='flush',
+            default=False,
+            help='Flush the existing database before importing data.'
         )
 
     def get_credentials(self):
@@ -119,6 +127,17 @@ class Command(UtilityMixin, BaseCommand):
 
     # @transaction.atomic
     def handle(self, *args, **options):
+
+        if options['flush']:
+            self.stdout.write(self.style.SUCCESS('Dropping current database...'))
+
+            # Flush database
+            this_dir = os.path.abspath(os.path.dirname(__file__))
+            flush_sql = os.path.join(this_dir, 'flush', 'flush.sql')
+            execute_sql(flush_sql)
+
+            # Recreate country codes
+            call_command('update_countries_plus')
 
         # Get a handle on the "user" that will be doing the work
         importer_user = settings.IMPORTER_USER
@@ -219,9 +238,25 @@ class Command(UtilityMixin, BaseCommand):
 
     def parse_date(self, value):
         parsed = None
-        for date_format in ['%Y', '%B %Y', '%m/%d/%Y', '%m/%Y']:
+
+        # Map legal input formats to the way that we want to
+        # store them in the database
+        formats= {
+            '%Y': '%Y-0-0',
+            '%B %Y': '%Y-%m-0',
+            '%m/%Y': '%Y-%m-0',
+            '%m/%d/%Y': '%Y-%m-%d',
+        }
+
+        for in_format, out_format in formats.items():
             try:
-                parsed = datetime.strptime(value, date_format)
+                parsed_input = datetime.strptime(value, in_format)
+
+                if datetime.today() < parsed_input:
+                    self.log_error('Date {value} is in the future'.format(value=value))
+                    return None
+
+                parsed = datetime.strftime(parsed_input, out_format)
                 break
             except ValueError:
                 pass
@@ -619,8 +654,20 @@ class Command(UtilityMixin, BaseCommand):
                         }
 
                         try:
+                            fcd = self.parse_date(org_data[membership_positions['FirstCitedDate']['value']])
+                        except IndexError:
+                            fcd = None
+
+                        try:
+                            lcd = self.parse_date(org_data[membership_positions['LastCitedDate']['value']])
+                        except IndexError:
+                            lcd = None
+
+                        try:
                             membership = MembershipOrganization.objects.get(membershiporganizationmember__value=organization,
-                                                                            membershiporganizationorganization__value=member_organization)
+                                                                            membershiporganizationorganization__value=member_organization,
+                                                                            membershiporganizationfirstciteddate__value=fcd,
+                                                                            membershiporganizationlastciteddate__value=lcd)
                             sources = set(self.sourcesList(membership, 'member') + \
                                           self.sourcesList(membership, 'organization'))
                             membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
@@ -808,7 +855,7 @@ class Command(UtilityMixin, BaseCommand):
 
                     if parsed_value:
                         with reversion.create_revision():
-                            relation_instance, created = relation_model.objects.get_or_create(value=parsed_value.strftime('%Y-%m-%d'),
+                            relation_instance, created = relation_model.objects.get_or_create(value=parsed_value,
                                                                                               object_ref=instance,
                                                                                               lang='en')
                             reversion.set_user(self.user)
@@ -1514,7 +1561,7 @@ class Command(UtilityMixin, BaseCommand):
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
 
             if confidence and sources:
-                
+
                 country_code = person_data[person_positions['DivisionId']['value']]
                 division_id = 'ocd-division/country:{}'.format(country_code)
 
@@ -1593,12 +1640,46 @@ class Command(UtilityMixin, BaseCommand):
                         'value': organization,
                         'confidence': confidence,
                         'sources': sources,
-                    }
+                    },
                 }
 
                 try:
+                    fcd = self.parse_date(person_data[membership_positions['FirstCitedDate']['value']])
+                except IndexError:
+                    fcd = None
+
+                try:
+                    lcd = self.parse_date(person_data[membership_positions['LastCitedDate']['value']])
+                except IndexError:
+                    lcd = None
+
+                try:
+                    role_name = person_data[membership_positions['Role']['value']]
+                    role, _ = Role.objects.get_or_create(value=role_name)
+                    role = role.id
+                except IndexError:
+                    role = None
+
+                try:
+                    rank_name = person_data[membership_positions['Rank']['value']]
+                    rank, _ = Rank.objects.get_or_create(value=rank_name)
+                    rank = rank.id
+                except IndexError:
+                    rank = None
+
+                try:
+                    title = person_data[membership_positions['Title']['value']]
+                except IndexError:
+                    title = None
+
+                try:
                     membership = MembershipPerson.objects.get(membershippersonmember__value=person,
-                                                              membershippersonorganization__value=organization)
+                                                              membershippersonorganization__value=organization,
+                                                              membershippersonfirstciteddate__value=fcd,
+                                                              membershippersonlastciteddate__value=lcd,
+                                                              membershippersonrole__value=role,
+                                                              membershippersonrank__value=rank,
+                                                              membershippersontitle__value=title)
                     sources = set(self.sourcesList(membership, 'member') + \
                                   self.sourcesList(membership, 'organization'))
                     membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources

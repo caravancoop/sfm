@@ -109,5 +109,4 @@ SELECT setval(pg_get_serial_sequence('"violation_violationtype"','id'), 1, false
 SELECT setval(pg_get_serial_sequence('"violation_type"','id'), 1, false);
 SELECT setval(pg_get_serial_sequence('"violation_violationperpetratorclassification"','id'), 1, false);
 SELECT setval(pg_get_serial_sequence('"violation_perpetratorclassification"','id'), 1, false);
-
 COMMIT;
