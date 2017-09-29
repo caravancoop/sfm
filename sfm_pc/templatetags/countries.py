@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
+from countries_plus.models import Country
 
 register = template.Library()
 
@@ -18,13 +19,10 @@ def country_name(division_id):
 
         if len(split_id) > 1:
 
-            country_code = split_id[1]
+            iso = split_id[1].upper()
+            country = Country.objects.get(iso=iso)
 
-            for country in settings.OSM_DATA:
-
-                if country['country_code'] == country_code:
-
-                    return country['country']
+            return country.name
 
         else:
 

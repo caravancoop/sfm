@@ -3,10 +3,14 @@ from os.path import join, abspath, dirname
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction, connection
 from django.db.utils import ProgrammingError
+from django.utils import dateformat
+from countries_plus.models import Country
 import pysolr
 
 from search.search import Searcher
-
+from person.models import Person
+from membershipperson.models import MembershipPerson
+from sfm_pc.templatetags.countries import country_name
 
 class Command(BaseCommand):
     help = 'Add global search index'
@@ -171,105 +175,137 @@ class Command(BaseCommand):
     def index_people(self, doc_id=None, update=False):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing people ... '))
 
-        people = '''
-            SELECT
-              p.id,
-              MAX(p.name) AS name,
-              array_agg(DISTINCT TRIM(p.alias))
-                FILTER (WHERE TRIM(p.alias) IS NOT NULL) AS other_names,
-              MAX(p.division_id) AS division_id
-            FROM person AS p
-        '''
-
         if doc_id:
-            people += '''
-                WHERE p.id = '{doc_id}'
-            '''.format(doc_id=doc_id)
-
-        people += '''
-            GROUP BY p.id
-        '''
-
-        person_cursor = connection.cursor()
-        person_cursor.execute(people)
-        person_columns = [c[0] for c in person_cursor.description]
+            people = Person.objects.filter(uuid=doc_id)
+        else:
+            people = Person.objects.all()
 
         documents = []
 
-        for person in person_cursor:
-            person = dict(zip(person_columns, person))
+        for person in people:
 
-            if update and self.check_index(person['id']):
+            person_id = str(person.uuid)
+            if update and self.check_index(person_id):
                 continue
 
-            memberships = '''
-                SELECT DISTINCT ON (member_id)
-                  mp.organization_id,
-                  o.name AS organization_name,
-                  role,
-                  rank,
-                  title,
-                  mp.first_cited::timestamp AS first_cited,
-                  mp.last_cited::timestamp AS last_cited,
-                  ST_AsText(
-                    COALESCE(g.coordinates,
-                             ST_Centroid(a.geometry))) AS location
-                FROM membershipperson AS mp
-                JOIN organization AS o
-                  ON mp.organization_id = o.id
-                LEFT JOIN emplacement AS e
-                  ON o.id = e.organization_id
-                LEFT JOIN geosite as g
-                  ON e.site_id = g.id
-                LEFT JOIN association AS ass
-                  ON o.id = ass.organization_id
-                LEFT JOIN area AS a
-                  ON ass.area_id = a.id
-                WHERE member_id = %s
-                ORDER BY member_id, COALESCE(mp.last_cited, mp.first_cited) DESC
-            '''
+            name = person.name.get_value()
+            content = [name.value]
 
-            membership_cursor = connection.cursor()
-            membership_cursor.execute(memberships, [person['id']])
-            member_columns = [c[0] for c in membership_cursor.description]
+            aliases = person.aliases.get_list()
+            if aliases:
+                content.extend(al.get_value().value.value for al in aliases)
 
-            member_row = membership_cursor.fetchone()
+            memberships = MembershipPerson.objects.filter(membershippersonmember__value=person)
 
-            if not member_row:
-                continue
+            division_ids, countries = set(), set()
 
-            membership = dict(zip(member_columns, member_row))
+            # Start by getting the division ID recorded for the person
+            person_division_id = person.division_id.get_value()
+            if person_division_id:
+                division_ids.update([person_division_id.value])
+                person_country = country_name(person_division_id)
+                countries.update([person_country])
 
-            content = [person['name']]
-
-            if person['other_names']:
-                content.extend(n for n in person['other_names'])
-
-            content = '; '.join(content)
+            ranks, roles, titles = set(), set(), set()
+            latest_rank, latest_role, latest_title = None, None, None
 
             first_cited = None
             last_cited = None
 
-            if membership['first_cited']:
-                first_cited = membership['first_cited'].strftime('%Y-%m-%dT%H:%M:%SZ')
+            for membership in memberships:
 
-            if membership['last_cited']:
-                last_cited = membership['last_cited'].strftime('%Y-%m-%dT%H:%M:%SZ')
+                role = membership.role.get_value()
+                if role:
+                    roles.update([role.value.value])
+
+                rank = membership.rank.get_value()
+                if rank:
+                    ranks.update([rank.value.value])
+
+                title = membership.title.get_value()
+                if title:
+                    titles.update([title.value])
+
+                org = membership.organization.get_value()
+                if org:
+                    org = org.value
+
+                    # We also want to index the person based on the countries
+                    # their member units have operated in
+                    org_division_id = org.division_id.get_value()
+                    if org_division_id:
+                        division_ids.update([org_division_id.value])
+                        org_country = country_name(org_division_id)
+                        countries.update([org_country])
+
+                # Check to see if we can extend first/last cited dates
+                fcd = membership.firstciteddate.get_value()
+                if fcd:
+                    if first_cited:
+                        if fcd.value < first_cited.value:
+                            first_cited = fcd
+                    else:
+                        first_cited = fcd
+
+                lcd = membership.lastciteddate.get_value()
+                if lcd:
+                    if last_cited:
+                        if lcd.value > last_cited.value:
+                            last_cited = lcd
+                            if rank:
+                                latest_rank = rank
+                            if role:
+                                latest_role = role
+                            if title:
+                                latest_title = title
+                    else:
+                        last_cited = lcd
+                        if rank:
+                            latest_rank = rank
+                        if role:
+                            latest_role = role
+                        if title:
+                            latest_title = title
+
+            # Convert sets to lists, for indexing
+            division_ids, countries = list(division_ids), list(countries)
+            roles, ranks, titles = list(roles), list(ranks), list(titles)
+
+            # Add some attributes to the global index
+            for attr in (roles, ranks, titles, countries):
+                content.extend(attr)
+
+            content = '; '.join(content)
+
+            if first_cited:
+                # For now, convert fuzzy dates to use Jan and/or the 1st
+                first_cited = dateformat.format(first_cited.value, 'Y-m-d').replace('-00', '-01')
+                first_cited += 'T00:00:00Z'
+
+            if last_cited:
+                last_cited = dateformat.format(last_cited.value, 'Y-m-d').replace('-00', '-01')
+                last_cited += 'T00:00:00Z'
 
             document = {
-                'id': person['id'],
+                'id': person_id,
                 'entity_type': 'Person',
                 'content': content,
-                'location': membership['location'],
-                'start_date_dt': first_cited,
-                'end_date_dt': last_cited,
-                'person_name_s': person['name'],
-                'person_alias_ss': person['other_names'],
-                'person_current_rank_s': membership['rank'],
-                'person_current_role_s': membership['role'],
-                'person_current_title_s':membership['title'],
+                'location': '',  # disabled until we implement map search
+                'country_ss': countries,
+                'division_id_ss': division_ids,
+                'person_title_ss': titles,
+                'person_name_s': name,
+                'person_alias_ss': aliases,
+                'person_role_ss': roles,
+                'person_rank_ss': ranks,
+                'person_title_ss': titles,
+                'person_current_rank_s': latest_rank,
+                'person_current_role_s': latest_role,
+                'person_current_title_s': latest_title,
                 'person_first_cited_dt': first_cited,
                 'person_last_cited_dt': last_cited,
+                'start_date_dt': first_cited,
+                'end_date_dt': last_cited,
                 '_text_': content
             }
 
@@ -520,4 +556,3 @@ class Command(BaseCommand):
         results = self.searcher.search('id:"{doc_id}"'.format(doc_id=doc_id))
 
         return len(results) > 0
-
