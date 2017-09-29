@@ -251,6 +251,11 @@ class Command(UtilityMixin, BaseCommand):
         for in_format, out_format in formats.items():
             try:
                 parsed_input = datetime.strptime(value, in_format)
+
+                if datetime.today() < parsed_input:
+                    self.log_error('Date {value} is in the future'.format(value=value))
+                    return None
+
                 parsed = datetime.strftime(parsed_input, out_format)
                 break
             except ValueError:
