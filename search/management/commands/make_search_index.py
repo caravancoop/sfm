@@ -11,6 +11,7 @@ from search.search import Searcher
 from person.models import Person
 from membershipperson.models import MembershipPerson
 from organization.models import Organization
+from violation.models import Violation
 from sfm_pc.templatetags.countries import country_name
 
 class Command(BaseCommand):
@@ -112,15 +113,8 @@ class Command(BaseCommand):
             if hq:
                 content.extend([hq.value])
 
-            first_cited = organization.firstciteddate.get_value()
-            if first_cited:
-                first_cited = dateformat.format(first_cited.value, 'Y-m-d').replace('-00', '-01')
-                first_cited += 'T00:00:00Z'
-
-            last_cited = organization.lastciteddate.get_value()
-            if last_cited:
-                last_cited = dateformat.format(last_cited.value, 'Y-m-d').replace('-00', '-01')
-                last_cited += 'T00:00:00Z'
+            first_cited = self.format_date(organization.firstciteddate.get_value())
+            last_cited = self.format_date(organization.lastciteddate.get_value())
 
             division_ids, countries = set(), set()
 
@@ -328,14 +322,8 @@ class Command(BaseCommand):
 
             content = '; '.join(content)
 
-            if first_cited:
-                # For now, convert fuzzy dates to use Jan and/or the 1st
-                first_cited = dateformat.format(first_cited.value, 'Y-m-d').replace('-00', '-01')
-                first_cited += 'T00:00:00Z'
-
-            if last_cited:
-                last_cited = dateformat.format(last_cited.value, 'Y-m-d').replace('-00', '-01')
-                last_cited += 'T00:00:00Z'
+            first_cited = self.format_date(first_cited)
+            last_cited = self.format_date(last_cited)
 
             document = {
                 'id': person_id,
@@ -372,149 +360,140 @@ class Command(BaseCommand):
     def index_violations(self, doc_id=None, update=False):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing violations ... '))
 
-        violation_query = '''
-            SELECT
-              v.id,
-              ARRAY_AGG(DISTINCT v.violation_type)
-                FILTER (WHERE v.violation_type IS NOT NULL) AS violation_type,
-              MAX(v.admin_level_1) AS admin_level_1,
-              MAX(v.admin_level_2) AS admin_level_2,
-              MAX(v.location_description) AS location_description,
-              MAX(v.description) AS description,
-              MAX(v.start_date)::timestamp AS start_date,
-              MAX(v.end_date)::timestamp AS end_date,
-              ST_AsText(
-                COALESCE(MAX(g.coordinates),
-                         MAX(ST_Centroid(a.geometry)))) AS location,
-              ARRAY_AGG(DISTINCT v.perpetrator_id)
-                FILTER (WHERE v.perpetrator_id IS NOT NULL) AS perpetrator_id,
-              ARRAY_AGG(v.perpetrator_organization_id)
-                FILTER (WHERE v.perpetrator_organization_id IS NOT NULL)
-                AS perpetrator_organization_id,
-              ARRAY_AGG(DISTINCT v.perpetrator_classification)
-                FILTER (WHERE v.perpetrator_classification IS NOT NULL)
-                AS perp_class
-            FROM violation AS v
-            LEFT JOIN geosite as g
-              ON (g.admin_id::varchar = v.osm_id)
-            LEFT JOIN area AS a
-              ON (a.osmid = g.admin_id)
-        '''
-
         if doc_id:
-            violation_query += '''
-                WHERE v.id = '{doc_id}'
-            '''.format(doc_id=doc_id)
-
-        violation_query += '''
-            GROUP BY v.id
-        '''
-
-        violation_cursor = connection.cursor()
-        violation_cursor.execute(violation_query)
-        violation_columns = [c[0] for c in violation_cursor.description]
+            violations = Violation.objects.filter(uuid=doc_id)
+        else:
+            violations = Violation.objects.all()
 
         documents = []
 
-        for violation in violation_cursor:
+        for violation in violations:
 
-            violation = dict(zip(violation_columns, violation))
+            viol_id = str(violation.uuid)
 
-            if update and self.check_index(violation['id']):
+            if update and self.check_index(viol_id):
                 continue
 
-            # Global index on the description field
             content = []
-            if violation['description']:
-                content.append(violation['description'])
 
-            # To build location descriptions, start with the most reliable
-            locations = [violation['admin_level_2']]
+            description = violation.description.get_value()
+            if description:
+                description = description.value
 
-            if violation['admin_level_1']:
-                locations.append(violation['admin_level_1'])
+            vtypes = violation.types.get_list()
+            if vtypes:
+                vtypes = (str(vt.get_value().value) for vt in vtypes)
 
-            if violation['location_description']:
-                locations.append(violation['location_description'])
+            perps = violation.perpetrator.get_list()
+            perp_names, perp_aliases = [], []
+            if perps:
+                # Move from PerpetratorPerson -> Person
+                perps = (perp.get_value().value for perp in perps)
+                for perp in perps:
+                    aliases = perp.aliases.get_list()
+                    if aliases:
+                        perp_aliases.extend(al.get_value().value.value
+                                            for al in aliases)
 
-            start_date, end_date = None, None
+                    perp_names.append(perp.name.get_value().value)
 
-            if violation['start_date']:
-                start_date = violation['start_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
+            perp_orgs = violation.perpetratororganization.get_list()
+            perp_org_names, perp_org_aliases = [], []
+            perp_org_classes = set()
+            if perp_orgs:
+                # Move from PerpetratorOrganization -> Organization
+                perp_orgs = (perp.get_value().value for perp in perp_orgs)
+                for perp in perp_orgs:
 
-            if violation['end_date']:
-                end_date = violation['end_date'].strftime('%Y-%m-%dT%H:%M:%SZ')
+                    org_aliases = perp.aliases.get_list()
+                    if org_aliases:
+                        perp_org_aliases.extend(al.get_value().value.value
+                                                for al in org_aliases)
 
-            perp_query = '''
-                SELECT
-                  DISTINCT t.name,
-                  ARRAY_AGG(DISTINCT TRIM(t.alias))
-                    FILTER (WHERE TRIM(t.alias) IS NOT NULL)
-                    AS aliases
-                FROM {table} AS t
-                WHERE id = '{perp_id}'
-                GROUP BY t.name
-            '''
+                    org_classes = perp.classification.get_list()
+                    if org_classes:
+                        perp_org_classes.update(cl.get_value().value.value
+                                                for cl in org_classes)
 
-            perp_name, perp_aliases = '', []
+                    perp_org_names.append(perp.name.get_value().value)
 
-            if violation['perpetrator_id'] is not None:
-                for perp_id in violation['perpetrator_id']:
+            perp_org_classes = list(perp_org_classes)
 
-                    query = perp_query.format(table='person', perp_id=perp_id)
+            division_id = violation.division_id.get_value()
+            country = None
+            if division_id:
+                country = country_name(division_id)
 
-                    perp_cursor = connection.cursor()
-                    perp_cursor.execute(query)
-                    perp_columns = [c[0] for c in perp_cursor.description]
+            location_description = violation.locationdescription.get_value()
+            if location_description:
+                location_description = location_description.value
 
-                    perp_results = dict(zip(perp_columns,
-                                            perp_cursor.fetchone()))
+            location_name = violation.location_name.get_value()
+            if location_name:
+                location_name = location_name.value
 
-                    perp_name = perp_results['name']
-                    perp_aliases = perp_results['aliases']
+            osmname = violation.osmname.get_value()
+            if osmname:
+                osmname = osmname.value
 
-            perp_org_name, perp_org_aliases = '', []
+            admin_l1_name = violation.adminlevel1.get_value()
+            if admin_l1_name:
+                admin_l1_name = admin_l1_name.value
 
-            if violation['perpetrator_organization_id'] is not None:
-                for org_id in violation['perpetrator_organization_id']:
+            admin_l2_name = violation.adminlevel2.get_value()
+            if admin_l2_name:
+                admin_l2_name = admin_l2_name.value
 
-                    query = perp_query.format(table='organization',
-                                              perp_id=org_id)
+            start_date = self.format_date(violation.startdate.get_value())
+            end_date = self.format_date(violation.enddate.get_value())
+            first_allegation = self.format_date(violation.first_allegation.get_value())
+            last_update = self.format_date(violation.last_update.get_value())
 
-                    perp_org_cursor = connection.cursor()
-                    perp_org_cursor.execute(query)
-                    perp_org_columns = [c[0] for c in
-                                        perp_org_cursor.description]
+            status = violation.status.get_value()
+            if status:
+                status = status.value
 
-                    perp_org_results = dict(zip(perp_org_columns,
-                                                perp_org_cursor.fetchone()))
+            global_index = [perp_names, perp_aliases, perp_org_names, perp_org_aliases,
+                            perp_org_classes, vtypes]
 
-                    perp_org_name = perp_org_results['name']
-                    perp_org_aliases = perp_org_results['aliases']
+            # We need to make solo attributes into lists to extend the `content`
+            # list; before doing that, check to see that each attribute actually
+            # exists
+            for single_attr in (description, country, location_description,
+                                location_name, osmname, admin_l1_name,
+                                admin_l2_name):
+                if single_attr:
+                    global_index.append([single_attr])
 
-            for lst in ([perp_name], perp_aliases, [perp_org_name], perp_org_aliases):
-                if lst:
-                    content.extend(lst)
+            for attr in global_index:
+                content.extend(attr)
 
             content = '; '.join(content)
 
             document = {
-                'id': violation['id'],
+                'id': viol_id,
                 'entity_type': 'Violation',
                 'content': content,
-                'location': violation['location'],
+                'location': '',
                 'start_date_dt': start_date,
                 'end_date_dt': end_date,
-                'violation_location_description_ss': locations,
-                'violation_type_ss': violation['violation_type'],
-                'violation_description_t': violation['description'],
+                'violation_type_ss': vtypes,
+                'violation_description_t': description,
                 'violation_start_date_dt': start_date,
                 'violation_end_date_dt': end_date,
-                'perpetrator_s': perp_name,
+                'violation_first_allegation_dt': first_allegation,
+                'violation_last_update_dt': last_update,
+                'violation_status_s': status,
+                'violation_location_description_s': location_description,
+                'violation_location_name_s': location_name,
+                'violation_osmname_s': osmname,
+                'violation_adminlevel1_s': admin_l1_name,
+                'violation_adminlevel2_s': admin_l2_name,
+                'perpetrator_ss': perps,
                 'perpetrator_alias_ss': perp_aliases,
-                'perpetrator_organization_ss': perp_org_name,
+                'perpetrator_organization_ss': perp_orgs,
                 'perpetrator_organization_alias_ss': perp_org_aliases,
-                'perpetrator_classification_ss': violation['perp_class'],
+                'perpetrator_classification_ss': perp_org_classes,
                 '_text_': content
             }
 
@@ -607,3 +586,18 @@ class Command(BaseCommand):
         results = self.searcher.search('id:"{doc_id}"'.format(doc_id=doc_id))
 
         return len(results) > 0
+
+    def format_date(self, approx_df):
+        '''
+        Format an ApproximateDateField for use in the Solr index.
+
+        '''
+        if approx_df:
+            # For now, we assign fuzzy dates bogus values for month/day if
+            # they don't exist, but we should explore to see if Solr has better
+            # ways of handling fuzzy dates
+            approx_df = dateformat.format(approx_df.value, 'Y-m-d')
+            approx_df = approx_df.replace('-00', '-01')
+            approx_df += 'T00:00:00Z'
+
+        return approx_df
