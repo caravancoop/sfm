@@ -31,11 +31,33 @@ class OrganizationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Commanders of this unit
         context['person_members'] = []
-        memberships = context['organization'].membershippersonorganization_set.all()
-        for membership in memberships:
+        person_members = context['organization'].membershippersonorganization_set.all()
+        for membership in person_members:
             context['person_members'].append(membership.object_ref)
 
+        # Organizational members of this unit
+        context['org_members'] = []
+        org_members = context['organization'].membershiporganizationorganization_set.all()
+        if org_members:
+            org_members = (mem.object_ref for mem in org_members)
+            context['org_members'] = org_members
+
+        # Other units that this unit is a member of
+        context['memberships'] = []
+        memberships = context['organization'].membershiporganizationmember_set.all()
+        if memberships:
+            memberships = (mem.object_ref for mem in memberships)
+            context['memberships'] = memberships
+
+        # Child units
+        context['subsidiaries'] = []
+        children = context['organization'].child_organization.all()
+        for child in children:
+            context['subsidiaries'].append(child.object_ref.child.get_value().value)
+
+        # Incidents that this unit perpetrated
         context['events'] = []
         events = context['organization'].violationperpetratororganization_set.all()
         for event in events:
@@ -83,70 +105,6 @@ class OrganizationDetail(DetailView):
             org_data['url'] = command_chain_url
 
             context['parents_list'].append(org_data)
-
-        context['subsidiaries'] = []
-        children = context['organization'].child_organization.all()
-        for child in children:
-            context['subsidiaries'].append(child.object_ref.child.get_value().value)
-
-        member_of_orgs = '''
-            SELECT
-              org_o.id,
-              MAX(org.name) AS name,
-              array_agg(DISTINCT TRIM(org.alias))
-                FILTER (WHERE TRIM(org.alias) IS NOT NULL) AS aliases,
-              array_agg(DISTINCT TRIM(org.classification))
-                FILTER (WHERE TRIM(org.classification) IS NOT NULL) AS classifications,
-              MAX(mo.first_cited) AS first_cited,
-              MAX(mo.last_cited) AS last_cited
-            FROM membershiporganization AS mo
-            JOIN organization AS member
-              ON mo.member_id = member.id
-            JOIN organization_organization AS member_o
-              ON member.id = member_o.uuid
-            JOIN organization AS org
-              ON mo.organization_id = org.id
-            JOIN organization_organization AS org_o
-              ON org.id = org_o.uuid
-            WHERE member_o.id = %s
-            GROUP BY org_o.id
-        '''
-
-        cursor = connection.cursor()
-        cursor.execute(member_of_orgs, [self.kwargs['pk']])
-
-        columns = [c[0] for c in cursor.description]
-
-        context['memberships'] = [dict(zip(columns, r)) for r in cursor]
-
-        org_members = '''
-            SELECT
-              member_o.id,
-              MAX(member.name) AS name,
-              array_agg(DISTINCT TRIM(member.alias))
-                FILTER (WHERE TRIM(member.alias) IS NOT NULL) AS aliases,
-              array_agg(DISTINCT TRIM(member.classification))
-                FILTER (WHERE TRIM(member.classification) IS NOT NULL) AS classifications,
-              MAX(mo.first_cited) AS first_cited,
-              MAX(mo.last_cited) AS last_cited
-            FROM membershiporganization AS mo
-            JOIN organization AS member
-              ON mo.member_id = member.id
-            JOIN organization_organization AS member_o
-              ON member.id = member_o.uuid
-            JOIN organization AS org
-              ON mo.organization_id = org.id
-            JOIN organization_organization AS org_o
-              ON org.id = org_o.uuid
-            WHERE org_o.id = %s
-            GROUP BY member_o.id
-        '''
-
-        cursor.execute(org_members, [self.kwargs['pk']])
-
-        columns = [c[0] for c in cursor.description]
-
-        context['org_members'] = [dict(zip(columns, r)) for r in cursor]
 
         return context
 

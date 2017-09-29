@@ -111,30 +111,30 @@
                     {% for membership in memberships %}
                         <tr>
                             <td>
-                                <a href="{% url 'detail_organization' membership.id %}">
-                                    {{ membership.name }}
+                                <a href="{% url 'detail_organization' membership.organization.get_value.value.id %}">
+                                    {{ membership.organization.get_value.value.name.get_value }}
                                 </a>
                             </td>
                             <td>
-                                {% for alias in membership.aliases %}
+                                {% for alias in membership.organization.get_value.value.aliases.get_list %}
                                     {% if not forloop.last %}
-                                        {{ alias }},
+                                        {{ alias.get_value }},
                                     {% else %}
-                                        {{ alias }}
+                                        {{ alias.get_value }}
                                     {% endif %}
                                 {% endfor %}
                             </td>
                             <td>
-                                {% for classification in membership.classifications %}
+                                {% for classification in membership.organization.get_value.value.classification.get_list %}
                                     {% if not forloop.last %}
-                                        {{ classification }},
+                                        {{ classification.get_value }},
                                     {% else %}
-                                        {{ classification }}
+                                        {{ classification.get_value }}
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>{{ membership.first_cited }}</td>
-                            <td>{{ membership.last_cited }}</td>
+                            <td>{{ membership.firstciteddate }}</td>
+                            <td>{{ membership.lastciteddate }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -162,30 +162,30 @@
                     {% for membership in org_members %}
                         <tr>
                             <td>
-                                <a href="{% url 'detail_organization' membership.id %}">
-                                    {{ membership.name }}
+                                <a href="{% url 'detail_organization' membership.member.get_value.value.id %}">
+                                    {{ membership.member.get_value.value.name.get_value }}
                                 </a>
                             </td>
                             <td>
-                                {% for alias in membership.aliases %}
+                                {% for alias in membership.member.get_value.value.aliases.get_list %}
                                     {% if not forloop.last %}
-                                        {{ alias }},
+                                        {{ alias.get_value }},
                                     {% else %}
-                                        {{ alias }}
+                                        {{ alias.get_value }}
                                     {% endif %}
                                 {% endfor %}
                             </td>
                             <td>
-                                {% for classification in membership.classifications %}
+                                {% for classification in membership.member.get_value.value.classification.get_list %}
                                     {% if not forloop.last %}
-                                        {{ classification }},
+                                        {{ classification.get_value }},
                                     {% else %}
-                                        {{ classification }}
+                                        {{ classification.get_value }}
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>{{ membership.first_cited }}</td>
-                            <td>{{ membership.last_cited }}</td>
+                            <td>{{ membership.firstciteddate }}</td>
+                            <td>{{ membership.lastciteddate }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
