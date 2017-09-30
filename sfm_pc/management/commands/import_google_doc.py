@@ -1396,7 +1396,7 @@ class Command(UtilityMixin, BaseCommand):
             parsed_date, indices = date_indices
             now = datetime.now()
             today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-            
+
             while parsed_date.date() > now.date() or parsed_date.date() == today.date():
                 try:
                     date_indices = next(date_gen)
@@ -1437,11 +1437,15 @@ class Command(UtilityMixin, BaseCommand):
 
                 # Source URL and archive URL (if they exist) should be after the date.
 
-                source_url = None
+                source_url, archive_url = None, None
                 urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', after_date)
 
                 if urls:
                     source_url = urls[0]
+                    for url in urls[1:]:
+                        if 'web.archive.org' in url:
+                            archive_url = url
+                            break
 
                 try:
                     publication = Publication.objects.get(title=pub_title.strip(),
@@ -1454,6 +1458,7 @@ class Command(UtilityMixin, BaseCommand):
 
                 source, created = Source.objects.get_or_create(title=source_title.strip(),
                                                                source_url=source_url,
+                                                               archive_url=archive_url,
                                                                publication=publication,
                                                                published_on=parsed_date,
                                                                user=self.user)
