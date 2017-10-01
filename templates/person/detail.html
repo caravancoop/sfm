@@ -7,8 +7,14 @@
 {% block header %}
     <h1 class="page-title">
         <i class="fa fa-fw fa-user"></i> {{ person.name.get_value }}
-        <small>
+        <!-- small>
             <a href="{% url 'edit-person' person.id %}" class="btn btn-default">{% trans "Edit" %}</a>
+        </small -->
+        <small class="pull-right">
+            <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
+            <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
+                <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
+            </a>
         </small>
     </h1>
     {% if person.aliases.get_list %}
@@ -179,6 +185,8 @@
         <script>
 
         $(document).ready(function() {
+
+            $("#print-page").on("click", function(){ window.print(); });
 
             var fn = Footnotes;
             fn.increment();

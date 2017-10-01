@@ -13,7 +13,7 @@ from django.views.generic import TemplateView, DetailView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.utils.translation import get_language
 from django.utils.translation import ugettext as _
 from django.shortcuts import redirect
@@ -38,6 +38,11 @@ class ViolationDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Generate link to download a CSV of this record
+        params = '?download_etype=Violation&entity_id={0}'.format(str(context['violation'].uuid))
+
+        context['download_url'] = reverse('download') + params
 
         context['location'] = None
 

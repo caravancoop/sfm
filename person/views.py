@@ -38,6 +38,11 @@ class PersonDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Generate link to download a CSV of this record
+        params = '?download_etype=Person&entity_id={0}'.format(str(context['person'].uuid))
+
+        context['download_url'] = reverse('download') + params
+
         # Use SQL, instead of the Django ORM. Django cannot accurately sort by last_cited, an instance of ApproximateDate: Django orders by ApproximateDate's string format, which "pretty prints" as a date and its suffix in the first position, e.g., "10th March 2004."
         membership_query = '''
             SELECT * FROM membershipperson

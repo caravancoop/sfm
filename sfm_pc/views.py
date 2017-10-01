@@ -420,10 +420,13 @@ def download_zip(request):
 
     downloader = Downloader(entity_type)
 
-    context = get_search_context(request, all_results=True)
+    if request.GET.get('entity_id'):
+        entity_ids = [request.GET.get('entity_id')]
+    else:
+        context = get_search_context(request, all_results=True)
 
-    entities = context['results'][entity_type]
-    entity_ids = list(str(entity.uuid) for entity in entities)
+        entities = context['results'][entity_type]
+        entity_ids = list(str(entity.uuid) for entity in entities)
 
     zipout = downloader.get_zip(entity_ids)
 

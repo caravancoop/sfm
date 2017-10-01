@@ -31,6 +31,11 @@ class OrganizationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Generate link to download a CSV of this record
+        params = '?download_etype=Organization&entity_id={0}'.format(str(context['organization'].uuid))
+
+        context['download_url'] = reverse('download') + params
+
         # Commanders of this unit
         context['person_members'] = []
         person_members = context['organization'].membershippersonorganization_set.all()

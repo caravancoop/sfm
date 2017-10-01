@@ -32,8 +32,14 @@
             {% comment %}Translators: The word "ending" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
             {% trans "ending" %} <strong>{{ violation.enddate.get_value }}</strong>
         {% endif %}
-        <small>
+        <!-- small>
             <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">{% trans "Edit" %}</a>
+        </small -->
+        <small class="pull-right">
+            <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
+            <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
+                <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
+            </a>
         </small>
     </h2>
 
@@ -201,6 +207,7 @@
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
+                $("#print-page").on("click", function(){ window.print(); });
                 var center_x = {{ location.x|safe }};
                 var center_y = {{ location.y|safe }};
                 var map = L.map('geoname_map').setView([center_y, center_x], 10);
