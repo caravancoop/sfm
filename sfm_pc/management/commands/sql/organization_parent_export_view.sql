@@ -1,8 +1,8 @@
-CREATE MATERIALIZED VIEW composition_export AS
+CREATE MATERIALIZED VIEW organization_parent_export AS
   SELECT
     cc.id AS composition_id,
+    ooc.uuid AS organization_id,
     oop.uuid AS parent_id,
-    ooc.uuid AS child_id,
     ccp.confidence AS composition_confidence,
     ccpss.id AS source_id
   FROM composition_composition AS cc

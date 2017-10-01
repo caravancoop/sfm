@@ -4,6 +4,7 @@
 <h3>
     <strong><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</strong>
     <small>{{ hit_count|intcomma }} {% trans "results" %}</small>
+    <a class="pull-right btn btn-default" href="{{ download_url.Violation }}"><i class="fa fa-fw fa-download"></i>{% trans "Download results" %}</a>
 </h3>
 
 {% with object_list=objects %}

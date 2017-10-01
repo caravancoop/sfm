@@ -2,6 +2,8 @@ import urllib
 
 from django.shortcuts import render
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.views.decorators.cache import never_cache
 import pysolr
 
 from source.models import Source, Publication
@@ -40,7 +42,7 @@ SEARCH_ENTITY_TYPES = {
 
 solr = pysolr.Solr(settings.SOLR_URL)
 
-def search(request):
+def get_search_context(request, all_results=False):
 
     # Parse standard request params
     user_query = request.GET.get('q')
@@ -49,6 +51,20 @@ def search(request):
     radius = request.GET.get('radius')
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
+
+    # Use params to generate the link for downloading CSV
+    params = request.GET.urlencode()
+
+    download_url = reverse('download')
+
+    if params:
+        download_url += '?' + params + '&'
+    else:
+        download_url += '/?'
+
+    download_urls = {}
+    for etype in ('Person', 'Organization', 'Violation'):
+        download_urls[etype] = download_url + 'download_etype={0}'.format(etype)
 
     # Parse selected facets
     selected_facet_vals = request.GET.getlist('selected_facets')
@@ -140,10 +156,14 @@ def search(request):
             full_query = full_query.format(end_date=formatted_end)
 
     # Set limits for search pagination
-    if len(entity_types) < 2:
-        result_count = 10
+    if not all_results:
+        if len(entity_types) < 2:
+            result_count = 10
+        else:
+            result_count = 5
     else:
-        result_count = 5
+        # The `all_results` parameter indicates to skip pagination entirely
+        result_count = 10000
 
     # Initialize extra Solr params with the default row count and facets on
     search_context = {'rows': result_count, 'facet': 'on'}
@@ -184,18 +204,21 @@ def search(request):
         pages[etype] = {}
         pagination = request.GET.get(etype + '_page')
 
-        if pagination is not None:
-            pagination = int(pagination)
-            start = (pagination - 1) * result_count
-            if pagination > 1:
-                pages[etype]['has_previous'] = True
-                pages[etype]['previous_page_number'] = pagination - 1
+        if all_results:
+            search_context['start'] = 0
         else:
-            pagination = 1
-            start = 0
-            pages[etype]['has_previous'] = False
+            if pagination is not None:
+                pagination = int(pagination)
+                start = (pagination - 1) * result_count
+                if pagination > 1:
+                    pages[etype]['has_previous'] = True
+                    pages[etype]['previous_page_number'] = pagination - 1
+            else:
+                pagination = 1
+                start = 0
+                pages[etype]['has_previous'] = False
 
-        search_context['start'] = start
+            search_context['start'] = start
 
         # Filter on selected facets and entity type
         for field, values in selected_facets.items():
@@ -255,8 +278,15 @@ def search(request):
         'q_filters': q_filters,
         'facets': facets,
         'selected_facets': selected_facets,
-        'hits': hits
+        'hits': hits,
+        'download_urls': download_urls
     }
 
-    return render(request, 'search/search.html', context)
+    return context
 
+@never_cache
+def search(request):
+
+    context = get_search_context(request)
+
+    return render(request, 'search/search.html', context)

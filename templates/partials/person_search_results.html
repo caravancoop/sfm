@@ -4,10 +4,11 @@
 <h3>
     <strong><i class="fa fa-fw fa-user"></i> {% trans "Personnel" %}</strong>
     <small>{{ hit_count|intcomma }} {% trans "results" %}</small>
-    <button class="pull-right btn btn-default merge" data-entity_type="person">{% trans "Merge selected" %}</button>
+    <a class="pull-right btn btn-default" href="{{ download_urls.Person }}"><i class="fa fa-fw fa-download"></i>{% trans "Download results" %}</a>
+    <!-- button class="pull-right btn btn-default merge" data-entity_type="person">{% trans "Merge selected" %}</button -->
 </h3>
 
-{% with merge='True' object_list=objects %}
+{% with merge='False' object_list=objects %}
     {% include 'partials/person_list_table.html' %}
 {% endwith %}
 

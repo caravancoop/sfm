@@ -4,8 +4,9 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
-from sfm_pc.views import Dashboard, osm_autocomplete, division_autocomplete, \
-    SetConfidence, EntityMergeView, Countries, command_chain
+from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
+                          SetConfidence, EntityMergeView, Countries, command_chain,
+                          download_zip)
 
 urlpatterns = i18n_patterns(
     url(r'^composition/', include('composition.urls')),
@@ -43,6 +44,9 @@ urlpatterns = i18n_patterns(
     # Ajax calls
     url(r'^accounts/', include('allauth.urls')),
     url(r'^logout/$', logout_then_login, {'login_url': '/accounts/login'}, name="logout"),
+
+    # Downloads
+    url(r'^download/', download_zip, name='download')
 )
 
 urlpatterns += (

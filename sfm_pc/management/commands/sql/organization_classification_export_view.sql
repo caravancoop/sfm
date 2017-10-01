@@ -1,4 +1,4 @@
-CREATE MATERIALIZED VIEW organization_classification_export_view AS
+CREATE MATERIALIZED VIEW organization_classification_export AS
   SELECT
     oo.uuid AS organization_id,
     oc.value AS classification,

@@ -1,4 +1,4 @@
-CREATE MATERIALIZED VIEW violation_export AS
+CREATE MATERIALIZED VIEW violation_all_export AS
   SELECT
     vv.uuid AS violation_id,
     vvsd.value AS start_date,
