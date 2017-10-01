@@ -27,7 +27,7 @@ from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
 from sfm_pc.utils import (deleted_in_str, get_org_hierarchy_by_id,
-                          get_command_edges, get_command_nodes, AutofillAttributes)
+                          get_command_edges, get_command_nodes, Autofill)
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -454,10 +454,10 @@ def person_autocomplete(request):
 
     set_attrs = {'membershippersonmember_set': 'organization'}
 
-    autofill = AutofillAttributes(objects=people,
-                                  set_attrs=set_attrs,
-                                  complex_attrs=complex_attrs,
-                                  list_attrs=list_attrs)
+    autofill = Autofill(objects=people,
+                        set_attrs=set_attrs,
+                        complex_attrs=complex_attrs,
+                        list_attrs=list_attrs)
 
     attrs = autofill.attrs
 

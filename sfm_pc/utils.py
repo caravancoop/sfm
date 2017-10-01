@@ -66,12 +66,10 @@ class RequireLoginMiddleware(object):
         return None
 
 
-class AutofillAttributes(object):
+class Attributes(object):
     '''
-    Helper class for getting attributes that we already know about entities
-    based on autocomplete queries.
+    Parent class for storing attributes of models.
     '''
-
     def __init__(self, objects=[], simple_attrs=[], complex_attrs=[],
                  list_attrs=[], set_attrs={}):
 
@@ -88,8 +86,19 @@ class AutofillAttributes(object):
         self.list_attrs = list_attrs
 
         # Querysets from foreign key relationships
-        # (Requires both the attr name, and the foreign key name)
+        # (Requires both the attr name, and the foreign key name,
+        # like: {'membershippersonmember_set', 'organization'})
         self.set_attrs = set_attrs
+
+
+class Autofill(Attributes):
+    '''
+    Helper class for getting attributes that we already know about entities
+    based on autocomplete queries.
+    '''
+    def __init__(self, *args, **kwargs):
+
+        super(Autofill, self).__init__(*args, **kwargs)
 
     @property
     def attrs(self):
@@ -213,6 +222,45 @@ class AutofillAttributes(object):
             collected_attrs.append(obj_data)
 
         return collected_attrs
+
+class CSV(Attributes):
+    '''
+    Helper class for producing CSV-compatible rows of entities and attributes.
+    '''
+    def __init__(self, etype):
+
+        assert etype in ['Person', 'Organization', 'Violation']
+
+        if etype == 'Person':
+
+            simple_attrs= []
+            complex_attrs = []
+            list_attrs = []
+            set_attrs = {}
+
+        elif etype == 'Organization':
+
+            pass
+
+        else:
+
+            pass
+
+        kwargs = {
+            'simple_attrs': simple_attrs,
+            'complex_attrs': complex_attrs,
+            'list_attrs': list_attrs,
+            'set_attrs': set_attrs
+        }
+
+        super(Rows, self).__init__(self, **kwargs)
+
+    def get_rows(self, ids):
+
+        rows = []
+
+        return rows
+
 
 def execute_sql(file_path):
     '''
