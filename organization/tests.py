@@ -60,6 +60,18 @@ class OrganizationTest(TestCase):
 
         return Organization.objects.all()[random_index]
 
+    def test_view_organization(self):
+
+        for org_id in range(1, 10):
+            response = self.client.get(reverse_lazy('detail_organization', args=[org_id]))
+
+            try:
+                assert response.status_code == 200
+            except AssertionError as e:
+                print(org_id)
+                print(response.content)
+                raise(e)
+
     def test_create_organization(self):
         response = self.client.get(reverse_lazy('create-organization'), follow=True)
 

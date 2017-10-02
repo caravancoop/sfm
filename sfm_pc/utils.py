@@ -3,6 +3,9 @@ import importlib
 from collections import namedtuple
 import itertools
 import json
+from io import StringIO, BytesIO
+import zipfile
+import csv
 
 from django.conf import settings
 from django.utils.translation import ugettext as _
@@ -66,12 +69,11 @@ class RequireLoginMiddleware(object):
         return None
 
 
-class AutofillAttributes(object):
+class Autofill(object):
     '''
     Helper class for getting attributes that we already know about entities
     based on autocomplete queries.
     '''
-
     def __init__(self, objects=[], simple_attrs=[], complex_attrs=[],
                  list_attrs=[], set_attrs={}):
 
@@ -88,7 +90,8 @@ class AutofillAttributes(object):
         self.list_attrs = list_attrs
 
         # Querysets from foreign key relationships
-        # (Requires both the attr name, and the foreign key name)
+        # (Requires both the attr name, and the foreign key name,
+        # like: {'membershippersonmember_set', 'organization'})
         self.set_attrs = set_attrs
 
     @property
@@ -213,6 +216,128 @@ class AutofillAttributes(object):
             collected_attrs.append(obj_data)
 
         return collected_attrs
+
+class Downloader(object):
+    '''
+    Helper class for producing CSV-compatible rows of entities and attributes.
+
+    Initialize with an entity type. Returns a ZIP archive as an HttpResponse
+    object.
+    '''
+    def __init__(self, etype):
+
+        try:
+            assert etype in ['Person', 'Organization', 'Violation']
+        except AssertionError:
+            raise AttributeError('Downloader objects must be initialized with' +
+                                 ' one of three entity types: "Person", "Violation",' +
+                                 ' or "Organization".')
+
+        self.etype = etype
+
+        if self.etype == 'Person':
+
+            self.table_attrs = ['name', 'alias', 'firstciteddate', 'lastciteddate',
+                                'membership', 'rank', 'role', 'title']
+
+        elif self.etype == 'Organization':
+
+            self.table_attrs = ['name', 'alias', 'classification', 'parent',
+                                'membership', 'site_name', 'firstciteddate',
+                                'lastciteddate']
+
+        else:
+
+            self.table_attrs = ['all']
+
+        self.base_fmt = '%s_{table}' % self.etype.lower()
+        self.tables = (self.base_fmt.format(table=attr) for attr in self.table_attrs)
+
+        self.query_fmt = '''
+            SELECT * FROM {table}
+            WHERE {etype}_id = %s
+        '''
+
+        self.col_query_fmt = '''
+            SELECT * FROM {table}
+            LIMIT 0
+        '''
+
+    def get_zip(self, ids):
+
+        zipout = BytesIO()
+
+        with zipfile.ZipFile(zipout, 'w') as zf:
+
+            for table in self.tables:
+
+                tablename = table + '_export'
+
+                with connection.cursor() as col_cursor:
+                    col_query = self.col_query_fmt.format(table=tablename)
+                    col_cursor.execute(col_query)
+
+                    columns = [c[0] for c in col_cursor.description]
+
+                csvfile = StringIO()
+                writer = csv.DictWriter(csvfile, fieldnames=columns)
+                writer.writeheader()
+
+                row_fmt = {colname: '' for colname in columns}
+
+                for entity_id in ids:
+
+                    query = self.query_fmt.format(etype=self.etype.lower(),
+                                                  table=tablename)
+                    q_args = [entity_id]
+
+                    with connection.cursor() as cursor:
+                        cursor.execute(query, q_args)
+
+                        results_tuple = namedtuple(table, columns)
+                        results = [results_tuple(*r) for r in cursor]
+
+                    for res in results:
+                        row = {}
+
+                        for colname in columns:
+                            row[colname] = getattr(res, colname, '')
+
+                        writer.writerow(row)
+
+                csvfile.seek(0)
+                zf.writestr('{0}.csv'.format(table), csvfile.getvalue())
+
+            # Get sources
+            src_query = '''
+                SELECT * FROM source_source
+            '''
+
+            with connection.cursor() as src_cursor:
+                src_cursor.execute(src_query)
+
+                src_cols = [c[0] for c in src_cursor.description]
+                src_tuple = namedtuple('sources', src_cols)
+                src_results = [src_tuple(*r) for r in src_cursor]
+
+            csvfile = StringIO()
+            writer = csv.DictWriter(csvfile, fieldnames=src_cols)
+            writer.writeheader()
+
+            for res in src_results:
+                row = {}
+
+                for colname in src_cols:
+                    row[colname] = getattr(res, colname, '')
+
+                writer.writerow(row)
+
+            csvfile.seek(0)
+            zf.writestr('sources.csv', csvfile.getvalue())
+
+        zipout.seek(0)
+        return zipout
+
 
 def execute_sql(file_path):
     '''

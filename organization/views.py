@@ -20,7 +20,7 @@ from organization.models import Organization, OrganizationAlias, Alias, \
 
 from sfm_pc.utils import (get_osm_by_id, get_hierarchy_by_id,
                           get_org_hierarchy_by_id,  get_command_edges,
-                          get_command_nodes, AutofillAttributes)
+                          get_command_nodes, Autofill)
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 
@@ -30,6 +30,11 @@ class OrganizationDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Generate link to download a CSV of this record
+        params = '?download_etype=Organization&entity_id={0}'.format(str(context['organization'].uuid))
+
+        context['download_url'] = reverse('download') + params
 
         # Commanders of this unit
         context['person_members'] = []
@@ -552,10 +557,10 @@ def organization_autocomplete(request):
 
     list_attrs = ['aliases', 'classification']
 
-    autofill = AutofillAttributes(objects=organizations,
-                                  simple_attrs=simple_attrs,
-                                  complex_attrs=complex_attrs,
-                                  list_attrs=list_attrs)
+    autofill = Autofill(objects=organizations,
+                        simple_attrs=simple_attrs,
+                        complex_attrs=complex_attrs,
+                        list_attrs=list_attrs)
 
     attrs = autofill.attrs
 

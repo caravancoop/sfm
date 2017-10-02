@@ -1,11 +1,13 @@
 import json
 from uuid import uuid4
 from collections import OrderedDict, namedtuple
+from datetime import datetime
 
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import FormView
+from django.views.decorators.cache import never_cache
 from django.forms import formset_factory
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
@@ -30,9 +32,10 @@ from membershipperson.models import MembershipPerson
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
 from sfm_pc.utils import (import_class, get_osm_by_id, get_org_hierarchy_by_id,
-                          get_child_orgs_by_id)
+                          get_child_orgs_by_id, Downloader)
 from sfm_pc.forms import MergeForm
 from sfm_pc.base_views import UtilityMixin
+from search.views import get_search_context
 
 
 class Dashboard(TemplateView):
@@ -407,4 +410,32 @@ def command_chain(request, org_id='', when=None, parents=True):
     edgelist = {'nodes': nodes, 'edges': edges, 'index': index}
 
     return HttpResponse(json.dumps(edgelist), content_type='application/json')
+
+@never_cache
+def download_zip(request):
+    '''
+    Pass the user a ZIP archive of CSVs for a search or record view.
+    '''
+    entity_type = request.GET.get('download_etype')
+
+    downloader = Downloader(entity_type)
+
+    if request.GET.get('entity_id'):
+        entity_ids = [request.GET.get('entity_id')]
+    else:
+        context = get_search_context(request, all_results=True)
+
+        entities = context['results'][entity_type]
+        entity_ids = list(str(entity.uuid) for entity in entities)
+
+    zipout = downloader.get_zip(entity_ids)
+
+    resp = HttpResponse(zipout.getvalue(), content_type='application/zip')
+
+    filedate = datetime.now().strftime('%Y-%m-%d')
+    filename = 'attachment; filename=wwic_download_{0}.zip'.format(filedate)
+
+    resp['Content-Disposition'] = filename
+
+    return resp
 

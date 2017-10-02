@@ -12,8 +12,14 @@
 {% block header %}
     <h1 class="page-title">
         <i class="fa fa-fw fa-users"></i> {{ organization.name.get_value }}
-        <small>
+        <!-- small>
             <a href="{% url 'edit_organization' organization.id %}" class="btn btn-default">{% trans "Edit" %}</a>
+         </small -->
+        <small class="pull-right">
+            <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
+            <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
+                <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
+            </a>
         </small>
     </h1>
     {% if organization.aliases.get_list %}
@@ -341,6 +347,11 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#print-page").on("click", function(){ window.print(); });
+        });
+    </script>
     {% if sites or areas %}
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
     {% endif %}
