@@ -8,7 +8,7 @@
                 {% comment %}Translators: Please keep the "strong" tags, which display the numbers in bold{% endcomment %}
                 <p>{% trans "Investigate <strong>police</strong> and <strong>military commanders</strong>, <strong>units</strong> and <strong>areas of operation</strong>" %}</p>
                 <div class="row input-group input-group-lg">
-                    <input type="text" class="form-control" placeholder="{% trans 'Enter a person or unit name, location or keyword...' %}" name="q">
+                    <input type="text" class="form-control" placeholder="{% trans 'Enter a person or unit name, location or keyword...' %}" name="q" id="q" autofocus>
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> {% trans "Search" %}</button>
                     </span>
@@ -74,6 +74,11 @@
 <script>
 
     $('document').ready(function() {
+
+        // Autofocus input on older browsers
+        if (!("autofocus" in document.createElement("input"))) {
+            $('#q').focus();
+        }
 
         // Make buttons mutually exclusive
         $('.entities label').click(function() {

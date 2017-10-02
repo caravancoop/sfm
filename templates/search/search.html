@@ -18,7 +18,7 @@
                     {% endfor %}
                 {% endfor %}
 
-                <input type="text" class="form-control input-lg" placeholder="{% trans 'Search for' %} {{ search_term }}..." name="q" {% if query %}value="{{ query }}{% endif %}">
+                <input type="text" class="form-control input-lg" placeholder="{% trans 'Search for' %} {{ search_term }}..." name="q" {% if query %}value="{{ query }}{% endif %}" id="q" autofocus>
                 <span class="input-group-btn">
                     <button class="btn btn-default btn-lg" type="submit">{% trans "Go!" %}</button>
                 </span>
@@ -259,6 +259,11 @@
         allowClear: true
     };
     $(document).ready(function(){
+
+        // Autofocus input on older browsers
+        if (!("autofocus" in document.createElement("input"))) {
+            $('#q').focus();
+        }
 
         // Show dropdowns containing selected facets
         $('.panel-show').addClass('in');
