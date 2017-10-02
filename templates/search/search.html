@@ -50,7 +50,7 @@
                 </div>
             </div>
 
-            <!-- Location -->
+            <!-- General filters -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
@@ -59,25 +59,6 @@
                 </div>
                 <div class="panel-body" id="general-filters">
                     <div class="form-group">
-                        <strong><i class="fa fa-fw fa-globe"></i>{% trans "Location" %}</strong>
-                        <div class="select2-input-buffer">
-                            <select id="location-filter" name="osm_id" class="form-control">
-                                {% if osm %}
-                                    <option value="{{ osm.id }}" selected=true>{{ osm.name }}</option>
-                                {% endif %}
-                            </select>
-                        </div>
-                        <div class="select2-input-buffer">
-                            <select id="radius" name="radius" class="form-control">
-                                {% for rad in radius_choices %}
-                                    {% if rad == radius %}
-                                        <option value="{{ rad }}" selected=true>{{ rad }}km</option>
-                                    {% else %}
-                                        <option value="{{ rad }}">{{ rad }}km</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
                         <strong><i class="fa fa-fw fa-calendar"></i>{% trans "Date" %}</strong>
                         <input type="text" class="form-control datepicker select2-input-buffer" id="id_start_date" name="start_date" placeholder="{% trans 'Start date' %}" value="{{ start_date }}" />
                         <input type="text" class="form-control datepicker select2-input-buffer" id="id_end_date" name="end_date" placeholder="{% trans 'End date' %}" value="{{ end_date }}" />
