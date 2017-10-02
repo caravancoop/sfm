@@ -77,6 +77,9 @@ def get_search_context(request, all_results=False):
             except KeyError:
                 selected_facets[k] = [v]
 
+    # Only show the "clear" button if the user has selected facets
+    show_clear = any((selected_facets, start_date, end_date))
+
     # Make sure to handle empty entity types
     if entity_types in (None, '', [], ['']):
         entity_types = [etype for etype in SEARCH_ENTITY_TYPES.keys()]
@@ -274,6 +277,7 @@ def get_search_context(request, all_results=False):
         'radius_choices': ['1','5','10','25','50','100'],
         'start_date': start_date,
         'end_date': end_date,
+        'show_clear': show_clear,
         'pages': pages,
         'q_filters': q_filters,
         'facets': facets,

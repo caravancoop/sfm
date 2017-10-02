@@ -43,11 +43,10 @@
                             <option value="Violation" {% if 'Violation' in entity_types %}selected=true{% endif %}>{% trans "Incidents" %}</option>
                         </select>
                     </div>
-                        {% if selected_facets %}
-                        <a href="{% url 'search' %}{% if query %}?q={{ query }}{% endif %}" class="btn btn-sm btn-default">
-                                <i class="fa fa-fw fa-times"></i>{% trans "Clear all filters" %}
-                            </a>
-                        {% endif %}
+                        <a href="{% url 'search' %}{% if query %}?q={{ query }}{% endif %}" class="btn btn-sm btn-default"
+                                 {% if not show_clear %}style="display:none;"{% endif %}>
+                            <i class="fa fa-fw fa-times"></i>{% trans "Clear all filters" %}
+                        </a>
                 </div>
             </div>
 
