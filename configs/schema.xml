@@ -118,7 +118,7 @@
          If you don't need it, consider removing it and the corresponding copyField directive.
     -->
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="content" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="content" type="liberal_string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="entity_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="content_en" type="text_en" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="content_es" type="text_es" indexed="true" stored="true" required="false" multiValued="false" />
@@ -146,8 +146,8 @@
 
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
     <dynamicField name="*_is" type="ints"    indexed="true"  stored="true"/>
-    <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" />
-    <dynamicField name="*_ss" type="strings"  indexed="true"  stored="true"/>
+    <dynamicField name="*_s"  type="liberal_string"  indexed="true"  stored="true" />
+    <dynamicField name="*_ss" type="liberal_strings"  indexed="true"  stored="true"/>
     <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
     <dynamicField name="*_ls" type="longs"   indexed="true"  stored="true"/>
     <dynamicField name="*_t"   type="text_general" indexed="true" stored="true"/>
@@ -230,6 +230,32 @@
       -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true" />
     <fieldType name="strings" class="solr.StrField" sortMissingLast="true" multiValued="true" docValues="true" />
+
+    <fieldType name="liberal_string" class="solr.TextField" sortMissingLast="true">
+        <analyzer type="index">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory" preserveOriginal="false"/>
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory" preserveOriginal="false"/>
+        </analyzer>
+    </fieldType>
+
+    <fieldType name="liberal_strings" class="solr.TextField" sortMissingLast="true" multiValued="true">
+        <analyzer type="index">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory" preserveOriginal="false"/>
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory" preserveOriginal="false"/>
+        </analyzer>
+    </fieldType>
 
     <!-- boolean type: "true" or "false" -->
     <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
