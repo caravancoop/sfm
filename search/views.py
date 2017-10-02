@@ -100,7 +100,7 @@ def get_search_context(request, all_results=False):
     if user_query is None or user_query == '':
         full_query = '*'
     else:
-        full_query = user_query
+        full_query = ' '.join(term + '~' for term in user_query.split(' '))
 
     # Filter on date params, if they exist; otherwise, don't bother
     if start_date or end_date:
