@@ -59,10 +59,13 @@
                 </div>
                 <div class="panel-body" id="general-filters">
                     <div class="form-group">
-                        <strong><i class="fa fa-fw fa-calendar"></i>{% trans "Date" %}</strong>
+                        <strong style="padding-left:12px;">{% trans "Date" %}</strong>
                         <input type="text" class="form-control datepicker select2-input-buffer" id="id_start_date" name="start_date" placeholder="{% trans 'Start date' %}" value="{{ start_date }}" />
                         <input type="text" class="form-control datepicker select2-input-buffer" id="id_end_date" name="end_date" placeholder="{% trans 'End date' %}" value="{{ end_date }}" />
                     </div>
+                    {% with facet_name='country_ss' facet_label='Country' selected_list=selected_facets.country_ss item_list=facets.All.facet_fields.country_ss.counts %}
+                        {% include 'partials/search_filter.html' %}
+                    {% endwith %}
                 </div>
             </div>
 

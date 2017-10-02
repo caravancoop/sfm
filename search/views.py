@@ -19,14 +19,16 @@ SEARCH_ENTITY_TYPES = {
 #    'Publication': Publication,
     'Organization': {
         'model': Organization,
-        'facet_fields': ['organization_classification_ss'],
+        'facet_fields': ['organization_classification_ss',
+                         'country_ss'],
         'facet_ranges': ['organization_start_date_dt',
                          'organization_end_date_dt'],
     },
     'Person': {
         'model': Person,
         'facet_fields': ['person_current_role_s',
-                         'person_current_rank_s'],
+                         'person_current_rank_s',
+                         'country_ss'],
         'facet_ranges': ['person_first_cited_dt',
                          'person_last_cited_dt'],
     },
@@ -34,7 +36,8 @@ SEARCH_ENTITY_TYPES = {
         'model': Violation,
         'facet_fields': ['violation_type_ss',
                          'perpetrator_classification_ss',
-                         'violation_location_description_ss'],
+                         'violation_location_description_ss',
+                         'country_ss'],
         'facet_ranges': ['violation_start_date_dt',
                          'violation_end_date_dt'],
     }
@@ -267,6 +270,26 @@ def get_search_context(request, all_results=False):
 
     # Determine total result count
     hits['global'] = sum(count for count in hits.values())
+
+    # Count universal facets
+    country_counts = {}
+    for etype, found_facets in facets.items():
+        # This retrieves tuples of facet counts, like `('mexico', 10)`
+        facet_counts = found_facets['facet_fields']['country_ss']['counts']
+        for fac in facet_counts:
+            cname, ccount = fac[0], fac[1]
+            if not country_counts.get(cname):
+                country_counts[cname] = ccount
+            else:
+                country_counts[cname] += ccount
+
+    facets['All'] = {'facet_fields': {'country_ss': {'any': False,
+                                                     'counts': []}}}
+
+    for country, count in country_counts.items():
+        if count > 0:
+            facets['All']['facet_fields']['country_ss']['any'] = True
+            facets['All']['facet_fields']['country_ss']['counts'].append((country, count))
 
     context = {
         'results': results,
