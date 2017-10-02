@@ -172,27 +172,58 @@ class PersonDetail(DetailView):
                         else:
                             # Once we have "ongoing" attributes, we'll be able to
                             # determine ongoing overlap; for now, mark it as "unknown"
-                            overlap_start = 'Unknown'
+                            overlap_start = _('Unknown')
 
                         if c_end and not no_start:
                             overlap_end = c_end.value
                         else:
                             # Ditto about "ongoing" attributes above
-                            overlap_end = 'Unknown'
+                            overlap_end = _('Unknown')
 
-                        if overlap_start != 'Unknown' and overlap_end != 'Unknown':
+                        if overlap_start != _('Unknown') and overlap_end != _('Unknown'):
+
                             # Convert to date objects to calculate delta
-                            start = date(overlap_start.year,
-                                         overlap_start.month,
-                                         overlap_start.day)
+                            start_year = overlap_start.year
+                            start_month = overlap_start.month
+                            start_day = overlap_start.day
 
-                            end = date(overlap_end.year,
-                                       overlap_end.month,
-                                       overlap_end.day)
+                            end_year = overlap_end.year
+                            end_month = overlap_end.month
+                            end_day = overlap_end.day
 
-                            overlap_duration = (str((end - start).days) + ' days')
+                            # Account for fuzzy dates
+                            all_dates = [start_year, start_month, start_day,
+                                         end_year, end_month, end_day]
+
+                            fuzzy_date =  any(dt == 0 for dt in all_dates)
+
+                            if fuzzy_date:
+                                # Start the overlap string with a "roughly" symbol
+                                overlap_duration = '~'
+
+                                # Find spots where the dates are fuzzy
+                                if start_month == 0:
+                                    start_month = 1
+                                if start_day == 0:
+                                    start_day = 1
+                                if end_month == 0:
+                                    end_month = 1
+                                if end_day == 0:
+                                    end_day = 1
+                            else:
+                                overlap_duration = ''
+
+                            start = date(start_year,
+                                         start_month,
+                                         start_day)
+
+                            end = date(end_year,
+                                       end_month,
+                                       end_day)
+
+                            overlap_duration += (str((end - start).days) + ' ' + _('days'))
                         else:
-                            overlap_duration = 'Unknown'
+                            overlap_duration = _('Unknown')
 
                         info['overlap_start'] = overlap_start
                         info['overlap_end'] = overlap_end
@@ -200,7 +231,7 @@ class PersonDetail(DetailView):
 
                         context['subordinates'].append(info)
 
-        context['subordinates'] = sorted(context['subordinates'], key=lambda m: (m['overlap_end'] if m['overlap_end'] != 'Unknown' else date(1, 1, 1)), reverse=True)
+        context['subordinates'] = sorted(context['subordinates'], key=lambda m: (m['overlap_end'] if m['overlap_end'] != _('Unknown') else date(1, 1, 1)), reverse=True)
         context['command_chain'].reverse()
         context['events'] = []
         events = context['person'].violationperpetrator_set.all()
