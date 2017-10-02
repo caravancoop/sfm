@@ -19,22 +19,25 @@ SEARCH_ENTITY_TYPES = {
 #    'Publication': Publication,
     'Organization': {
         'model': Organization,
-        'facet_fields': ['organization_classification_ss'],
+        'facet_fields': ['organization_classification_ss_fct',
+                         'country_ss_fct'],
         'facet_ranges': ['organization_start_date_dt',
                          'organization_end_date_dt'],
     },
     'Person': {
         'model': Person,
-        'facet_fields': ['person_current_role_s',
-                         'person_current_rank_s'],
+        'facet_fields': ['person_current_role_s_fct',
+                         'person_current_rank_s_fct',
+                         'country_ss_fct'],
         'facet_ranges': ['person_first_cited_dt',
                          'person_last_cited_dt'],
     },
     'Violation': {
         'model': Violation,
-        'facet_fields': ['violation_type_ss',
-                         'perpetrator_classification_ss',
-                         'violation_location_description_ss'],
+        'facet_fields': ['violation_type_ss_fct',
+                         'perpetrator_classification_ss_fct',
+                         'violation_location_description_ss_fct',
+                         'country_ss_fct'],
         'facet_ranges': ['violation_start_date_dt',
                          'violation_end_date_dt'],
     }
@@ -77,6 +80,9 @@ def get_search_context(request, all_results=False):
             except KeyError:
                 selected_facets[k] = [v]
 
+    # Only show the "clear" button if the user has selected facets
+    show_clear = any((selected_facets, start_date, end_date))
+
     # Make sure to handle empty entity types
     if entity_types in (None, '', [], ['']):
         entity_types = [etype for etype in SEARCH_ENTITY_TYPES.keys()]
@@ -100,7 +106,7 @@ def get_search_context(request, all_results=False):
     if user_query is None or user_query == '':
         full_query = '*'
     else:
-        full_query = user_query
+        full_query = ' '.join(term + '~' for term in user_query.split(' '))
 
     # Filter on date params, if they exist; otherwise, don't bother
     if start_date or end_date:
@@ -265,6 +271,26 @@ def get_search_context(request, all_results=False):
     # Determine total result count
     hits['global'] = sum(count for count in hits.values())
 
+    # Count universal facets
+    country_counts = {}
+    for etype, found_facets in facets.items():
+        # This retrieves tuples of facet counts, like `('mexico', 10)`
+        facet_counts = found_facets['facet_fields']['country_ss_fct']['counts']
+        for fac in facet_counts:
+            cname, ccount = fac[0], fac[1]
+            if not country_counts.get(cname):
+                country_counts[cname] = ccount
+            else:
+                country_counts[cname] += ccount
+
+    facets['All'] = {'facet_fields': {'country_ss_fct': {'any': False,
+                                                     'counts': []}}}
+
+    for country, count in country_counts.items():
+        if count > 0:
+            facets['All']['facet_fields']['country_ss_fct']['any'] = True
+            facets['All']['facet_fields']['country_ss_fct']['counts'].append((country, count))
+
     context = {
         'results': results,
         'query': user_query,
@@ -274,6 +300,7 @@ def get_search_context(request, all_results=False):
         'radius_choices': ['1','5','10','25','50','100'],
         'start_date': start_date,
         'end_date': end_date,
+        'show_clear': show_clear,
         'pages': pages,
         'q_filters': q_filters,
         'facets': facets,

@@ -382,7 +382,7 @@ class Command(BaseCommand):
 
             vtypes = violation.types.get_list()
             if vtypes:
-                vtypes = (str(vt.get_value().value) for vt in vtypes)
+                vtypes = list(str(vt.get_value().value) for vt in vtypes)
 
             perps = violation.perpetrator.get_list()
             perp_names, perp_aliases = [], []
@@ -420,9 +420,11 @@ class Command(BaseCommand):
             perp_org_classes = list(perp_org_classes)
 
             division_id = violation.division_id.get_value()
-            country = None
+            country = []
             if division_id:
-                country = country_name(division_id)
+                country = [country_name(division_id)]
+            else:
+                division_id = []
 
             location_description = violation.locationdescription.get_value()
             if location_description:
@@ -454,12 +456,12 @@ class Command(BaseCommand):
                 status = status.value
 
             global_index = [perp_names, perp_aliases, perp_org_names, perp_org_aliases,
-                            perp_org_classes, vtypes]
+                            perp_org_classes, vtypes, country]
 
             # We need to make solo attributes into lists to extend the `content`
             # list; before doing that, check to see that each attribute actually
             # exists
-            for single_attr in (description, country, location_description,
+            for single_attr in (description, location_description,
                                 location_name, osmname, admin_l1_name,
                                 admin_l2_name):
                 if single_attr:
@@ -475,6 +477,8 @@ class Command(BaseCommand):
                 'entity_type': 'Violation',
                 'content': content,
                 'location': '',
+                'country_ss': country,
+                'division_id_ss': division_id,
                 'start_date_dt': start_date,
                 'end_date_dt': end_date,
                 'violation_type_ss': vtypes,
