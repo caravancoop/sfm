@@ -63,7 +63,7 @@
                         <input type="text" class="form-control datepicker select2-input-buffer" id="id_start_date" name="start_date" placeholder="{% trans 'Start date' %}" value="{{ start_date }}" />
                         <input type="text" class="form-control datepicker select2-input-buffer" id="id_end_date" name="end_date" placeholder="{% trans 'End date' %}" value="{{ end_date }}" />
                     </div>
-                    {% with facet_name='country_ss' facet_label='Country' selected_list=selected_facets.country_ss item_list=facets.All.facet_fields.country_ss.counts %}
+                    {% with facet_name='country_ss_fct' facet_label='Country' selected_list=selected_facets.country_ss_fct item_list=facets.All.facet_fields.country_ss_fct.counts %}
                         {% include 'partials/search_filter.html' %}
                     {% endwith %}
                 </div>
@@ -81,14 +81,14 @@
                     <!-- Facets -->
                     <div class="panel-body" id="person-filters">
                         <!-- Role -->
-                        {% if facets.Person.facet_fields.person_current_role_s.any %}
-                            {% with facet_name='person_current_role_s' facet_label='Role' selected_list=selected_facets.person_current_role_s item_list=facets.Person.facet_fields.person_current_role_s.counts %}
+                        {% if facets.Person.facet_fields.person_current_role_s_fct.any %}
+                            {% with facet_name='person_current_role_s_fct' facet_label='Role' selected_list=selected_facets.person_current_role_s_fct item_list=facets.Person.facet_fields.person_current_role_s_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Rank -->
-                        {% if facets.Person.facet_fields.person_current_rank_s.any %}
-                            {% with facet_name='person_current_rank_s' facet_label='Rank' selected_list=selected_facets.person_current_rank_s item_list=facets.Person.facet_fields.person_current_rank_s.counts %}
+                        {% if facets.Person.facet_fields.person_current_rank_s_fct.any %}
+                            {% with facet_name='person_current_rank_s_fct' facet_label='Rank' selected_list=selected_facets.person_current_rank_s_fct item_list=facets.Person.facet_fields.person_current_rank_s_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
@@ -119,8 +119,8 @@
                     <!-- Facets -->
                     <div class="panel-body" id="organization-filters">
                         <!-- Classification -->
-                        {% if facets.Organization.facet_fields.organization_classification_ss.any %}
-                            {% with facet_name='organization_classification_ss' facet_label='Classification' selected_list=selected_facets.organization_classification_ss item_list=facets.Organization.facet_fields.organization_classification_ss.counts %}
+                        {% if facets.Organization.facet_fields.organization_classification_ss_fct.any %}
+                            {% with facet_name='organization_classification_ss_fct' facet_label='Classification' selected_list=selected_facets.organization_classification_ss_fct item_list=facets.Organization.facet_fields.organization_classification_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
@@ -151,20 +151,20 @@
                     <!-- Facets -->
                     <div class="panel-body" id="violation-filters">
                         <!-- Violation type -->
-                        {% if facets.Violation.facet_fields.violation_type_ss.any %}
-                            {% with facet_name='violation_type_ss' facet_label='Violation type' selected_list=selected_facets.violation_type_ss item_list=facets.Violation.facet_fields.violation_type_ss.counts %}
+                        {% if facets.Violation.facet_fields.violation_type_ss_fct.any %}
+                            {% with facet_name='violation_type_ss_fct' facet_label='Violation type' selected_list=selected_facets.violation_type_ss_fct item_list=facets.Violation.facet_fields.violation_type_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Perpetrator classification -->
-                        {% if facets.Violation.facet_fields.perpetrator_classification_ss.any %}
-                            {% with facet_name='perpetrator_classification_ss' facet_label='Perpetrator type' selected_list=selected_facets.perpetrator_classification_ss item_list=facets.Violation.facet_fields.perpetrator_classification_ss.counts %}
+                        {% if facets.Violation.facet_fields.perpetrator_classification_ss_fct.any %}
+                            {% with facet_name='perpetrator_classification_ss_fct' facet_label='Perpetrator type' selected_list=selected_facets.perpetrator_classification_ss_fct item_list=facets.Violation.facet_fields.perpetrator_classification_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Location description -->
-                        {% if facets.Violation.facet_fields.violation_location_description_ss.any %}
-                            {% with facet_name='violation_location_description_ss' facet_label='Location description' selected_list=selected_facets.violation_location_description_ss item_list=facets.Violation.facet_fields.violation_location_description_ss.counts %}
+                        {% if facets.Violation.facet_fields.violation_location_description_ss_fct.any %}
+                            {% with facet_name='violation_location_description_ss_fct' facet_label='Location description' selected_list=selected_facets.violation_location_description_ss_fct item_list=facets.Violation.facet_fields.violation_location_description_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}

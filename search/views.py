@@ -19,25 +19,25 @@ SEARCH_ENTITY_TYPES = {
 #    'Publication': Publication,
     'Organization': {
         'model': Organization,
-        'facet_fields': ['organization_classification_ss',
-                         'country_ss'],
+        'facet_fields': ['organization_classification_ss_fct',
+                         'country_ss_fct'],
         'facet_ranges': ['organization_start_date_dt',
                          'organization_end_date_dt'],
     },
     'Person': {
         'model': Person,
-        'facet_fields': ['person_current_role_s',
-                         'person_current_rank_s',
-                         'country_ss'],
+        'facet_fields': ['person_current_role_s_fct',
+                         'person_current_rank_s_fct',
+                         'country_ss_fct'],
         'facet_ranges': ['person_first_cited_dt',
                          'person_last_cited_dt'],
     },
     'Violation': {
         'model': Violation,
-        'facet_fields': ['violation_type_ss',
-                         'perpetrator_classification_ss',
-                         'violation_location_description_ss',
-                         'country_ss'],
+        'facet_fields': ['violation_type_ss_fct',
+                         'perpetrator_classification_ss_fct',
+                         'violation_location_description_ss_fct',
+                         'country_ss_fct'],
         'facet_ranges': ['violation_start_date_dt',
                          'violation_end_date_dt'],
     }
@@ -275,7 +275,7 @@ def get_search_context(request, all_results=False):
     country_counts = {}
     for etype, found_facets in facets.items():
         # This retrieves tuples of facet counts, like `('mexico', 10)`
-        facet_counts = found_facets['facet_fields']['country_ss']['counts']
+        facet_counts = found_facets['facet_fields']['country_ss_fct']['counts']
         for fac in facet_counts:
             cname, ccount = fac[0], fac[1]
             if not country_counts.get(cname):
@@ -283,13 +283,13 @@ def get_search_context(request, all_results=False):
             else:
                 country_counts[cname] += ccount
 
-    facets['All'] = {'facet_fields': {'country_ss': {'any': False,
+    facets['All'] = {'facet_fields': {'country_ss_fct': {'any': False,
                                                      'counts': []}}}
 
     for country, count in country_counts.items():
         if count > 0:
-            facets['All']['facet_fields']['country_ss']['any'] = True
-            facets['All']['facet_fields']['country_ss']['counts'].append((country, count))
+            facets['All']['facet_fields']['country_ss_fct']['any'] = True
+            facets['All']['facet_fields']['country_ss_fct']['counts'].append((country, count))
 
     context = {
         'results': results,

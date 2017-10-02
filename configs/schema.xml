@@ -119,6 +119,7 @@
     -->
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="content" type="liberal_string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="content_fct" type="string" indexed="true" stored="false" required="true" multiValued="false" />
     <field name="entity_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="content_en" type="text_en" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="content_es" type="text_es" indexed="true" stored="true" required="false" multiValued="false" />
@@ -147,7 +148,9 @@
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
     <dynamicField name="*_is" type="ints"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="liberal_string"  indexed="true"  stored="true" />
+    <dynamicField name="*_s_fct"  type="string"  indexed="true"  stored="false" />
     <dynamicField name="*_ss" type="liberal_strings"  indexed="true"  stored="true"/>
+    <dynamicField name="*_ss_fct"  type="strings"  indexed="true"  stored="false" />
     <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
     <dynamicField name="*_ls" type="longs"   indexed="true"  stored="true"/>
     <dynamicField name="*_t"   type="text_general" indexed="true" stored="true"/>
@@ -195,6 +198,11 @@
 
     <dynamicField name="random_*" type="random" />
 
+    <!-- Custom facet fields -->
+    <copyField source="content" dest="content_fct"/>
+    <copyField source="*_s" dest="*_s_fct"/>
+    <copyField source="*_ss" dest="*_ss_fct"/>
+
     <!-- uncomment the following to ignore any fields that don't already match an existing
         field name or dynamic field, rather than reporting them as an error.
         alternately, change the type="ignored" to some other type e.g. "text" if you want
@@ -232,11 +240,6 @@
     <fieldType name="strings" class="solr.StrField" sortMissingLast="true" multiValued="true" docValues="true" />
 
     <fieldType name="liberal_string" class="solr.TextField" sortMissingLast="true">
-        <analyzer type="index">
-            <tokenizer class="solr.StandardTokenizerFactory"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-            <filter class="solr.ASCIIFoldingFilterFactory" preserveOriginal="false"/>
-        </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.StandardTokenizerFactory"/>
             <filter class="solr.LowerCaseFilterFactory"/>
@@ -245,11 +248,6 @@
     </fieldType>
 
     <fieldType name="liberal_strings" class="solr.TextField" sortMissingLast="true" multiValued="true">
-        <analyzer type="index">
-            <tokenizer class="solr.StandardTokenizerFactory"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-            <filter class="solr.ASCIIFoldingFilterFactory" preserveOriginal="false"/>
-        </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.StandardTokenizerFactory"/>
             <filter class="solr.LowerCaseFilterFactory"/>
