@@ -69,15 +69,19 @@ def get_search_context(request, all_results=False):
     for etype in ('Person', 'Organization', 'Violation'):
         download_urls[etype] = download_url + 'download_etype={0}'.format(etype)
 
-    # Parse selected facets
+    # Parse selected facets (since URLs format lists of params in multiples, like
+    # `type=foo&type=bar` for `type = [foo, bar]`, we have to unpack the lists)
     selected_facet_vals = request.GET.getlist('selected_facets')
     selected_facets = {}
     for val in selected_facet_vals:
         if val:
             [k, v] = val.split('_exact:', 1)
-            try:
+            # Convert facets on null values to a more pythonic format
+            if v == 'None':
+                v = None
+            if selected_facets.get(k):
                 selected_facets[k].append(v)
-            except KeyError:
+            else:
                 selected_facets[k] = [v]
 
     # Only show the "clear" button if the user has selected facets
@@ -205,6 +209,8 @@ def get_search_context(request, all_results=False):
         search_context['facet.range.start'] = '2000-01-01T00:00:00Z/YEAR'
         search_context['facet.range.end'] = 'NOW/YEAR'
         search_context['facet.range.gap'] = '+1YEAR'
+        # Show facets for fields that are missing (have nulls)
+        search_context['facet.missing'] = 'true'
 
         # Handle pagination
         pages[etype] = {}
@@ -230,8 +236,14 @@ def get_search_context(request, all_results=False):
         for field, values in selected_facets.items():
             if field in search_context['facet.field']:
                 for val in values:
-                    etype_query += ' AND {field}:"{val}"'.format(field=field,
-                                                                 val=val)
+                    if val:
+                        etype_query += ' AND {field}:"{val}"'.format(field=field,
+                                                                    val=val)
+                    else:
+                        # In this case, the user is faceting on null values,
+                        # so use the appropriate syntax
+                        etype_query += 'AND -{field}:[* TO *]'.format(field=field)
+
             # Handle date ranges
             elif field in search_context['facet.range']:
                 for val in values:
