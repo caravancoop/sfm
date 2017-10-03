@@ -38,7 +38,8 @@ class Command(BaseCommand):
             '--entity-types',
             dest='entity_types',
             help='Comma separated list of entity types to index',
-            default="people,organizations,sources,violations"
+            # default="people,organizations,sources,violations"
+            default="people,organizations,violations"
         )
         parser.add_argument(
             '--id',

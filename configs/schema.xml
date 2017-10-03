@@ -128,7 +128,7 @@
     <field name="language" type="string"  indexed="true" stored="true" />
 
     <field name="location" type="location_rpt"  indexed="true" stored="false" multiValued="true" />
-
+    <field name="suggester" type="liberal_strings" indexed="true" stored="true" required="false" multiValued="true" />
 
     <!-- doc values are enabled by default for primitive types such as long so we don't index the version field  -->
     <field name="_version_" type="long" indexed="false" stored="false"/>
@@ -198,8 +198,12 @@
 
     <dynamicField name="random_*" type="random" />
 
-    <!-- Custom facet fields -->
+    <!-- Custom copy fields -->
     <copyField source="content" dest="content_fct"/>
+
+    <copyField source="*_s" dest="suggester"/>
+    <copyField source="*_ss" dest="suggester"/>
+
     <copyField source="*_s" dest="*_s_fct"/>
     <copyField source="*_ss" dest="*_ss_fct"/>
 

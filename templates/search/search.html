@@ -188,7 +188,19 @@
     <div class="col-xs-12 col-sm-8 pull-right">
     {% if results %}
         <h1>{{ hits.global|intcomma }} {% trans "results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query }}&rdquo;{% endif %}</h1>
+    {% else %}
+        <h1>{% trans "No results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query  }}&rdquo;{% endif %}</h1>
+    {% endif %}
 
+    {% if suggested_terms %}
+        <p><strong>Did you mean:</strong>
+        {% for term in suggested_terms %}
+        <small><a class="did-you-mean" role="button">{{ term  }}</a></small> {% if not forloop.last %}|{% endif %}
+        {% endfor %}
+        </p>
+    {% endif %}
+
+    {% if results %}
         {% if 'Person' in results.keys %}
             {% with objects=results.Person hit_count=hits.Person %}
                 {% include 'partials/person_search_results.html' %}
@@ -205,9 +217,9 @@
             {% endwith %}
         {% endif %}
     {% else %}
-        <h1>{% trans "No results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query  }}&rdquo;{% endif %}</h1>
+        <br />
         <p>{% trans "For better results, try adjusting your search filters." %}</p>
-        <p>{% trans "Think we're missing something?" %} <a href="#">{% trans "Let us know!" %}</a></p>
+        <p>{% trans "Think we're missing something?" %} <a href="mailto:technical@securityforcemonitor.org">{% trans "Let us know!" %}</a></p>
     {% endif %}
     </div>
 </div>
@@ -271,6 +283,10 @@
                          .replace(/&amp;/g, '&')
                          .replace(/\+/g, ' ');
 
+        var existing_q_no_query = decodeURIComponent("{{ filters_no_query }}")
+                                  .replace(/&amp;/g, '&')
+                                  .replace(/\+/g, ' ');
+
         $(".filter-value").click(function() {
             var addtl_filter = $(this).attr('data');
             if (existing_q) {
@@ -280,6 +296,19 @@
             } else {
                 window.location.assign('/search/?selected_facets=' +
                                        encodeURIComponent(addtl_filter));
+            }
+        });
+
+        // Clicking on "Did you mean?" queries should re-search
+        $('.did-you-mean').click(function(e) {
+            e.preventDefault();
+            var term = $(this).html();
+            if (existing_q) {
+                window.location.assign('/search/?' + existing_q_no_query +
+                                       '&q=' + encodeURIComponent(term));
+            } else {
+                window.location.assign('/search/?q=' +
+                                       encodeURIComponent(term));
             }
         });
 

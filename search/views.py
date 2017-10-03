@@ -43,7 +43,11 @@ SEARCH_ENTITY_TYPES = {
     }
 }
 
+# Search engine
 solr = pysolr.Solr(settings.SOLR_URL)
+
+# Suggester engine
+suggester = pysolr.Solr(settings.SOLR_URL, search_handler='suggest')
 
 def get_search_context(request, all_results=False):
 
@@ -92,7 +96,7 @@ def get_search_context(request, all_results=False):
         entity_types = [etype for etype in SEARCH_ENTITY_TYPES.keys()]
 
     # Re-format the query string for use in templating
-    q_filters = ''
+    q_filters, filters_no_query = '', ''
     url_params = [(p, val) for (p, val) in request.GET.items()
                   if '_page' not in p and p != 'selected_facets'
                   and p != 'entity_type' and p != 'amp' and p != '_']
@@ -105,6 +109,10 @@ def get_search_context(request, all_results=False):
 
     if url_params:
         q_filters = urllib.parse.urlencode(url_params)
+        # Strip the query for use in "Did you mean?" links
+        params_no_query = [(param[0], param[1]) for param in url_params
+                           if param[0] != 'q']
+        filters_no_query = urllib.parse.urlencode(params_no_query)
 
     # Define query string
     if user_query is None or user_query == '':
@@ -283,6 +291,15 @@ def get_search_context(request, all_results=False):
     # Determine total result count
     hits['global'] = sum(count for count in hits.values())
 
+    # If we didn't get many hits, look for search term suggestions
+    suggested_terms = None
+    if hits['global'] < 10:
+        lookup = suggester.search(user_query)
+        suggestions = lookup.raw_response['suggest']['Suggester'][user_query]['suggestions']
+        # Filter out suggestions that exactly match the user's query
+        suggested_terms = list(sugg['term'] for sugg in suggestions
+                               if sugg['term'].lower() != user_query.lower())
+
     # Count universal facets
     country_counts = {}
     for etype, found_facets in facets.items():
@@ -305,6 +322,7 @@ def get_search_context(request, all_results=False):
 
     context = {
         'results': results,
+        'suggested_terms': suggested_terms,
         'query': user_query,
         'entity_types': entity_types,
         'radius': radius,
@@ -315,6 +333,7 @@ def get_search_context(request, all_results=False):
         'show_clear': show_clear,
         'pages': pages,
         'q_filters': q_filters,
+        'filters_no_query': filters_no_query,
         'facets': facets,
         'selected_facets': selected_facets,
         'hits': hits,

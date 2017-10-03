@@ -120,7 +120,8 @@ body {
 }
 
 .filter-value:hover,
-.remove-filter-value:hover{
+.remove-filter-value:hover,
+.did-you-mean:hover {
     cursor: pointer;
 }
 
