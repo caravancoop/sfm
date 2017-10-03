@@ -1941,6 +1941,9 @@ class Command(UtilityMixin, BaseCommand):
 
         country_code = event_data[positions['DivisionId']['value']]
 
+        if not country_code:
+            country_code = self.country_code
+
         division_id = 'ocd-division/country:{}'.format(country_code)
 
         event_info.update({
@@ -1973,6 +1976,11 @@ class Command(UtilityMixin, BaseCommand):
                             'value': perp,
                             'confidence': 1,
                             'sources': sources,
+                        },
+                        'Person_PersonDivisionId' : {
+                            'value': division_id,
+                            'confidence': 1,
+                            'sources': sources
                         }
                     }
                     person = Person.create(person_info)
@@ -1999,9 +2007,15 @@ class Command(UtilityMixin, BaseCommand):
                 try:
                     organization = Organization.objects.get(organizationname__value=org)
                 except (Organization.DoesNotExist, ValueError):
+
                     info = {
                         'Organization_OrganizationName': {
                             'value': org,
+                            'confidence': 1,
+                            'sources': sources,
+                        },
+                        'Organization_OrganizationDivisionId': {
+                            'value': division_id,
                             'confidence': 1,
                             'sources': sources,
                         }
