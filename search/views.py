@@ -1,4 +1,5 @@
 import urllib
+import math
 from datetime import datetime
 
 from django.shortcuts import render
@@ -233,6 +234,7 @@ def get_search_context(request, all_results=False):
                 start = 0
                 pages[etype]['has_previous'] = False
 
+            pages[etype]['current_page_number'] = pagination
             search_context['start'] = start
 
         # Filter on selected facets and entity type
@@ -273,6 +275,9 @@ def get_search_context(request, all_results=False):
             pages[etype]['next_page_number'] = pagination + 1
         else:
             pages[etype]['has_next'] = False
+
+        num_pages = math.ceil(response.hits / result_count)
+        pages[etype]['num_pages'] = range(1, num_pages + 1)
 
         hits[etype] = response.hits
         facets[etype] = format_facets(response.facets)

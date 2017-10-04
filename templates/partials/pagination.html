@@ -1,8 +1,10 @@
 {% load i18n %}
 
 {% if page.has_previous or page.has_next %}
-<nav aria-label="Page navigation">
+<nav aria-label="{% trans 'Search results navigation' %}">
   <ul class="pagination">
+
+    <! -- Previous button -->
     {% if page.has_previous %}
     <li>
         <a href="?{{ q_filters }}&amp;{{ page_type  }}_page={{ page.previous_page_number }}" aria-label="Previous">
@@ -10,6 +12,32 @@
       </a>
     </li>
     {% endif %}
+
+    <!-- Page numbers -->
+    {% for num in page.num_pages %}
+        {% if not forloop.last and num < 10 %}
+            <li{% if num == page.current_page_number %} class="active"{% endif %}>
+                <a href="?{{ q_filters }}&amp;{{ page_type }}_page={{ num }}">
+                    {{ num }}
+                </a>
+            </li>
+        {% endif %}
+    {% endfor %}
+
+    <! -- Ellipses before the last page -->
+    {% if page.num_pages|length >= 10 %}
+    <li class="disabled"><a href="#">&#8230;</a></li>
+        <!-- Last page -->
+        {% with num=page.num_pages|length %}
+            <li{% if num == page.current_page_number %} class="active"{% endif %}>
+                <a href="?{{ q_filters }}&amp;{{ page_type }}_page={{ num }}">
+                    {{ num }}
+                </a>
+            </li>
+        {% endwith %}
+    {% endif %}
+
+    <!-- Next button -->
     {% if page.has_next %}
     <li>
         <a href="?{{ q_filters }}&amp;{{ page_type }}_page={{ page.next_page_number }}" aria-label="Next">
@@ -17,6 +45,7 @@
       </a>
     </li>
     {% endif %}
+
   </ul>
 </nav>
 {% endif %}
