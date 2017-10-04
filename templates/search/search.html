@@ -124,6 +124,12 @@
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
+                        <!-- Memberships -->
+                        {% if facets.Organization.facet_fields.organization_membership_ss_fct.any %}
+                            {% with facet_name='organization_membership_ss_fct' facet_label='Membership' selected_list=selected_facets.organization_membership_ss_fct item_list=facets.Organization.facet_fields.organization_membership_ss_fct.counts %}
+                                {% include 'partials/search_filter.html' %}
+                            {% endwith %}
+                        {% endif %}
                         <!-- Start date -->
                         {% if facets.Organization.facet_ranges.organization_start_date_dt.any %}
                             {% with facet_name='organization_start_date_dt' facet_label='Start date' selected_list=selected_facets.organization_start_date_dt item_list=facets.Organization.facet_ranges.organization_start_date_dt.counts %}

@@ -19,6 +19,7 @@ SEARCH_ENTITY_TYPES = {
     'Organization': {
         'model': Organization,
         'facet_fields': ['organization_classification_ss_fct',
+                         'organization_membership_ss_fct',
                          'country_ss_fct'],
         'facet_ranges': ['organization_start_date_dt',
                          'organization_end_date_dt'],

@@ -175,6 +175,15 @@ class Command(BaseCommand):
                 if parent.name.get_value():
                     parent_names.append(parent.name.get_value().value)
 
+            memberships = []
+            mems = organization.membershiporganizationmember_set.all()
+            for membership in mems:
+                # Similar to parents, we have to traverse the directed graph
+                # in order to get the entities we want
+                org = membership.object_ref.organization.get_value().value
+                if org.name.get_value():
+                    memberships.append(org.name.get_value())
+
             # Convert sets to lists, for indexing
             division_ids, countries = list(division_ids), list(countries)
             exactloc_names, admin_names = list(exactloc_names), list(admin_names)
@@ -199,6 +208,7 @@ class Command(BaseCommand):
                 'open_ended_s': open_ended,
                 'organization_name_s': name,
                 'organization_parent_name_ss': parent_names,
+                'organization_membership_ss': memberships,
                 'organization_classification_ss': classes,
                 'organization_alias_ss': aliases,
                 'organization_headquarters_s': hq,
