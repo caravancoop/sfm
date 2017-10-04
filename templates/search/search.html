@@ -227,6 +227,8 @@
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
 <script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.es.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.fr.js" %}"></script>
 <script type="text/javascript">
     var osm_opts = {
         ajax: {
@@ -276,7 +278,15 @@
         $('[data-toggle="tooltip"').tooltip();
 
         // Init datepicker
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
+        $('.datepicker').datepicker({
+            'autoclose': true,
+            format: "yyyy-mm-dd",
+            endDate: "0d",
+            clearBtn: true,
+            forceParse: false,
+        {% get_current_language as LANGUAGE_CODE %}
+            language: '{{ LANGUAGE_CODE }}'
+        });
 
         // Facet logic
         var existing_q = decodeURIComponent("{{ q_filters }}")
