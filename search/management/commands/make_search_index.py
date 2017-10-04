@@ -116,6 +116,7 @@ class Command(BaseCommand):
 
             first_cited = self.format_date(organization.firstciteddate.get_value())
             last_cited = self.format_date(organization.lastciteddate.get_value())
+            open_ended = organization.open_ended.get_value()
 
             division_ids, countries = set(), set()
 
@@ -195,6 +196,7 @@ class Command(BaseCommand):
                 'division_id_ss': division_ids,
                 'start_date_dt': first_cited,
                 'end_date_dt': last_cited,
+                'open_ended_s': open_ended,
                 'organization_name_s': name,
                 'organization_parent_name_ss': parent_names,
                 'organization_classification_ss': classes,

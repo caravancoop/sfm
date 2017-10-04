@@ -130,6 +130,11 @@ class MembershipPerson(models.Model, BaseModel):
 @versioned
 @sourced
 class MembershipPersonMember(ComplexField):
+
+    class Meta:
+        ordering = ['-object_ref__membershippersonlastciteddate__value',
+                    '-object_ref__membershippersonfirstciteddate__value']
+
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.ForeignKey(Person, default=None, blank=True, null=True)
     field_name = _("Member")

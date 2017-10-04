@@ -127,26 +127,30 @@ def get_search_context(request, all_results=False):
         formatted_end = parse_solr_date(end_date)
 
         # Craft different queries depending on which dates are present
+        # (cf https://github.com/security-force-monitor/sfm-cms/issues/140)
         if start_date and end_date:
             # In this case, we want results where there is complete overlap
             # between the dates set by the filter range and the first/last
-            # cited. We also want to include records where `end_date` is empty:
-            #   * (rec.start < q.start) AND (rec.end > q.end)
+            # cited:
+            #   * (rec.start < q.start) AND (rec.end > q.end
+            #                           OR (rec.open_ended = 'N')
 
             full_query += ' AND start_date_dt:[* TO {start_date}]' +\
-                          ' AND end_date_dt:[{end_date} TO *]'
+                          ' AND (end_date_dt:[{end_date} TO *]' +\
+                            ' OR open_ended_s:"N")'
 
             full_query = full_query.format(start_date=formatted_start,
                                            end_date=formatted_end)
 
         elif start_date:
-            # Show records for which there is data on or after `start_date`.
-            # Include records where `start_date` is empty:
-            #   * (rec.start > q.start) OR (rec.end > q.start AND !rec.start)
+            # Show records for which there is data on or after `start_date`:
+            #   * (rec.start > q.start) OR (rec.end > q.start)
+            #                           OR (rec.open_ended == 'N'
+            #                            OR rec.open_ended == 'E')
 
             full_query += ' AND (start_date_dt:[{start_date} TO *]' +\
-                          ' OR (end_date_dt:[{start_date} TO *]' +\
-                           ' AND -start_date_dt:[* TO *]))'
+                          ' OR end_date_dt:[{start_date} TO *]' +\
+                          ' OR (open_ended_s:"N" OR open_ended_s:"E"))'
 
             full_query = full_query.format(start_date=formatted_start)
 
@@ -154,11 +158,11 @@ def get_search_context(request, all_results=False):
             # Show records for which there is no data on or after `end_date`
             # (that is, exclude records for which there *is* data
             # after `end_date`). Include records where `end_date` is empty:
-            #   * (rec.end < q.end) OR (rec.start < q.end AND !rec.end)
+            #   * (rec.end < q.end) OR (!rec.end AND rec.open_ended != 'Y')
 
             full_query += ' AND (end_date_dt:[* TO {end_date}]' +\
-                               ' OR (start_date_dt:[* TO {end_date}]' +\
-                              ' AND -end_date_dt:[* TO *]))'\
+                               ' OR (-end_date_dt:[* TO *]' +\
+                               ' AND -open_ended_s:"Y"))'
 
             full_query = full_query.format(end_date=formatted_end)
 

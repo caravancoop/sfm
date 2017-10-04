@@ -75,15 +75,11 @@
                         </td>
                         <!-- First citation -->
                         <td>
-                            {% with membership=object.membershippersonmember_set.first %}
-                                {{ membership.object_ref.firstciteddate.get_value }}
-                            {% endwith %}
+                            {{ object.first_cited }}
                         </td>
                         <!-- Last citation -->
                         <td>
-                            {% with membership=object.membershippersonmember_set.last %}
-                                {{ membership.object_ref.lastciteddate.get_value }}
-                            {% endwith %}
+                            {{ object.last_cited }}
                         </td>
                     </tr>
                 {% endif %}

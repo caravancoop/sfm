@@ -187,7 +187,7 @@
     </form>
     <div class="col-xs-12 col-sm-8 pull-right">
     {% if results %}
-        <h1>{{ hits.global|intcomma }} {% trans "results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query }}&rdquo;{% endif %}</h1>
+    <h1>{{ hits.global|intcomma }} {% if hits.global == 1 %}{% trans "result found" %}{% else %}{% trans "results found" %}{% endif %} {% if query %}{% trans "for" %} &ldquo;{{ query }}&rdquo;{% endif %}</h1>
     {% else %}
         <h1>{% trans "No results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query  }}&rdquo;{% endif %}</h1>
     {% endif %}

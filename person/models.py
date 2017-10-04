@@ -37,6 +37,31 @@ class Person(models.Model, BaseModel):
     def __str__(self):
         return str(self.name)
 
+    @property
+    def last_cited(self):
+        '''
+        Get the global last citation date for this person, leaving out nulls.
+        '''
+        order = '-object_ref__membershippersonlastciteddate__value'
+        memberships = self.membershippersonmember_set.order_by(order)
+        for membership in memberships:
+            # Filter nulls
+            lcd = membership.object_ref.lastciteddate.get_value()
+            if lcd:
+                return lcd
+
+    @property
+    def first_cited(self):
+        '''
+        Get the global first citation date for this person, leaving out nulls.
+        '''
+        order = 'object_ref__membershippersonfirstciteddate__value'
+        memberships = self.membershippersonmember_set.order_by(order)
+        for membership in memberships:
+            fcd = membership.object_ref.firstciteddate.get_value()
+            if fcd:
+                return fcd
+
 
 @translated
 @versioned
