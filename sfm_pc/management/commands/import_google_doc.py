@@ -241,7 +241,7 @@ class Command(UtilityMixin, BaseCommand):
 
         # Map legal input formats to the way that we want to
         # store them in the database
-        formats= {
+        formats = {
             '%Y': '%Y-0-0',
             '%B %Y': '%Y-%m-0',
             '%m/%Y': '%Y-%m-0',

@@ -1,4 +1,5 @@
 import urllib
+from datetime import datetime
 
 from django.shortcuts import render
 from django.conf import settings
@@ -11,8 +12,6 @@ from organization.models import Organization
 from person.models import Person
 from violation.models import Violation
 from sfm_pc.utils import get_osm_by_id, format_facets
-
-import pprint
 
 SEARCH_ENTITY_TYPES = {
 #    'Source': Source,
@@ -123,21 +122,11 @@ def get_search_context(request, all_results=False):
     # Filter on date params, if they exist; otherwise, don't bother
     if start_date or end_date:
 
-        # Lucene needs us to replace missing params with *
-        formatted_start = start_date
-        formatted_end = end_date
-
         # Turn dates into a Lucene-readable timestamp
-        if formatted_start in ('', None):
-            formatted_start = '*'
-        else:
-            formatted_start += 'T00:00:00Z'
+        formatted_start = parse_solr_date(start_date)
+        formatted_end = parse_solr_date(end_date)
 
-        if formatted_end in ('', None):
-            formatted_end = '*'
-        else:
-            formatted_end += 'T00:00:00Z'
-
+        # Craft different queries depending on which dates are present
         if start_date and end_date:
             # In this case, we want results where there is complete overlap
             # between the dates set by the filter range and the first/last
@@ -348,3 +337,31 @@ def search(request):
     context = get_search_context(request)
 
     return render(request, 'search/search.html', context)
+
+def parse_solr_date(value):
+    # Set the default to a wildcard search
+    parsed = '*'
+
+    # Map legal input formats to the way that we want to
+    # feed them into solr
+    formats = {
+        '%Y-%m-%d': '%Y-%m-%d',
+        '%Y-%m': '%Y-%m-01',
+        '%Y': '%Y-01-01',
+        '%B %Y': '%Y-%m-01',
+        '%b %Y': '%Y-%m-01',
+        '%m/%Y': '%Y-%m-01',
+        '%m/%d/%Y': '%Y-%m-%d',
+    }
+
+    for in_format, out_format in formats.items():
+        try:
+            parsed_input = datetime.strptime(value, in_format)
+            parsed = datetime.strftime(parsed_input, out_format)
+            parsed += 'T00:00:00Z'
+            break
+
+        except ValueError:
+            pass
+
+    return parsed
