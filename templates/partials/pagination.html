@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load arithmetic %}
 
 {% if page.has_previous or page.has_next %}
 <nav aria-label="{% trans 'Search results navigation' %}">
@@ -14,8 +15,14 @@
     {% endif %}
 
     <!-- Page numbers -->
+    {% if page.num_pages|length >= 10 and page.current_page_number >= 9 %}
+    <!-- First page + ellipses -->
+    <li><a href="?{{ q_filters }}&amp;{{ page_type }}_page=1">1</a></li>
+    <li class="disabled"><a href="#">&#8230;</a></li>
+    {% endif %}
+
     {% for num in page.num_pages %}
-        {% if not forloop.last and num < 10 %}
+        {% if not forloop.last and page.current_page_number|absubtract:num < 5 %}
             <li{% if num == page.current_page_number %} class="active"{% endif %}>
                 <a href="?{{ q_filters }}&amp;{{ page_type }}_page={{ num }}">
                     {{ num }}
@@ -24,9 +31,11 @@
         {% endif %}
     {% endfor %}
 
-    <! -- Ellipses before the last page -->
     {% if page.num_pages|length >= 10 %}
-    <li class="disabled"><a href="#">&#8230;</a></li>
+        {% if page.num_pages|length|subtract:page.current_page_number >= 10 %}
+            <! -- Ellipses before the last page -->
+            <li class="disabled"><a href="#">&#8230;</a></li>
+        {% endif %}
         <!-- Last page -->
         {% with num=page.num_pages|length %}
             <li{% if num == page.current_page_number %} class="active"{% endif %}>
