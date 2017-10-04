@@ -43,6 +43,12 @@
                 <th>
                     {% trans "Country" %}
                 </th>
+                <th>
+                    {% trans "First citation" %}
+                </th>
+                <th>
+                    {% trans "Last citation" %}
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -104,6 +110,14 @@
                         <!-- Country -->
                         <td>
                             {{ object.division_id|country_name }}
+                        </td>
+                        <!-- First citation -->
+                        <td>
+                            {{ object.firstciteddate }}
+                        </td>
+                        <!-- Last citation -->
+                        <td>
+                            {{ object.lastciteddate }}
                         </td>
                     </tr>
                 {% endif %}
