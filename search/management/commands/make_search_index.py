@@ -216,6 +216,7 @@ class Command(BaseCommand):
                 'organization_admin_ss': admin_names,
                 'organization_adminlevel1_ss': admin_l1_names,
                 'organization_area_ss': areas,
+                'organization_country_s': last_country,  # For sorting tables
                 'organization_start_date_dt': first_cited,
                 'organization_end_date_dt': first_cited,
                 '_text_': content
@@ -310,6 +311,8 @@ class Command(BaseCommand):
                     if last_cited:
                         if lcd.value > last_cited.value:
                             last_cited = lcd
+                            most_recent_unit = org
+                            most_recent_rank = rank
                             if rank:
                                 latest_rank = rank
                             if role:
@@ -318,6 +321,8 @@ class Command(BaseCommand):
                                 latest_title = title
                     else:
                         last_cited = lcd
+                        most_recent_unit = org
+                        most_recent_rank = rank
                         if rank:
                             latest_rank = rank
                         if role:
@@ -350,6 +355,8 @@ class Command(BaseCommand):
                 'person_alias_ss': aliases,
                 'person_role_ss': roles,
                 'person_rank_ss': ranks,
+                'person_most_recent_rank_s': most_recent_rank,
+                'person_most_recent_unit_s': most_recent_unit,
                 'person_title_ss': titles,
                 'person_current_rank_s': latest_rank,
                 'person_current_role_s': latest_role,

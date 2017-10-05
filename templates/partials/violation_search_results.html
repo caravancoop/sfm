@@ -7,7 +7,7 @@
     <a class="pull-right btn btn-default" href="{{ download_url.Violation }}"><i class="fa fa-fw fa-download"></i>{% trans "Download results" %}</a>
 </h3>
 
-{% with object_list=objects %}
+{% with object_list=objects sortable='True' %}
     {% include 'partials/violation_list_table.html' %}
 {% endwith %}
 

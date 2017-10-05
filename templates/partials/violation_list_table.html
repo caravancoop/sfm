@@ -9,37 +9,43 @@
                 <th>
                     {% trans "Start Date" %}
                     {% if sortable == 'True' %}
-                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='start_date' %}">
-                        <i class="fa fa-sort"></i>
-                    </a>
+                        {% with sort_param='Violation_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
                     {% endif %}
                 </th>
                 <th>
                     {% trans "End Date" %}
                     {% if sortable == 'True' %}
-                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='end_date' %}">
-                        <i class="fa fa-sort"></i>
-                    </a>
+                        {% with sort_param='Violation_sort' sort_asc='end_date_dt_asc' sort_desc='end_date_dt_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
                     {% endif %}
                 </th>
-                <th>{% trans "Description" %}</th>
-                <th>{% trans "Violation types" %}</th>
+                <th>
+                    {% trans "Description" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='violation_description_t_asc' sort_desc='violation_description_t_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Violation types" %}
+                </th>
                 <th>
                     {% trans "Location" %}
                     {% if sortable == 'True' %}
-                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='location' %}">
-                        <i class="fa fa-sort"></i>
-                    </a>
+                        {% with sort_param='Violation_sort' sort_asc='violation_location_name_s_asc' sort_desc='violation_location_name_s_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
                     {% endif %}
                 </th>
-                <th>{% trans "Perpetrators" %}</th>
+                <th>
+                    {% trans "Perpetrators" %}
+                </th>
                 <th>
                     {% trans "Perpetrator classification" %}
-                    {% if sortable == 'True' %}
-                    <a href="{% url 'list-violation' %}?{% query_transform request order_by='classification' %}">
-                        <i class="fa fa-sort"></i>
-                    </a>
-                    {% endif %}
                 </th>
             </tr>
         </thead>

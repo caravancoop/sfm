@@ -131,6 +131,34 @@ body {
     border-radius: 6px;
 }
 
+/* ======= *
+ * sorting *
+ * ======= */
+
+.sort-container {
+    display: inline-block;
+    margin-left: 2px;
+}
+
+.sort-container a.active {
+    color: #481212;
+}
+
+.sort-asc,
+.sort-desc {
+    display: block;
+    position: relative;
+}
+
+.sort-asc {
+    margin-top: -7px;
+    bottom: -3px;
+}
+
+.sort-link:hover {
+    text-decoration: none;
+}
+
 /* =======================  *
  * show more/less logic for *
  * long description boxes   *

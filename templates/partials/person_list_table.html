@@ -12,16 +12,46 @@
                 <th>
                     {% trans "Name" %}
                     {% if sortable == 'True' %}
-                    <a href="{% url 'list-person' %}?{% query_transform request order_by='name' %}">
-                        <i class="fa fa-sort"></i>
-                    </a>
+                        {% with sort_param='Person_sort' sort_asc='person_name_s_asc' sort_desc='person_name_s_desc' selected_sort=sorts.Person %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
                     {% endif %}
                 </th>
-                <th>{% trans "Also known as" %}</th>
-                <th>{% trans "Most recent rank" %}</th>
-                <th>{% trans "Most recent unit" %}</th>
-                <th>{% trans "First citation" %}</th>
-                <th>{% trans "Last citation" %}</th>
+                <th>
+                    {% trans "Aliases" %}
+                </th>
+                <th>
+                    {% trans "Most recent rank" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Person_sort' sort_asc='person_most_recent_rank_s_asc' sort_desc='person_most_recent_rank_s_desc' selected_sort=sorts.Person %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Most recent unit" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Person_sort' sort_asc='person_most_recent_unit_s_asc' sort_desc='person_most_recent_unit_s_desc' selected_sort=sorts.Person %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "First cited" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Person_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Person %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Last cited" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Person_sort' sort_asc='end_date_dt_asc' sort_desc='end_date_dt_desc' selected_sort=sorts.Person %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
             </tr>
         </thead>
         <tbody>

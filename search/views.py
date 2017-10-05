@@ -182,12 +182,10 @@ def get_search_context(request, all_results=False):
         osm = get_osm_by_id(location)
         x, y = osm.st_x, osm.st_y
         pt = '{x} {y}'.format(x=x, y=y)
-        sort = 'score asc'
         d = radius
 
         search_context['fq'] = fq
         search_context['pt'] = pt
-        search_context['sort'] = sort
         search_context['d'] = d
 
     # Search solr
@@ -195,6 +193,7 @@ def get_search_context(request, all_results=False):
     pages = {}  # Pagination info
     facets = {etype: [] for etype in entity_types}  # Facet counts
     hits = {}  # Result counts
+    sorts = {}  # Sorting info
     for etype in entity_types:
 
         # Copy the query so we can modify it in the scope of this iteration
@@ -268,6 +267,15 @@ def get_search_context(request, all_results=False):
                                            start=start,
                                            end=end)
 
+        # Apply sorting
+        search_context['sort'] = ''
+        sorting = request.GET.get(etype + '_sort')
+        if sorting:
+            sorts[etype] = sorting
+            sort_direction = sorting.split('_')[-1]
+            sort_value = '_'.join(sorting.split('_')[:-1])
+            search_context['sort'] = ' '.join((sort_value, sort_direction))
+
         # Make sure to filter on this entity type
         etype_query += ' AND entity_type:{etype}'.format(etype=etype)
 
@@ -290,7 +298,9 @@ def get_search_context(request, all_results=False):
         object_ids = [result['id'] for result in response]
         if len(object_ids) > 0:
             model = SEARCH_ENTITY_TYPES[etype]['model']
-            results[etype] = model.objects.filter(uuid__in=object_ids)
+            results[etype] = []
+            for object_id in object_ids:
+                results[etype].append(model.objects.get(uuid=object_id))
 
     # Determine total result count
     hits['global'] = sum(count for count in hits.values())
@@ -342,7 +352,8 @@ def get_search_context(request, all_results=False):
         'selected_facets': selected_facets,
         'hits': hits,
         'download_urls': download_urls,
-        'results_per_page': results_per_page
+        'results_per_page': results_per_page,
+        'sorts': sorts
     }
 
     return context
