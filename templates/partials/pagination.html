@@ -36,15 +36,14 @@
             <! -- Ellipses before the last page -->
             <li class="disabled"><a href="#">&#8230;</a></li>
         {% endif %}
-        <!-- Last page -->
-        {% with num=page.num_pages|length %}
-            <li{% if num == page.current_page_number %} class="active"{% endif %}>
-                <a href="?{{ q_filters }}&amp;{{ page_type }}_page={{ num }}">
-                    {{ num }}
-                </a>
-            </li>
-        {% endwith %}
     {% endif %}
+
+    <!-- Last page -->
+    <li{% if page.num_pages|length == page.current_page_number %} class="active"{% endif %}>
+        <a href="?{{ q_filters }}&amp;{{ page_type }}_page={{ page.num_pages|length }}">
+            {{ page.num_pages|length }}
+        </a>
+    </li>
 
     <!-- Next button -->
     {% if page.has_next %}
@@ -57,4 +56,29 @@
 
   </ul>
 </nav>
+
+<!-- Results per page -->
+{% if hit_count > 5 %}
+<div class="row">
+    <div class="col-sm-12">
+        <p>
+            <small>
+                <strong>Results per page:</strong>
+                {% for result_count in results_per_page %}
+                    {% if hit_count >= result_count %}
+                        {% if not forloop.first %}|{% endif %}
+                        <a href="?{{ q_filters }}&amp;{{ page_type }}_rows={{ result_count }}">
+                            {% if page.result_count == result_count %}
+                                <strong>{{ result_count }}</strong>
+                            {% else %}
+                                {{ result_count }}
+                            {% endif %}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </small>
+        </p>
+    </div>
+</div>
+{% endif %}
 {% endif %}

@@ -75,6 +75,9 @@ def get_search_context(request, all_results=False):
     for etype in ('Person', 'Organization', 'Violation'):
         download_urls[etype] = download_url + 'download_etype={0}'.format(etype)
 
+    # Possible numbers of results per page
+    results_per_page = [5, 10, 15, 20, 25, 50]
+
     # Parse selected facets (since URLs format lists of params in multiples, like
     # `type=foo&type=bar` for `type = [foo, bar]`, we have to unpack the lists)
     selected_facet_vals = request.GET.getlist('selected_facets')
@@ -169,18 +172,8 @@ def get_search_context(request, all_results=False):
 
             full_query = full_query.format(end_date=formatted_end)
 
-    # Set limits for search pagination
-    if not all_results:
-        if len(entity_types) < 2:
-            result_count = 10
-        else:
-            result_count = 5
-    else:
-        # The `all_results` parameter indicates to skip pagination entirely
-        result_count = 10000
-
-    # Initialize extra Solr params with the default row count and facets on
-    search_context = {'rows': result_count, 'facet': 'on'}
+    # Initialize extra Solr params with facets on
+    search_context = {'facet': 'on'}
 
     # Configure geofilters
     osm = None
@@ -219,6 +212,17 @@ def get_search_context(request, all_results=False):
         # Handle pagination
         pages[etype] = {}
         pagination = request.GET.get(etype + '_page')
+        num_rows = request.GET.get(etype + '_rows', 5)
+
+        # Set limits for search pagination
+        if not all_results:
+            result_count = int(num_rows)
+        else:
+            # The `all_results` parameter indicates to skip pagination entirely
+            result_count = 10000000
+
+        pages[etype]['result_count'] = result_count
+        search_context['rows'] = result_count
 
         if all_results:
             search_context['start'] = 0
@@ -270,7 +274,7 @@ def get_search_context(request, all_results=False):
         # Search that bad boy!
         response = solr.search(etype_query, **search_context)
 
-        if response.hits > result_count:
+        if (response.hits - start) >= result_count:
             pages[etype]['has_next'] = True
             pages[etype]['next_page_number'] = pagination + 1
         else:
@@ -337,7 +341,8 @@ def get_search_context(request, all_results=False):
         'facets': facets,
         'selected_facets': selected_facets,
         'hits': hits,
-        'download_urls': download_urls
+        'download_urls': download_urls,
+        'results_per_page': results_per_page
     }
 
     return context
