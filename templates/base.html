@@ -89,12 +89,12 @@
     // Populate select2
     $('.lang-select-box').select2({
         data: dataArray,
-        width: '100px'
+        width: '100px',
+        minimumResultsForSearch: Infinity,
     });
 
-    // Attach click event to dropdown, which reloads page with new language code 
+    // Attach click event to dropdown, which reloads page with new language code
     transObj = {
-        '{% trans "French" %}': 'fr',
         '{% trans "English" %}': 'en',
         '{% trans "Spanish" %}': 'es',
     }
@@ -104,7 +104,7 @@
         selectedLangSym = '/' + transObj[selectedLang] + '/';
         // Create new URL with selected language, and redirect to it.
         currentUrl = window.location.href;
-        newUrl = currentUrl.replace('/es/', selectedLangSym).replace('/fr/', selectedLangSym).replace('/en/', selectedLangSym);
+        newUrl = currentUrl.replace('/es/', selectedLangSym).replace('/en/', selectedLangSym);
         window.location = newUrl;
     });
 

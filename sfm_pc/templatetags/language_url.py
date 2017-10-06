@@ -13,7 +13,6 @@ def create_select2_data(select_lang_abbr):
     # To configure the select2 dropdown in the correct order.
     trans_obj = {
         "en": _("English"),
-        "fr": _("French"),
         "es": _("Spanish"),
     }
     data_array = list(trans_obj.values())
