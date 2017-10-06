@@ -92,8 +92,8 @@
                         </td>
                         <!-- Most recent rank -->
                         <td>
-                            {% with membership=object.membershippersonmember_set.last %}
-                                {{ membership.object_ref.rank.get_value }}
+                            {% with membership=object.memberships.last %}
+                                {{ membership.object_ref.rank.get_value|default:"" }}
                             {% endwith %}
                         </td>
                         <!-- Most recent unit -->

@@ -253,7 +253,8 @@ class Command(BaseCommand):
             if aliases:
                 content.extend(al.get_value().value.value for al in aliases)
 
-            memberships = MembershipPerson.objects.filter(membershippersonmember__value=person)
+            affiliations = person.memberships
+            memberships = [mem.object_ref for mem in affiliations]
 
             division_ids, countries = set(), set()
 
@@ -269,6 +270,13 @@ class Command(BaseCommand):
 
             first_cited = None
             last_cited = None
+
+            # Get most recent information
+            latest_title = memberships[0].title.get_value()
+            latest_role = memberships[0].role.get_value()
+            most_recent_unit = memberships[0].organization.get_value()
+            most_recent_rank = memberships[0].rank.get_value()
+            latest_rank = most_recent_rank
 
             for membership in memberships:
 
@@ -310,24 +318,8 @@ class Command(BaseCommand):
                     if last_cited:
                         if lcd.value > last_cited.value:
                             last_cited = lcd
-                            most_recent_unit = org
-                            most_recent_rank = rank
-                            if rank:
-                                latest_rank = rank
-                            if role:
-                                latest_role = role
-                            if title:
-                                latest_title = title
                     else:
                         last_cited = lcd
-                        most_recent_unit = org
-                        most_recent_rank = rank
-                        if rank:
-                            latest_rank = rank
-                        if role:
-                            latest_role = role
-                        if title:
-                            latest_title = title
 
             # Convert sets to lists, for indexing
             division_ids, countries = list(division_ids), list(countries)
