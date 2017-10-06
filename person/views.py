@@ -43,51 +43,26 @@ class PersonDetail(DetailView):
 
         context['download_url'] = reverse('download') + params
 
-        # Use SQL, instead of the Django ORM. Django cannot accurately sort by last_cited, an instance of ApproximateDate: Django orders by ApproximateDate's string format, which "pretty prints" as a date and its suffix in the first position, e.g., "10th March 2004."
-        membership_query = '''
-            SELECT * FROM membershipperson
-            WHERE member_id='{}' 
-            ORDER BY last_cited::date DESC
-        '''.format(context['person'].uuid)
+        affiliations = context['person'].memberships
+        memberships = [mem.object_ref for mem in affiliations]
 
-        cursor = connection.cursor()
-        cursor.execute(membership_query)
-
-        columns = [c[0] for c in cursor.description]
-        results_tuple = namedtuple('Membership', columns)
-
-        # List of membership tuples
-        memberships = [results_tuple(*r) for r in cursor]
-
-        # Start by getting the most recent membership for the "Last seen as" description
-        if len(memberships) > 0:
-            last_membership_id = memberships[0].id
-            membershipperson = MembershipPerson.objects.get(id=last_membership_id)
-
-            context['last_seen_as'] = membershipperson.short_description
-
-        context['memberships'] = []
+        context['memberships'] = memberships
         context['subordinates'] = []
         context['command_chain'] = []
 
-        for membership_tuple in memberships:
-            membership = MembershipPersonMember.objects.get(object_ref__id=membership_tuple.id)
-
-            # Store the raw memberships for use in the template
-            context['memberships'].append(membership.object_ref)
+        for membership in memberships:
 
             # Grab the org object
-            org = membership.object_ref.organization.get_value().value
+            org = membership.organization.get_value().value
+            org_id = str(org.uuid)
 
             # Get info about chain of command
             mem_data = {}
 
             when = None
-            if membership.object_ref.lastciteddate.get_value():
-                when = repr(membership.object_ref.lastciteddate.get_value().value)
+            if membership.lastciteddate.get_value():
+                when = repr(membership.lastciteddate.get_value().value)
                 mem_data['when'] = when
-
-            org_id = str(org.uuid)
 
             kwargs = {'org_id': org_id}
             ajax_route = 'command-chain'
@@ -104,27 +79,27 @@ class PersonDetail(DetailView):
             # Start by getting all child organizations for the member org
             child_compositions = org.child_organization.all()
 
-            # Start and end date for this membership
-            mem_start = membership.object_ref.firstciteddate.get_value()
-            no_start = False
-            if mem_start is None:
-                # Make a bogus date that everything will be greater than
-                mem_start = date(1000, 1, 1)
-                no_start = True
-            else:
-                mem_start = repr(mem_start.value)
-
-            mem_end = membership.object_ref.lastciteddate.get_value()
-            no_end = False
-            if mem_end is None:
-                mem_end = date.today()
-                no_end = True
-            else:
-                mem_end = repr(mem_end.value)
-
-            # Get the commanders of each child organization
-            # (Unfortunately, this requires two more iterations)
             if child_compositions:
+
+                # Get start and end date for this membership, to determine
+                # overlap
+                mem_start = membership.firstciteddate.get_value()
+                no_start = False
+                if mem_start is None:
+                    # Make a bogus date that everything will be greater than
+                    mem_start = date(1000, 1, 1)
+                    no_start = True
+                else:
+                    mem_start = repr(mem_start.value)
+
+                mem_end = membership.lastciteddate.get_value()
+                no_end = False
+                if mem_end is None:
+                    mem_end = date.today()
+                    no_end = True
+                else:
+                    mem_end = repr(mem_end.value)
+
                 for composition in child_compositions:
                     # Start and end date attributes for filtering:
                     # We want only the personnel who were commanders of child
@@ -141,7 +116,6 @@ class PersonDetail(DetailView):
                     '''.format(child_id=child_id,
                                mem_end=mem_end,
                                mem_start=mem_start)
-
 
                     cursor = connection.cursor()
                     cursor.execute(child_commanders_query)

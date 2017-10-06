@@ -28,7 +28,7 @@
 
 {% block sidebar %}
     {% has_versions person as changelog %}
-    {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
@@ -40,7 +40,7 @@
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
     {% has_versions person as changelog %}
-    {% if last_seen_as %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
@@ -50,11 +50,13 @@
 
 {% block details %}
 
-    {% if last_seen_as %}
+    {% if memberships %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</h3>
-            <p>{{ last_seen_as|safe }}</p>
+            {% with membership=memberships|first %}
+                <p>{{ membership.short_description|safe }}</p>
+            {% endwith %}
         </div>
     </div>
     {% endif %}

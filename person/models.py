@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models, connection
+from django.db.models.functions import Coalesce, Value
 from django.contrib.gis.geos import Point
 from django.utils.translation import ugettext as _
 from django.db.models import Max
@@ -36,6 +37,22 @@ class Person(models.Model, BaseModel):
 
     def __str__(self):
         return str(self.name)
+
+    @property
+    def memberships(self):
+        '''
+        Return all of this person's memberships, in a custom sorting order.
+
+        Order by first cited date descending, then last cited date descending,
+        with nulls last.
+        '''
+        mems = self.membershippersonmember_set\
+                   .annotate(lcd=Coalesce('object_ref__membershippersonfirstciteddate__value',
+                                          'object_ref__membershippersonlastciteddate__value',
+                                          Value('1000-0-0')))\
+                   .order_by('-lcd')
+
+        return mems
 
     @property
     def last_cited(self):

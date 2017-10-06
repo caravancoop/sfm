@@ -434,11 +434,11 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
 
         start_date = None
         if orgs[0].start_date:
-            start_date = orgs[0].start_date.isoformat()
+            start_date = orgs[0].start_date
 
         end_date = None
         if orgs[0].end_date:
-            end_date = orgs[0].end_date.isoformat()
+            end_date = orgs[0].end_date
 
         # Create a label, which we display on the charts for person and unit "parents."
         label = '<b>' + orgs[0].name + '</b>' + '\n\n' + 'Unknown commander'
@@ -453,8 +453,8 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
             'other_names': list({o.alias.strip() for o in orgs if o.alias}),
             'classifications': list({o.classification.strip() for o in orgs if o.classification}),
             'division_id': orgs[0].division_id,
-            'date_first_cited': orgs[0].start_date,
-            'date_last_cited': orgs[0].end_date,
+            'date_first_cited': start_date,
+            'date_last_cited': end_date,
             'commander': orgs[0].commander,
         }
 
@@ -493,8 +493,8 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             NULL::VARCHAR AS org_org_id,
             NULL::VARCHAR AS child_id,
             NULL::VARCHAR AS child_name,
-            NULL::DATE AS start_date,
-            NULL::DATE AS end_date,
+            NULL::VARCHAR AS start_date,
+            NULL::VARCHAR AS end_date,
             NULL::VARCHAR AS comp_open_ended,
             NULL::VARCHAR AS source,
             NULL::VARCHAR AS confidence,
@@ -507,8 +507,8 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             org_org.id::VARCHAR as org_org_id,
             h.child_id::VARCHAR AS child_id,
             children.name AS child_name,
-            h.start_date::date,
-            h.end_date::date,
+            h.start_date::VARCHAR,
+            h.end_date::VARCHAR,
             h.open_ended AS comp_open_ended,
             row_to_json(ss.*)::VARCHAR AS source,
             ccc.confidence,
@@ -537,28 +537,28 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
     if when:
         hierarchy = '''
             {hierarchy}
-            AND CASE 
-              WHEN (start_date IS NOT NULL AND 
-                    end_date IS NOT NULL AND 
+            AND CASE
+              WHEN (start_date IS NOT NULL AND
+                    end_date IS NOT NULL AND
                     comp_open_ended IN ('N', 'E'))
-              THEN (%s::date BETWEEN start_date::date AND end_date::date)
+              THEN (%s BETWEEN start_date AND end_date)
               WHEN (start_date IS NOT NULL AND
                     end_date IS NOT NULL AND
                     comp_open_ended = 'Y')
-              THEN (%s::date BETWEEN start_date::date AND NOW()::date)
+              THEN (%s BETWEEN start_date AND NOW()::date::varchar)
               WHEN (start_date IS NOT NULL AND
                     end_date IS NULL AND
                     comp_open_ended IN ('N', 'E'))
-              THEN (start_date::date = %s::date)
+              THEN (start_date = %s)
               WHEN (start_date IS NOT NULL AND
                     end_date IS NULL AND
                     comp_open_ended = 'Y')
-              THEN (%s::date BETWEEN start_date::date AND NOW()::date)
+              THEN (%s BETWEEN start_date AND NOW()::date::varchar)
               WHEN (start_date IS NULL AND
                     end_date IS NOT NULL AND
                     comp_open_ended IN ('N', 'E'))
-              THEN (end_date::date = %s)
-              WHEN (start_date IS NULL AND 
+              THEN (end_date = %s)
+              WHEN (start_date IS NULL AND
                     end_date IS NOT NULL AND
                     comp_open_ended = 'Y')
               THEN TRUE

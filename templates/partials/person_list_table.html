@@ -98,8 +98,8 @@
                         </td>
                         <!-- Most recent unit -->
                         <td>
-                            {% with membership=object.membershippersonmember_set.last %}
-                                {% with organization=membership.object_ref.membershippersonorganization_set.last %}
+                            {% with membership=object.memberships.last %}
+                                {% with organization=membership.object_ref.organization.get_value %}
                                     <a href="{% url 'detail_organization' organization.value.id %}">{{ organization.value.name.get_value }}</a>
                                 {% endwith %}
                                 <br />
