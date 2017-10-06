@@ -1,6 +1,8 @@
 {% load tablesort %}
 {% load i18n %}
-    <table class="table table-striped search-results-table">
+
+<div class="responsive-table">
+    <table class="table table-striped table-condensed search-results-table">
         <thead>
             <tr>
                 {% if merge == 'True' %}
@@ -116,4 +118,4 @@
             {% endfor %}
         </tbody>
     </table>
-
+</div>

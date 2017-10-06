@@ -298,3 +298,16 @@ a.collapsed .show-less {
     }
 }
 
+@media (max-width: 767px) {
+    /* Bootstrap's .table-responsive class doesn't look good at large sizes.
+     * Hack it to only display on small screens */
+    .responsive-table {
+        width: 100%;
+        margin-bottom: 13.5px;
+        overflow-y: hidden;
+        -ms-overflow-style: -ms-autohiding-scrollbar;
+        overflow-x: auto;
+        min-height: 0.01%;
+    }
+}
+
