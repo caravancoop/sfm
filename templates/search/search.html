@@ -130,6 +130,12 @@
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
+                        <!-- Parents -->
+                        {% if facets.Organization.facet_fields.organization_parent_name_ss_fct.any %}
+                            {% with facet_name='organization_parent_name_ss_fct' facet_label='Parents' selected_list=selected_facets.organization_parent_name_ss_fct item_list=facets.Organization.facet_fields.organization_parent_name_ss_fct.counts %}
+                                {% include 'partials/search_filter.html' %}
+                            {% endwith %}
+                        {% endif %}
                         <!-- Admin level 1 -->
                         {% if facets.Organization.facet_fields.organization_adminlevel1_ss_fct.any %}
                             {% with facet_name='organization_adminlevel1_ss_fct' facet_label='Place' selected_list=selected_facets.organization_adminlevel1_ss_fct item_list=facets.Organization.facet_fields.organization_adminlevel1_ss_fct.counts %}

@@ -14,13 +14,13 @@ from person.models import Person
 from violation.models import Violation
 from sfm_pc.utils import get_osm_by_id, format_facets
 
+# Model-specific search parameters
 SEARCH_ENTITY_TYPES = {
-#    'Source': Source,
-#    'Publication': Publication,
     'Organization': {
         'model': Organization,
         'facet_fields': ['organization_classification_ss_fct',
                          'organization_membership_ss_fct',
+                         'organization_parent_name_ss_fct',
                          'organization_adminlevel1_ss_fct',
                          'country_ss_fct'],
         'facet_ranges': ['organization_start_date_dt',
