@@ -48,10 +48,6 @@ body {
     width: 100%;
 }
 
-.navbar-header > span.select2 {
-    margin-top: 10px;
-}
-
 .navbar-brand {
     margin-top: 5px;
     margin-left: 15px !important; /* override bootstrap default */
@@ -309,5 +305,29 @@ a.collapsed .show-less {
         overflow-x: auto;
         min-height: 0.01%;
     }
+
+    .form-group > span.select2 {
+        width: 100% !important;
+    }
+
+    .navbar-header {
+        margin-top: 10px;
+        margin-bottom: 15px;
+    }
 }
 
+.form-group > span.select2 {
+    max-width: 100% !important;
+}
+
+@media (min-width: 768px) {
+    .navbar-nav > li > span.select2 {
+        margin-top: 5px;
+    }
+}
+
+@media (max-width: 767px) {
+    .navbar-nav > li > span.select2 {
+        margin-left: 15px;
+    }
+}
