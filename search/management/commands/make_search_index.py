@@ -216,7 +216,6 @@ class Command(BaseCommand):
                 'organization_admin_ss': admin_names,
                 'organization_adminlevel1_ss': admin_l1_names,
                 'organization_area_ss': areas,
-                'organization_country_s': last_country,  # For sorting tables
                 'organization_start_date_dt': first_cited,
                 'organization_end_date_dt': first_cited,
                 '_text_': content
