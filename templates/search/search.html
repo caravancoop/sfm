@@ -63,7 +63,7 @@
                         <input type="text" class="form-control datepicker select2-input-buffer" id="id_start_date" name="start_date" placeholder="{% trans 'Start date' %}" value="{{ start_date }}" />
                         <input type="text" class="form-control datepicker select2-input-buffer" id="id_end_date" name="end_date" placeholder="{% trans 'End date' %}" value="{{ end_date }}" />
                     </div>
-                    {% with facet_name='country_ss_fct' facet_label='Country' selected_list=selected_facets.country_ss_fct item_list=facets.All.facet_fields.country_ss_fct.counts %}
+                    {% with facet_name='country_ss_fct' facet_label=_('Country') selected_list=selected_facets.country_ss_fct item_list=facets.All.facet_fields.country_ss_fct.counts %}
                         {% include 'partials/search_filter.html' %}
                     {% endwith %}
                 </div>
@@ -82,25 +82,25 @@
                     <div class="panel-body" id="person-filters">
                         <!-- Role -->
                         {% if facets.Person.facet_fields.person_current_role_s_fct.any %}
-                            {% with facet_name='person_current_role_s_fct' facet_label='Role' selected_list=selected_facets.person_current_role_s_fct item_list=facets.Person.facet_fields.person_current_role_s_fct.counts %}
+                            {% with facet_name='person_current_role_s_fct' facet_label=_('Role') selected_list=selected_facets.person_current_role_s_fct item_list=facets.Person.facet_fields.person_current_role_s_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Rank -->
                         {% if facets.Person.facet_fields.person_current_rank_s_fct.any %}
-                            {% with facet_name='person_current_rank_s_fct' facet_label='Rank' selected_list=selected_facets.person_current_rank_s_fct item_list=facets.Person.facet_fields.person_current_rank_s_fct.counts %}
+                            {% with facet_name='person_current_rank_s_fct' facet_label=_('Rank') selected_list=selected_facets.person_current_rank_s_fct item_list=facets.Person.facet_fields.person_current_rank_s_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- First cited -->
                         {% if facets.Person.facet_ranges.person_first_cited_dt.any %}
-                            {% with facet_name='person_first_cited_dt' facet_label='First cited' selected_list=selected_facets.person_first_cited_dt item_list=facets.Person.facet_ranges.person_first_cited_dt.counts %}
+                            {% with facet_name='person_first_cited_dt' facet_label=_('First cited') selected_list=selected_facets.person_first_cited_dt item_list=facets.Person.facet_ranges.person_first_cited_dt.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Last cited -->
                         {% if facets.Person.facet_ranges.person_last_cited_dt.any %}
-                            {% with facet_name='person_last_cited_dt' facet_label='Last cited' selected_list=selected_facets.person_last_cited_dt item_list=facets.Person.facet_ranges.person_last_cited_dt.counts %}
+                            {% with facet_name='person_last_cited_dt' facet_label=_('Last cited') selected_list=selected_facets.person_last_cited_dt item_list=facets.Person.facet_ranges.person_last_cited_dt.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
@@ -120,37 +120,37 @@
                     <div class="panel-body" id="organization-filters">
                         <!-- Classification -->
                         {% if facets.Organization.facet_fields.organization_classification_ss_fct.any %}
-                            {% with facet_name='organization_classification_ss_fct' facet_label='Classification' selected_list=selected_facets.organization_classification_ss_fct item_list=facets.Organization.facet_fields.organization_classification_ss_fct.counts %}
+                            {% with facet_name='organization_classification_ss_fct' facet_label=_('Classification') selected_list=selected_facets.organization_classification_ss_fct item_list=facets.Organization.facet_fields.organization_classification_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Memberships -->
                         {% if facets.Organization.facet_fields.organization_membership_ss_fct.any %}
-                            {% with facet_name='organization_membership_ss_fct' facet_label='Membership' selected_list=selected_facets.organization_membership_ss_fct item_list=facets.Organization.facet_fields.organization_membership_ss_fct.counts %}
+                            {% with facet_name='organization_membership_ss_fct' facet_label=_('Membership') selected_list=selected_facets.organization_membership_ss_fct item_list=facets.Organization.facet_fields.organization_membership_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Parents -->
                         {% if facets.Organization.facet_fields.organization_parent_name_ss_fct.any %}
-                            {% with facet_name='organization_parent_name_ss_fct' facet_label='Parents' selected_list=selected_facets.organization_parent_name_ss_fct item_list=facets.Organization.facet_fields.organization_parent_name_ss_fct.counts %}
+                            {% with facet_name='organization_parent_name_ss_fct' facet_label=_('Parents') selected_list=selected_facets.organization_parent_name_ss_fct item_list=facets.Organization.facet_fields.organization_parent_name_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Admin level 1 -->
                         {% if facets.Organization.facet_fields.organization_adminlevel1_ss_fct.any %}
-                            {% with facet_name='organization_adminlevel1_ss_fct' facet_label='Place' selected_list=selected_facets.organization_adminlevel1_ss_fct item_list=facets.Organization.facet_fields.organization_adminlevel1_ss_fct.counts %}
+                            {% with facet_name='organization_adminlevel1_ss_fct' facet_label=_('Place') selected_list=selected_facets.organization_adminlevel1_ss_fct item_list=facets.Organization.facet_fields.organization_adminlevel1_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Start date -->
                         {% if facets.Organization.facet_ranges.organization_start_date_dt.any %}
-                            {% with facet_name='organization_start_date_dt' facet_label='Start date' selected_list=selected_facets.organization_start_date_dt item_list=facets.Organization.facet_ranges.organization_start_date_dt.counts %}
+                            {% with facet_name='organization_start_date_dt' facet_label=_('Start date') selected_list=selected_facets.organization_start_date_dt item_list=facets.Organization.facet_ranges.organization_start_date_dt.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- End date -->
                         {% if facets.Organization.facet_ranges.organization_end_date_dt.any %}
-                            {% with facet_name='organization_end_date_dt' facet_label='End date' selected_list=selected_facets.organization_end_date_dt item_list=facets.Organization.facet_ranges.organization_end_date_dt.counts %}
+                            {% with facet_name='organization_end_date_dt' facet_label=_('End date') selected_list=selected_facets.organization_end_date_dt item_list=facets.Organization.facet_ranges.organization_end_date_dt.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
@@ -170,31 +170,31 @@
                     <div class="panel-body" id="violation-filters">
                         <!-- Violation type -->
                         {% if facets.Violation.facet_fields.violation_type_ss_fct.any %}
-                            {% with facet_name='violation_type_ss_fct' facet_label='Violation type' selected_list=selected_facets.violation_type_ss_fct item_list=facets.Violation.facet_fields.violation_type_ss_fct.counts %}
+                            {% with facet_name='violation_type_ss_fct' facet_label=_('Violation type') selected_list=selected_facets.violation_type_ss_fct item_list=facets.Violation.facet_fields.violation_type_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Perpetrator classification -->
                         {% if facets.Violation.facet_fields.perpetrator_classification_ss_fct.any %}
-                            {% with facet_name='perpetrator_classification_ss_fct' facet_label='Perpetrator type' selected_list=selected_facets.perpetrator_classification_ss_fct item_list=facets.Violation.facet_fields.perpetrator_classification_ss_fct.counts %}
+                            {% with facet_name='perpetrator_classification_ss_fct' facet_label=_('Perpetrator type') selected_list=selected_facets.perpetrator_classification_ss_fct item_list=facets.Violation.facet_fields.perpetrator_classification_ss_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Location description -->
                         {% if facets.Violation.facet_fields.violation_location_description_s_fct.any %}
-                            {% with facet_name='violation_location_description_s_fct' facet_label='Location description' selected_list=selected_facets.violation_location_description_s_fct item_list=facets.Violation.facet_fields.violation_location_description_s_fct.counts %}
+                            {% with facet_name='violation_location_description_s_fct' facet_label=_('Location description') selected_list=selected_facets.violation_location_description_s_fct item_list=facets.Violation.facet_fields.violation_location_description_s_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- Start date -->
                         {% if facets.Violation.facet_ranges.violation_start_date_dt.any %}
-                            {% with facet_name='violation_start_date_dt' facet_label='Start date' selected_list=selected_facets.violation_start_date_dt item_list=facets.Violation.facet_ranges.violation_start_date_dt.counts %}
+                            {% with facet_name='violation_start_date_dt' facet_label=_('Start date') selected_list=selected_facets.violation_start_date_dt item_list=facets.Violation.facet_ranges.violation_start_date_dt.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
                         <!-- End date -->
                         {% if facets.Violation.facet_ranges.violation_end_date_dt.any %}
-                            {% with facet_name='violation_end_date_dt' facet_label='End date' selected_list=selected_facets.violation_end_date_dt item_list=facets.Violation.facet_ranges.violation_end_date_dt.counts %}
+                            {% with facet_name='violation_end_date_dt' facet_label=_('End date') selected_list=selected_facets.violation_end_date_dt item_list=facets.Violation.facet_ranges.violation_end_date_dt.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
