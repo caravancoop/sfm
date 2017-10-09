@@ -123,7 +123,7 @@ def get_search_context(request, all_results=False):
     if user_query is None or user_query == '':
         full_query = '*'
     else:
-        illegal_chars = '''!{[]}"'~-+()^:'''
+        illegal_chars = '''|&*/\!{[]}"'~-+()^:'''
         cleaned_query = user_query
 
         for char in illegal_chars:
