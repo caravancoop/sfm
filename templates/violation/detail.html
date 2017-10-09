@@ -47,7 +47,7 @@
     {% if violation.locationdescription.get_value or violation.adminlevel1.get_value or violation.adminlevel2.get_value %}
         <h4>{% trans "Location:" %}
             <strong>
-                {% render_location_string violation countries=False %}
+                {% render_location_string violation countries=False with_citations=True %}
             </strong>
         </h4>
     {% endif %}
@@ -108,7 +108,7 @@
             <h3 id="location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %}</h3>
             <hr />
             <div id="geoname_map" style="height:300px;"></div>
-            <h4><strong>{% render_location_string violation %}</strong></h4>
+            <h4><strong>{% render_location_string violation with_citations=True %}</strong></h4>
         </div>
     </div>
     {% endif %}
