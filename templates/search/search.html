@@ -10,7 +10,7 @@
 <div class="row">
     <form class="form">
         <div class="col-xs-12 col-sm-8 pull-right">
-            <div class="input-group">
+            <div class="input-group main-search">
 
                 {% for facet, selections in selected_facets.items %}
                     {% for s in selections %}
@@ -52,12 +52,25 @@
 
             <!-- General filters -->
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <strong><i class="fa fa-fw fa-filter"></i>{% trans "General filters" %}</strong>
-                    </h4>
+                <div class="panel-heading" data-toggle="collapse" data-target="#general-filters">
+                    <a role="button" class="filter-heading">
+                        <h4 class="panel-title">
+                            <strong><i class="fa fa-fw fa-filter"></i>{% trans "General filters" %}</strong>
+                            <i class="fa fa-fw
+                            {% if start_date or end_date or 'country_ss_fct' in selected_facets %}
+                                fa-minus
+                            {% else %}
+                                fa-plus
+                            {% endif %}
+                            pull-right"></i>
+                        </h4>
+                    </a>
                 </div>
-                <div class="panel-body" id="general-filters">
+                <div class="panel-body
+                {% if start_date or end_date or 'country_ss_fct' in selected_facets %}
+                    panel-show
+                {% endif %}
+                collapse" id="general-filters">
                     <div class="form-group">
                         <strong style="padding-left:12px;">{% trans "Date" %}</strong>
                         <input type="text" class="form-control datepicker select2-input-buffer" id="id_start_date" name="start_date" placeholder="{% trans 'Start date' %}" value="{{ start_date }}" />
@@ -72,14 +85,22 @@
             <!-- Persons -->
             {% if 'Person' in entity_types and results.Person|length > 0 %}
                 <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            {% comment %}Translators: Please preserve the "strong" and "i" tags, which display an icon. Use the single quote around 'fa fa-w fa-user'. {% endcomment %}
-                            {% trans "Filters for <strong><i class='fa fa-fw fa-user'></i>Personnel</strong>" %}
-                        </h4>
+                    <div class="panel-heading" data-toggle="collapse" data-target='#person-filters'>
+                        <a role="button" class="filter-heading">
+                            <h4 class="panel-title">
+                                {% comment %}Translators: Please preserve the "strong" and "i" tags, which display an icon. Use the single quote around 'fa fa-w fa-user'. {% endcomment %}
+                                {% trans "Filters for <strong><i class='fa fa-fw fa-user'></i>Personnel</strong>" %}
+                                <i class="fa fa-fw
+                                {% if show_filter.person %}
+                                    fa-minus
+                                {% else %}
+                                    fa-plus
+                                {% endif %}
+                                pull-right"></i>
+                            </h4>
+                        </a>
                     </div>
-                    <!-- Facets -->
-                    <div class="panel-body" id="person-filters">
+                    <div class="panel-body {% if show_filter.person %}panel-show{% endif %} collapse" id="person-filters">
                         <!-- Role -->
                         {% if facets.Person.facet_fields.person_current_role_s_fct.any %}
                             {% with facet_name='person_current_role_s_fct' facet_label=_('Role') selected_list=selected_facets.person_current_role_s_fct item_list=facets.Person.facet_fields.person_current_role_s_fct.counts %}
@@ -111,13 +132,22 @@
             <!-- Organizations -->
             {% if 'Organization' in entity_types and results.Organization|length > 0 %}
                 <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            {% trans "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>" %}
-                        </h4>
+                    <div class="panel-heading" data-toggle="collapse" data-target='#organization-filters'>
+                        <a role="button" class="filter-heading">
+                            <h4 class="panel-title">
+                                {% trans "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>" %}
+                                <i class="fa fa-fw
+                                {% if show_filter.organization %}
+                                    fa-minus
+                                {% else %}
+                                    fa-plus
+                                {% endif %}
+                                pull-right"></i>
+                            </h4>
+                        </a>
                     </div>
                     <!-- Facets -->
-                    <div class="panel-body" id="organization-filters">
+                    <div class="panel-body {% if show_filter.organization %}panel-show{% endif %} collapse" id="organization-filters">
                         <!-- Classification -->
                         {% if facets.Organization.facet_fields.organization_classification_ss_fct.any %}
                             {% with facet_name='organization_classification_ss_fct' facet_label=_('Classification') selected_list=selected_facets.organization_classification_ss_fct item_list=facets.Organization.facet_fields.organization_classification_ss_fct.counts %}
@@ -161,13 +191,22 @@
             <!-- Violations -->
             {% if 'Violation' in entity_types and results.Violation|length > 0 %}
                 <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            {% trans "Filters for <strong><i class='fa fa-fw fa-exclamation-triangle'></i>Incidents</strong>" %}
-                        </h4>
+                    <div class="panel-heading" data-toggle="collapse" data-target='#violation-filters'>
+                        <a role="button" class="filter-heading">
+                            <h4 class="panel-title">
+                                {% trans "Filters for <strong><i class='fa fa-fw fa-exclamation-triangle'></i>Incidents</strong>" %}
+                                <i class="fa fa-fw
+                                {% if show_filter.violation %}
+                                    fa-minus
+                                {% else %}
+                                    fa-plus
+                                {% endif %}
+                                pull-right"></i>
+                            </h4>
+                        </a>
                     </div>
                     <!-- Facets -->
-                    <div class="panel-body" id="violation-filters">
+                    <div class="panel-body {% if show_filter.violation %}panel-show{% endif %} collapse" id="violation-filters">
                         <!-- Violation type -->
                         {% if facets.Violation.facet_fields.violation_type_ss_fct.any %}
                             {% with facet_name='violation_type_ss_fct' facet_label=_('Violation type') selected_list=selected_facets.violation_type_ss_fct item_list=facets.Violation.facet_fields.violation_type_ss_fct.counts %}

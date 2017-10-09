@@ -78,6 +78,13 @@ def get_search_context(request, all_results=False):
     # Possible numbers of results per page
     results_per_page = [5, 10, 15, 20, 25, 50]
 
+    # Control which facet dropdowns we should show
+    show_filter = {
+        'person': False,
+        'organization': False,
+        'violation': False
+    }
+
     # Parse selected facets (since URLs format lists of params in multiples, like
     # `type=foo&type=bar` for `type = [foo, bar]`, we have to unpack the lists)
     selected_facet_vals = request.GET.getlist('selected_facets')
@@ -92,6 +99,9 @@ def get_search_context(request, all_results=False):
                 selected_facets[k].append(v)
             else:
                 selected_facets[k] = [v]
+            for facet_type in show_filter.keys():
+                if facet_type in v:
+                    show_filter[facet_type] = True
 
     # Only show the "clear" button if the user has selected facets
     show_clear = any((selected_facets, start_date, end_date))
@@ -362,7 +372,8 @@ def get_search_context(request, all_results=False):
         'hits': hits,
         'download_urls': download_urls,
         'results_per_page': results_per_page,
-        'sorts': sorts
+        'sorts': sorts,
+        'show_filter': show_filter
     }
 
     return context
