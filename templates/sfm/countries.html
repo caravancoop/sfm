@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load help %}
 {% block content %}
 
 <div class="row">
     <div class="col-sm-12">
         <div class="panel panel-default" style="min-height:150px">
             <div class="panel-heading">
-                <h3><strong>{% trans 'Egypt' %}</strong></h3>
+                <h3><strong>{% trans 'Egypt' %}{% help _('Egypt is a country in Africa!') %}</strong></h3>
             </div>
             <div class="panel-body">
                 <div class="row">

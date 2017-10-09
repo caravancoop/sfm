@@ -258,8 +258,14 @@ a.collapsed .show-less {
     cursor: pointer;
 }
 
+.help-widget {
+    color: #8d8d8d
+}
+
 .confidence-footnote:hover,
-.confidence-footnote:focus {
+.confidence-footnote:focus,
+.help-widget:hover,
+.help-widget:focus {
     cursor: pointer;
     text-decoration: none;
     outline: none;
