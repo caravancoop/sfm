@@ -105,8 +105,8 @@ class PersonDetail(DetailView):
                     # We want only the personnel who were commanders of child
                     # organizations during this membership
                     # (also allowing for null dates)
-                    child = composition.object_ref.child.get_value().value
-                    child_id = child.uuid
+                    child = composition.object_ref.child.get_value()
+                    child_id = child.value.uuid
 
                     child_commanders_query = '''
                         SELECT * FROM membershipperson
@@ -142,14 +142,14 @@ class PersonDetail(DetailView):
                         c_end = commander.object_ref.lastciteddate.get_value()
 
                         if c_start and not no_end:
-                            overlap_start = c_start.value
+                            overlap_start = c_start
                         else:
                             # Once we have "ongoing" attributes, we'll be able to
                             # determine ongoing overlap; for now, mark it as "unknown"
                             overlap_start = _('Unknown')
 
                         if c_end and not no_start:
-                            overlap_end = c_end.value
+                            overlap_end = c_end
                         else:
                             # Ditto about "ongoing" attributes above
                             overlap_end = _('Unknown')
@@ -157,13 +157,13 @@ class PersonDetail(DetailView):
                         if overlap_start != _('Unknown') and overlap_end != _('Unknown'):
 
                             # Convert to date objects to calculate delta
-                            start_year = overlap_start.year
-                            start_month = overlap_start.month
-                            start_day = overlap_start.day
+                            start_year = overlap_start.value.year
+                            start_month = overlap_start.value.month
+                            start_day = overlap_start.value.day
 
-                            end_year = overlap_end.year
-                            end_month = overlap_end.month
-                            end_day = overlap_end.day
+                            end_year = overlap_end.value.year
+                            end_month = overlap_end.value.month
+                            end_day = overlap_end.value.day
 
                             # Account for fuzzy dates
                             all_dates = [start_year, start_month, start_day,
@@ -205,7 +205,7 @@ class PersonDetail(DetailView):
 
                         context['subordinates'].append(info)
 
-        context['subordinates'] = sorted(context['subordinates'], key=lambda m: (m['overlap_end'] if m['overlap_end'] != _('Unknown') else date(1, 1, 1)), reverse=True)
+        context['subordinates'] = sorted(context['subordinates'], key=lambda m: (m['overlap_end'].value if m['overlap_end'] != _('Unknown') else date(1, 1, 1)), reverse=True)
         context['command_chain'].reverse()
         context['events'] = []
         events = context['person'].violationperpetrator_set.all()

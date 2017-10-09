@@ -3,6 +3,7 @@
 {% load static %}
 {% load countries %}
 {% load render_versions %}
+{% load citations %}
 
 {% if location %}
     {% block extra_head %}
@@ -15,22 +16,22 @@
         <i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incident" %}
         {% comment %}Translators: The word "in" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date>] Words in [brackets] indicate variable text.{% endcomment %}
         {% if violation.osmname.get_value %}
-            {% trans "in" %} <strong>{{ violation.osmname.get_value }}</strong>
+            {% trans "in" %} <strong>{% cite violation.osmname.get_value %}</strong>
         {% endif %}
         {% if violation.startdate.get_value and violation.enddate.get_value %}
             {% if violation.startdate.get_value.value == violation.enddate.get_value.value %}
                 {% comment %}Translators: The word "on" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date]" Words in [brackets] indicate variable text.{% endcomment %}
-                {% trans "on" %} <strong>{{ violation.startdate.get_value }}</strong>
+                {% trans "on" %} <strong>{% cite violation.startdate.get_value %}</strong>
             {% else %}
                 {% comment %}Translators: The word "between" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
-                {% trans "between" %} <strong>{{ violation.startdate.get_value }}</strong> {% trans "and" %} <strong>{{ violation.enddate.get_value }}</strong>
+                {% trans "between" %} <strong>{% cite violation.startdate.get_value %}</strong> {% trans "and" %} <strong>{% cite violation.enddate.get_value %}</strong>
             {% endif %}
         {% elif violation.startdate.get_value %}
             {% comment %}Translators: The word "starting" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
-            {% trans "starting" %} <strong>{{ violation.startdate.get_value }}</strong>
+            {% trans "starting" %} <strong>{% cite violation.startdate.get_value %}</strong>
         {% elif violation.enddate.get_value %}
             {% comment %}Translators: The word "ending" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
-            {% trans "ending" %} <strong>{{ violation.enddate.get_value }}</strong>
+            {% trans "ending" %} <strong>{% cite violation.enddate.get_value %}</strong>
         {% endif %}
         <!-- small>
             <a href="{% url 'edit_violation' violation.id %}" class="btn btn-default">{% trans "Edit" %}</a>
@@ -58,7 +59,7 @@
     {% if violation.types.get_list %}
         <p>
         {% for type in violation.types.get_list %}
-            <span class="label label-default">{{ type.get_value }}</span>&nbsp;
+            <span class="label label-default">{% cite type.get_value %}</span>&nbsp;
         {% endfor %}
         </p>
     {% endif %}
@@ -66,7 +67,7 @@
     {% if violation.perpetratorclassification.get_value %}
         <p>
             <span class="label label-default">
-                {{ violation.perpetratorclassification.get_value }}
+                {% cite violation.perpetratorclassification.get_value %}
             </span>
         </p>
     {% endif %}
@@ -140,12 +141,12 @@
                         <tr>
                             <td>
                                 <a href="{% url 'detail-person' person.value.id %}">
-                                    {{ person.value.get_value }}
+                                    {% cite person.value.get_value %}
                                 </a>
                             </td>
                             <td>
                                 {% for alias in person.value.aliases.get_list %}
-                                    {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                    {% cite alias.get_value %} {% if not forloop.last %}<br />{% endif %}
                                 {% endfor %}
                             </td>
                         </tr>
@@ -173,17 +174,17 @@
                         <tr>
                             <td>
                                 <a href="{% url 'detail_organization' organization.value.id %}">
-                                    {{ organization.value.get_value }}
+                                    {% cite organization.value.get_value %}
                                 </a>
                             </td>
                             <td>
                                 {% for alias in organization.value.aliases.get_list %}
-                                    {{ alias.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                    {% cite alias.get_value %} {% if not forloop.last %}<br />{% endif %}
                                 {% endfor %}
                             </td>
                             <td>
                                 {% for classification in organization.value.classification.get_list %}
-                                    {{ classification.get_value }} {% if not forloop.last %}<br />{% endif %}
+                                    {% cite classification.get_value %} {% if not forloop.last %}<br />{% endif %}
                                 {% endfor %}
 
                             </td>

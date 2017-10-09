@@ -17,6 +17,10 @@ def cite(obj):
     else:
         context['object_value'] = obj
 
+        if isinstance(obj, str):
+            # Pass over the source/confidence logic if this is just a string
+            return context
+
         source_info = (
             (_('Title'), 'title'),
             (_('Publication'), 'publication'),
@@ -52,4 +56,6 @@ def cite(obj):
 
     return context
 
-
+@register.inclusion_tag('partials/help-widget.html')
+def help(text):
+    pass

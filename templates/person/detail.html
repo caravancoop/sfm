@@ -6,7 +6,7 @@
 
 {% block header %}
     <h1 class="page-title">
-        <i class="fa fa-fw fa-user"></i> {{ person.name.get_value }}
+        <i class="fa fa-fw fa-user"></i> {% cite person.name.get_value %}
         <!-- small>
             <a href="{% url 'edit-person' person.id %}" class="btn btn-default">{% trans "Edit" %}</a>
         </small -->
@@ -20,7 +20,7 @@
     {% if person.aliases.get_list %}
         <p>{% trans "Also known as:" %}
             {% for alias in person.aliases.get_list %}
-            <strong>{{ alias.get_value }}{% if not forloop.last %}|{% endif %} </strong>
+            <strong>{% cite alias.get_value %}{% if not forloop.last %}|{% endif %} </strong>
             {% endfor %}
         </p>
     {% endif %}
@@ -32,7 +32,6 @@
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
-    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 {% endblock %}
 
@@ -44,7 +43,6 @@
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
-    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 {% endblock %}
 
@@ -82,7 +80,7 @@
                         <tr>
                             <td>
                                 <a href="{% url 'detail_organization' member.organization.get_value.value.id %}">
-                                    {{ member.organization.get_value }}
+                                    {% cite member.organization.get_value %}
                                 </a>
                             </td>
                             <td>{% cite member.rank.get_value %}</td>
@@ -132,18 +130,18 @@
                     <tr>
                         <td>
                             <a href="{% url 'detail-person' subordinate.commander.member.get_value.value.id %}">
-                                {{ subordinate.commander.member.get_value }}
+                                {% cite subordinate.commander.member.get_value %}
                             </a>
                         </td>
-                        <td>{{ subordinate.commander.rank.get_value }}</td>
-                        <td>{{ subordinate.commander.role.get_value }}</td>
+                        <td>{% cite subordinate.commander.rank.get_value %}</td>
+                        <td>{% cite subordinate.commander.role.get_value %}</td>
                         <td>
                             <a href="{% url 'detail_organization' subordinate.organization.id %}">
-                                {{ subordinate.organization }}
+                                {% cite subordinate.organization %}
                             </a>
                         </td>
-                        <td>{{ subordinate.overlap_start }}</td>
-                        <td>{{ subordinate.overlap_end }}</td>
+                        <td>{% cite subordinate.overlap_start %}</td>
+                        <td>{% cite subordinate.overlap_end %}</td>
                         <td>{{ subordinate.overlap_duration }}</td>
                     </tr>
                     {% endfor %}
@@ -161,7 +159,7 @@
             {% for event in events %}
                 <div class="row">
                     <div class="col-sm-8">
-                        <p>{{ event.description.get_value }}</p>
+                        <p>{% cite event.description.get_value %}</p>
                     </div>
                     <div class="col-sm-4"></div>
                 </div>

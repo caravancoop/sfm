@@ -6,7 +6,8 @@
 <sup>
     <a type="button" role="button" class="source-footnote" data-toggle="popover"
     data-html="true" data-placement="top" data-content="{{ source_citation }}"
-    title="Sources" data-trigger="focus" tabindex="0">
+    title="Sources" data-trigger="focus" tabindex="0"
+    aria-label="{% trans 'Sources and confidence for this information' %}">
         <span class="source-footnote-counter"></span>
     </a>
 </sup>
@@ -16,7 +17,8 @@
 <sup>
     <a type="button" role="button" class="confidence-footnote" data-toggle="popover"
     data-html="true" data-placement="top" data-content="{{ confidence_citation }}"
-    title="Confidence" data-trigger="focus" tabindex="0">
+    title="Confidence" data-trigger="focus" tabindex="0"
+    aria-label="{% trans 'Sources and confidence for this information' %}">
         <span class="confidence-footnote-counter">{% trans "Confident" %}</span>
     </a>
 </sup>
