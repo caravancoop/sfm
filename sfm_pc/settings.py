@@ -170,6 +170,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+DATE_EXTENSIONS_OUTPUT_FORMAT_DAY_MONTH_YEAR = "j F Y"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -257,6 +258,13 @@ OSM_DATA = [
         'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sudan_geojson.tgz',
         'country_code': 'sd',
     },
+    {
+        'country': 'Egypt',
+        'pbf_url': 'http://download.geofabrik.de/africa/egypt-latest.osm.pbf',
+        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/egypt_geojson.tgz',
+        'country_code': 'eg',
+
+    }
 ]
 
 # Override built-in messages tags
