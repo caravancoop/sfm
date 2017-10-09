@@ -1,0 +1,8 @@
+{% load i18n %}
+
+<a type="button" role="button" data-toggle="popover" data-placement="top"
+data-content="{{ source_citation }}" title="Sources" data-trigger="focus"
+tabindex="0" aria-label="{% trans 'Help text for this information'}"
+title="{% trans 'Help' %}" data-content="{{ help_text }}">
+    <i class="fa fa-fw fa-circle-question"></i>
+</a>
