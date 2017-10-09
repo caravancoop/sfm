@@ -38,7 +38,7 @@ SEARCH_ENTITY_TYPES = {
         'model': Violation,
         'facet_fields': ['violation_type_ss_fct',
                          'perpetrator_classification_ss_fct',
-                         'violation_location_description_ss_fct',
+                         'violation_location_description_s_fct',
                          'country_ss_fct'],
         'facet_ranges': ['violation_start_date_dt',
                          'violation_end_date_dt'],
