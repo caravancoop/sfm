@@ -21,6 +21,11 @@
                 </th>
                 <th>
                     {% trans "Aliases" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Person_sort' sort_asc='person_alias_count_i_asc' sort_desc='person_alias_count_i_desc' selected_sort=sorts.Person %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
                 </th>
                 <th>
                     {% trans "Most recent rank" %}

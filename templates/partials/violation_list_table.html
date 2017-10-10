@@ -33,6 +33,11 @@
                 </th>
                 <th>
                     {% trans "Violation types" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='violation_type_count_i_asc' sort_desc='violation_type_count_i_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
                 </th>
                 <th>
                     {% trans "Location" %}
@@ -44,9 +49,19 @@
                 </th>
                 <th>
                     {% trans "Perpetrators" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='perpetrator_organization_count_i_asc' sort_desc='perpetrator_organization_count_i_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
                 </th>
                 <th>
                     {% trans "Perpetrator classification" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='perpetrator_classification_count_i_asc' sort_desc='perpetrator_classification_count_i_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
                 </th>
             </tr>
         </thead>
