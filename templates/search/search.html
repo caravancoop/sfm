@@ -91,7 +91,7 @@
                                 {% comment %}Translators: Please preserve the "strong" and "i" tags, which display an icon. Use the single quote around 'fa fa-w fa-user'. {% endcomment %}
                                 {% trans "Filters for <strong><i class='fa fa-fw fa-user'></i>Personnel</strong>" %}
                                 <i class="fa fa-fw
-                                {% if show_filter.person %}
+                                {% if show_filter.Person %}
                                     fa-minus
                                 {% else %}
                                     fa-plus
@@ -100,7 +100,7 @@
                             </h4>
                         </a>
                     </div>
-                    <div class="panel-body {% if show_filter.person %}panel-show{% endif %} collapse" id="person-filters">
+                    <div class="panel-body {% if show_filter.Person %}panel-show{% endif %} collapse" id="person-filters">
                         <!-- Role -->
                         {% if facets.Person.facet_fields.person_current_role_s_fct.any %}
                             {% with facet_name='person_current_role_s_fct' facet_label=_('Role') selected_list=selected_facets.person_current_role_s_fct item_list=facets.Person.facet_fields.person_current_role_s_fct.counts %}
@@ -137,7 +137,7 @@
                             <h4 class="panel-title">
                                 {% trans "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>" %}
                                 <i class="fa fa-fw
-                                {% if show_filter.organization %}
+                                {% if show_filter.Organization %}
                                     fa-minus
                                 {% else %}
                                     fa-plus
@@ -147,7 +147,7 @@
                         </a>
                     </div>
                     <!-- Facets -->
-                    <div class="panel-body {% if show_filter.organization %}panel-show{% endif %} collapse" id="organization-filters">
+                    <div class="panel-body {% if show_filter.Organization %}panel-show{% endif %} collapse" id="organization-filters">
                         <!-- Classification -->
                         {% if facets.Organization.facet_fields.organization_classification_ss_fct.any %}
                             {% with facet_name='organization_classification_ss_fct' facet_label=_('Classification') selected_list=selected_facets.organization_classification_ss_fct item_list=facets.Organization.facet_fields.organization_classification_ss_fct.counts %}
@@ -196,7 +196,7 @@
                             <h4 class="panel-title">
                                 {% trans "Filters for <strong><i class='fa fa-fw fa-exclamation-triangle'></i>Incidents</strong>" %}
                                 <i class="fa fa-fw
-                                {% if show_filter.violation %}
+                                {% if show_filter.Violation %}
                                     fa-minus
                                 {% else %}
                                     fa-plus
@@ -206,7 +206,7 @@
                         </a>
                     </div>
                     <!-- Facets -->
-                    <div class="panel-body {% if show_filter.violation %}panel-show{% endif %} collapse" id="violation-filters">
+                    <div class="panel-body {% if show_filter.Violation %}panel-show{% endif %} collapse" id="violation-filters">
                         <!-- Violation type -->
                         {% if facets.Violation.facet_fields.violation_type_ss_fct.any %}
                             {% with facet_name='violation_type_ss_fct' facet_label=_('Violation type') selected_list=selected_facets.violation_type_ss_fct item_list=facets.Violation.facet_fields.violation_type_ss_fct.counts %}

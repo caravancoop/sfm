@@ -80,9 +80,9 @@ def get_search_context(request, all_results=False):
 
     # Control which facet dropdowns we should show
     show_filter = {
-        'person': False,
-        'organization': False,
-        'violation': False
+        'Person': False,
+        'Organization': False,
+        'Violation': False
     }
 
     # Parse selected facets (since URLs format lists of params in multiples, like
@@ -100,8 +100,12 @@ def get_search_context(request, all_results=False):
             else:
                 selected_facets[k] = [v]
             for facet_type in show_filter.keys():
-                if facet_type in v:
-                    show_filter[facet_type] = True
+                subsid_facets = (SEARCH_ENTITY_TYPES[facet_type]['facet_fields'] +
+                                 SEARCH_ENTITY_TYPES[facet_type]['facet_ranges'])
+                for ftype in subsid_facets:
+                    if ftype in k:
+                        show_filter[facet_type] = True
+                        break
 
     # Only show the "clear" button if the user has selected facets
     show_clear = any((selected_facets, start_date, end_date))
