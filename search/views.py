@@ -139,8 +139,8 @@ def get_search_context(request, all_results=False):
         for char in illegal_chars:
             cleaned_query = cleaned_query.replace(char, '')
 
-        if cleaned_query != '':
-            full_query = ' '.join(term + '~' for term in cleaned_query.strip().split(' '))
+        if cleaned_query.strip() != '':
+            full_query = ' '.join(term + '~' for term in cleaned_query.strip().split())
         else:
             full_query = '*'
 
