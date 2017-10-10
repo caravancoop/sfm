@@ -107,7 +107,7 @@ class Command(BaseCommand):
                 content.extend(al.get_value().value.value for al in aliases)
 
             classes = organization.classification.get_list()
-            class_count = sum(1 for classification in classes)
+            class_count = len(classes)
             if classes:
                 content.extend(cl.get_value().value.value for cl in classes)
 
@@ -158,7 +158,9 @@ class Command(BaseCommand):
                         emp_country = country_name(emp_division_id)
                         countries.update([emp_country])
 
-            last_site_exists = max(len(exactloc_names), len(admin_names)) > 0
+            # For now, only index whether a site exists or not based on what we
+            # display in the search table
+            last_site_exists = int(max(len(exactloc_names), len(admin_names)) > 0)
 
             areas = set()
             assocs = organization.associationorganization_set.all()
@@ -171,7 +173,7 @@ class Command(BaseCommand):
 
             parent_names, parent_ids = [], []
             parents = organization.parent_organization.all()
-            parent_count = sum(1 for parent in parents)
+            parent_count = len(parents)
             for parent in parents:
                 # `parent_organization` returns a list of CompositionChilds,
                 # so we have to jump through some hoops to get the foreign
@@ -263,7 +265,7 @@ class Command(BaseCommand):
             alias_count = 0
             if aliases:
                 content.extend(al.get_value().value.value for al in aliases)
-                alias_count = sum(1 for al in aliases)
+                alias_count = len(aliases)
 
             affiliations = person.memberships
             memberships = [mem.object_ref for mem in affiliations]
@@ -408,15 +410,15 @@ class Command(BaseCommand):
             vtype_count = 0
             if vtypes:
                 vtypes = list(str(vt.get_value().value) for vt in vtypes)
-                vtype_count = sum(1 for vt in vtypes)
+                vtype_count = len(vtypes)
 
             perps = violation.perpetrator.get_list()
             perp_names, perp_aliases = [], []
             perp_count = 0
             if perps:
                 # Move from PerpetratorPerson -> Person
-                perps = (perp.get_value().value for perp in perps)
-                perp_count = sum(1 for perp in perps)
+                perps = list(perp.get_value().value for perp in perps)
+                perp_count = len(perps)
                 for perp in perps:
                     aliases = perp.aliases.get_list()
                     if aliases:
@@ -427,12 +429,11 @@ class Command(BaseCommand):
 
             perp_orgs = violation.perpetratororganization.get_list()
             perp_org_names, perp_org_aliases = [], []
-            perp_org_classes = set()
             perp_org_count = 0
             if perp_orgs:
                 # Move from PerpetratorOrganization -> Organization
-                perp_orgs = (perp.get_value().value for perp in perp_orgs)
-                perp_org_count = sum(1 for perp in perp_orgs)
+                perp_orgs = list(perp.get_value().value for perp in perp_orgs)
+                perp_org_count = len(perp_orgs)
                 for perp in perp_orgs:
 
                     org_aliases = perp.aliases.get_list()
@@ -440,14 +441,11 @@ class Command(BaseCommand):
                         perp_org_aliases.extend(al.get_value().value.value
                                                 for al in org_aliases)
 
-                    org_classes = perp.classification.get_list()
-                    if org_classes:
-                        perp_org_classes.update(cl.get_value().value.value
-                                                for cl in org_classes)
-
                     perp_org_names.append(perp.name.get_value().value)
 
-            perp_org_classes = list(perp_org_classes)
+            perp_org_classes = list(cls.value.value for cls in
+                                    violation.violationperpetratorclassification_set.all())
+            perp_org_class_count = len(perp_org_classes)
 
             division_id = violation.division_id.get_value()
             country = []
@@ -531,6 +529,7 @@ class Command(BaseCommand):
                 'perpetrator_organization_count_i': perp_org_count,
                 'perpetrator_organization_alias_ss': perp_org_aliases,
                 'perpetrator_classification_ss': perp_org_classes,
+                'perpetrator_classification_count_i': perp_org_class_count,
                 '_text_': content
             }
 
