@@ -87,6 +87,12 @@ class Command(UtilityMixin, BaseCommand):
             default=False,
             help='Flush the existing database before importing data.'
         )
+        parser.add_argument(
+            '--start',
+            dest='start',
+            default=1,
+            help='First row to begin parsing (for debugging)'
+        )
 
     def get_credentials(self):
 
@@ -191,6 +197,7 @@ class Command(UtilityMixin, BaseCommand):
         }
 
         skippers = ['Play Copy of Events']
+        start = int(options['start'])
 
         for entity_type in options['entity_types'].split(','):
 
@@ -205,9 +212,9 @@ class Command(UtilityMixin, BaseCommand):
                 if not title in skippers:
 
                     # Skip header row
-                    for index, row in enumerate(sheet[1:]):
+                    for index, row in enumerate(sheet[start:]):
                         if row:
-                            self.current_row = index + 2
+                            self.current_row = index + start + 1
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
         self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(options['doc_id'])))
@@ -999,9 +1006,15 @@ class Command(UtilityMixin, BaseCommand):
                 except TypeError:
                     # Probably means that the geometry is wrong
                     self.log_error('OSM ID "{0}" for area "{1}" does not seem to be a relation'.format(geo.id, geo.name))
+                    return None
 
             except Area.DoesNotExist:
-                area = Area.create(area_info)
+                try:
+                    area = Area.create(area_info)
+                except TypeError:
+                    # Probably means that the geometry is wrong
+                    self.log_error('OSM ID "{0}" for area "{1}" does not seem to be a relation'.format(geo.id, geo.name))
+                    return None
 
             area_info = {
                 'Association_AssociationOrganization': {
@@ -1254,11 +1267,11 @@ class Command(UtilityMixin, BaseCommand):
         if exact_location.get('name') and exact_location.get('id'):
 
             if positions['ExactLocation'].get('confidence'):
-                confidence = self.get_confidence(org_data[positions['ExactLocation']['confidence']])
+                confidence = self.get_confidence(data[positions['ExactLocation']['confidence']])
             else:
                 confidence = 1
 
-            sources = self.create_sources(org_data[positions['ExactLocation']['source']])
+            sources = self.create_sources(data[positions['ExactLocation']['source']])
 
             if confidence and sources:
 
@@ -1371,7 +1384,7 @@ class Command(UtilityMixin, BaseCommand):
             try:
                 geo = get_osm_by_id(exact_location['id'])
                 exact_location['coords'] = geo.geometry
-            except DataError:
+            except (DataError, AttributeError):
                 self.log_error('OSM ID for exact location {0} does not seem valid: {1}'.format(exact_location['name'],
                                                                                                exact_location['id']))
 
