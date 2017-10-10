@@ -11,7 +11,7 @@ django-bootstrap-pagination==1.6.2
 #django-date-extensions==1.1.0
 -e git+https://github.com/dracos/django-date-extensions.git#egg=django-date-extensions
 django-leaflet==0.16.0
-psycopg2==2.6.1
+psycopg2==2.7.3.1
 django-extra-views==0.7.1
 django-rosetta==0.7.13
 
