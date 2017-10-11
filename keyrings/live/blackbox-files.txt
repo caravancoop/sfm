@@ -10,5 +10,4 @@ configs/sfm.conf.staging.supervisor
 scripts/after_install.sh
 scripts/app_start.sh
 scripts/app_stop.sh
-scripts/backup_translations.sh
 scripts/sfm-cron
