@@ -65,7 +65,8 @@ class Command(UtilityMixin, BaseCommand):
             #default='16cRBkrnXE5iGm8JXD7LSqbeFOg_anhVp2YAzYTRYDgU',
             #default='1EyS55ZkqqkpeYsNKDuIzgUOV-n8TJr5yoEa2Z6a4Duk',
             #default='1bK1pLB3IEXhoPoOMPA1hWWsitgzHlXHrzhh3tRW0iHs',
-            default='1A5vefTmsM92fKL1goF8ngdZwtiDZbkyQM3qrJmywOww',
+            #default='1A5vefTmsM92fKL1goF8ngdZwtiDZbkyQM3qrJmywOww',
+            default='1wz5_scLqgWjowuLaEVWC4On2b2HNP2sTpDOxO4CA4Qw',
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(
