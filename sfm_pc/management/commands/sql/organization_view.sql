@@ -1,5 +1,16 @@
 CREATE MATERIALIZED VIEW organization AS 
-  SELECT 
+  SELECT DISTINCT ON (
+    oo.uuid,
+    oon.value,
+    oa.value,
+    oc.value,
+    oofcd.value,
+    oors.value,
+    oolcd.value,
+    oooo.value,
+    ood.value,
+    oohq.value
+  )
     oo.uuid AS id,
     oon.value AS name,
     oa.value AS alias,
