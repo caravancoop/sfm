@@ -49,7 +49,7 @@ except ImportError as e:
                      ALLOWED_HOSTS, 
                      IMPORTER_USER, 
                      SOLR_URL,
-                     OSM_API_KEY and DEBUG must be defined in settings_local.py''')
+                     and DEBUG must be defined in settings_local.py''')
 
 # Application definition
 
