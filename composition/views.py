@@ -7,6 +7,7 @@ from django.views.generic.base import TemplateView
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from source.models import Source
 from organization.models import Organization
@@ -15,7 +16,7 @@ from composition.forms import CompositionForm, BaseCompositionFormSet
 from sfm_pc.base_views import BaseFormSetView
 
 
-class CompositionCreate(BaseFormSetView):
+class CompositionCreate(LoginRequiredMixin, BaseFormSetView):
     template_name = 'composition/create.html'
     form_class = CompositionForm
     formset_class = BaseCompositionFormSet
@@ -193,7 +194,7 @@ class CompositionCreate(BaseFormSetView):
         return response
 
 
-class CompositionUpdate(TemplateView):
+class CompositionUpdate(LoginRequiredMixin, TemplateView):
     template_name = 'composition/edit.html'
 
     def post(self, request, *args, **kwargs):

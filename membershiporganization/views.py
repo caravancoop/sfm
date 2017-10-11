@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from sfm_pc.base_views import BaseFormSetView
 
@@ -9,7 +10,7 @@ from membershiporganization.forms import MembershipOrganizationForm
 from organization.models import Organization
 from membershiporganization.models import MembershipOrganization
 
-class MembershipOrganizationCreate(BaseFormSetView):
+class MembershipOrganizationCreate(LoginRequiredMixin, BaseFormSetView):
     template_name = 'membershiporganization/create.html'
     form_class = MembershipOrganizationForm
     success_url = reverse_lazy('create-person')

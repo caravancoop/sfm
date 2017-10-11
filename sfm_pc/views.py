@@ -18,6 +18,7 @@ from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from reversion.models import Version
 from extra_views import FormSetView
@@ -61,91 +62,7 @@ class Dashboard(TemplateView):
 
         return context
 
-class SetConfidence(TemplateView):
-    template_name = 'sfm/set-confidences.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        try:
-            source_id = self.request.session['source_id']
-        except KeyError:
-            source_id = self.request.GET['source_id']
-
-        source = Source.objects.get(id=source_id)
-        context['source'] = source
-        context['relations'] = OrderedDict()
-
-        relation_properties = get_relations(context['source'])
-
-        for rel_prop in relation_properties:
-            props = getattr(source, rel_prop).all()
-
-            if props:
-                for prop in props:
-
-                    attributes = get_relation_attributes(prop)
-
-                    additional_sources = prop.sources.exclude(id=source_id)
-                    for s in additional_sources:
-                        revision = Version.objects.get_for_object(s).first()
-
-                        user_data = {}
-
-                        if revision:
-                            user_data['user'] = revision.revision.user
-                            user_data['source'] = s
-
-                        try:
-                            attributes['additional_sources'].append(user_data)
-                        except KeyError:
-                            attributes['additional_sources'] = [user_data]
-
-                    attributes['relation_id'] = prop.id
-
-                    title = '{0} ({1})'.format(prop.object_ref._meta.object_name,
-                                               prop.object_ref.get_value())
-
-                    try:
-                        context['relations'][prop.object_ref]['attributes'].append(attributes)
-                        context['relations'][prop.object_ref]['title'] = title
-                    except KeyError:
-                        context['relations'][prop.object_ref] = {
-                            'attributes': [attributes],
-                            'title': title,
-                        }
-
-        context['relations'] = OrderedDict(sorted(context['relations'].items(),
-                                           key=lambda x: x[0]._meta.object_name))
-
-        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
-
-        return context
-
-    def post(self, request, *args, **kwargs):
-
-        confidence_keys = [k for k in request.POST.keys() if k.startswith('confidence-')]
-
-        updates = {}
-        for key in confidence_keys:
-            relation_label, relation_id, object_ref_object, object_ref_id = key.rsplit('-', 3)
-            app_name, relation_object = relation_label.replace('confidence-', '').split('.')
-
-            import_path = '{app_name}.models.{obj}'
-
-            relation_path = import_path.format(app_name=app_name,
-                                               obj=relation_object)
-            relation_model = import_class(relation_path)
-            relation_instance = relation_model.objects.get(id=relation_id)
-
-            confidence = int(request.POST[key])
-            if relation_instance.confidence != confidence:
-                relation_instance.confidence = confidence
-                relation_instance.save()
-
-        return redirect(reverse_lazy('dashboard'))
-
-class EntityMergeView(FormView, UtilityMixin):
+class EntityMergeView(LoginRequiredMixin, FormView, UtilityMixin):
     template_name = 'sfm/merge.html'
     form_class = MergeForm
     success_url = reverse_lazy('search')

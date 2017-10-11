@@ -18,6 +18,7 @@ from django.utils.translation import get_language
 from django.utils.translation import ugettext as _
 from django.shortcuts import redirect
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from extra_views import FormSetView
 
@@ -72,7 +73,7 @@ class ViolationList(PaginatedList):
         return context
 
 
-class ViolationCreate(BaseFormSetView):
+class ViolationCreate(LoginRequiredMixin, BaseFormSetView):
     template_name = 'violation/create.html'
     form_class = ViolationForm
     success_url = reverse_lazy('dashboard')
@@ -400,7 +401,7 @@ class ViolationCreate(BaseFormSetView):
 
         return response
 
-class ViolationUpdate(BaseUpdateView):
+class ViolationUpdate(LoginRequiredMixin, BaseUpdateView):
     template_name = 'violation/edit.html'
     form_class = ViolationForm
     success_url = reverse_lazy('dashboard')
@@ -543,7 +544,7 @@ class ViolationUpdate(BaseUpdateView):
         return context
 
 
-class ViolationDelete(DeleteView):
+class ViolationDelete(LoginRequiredMixin, DeleteView):
     model = Violation
     template_name = "delete_confirm.html"
 

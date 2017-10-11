@@ -18,6 +18,7 @@ from django.db import connection
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from extra_views import FormSetView
 
@@ -230,7 +231,7 @@ class PersonList(PaginatedList):
         context['search_term'] = 'a person'
         return context
 
-class PersonCreate(BaseFormSetView):
+class PersonCreate(LoginRequiredMixin, BaseFormSetView):
     template_name = 'person/create.html'
     form_class = PersonForm
     success_url = reverse_lazy('create-membership')
@@ -484,7 +485,7 @@ def alias_autocomplete(request):
         })
     return HttpResponse(json.dumps(results), content_type='application/json')
 
-class PersonUpdate(BaseUpdateView):
+class PersonUpdate(LoginRequiredMixin, BaseUpdateView):
     template_name = 'person/edit.html'
     form_class = PersonForm
     success_url = reverse_lazy('dashboard')
@@ -567,7 +568,7 @@ class PersonUpdate(BaseUpdateView):
 ###                                       ###
 #############################################
 
-class PersonDelete(DeleteView):
+class PersonDelete(LoginRequiredMixin, DeleteView):
     model = Person
     template_name = "delete_confirm.html"
 
