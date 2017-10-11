@@ -50,7 +50,7 @@
                 <li class="{{ violation_tab }}"><a href="{% url 'search' %}?entity_type=Violation"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>
                 <li class="{{ help_tab }}"><a href="#"><i class="fa fa-fw fa-question-circle"></i> {% trans "Help" %}</a></li>
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> {% trans "Logout" %}</a></li>{% endif %}
+                    <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> {% trans "Logout" %}</a></li>
                 {% else %}
                     <li><a href="/accounts/login?next={{ request.path }}"><i class="fa fa-fw fa-sign-in"></i> {% trans "Login" %}</a></li>
                 {% endif %}
