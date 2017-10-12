@@ -81,7 +81,11 @@ class OrganizationDetail(DetailView):
             if association.object_ref.area.get_value().value.osmid.get_value():
                 geom = association.object_ref.area.get_value().value.geometry
                 area = geom.get_value().value.simplify(tolerance=0.01)
-                context['areas'].append(area)
+                area_obj = {
+                    'geom': area,
+                    'name': association.object_ref.area.get_value().value.osmname.get_value()
+                }
+                context['areas'].append(area_obj)
 
         context['parents'] = []
         context['parents_list'] = []

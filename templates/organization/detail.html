@@ -360,7 +360,6 @@
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
     {% endif %}
     {% if sites %}
-        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
                 var center_x = {{ sites.0.coordinates.get_value.value.x|safe }};
@@ -392,8 +391,8 @@
                             { attribution: attribution, detectRetina: true }).addTo(area_map);
                 var areas = L.featureGroup();
                 {% for area in areas %}
-                    var geom = {{ area.geojson|safe}};
-                    geom['properties'] = {'name': "{{ area.osmname }}"};
+                    var geom = {{ area.geom.geojson|safe}};
+                    geom['properties'] = {'name': "{{ area.name }}"};
                     areas.addLayer(
                         L.geoJson(geom, {onEachFeature: onEachFeature})
                     );
