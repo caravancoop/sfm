@@ -72,8 +72,8 @@
                         <th>{% trans "Rank" %}</th>
                         <th>{% trans "Role" %}</th>
                         <th>{% trans "Title" %}</th>
-                        <th>{% trans "Start date" %}</th>
-                        <th>{% trans "End date" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,8 +87,8 @@
                             <td>{% cite member.rank.get_value %}</td>
                             <td>{% cite member.role.get_value %}</td>
                             <td>{% cite member.title.get_value %}</td>
-                            <td>{% cite member.firstciteddate.get_value %}</td>
-                            <td>{% cite member.lastciteddate.get_value %}</td>
+                            <td>{% cite member.firstciteddate.get_value date=True position='start' %}</td>
+                            <td>{% cite member.lastciteddate.get_value date=True position='end' %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

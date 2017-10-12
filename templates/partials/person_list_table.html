@@ -1,4 +1,5 @@
 {% load tablesort %}
+{% load citations %}
 {% load i18n %}
 
 <div class="responsive-table">
@@ -112,11 +113,11 @@
                         </td>
                         <!-- First citation -->
                         <td>
-                            {{ object.first_cited }}
+                            {% datetype object.first_cited 'start' %}
                         </td>
                         <!-- Last citation -->
                         <td>
-                            {{ object.last_cited }}
+                            {% datetype object.last_cited 'end' %}
                         </td>
                     </tr>
                 {% endif %}

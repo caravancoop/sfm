@@ -1,4 +1,5 @@
 {% load tablesort %}
+{% load citations %}
 {% load countries %}
 {% load i18n %}
 
@@ -129,15 +130,11 @@
                         </td>
                         <!-- First citation -->
                         <td>
-                            {% with citation_date=object.firstciteddate position='start' %}
-                                {% include 'partials/datetype.html' %}
-                            {% endwith %}
+                            {% datetype object.firstciteddate.get_value 'start' %}
                         </td>
                         <!-- Last citation -->
                         <td>
-                            {% with citation_date=object.lastciteddate position='end' %}
-                                {% include 'partials/datetype.html' %}
-                            {% endwith %}
+                            {% datetype object.lastciteddate.get_value 'end' %}
                         </td>
                     </tr>
                 {% endif %}

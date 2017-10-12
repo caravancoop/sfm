@@ -266,19 +266,27 @@ a.collapsed .show-less {
     color: #8d8d8d
 }
 
-.confidence-footnote:hover,
-.confidence-footnote:focus,
-.help-widget:hover,
-.help-widget:focus {
-    cursor: pointer;
-    text-decoration: none;
-    outline: none;
-}
-
 .popover-content {
     width: 250px;
     max-height: 200px;
     overflow: auto;
+}
+
+.datetype {
+    color: inherit;
+    border-bottom: 1px dotted #777777;
+    text-decoration: none;
+}
+
+.confidence-footnote:hover,
+.confidence-footnote:focus,
+.help-widget:hover,
+.help-widget:focus,
+.datetype:hover,
+.datetype:focus{
+    cursor: pointer;
+    text-decoration: none;
+    outline: none;
 }
 
 
