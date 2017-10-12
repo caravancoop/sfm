@@ -52,8 +52,6 @@
                 <li class="{{ help_tab }}"><a href="#"><i class="fa fa-fw fa-question-circle"></i> {% trans "Help" %}</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> {% trans "Logout" %}</a></li>
-                {% else %}
-                    <li><a href="/accounts/login?next={{ request.path }}"><i class="fa fa-fw fa-sign-in"></i> {% trans "Login" %}</a></li>
                 {% endif %}
                 <li><select class="lang-select-box"></select></li>
             </ul>
