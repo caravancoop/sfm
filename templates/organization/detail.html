@@ -32,11 +32,13 @@
         <p>{% trans "Country:" %} <strong>{{ organization.division_id.get_value | country_name }}</strong></p>
     {% endif %}
     {% if organization.classification.get_list %}
-        <p>
+    <p>{% trans "Classified as:" %}
+        <small>
         {% for classification in organization.classification.get_list %}
-            <span class="label label-default">{% cite classification.get_value %}</span>&nbsp;
+        <strong><a href="{% url 'search' %}?entity_type=Organization&selected_facets=organization_classification_ss_fct_exact:{{classification.get_value}}">{% cite classification.get_value %}</a>{% if not forloop.last %}&nbsp;{% endif %}</a></strong>
         {% endfor %}
-        </p>
+        </small>
+    </p>
     {% endif %}
 {% endblock %}
 
