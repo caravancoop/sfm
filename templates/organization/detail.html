@@ -1,6 +1,7 @@
 {% extends "base_detail.html" %}
 {% load i18n %}
 {% load static %}
+{% load countries %}
 {% load render_versions %}
 {% load citations %}
 
@@ -21,18 +22,21 @@
         </small>
     </h1>
     {% if organization.aliases.get_list %}
-        <p>{% trans "Also known as:" %}
+        <h4>{% trans "Also known as:" %}
             {% for alias in organization.aliases.get_list %}
             <strong>{% cite alias.get_value %}{% if not forloop.last %}|{% endif %} </strong>
             {% endfor %}
-        </p>
+        </h4>
+    {% endif %}
+    {% if organization.division_id.get_value %}
+        <h4>{% trans "Country:" %} <strong>{{ organization.division_id.get_value | country_name }}</strong></h4>
     {% endif %}
     {% if organization.classification.get_list %}
-        <p>
+        <h4>
         {% for classification in organization.classification.get_list %}
             <span class="label label-default">{% cite classification.get_value %}</span>&nbsp;
         {% endfor %}
-        </p>
+        </h4>
     {% endif %}
 {% endblock %}
 
