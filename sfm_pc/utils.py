@@ -450,7 +450,8 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             NULL::VARCHAR AS comp_open_ended,
             NULL::VARCHAR AS source,
             NULL::VARCHAR AS confidence,
-            NULL::VARCHAR AS commander
+            NULL::VARCHAR AS commander,
+            NULL::VARCHAR AS classification
           FROM organization As o
           WHERE id = %s
           UNION
@@ -464,7 +465,8 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             h.open_ended AS comp_open_ended,
             row_to_json(ss.*)::VARCHAR AS source,
             ccc.confidence,
-            person.name
+            person.name,
+            o.classification AS classification
           FROM organization AS o
           JOIN organization_organization as org_org
             on o.id = org_org.uuid
@@ -482,7 +484,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
             ON person.id = mem.member_id
           JOIN children
             ON children.id = h.child_id
-        ) SELECT * FROM children WHERE id != %s
+        ) SELECT * FROM children WHERE id != %s AND classification = 'Command'
     '''
 
     q_args = [org_id, org_id]
