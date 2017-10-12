@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<h3>{% trans "Server error" %}</h3>
+<p>{% trans "Something went wrong and we were unable to handle your request." %}</p>
+<p>{% trans "If this issue persists," %} <a href="mailto:technical@securityforcemonitor.org"><i class="fa fa-fw fa-envelope"></i>{% trans "contact our staff." %}</p>
+<p><a href="/"><i class="fa fa-fw fa-arrow-left"></i>{% trans "Go back to the home page" %}</a></p>
+{% endblock %}
