@@ -100,7 +100,11 @@
     {% if command_chain %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</h3>
+            <h3 id="chain-of-command">
+                <i class="fa fa-fw fa-sitemap fa-rotate-180"></i>
+                {% trans "Chain of command" %}
+                <small>{% trans "All units that have held a command position over this person" %}</small>
+            </h3>
             <hr />
             <div id="org-chart-container" class="command-charts-carousel"></div>
             <br>
