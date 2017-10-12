@@ -1,6 +1,12 @@
 {% load i18n %}
 
-{{ object_value }}
+{% if datetype %}
+    {% with citation_date=object_value position=position %}
+        {% include 'partials/datetype.html' %}
+    {% endwith %}
+{% else %}
+    {{ object_value }}
+{% endif %}
 
 {% if source_citation %}
 <sup>

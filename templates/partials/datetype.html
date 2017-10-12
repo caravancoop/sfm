@@ -1,0 +1,19 @@
+{% load i18n %}
+
+{% if citation_date %}
+    {% if position == 'start' and citation_date.get_value.object_ref.realstart.get_value.value %}
+        <a type="button" role="button" class="datetype" data-toggle="popover"
+        data-html="true" data-placement="top" data-content="{% trans 'We believe that this date represents the real start date of the organization, as well as being the first recorded citation date.' %}" title="{% trans 'Real start date' %}"
+        data-trigger="focus" tabindex="0" aria-label="{% trans 'Real start date' %}">
+            {{ citation_date }}
+        </a>
+    {% elif position == 'end' and citation_date.get_value.object_ref.open_ended.get_value.value == 'E' or citation_date.object_ref.realend.get_value.value %}
+        <a type="button" role="button" class="datetype" data-toggle="popover"
+        data-html="true" data-placement="top" data-content="{% trans 'We believe that this date represents the real end date of the organization, as well as being the last recorded citation date.' %}" title="{% trans 'Real end date' %}"
+        data-trigger="focus" tabindex="0" aria-label="{% trans 'Real end date' %}">
+            {{ citation_date }}
+        </a>
+    {% else %}
+        {{ citation_date }}
+    {% endif %}
+{% endif %}

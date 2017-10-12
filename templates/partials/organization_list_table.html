@@ -129,11 +129,15 @@
                         </td>
                         <!-- First citation -->
                         <td>
-                            {{ object.firstciteddate }}
+                            {% with citation_date=object.firstciteddate position='start' %}
+                                {% include 'partials/datetype.html' %}
+                            {% endwith %}
                         </td>
                         <!-- Last citation -->
                         <td>
-                            {{ object.lastciteddate }}
+                            {% with citation_date=object.lastciteddate position='end' %}
+                                {% include 'partials/datetype.html' %}
+                            {% endwith %}
                         </td>
                     </tr>
                 {% endif %}

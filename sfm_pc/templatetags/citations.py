@@ -3,10 +3,12 @@ from django.conf import settings
 from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
 
+
 register = template.Library()
 
+
 @register.inclusion_tag('partials/source_and_confidence.html')
-def cite(obj):
+def cite(obj, date=False):
 
     context = {}
 
@@ -16,6 +18,7 @@ def cite(obj):
         context['object_value'] = ''
     else:
         context['object_value'] = obj
+        context['date'] = date
 
         if isinstance(obj, str):
             # Pass over the source/confidence logic if this is just a string
@@ -56,6 +59,8 @@ def cite(obj):
 
     return context
 
+
 @register.inclusion_tag('partials/help-widget.html')
 def help(text):
     pass
+
