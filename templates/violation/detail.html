@@ -87,8 +87,8 @@
         <div class="col-sm-12">
             <h3 id="location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %}</h3>
             <hr />
-            <div id="geoname_map" style="height:300px;"></div>
-            <h4><strong>{% render_location_string violation with_citations=True %}</strong></h4>
+            <div id="geoname_map" style="height:300px;margin-bottom:10px"></div>
+            <p>{% trans "This incident took place in" %} <strong>{% render_location_string violation with_citations=True %}</strong></p>
         </div>
     </div>
     {% endif %}
