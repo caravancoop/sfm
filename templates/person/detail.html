@@ -16,14 +16,14 @@
         </small>
     </h1>
     {% if person.aliases.get_list %}
-        <h4>{% trans "Also known as:" %}
+        <p>{% trans "Also known as:" %}
             {% for alias in person.aliases.get_list %}
             <strong>{% cite alias.get_value %}{% if not forloop.last %}|{% endif %} </strong>
             {% endfor %}
-        </h4>
+        </p>
     {% endif %}
     {% if person.division_id.get_value %}
-        <h4>{% trans "Country:" %} <strong>{{ person.division_id.get_value | country_name }}</strong></h4>
+        <p>{% trans "Country:" %} <strong>{{ person.division_id.get_value | country_name }}</strong></p>
     {% endif %}
 {% endblock %}
 
