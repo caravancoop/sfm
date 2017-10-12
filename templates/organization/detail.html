@@ -319,17 +319,9 @@
                     <div class="col-sm-12">
                         <p>
                             <a href="{% url 'detail_violation' event.id %}">
-                                {% trans "Incident" %}
-                                {% if event.osmname %}
-                                    {% trans "in" %} <strong>{{ event.osmname }}</strong>
-                                {% endif %}
-                                {% if event.startdate and event.enddate %}
-                                    {% trans "between" %} <strong>{{ event.startdate }}</strong> and <strong>{{ event.enddate }}</strong>
-                                {% elif event.startdate %}
-                                    {% trans "starting" %} <strong>{{ event.startdate }}</strong>
-                                {% elif event.enddate %}
-                                    {% trans "ending" %} <strong>{{ event.enddate }}</strong>
-                                {% endif %}
+                                {% with violation=event %}
+                                    {% include 'partials/violation_title.html' %}
+                                {% endwith %}
                             </a>
                         </p>
                     </div>
