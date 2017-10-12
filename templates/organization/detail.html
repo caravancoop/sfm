@@ -49,7 +49,7 @@
     {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
     {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
     {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</a></li>{% endif %}
-    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Command personnel" %}</a></li>{% endif %}
+    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Personnel" %}</a></li>{% endif %}
     {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
@@ -67,7 +67,7 @@
     {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
     {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
     {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</a></li>{% endif %}
-    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Command personnel" %}</a></li>{% endif %}
+    {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Personnel" %}</a></li>{% endif %}
     {% if violations %}<li><a href="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
@@ -271,7 +271,11 @@
     {% if person_members %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Command personnel" %}</h3>
+            <h3 id="command-personnel">
+                <i class="fa fa-fw fa-users"></i>
+                {% trans "Personnel" %}
+                <small>{% trans "Table showing personnel linked to this unit in command, administrative and other roles" %}</small>
+            </h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
