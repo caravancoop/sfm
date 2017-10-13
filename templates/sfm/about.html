@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row">
+    <div class="col-xs-12 col-md-10 col-md-offset-1 post">
+        <h2>{% trans "About" %}</h2>
+        <hr />
+        <p>
+            {% trans "WhoWasInCommand answers key questions about the structure, behaviour and people in charge of security forces like the police and army:" %}
+        </p>
+        <ul>
+            <li>{% trans "Who is in charge of the specialized anti-riot police unit?" %}</li>
+            <li>{% trans "What army unit has jurisdiction over what areas and for how long?" %}</li>
+            <li>{% trans "Where did this commander previously serve, and where did they go next?" %}</li>
+            <li>{% trans "When was a particular police unit based in a specific city?" %}</li>
+            <li>{% trans "What allegations have civil society groups made against a unit or commander?" %}</li>
+        </ul>
+
+        <p>
+            {% trans "WhoWasinCommand presents data from thousands of public sources to help human rights researchers, investigative journalists and anyone who wants security forces to be more accountable." %}
+        </p>
+        <p>
+            {% comment %}
+            Translators: Make sure to keep the HTML tags intact in this sentence.
+            {% endcomment %}
+            {% trans "It is a tool from <a href='https://securityforcemonitor.org/'>Security Force Monitor</a>, a project of the Human Rights Institute at Columbia Law School. The WhoWasInCommand platform was developed by <a href='https://datamade.us/'>DataMade</a>. We’d also like to thank <a href='https://twitter.com/mckinneyjames'>James McKinney</a> and the team at <a href='https://ffctn.com/en/index'>FFunction</a> for their essential contributions." %}
+        </p>
+    </div>
+</div>
+{% endblock %}

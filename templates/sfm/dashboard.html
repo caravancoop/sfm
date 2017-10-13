@@ -39,9 +39,6 @@
             </form>
         </div>
     </div>
-    <div class="col-sm-12">
-        <a href="#">{% trans "Learn more" %} <i class="fa fa-fw fa-arrow-right"></i></a>
-    </div>
 </div>
 <hr />
 <div class="row">
@@ -51,19 +48,17 @@
                 <h4>{% trans "<strong>What is</strong> WhoWasInCommand?" %}</h4>
             </div>
             <div class="panel-body">
-                <p><em>{% trans "Simple illustration showing the research process" %}</em></p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-12">
-        <div class="panel panel-default" style="min-height:150px">
-            <div class="panel-heading">
-                <h4>{% trans "<strong>How to use</strong> WhoWasInCommand" %}</h4>
-            </div>
-            <div class="panel-body">
-                <p><em>{% trans "Simple FAQ, text, and links to stuff about methods and data" %}</em></p>
+                <p>{% trans "WhoWasInCommand answers key questions about the structure, behaviour and people in charge of security forces like the police and army:" %}</p>
+                <ul>
+                    <li>{% trans "Who is in charge of the specialized anti-riot police unit?" %}</li>
+                    <li>{% trans "What army unit has jurisdiction over what areas and for how long?" %}</li>
+                    <li>{% trans "Where did this commander previously serve, and where did they go next?" %}</li>
+                    <li>{% trans "When was a particular police unit based in a specific city?" %}</li>
+                    <li>{% trans "What allegations have civil society groups made against a unit or commander?" %}</li>
+                </ul>
+
+                <p>{% trans "WhoWasinCommand presents data from thousands of public sources to help human rights researchers, investigative journalists and anyone who wants security forces to be more accountable." %}</p>
+                <p><a href="{% url 'about' %}">{% trans "Learn more" %} <i class="fa fa-fw fa-arrow-right"></i></a>
             </div>
         </div>
     </div>

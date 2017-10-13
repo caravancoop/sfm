@@ -5,7 +5,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.views.generic.base import TemplateView
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.views.generic.edit import FormView
 from django.views.decorators.cache import never_cache
 from django.forms import formset_factory
@@ -203,6 +203,40 @@ class Countries(TemplateView):
         context['countries_tab'] = 'selected-tab'
 
         return context
+
+
+class About(TemplateView):
+    template_name = 'sfm/about.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['about_tab'] = 'selected-tab'
+
+        return context
+
+
+class Help(TemplateView):
+    template_name = 'sfm/help.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['help_tab'] = 'selected-tab'
+
+        return context
+
+
+def country_background(request, country):
+
+    try:
+        assert country in ('nigeria', 'mexico', 'egypt')
+    except AssertionError:
+        raise Http404()
+
+    template = 'sfm/country-background/{country}.html'.format(country=country)
+
+    return render(request, template)
 
 
 def osm_autocomplete(request):

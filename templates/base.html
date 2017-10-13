@@ -49,7 +49,8 @@
                 <li class="{{ person_tab }}"><a href="{% url 'search' %}?entity_type=Person"><i class="fa fa-fw fa-user"></i> {% trans "Personnel" %}</a></li>
                 <li class="{{ organization_tab }}"><a href="{% url 'search' %}?entity_type=Organization"><i class="fa fa-fw fa-users"></i> {% trans "Units" %}</a></li>
                 <li class="{{ violation_tab }}"><a href="{% url 'search' %}?entity_type=Violation"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>
-                <li class="{{ help_tab }}"><a href="#"><i class="fa fa-fw fa-question-circle"></i> {% trans "Help" %}</a></li>
+                <li class="{{ help_tab }}"><a href="{% url 'help' %}">{% trans "Help" %}</a></li>
+                <li class="{{ about_tab }}"><a href="{% url 'about' %}">{% trans "About" %}</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> {% trans "Logout" %}</a></li>
                 {% endif %}
@@ -73,11 +74,30 @@
 {% endif %}
 {% block content %}{% endblock %}
 </section>
-<hr />
-<footer class="container">
-    <div class="row">
-        <div class="col-sm-4">
-            <p>&copy {% now "Y" %} <a href="https://securityforcemonitor.org">Security Force Monitor</a></p>
+<footer>
+    <hr />
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-1">
+                <small>
+                    {% comment %}
+                    Translators: Make sure to keep the HTML tags intact in this sentence.
+                    {% endcomment %}
+                    {% blocktrans %}
+                    <p><strong>WhoWasInCommand</strong> publishes data on the police, military and other security force units, their commanders, areas of operation and connections to allegations of human rights abuses. The site helps human rights researchers, investigative journalists and anyone seeking more accountable security forces. WhoWasInCommand is a tool from <a href="https://securityforcemonitor.org">Security Force Monitor</a> at the Columbia Law School Human Rights Institute.</p>
+                    {% endblocktrans %}
+                    <p><a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></>
+                    <p>{% trans "The content of WhoWasInCommand is licensed under" %} <a href="https://creativecommons.org/licenses/by/4.0/">{% trans "Creative Commons Attribution License 4.0" %}</a>.</p>
+                </small>
+            </div>
+            <div class="col-sm-4">
+                <small><strong>{% trans "Site contents" %}</strong><br/>
+                    <a href="{% url 'help' %}">{% trans "Help - Frequently Asked Questions" %}</a><br/>
+                    <a href="{% url 'about' %}">{% trans "About WhoWasInCommand" %}</a><br/>
+                    <a href="mailto:technical@securityforcemonitor.org">{% trans "Contact" %}</a><br/>
+                    <a href="https://github.com/security-force-monitor/">{% trans "Source code" %}</a>
+                </small>
+            </div>
         </div>
     </div>
 </footer>

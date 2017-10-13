@@ -12,7 +12,7 @@
 {% endif %}
 
 {% block header %}
-    <h1 class="page-title">
+    <h2 class="page-title">
         <i class="fa fa-fw fa-users"></i> {% cite organization.name.get_value %}
         <small class="pull-right">
             <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
@@ -20,7 +20,7 @@
                 <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
             </a>
         </small>
-    </h1>
+    </h2>
     {% if organization.aliases.get_list %}
         <p>{% trans "Also known as:" %}
             {% for alias in organization.aliases.get_list %}

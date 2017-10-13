@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row">
+    <div class="col-xs-12 col-md-10 col-md-offset-1 post">
+        <h2><i class="fa fa-fw fa-globe"></i>{% trans "Mexico" %}</h2>
+        <hr />
+
+        <h3 id="general-background">{% trans "General Background on Security Forces" %}</h3>
+        <p>
+            {% blocktrans %}
+            Mexico has several layers of security forces. Crime fighting generally falls to local, state and federal police forces, each with their own chain of command. Specialized agencies within or independent to these police forces are also involved in crime fighting. Additionally, the armed forces of Mexico have been increasingly involved in internal security operations.
+            {% endblocktrans %}
+        </p>
+
+        <h3 id="administrative-division">{% trans "Administrative Division of Mexico" %}</h3>
+        <p>
+            {% blocktrans %}
+            Mexico has a federal structure. There are 31 states and a federal capital territory, currently in transition to becoming an autonomous federal entity. Each state is subdivided into municipios of which there are 2,456.
+            {% endblocktrans %}
+        </p>
+
+        <h3 id="security-forces">{% trans "Security Forces of Mexico" %}</h3>
+
+        <h4 id="police">{% trans "Police" %}</h4>
+        <p>
+            {% blocktrans %}
+            Mexico has federal, state and municipio (municipal) police forces as well as a separate police for the federal capital. At the federal and state level police forces are generally divided by role and command structure into policía preventiva (preventive police) in charge of maintaining order and usually under the command of the Secretaría de Seguridad Pública (Ministry of Public Security) and policía judicial (judicial police) usually under the command of the state Procuraduría General de Justicia (Attorney General).
+            {% endblocktrans %}
+        </p>
+        <p>
+            {% blocktrans %}
+            The size and structure of Policías Municipales (municipal police) can vary widely. Generally, they are under the command of the Presidente Municipal (municipal president, also informally referred to as the Alcalde or mayor) of the municipio which they operate. Not every municipio has a police force, however. Some states in Mexico are dissolving their municipal police forces in favor of newly created state-level forces while other states are establishing new state-level forces which control existing municipal police forces.
+            {% endblocktrans %}
+        </p>
+
+        <h4 id="mexican-armed-forces">{% trans "Mexican Armed Forces/Military" %}</h4>
+        <p>
+            {% blocktrans %}
+            The President of Mexico is the Commander-in-Chief of the Mexican Armed Forces, which are divided into the Army and Air Force under the command of the Secretaría de la Defensa Nacional (SEDENA) and the Navy and Marines under the command of the Secretaría de Marina (SEMAR). SEDENA also includes the Special Forces, and Military Police. SEMAR contains its own infantry and air forces as well. Both SEDENA and SEMAR include an Estado Mayor (General Staff) that play an active role in the chain of command between the secretary and operational units.
+            {% endblocktrans %}
+        </p>
+
+        <h4 id="army">{% trans "Army" %}</h4>
+        <p>
+            {% blocktrans %}
+            The Mexican Army is broken up into several Regiones Militares (Military Regions) which usually cover several states and oversee Zonas Militares (Military Zones) which usually operate within one state or in portions of two or more states. Below the Zonas Militares are smaller units: Batallones de Infantería (Infantry Battalions), Regimientos de Caballería Motorizado (Motorized Cavalry Regiments), Regimientos de Artillería (Artillery Regiments), Guarniciones Militares (Military Garrisons), and several other groupings, all of which are generally under the command of a Zona Militar.
+            {% endblocktrans %}
+        </p>
+
+        <h4 id="air-force">{% trans "Air Force" %}</h4>
+        <p>
+            {% trans "The Mexican Air Force is also divided into geographic Regiones Aéreas which command Bases Aéreas. Bases Aéreas in turn command Escuadrones Aéreos." %}
+        </p>
+
+        <h4 id="navy">{% trans "Navy/Marines" %}</h4>
+        <p>
+            {% blocktrans %}
+            Similar to the Army, the SEMAR is broken into several Regiones Navales (Naval Regions) which command Zonas Navales (Naval Zones). SEMAR also includes two Fuerzas Navales (Naval Forces). The Navy has been very active in internal security operations, mainly through the deployment of the marines, which are generally grouped into Brigadas de Infanteria de Marina (Marine Brigades) and smaller Batallónes de Infantería de Marina (Marine Battalions). Since 2007 the command structure of the marines has been restructured several, but currently marine units are generally under the command of a Zona Naval or Región Naval.
+            {% endblocktrans %}
+        </p>
+    </div>
+</div>
+{% endblock %}

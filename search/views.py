@@ -247,6 +247,7 @@ def get_search_context(request, all_results=False):
         search_context['rows'] = result_count
 
         if all_results:
+            start = 0
             search_context['start'] = 0
         else:
             if pagination is not None:

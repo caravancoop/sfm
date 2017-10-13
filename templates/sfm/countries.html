@@ -5,10 +5,10 @@
 {% block content %}
 
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-xs-12">
         <div class="panel panel-default" style="min-height:150px">
             <div class="panel-heading">
-                <h3><strong>{% trans 'Egypt' %}{% help _('Egypt is a country in Africa!') %}</strong></h3>
+                <h3><strong>{% trans 'Egypt' %}</strong></h3>
             </div>
             <div class="panel-body">
                 <div class="row">
@@ -19,22 +19,33 @@
                         <div class="row">
                             <div class="col-xs-12 col-sm-4">
                                 <h4><strong><i class="fa fa-fw fa-search"></i> {% trans "Browse data" %}</strong></h4>
-                                {% comment %}Translators: Please keep the "strong" tags, which display the numbers in bold{% endcomment %}
-                                <a href="#"><p>{% trans "Browse <strong>580</strong> persons" %}</p></a>
-                                <a href="#"><p>{% trans "Browse <strong>2300</strong> units" %}</p></a>
+                                <a href="{% url 'search' %}?entity_type=Person&selected_facets=country_ss_fct_exact%3AEgypt">
+                                    <p>{% trans "Browse personnel" %}</p>
+                                </a>
+                                <a href="{% url 'search' %}?entity_type=Organization&selected_facets=country_ss_fct_exact%3AEgypt">
+                                    <p>{% trans "Browse units" %}</p>
+                                </a>
+                                <a href="{% url 'search' %}?entity_type=Violation&selected_facets=country_ss_fct_exact%3AEgypt">
+                                    <p>{% trans "Browse incidents" %}</p>
+                                </a>
                             </div>
                             <div class="col-xs-12 col-sm-8">
-                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Back in time" %}</strong></h4>
-                                <a href="#"><p>{% trans "The Arab Spring" %}</p></a>
-                                <a href="#"><p>{% trans "Presidential election 2014" %}</p></a>
-                                <a href="#"><p>{% trans "Mubarrak presidency" %}</p></a>
+                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Collections" %}</strong></h4>
+                                <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3AEgypt&selected_facets=organization_adminlevel1_ss_fct_exact%3ACairo+Governorate&selected_facets=organization_classification_ss_fct_exact%3APolice&entity_type=Person&entity_type=Organization&entity_type=Violation">
+                                    <p>{% trans "Police in Cairo" %}</p>
+                                </a>
+                                <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3AEgypt&selected_facets=organization_adminlevel1_ss_fct_exact%3AAlexandria%20Governorate&entity_type=Organization&selected_facets=organization_classification_ss_fct_exact%3APolice">
+                                    <p>{% trans "Police in Alexandria" %}</p>
+                                </a>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-xs-12">
                                 <h4><strong><i class="fa fa-fw fa-info-circle"></i> {% trans "Background" %}</strong></h4>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rutrum suscipit pretium. Ut ultricies lacinia libero, quis pellentesque lacus scelerisque sed. Sed orci purus, vehicula quis sapien a, feugiat eleifend dui. Sed ac felis nec mauris luctus posuere eget ac mauris.</p>
-                                <a href="#"><p>{% trans "Read full background" %}<i class="fa fa-fw fa-arrow-right"></i></p></a>
+                                <p>
+                                    {% trans "Our research on Egypt is in progress. Currently we have partial coverage of Egyptian police forces covering most governorates." %}
+                                <a href="{% url 'background' 'egypt' %}"><p>{% trans "Read full background" %} <i class="fa fa-fw fa-arrow-right"></i></p></a>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -45,45 +56,7 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-12">
-        <div class="panel panel-default" style="min-height:150px">
-            <div class="panel-heading">
-                <h3><strong>{% trans "Kenya" %}</strong></h3>
-            </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-4">
-                        <img class="img img-responsive img-thumbnail map-thumbnail center-block" src="{% static 'images/kenya.png' %}"></img>
-                    </div>
-                    <div class="col-xs-12 col-sm-8">
-                        <div class="row">
-                            <div class="col-xs-4">
-                                <h4><strong><i class="fa fa-fw fa-search"></i> {% trans "Browse data" %}</strong></h4>
-                                <a href="#"><p>{% trans "Browse <strong>800</strong> persons" %}</p></a>
-                                <a href="#"><p>{% trans "Browse <strong>1300</strong> units" %}</p></a>
-                            </div>
-                            <div class="col-xs-8">
-                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Back in time" %}</strong></h4>
-                                <a href="#"><p>{% trans "Election 2008" %}</p></a>
-                                <a href="#"><p>{% trans "Al-Shabab counter terror" %}</p></a>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <h4><strong><i class="fa fa-fw fa-info-circle"></i> {% trans "Background" %}</strong></h4>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rutrum suscipit pretium. Ut ultricies lacinia libero, quis pellentesque lacus scelerisque sed. Sed orci purus, vehicula quis sapien a, feugiat eleifend dui. Sed ac felis nec mauris luctus posuere eget ac mauris.</p>
-                                <a href="#"><p>{% trans "Read full background" %} <i class="fa fa-fw fa-arrow-right"></i></p></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-sm-12">
+    <div class="col-xs-12">
         <div class="panel panel-default" style="min-height:150px">
             <div class="panel-heading">
                 <h3><strong>{% trans "Mexico" %}</strong></h3>
@@ -95,22 +68,37 @@
                     </div>
                     <div class="col-xs-12 col-sm-8">
                         <div class="row">
-                            <div class="col-xs-4">
+                            <div class="col-xs-12 col-sm-4">
                                 <h4><strong><i class="fa fa-fw fa-search"></i> {% trans "Browse data" %}</strong></h4>
-                                <a href="#"><p>{% trans "Browse <strong>574</strong> persons" %}</p></a>
-                                <a href="#"><p>{% trans "Browse <strong>1500</strong> units" %}</p></a>
+                                <a href="{% url 'search' %}?entity_type=Person&selected_facets=country_ss_fct_exact%3AMexico">
+                                    <p>{% trans "Browse personnel" %}</p>
+                                </a>
+                                <a href="{% url 'search' %}?entity_type=Organization&selected_facets=country_ss_fct_exact%3AMexico">
+                                    <p>{% trans "Browse units" %}</p>
+                                </a>
+                                <a href="{% url 'search' %}?entity_type=Violation&selected_facets=country_ss_fct_exact%3AMexico">
+                                    <p>{% trans "Browse incidents" %}</p>
+                                </a>
                             </div>
-                            <div class="col-xs-8">
-                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Back in time" %}</strong></h4>
-                                <a href="#"><p>{% trans "Caledron administration" %}</p></a>
-                                <a href="#"><p>{% trans "Drug war" %}</p></a>
+                            <div class="col-xs-12 col-sm-8">
+                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Collections" %}</strong></h4>
+                                <a href="{% url 'detail_organization' 169 %}">
+                                    <p>{% trans "Operación Conjunta Chihuahua" %}</p>
+                                </a>
+                                <a href="{% url 'search' %}?q=&start_date=2006-12-01&end_date=2012-11-30&selected_facets=country_ss_fct_exact%3AMexico&selected_facets=organization_classification_ss_fct_exact%3AEj%C3%A9rcito&entity_type=Person&entity_type=Organization&entity_type=Violation&Organization_rows=50">
+                                    <p>{% trans "Mexican Army under President Calderón (1 December 2006 to 30 November 2012)"%}</p>
+                                </a>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-xs-12">
                                 <h4><strong><i class="fa fa-fw fa-info-circle"></i> {% trans "Background" %}</strong></h4>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rutrum suscipit pretium. Ut ultricies lacinia libero, quis pellentesque lacus scelerisque sed. Sed orci purus, vehicula quis sapien a, feugiat eleifend dui. Sed ac felis nec mauris luctus posuere eget ac mauris.</p>
-                                <a href="#"><p>{% trans "Read full background" %} <i class="fa fa-fw fa-arrow-right"></i></p></a>
+                                <p>
+                                    {% blocktrans %}
+                                    Mexico has several layers of security forces. Crime fighting generally falls to local, state and federal police forces, each with their own chain of command. Specialized agencies within or independent to these police forces are also involved in crime fighting. Additionally, the armed forces of Mexico&mdash;particularly the Army and the Marines&mdash;have been increasingly involved in internal security operations.
+                                    {% endblocktrans %}
+                                </p>
+                                <a href="{% url 'background' 'mexico' %}"><p>{% trans "Read full background" %} <i class="fa fa-fw fa-arrow-right"></i></p></a>
                             </div>
                         </div>
                     </div>
@@ -133,22 +121,32 @@
                     </div>
                     <div class="col-xs-12 col-sm-8">
                         <div class="row">
-                            <div class="col-xs-4">
+                            <div class="col-xs-12 col-sm-4">
                                 <h4><strong><i class="fa fa-fw fa-search"></i> {% trans "Browse data" %}</strong></h4>
-                                <a href="#"><p>{% trans "Browse <strong>584</strong> persons" %}</p></a>
-                                <a href="#"><p>{% trans "Browse <strong>2331</strong> units" %}</p></a>
+                                <a href="{% url 'search' %}?entity_type=Person&selected_facets=country_ss_fct_exact%3ANigeria">
+                                    <p>{% trans "Browse personnel" %}</p>
+                                </a>
+                                <a href="{% url 'search' %}?entity_type=Organization&selected_facets=country_ss_fct_exact%3ANigeria">
+                                    <p>{% trans "Browse units" %}</p>
+                                </a>
+                                <a href="{% url 'search' %}?entity_type=Violation&selected_facets=country_ss_fct_exact%3ANigeria">
+                                    <p>{% trans "Browse incidents" %}</p>
+                                </a>
                             </div>
-                            <div class="col-xs-8">
-                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Back in time" %}</strong></h4>
-                                <a href="#"><p>{% trans "Boko Haram counter-insurgency" %}</p></a>
-                                <a href="#"><p>{% trans "Operation Pulo Shield" %}</p></a>
+                            <div class="col-xs-12 col-sm-8">
+                                <h4><strong><i class="fa fa-fw fa-clock-o"></i> {% trans "Collections" %}</strong></h4>
+                                <a href="{% url 'detail_organization' 647 %}"><p>{% trans "Operation BOYONA" %}</p></a>
+                                <a href="{% url 'search' %}?start_date=2010-02-09&end_date=2015-05-28&Organization_rows=25&selected_facets=country_ss_fct_exact%3ANigeria&entity_type=Organization&selected_facets=organization_classification_ss_fct_exact%3AArmy"><p>{% trans "Nigerian Army under President Jonathan (9 February 2010 to 28 May 2015)" %}</p></a>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-xs-12">
                                 <h4><strong><i class="fa fa-fw fa-info-circle"></i> {% trans "Background" %}</strong></h4>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rutrum suscipit pretium. Ut ultricies lacinia libero, quis pellentesque lacus scelerisque sed. Sed orci purus, vehicula quis sapien a, feugiat eleifend dui. Sed ac felis nec mauris luctus posuere eget ac mauris.</p>
-                                <a href="#"><p>{% trans "Read full background" %} <i class="fa fa-fw fa-arrow-right"></i></p></a>
+                                <p>
+                                    {% blocktrans %}
+                                    Nigeria has security forces with different responsibilities for internal security. Crime fighting is the prime responsibility of the Nigeria Police Force. The State Security Service focuses on threats to national security. The Nigerian Armed Forces, comprising the Nigerian Air Force, Nigerian Army and Nigerian Navy, are also very active in internal security operations, particularly against Boko Haram. The Nigerian Army is generally the branch most closely involved in internal security operations. Security forces in Nigeria are generally national in character with the President of Nigeria as the commander-in-chief of the respective forces.
+                                    {% endblocktrans %}
+                                <a href="{% url 'background' 'nigeria' %}"><p>{% trans "Read full background" %} <i class="fa fa-fw fa-arrow-right"></i></p></a>
                             </div>
                         </div>
                     </div>

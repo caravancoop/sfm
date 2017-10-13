@@ -38,9 +38,12 @@ body {
     margin-top:10px;
 }
 
+.jumbotron {
+    margin-top:50px;
+}
+
 .navbar {
     background-color: #eeeeee;
-    margin-bottom: 50px;
     border-bottom: none;
 }
 
@@ -88,6 +91,55 @@ body {
 
 .main-search {
     margin-bottom: 10px;
+}
+
+/* ====== *
+ * footer *
+ * ====== */
+
+footer {
+    margin-top: 30px;
+}
+
+/* ========== *
+ * typography *
+ * ========== */
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
+    color: #5c5c5c;
+}
+
+.post > h3 {
+    margin-top: 35px;
+    margin-bottom: 20px;
+}
+
+.post > h4 {
+    font-size: 20px;
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+p {
+    line-height: 160%;
+}
+
+ul, ol {
+    margin-top: 15px;
+    margin-bottom: 18px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+.nav > li {
+    margin-bottom: 0;
+}
+
+.page-title {
+    margin-bottom: 20px;
 }
 
 /* ====== *
@@ -341,6 +393,7 @@ a.collapsed .show-less {
 @media (min-width: 768px) {
     .navbar-nav > li > span.select2 {
         margin-top: 5px;
+        margin-left: 5px;
     }
 }
 

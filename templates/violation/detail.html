@@ -25,15 +25,15 @@
     </h2>
 
     {% if violation.locationdescription.get_value or violation.adminlevel1.get_value or violation.adminlevel2.get_value %}
-        <h4>{% trans "Location:" %}
+        <p>{% trans "Location:" %}
             <strong>
                 {% render_location_string violation countries=False with_citations=True %}
             </strong>
-        </h4>
+        </p>
     {% endif %}
 
     {% if violation.division_id.get_value %}
-        <h4>{% trans "Country:" %} <strong>{{ violation.division_id.get_value | country_name }}</strong></h4>
+        <p>{% trans "Country:" %} <strong>{{ violation.division_id.get_value | country_name }}</strong></p>
     {% endif %}
 
     {% if violation.types.get_list %}

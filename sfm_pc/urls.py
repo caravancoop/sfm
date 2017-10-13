@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
 from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
                           EntityMergeView, Countries, command_chain,
-                          download_zip)
+                          download_zip, Help, About, country_background)
 
 urlpatterns = i18n_patterns(
     url(r'^composition/', include('composition.urls')),
@@ -23,7 +23,10 @@ urlpatterns = i18n_patterns(
     url(r'^geosite/', include('geosite.urls')),
     url(r'^emplacement/', include('emplacement.urls')),
     url(r'^violation/', include('violation.urls')),
+    url(r'^countries/(?P<country>[a-zA-Z-]+)/background/$', country_background, name="background"),
     url(r'^countries/', Countries.as_view(), name="countries"),
+    url(r'^help/', Help.as_view(), name="help"),
+    url(r'^about/', About.as_view(), name="about"),
     url(r'^search/', include('search.urls')),
 
     url(r'^osm-autocomplete/$', osm_autocomplete, name="osm-autocomplete"),

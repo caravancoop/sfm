@@ -123,7 +123,7 @@ def datetype(citation_date, position):
 
                 context['real_date'] = True
                 context['title'] = _('Real end date')
-                html = _('We believe that this date represents the real start date of the organization, as well as being the first recorded citation date.')
+                html = _('We believe that this date represents the real end date of the organization, as well as being the last recorded citation date.')
                 html += '<br/>'
                 html += src
 
