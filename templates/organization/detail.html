@@ -371,7 +371,13 @@
                 var markers = L.featureGroup();
                 {% for site in sites %}
                     var mark = L.marker([{{ site.coordinates.get_value.value.y|safe }},{{ site.coordinates.get_value.value.x|safe }}]);
-                    mark.bindPopup("{{ site.osmname }}");
+                    var name = '';
+                    if ("{{ site.location_name }}".length > 0) {
+                        name = "{{ site.location_name }}";
+                    } else {
+                        name = "{{ site.admin_name }}";
+                    }
+                    mark.bindPopup(name);
                     markers.addLayer(mark);
                 {% endfor %}
                 markers.addTo(site_map);
