@@ -1,7 +1,7 @@
 from django import template
 from django.conf import settings
 from django.utils.translation import get_language
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 
 register = template.Library()
@@ -26,12 +26,30 @@ def get_citation_string(obj):
     for idx, src in enumerate(sources):
         info = ((attr_map[0], getattr(src, attr_map[1]))
                  for attr_map in source_info if getattr(src, attr_map[1], None))
+
         if any(info):
+
+            # Border logic
+            html = ''
             if idx != 0:
                 html = '<hr/>'
-            else:
-                html = ''
-            html += '<br/>'.join('<strong>{0}</strong>: {1}'.format(attr[0], attr[1]) for attr in info)
+
+            for i, attr in enumerate(info):
+                key, val = attr[0], attr[1]
+
+                # Wrap links in anchors
+                if key == _('Source URL') or key == _('Archive URL'):
+                    html_fmt = '<strong>{0}</strong>: <a href="{1}">{1}</a>'
+                else:
+                    html_fmt = '<strong>{0}</strong>: {1}'
+
+                html_str = ''
+                if i != 0:
+                    html_str = '<br/>'
+
+                html_str += html_fmt.format(key, val)
+                html += html_str
+
             source_citation += html
 
     return source_citation
@@ -58,10 +76,35 @@ def cite(obj, date=False, position=None):
         source_citation = get_citation_string(obj)
         context['source_citation'] = source_citation
 
+        # translators: this phrase appears in the citations box to tell the user
+        # how many sources we've found
+        num_sources = obj.sources.count()
+        if num_sources > 1:
+            src_string = _(' sources for this datapoint')
+        else:
+            src_string = _(' source for this datapoint')
+
+        context['num_sources'] = str(num_sources) + src_string
+
         confidence = obj.confidence
-        if confidence == '3':
-            context['confidence_citation'] = _('We are very confident in the ' +
-                                               'integrity of this information.')
+
+        # Default to low confidence
+        if not confidence:
+            confidence = '1'
+
+        if confidence == '1':
+            context['confidence_class'] = 'low-confidence'
+            confidence_string = _('Confidence: LOW')
+
+        elif confidence == '2':
+            context['confidence_class'] = 'medium-confidence'
+            confidence_string = _('Confidence: MEDIUM')
+
+        elif confidence == '3':
+            context['confidence_class'] = 'high-confidence'
+            confidence_string = _('Confidence: HIGH')
+
+        context['confidence_string'] = confidence_string
 
     return context
 

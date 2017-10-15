@@ -18,7 +18,7 @@
     {% if person.aliases.get_list %}
         <p>{% trans "Also known as:" %}
             {% for alias in person.aliases.get_list %}
-            <strong>{% cite alias.get_value %}{% if not forloop.last %}|{% endif %} </strong>
+                {% cite alias.get_value %}{% if not forloop.last %}| {% endif %}
             {% endfor %}
         </p>
     {% endif %}

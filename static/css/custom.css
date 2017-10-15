@@ -288,34 +288,56 @@ a.collapsed .show-less {
     vertical-align: middle;
     text-decoration: none;
     background-color: #d9230f;
-    color: white;
+    color: inherit;
     cursor: pointer;
 }
 
-.source-footnote:hover {
+.source-footnote:hover,
+.source-footnote:focus {
     opacity: .5;
-    color: white;
+    color: inherit;
     text-decoration: none;
 }
 
 .source-footnote:focus {
-    opacity: .5;
-    color: white;
-    text-decoration: none;
     outline: none;
-}
-
-.confidence-footnote {
-    margin-left: 5px;
-    border: 1px solid;
-    box-sizing: border-box;
-    border-radius: 5px;
-    padding: 1px;
-    cursor: pointer;
 }
 
 .help-widget {
     color: #8d8d8d
+}
+
+.citation-container {
+    display: inline;
+}
+
+.citation {
+    visibility: hidden;
+}
+
+.low-confidence,
+.medium-confidence,
+.high-confidence {
+    display: inline-block;
+}
+
+.low-confidence .popover-title,
+.low-confidence .source-footnote {
+    background-color: #f5d7cd;
+}
+
+.medium-confidence .popover-title,
+.medium-confidence .source-footnote {
+    background-color: #f5f3cd;
+}
+
+.high-confidence .popover-title,
+.high-confidence .source-footnote {
+    background-color: #dcf3dc;
+}
+
+.popover-title {
+    line-height: 160%;
 }
 
 .popover-content {

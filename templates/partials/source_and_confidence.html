@@ -1,30 +1,26 @@
 {% load i18n %}
 {% load citations %}
 
-{% if date %}
-    {% datetype object_value position %}
-{% else %}
-    {{ object_value }}
-{% endif %}
+<span class="citation-container">
 
-{% if source_citation %}
-<sup>
-    <a type="button" role="button" class="source-footnote" data-toggle="popover"
-    data-html="true" data-placement="top" data-content="{{ source_citation }}"
-    title="Sources" data-trigger="focus" tabindex="0"
-    aria-label="{% trans 'Sources and confidence for this information' %}">
-        <span class="source-footnote-counter"></span>
-    </a>
-</sup>
-{% endif %}
+    {% if date %}
+        {% datetype object_value position %}
+    {% else %}
+        {{ object_value }}
+    {% endif %}
 
-{% if confidence_citation %}
-<sup>
-    <a type="button" role="button" class="confidence-footnote" data-toggle="popover"
-    data-html="true" data-placement="top" data-content="{{ confidence_citation }}"
-    title="Confidence" data-trigger="focus" tabindex="0"
-    aria-label="{% trans 'Sources and confidence for this information' %}">
-        <span class="confidence-footnote-counter">{% trans "Confident" %}</span>
-    </a>
-</sup>
-{% endif %}
+    {% if source_citation %}
+    <span class="citation {{confidence_class}}">
+        <sup>
+            <button type="button" role="button" class="source-footnote" data-toggle="popover"
+            data-html="true" data-placement="top" data-content="{{ source_citation }}"
+            title="<strong>{{ num_sources }}<button type='button' role='button' class='close' data-dismiss='popover' aria-hidden='true' aria-label='Close'>&times;</button><br/>{{ confidence_string }}</strong>"
+            data-trigger="click" tabindex="0"
+            aria-label="{% trans 'Sources and confidence for this information' %}">
+                <span class="source-footnote-counter"></span>
+            </button>
+        </sup>
+    </span>
+    {% endif %}
+
+</span>
