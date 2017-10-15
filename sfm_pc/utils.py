@@ -393,7 +393,7 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
             end_date = orgs[0].end_date
 
         # Create a label, which we display on the charts for person and unit "parents."
-        label = '<b>' + orgs[0].name + '</b>' + '\n\n' + 'Unknown commander'
+        label = '<b>' + orgs[0].name + '</b>' + '\n\n' + _('Unknown commander')
         if orgs[0].commander:
             label = '<b>' + orgs[0].name + '</b>' + '\n\n' + orgs[0].commander
 
