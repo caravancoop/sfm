@@ -87,6 +87,38 @@
             <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %}</h3>
             <hr />
             <div id="osm_area_map" style="height:300px;"></div>
+            <br />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Area" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for association in associations %}
+                    <tr>
+                        <td class="cited">
+                        {% if association.area.get_value.value.osmid.get_value %}
+                            <a target="_blank" href="https://www.openstreetmap.org/way/{{ association.area.get_value.value.osmid.get_value }}">
+                                {{ association.area.get_value.value.osmname.get_value }}
+                            </a>
+                            {% cite association.area.get_value %}
+                        {% endif %}
+                        </td>
+                        <td class="cited">
+                            {% datetype association.startdate.get_value 'start' %}
+                            {% cite association.startdate.get_value %}
+                        </td>
+                        <td class="cited">
+                            {% datetype association.enddate.get_value 'end' %}
+                            {% cite association.enddate.get_value %}
+                        </td>
+                    </td>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
     {% endif %}
@@ -97,6 +129,43 @@
             <h3 id="sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</h3>
             <hr />
             <div id="osm_site_map" style="height:300px;"></div>
+            <br />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Site" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for emplacement in emplacements %}
+                    <tr>
+                        <td class="cited">
+                        {% if emplacement.site.get_value.value.location_id.get_value %}
+                            <a target="_blank" href="https://www.openstreetmap.org/node/{{ emplacement.site.get_value.value.admin_id.get_value }}">
+                                {{ emplacement.site.get_value.value.location_name.get_value }}
+                            </a>
+                            {% cite emplacement.site.get_value %}
+                        {% elif emplacement.site.get_value.value.admin_id.get_value %}
+                            <a target="_blank" href="https://www.openstreetmap.org/node/{{ emplacement.site.get_value.value.admin_id.get_value }}">
+                                {{ emplacement.site.get_value.value.admin_name.get_value }}
+                            </a>
+                            {% cite emplacement.site.get_value %}
+                        {% endif %}
+                        </td>
+                        <td class="cited">
+                            {% datetype emplacement.startdate.get_value 'start' %}
+                            {% cite emplacement.startdate.get_value %}
+                        </td>
+                        <td class="cited">
+                            {% datetype emplacement.enddate.get_value 'end' %}
+                            {% cite emplacement.enddate.get_value %}
+                        </td>
+                    </td>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
     {% endif %}

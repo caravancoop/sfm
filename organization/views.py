@@ -70,13 +70,15 @@ class OrganizationDetail(DetailView):
             context['events'].append(event.object_ref)
 
         context['sites'] = []
-        emplacements = context['organization'].emplacementorganization_set.all()
+        emplacements = tuple(context['organization'].emplacements)
+        context['emplacements'] = (em.object_ref for em in emplacements)
         for emplacement in emplacements:
             if emplacement.object_ref.site.get_value().value.admin_id.get_value():
                 context['sites'].append(emplacement.object_ref.site.get_value().value)
 
         context['areas'] = []
-        associations = context['organization'].associationorganization_set.all()
+        associations = tuple(context['organization'].associations)
+        context['associations'] = (ass.object_ref for ass in associations)
         for association in associations:
             if association.object_ref.area.get_value().value.osmid.get_value():
                 geom = association.object_ref.area.get_value().value.geometry

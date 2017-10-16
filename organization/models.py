@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.db.models.functions import Coalesce, Value
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
@@ -42,6 +43,38 @@ class Organization(models.Model, BaseModel):
 
     def __str__(self):
         return str(self.name)
+
+    @property
+    def associations(self):
+        '''
+        Return all of this organization's associations, in a custom sorting order.
+
+        Order by first cited date descending, then last cited date descending,
+        with nulls last.
+        '''
+        assocs = self.associationorganization_set\
+                     .annotate(lcd=Coalesce('object_ref__associationstartdate__value',
+                                            'object_ref__associationenddate__value',
+                                            Value('1000-0-0')))\
+                     .order_by('-lcd')
+
+        return assocs
+
+    @property
+    def emplacements(self):
+        '''
+        Return all of this organization's emplacements, in a custom sorting order.
+
+        Order by first cited date descending, then last cited date descending,
+        with nulls last.
+        '''
+        empls = self.emplacementorganization_set\
+                    .annotate(lcd=Coalesce('object_ref__emplacementstartdate__value',
+                                           'object_ref__emplacementenddate__value',
+                                           Value('1000-0-0')))\
+                    .order_by('-lcd')
+
+        return empls
 
 
 @translated
