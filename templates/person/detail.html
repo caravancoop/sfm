@@ -36,6 +36,7 @@
     {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 {% endblock %}
@@ -47,6 +48,7 @@
     {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
     {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 {% endblock %}
@@ -90,11 +92,11 @@
                                 {% cite member.organization.get_value %}
                             </td>
                             <td class="cited">
-                                {{ member.rank.get_value }}
+                                {{ member.rank.get_value|default:"" }}
                                 {% cite member.rank.get_value %}
                             </td>
                             <td class="cited">
-                                {{ member.role.get_value }}
+                                {{ member.role.get_value|default:"" }}
                                 {% cite member.role.get_value %}
                             </td>
                             <td class="cited">
@@ -123,11 +125,69 @@
             <h3 id="chain-of-command">
                 <i class="fa fa-fw fa-sitemap fa-rotate-180"></i>
                 {% trans "Chain of command" %}
-                <small>{% trans "Command relationships from a person's posting to the highest-level unit (calculated at the end of the posting)" %}</small>
             </h3>
+            <small>{% trans "Command relationships from a person's posting to the highest-level unit (calculated at the end of the posting)" %}</small>
             <hr />
             <div id="org-chart-container" class="command-charts-carousel"></div>
             <br>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if superiors %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</h3>
+            <small>{% trans "Commanders of units that were superior to any units commanded by this person" %}</small>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Rank" %}</th>
+                        <th>{% trans "Role" %}</th>
+                        <th>{% trans "Unit" %}</th>
+                        <th>{% trans "Start of overlap" %}</th>
+                        <th>{% trans "End of overlap" %}</th>
+                        <th>{% trans "Duration of overlap" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for superior in superiors %}
+                    <tr>
+                        <td class="cited">
+                            <a href="{% url 'detail-person' superior.commander.member.get_value.value.id %}">
+                                {{ superior.commander.member.get_value }}
+                            </a>
+                            {% cite superior.commander.member.get_value %}
+                        </td>
+                        <td class="cited">
+                            {{ superior.commander.rank.get_value|default:"" }}
+                            {% cite superior.commander.rank.get_value %}
+                        </td>
+                        <td class="cited">
+                            {{ superior.commander.role.get_value|default:"" }}
+                            {% cite superior.commander.role.get_value %}
+                        </td>
+                        <td class="cited">
+                            <a href="{% url 'detail_organization' superior.organization.id %}">
+                                {{ superior.organization }}
+                            </a>
+                                {% cite superior.organization %}
+                        </td>
+                        <td class="cited">
+                            {{ superior.overlap_start }}
+                            {% cite superior.overlap_start %}
+                        </td>
+                        <td class="cited">
+                            {{ superior.overlap_end }}
+                            {% cite superior.overlap_end %}
+                        </td>
+                        <td>{{ superior.overlap_duration }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
     {% endif %}
@@ -160,11 +220,11 @@
                             {% cite subordinate.commander.member.get_value %}
                         </td>
                         <td class="cited">
-                            {{ subordinate.commander.rank.get_value }}
+                            {{ subordinate.commander.rank.get_value|default:"" }}
                             {% cite subordinate.commander.rank.get_value %}
                         </td>
                         <td class="cited">
-                            {{ subordinate.commander.role.get_value }}
+                            {{ subordinate.commander.role.get_value|default:"" }}
                             {% cite subordinate.commander.role.get_value %}
                         </td>
                         <td class="cited">
