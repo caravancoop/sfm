@@ -24,8 +24,8 @@ def get_citation_string(obj):
     )
 
     for idx, src in enumerate(sources):
-        info = ((attr_map[0], getattr(src, attr_map[1]))
-                 for attr_map in source_info if getattr(src, attr_map[1], None))
+        info = tuple((attr_map[0], getattr(src, attr_map[1]))
+                      for attr_map in source_info if getattr(src, attr_map[1], None))
 
         if any(info):
 
