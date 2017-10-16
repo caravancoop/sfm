@@ -33,7 +33,7 @@ def country_name(division_id):
     return ''
 
 @register.inclusion_tag('partials/location_string.html')
-def render_location_string(obj, countries=True, with_citations=False):
+def render_location_string(obj, countries=True):
 
     context = {}
 
@@ -44,7 +44,6 @@ def render_location_string(obj, countries=True, with_citations=False):
                  obj.adminlevel2.get_value()]
 
     context['locations'] = [loc for loc in locations if loc is not None]
-    context['with_citations'] = with_citations
 
     if countries and country_name(obj.division_id.get_value()) is not None:
         context['locations'].append(country_name(obj.division_id.get_value()))

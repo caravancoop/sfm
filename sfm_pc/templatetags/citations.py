@@ -56,18 +56,12 @@ def get_citation_string(obj):
 
 
 @register.inclusion_tag('partials/source_and_confidence.html')
-def cite(obj, date=False, position=None):
+def cite(obj):
 
     context = {}
 
-    if not obj:
-        # Set the empty string as the default for cases where we don't have any
-        # information
-        context['object_value'] = ''
-    else:
+    if obj:
         context['object_value'] = obj
-        context['date'] = date
-        context['position'] = position
 
         if isinstance(obj, str):
             # Pass over the source/confidence logic if this is just a string

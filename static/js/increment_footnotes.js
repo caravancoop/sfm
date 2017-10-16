@@ -19,11 +19,11 @@ var Footnotes = {
         });
 
         // Show footnotes on hover
-        $('.citation-container').on('mouseover', function() {
+        $('.citation-container, .cited').on('mouseover', function() {
             $(this).find('.citation').css('visibility', 'visible');
         })
 
-        $('.citation-container').on('mouseout', function() {
+        $('.citation-container, .cited').on('mouseout', function() {
             // Hide the citation if a popover is not visible
             if ($(this).has('.popover').length === 0) {
                 $(this).find('.citation').css('visibility', 'hidden');

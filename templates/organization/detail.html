@@ -12,8 +12,8 @@
 {% endif %}
 
 {% block header %}
-    <h2 class="page-title">
-        <i class="fa fa-fw fa-users"></i> {% cite organization.name.get_value %}
+    <h2 class="page-title cited">
+        <i class="fa fa-fw fa-users"></i> {{ organization.name.get_value }}{% cite organization.name.get_value %}
         <small class="pull-right">
             <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
@@ -22,20 +22,23 @@
         </small>
     </h2>
     {% if organization.aliases.get_list %}
-        <p>{% trans "Also known as:" %}
+        <p class="cited">{% trans "Also known as:" %}
             {% for alias in organization.aliases.get_list %}
-            <strong>{% cite alias.get_value %}{% if not forloop.last %}|{% endif %} </strong>
+                <strong>{{ alias.get_value }}{% if not forloop.last %}|{% else %}{% cite alias.get_value %}{% endif %} </strong>
             {% endfor %}
         </p>
     {% endif %}
     {% if organization.division_id.get_value %}
-        <p>{% trans "Country:" %} <strong>{{ organization.division_id.get_value | country_name }}</strong></p>
+        <p class="cited">
+            {% trans "Country:" %} <strong>{{ organization.division_id.get_value | country_name }}</strong>
+            {% cite organization.division_id.get_value %}
+        </p>
     {% endif %}
     {% if organization.classification.get_list %}
-    <p>{% trans "Classified as:" %}
+    <p class="cited">{% trans "Classified as:" %}
         <small>
         {% for classification in organization.classification.get_list %}
-        <strong><a href="{% url 'search' %}?entity_type=Organization&selected_facets=organization_classification_ss_fct_exact:{{classification.get_value}}">{% cite classification.get_value %}</a>{% if not forloop.last %}&nbsp;{% endif %}</a></strong>
+            <strong><a href="{% url 'search' %}?entity_type=Organization&selected_facets=organization_classification_ss_fct_exact:{{classification.get_value}}">{{ classification.get_value }}</a>{% if not forloop.last %}&nbsp;{% else %}{% cite classification.get_value %}{% endif %}</a></strong>
         {% endfor %}
         </small>
     </p>
@@ -120,31 +123,37 @@
                 <tbody>
                     {% for membership in memberships %}
                         <tr>
-                            <td>
+                            <td class="cited">
                                 <a href="{% url 'detail_organization' membership.organization.get_value.value.id %}">
                                     {% cite membership.organization.get_value.value.name.get_value %}
                                 </a>
                             </td>
-                            <td>
+                            <td class="cited">
                                 {% for alias in membership.organization.get_value.value.aliases.get_list %}
+                                    {{ alias.get_value }}
+                                    {% cite alias.get_value %}
                                     {% if not forloop.last %}
-                                        {% cite alias.get_value %},
-                                    {% else %}
-                                        {% cite alias.get_value %}
+                                        <br/>
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>
+                            <td class="cited">
                                 {% for classification in membership.organization.get_value.value.classification.get_list %}
+                                    {{ classification.get_value }}
+                                    {% cite classification.get_value %}
                                     {% if not forloop.last %}
-                                        {% cite classification.get_value %},
-                                    {% else %}
-                                        {% cite classification.get_value %}
+                                        <br/>
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>{% cite membership.firstciteddate.get_value date=True position='start' %}</td>
-                            <td>{% cite membership.lastciteddate.get_value date=True position='end' %}</td>
+                            <td class="cited">
+                                {% datetype membership.firstciteddate.get_value 'start' %}
+                                {% cite membership.firstciteddate.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% datetype membership.lastciteddate.get_value 'end' %}
+                                {% cite membership.lastciteddate.get_value %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -171,31 +180,38 @@
                 <tbody>
                     {% for membership in org_members %}
                         <tr>
-                            <td>
+                            <td class="cited">
                                 <a href="{% url 'detail_organization' membership.member.get_value.value.id %}">
-                                    {% cite membership.member.get_value.value.name.get_value %}
+                                    {{ membership.member.get_value.value.name.get_value }}
                                 </a>
+                                {% cite membership.member.get_value.value.name.get_value %}
                             </td>
-                            <td>
+                            <td class="cited">
                                 {% for alias in membership.member.get_value.value.aliases.get_list %}
+                                    {{ alias.get_value }}
+                                    {% cite alias.get_value %}
                                     {% if not forloop.last %}
-                                        {% cite alias.get_value %},
-                                    {% else %}
-                                        {% cite alias.get_value %}
+                                        <br/>
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>
+                            <td class="cited">
                                 {% for classification in membership.member.get_value.value.classification.get_list %}
+                                    {{ classification.get_value }}
+                                    {% cite classification.get_value %}
                                     {% if not forloop.last %}
-                                        {% cite classification.get_value %},
-                                    {% else %}
-                                        {% cite classification.get_value %}
+                                        <br/>
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>{% cite membership.firstciteddate.get_value date=True position='start' %}</td>
-                            <td>{% cite membership.lastciteddate.get_value date=True position='end' %}</td>
+                            <td class="cited">
+                                {% datetype membership.firstciteddate.get_value 'start' %}
+                                {% cite membership.firstciteddate.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% datetype membership.lastciteddate.get_value 'end' %}
+                                {% cite membership.lastciteddate.get_value %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -241,31 +257,38 @@
                 <tbody>
                     {% for child in subsidiaries %}
                         <tr>
-                            <td>
+                            <td class="cited">
                                 <a href="{% url 'detail_organization' child.id %}">
-                                    {% cite child.name.get_value %}
+                                    {{ child.name.get_value }}
                                 </a>
+                                {% cite child.name.get_value %}
                             </td>
-                            <td>
+                            <td class="cited">
                                 {% for alias in child.aliases.get_list %}
+                                    {{ alias.get_value }}
+                                    {% cite alias.get_value %}
                                     {% if not forloop.last %}
-                                        {% cite alias.get_value %},
-                                    {% else %}
-                                        {% cite alias.get_value %}
+                                        <br/>
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>
+                            <td class="cited">
                                 {% for classification in child.classification.get_list %}
+                                    {{ classification.get_value }}
+                                    {% cite classification.get_value %}
                                     {% if not forloop.last %}
-                                        {% cite classification.get_value %},
-                                    {% else %}
-                                        {% cite classification.get_value %}
+                                        <br/>
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>{% cite child.firstciteddate.get_value date=True position='start' %}</td>
-                            <td>{% cite child.lastciteddate.get_value date=True position='end' %}</td>
+                            <td class="cited">
+                                {% datetype child.firstciteddate.get_value 'start' %}
+                                {% cite child.firstciteddate.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% datetype child.lastciteddate.get_value 'end' %}
+                                {% cite child.lastciteddate.get_value %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -297,16 +320,32 @@
                 <tbody>
                     {% for member in person_members %}
                         <tr>
-                            <td>
+                            <td class="cited">
                                 <a href="{% url 'detail-person' member.member.get_value.value.id %}">
-                                    {% cite member.member.get_value %}
+                                    {{ member.member.get_value }}
                                 </a>
+                                {% cite member.member.get_value %}
                             </td>
-                            <td>{% cite member.rank.get_value %}</td>
-                            <td>{% cite member.role.get_value %}</td>
-                            <td>{% cite member.title.get_value %}</td>
-                            <td>{% cite member.firstciteddate.get_value date=True position='start' %}</td>
-                            <td>{% cite member.lastciteddate.get_value date=True position='end' %}</td>
+                            <td class="cited">
+                                {{ member.rank.get_value }}
+                                {% cite member.rank.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ member.role.get_value }}
+                                {% cite member.role.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ member.title.get_value|default:"" }}
+                                {% cite member.title.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% datetype member.firstciteddate.get_value 'start' %}
+                                {% cite member.firstciteddate.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% datetype member.lastciteddate.get_value 'end' %}
+                                {% cite member.lastciteddate.get_value %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -323,7 +362,7 @@
             {% for event in events %}
                 <div class="row">
                     <div class="col-sm-12">
-                        <p>
+                        <p class="cited">
                             <a href="{% url 'detail_violation' event.id %}">
                                 {% with violation=event %}
                                     {% include 'partials/violation_title.html' %}
@@ -332,7 +371,10 @@
                         </p>
                     </div>
                     <div class="col-sm-12">
-                        <p>{% cite event.description.get_value|truncatewords:50 %}</p>
+                        <p class="cited">
+                            {{ event.description.get_value|truncatewords:50 }}
+                            {% cite event.description.get_value %}
+                        </p>
                     </div>
                 </div>
                 {% if not forloop.last %}

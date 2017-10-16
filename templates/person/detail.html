@@ -6,8 +6,8 @@
 {% load citations %}
 
 {% block header %}
-    <h2 class="page-title">
-        <i class="fa fa-fw fa-user"></i> {% cite person.name.get_value %}
+    <h2 class="page-title cited">
+        <i class="fa fa-fw fa-user"></i> {{ person.name.get_value }}{% cite person.name.get_value %}
         <small class="pull-right">
             <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
@@ -16,14 +16,18 @@
         </small>
     </h2>
     {% if person.aliases.get_list %}
-        <p>{% trans "Also known as:" %}
+        <p class="cited">{% trans "Also known as:" %}
             {% for alias in person.aliases.get_list %}
-                {% cite alias.get_value %}{% if not forloop.last %}| {% endif %}
+            <strong>{{ alias.get_value }}</strong>{% if not forloop.last %} |{% else %}{% cite alias.get_value %}{% endif %}
             {% endfor %}
         </p>
     {% endif %}
     {% if person.division_id.get_value %}
-        <p>{% trans "Country:" %} <strong>{{ person.division_id.get_value | country_name }}</strong></p>
+        <p class="cited">
+            {% trans "Country:" %}
+            <strong>{{ person.division_id.get_value | country_name }}</strong>
+            {% cite person.division_id.get_value %}
+        </p>
     {% endif %}
 {% endblock %}
 
@@ -54,7 +58,7 @@
         <div class="col-sm-12">
             <h3 id="last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</h3>
             {% with membership=memberships|first %}
-                <p>{{ membership.short_description|safe }}</p>
+                <p class="cited">{{ membership.short_description|safe }}{% cite membership.member.get_value %}</p>
             {% endwith %}
         </div>
     </div>
@@ -79,16 +83,32 @@
                 <tbody>
                     {% for member in memberships %}
                         <tr>
-                            <td>
+                            <td class="cited">
                                 <a href="{% url 'detail_organization' member.organization.get_value.value.id %}">
-                                    {% cite member.organization.get_value %}
+                                    {{ member.organization.get_value }}
                                 </a>
+                                {% cite member.organization.get_value %}
                             </td>
-                            <td>{% cite member.rank.get_value %}</td>
-                            <td>{% cite member.role.get_value %}</td>
-                            <td>{% cite member.title.get_value %}</td>
-                            <td>{% cite member.firstciteddate.get_value date=True position='start' %}</td>
-                            <td>{% cite member.lastciteddate.get_value date=True position='end' %}</td>
+                            <td class="cited">
+                                {{ member.rank.get_value }}
+                                {% cite member.rank.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ member.role.get_value }}
+                                {% cite member.role.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ member.title.get_value|default:"" }}
+                                {% cite member.title.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% datetype member.firstciteddate.get_value 'start' %}
+                                {% cite member.firstciteddate.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% datetype member.lastciteddate.get_value 'end' %}
+                                {% cite member.lastciteddate.get_value %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -133,20 +153,34 @@
                 <tbody>
                     {% for subordinate in subordinates %}
                     <tr>
-                        <td>
+                        <td class="cited">
                             <a href="{% url 'detail-person' subordinate.commander.member.get_value.value.id %}">
-                                {% cite subordinate.commander.member.get_value %}
+                                {{ subordinate.commander.member.get_value }}
                             </a>
+                            {% cite subordinate.commander.member.get_value %}
                         </td>
-                        <td>{% cite subordinate.commander.rank.get_value %}</td>
-                        <td>{% cite subordinate.commander.role.get_value %}</td>
-                        <td>
+                        <td class="cited">
+                            {{ subordinate.commander.rank.get_value }}
+                            {% cite subordinate.commander.rank.get_value %}
+                        </td>
+                        <td class="cited">
+                            {{ subordinate.commander.role.get_value }}
+                            {% cite subordinate.commander.role.get_value %}
+                        </td>
+                        <td class="cited">
                             <a href="{% url 'detail_organization' subordinate.organization.id %}">
-                                {% cite subordinate.organization %}
+                                {{ subordinate.organization }}
                             </a>
+                                {% cite subordinate.organization %}
                         </td>
-                        <td>{% cite subordinate.overlap_start %}</td>
-                        <td>{% cite subordinate.overlap_end %}</td>
+                        <td class="cited">
+                            {{ subordinate.overlap_start }}
+                            {% cite subordinate.overlap_start %}
+                        </td>
+                        <td class="cited">
+                            {{ subordinate.overlap_end }}
+                            {% cite subordinate.overlap_end %}
+                        </td>
                         <td>{{ subordinate.overlap_duration }}</td>
                     </tr>
                     {% endfor %}
@@ -164,7 +198,10 @@
             {% for event in events %}
                 <div class="row">
                     <div class="col-sm-8">
-                        <p>{% cite event.description.get_value %}</p>
+                        <p class="cited">
+                            {{ event.description.get_value }}
+                            {% cite event.description.get_value %}
+                        </p>
                     </div>
                     <div class="col-sm-4"></div>
                 </div>

@@ -12,7 +12,7 @@
 {% endif %}
 
 {% block header %}
-    <h2 class="page-title">
+    <h2 class="page-title cited">
         {% with violation=violation %}
             {% include 'partials/violation_title.html' %}
         {% endwith %}
@@ -25,30 +25,44 @@
     </h2>
 
     {% if violation.locationdescription.get_value or violation.adminlevel1.get_value or violation.adminlevel2.get_value %}
-        <p>{% trans "Location:" %}
+        <p class="cited">{% trans "Location:" %}
             <strong>
-                {% render_location_string violation countries=False with_citations=True %}
+                {% render_location_string violation countries=False %}
             </strong>
+            {% if violation.locationdescription.get_value %}
+                {% cite violation.locationdescription.get_value %}
+            {% elif violation.adminlevel1.get_value %}
+                {% cite violation.adminlevel1.get_value %}
+            {% elif violation.adminlevel2.get_value %}
+                {% cite violation.adminlevel2.get_value %}
+            {% endif %}
         </p>
     {% endif %}
 
     {% if violation.division_id.get_value %}
-        <p>{% trans "Country:" %} <strong>{{ violation.division_id.get_value | country_name }}</strong></p>
+        <p class="cited">{% trans "Country:" %}
+            <strong>{{ violation.division_id.get_value | country_name }}</strong>
+            {% cite violation.division_id.get_value %}
+        </p>
     {% endif %}
 
     {% if violation.types.get_list %}
-        <p>
+        <p class="cited">
         {% for type in violation.types.get_list %}
-            <span class="label label-default">{% cite type.get_value %}</span>&nbsp;
+            <span class="label label-default">
+                {{ type.get_value }}
+            </span>
+            {% cite type.get_value %}
         {% endfor %}
         </p>
     {% endif %}
 
     {% if violation.perpetratorclassification.get_value %}
-        <p>
+        <p class="cited">
             <span class="label label-default">
-                {% cite violation.perpetratorclassification.get_value %}
+                {{ violation.perpetratorclassification.get_value }}
             </span>
+            {% cite violation.perpetratorclassification.get_value %}
         </p>
     {% endif %}
 
@@ -88,7 +102,18 @@
             <h3 id="location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %}</h3>
             <hr />
             <div id="geoname_map" style="height:300px;margin-bottom:10px"></div>
-            <p>{% trans "This incident took place in" %} <strong>{% render_location_string violation with_citations=True %}</strong></p>
+            <p class="cited">
+                {% trans "This incident took place in" %} <strong>{% render_location_string violation %}</strong>
+                {% if violation.locationdescription.get_value %}
+                    {% cite violation.locationdescription.get_value %}
+                {% elif violation.adminlevel1.get_value %}
+                    {% cite violation.adminlevel1.get_value %}
+                {% elif violation.adminlevel2.get_value %}
+                    {% cite violation.adminlevel2.get_value %}
+                {% elif violation.division_id.get_value %}
+                    {% cite violation.division_id.get_value %}
+                {% endif %}
+            </p>
         </div>
     </div>
     {% endif %}
@@ -96,7 +121,7 @@
     {% if violation.description %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %}</h3>
+            <h3 id="description" class="cited"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %}</h3>
             <hr />
             {% with N=1 description=violation.description %}
                 {% include 'partials/violation_description.html' %}
@@ -119,14 +144,19 @@
                 <tbody>
                     {% for person in violation.violationperpetrator_set.all %}
                         <tr>
-                            <td>
+                            <td class="cited">
                                 <a href="{% url 'detail-person' person.value.id %}">
-                                    {% cite person.value.get_value %}
+                                    {{ person.value.get_value }}
                                 </a>
+                                {% cite person.value.get_value %}
                             </td>
-                            <td>
+                            <td class="cited">
                                 {% for alias in person.value.aliases.get_list %}
-                                    {% cite alias.get_value %} {% if not forloop.last %}<br />{% endif %}
+                                    {{ alias.get_value }}
+                                    {% cite alias.get_value %}
+                                    {% if not forloop.last %}
+                                        <br/>
+                                    {% endif %}
                                 {% endfor %}
                             </td>
                         </tr>
@@ -152,19 +182,28 @@
                 <tbody>
                     {% for organization in violation.violationperpetratororganization_set.all %}
                         <tr>
-                            <td>
+                            <td class="cited">
                                 <a href="{% url 'detail_organization' organization.value.id %}">
-                                    {% cite organization.value.get_value %}
+                                    {{ organization.value.get_value }}
                                 </a>
+                                {% cite organization.value.get_value %}
                             </td>
-                            <td>
+                            <td class="cited">
                                 {% for alias in organization.value.aliases.get_list %}
-                                    {% cite alias.get_value %} {% if not forloop.last %}<br />{% endif %}
+                                    {{ alias.get_value }}
+                                    {% cite alias.get_value %}
+                                    {% if not forloop.last %}
+                                        <br/>
+                                    {% endif %}
                                 {% endfor %}
                             </td>
-                            <td>
+                            <td class="cited">
                                 {% for classification in organization.value.classification.get_list %}
-                                    {% cite classification.get_value %} {% if not forloop.last %}<br />{% endif %}
+                                    {{ classification.get_value }}
+                                    {% cite classification.get_value %}
+                                    {% if not forloop.last %}
+                                        <br/>
+                                    {% endif %}
                                 {% endfor %}
 
                             </td>

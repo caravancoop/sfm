@@ -277,7 +277,6 @@ a.collapsed .show-less {
 .source-footnote {
     min-width: 16px !important;
     top: -.75em;
-    opacity: .9;
     height: 16px !important;
     padding-left: 4px;
     padding-right: 4px;

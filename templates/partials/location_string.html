@@ -1,9 +1,3 @@
-{% load citations %}
-
 {% for location in locations %}
-    {% if with_citations and forloop.last %}
-        {% cite location %}
-    {% else %}
-        {{ location }}{% if not forloop.last %}, {% endif %}
-    {% endif %}
+    {{ location }}{% if not forloop.last %}, {% endif %}
 {% endfor %}
