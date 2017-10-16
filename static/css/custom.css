@@ -1,6 +1,7 @@
 /* Custom styles */
 
 body {
+    color: #555555;
     font-weight: 400;
     font-size: 16px;
 }
@@ -13,9 +14,9 @@ body {
     /* Ad bar that sits above the navbar */
     text-align: right;
     display: block;
-    padding: 15px 20px;
-    background-color: #808080;
-    color: white
+    padding: 5px 20px;
+    background-color: #becfd5;
+    color: #5a5a5a;
 }
 
 .pre-navbar > p {
@@ -33,6 +34,10 @@ body {
     font-weight: 500;
 }
 
+.jumbotron p {
+    font-weight: 400;
+}
+
 .jumbotron p.small {
     font-size: 95%;
     margin-top:10px;
@@ -43,8 +48,15 @@ body {
 }
 
 .navbar {
-    background-color: #eeeeee;
+    background-color: #425263;
     border-bottom: none;
+    border-radius: 0px;
+}
+
+.navbar-default {
+    color: white !important;  /* override bootstrap default */
+    border-color: #425263 !important;  /* override bootstrap default */
+    border-radius: 0px !important;
 }
 
 .navbar-header {
@@ -54,7 +66,30 @@ body {
 .navbar-brand {
     margin-top: 5px;
     margin-left: 15px !important; /* override bootstrap default */
+    margin-bottom: 10px;
     font-size: 2em;
+    color: white !important; /* override bootstrap default */
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: white;
+}
+
+.navbar-default .navbar-nav > li.selected-tab > a,
+.navbar-default .navbar-nav > li.selected-tab a:hover,
+.navbar-default .navbar-nav > li.selected-tab a:focus {
+    color: #555555;
+}
+
+.navbar-default a:hover,
+.navbar-default a:focus,
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #bfbfbf;
+}
+
+.navbar-toggle {
+    margin-top: 7px;
 }
 
 .lang-select-box {
@@ -99,7 +134,20 @@ body {
 
 footer {
     margin-top: 30px;
+    background-color: #425263;
+    color: white;
 }
+
+footer a {
+    color: white;
+    text-decoration: underline;
+}
+
+footer h3 {
+    margin-top: 0px;
+    color: white;
+}
+
 
 /* ========== *
  * typography *
@@ -125,6 +173,14 @@ p {
     line-height: 160%;
 }
 
+a {
+    color: #2060cf;
+}
+
+a:hover, a:focus {
+    color: #5b84cb;
+}
+
 ul, ol {
     margin-top: 15px;
     margin-bottom: 18px;
@@ -140,6 +196,28 @@ li {
 
 .page-title {
     margin-bottom: 20px;
+}
+
+.pagination > li > a:hover,
+.pagination > li > span:hover,
+.pagination > li > a:focus,
+.pagination > li > span:focus {
+    background-color: #d8731e !important; /* override bootstrap default */
+    border-color: #d8731e !important; /* override bootstrap default */
+}
+
+.pagination > .active > a,
+.pagination > .active > span {
+    background-color: #bf651a !important; /* override bootstrap default */
+    border-color: #bf651a !important; /* override bootstrap default */
+}
+
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+    background-color: #d8731e !important; /* override bootstrap default */
+    border-color: #d8731e !important; /* override bootstrap default */
 }
 
 /* ====== *
@@ -177,9 +255,13 @@ li {
     cursor: pointer;
 }
 
+.jumbotron,
+.detail-header {
+    background-color: #d9dde7;
+}
+
 .detail-header {
     padding: 20px;
-    background-color: #f4f4f4;
     border-radius: 6px;
 }
 
@@ -347,7 +429,7 @@ a.collapsed .show-less {
 
 .datetype {
     color: inherit;
-    border-bottom: 1px dotted #777777;
+    border-bottom: 1px dotted #555555;
     text-decoration: none;
 }
 
@@ -373,8 +455,13 @@ a.collapsed .show-less {
         margin-left: 5px !important; /* override bootstrap default */
         font-size: 1.5em;
     }
+
     .navbar-toggle {
         margin-right: 0px;
+    }
+
+    .pre-navbar > p {
+        font-size: 0.8em;
     }
 }
 
@@ -382,6 +469,14 @@ a.collapsed .show-less {
     /* Brand needs to be even smaller on smallest screens */
     .navbar-brand {
         font-size: 1.3em;
+    }
+}
+
+@media (max-width: 324px) {
+    .navbar-brand {
+        font-size: 1.1em;
+        padding-right: 0;
+        margin-right: 0;
     }
 }
 
