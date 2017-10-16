@@ -101,7 +101,7 @@
                     <tr>
                         <td class="cited">
                         {% if association.area.get_value.value.osmid.get_value %}
-                            <a target="_blank" href="https://www.openstreetmap.org/way/{{ association.area.get_value.value.osmid.get_value }}">
+                            <a target="_blank" href="https://www.openstreetmap.org/relation/{{ association.area.get_value.value.osmid.get_value }}">
                                 {{ association.area.get_value.value.osmname.get_value }}
                             </a>
                             {% cite association.area.get_value %}
