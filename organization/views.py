@@ -104,9 +104,7 @@ class OrganizationDetail(DetailView):
                 when = repr(parent.object_ref.enddate.get_value().value)
                 org_data['when'] = when
 
-            org_id = str(parent.value.uuid)
-
-            kwargs = {'org_id': org_id}
+            kwargs = {'org_id': str(context['organization'].uuid)}
             ajax_route = 'command-chain'
             if when:
                 kwargs['when'] = when

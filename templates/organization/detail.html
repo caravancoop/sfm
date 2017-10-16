@@ -176,7 +176,7 @@
             <h3 id="memberships">
                 <i class="fa fa-fw fa-sitemap fa-rotate-180"></i>
                 {% trans "Memberships" %}
-                <small>{% trans "Multi-unit organizations that this unit is part of." %}</small>
+                <small>{% trans "Multi-unit organizations that this unit is part of" %}</small>
             </h3>
             <hr />
             <table class="table table-condensed">
@@ -194,8 +194,9 @@
                         <tr>
                             <td class="cited">
                                 <a href="{% url 'detail_organization' membership.organization.get_value.value.id %}">
-                                    {% cite membership.organization.get_value.value.name.get_value %}
+                                    {{ membership.organization.get_value.value.name.get_value }}
                                 </a>
+                                {% cite membership.organization.get_value.value.name.get_value %}
                             </td>
                             <td class="cited">
                                 {% for alias in membership.organization.get_value.value.aliases.get_list %}

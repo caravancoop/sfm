@@ -67,14 +67,14 @@ var CommandChart = {
                 };
 
                 var options = {
-                    nodes:{
+                    nodes: {
                         shape: 'box',
                         fixed: {
-                        x:true,
-                        y:true,
+                            x:true,
+                            y:true,
                         },
                         shapeProperties: {
-                        borderRadius: 2,
+                            borderRadius: 2,
                         },
                         color: {
                             background: '#f4f4f4',
@@ -95,15 +95,15 @@ var CommandChart = {
                     },
                     layout: {
                         hierarchical: {
-                        levelSeparation: 100, // Distance between levels
-                        nodeSpacing: 300, // Distance between nodes
-                        direction: 'UD', // Inverts chart
-                        sortMethod: 'directed',
+                            levelSeparation: 100, // Distance between levels
+                            nodeSpacing: 300, // Distance between nodes
+                            direction: 'UD', // Inverts chart
+                            sortMethod: 'directed',
                         }
                     },
                     interaction: {
-                        zoomView: false,
-                        dragView: false,
+                        zoomView: true,
+                        dragView: true,
                         hover:true,
                     },
                 };
