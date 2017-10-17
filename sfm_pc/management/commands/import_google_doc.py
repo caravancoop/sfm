@@ -494,12 +494,15 @@ class Command(UtilityMixin, BaseCommand):
                 else:
                     real_start = None
 
-                with reversion.create_revision():
-                    realstart, created = OrganizationRealStart\
-                                         .objects\
-                                         .get_or_create(value=real_start,
-                                                        object_ref=organization)
-                    reversion.set_user(self.user)
+                realstart, created = OrganizationRealStart\
+                                     .objects\
+                                     .get_or_create(value=real_start,
+                                                    object_ref=organization)
+
+                if created:
+
+                    with reversion.create_revision():
+                        reversion.set_user(self.user)
 
                 # Create Emplacements
                 try:
@@ -713,13 +716,20 @@ class Command(UtilityMixin, BaseCommand):
                             else:
                                 mem_realend = None
 
-                        with reversion.create_revision():
-                            mem_realend, created = MembershipOrganizationRealEnd\
-                                                   .objects\
-                                                   .get_or_create(value=mem_realend,
-                                                                  object_ref=membership)
+                        mem_realend, created = MembershipOrganizationRealEnd\
+                                               .objects\
+                                               .get_or_create(value=mem_realend,
+                                                              object_ref=membership)
+
+                        if created:
+
+                            with reversion.create_revision():
+                                membership.save()
+                                reversion.set_user(self.user)
+
+                        else:
+
                             membership.save()
-                            reversion.set_user(self.user)
 
                     else:
                         self.log_error('Member organization for {} does not have source or confidence'.format(member_org_name))
@@ -836,45 +846,39 @@ class Command(UtilityMixin, BaseCommand):
                     for value_text in [val.strip() for val in value.split(';') if val.strip()]:
 
                         if value_model == Type:
-                            with reversion.create_revision():
-                                value_obj, created = value_model.objects.get_or_create(code=value_text)
-                                reversion.set_user(self.user)
+                            value_obj, created = value_model.objects.get_or_create(code=value_text)
                         else:
+                            value_obj, created = value_model.objects.get_or_create(value=value_text)
+
+                        relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
+                                                                                          object_ref=instance,
+                                                                                          lang='en')
+                        if created:
+
+                            for source in sources:
+                                relation_instance.sources.add(source)
+
                             with reversion.create_revision():
-                                value_obj, created = value_model.objects.get_or_create(value=value_text)
+                                relation_instance.confidence = confidence
+                                relation_instance.save()
                                 reversion.set_user(self.user)
-
-                        with reversion.create_revision():
-                            relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
-                                                                                              object_ref=instance,
-                                                                                              lang='en')
-                            reversion.set_user(self.user)
-
-                        for source in sources:
-                            relation_instance.sources.add(source)
-
-                        with reversion.create_revision():
-                            relation_instance.confidence = confidence
-                            relation_instance.save()
-                            reversion.set_user(self.user)
 
                 elif isinstance(relation_model._meta.get_field('value'), ApproximateDateField):
                     parsed_value = self.parse_date(value)
 
                     if parsed_value:
-                        with reversion.create_revision():
-                            relation_instance, created = relation_model.objects.get_or_create(value=parsed_value,
-                                                                                              object_ref=instance,
-                                                                                              lang='en')
-                            reversion.set_user(self.user)
+                        relation_instance, created = relation_model.objects.get_or_create(value=parsed_value,
+                                                                                          object_ref=instance,
+                                                                                          lang='en')
+                        if created:
 
-                        for source in sources:
-                            relation_instance.sources.add(source)
+                            for source in sources:
+                                relation_instance.sources.add(source)
 
-                        with reversion.create_revision():
-                            relation_instance.confidence = confidence
-                            relation_instance.save()
-                            reversion.set_user(self.user)
+                            with reversion.create_revision():
+                                relation_instance.confidence = confidence
+                                relation_instance.save()
+                                reversion.set_user(self.user)
 
                     else:
                         self.log_error('Expected a date for {app_name}.models.{field_name} but got {value}'.format(app_name=app_name,
@@ -883,19 +887,18 @@ class Command(UtilityMixin, BaseCommand):
                         return None
 
                 else:
-                    with reversion.create_revision():
-                        relation_instance, created = relation_model.objects.get_or_create(value=value,
-                                                                                          object_ref=instance,
-                                                                                          lang='en')
-                        reversion.set_user(self.user)
+                    relation_instance, created = relation_model.objects.get_or_create(value=value,
+                                                                                      object_ref=instance,
+                                                                                      lang='en')
+                    if created:
 
-                    for source in sources:
-                        relation_instance.sources.add(source)
+                        for source in sources:
+                            relation_instance.sources.add(source)
 
-                    with reversion.create_revision():
-                        relation_instance.confidence = confidence
-                        relation_instance.save()
-                        reversion.set_user(self.user)
+                        with reversion.create_revision():
+                            relation_instance.confidence = confidence
+                            relation_instance.save()
+                            reversion.set_user(self.user)
 
                 return relation_instance
 
@@ -1194,8 +1197,8 @@ class Command(UtilityMixin, BaseCommand):
         name = ', '.join([n for n in names if n])
 
         try:
-            site = Geosite.objects.get(geositeadminid__value=osm.id,
-                                       geositeadminname__value=name)
+            site = Geosite.objects.get(geositeadminid__value=str(osm.id),
+                                       geositename__value=name)
         except Geosite.DoesNotExist:
             with reversion.create_revision():
                 site = Geosite()
@@ -2001,11 +2004,13 @@ class Command(UtilityMixin, BaseCommand):
 
                 vp, created = ViolationPerpetrator.objects.get_or_create(value=person,
                                                                          object_ref=violation)
-                with reversion.create_revision():
-                    for source in sources:
-                        vp.sources.add(source)
-                    vp.save()
-                    reversion.set_user(self.user)
+                if created:
+
+                    with reversion.create_revision():
+                        for source in sources:
+                            vp.sources.add(source)
+                        vp.save()
+                        reversion.set_user(self.user)
 
         try:
             perp_org = event_data[positions['PerpetratorOrganization']['value']]
@@ -2039,11 +2044,13 @@ class Command(UtilityMixin, BaseCommand):
                 vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
                                                                                           object_ref=violation)
 
-                with reversion.create_revision():
-                    for source in sources:
-                        vpo_obj.sources.add(source)
-                    vpo_obj.save()
-                    reversion.set_user(self.user)
+                if created:
+
+                    with reversion.create_revision():
+                        for source in sources:
+                            vpo_obj.sources.add(source)
+                        vpo_obj.save()
+                        reversion.set_user(self.user)
 
         self.make_relation('PerpetratorClassification',
                            positions['PerpetratorClassification'],
