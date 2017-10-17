@@ -247,22 +247,22 @@ def get_search_context(request, all_results=False):
         search_context['rows'] = result_count
 
         if all_results:
-            start = 0
+            start_position = 0
             search_context['start'] = 0
         else:
             if pagination is not None:
                 pagination = int(pagination)
-                start = (pagination - 1) * result_count
+                start_position = (pagination - 1) * result_count
                 if pagination > 1:
                     pages[etype]['has_previous'] = True
                     pages[etype]['previous_page_number'] = pagination - 1
             else:
                 pagination = 1
-                start = 0
+                start_position = 0
                 pages[etype]['has_previous'] = False
 
             pages[etype]['current_page_number'] = pagination
-            search_context['start'] = start
+            search_context['start'] = start_position
 
         # Filter on selected facets and entity type
         for field, values in selected_facets.items():
@@ -281,14 +281,14 @@ def get_search_context(request, all_results=False):
                 for val in values:
 
                     # Increment the year to define an end date
-                    start = val
-                    start_year = int(start[:4])
+                    begin = val
+                    start_year = int(begin[:4])
                     end_year = start_year + 1
-                    end = str(end_year) + start[4:]
+                    end = str(end_year) + begin[4:]
 
-                    etype_query += ' AND {field}:["{start}" TO "{end}"]'\
+                    etype_query += ' AND {field}:["{begin}" TO "{end}"]'\
                                    .format(field=field,
-                                           start=start,
+                                           begin=begin,
                                            end=end)
 
         # Apply sorting
@@ -306,7 +306,7 @@ def get_search_context(request, all_results=False):
         # Search that bad boy!
         response = solr.search(etype_query, **search_context)
 
-        if (response.hits - start) >= result_count:
+        if (response.hits - start_position) >= result_count:
             pages[etype]['has_next'] = True
             pages[etype]['next_page_number'] = pagination + 1
         else:
