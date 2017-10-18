@@ -1197,8 +1197,14 @@ class Command(UtilityMixin, BaseCommand):
         name = ', '.join([n for n in names if n])
 
         try:
-            site = Geosite.objects.get(geositeadminid__value=str(osm.id),
-                                       geositename__value=name)
+            if exact_location.get('id'):
+                site = Geosite.objects.get(geositelocationid__value=exact_location.get('id'),
+                                           geositename__value=name)
+            else:
+                osm_id = data[positions['AdminId']['value']]
+                osm = get_osm_by_id(osm_id)
+                site = Geosite.objects.get(geositeadminid__value=osm.id,
+                                           geositename__value=name)
         except Geosite.DoesNotExist:
             with reversion.create_revision():
                 site = Geosite()
@@ -1232,28 +1238,29 @@ class Command(UtilityMixin, BaseCommand):
             self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
 
         # Get Coordinates
-        point_string = 'POINT({lng} {lat})'
-
         if exact_location.get('coords'):
             coords = exact_location['coords']
             confidence_key = 'ExactLocation'
         else:
-            coords = (str(osm.st_x), str(osm.st_y))
+            point_string = 'POINT({lng} {lat})'
+            coord_string = (str(osm.st_x), str(osm.st_y))
+            coords = GEOSGeometry(point_string.format(lng=coord_string[0],
+                                                      lat=coord_string[1]),
+                                  srid=4326)
+
             confidence_key = 'AdminId'
 
-        coord_geo = GEOSGeometry(point_string.format(lng=coords[0], lat=coords[1]), srid=4326)
-
         if positions[confidence_key].get('confidence'):
-            confidence = self.get_confidence(data[positions['AdminId']['confidence']])
+            confidence = self.get_confidence(data[positions[confidence_key]['confidence']])
         else:
             confidence = 1
 
-        sources = self.create_sources(data[positions['AdminId']['source']])
+        sources = self.create_sources(data[positions[confidence_key]['source']])
 
         if confidence and sources:
 
             site_data['Geosite_GeositeCoordinates'] = {
-                'value': coord_geo,
+                'value': coords,
                 'confidence': confidence,
                 'sources': sources,
             }
@@ -1374,11 +1381,11 @@ class Command(UtilityMixin, BaseCommand):
         # Figure out if it's OSM Name/ID pair, or coordinate pair
         try:
 
+            # If this succeeds, it's a coordinate pair
             int(lng_or_name)
-            exact_location['coords'] = (lng_or_name, lat_or_id)
-            point_string = 'POINT({lng} {lat})'.format(lng=lng_or_name,
-                                                       lat=lat_or_id)
-            exact_location['coords'] = GEOSGeometry(point_string, srid=4326)
+            int(lat_or_id)
+
+            lng, lat = lng_or_name, lat_or_id
 
         except ValueError:
 
@@ -1386,11 +1393,17 @@ class Command(UtilityMixin, BaseCommand):
             exact_location['name'], exact_location['id'] = lng_or_name, lat_or_id
 
             try:
+
                 geo = get_osm_by_id(exact_location['id'])
-                exact_location['coords'] = geo.geometry
+                lng, lat = geo.st_x, geo.st_y
+
             except (DataError, AttributeError):
                 self.log_error('OSM ID for exact location {0} does not seem valid: {1}'.format(exact_location['name'],
                                                                                                exact_location['id']))
+                return exact_location
+
+        point_string = 'POINT({lng} {lat})'.format(lng=lng, lat=lat)
+        exact_location['coords'] = GEOSGeometry(point_string, srid=4326)
 
         return exact_location
 
