@@ -439,6 +439,8 @@
                                     {% include 'partials/violation_title.html' %}
                                 {% endwith %}
                             </a>
+                            {# All violation info uses the same source, so we can cite at the end #}
+                            {% cite event.description.get_value %}
                         </p>
                     </div>
                     <div class="col-sm-12">
@@ -535,6 +537,7 @@
             var edgelists = {{parents_list|safe}};
 
             var chart = CommandChart;
+            chart.dateMissingString = "{% trans 'No known end date' %}"
             chart.edgelists = edgelists;
 
             chart.initCarousel();

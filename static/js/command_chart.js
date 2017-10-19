@@ -3,6 +3,7 @@ var CommandChart = CommandChart || {};
 var CommandChart = {
 
     container: '#org-chart-container',
+    dateMissingString: '',
     edgelists: [],
 
     initCarousel: function() {
@@ -110,10 +111,10 @@ var CommandChart = {
 
                 var network = new vis.Network(container, data, options);
 
-                if (typeof when != 'undefined') {
+                if (typeof when != 'undefined' && when !== '') {
                     $('#' + cellYearID).append(when);
                 } else {
-                    $('#' + cellYearID).append('No known end date');
+                    $('#' + cellYearID).append(CommandChart.dateMissingString);
                 }
 
                 // Bind click event to individual nodes
