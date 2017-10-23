@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load citations %}
+{% load help %}
 
 {% if source_citation %}
 <span class="citation-container">
@@ -7,7 +8,7 @@
         <sup>
             <a type="button" role="button" class="source-footnote" data-toggle="popover"
             data-html="true" data-placement="top" data-content="{{ source_citation }}"
-            title="<strong>{{ num_sources }}<a type='button' role='button' class='close' data-dismiss='popover' aria-hidden='true' aria-label='Close'>&times;</a><br/>{{ confidence_string }}</strong>"
+            title="<strong>{{ num_sources }}<a type='button' role='button' class='close pull-right' data-dismiss='popover' aria-hidden='true' aria-label='Close'>&times;</a><p class='pull-right'>{% help href='whowasincommand/generalfunctions.html#how-do-i-see-the-sources-used-for-a-specific-datapoint' %}</p><br/>{{ confidence_string }}</strong>"
             data-trigger="click" tabindex="0"
             aria-label="{% trans 'Sources and confidence for this information' %}">
                 <span class="source-footnote-counter"></span>

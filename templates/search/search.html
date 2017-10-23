@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load humanize %}
+{% load help %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
   <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
@@ -252,7 +253,11 @@
     {% if suggested_terms %}
         <p><strong>Did you mean:</strong>
         {% for term in suggested_terms %}
-        <small><a class="did-you-mean" role="button">{{ term  }}</a></small> {% if not forloop.last %}|{% endif %}
+        <small><a class="did-you-mean" role="button">{{ term  }}</a></small>
+        {% if not forloop.last %}|
+        {% else %}
+            <small>{% help href='whowasincommand/generalfunctions.html#why-does-whowasincommand-make-suggestions-to-me' %}</small>
+        {% endif %}
         {% endfor %}
         </p>
     {% endif %}
@@ -275,7 +280,10 @@
         {% endif %}
     {% else %}
         <br />
-        <p>{% trans "For better results, try adjusting your search filters." %}</p>
+        <p>
+            {% trans "For better results, try adjusting your search filters." %}
+        {% help href='whowasincommand/generalfunctions.html#how-do-i-find-what-im-looking-for' %}
+        </p>
         <p>{% trans "Think we're missing something?" %} <a href="mailto:technical@securityforcemonitor.org">{% trans "Let us know!" %}</a></p>
     {% endif %}
     </div>

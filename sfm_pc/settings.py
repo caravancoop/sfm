@@ -275,4 +275,4 @@ OPEN_ENDED_CHOICES = (
 )
 
 # Format this string with the user's language code
-RESEARCH_HANDBOOK_URL = "https://help.securityforcemonitor.org/{lang}/"
+RESEARCH_HANDBOOK_URL = "https://help.securityforcemonitor.org"

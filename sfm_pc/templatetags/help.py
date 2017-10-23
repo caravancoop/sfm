@@ -5,8 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 
 register = template.Library()
 
-@register.inclusion_tag('partials/help_widget.html', takes_context=True)
-def help(context, href=''):
+@register.inclusion_tag('partials/help_widget.html')
+def help(href=''):
     '''
     Link a button out to the appropriate section in the SFM Research Handbook.
 
@@ -19,10 +19,9 @@ def help(context, href=''):
 
     `https://help.securityforcemonitor.org/{lang}/whowasincommand/personsrec.html`
     '''
-    lang = getattr(context['request'], 'LANGUAGE_CODE', 'en')
+    context = {}
 
-    base_url = settings.RESEARCH_HANDBOOK_URL.format(lang=lang)
-
-    context['href'] = base_url + href
+    context['base_url'] = settings.RESEARCH_HANDBOOK_URL
+    context['href'] = href
 
     return context

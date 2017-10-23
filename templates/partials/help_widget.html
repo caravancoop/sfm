@@ -1,6 +1,7 @@
 {% load i18n %}
 
-<a href="{{ href }}" class="help-widget" target="_blank"
-aria-label="{% trans 'Link to our research guide help text for this information' %}">
-    <i class="fa fa-fw fa-question-circle"></i>
+{% get_current_language as LANGUAGE_CODE %}
+<a href='{{ base_url }}/{{ LANGUAGE_CODE }}/{{ href }}' class='help-widget' target='_blank'
+aria-label='{% trans "Link to our research guide help text for this information" %}'>
+    <i class='fa fa-fw fa-question-circle'></i>
 </a>
