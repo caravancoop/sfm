@@ -103,11 +103,6 @@ def cite(obj):
     return context
 
 
-@register.inclusion_tag('partials/help-widget.html')
-def help(text):
-    pass
-
-
 @register.inclusion_tag('partials/datetype.html')
 def datetype(citation_date, position):
 

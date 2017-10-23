@@ -4,6 +4,7 @@
 {% load countries %}
 {% load render_versions %}
 {% load citations %}
+{% load help %}
 
 {% if sites %}
     {% block extra_head %}
@@ -13,7 +14,10 @@
 
 {% block header %}
     <h2 class="page-title cited">
-        <i class="fa fa-fw fa-users"></i> {{ organization.name.get_value }}{% cite organization.name.get_value %}
+        <i class="fa fa-fw fa-users"></i>
+        {{ organization.name.get_value }}
+        <small>{% help href='whowasincommand/unitrec.html#anatomy_unit_record_title' %}</small>
+        {% cite organization.name.get_value %}
         <small class="pull-right">
             <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
@@ -43,6 +47,10 @@
         </small>
     </p>
     {% endif %}
+{% endblock %}
+
+{% block contents_help %}
+    <small>{% help href='whowasincommand/unitrec.html#anatomy_unit_record_sidebar' %}</small>
 {% endblock %}
 
 {% block sidebar %}
@@ -84,7 +92,10 @@
     {% if areas %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %}</h3>
+            <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i>
+                {% trans "Areas of operation" %}
+                <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_area_of_operation' %}</small>
+            </h3>
             <hr />
             <div id="osm_area_map" style="height:300px;"></div>
             <br />
@@ -126,7 +137,11 @@
     {% if sites %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</h3>
+            <h3 id="sites">
+                <i class="fa fa-fw fa-map-marker"></i>
+                {% trans "Sites" %}
+                <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_sites' %}</small>
+            </h3>
             <hr />
             <div id="osm_site_map" style="height:300px;"></div>
             <br />
@@ -176,8 +191,9 @@
             <h3 id="memberships">
                 <i class="fa fa-fw fa-sitemap fa-rotate-180"></i>
                 {% trans "Memberships" %}
-                <small>{% trans "Multi-unit organizations that this unit is part of" %}</small>
             </h3>
+            <small>{% trans "Multi-unit organizations that this unit is part of" %}</small>
+            <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_memberships' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
@@ -298,8 +314,9 @@
                     <h3 id="parent-units">
                         <i class="fa fa-fw fa-sitemap fa-rotate-180"></i>
                         {% trans "Parent units" %}
-                        <small>{% trans "All units that have held a command position over this unit" %}</small>
                     </h3>
+                    <small>{% trans "All units that have held a command position over this unit." %}</small>
+                    <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_parents' %}</small>
                     <hr />
                     <small><em>{% trans "Swipe to zoom, click and drag to pan" %}</em></small>
                     <div id="org-chart-container" class="command-charts-carousel"></div>
@@ -313,7 +330,11 @@
     {% if subsidiaries %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</h3>
+            <h3 id="subsidiaries">
+                <i class="fa fa-fw fa-sitemap"></i>
+                {% trans "Subsidiaries" %}
+                <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_subsidiaries' %}</small>
+            </h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
@@ -374,8 +395,9 @@
             <h3 id="command-personnel">
                 <i class="fa fa-fw fa-users"></i>
                 {% trans "Personnel" %}
-                <small>{% trans "Table showing personnel linked to this unit in command, administrative and other roles" %}</small>
             </h3>
+            <small>{% trans "Table showing personnel linked to this unit in command, administrative and other roles" %}</small>
+            <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_personnel' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
@@ -428,7 +450,11 @@
     {% if events %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</h3>
+            <h3 id="incidents">
+                <i class="fa fa-fw fa-exclamation-triangle"></i>
+                {% trans "Incidents" %}
+                <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_incidents' %}
+            </h3>
             <hr />
             {% for event in events %}
                 <div class="row">
@@ -460,7 +486,20 @@
 
     {% has_versions organization as changelog %}
         {% if changelog %}
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 id="changelog">
+                    <i class="fa fa-fw fa-refresh"></i>
+                    {% trans "Changelog" %}
+                </h3>
+                <small>
+                    {% trans "Select an attribute below to review the changes our staff have made to this entity." %}
+                </small>
+                <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_changelog' %}</small>
+                <hr />
             {% render_versions organization %}
+            </div>
+        </div>
         {% endif %}
 
 {% endblock %}

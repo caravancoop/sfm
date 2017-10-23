@@ -273,3 +273,6 @@ OPEN_ENDED_CHOICES = (
     ('N', _('No')),
     ('E', _('Exact'))
 )
+
+# Format this string with the user's language code
+RESEARCH_HANDBOOK_URL = "https://help.securityforcemonitor.org/{lang}/"

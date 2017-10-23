@@ -4,10 +4,14 @@
 {% load countries %}
 {% load render_versions %}
 {% load citations %}
+{% load help %}
 
 {% block header %}
     <h2 class="page-title cited">
-        <i class="fa fa-fw fa-user"></i> {{ person.name.get_value }}{% cite person.name.get_value %}
+        <i class="fa fa-fw fa-user"></i>
+        {{ person.name.get_value }}
+        <small>{% help href='whowasincommand/personsrec.html#person_record_anatomy_titlearea' %}</small>
+        {% cite person.name.get_value %}
         <small class="pull-right">
             <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
@@ -29,6 +33,10 @@
             {% cite person.division_id.get_value %}
         </p>
     {% endif %}
+{% endblock %}
+
+{% block contents_help %}
+    <small>{% help href='whowasincommand/personsrec.html#person_record_anatomy_contentsidebar' %}</small>
 {% endblock %}
 
 {% block sidebar %}
@@ -58,7 +66,11 @@
     {% if memberships %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</h3>
+            <h3 id="last-seen-as">
+                <i class="fa fa-fw fa-clock-o"></i>
+                {% trans "Last seen as" %}
+                <small>{% help href='whowasincommand/personsrec.html#person_record_anatomy_last_seen_as' %}</small>
+            </h3>
             {% with membership=memberships|first %}
                 <p class="cited">{{ membership.short_description|safe }}{% cite membership.member.get_value %}</p>
             {% endwith %}
@@ -69,7 +81,11 @@
     {% if memberships %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</h3>
+            <h3 id="memberships">
+                <i class="fa fa-fw fa-users"></i>
+                {% trans "Memberships" %}
+                <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_memberships' %}</small>
+            </h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
@@ -127,6 +143,7 @@
                 {% trans "Chain of command" %}
             </h3>
             <small>{% trans "Command relationships from a person's posting to the highest-level unit (calculated at the end of the posting)" %}</small>
+            <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_chain_of_command' %}</small>
             <hr />
             <small><em>{% trans "Swipe to zoom, click and drag to pan" %}</em></small>
             <div id="org-chart-container" class="command-charts-carousel"></div>
@@ -138,8 +155,12 @@
     {% if superiors %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</h3>
+            <h3 id="superiors">
+                <i class="fa fa-fw fa-share-alt fa-rotate-270"></i>
+                {% trans "Superiors" %}
+            </h3>
             <small>{% trans "Commanders of units that were superior to any units commanded by this person" %}</small>
+            <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_superiors' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
@@ -196,8 +217,12 @@
     {% if subordinates %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</h3>
+            <h3 id="subordinates">
+                <i class="fa fa-fw fa-share-alt fa-rotate-90"></i>
+                {% trans "Subordinates" %}
+            </h3>
             <small>{% trans "Commanders of units that were subordinate to any units commanded by this person" %}</small>
+            <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_subordinates' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
@@ -273,7 +298,20 @@
 
     {% has_versions person as changelog %}
         {% if changelog %}
-            {% render_versions person %}
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 id="changelog">
+                    <i class="fa fa-fw fa-refresh"></i>
+                    {% trans "Changelog" %}
+                </h3>
+                <small>
+                    {% trans "Select an attribute below to review the changes our staff have made to this entity." %}
+                </small>
+                <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anotomy_changelog' %}</small>
+                <hr />
+                {% render_versions person %}
+            </div>
+        </div>
         {% endif %}
 {% endblock %}
 
