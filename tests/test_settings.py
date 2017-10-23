@@ -212,3 +212,5 @@ OPEN_ENDED_CHOICES = (
     ('N', _('No')),
     ('E', _('Exact'))
 )
+
+RESEARCH_HANDBOOK_URL = "https://help.securityforcemonitor.org"
