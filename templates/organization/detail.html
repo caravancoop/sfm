@@ -159,15 +159,12 @@
                         <td class="cited">
                         {% if emplacement.site.get_value.value.location_id.get_value %}
                             <a target="_blank" href="https://www.openstreetmap.org/node/{{ emplacement.site.get_value.value.location_id.get_value }}">
-                                {{ emplacement.site.get_value.value.location_name.get_value }}
-                            </a>
-                            {% cite emplacement.site.get_value %}
                         {% elif emplacement.site.get_value.value.admin_id.get_value %}
                             <a target="_blank" href="https://www.openstreetmap.org/node/{{ emplacement.site.get_value.value.admin_id.get_value }}">
-                                {{ emplacement.site.get_value.value.admin_name.get_value }}
+                        {% endif %}
+                                {{ emplacement.site.get_value.value.name.get_value }}
                             </a>
                             {% cite emplacement.site.get_value %}
-                        {% endif %}
                         </td>
                         <td class="cited">
                             {% datetype emplacement.startdate.get_value 'start' %}
