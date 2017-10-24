@@ -62,11 +62,7 @@ class Command(UtilityMixin, BaseCommand):
         parser.add_argument(
             '--doc_id',
             dest='doc_id',
-            #default='16cRBkrnXE5iGm8JXD7LSqbeFOg_anhVp2YAzYTRYDgU',
-            #default='1EyS55ZkqqkpeYsNKDuIzgUOV-n8TJr5yoEa2Z6a4Duk',
-            #default='1bK1pLB3IEXhoPoOMPA1hWWsitgzHlXHrzhh3tRW0iHs',
-            #default='1A5vefTmsM92fKL1goF8ngdZwtiDZbkyQM3qrJmywOww',
-            default='1wz5_scLqgWjowuLaEVWC4On2b2HNP2sTpDOxO4CA4Qw',
+            default='181ddNAbWQrBg1tdGOtm0zGYpTCohq2UQwiEq6Z5qOFw',
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(
@@ -1153,6 +1149,15 @@ class Command(UtilityMixin, BaseCommand):
                 except Emplacement.DoesNotExist:
                     emplacement = Emplacement.create(emp_data)
 
+                for field_name, positions in relation_positions.items():
+
+                    self.make_relation(field_name,
+                                    positions,
+                                    org_data,
+                                    emplacement)
+
+                    return emplacement
+
             else:
                 missing = []
                 if not confidence:
@@ -1162,16 +1167,11 @@ class Command(UtilityMixin, BaseCommand):
 
                 self.log_error('Emplacement for org {0} did not have {1}'.format(organization.name.get_value().value,
                                                                                  ', '.join(missing)))
-
-            for field_name, positions in relation_positions.items():
-
-                self.make_relation(field_name,
-                                   positions,
-                                   org_data,
-                                   emplacement)
+                return None
 
         else:
             self.log_error('Could not find OSM ID {}'.format(osm_id))
+            return None
 
     def get_or_create_site(self, osm, exact_location, data, positions):
         '''
