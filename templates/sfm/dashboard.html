@@ -7,15 +7,21 @@
             <form action='{% url 'search' %}' method='GET'>
                 {% comment %}Translators: Please keep the "strong" tags, which display the numbers in bold{% endcomment %}
                 <p>{% trans "Investigate <strong>police</strong> and <strong>military commanders</strong>, <strong>units</strong> and <strong>areas of operation</strong>" %}</p>
-                <div class="row input-group input-group-lg">
-                    <input type="text" class="form-control" placeholder="{% trans 'Enter a person or unit name, location or keyword...' %}" name="q" id="q" autofocus>
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> {% trans "Search" %}</button>
-                    </span>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="input-group input-group-lg">
+                            <input type="text" class="form-control" placeholder="{% trans 'Enter a person or unit name, location or keyword...' %}" name="q" id="q" autofocus>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> {% trans "Search" %}</button>
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-xs-12">
                         <p class="small"><strong><i class="fa fa-fw fa-search"></i> {% trans "I'm looking for..." %}</strong></p>
+                    </div>
+                    <div class="col-xs-12 col-sm-6">
                         <div class="entities btn-group" data-toggle="buttons">
                             <label class="btn btn-default">
                                 <input type="checkbox" autocomplete="off" name='entity_type' value='Person' />
@@ -34,6 +40,14 @@
                                 <i class="fa fa-fw fa-thumbs-up"></i> {% trans "Everything" %}
                             </label>
                         </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6">
+                        <p class="small">
+                            Currently includes data on
+                            <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3AEgypt">Egypt</a>,
+                            <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3AMexico">Mexico</a>, and
+                            <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3ANigeria">Nigeria</a>
+                        </p>
                     </div>
                 </div>
             </form>
