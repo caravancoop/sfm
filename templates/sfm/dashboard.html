@@ -43,10 +43,12 @@
                     </div>
                     <div class="col-xs-12 col-sm-6">
                         <p class="small">
-                            Currently includes data on
-                            <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3AEgypt">Egypt</a>,
-                            <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3AMexico">Mexico</a>, and
-                            <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3ANigeria">Nigeria</a>
+                        {% comment %}Translators: 'on' is followed by the countries that we currently track{% endcomment %}
+                            {% trans "Currently includes data on" %}
+                            <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3AEgypt">{% trans "Egypt" %}</a>,
+                            <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3AMexico">{% trans "Mexico" %}</a>,
+                            {% trans "and" %}
+                            <a href="{% url 'search' %}?selected_facets=country_ss_fct_exact%3ANigeria">{% trans "Nigeria" %}</a>
                         </p>
                     </div>
                 </div>
