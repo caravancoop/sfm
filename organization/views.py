@@ -101,8 +101,13 @@ class OrganizationDetail(DetailView):
 
             when = None
             if parent.object_ref.enddate.get_value():
+                # Make the query using the raw date string, to accomodate
+                # fuzzy dates
                 when = repr(parent.object_ref.enddate.get_value().value)
                 org_data['when'] = when
+
+                # Display a formatted date
+                org_data['display_date'] = str(parent.object_ref.enddate.get_value())
 
             kwargs = {'org_id': str(context['organization'].uuid)}
             ajax_route = 'command-chain'

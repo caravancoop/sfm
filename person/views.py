@@ -63,8 +63,13 @@ class PersonDetail(DetailView):
 
             when = None
             if membership.lastciteddate.get_value():
+                # Make the query using the raw date string, to accomodate
+                # fuzzy dates
                 when = repr(membership.lastciteddate.get_value().value)
                 mem_data['when'] = when
+
+                # Display a formatted date
+                mem_data['display_date'] = str(membership.lastciteddate.get_value())
 
             kwargs = {'org_id': org_id}
             ajax_route = 'command-chain'

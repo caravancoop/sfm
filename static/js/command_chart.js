@@ -46,7 +46,7 @@ var CommandChart = {
             $("#command-chart-" + index).spin()
 
             var command_chain_url = org_data['url'];
-            var when = org_data['when'];
+            var when = org_data['display_date'];
 
             $.getJSON(command_chain_url, {index: index}, function(obj) {
 
