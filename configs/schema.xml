@@ -153,7 +153,7 @@
     <dynamicField name="*_ss_fct"  type="strings"  indexed="true"  stored="false" />
     <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
     <dynamicField name="*_ls" type="longs"   indexed="true"  stored="true"/>
-    <dynamicField name="*_t"   type="text_general" indexed="true" stored="true"/>
+    <dynamicField name="*_t"   type="text_general" indexed="true" stored="true" multiValued="false" />
     <dynamicField name="*_txt" type="text_general" indexed="true" stored="true"/>
     <dynamicField name="*_b"  type="boolean" indexed="true" stored="true"/>
     <dynamicField name="*_bs" type="booleans" indexed="true" stored="true"/>
