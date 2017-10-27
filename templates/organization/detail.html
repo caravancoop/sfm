@@ -248,7 +248,12 @@
     {% if org_members %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</h3>
+            <h3 id="org-members">
+                <i class="fa fa-fw fa-sitemap"></i>
+                {% trans "Member units" %}
+            </h3>
+            <small>{% trans "All units that comprise this unit." %}</small>
+            <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_member_units' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
