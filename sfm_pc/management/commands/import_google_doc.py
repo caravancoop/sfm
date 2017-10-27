@@ -1156,7 +1156,7 @@ class Command(UtilityMixin, BaseCommand):
                                     org_data,
                                     emplacement)
 
-                    return emplacement
+                return emplacement
 
             else:
                 missing = []
