@@ -150,7 +150,7 @@ def get_commanders(membership, compositions, relationship='child'):
         child_id = child.value.uuid
 
         child_commanders_query = '''
-            SELECT * FROM membershipperson
+            SELECT DISTINCT(id) FROM membershipperson
             WHERE organization_id='{child_id}'
             AND (first_cited <= '{mem_end}' or first_cited is Null)
             AND (last_cited >= '{mem_start}' or last_cited is Null)
@@ -182,14 +182,14 @@ def get_commanders(membership, compositions, relationship='child'):
             c_start = commander.object_ref.firstciteddate.get_value()
             c_end = commander.object_ref.lastciteddate.get_value()
 
-            if c_start and not no_end:
+            if c_start and not no_start:
                 overlap_start = c_start
             else:
                 # Once we have "ongoing" attributes, we'll be able to
                 # determine ongoing overlap; for now, mark it as "unknown"
                 overlap_start = _('Unknown')
 
-            if c_end and not no_start:
+            if c_end and not no_end:
                 overlap_end = c_end
             else:
                 # Ditto about "ongoing" attributes above
