@@ -458,8 +458,8 @@ class Command(UtilityMixin, BaseCommand):
 
                 try:
                     organization = Organization.objects.get(organizationname__value=name_value)
-                    sources = self.sourcesList(organization, 'name')
-                    org_info["Organization_OrganizationName"]['sources'] += sources
+                    existing_sources = self.sourcesList(organization, 'name')
+                    org_info["Organization_OrganizationName"]['sources'] += sources + existing_sources
 
                     organization.update(org_info)
 
