@@ -29,3 +29,4 @@ settings_local.py
 /scripts/sfm-cron
 /configs/backup-credentials.txt
 /scripts/backup.sh
+/static/js/piwik_tracker_production.js
