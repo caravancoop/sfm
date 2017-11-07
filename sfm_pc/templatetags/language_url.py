@@ -16,9 +16,9 @@ def create_select2_data(select_lang_abbr):
         "es": _("Spanish"),
     }
     data_array = list(trans_obj.values())
-    full_text = trans_obj[select_lang_abbr]
+    full_text = trans_obj.get(select_lang_abbr)
 
-    if data_array[0] != full_text:
+    if full_text and data_array[0] != full_text:
         data_array.insert(0, data_array.pop(data_array.index(full_text)))
 
     return json.dumps(data_array)
