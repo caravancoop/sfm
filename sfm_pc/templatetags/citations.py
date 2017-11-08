@@ -74,11 +74,11 @@ def cite(obj):
         # how many sources we've found
         num_sources = obj.sources.count()
         if num_sources > 1:
-            src_string = _(' sources for this datapoint')
+            src_string = _('sources for this datapoint')
         else:
-            src_string = _(' source for this datapoint')
+            src_string = _('source for this datapoint')
 
-        context['num_sources'] = str(num_sources) + src_string
+        context['num_sources'] = str(num_sources) + ' ' + src_string
 
         confidence = obj.confidence
 
