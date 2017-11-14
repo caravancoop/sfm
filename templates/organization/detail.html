@@ -349,41 +349,43 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for child in subsidiaries %}
-                        <tr>
-                            <td class="cited">
-                                <a href="{% url 'detail_organization' child.id %}">
-                                    {{ child.name.get_value }}
-                                </a>
-                                {% cite child.name.get_value %}
-                            </td>
-                            <td class="cited">
-                                {% for alias in child.aliases.get_list %}
-                                    {{ alias.get_value }}
-                                    {% cite alias.get_value %}
-                                    {% if not forloop.last %}
-                                        <br/>
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
-                            <td class="cited">
-                                {% for classification in child.classification.get_list %}
-                                    {{ classification.get_value }}
-                                    {% cite classification.get_value %}
-                                    {% if not forloop.last %}
-                                        <br/>
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
-                            <td class="cited">
-                                {% datetype child.firstciteddate.get_value 'start' %}
-                                {% cite child.firstciteddate.get_value %}
-                            </td>
-                            <td class="cited">
-                                {% datetype child.lastciteddate.get_value 'end' %}
-                                {% cite child.lastciteddate.get_value %}
-                            </td>
-                        </tr>
+                    {% for subsidiary in subsidiaries %}
+                        {% with child=subsidiary.child.get_value.value %}
+                            <tr>
+                                <td class="cited">
+                                    <a href="{% url 'detail_organization' child.id %}">
+                                        {{ child.name.get_value }}
+                                    </a>
+                                    {% cite child.name.get_value %}
+                                </td>
+                                <td class="cited">
+                                    {% for alias in child.aliases.get_list %}
+                                        {{ alias.get_value }}
+                                        {% cite alias.get_value %}
+                                        {% if not forloop.last %}
+                                            <br/>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td class="cited">
+                                    {% for classification in child.classification.get_list %}
+                                        {{ classification.get_value }}
+                                        {% cite classification.get_value %}
+                                        {% if not forloop.last %}
+                                            <br/>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td class="cited">
+                                    {% datetype subsidiary.startdate.get_value 'start' %}
+                                    {% cite subsidiary.startdate.get_value %}
+                                </td>
+                                <td class="cited">
+                                    {% datetype subsidiary.enddate.get_value 'end' %}
+                                    {% cite subsidiary.enddate.get_value %}
+                                </td>
+                            </tr>
+                        {% endwith %}
                     {% endfor %}
                 </tbody>
             </table>

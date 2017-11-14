@@ -61,7 +61,7 @@ class OrganizationDetail(DetailView):
         context['subsidiaries'] = []
         children = context['organization'].child_organization.all()
         for child in children:
-            context['subsidiaries'].append(child.object_ref.child.get_value().value)
+            context['subsidiaries'].append(child.object_ref)
 
         # Incidents that this unit perpetrated
         context['events'] = []
