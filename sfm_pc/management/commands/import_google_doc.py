@@ -41,14 +41,17 @@ from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
 from sfm_pc.base_views import UtilityMixin
 
 from geosite.models import Geosite
-from emplacement.models import Emplacement, EmplacementOpenEnded
+from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
 from area.models import Area, AreaOSMId
-from association.models import Association, AssociationOpenEnded
-from composition.models import Composition, CompositionOpenEnded
+from association.models import Association, AssociationOpenEnded, AssociationRealStart
+from composition.models import Composition, CompositionOpenEnded, CompositionRealStart
 from person.models import Person, PersonName, PersonAlias
-from membershipperson.models import MembershipPerson, Role, Rank
+from membershipperson.models import (MembershipPerson, Role, Rank,
+                                     MembershipPersonRealStart,
+                                     MembershipPersonRealEnd)
 from membershiporganization.models import (MembershipOrganization,
-                                        MembershipOrganizationRealEnd)
+                                           MembershipOrganizationRealStart,
+                                           MembershipOrganizationRealEnd)
 from violation.models import Violation, Type, ViolationPerpetrator, \
     ViolationPerpetratorOrganization, ViolationDescription
 
@@ -467,8 +470,7 @@ class Command(UtilityMixin, BaseCommand):
                     organization = Organization.create(org_info)
 
                 org_attributes = ['Alias', 'Classification', 'FirstCitedDate',
-                                  'LastCitedDate', 'OpenEnded',
-                                  'Headquarters']
+                                  'LastCitedDate', 'OpenEnded', 'Headquarters']
 
                 for attr in org_attributes:
 
@@ -477,28 +479,11 @@ class Command(UtilityMixin, BaseCommand):
                                        org_data,
                                        organization)
 
-                # We have to convert the 'Y'/'N' in the RealStart field to bool
-                try:
-                    real_start = org_data[org_positions['RealStart']['value']]
-                except IndexError:
-                    real_start = None
-
-                if real_start == 'Y':
-                    real_start = True
-                elif real_start == 'N':
-                    real_start = False
-                else:
-                    real_start = None
-
-                realstart, created = OrganizationRealStart\
-                                     .objects\
-                                     .get_or_create(value=real_start,
-                                                    object_ref=organization)
-
-                if created:
-
-                    with reversion.create_revision():
-                        reversion.set_user(self.user)
+                self.make_real_date(data=org_data,
+                                    position=org_positions['RealStart']['value'],
+                                    model=OrganizationRealStart,
+                                    attribute='realstart',
+                                    object_ref=organization)
 
                 # Create Emplacements
                 try:
@@ -592,10 +577,11 @@ class Command(UtilityMixin, BaseCommand):
                                            org_data,
                                            composition)
 
-                        self.make_relation('RealStart',
-                                           composition_positions['RealStart'],
-                                           org_data,
-                                           composition)
+                        self.make_real_date(data=org_data,
+                                            position=composition_positions['RealStart']['value'],
+                                            model=CompositionRealStart,
+                                            attribute='realstart',
+                                            object_ref=composition)
 
                         self.make_relation('OpenEnded',
                                            composition_positions['OpenEnded'],
@@ -688,44 +674,27 @@ class Command(UtilityMixin, BaseCommand):
                                            org_data,
                                            membership)
 
-                        self.make_relation('RealStart',
-                                           membership_positions['RealStart'],
-                                           org_data,
-                                           membership)
+                        self.make_real_date(data=org_data,
+                                            position=membership_positions['RealEnd']['value'],
+                                            model=MembershipOrganizationRealEnd,
+                                            attribute='realend',
+                                            object_ref=membership)
 
                         self.make_relation('FirstCitedDate',
                                            membership_positions['FirstCitedDate'],
                                            org_data,
                                            membership)
 
-                        try:
-                            mem_realend = org_data[membership_positions['RealEnd']['value']]
-                        except IndexError:
-                            mem_realend = None
+                        import pdb
+                        pdb.set_trace()
 
-                        if mem_realend:
+                        self.make_real_date(data=org_data,
+                                            position=membership_positions['RealStart']['value'],
+                                            model=MembershipOrganizationRealStart,
+                                            attribute='realend',
+                                            object_ref=membership)
 
-                            if 'Y' in mem_realend:
-                                mem_realend = True
-                            elif 'N' in mem_realend:
-                                mem_realend = False
-                            else:
-                                mem_realend = None
-
-                        mem_realend, created = MembershipOrganizationRealEnd\
-                                               .objects\
-                                               .get_or_create(value=mem_realend,
-                                                              object_ref=membership)
-
-                        if created:
-
-                            with reversion.create_revision():
-                                membership.save()
-                                reversion.set_user(self.user)
-
-                        else:
-
-                            membership.save()
+                        membership.save()
 
                     else:
                         self.log_error('Member organization for {} does not have source or confidence'.format(member_org_name))
@@ -1039,10 +1008,17 @@ class Command(UtilityMixin, BaseCommand):
 
             for field_name, positions in relation_positions.items():
 
-                self.make_relation(field_name,
-                                   positions,
-                                   org_data,
-                                   assoc)
+                if field_name == 'RealStart':
+                    self.make_real_date(data=org_data,
+                                        position=positions['value'],
+                                        model=AssociationRealStart,
+                                        attribute='realstart',
+                                        object_ref=assoc)
+                else:
+                    self.make_relation(field_name,
+                                       positions,
+                                       org_data,
+                                       assoc)
 
     def make_emplacement(self,
                          osm_id,
@@ -1151,10 +1127,17 @@ class Command(UtilityMixin, BaseCommand):
 
                 for field_name, positions in relation_positions.items():
 
-                    self.make_relation(field_name,
-                                    positions,
-                                    org_data,
-                                    emplacement)
+                    if field_name == 'RealStart':
+                        self.make_real_date(data=org_data,
+                                            position=positions['value'],
+                                            model=EmplacementRealStart,
+                                            attribute='realstart',
+                                            object_ref=emplacement)
+                    else:
+                        self.make_relation(field_name,
+                                           positions,
+                                           org_data,
+                                           emplacement)
 
                 return emplacement
 
@@ -1406,6 +1389,41 @@ class Command(UtilityMixin, BaseCommand):
         exact_location['coords'] = GEOSGeometry(point_string, srid=4326)
 
         return exact_location
+
+    def make_real_date(self, *, data, position, model, attribute, object_ref):
+        '''
+        Record a value from the sheet (`data`) corresponding to a real start/end
+        date for a particular model instance.
+
+        Params:
+            - `data`: the sheet in question
+            - `position`: index from which to retrieve the value
+            - `model`: the model to create (e.g. OrganizationRealStart)
+            - `attribute`: attribute of the model in question (e.g. 'realstart')
+            - `object_ref`: the object instance that this date is tied to
+        '''
+        # We have to convert the 'Y'/'N' in the RealStart/End field to bool
+        try:
+            real_date = data[position]
+        except IndexError:
+            real_date = None
+
+        if real_date == 'Y':
+            real_date = True
+        elif real_date == 'N':
+            real_date = False
+        else:
+            real_date = None
+
+        instance, created = model.objects.get_or_create(value=real_date,
+                                                        object_ref=object_ref)
+
+        if created:
+
+            with reversion.create_revision():
+                reversion.set_user(self.user)
+
+        instance.save()
 
     def create_sources(self, sources_string):
 
@@ -1743,10 +1761,11 @@ class Command(UtilityMixin, BaseCommand):
                                    person_data,
                                    membership)
 
-                self.make_relation('RealStart',
-                                   membership_positions['RealStart'],
-                                   person_data,
-                                   membership)
+                self.make_real_date(data=person_data,
+                                    position=membership_positions['RealStart']['value'],
+                                    model=MembershipPersonRealStart,
+                                    attribute='realstart',
+                                    object_ref=membership)
 
                 self.make_relation('StartContext',
                                    membership_positions['StartContext'],
@@ -1758,10 +1777,11 @@ class Command(UtilityMixin, BaseCommand):
                                    person_data,
                                    membership)
 
-                self.make_relation('RealEnd',
-                                   membership_positions['RealEnd'],
-                                   person_data,
-                                   membership)
+                self.make_real_date(data=person_data,
+                                    position=membership_positions['RealEnd']['value'],
+                                    model=MembershipPersonRealEnd,
+                                    attribute='realstart',
+                                    object_ref=membership)
 
                 self.make_relation('EndContext',
                                    membership_positions['EndContext'],
