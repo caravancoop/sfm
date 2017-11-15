@@ -20,6 +20,10 @@ fi
 rm -Rf /home/datamade/sfm-cms
 mkdir -p /home/datamade/sfm-cms
 
+# Create a fresh directory for the importer
+rm -Rf /home/datamade/sfm-importer
+mkdir -p /home/datamade/sfm-importer
+
 # Change into the directory where your changes were downloaded, 
 # make the datamade user the owner of the files therein, and
 # decrypt files encrypted in Blackbox.

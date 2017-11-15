@@ -685,9 +685,6 @@ class Command(UtilityMixin, BaseCommand):
                                            org_data,
                                            membership)
 
-                        import pdb
-                        pdb.set_trace()
-
                         self.make_real_date(data=org_data,
                                             position=membership_positions['RealStart']['value'],
                                             model=MembershipOrganizationRealStart,

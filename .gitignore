@@ -30,3 +30,4 @@ settings_local.py
 /configs/backup-credentials.txt
 /scripts/backup.sh
 /static/js/piwik_tracker_production.js
+/configs/settings_local_importer.py
