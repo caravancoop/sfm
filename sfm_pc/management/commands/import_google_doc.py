@@ -1405,6 +1405,9 @@ class Command(UtilityMixin, BaseCommand):
         except IndexError:
             real_date = None
 
+        if not real_date:
+            return None
+
         if real_date == 'Y':
             real_date = True
         elif real_date == 'N':
