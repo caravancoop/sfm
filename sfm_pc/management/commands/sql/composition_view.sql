@@ -35,6 +35,7 @@ CREATE UNIQUE INDEX composition_id_index ON composition (
   child_id, 
   classification, 
   start_date, 
+  real_start,
   end_date,
   open_ended
 );

@@ -23,5 +23,5 @@ CREATE MATERIALIZED VIEW association AS
   LEFT JOIN association_associationarea AS aaa
     ON aa.id = aaa.object_ref_id;
 
-CREATE UNIQUE INDEX association_index ON association (id, start_date, end_date, area_id);
+CREATE UNIQUE INDEX association_index ON association (id, start_date, real_start, end_date, open_ended, area_id);
 CREATE INDEX association_org_index ON association (organization_id, area_id)

@@ -29,5 +29,5 @@ CREATE MATERIALIZED VIEW emplacement AS
     ON ees.id = eea.object_ref_id
   LEFT JOIN emplacement_alias AS ea
     ON ea.id = eea.value_id;
-CREATE UNIQUE INDEX emplacement_id_index ON emplacement (id, open_ended, start_date, end_date);
+CREATE UNIQUE INDEX emplacement_id_index ON emplacement (id, open_ended, start_date, real_start, end_date);
 CREATE INDEX emplacement_org_index ON emplacement (organization_id, site_id)
