@@ -24,8 +24,8 @@ Create a local settings file:
 
 Create a database:
 
-    createdb sfm-db
-    psql sfm-db -c "CREATE EXTENSION postgis;"
+    createdb sfm
+    psql sfm -c "CREATE EXTENSION postgis;"
     ./manage.py migrate --noinput
 
 Load static data:

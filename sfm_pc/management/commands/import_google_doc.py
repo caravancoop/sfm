@@ -462,7 +462,7 @@ class Command(UtilityMixin, BaseCommand):
                 try:
                     organization = Organization.objects.get(organizationname__value=name_value)
                     existing_sources = self.sourcesList(organization, 'name')
-                    org_info["Organization_OrganizationName"]['sources'] += sources + existing_sources
+                    org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
                     organization.update(org_info)
 
@@ -542,8 +542,10 @@ class Command(UtilityMixin, BaseCommand):
                         }
                         try:
                             parent_organization = Organization.objects.get(organizationname__value=parent_org_name)
-                            sources = self.sourcesList(parent_organization, 'name')
-                            org_info["Organization_OrganizationName"]['sources'] = sources
+                            existing_sources = self.sourcesList(parent_organization, 'name')
+                            parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
+
+                            parent_organization.update(parent_org_info)
 
                         except Organization.DoesNotExist:
                             parent_organization = Organization.create(parent_org_info)
@@ -619,7 +621,7 @@ class Command(UtilityMixin, BaseCommand):
 
                     if confidence and sources:
 
-                        org_info = {
+                        member_org_info = {
                             'Organization_OrganizationName': {
                                 'value': member_org_name,
                                 'confidence': confidence,
@@ -629,9 +631,13 @@ class Command(UtilityMixin, BaseCommand):
 
                         try:
                             member_organization = Organization.objects.get(organizationname__value=member_org_name)
-                            member_organization.update(org_info)
+                            existing_sources = self.sourcesList(member_organization, 'name')
+                            member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
+
+                            member_organization.update(member_org_info)
+
                         except Organization.DoesNotExist:
-                            member_organization = Organization.create(org_info)
+                            member_organization = Organization.create(member_org_info)
 
                         membership_info = {
                             'MembershipOrganization_MembershipOrganizationMember': {
