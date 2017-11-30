@@ -321,6 +321,9 @@
         allowClear: true
     };
     $(document).ready(function(){
+        // Language code
+        {% get_current_language as LANGUAGE_CODE %}
+            var language = '{{ LANGUAGE_CODE }}'
 
         // Autofocus input on older browsers
         if (!("autofocus" in document.createElement("input"))) {
@@ -349,8 +352,7 @@
             endDate: "0d",
             clearBtn: true,
             forceParse: false,
-        {% get_current_language as LANGUAGE_CODE %}
-            language: '{{ LANGUAGE_CODE }}'
+            language: language
         });
 
         // Facet logic
@@ -362,14 +364,16 @@
                                   .replace(/&amp;/g, '&')
                                   .replace(/\+/g, ' ');
 
+        var base_url = '/' + language
+
         $(".filter-value").click(function() {
             var addtl_filter = $(this).attr('data');
             if (existing_q) {
-                window.location.assign('/search/?' + existing_q +
+                window.location.assign(base_url + '/search/?' + existing_q +
                                        '&selected_facets=' +
                                        encodeURIComponent(addtl_filter));
             } else {
-                window.location.assign('/search/?selected_facets=' +
+                window.location.assign(base_url + '/search/?selected_facets=' +
                                        encodeURIComponent(addtl_filter));
             }
         });
@@ -379,10 +383,10 @@
             e.preventDefault();
             var term = $(this).html();
             if (existing_q) {
-                window.location.assign('/search/?' + existing_q_no_query +
+                window.location.assign(base_url + '/search/?' + existing_q_no_query +
                                        '&q=' + encodeURIComponent(term));
             } else {
-                window.location.assign('/search/?q=' +
+                window.location.assign(base_url + '/search/?q=' +
                                        encodeURIComponent(term));
             }
         });
@@ -394,7 +398,7 @@
             var new_components = $.grep(existing_components, function(value) {
                 return encodeURIComponent(value) != to_remove;
             });
-            window.location.assign('/search/?' + new_components.join('&'));
+            window.location.assign(base_url + '/search/?' + new_components.join('&'));
         });
 
         $(".remove-order-value").click(function() {
@@ -408,7 +412,7 @@
                         existing_components.splice(i, 1);
                 }
             }
-            window.location.assign('/search/?' + existing_components.join('&'));
+            window.location.assign(base_url + '/search/?' + existing_components.join('&'));
         });
 
         // Init select2 boxes
