@@ -98,13 +98,13 @@
                         </td>
                         <!-- Most recent rank -->
                         <td>
-                            {% with membership=object.memberships.last %}
+                            {% with membership=object.memberships.first %}
                                 {{ membership.object_ref.rank.get_value|default:"" }}
                             {% endwith %}
                         </td>
                         <!-- Most recent unit -->
                         <td>
-                            {% with membership=object.memberships.last %}
+                            {% with membership=object.memberships.first %}
                                 {% with organization=membership.object_ref.organization.get_value %}
                                     <a href="{% url 'detail_organization' organization.value.id %}">{{ organization.value.name.get_value }}</a>
                                 {% endwith %}
