@@ -56,7 +56,7 @@ def setUpModule():
     dump_path = os.path.join(settings.BASE_DIR, 'fixtures/osm_data.sql')
 
     with open(dump_path, 'r') as f:
-        psql = subprocess.run(['psql', '-d', 'test_sfm-db', '-U', 'postgres'], stdin=f)
+        psql = subprocess.run(['psql', '-d', 'test_sfm', '-U', 'postgres'], stdin=f)
 
     fixtures = [
         'tests/fixtures/auth.json',
