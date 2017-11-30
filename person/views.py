@@ -152,8 +152,8 @@ def get_commanders(membership, compositions, relationship='child'):
         child_commanders_query = '''
             SELECT DISTINCT(id) FROM membershipperson
             WHERE organization_id='{child_id}'
-            AND (first_cited <= '{mem_end}' or first_cited is Null)
-            AND (last_cited >= '{mem_start}' or last_cited is Null)
+            AND (first_cited < '{mem_end}' or first_cited is Null)
+            AND (last_cited > '{mem_start}' or last_cited is Null)
         '''.format(child_id=child_id,
                     mem_end=mem_end,
                     mem_start=mem_start)
