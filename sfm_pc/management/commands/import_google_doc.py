@@ -1685,9 +1685,32 @@ class Command(UtilityMixin, BaseCommand):
 
                 try:
                     organization = Organization.objects.get(organizationname__value=organization_name)
-                    organization.update(org_info)
+
                 except Organization.DoesNotExist:
                     organization = Organization.create(org_info)
+
+                else:
+                    name_sources = self.sourcesList(organization, 'name')
+                    div_sources = self.sourcesList(organization, 'division_id')
+
+                    org_info["Organization_OrganizationName"]['sources'] += name_sources
+                    org_info["Organization_OrganizationDivisionId"]['sources'] += div_sources
+
+                    if organization.name.get_value():
+                        name_confidence = organization.name.get_value().confidence
+
+                        if name_confidence:
+                            name_confidence = int(name_confidence)
+                            org_info["Organization_OrganizationName"]['confidence'] = name_confidence
+
+                    if organization.division_id.get_value():
+                        div_confidence = organization.division_id.get_value().confidence
+
+                        if div_confidence:
+                            div_confidence = int(div_confidence)
+                            org_info["Organization_OrganizationDivisionId"]['confidence'] = div_confidence
+
+                    organization.update(org_info)
 
                 membership_data = {
                     'MembershipPerson_MembershipPersonMember': {
