@@ -1959,10 +1959,13 @@ class Command(UtilityMixin, BaseCommand):
             })
 
         geo, admin1, admin2 = None, None, None
-        try:
-            geo = get_osm_by_id(admin_id)
-        except DataError:
-            self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, admin_id))
+        if admin_id:
+            try:
+                geo = get_osm_by_id(admin_id)
+            except DataError:
+                self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, admin_id))
+        else:
+            self.log_error('Missing OSM ID')
 
         if geo:
 
