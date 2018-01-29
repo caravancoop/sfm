@@ -65,7 +65,7 @@ class Command(UtilityMixin, BaseCommand):
         parser.add_argument(
             '--doc_id',
             dest='doc_id',
-            default='1gJ_c-ZAdavbDgC7DXUrI5MpRbWlhY7K4xKVF3xN8ZJM',
+            default='1s9F-U2dnqBAyqytM3F6olbPWvxR7uGXgE7DF3HC3xd4',
             help='Import data from specified Google Drive Document'
         )
         parser.add_argument(
