@@ -41,7 +41,8 @@ except ImportError:
 
 try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
-        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL
+        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL, \
+        CACHES
 except ImportError as e:
     raise Exception('''DATABASE_URL, 
                      GOOGLE_MAPS_KEY, 
@@ -49,6 +50,7 @@ except ImportError as e:
                      ALLOWED_HOSTS, 
                      IMPORTER_USER, 
                      SOLR_URL,
+                     CACHES,
                      and DEBUG must be defined in settings_local.py''')
 
 # Application definition
