@@ -4,6 +4,8 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
+from django.views.decorators.cache import cache_page
+
 from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
                           EntityMergeView, Countries, command_chain,
                           download_zip, Help, About, country_background)
@@ -31,8 +33,8 @@ urlpatterns = i18n_patterns(
 
     url(r'^osm-autocomplete/$', osm_autocomplete, name="osm-autocomplete"),
     url(r'^division-autocomplete/$', division_autocomplete, name="division-autocomplete"),
-    url(r'^command-chain/(?P<org_id>[0-9a-f-]+)/$', command_chain, name="command-chain"),
-    url(r'^command-chain/(?P<org_id>[0-9a-f-]+)/(?P<when>[0-9-]+)/$', command_chain, name="command-chain-bounded"),
+    url(r'^command-chain/(?P<org_id>[0-9a-f-]+)/$', cache_page(60 * 60 * 24)(command_chain), name="command-chain"),
+    url(r'^command-chain/(?P<org_id>[0-9a-f-]+)/(?P<when>[0-9-]+)/$', cache_page(60 * 60 * 24)(command_chain), name="command-chain-bounded"),
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
@@ -47,7 +49,7 @@ urlpatterns = i18n_patterns(
     url(r'^accounts/', include('allauth.urls')),
 
     # Downloads
-    url(r'^download/', download_zip, name='download'),
+    url(r'^download/', cache_page(60 * 60 * 24)(download_zip), name='download'),
 
     # Authentication
     url(r'^logout/$', logout_then_login, {'login_url': '/accounts/login'}, name="logout"),
