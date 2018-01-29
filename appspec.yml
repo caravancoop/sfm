@@ -18,5 +18,5 @@ hooks: # these are boilerplate and may be copy/pasted as is
       runas: root
   AfterInstall:
     - location: scripts/after_install.sh
-      timeout: 2000
+      timeout: 2700
       runas: root
