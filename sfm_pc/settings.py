@@ -44,11 +44,11 @@ try:
         SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL, \
         CACHES
 except ImportError as e:
-    raise Exception('''DATABASE_URL, 
-                     GOOGLE_MAPS_KEY, 
-                     SECRET_KEY, 
-                     ALLOWED_HOSTS, 
-                     IMPORTER_USER, 
+    raise Exception('''DATABASE_URL,
+                     GOOGLE_MAPS_KEY,
+                     SECRET_KEY,
+                     ALLOWED_HOSTS,
+                     IMPORTER_USER,
                      SOLR_URL,
                      CACHES,
                      and DEBUG must be defined in settings_local.py''')
@@ -220,43 +220,43 @@ OSM_DATA = [
         'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/nigeria_geojson.tgz',
         'country_code': 'ng',
     },
-    {
-        'country': 'Mexico',
-        'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/mexico_geojson.tgz',
-        'country_code': 'mx',
-    },
-    {
-        'country': 'Sierra Leone',
-        'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sierra-leone_geojson.tgz',
-        'country_code': 'sl',
-    },
-    {
-        'country': 'Democratic Republic of the Congo',
-        'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/congo-kinshasa_geojson.tgz',
-        'country_code': 'cd',
-    },
-    {
-        'country': 'Liberia',
-        'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/liberia_geojson.tgz',
-        'country_code': 'lr',
-    },
-    {
-        'country': 'Sudan',
-        'pbf_url': 'http://download.geofabrik.de/africa/sudan-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sudan_geojson.tgz',
-        'country_code': 'sd',
-    },
-    {
-        'country': 'Egypt',
-        'pbf_url': 'http://download.geofabrik.de/africa/egypt-latest.osm.pbf',
-        'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/egypt_geojson.tgz',
-        'country_code': 'eg',
+    # {
+    #     'country': 'Mexico',
+    #     'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/mexico_geojson.tgz',
+    #     'country_code': 'mx',
+    # },
+    # {
+    #     'country': 'Sierra Leone',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sierra-leone_geojson.tgz',
+    #     'country_code': 'sl',
+    # },
+    # {
+    #     'country': 'Democratic Republic of the Congo',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/congo-kinshasa_geojson.tgz',
+    #     'country_code': 'cd',
+    # },
+    # {
+    #     'country': 'Liberia',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/liberia_geojson.tgz',
+    #     'country_code': 'lr',
+    # },
+    # {
+    #     'country': 'Sudan',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/sudan-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/sudan_geojson.tgz',
+    #     'country_code': 'sd',
+    # },
+    # {
+    #     'country': 'Egypt',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/egypt-latest.osm.pbf',
+    #     'boundary_url': 'https://s3.amazonaws.com/osm-polygons.mapzen.com/egypt_geojson.tgz',
+    #     'country_code': 'eg',
 
-    }
+    # }
 ]
 
 # Override built-in messages tags

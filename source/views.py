@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import FormView
+from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -14,45 +15,32 @@ from source.models import Source, Publication
 from source.forms import SourceForm
 
 
+class SourceView(DetailView):
+    model = Source
+    context_object_name = 'source'
+    template_name = 'source/view.html'
+
+
 class SourceCreate(LoginRequiredMixin, FormView):
     template_name = 'source/create.html'
     form_class = SourceForm
-    success_url = reverse_lazy('create-organization')
+
+    def get_success_url(self):
+        print('get success')
+        return reverse_lazy('view-source', kwargs={'source_id': self.source_id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        existing_forms = self.request.session.get('forms', {})
+        context['publication_uuid'] = str(uuid4())
 
-        if existing_forms and existing_forms.get('source'):
+        pub_title = self.request.POST.get('publication_title')
+        if pub_title:
+            context['publication_title'] = pub_title
 
-            form_data = existing_forms.get('source')
-
-            form = SourceForm(form_data)
-
-            context['form'] = form
-
-            publication_id = form_data['publication']
-            publication = Publication.objects.get(id=publication_id)
-
-            context['publication_uuid'] = publication_id
-            context['publication_title'] = publication.title
-            context['publication_country'] = publication.country
-
-        else:
-
-            context['publication_uuid'] = str(uuid4())
-
-            pub_title = self.request.POST.get('publication_title')
-            if pub_title:
-                context['publication_title'] = pub_title
-
-            pub_country = self.request.POST.get('publication_country')
-            if pub_country:
-                context['publication_country'] = pub_country
-
-            if self.request.session.get('source_id'):
-                del self.request.session['source_id']
+        pub_country = self.request.POST.get('publication_country')
+        if pub_country:
+            context['publication_country'] = pub_country
 
         context['countries'] = Country.objects.all()
 
@@ -67,8 +55,6 @@ class SourceCreate(LoginRequiredMixin, FormView):
             return self.form_invalid(form)
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        # Try to find the publication
 
         publication_uuid = form.data.get('publication')
 
@@ -92,15 +78,10 @@ class SourceCreate(LoginRequiredMixin, FormView):
                                                        accessed_on=form.cleaned_data['accessed_on'],
                                                        user=self.request.user)
 
-        self.request.session['source_id'] = source.id
+        self.source_id = source.id
 
-        if not self.request.session.get('forms'):
-            self.request.session['forms'] = {}
+        return super().form_valid(form)
 
-        self.request.session['forms']['source'] = form.data
-        self.request.session.modified = True
-
-        return response
 
 def source_autocomplete(request):
     term = request.GET.get('q')
@@ -140,16 +121,6 @@ def publication_autocomplete(request):
 
     return HttpResponse(json.dumps(results), content_type='application/json')
 
-def view_source(request, source_id):
-    try:
-        source = Source.objects.get(id=source_id)
-
-    except Source.DoesNotExist:
-        return HttpResponseNotFound()
-
-    return render(request,
-                  'source/view.html',
-                  context={'source': source})
 
 def get_sources(request, object_type, object_id, field_name):
     field = ComplexFieldContainer.field_from_str_and_id(
