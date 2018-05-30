@@ -2,7 +2,7 @@ import json
 from uuid import uuid4
 
 from django.http import HttpResponse, HttpResponseNotFound
-from django.views.generic.edit import FormView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,7 +11,7 @@ from complex_fields.models import ComplexFieldContainer
 
 from countries_plus.models import Country
 
-from source.models import Source, Publication
+from source.models import Source
 from source.forms import SourceForm
 
 
@@ -21,66 +21,55 @@ class SourceView(DetailView):
     template_name = 'source/view.html'
 
 
-class SourceCreate(LoginRequiredMixin, FormView):
-    template_name = 'source/create.html'
-    form_class = SourceForm
-
-    def get_success_url(self):
-        print('get success')
-        return reverse_lazy('view-source', kwargs={'source_id': self.source_id})
+class SourceUpdate(LoginRequiredMixin, UpdateView):
+    fields = [
+        'title',
+        'publication',
+        'publication_country',
+        'published_on',
+        'source_url',
+        'page_number',
+        'accessed_on'
+    ]
+    model = Source
+    template_name = 'source/update.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context['publication_uuid'] = str(uuid4())
-
-        pub_title = self.request.POST.get('publication_title')
-        if pub_title:
-            context['publication_title'] = pub_title
-
-        pub_country = self.request.POST.get('publication_country')
-        if pub_country:
-            context['publication_country'] = pub_country
 
         context['countries'] = Country.objects.all()
 
         return context
 
+    def get_success_url(self):
+        return reverse_lazy('view-source', kwargs={'pk': self.object.id})
+
     def post(self, request, *args, **kwargs):
-        form = self.get_form()
+        return super().post(request, *args, **kwargs)
 
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
 
-    def form_valid(self, form):
+class SourceCreate(LoginRequiredMixin, CreateView):
+    fields = [
+        'title',
+        'publication',
+        'publication_country',
+        'published_on',
+        'source_url',
+        'page_number',
+        'accessed_on'
+    ]
+    model = Source
+    template_name = 'source/create.html'
 
-        publication_uuid = form.data.get('publication')
+    def get_success_url(self):
+        return reverse_lazy('view-source', kwargs={'source_id': self.source_id})
 
-        if publication_uuid == 'None':
-            return self.form_invalid(form)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-        publication, created = Publication.objects.get_or_create(id=publication_uuid)
+        context['countries'] = Country.objects.all()
 
-        if created:
-            publication.title = form.data.get('publication_title')
-            publication.country = form.data.get('publication_country')
-            publication.save()
-
-        self.publication = publication
-
-        source, created = Source.objects.get_or_create(title=form.cleaned_data['title'],
-                                                       source_url=form.cleaned_data['source_url'],
-                                                       publication=self.publication,
-                                                       published_on=form.cleaned_data['published_on'],
-                                                       page_number=form.cleaned_data['page_number'],
-                                                       accessed_on=form.cleaned_data['accessed_on'],
-                                                       user=self.request.user)
-
-        self.source_id = source.id
-
-        return super().form_valid(form)
+        return context
 
 
 def source_autocomplete(request):
@@ -93,13 +82,9 @@ def source_autocomplete(request):
         publication_title = ''
         publication_country = ''
 
-        if source.publication:
-            publication_title = source.publication.title
-            publication_country = source.publication.country
-
         text = '{0} ({1} - {2})'.format(source.title,
-                                        publication_title,
-                                        publication_country)
+                                        source.publication,
+                                        source.publication_country)
         results.append({
             'text': text,
             'id': str(source.id),
@@ -109,14 +94,13 @@ def source_autocomplete(request):
 
 def publication_autocomplete(request):
     term = request.GET.get('q')
-    publications = Publication.objects.filter(title__icontains=term).all()
+    publications = Source.objects.filter(publication__icontains=term).all()
 
     results = []
     for publication in publications:
         results.append({
-            'text': publication.title,
-            'country': publication.country,
-            'id': str(publication.id),
+            'text': publication.publication,
+            'country': publication.publication_country,
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')

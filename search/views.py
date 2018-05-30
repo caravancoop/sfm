@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.views.decorators.cache import never_cache
 import pysolr
 
-from source.models import Source, Publication
+from source.models import Source
 from organization.models import Organization
 from person.models import Person
 from violation.models import Violation

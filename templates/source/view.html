@@ -5,10 +5,17 @@
     <div class="col-sm-12">
         <p><strong>Title: </strong>{{ source.title }}</p>
         <p><strong>published on: </strong>{{ source.published_on }}</p>
-        <p><strong>publication: </strong>{{ source.publication.title }}</p>
-        <p><strong>publication country: </strong>{{ source.publication.country }}</p>
+        <p><strong>published on: </strong>{{ source.accessed_on }}</p>
+        <p><strong>publication: </strong>{{ source.publication }}</p>
+        <p><strong>publication country: </strong>{{ source.publication_country }}</p>
         <p><strong>source url: </strong>{{ source.source_url }}</p>
         <p><strong>archive url: </strong>{{ source.archive_url }}</p>
+        <p><strong>user: </strong>{{ source.user }}</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <a href="{% url 'update-source' source.id %}" class="btn btn-success">Edit</a>
     </div>
 </div>
 
