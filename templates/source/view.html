@@ -19,4 +19,34 @@
     </div>
 </div>
 
+{% for version in versions %}
+<div class="row">
+    <div class="col-sm-12">
+        <br />
+        <table class="table table-condensed">
+            <tbody>
+                <tr class="success">
+                    <td><strong>Transition</strong></td>
+                    <td>{{ version.id }}</td>
+                </tr>
+                <tr>
+                    <td>User</td>
+                    <td>{{ version.user.username }}</td>
+                </tr>
+                <tr>
+                    <td>Timestamp</td>
+                    <td>{{ version.modification_date }}</td>
+                </tr>
+                {% for change in version.field_diffs %}
+                    <tr>
+                        <td><strong>Changed:</strong></td>
+                        <td>"{{ change.field_name }}" => {{ change.from }} <strong>to</strong> "{{ change.field_name }}" => {{ change.to }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
+
 {% endblock %}

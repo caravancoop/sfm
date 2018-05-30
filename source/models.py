@@ -2,12 +2,15 @@ import threading
 
 import requests
 
+import reversion
+
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
 
+@reversion.register()
 class Source(models.Model):
     title = models.TextField()
     publication = models.TextField()
