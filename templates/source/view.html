@@ -5,7 +5,7 @@
     <div class="col-sm-12">
         <p><strong>Title: </strong>{{ source.title }}</p>
         <p><strong>published on: </strong>{{ source.published_on }}</p>
-        <p><strong>published on: </strong>{{ source.accessed_on }}</p>
+        <p><strong>accessed on: </strong>{{ source.accessed_on }}</p>
         <p><strong>publication: </strong>{{ source.publication }}</p>
         <p><strong>publication country: </strong>{{ source.publication_country }}</p>
         <p><strong>source url: </strong>{{ source.source_url }}</p>
@@ -18,35 +18,4 @@
         <a href="{% url 'update-source' source.id %}" class="btn btn-success">Edit</a>
     </div>
 </div>
-
-{% for version in versions %}
-<div class="row">
-    <div class="col-sm-12">
-        <br />
-        <table class="table table-condensed">
-            <tbody>
-                <tr class="success">
-                    <td><strong>Transition</strong></td>
-                    <td>{{ version.id }}</td>
-                </tr>
-                <tr>
-                    <td>User</td>
-                    <td>{{ version.user.username }}</td>
-                </tr>
-                <tr>
-                    <td>Timestamp</td>
-                    <td>{{ version.modification_date }}</td>
-                </tr>
-                {% for change in version.field_diffs %}
-                    <tr>
-                        <td><strong>Changed:</strong></td>
-                        <td>"{{ change.field_name }}" => {{ change.from }} <strong>to</strong> "{{ change.field_name }}" => {{ change.to }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endfor %}
-
 {% endblock %}

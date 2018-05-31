@@ -6,7 +6,7 @@ from reversion.views import RevisionMixin
 from reversion.models import Version
 import reversion
 
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy
@@ -22,51 +22,10 @@ from source.forms import SourceForm
 from source.utils import DictDiffer
 
 
-class SourceView(DetailView):
+class SourceView(LoginRequiredMixin, DetailView):
     model = Source
     context_object_name = 'source'
     template_name = 'source/view.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        versions = Version.objects.get_for_object(context['object'])
-
-        differences = []
-
-        for index, version in enumerate(versions):
-            try:
-                previous = versions[index - 1]
-            except (IndexError, AssertionError):
-                continue
-
-            differ = DictDiffer(version.field_dict, previous.field_dict)
-
-            diff = {
-                'modification_date': version.revision.date_created,
-                'comment': version.revision.comment,
-                'user': version.revision.user,
-                'id': '{0} => {1}'.format(version.id, previous.id),
-                'field_diffs': []
-            }
-
-            # For the moment this will only ever return changes because all the
-            # fields are required.
-            if differ.changed():
-                for field in differ.changed():
-                    field_diff = {
-                        'field_name': field,
-                        'to': differ.past_dict[field],
-                        'from': differ.current_dict[field],
-                    }
-
-                    diff['field_diffs'].append(field_diff)
-
-                differences.append(diff)
-
-        context['versions'] = differences
-
-        return context
 
 
 class SourceEditView(RevisionMixin, LoginRequiredMixin):
@@ -94,8 +53,6 @@ class SourceEditView(RevisionMixin, LoginRequiredMixin):
     def form_valid(self, form):
         self.form = form
 
-        self.addRevisionComment()
-
         self.form.instance.user = self.request.user
         return super().form_valid(form)
 
@@ -103,15 +60,56 @@ class SourceEditView(RevisionMixin, LoginRequiredMixin):
 class SourceUpdate(SourceEditView, UpdateView):
     template_name = 'source/update.html'
 
-    def addRevisionComment(self):
-        reversion.set_comment('Updated by {}'.format(self.request.user.username))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        versions = Version.objects.get_for_object(context['object'])
+
+        differences = []
+
+        for index, version in enumerate(versions):
+            try:
+                previous = versions[index - 1]
+            except (IndexError, AssertionError):
+                continue
+
+            differ = DictDiffer(version.field_dict, previous.field_dict)
+
+            diff = {
+                'modification_date': previous.revision.date_created,
+                'comment': previous.revision.comment,
+                'user': previous.revision.user,
+                'from_id': version.id,
+                'to_id': previous.id,
+                'field_diffs': []
+            }
+
+            skip_fields = ['date_updated']
+
+            # For the moment this will only ever return changes because all the
+            # fields are required.
+            if differ.changed():
+
+                for field in differ.changed():
+
+                    if field not in skip_fields:
+                        field_diff = {
+                            'field_name': field,
+                            'to': differ.past_dict[field],
+                            'from': differ.current_dict[field],
+                        }
+
+                        diff['field_diffs'].append(field_diff)
+
+                differences.append(diff)
+
+        context['versions'] = differences
+
+        return context
 
 
 class SourceCreate(SourceEditView, CreateView):
     template_name = 'source/create.html'
-
-    def addRevisionComment(self):
-        reversion.set_comment('Created by {}'.format(self.request.user.username))
 
 
 class SourceRevertView(LoginRequiredMixin, View):
@@ -119,12 +117,16 @@ class SourceRevertView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
 
-        print(request.POST)
+        version_id = request.POST['version_id']
 
-        return super().post(request, *args, **kwargs)
+        revision = Version.objects.get(id=version_id).revision
 
-    def get_redirect_url(self, *args, **kwargs):
-        pass
+        reversion.set_comment(request.POST['comment'])
+
+        revision.revert()
+
+        return HttpResponseRedirect(reverse_lazy('update-source',
+                                                 kwargs={'pk': kwargs['pk']}))
 
 
 def source_autocomplete(request):
