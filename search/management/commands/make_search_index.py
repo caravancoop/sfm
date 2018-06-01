@@ -547,24 +547,22 @@ class Command(BaseCommand):
 
         source_query= '''
             SELECT
-              src.id,
-              MAX(src.title) AS src_title,
-              MAX(src.source_url) AS src_url,
-              MAX(src.published_on)::timestamp as date_published,
-              MAX(pub.title) AS pub_title,
-              MAX(pub.country) AS pub_country
-            FROM source_source as src
-            LEFT JOIN source_publication as pub
-              ON src.publication_id = pub.id
+              id,
+              MAX(title) AS title,
+              MAX(source_url) AS url,
+              MAX(published_on)::timestamp as date_published,
+              MAX(publication) AS publication,
+              MAX(publication_country) AS publication_country
+            FROM source_source
         '''
 
         if doc_id:
             source_query += '''
-                WHERE src.id = '{doc_id}'
+                WHERE id = '{doc_id}'
             '''.format(doc_id=doc_id)
 
         source_query += '''
-            GROUP BY src.id
+            GROUP BY id
         '''
 
         source_cursor = connection.cursor()
@@ -582,7 +580,7 @@ class Command(BaseCommand):
 
             date_published = source['date_published'].strftime('%Y-%m-%dT%H:%M:%SZ')
 
-            content = source['src_title']
+            content = source['title']
 
             if len(content) == 0:
                 # The import data script is missing one title - skip it for now
@@ -592,11 +590,11 @@ class Command(BaseCommand):
                 'id': source['id'],
                 'entity_type': 'Source',
                 'content': content,
-                'source_url_s': source['src_url'],
-                'source_title_t': source['src_title'],
+                'source_url_s': source['url'],
+                'source_title_t': source['title'],
                 'source_date_published_dt': date_published,
-                'publication_title_t': source['pub_title'],
-                'publication_country_s': source['pub_country'],
+                'publication_t': source['publication'],
+                'publication_country_s': source['publication_country'],
                 '_text_': content
             }
 

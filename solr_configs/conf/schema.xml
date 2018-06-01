@@ -622,7 +622,7 @@
       http://wiki.apache.org/solr/SolrAdaptersForLuceneSpatial4
     -->
     <fieldType name="location_rpt"   class="solr.RptWithGeometrySpatialField"
-               spatialContextFactory="org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory"
+               spatialContextFactory="JTS"
                autoIndex="true"
                validationRule="repairBuffer0"
                distErrPct="0.025"
