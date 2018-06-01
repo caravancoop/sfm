@@ -6,10 +6,10 @@ from django.db import connection
 from django.core.management import call_command
 
 from organization.models import Organization, OrganizationName, OrganizationAlias
-from source.models import Source, Publication
+from source.models import Source
 
 from sfm_pc.signals import update_orgname_index, update_orgalias_index, \
-    update_source_index, update_publication_index
+    update_source_index
 
 
 def setUpModule():
@@ -17,7 +17,6 @@ def setUpModule():
     post_save.disconnect(receiver=update_orgname_index, sender=OrganizationName)
     post_save.disconnect(receiver=update_orgalias_index, sender=OrganizationAlias)
     post_save.disconnect(receiver=update_source_index, sender=Source)
-    post_save.disconnect(receiver=update_publication_index, sender=Publication)
 
     call_command('loaddata', 'tests/fixtures/auth.json')
     call_command('loaddata', 'tests/fixtures/source.json')
@@ -30,7 +29,6 @@ def tearDownModule():
     with connection.cursor() as conn:
         conn.execute('TRUNCATE auth_user CASCADE')
         conn.execute('TRUNCATE source_source CASCADE')
-        conn.execute('TRUNCATE source_publication CASCADE')
         conn.execute('TRUNCATE organization_organization CASCADE')
 
 

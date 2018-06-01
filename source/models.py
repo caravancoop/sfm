@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 @reversion.register()
 class Source(models.Model):
     title = models.TextField()
-    publication = models.TextField()
+    publication = models.TextField(null=True)
     publication_country = models.CharField(max_length=1000, null=True)
     published_on = models.DateField()
     source_url = models.URLField(max_length=1000, null=True)
@@ -24,7 +24,7 @@ class Source(models.Model):
 
     user = models.ForeignKey(User)
 
-    page_number = models.CharField(max_length=255, null=True)
+    page_number = models.CharField(max_length=255, null=True, blank=True)
     accessed_on = models.DateField(null=True)
 
     def __str__(self):

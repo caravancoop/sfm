@@ -4,7 +4,7 @@ from django.db import connection
 from django.core.management import call_command
 from django.contrib.auth.models import User
 
-from source.models import Source, Publication
+from source.models import Source
 
 def setUpModule():
 
@@ -20,7 +20,6 @@ def tearDownModule():
     with connection.cursor() as conn:
         conn.execute('TRUNCATE auth_user CASCADE')
         conn.execute('TRUNCATE source_source CASCADE')
-        conn.execute('TRUNCATE source_publication CASCADE')
         conn.execute('TRUNCATE person_person CASCADE')
 
 class PersonTest(TestCase):
