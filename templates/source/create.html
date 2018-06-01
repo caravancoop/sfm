@@ -10,7 +10,6 @@
 
 {% endblock %}
 {% block content %}
-{% include 'partials/nav-wizard.html' %}
 <div class="row">
     <h2><i class="fa fa-fw fa-file-text"></i> {% trans "Create source" %}</h2>
     <p class="small">{% trans "Describe where you are getting your information." %}</p>
@@ -56,10 +55,8 @@
             <label for="id_publication" class="control-label col-sm-2">{% trans "Publication" %}</label>
             <div class="col-sm-8">
                 <select id="id_publication" class="form-control" name="publication">
-                    <option value="{{ form.cleaned_data.publication }}" selected=true>{{ publication_title }}</option>
+                    <option value="{{ form.cleaned_data.publication }}" selected=true>{{ form.cleaned_data.publication }}</option>
                 </select>
-                <input type="hidden" name="publication_title" id="id_publication_title" value="{{ publication_title }}">
-                <input type="hidden" name="publication_uuid" id="id_publication_uuid" value="{{ form.cleaned_data.publication }}">
             {% if form.publication.errors %}
                 {% for error in form.publication.errors %}
                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -75,16 +72,8 @@
         <label for="id_publication_country" class="control-label col-sm-2">{% trans "Publication country" %}</label>
         <div class="col-sm-8">
             <select id="id_publication_country" class="form-control" name="publication_country">
-                <option value="">--------</option>
-                {% for country in countries %}
-                    {% if country.name == publication_country %}
-                        <option value="{{ country.name }}" selected=selected>{{ country.name }}</option>
-                    {% else %}
-                        <option value="{{ country.name }}">{{ country.name }}</option>
-                    {% endif %}
-                {% endfor %}
             </select>
-            {% if form.publication_country.errors %}
+            {% if form.instance.publication_country.errors %}
                 {% for error in form.publication_country.errors %}
                 <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                 {% endfor %}
@@ -147,72 +136,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
-<script type="text/javascript">
-    $(document).ready(function(e){
-        $('#id_publication').select2({
-            ajax: {
-                url: "{% url 'publications-autocomplete' %}",
-                datType: 'json',
-                delay: 250,
-                data: function(params){
-                    return {
-                        q: params.term,
-                    };
-                },
-                processResults: function(data, params){
-                    if (data.length >= 1){
-                        return {
-                            results: data,
-                        }
-                    } else {
-                        return {results: [{
-                                    'id': "{{ publication_uuid }}",
-                                    'text': params.term,
-                                    'country': null}]}
-                    }
-                },
-                cache: true
-            },
-            escapeMarkup: function(markup){ return markup; },
-            minimumInputLength: 2,
-            tags: true,
-            allowClear: true,
-            selectOnClose: true,
-            placeholder: '',
-            language: { 
-                inputTooShort: function () { 
-                    return '{% trans "Please enter two or more characters..." %}'; 
-                },
-                noResults: function (params) {
-                  return '{% trans "No results found" %}';
-                }, 
-            },
-        });
-        $('#id_publication_country').select2({
-            allowClear: true,
-            placeholder: '',
-            selectOnClose: true,
-            language: { 
-                noResults: function (params) {
-                  return '{% trans "No results found" %}';
-                }, 
-            },
-        });
-        $('#id_publication').on('select2:select', function(e){
-            $('#id_publication_title').val(e.params.data.text);
-            if(e.params.data.country){
-                var country_option = $('#id_publication_country').val(e.params.data.country);
-                country_option.trigger('change');
-            }
-        });
-        $('#id_publication').on('select2:unselect', function(e){
-            var selector = '#id_publication';
-            $(selector).val(null).trigger('change');
-            $(selector + '_title').val(null);
-            $(selector + '_uuid').val(null);
-        });
-        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
-    });
-</script>
+    {% include 'partials/source_edit_js.html' %}
 {% endblock %}

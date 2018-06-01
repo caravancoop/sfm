@@ -1,106 +1,134 @@
 import json
 from uuid import uuid4
+import itertools
 
-from django.http import HttpResponse, HttpResponseNotFound
-from django.views.generic.edit import FormView
+from reversion.views import RevisionMixin
+from reversion.models import Version
+import reversion
+
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import View
 
 from complex_fields.models import ComplexFieldContainer
 
 from countries_plus.models import Country
 
-from source.models import Source, Publication
+from source.models import Source
 from source.forms import SourceForm
+from source.utils import DictDiffer
 
 
-class SourceCreate(LoginRequiredMixin, FormView):
-    template_name = 'source/create.html'
-    form_class = SourceForm
-    success_url = reverse_lazy('create-organization')
+class SourceView(LoginRequiredMixin, DetailView):
+    model = Source
+    context_object_name = 'source'
+    template_name = 'source/view.html'
+
+
+class SourceEditView(RevisionMixin, LoginRequiredMixin):
+    fields = [
+        'title',
+        'publication',
+        'publication_country',
+        'published_on',
+        'source_url',
+        'page_number',
+        'accessed_on'
+    ]
+    model = Source
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        existing_forms = self.request.session.get('forms', {})
-
-        if existing_forms and existing_forms.get('source'):
-
-            form_data = existing_forms.get('source')
-
-            form = SourceForm(form_data)
-
-            context['form'] = form
-
-            publication_id = form_data['publication']
-            publication = Publication.objects.get(id=publication_id)
-
-            context['publication_uuid'] = publication_id
-            context['publication_title'] = publication.title
-            context['publication_country'] = publication.country
-
-        else:
-
-            context['publication_uuid'] = str(uuid4())
-
-            pub_title = self.request.POST.get('publication_title')
-            if pub_title:
-                context['publication_title'] = pub_title
-
-            pub_country = self.request.POST.get('publication_country')
-            if pub_country:
-                context['publication_country'] = pub_country
-
-            if self.request.session.get('source_id'):
-                del self.request.session['source_id']
 
         context['countries'] = Country.objects.all()
 
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+    def get_success_url(self):
+        return reverse_lazy('view-source', kwargs={'pk': self.object.id})
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        # Try to find the publication
+        self.form = form
 
-        publication_uuid = form.data.get('publication')
+        self.form.instance.user = self.request.user
+        return super().form_valid(form)
 
-        if publication_uuid == 'None':
-            return self.form_invalid(form)
 
-        publication, created = Publication.objects.get_or_create(id=publication_uuid)
+class SourceUpdate(SourceEditView, UpdateView):
+    template_name = 'source/update.html'
 
-        if created:
-            publication.title = form.data.get('publication_title')
-            publication.country = form.data.get('publication_country')
-            publication.save()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-        self.publication = publication
+        versions = Version.objects.get_for_object(context['object'])
 
-        source, created = Source.objects.get_or_create(title=form.cleaned_data['title'],
-                                                       source_url=form.cleaned_data['source_url'],
-                                                       publication=self.publication,
-                                                       published_on=form.cleaned_data['published_on'],
-                                                       page_number=form.cleaned_data['page_number'],
-                                                       accessed_on=form.cleaned_data['accessed_on'],
-                                                       user=self.request.user)
+        differences = []
 
-        self.request.session['source_id'] = source.id
+        for index, version in enumerate(versions):
+            try:
+                previous = versions[index - 1]
+            except (IndexError, AssertionError):
+                continue
 
-        if not self.request.session.get('forms'):
-            self.request.session['forms'] = {}
+            differ = DictDiffer(version.field_dict, previous.field_dict)
 
-        self.request.session['forms']['source'] = form.data
-        self.request.session.modified = True
+            diff = {
+                'modification_date': previous.revision.date_created,
+                'comment': previous.revision.comment,
+                'user': previous.revision.user,
+                'from_id': version.id,
+                'to_id': previous.id,
+                'field_diffs': []
+            }
 
-        return response
+            skip_fields = ['date_updated']
+
+            # For the moment this will only ever return changes because all the
+            # fields are required.
+            if differ.changed():
+
+                for field in differ.changed():
+
+                    if field not in skip_fields:
+                        field_diff = {
+                            'field_name': field,
+                            'to': differ.past_dict[field],
+                            'from': differ.current_dict[field],
+                        }
+
+                        diff['field_diffs'].append(field_diff)
+
+                differences.append(diff)
+
+        context['versions'] = differences
+
+        return context
+
+
+class SourceCreate(SourceEditView, CreateView):
+    template_name = 'source/create.html'
+
+
+class SourceRevertView(LoginRequiredMixin, View):
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+
+        version_id = request.POST['version_id']
+
+        revision = Version.objects.get(id=version_id).revision
+
+        reversion.set_comment(request.POST['comment'])
+        reversion.set_user(request.user)
+
+        revision.revert()
+
+        return HttpResponseRedirect(reverse_lazy('update-source',
+                                                 kwargs={'pk': kwargs['pk']}))
+
 
 def source_autocomplete(request):
     term = request.GET.get('q')
@@ -112,13 +140,9 @@ def source_autocomplete(request):
         publication_title = ''
         publication_country = ''
 
-        if source.publication:
-            publication_title = source.publication.title
-            publication_country = source.publication.country
-
         text = '{0} ({1} - {2})'.format(source.title,
-                                        publication_title,
-                                        publication_country)
+                                        source.publication,
+                                        source.publication_country)
         results.append({
             'text': text,
             'id': str(source.id),
@@ -128,28 +152,18 @@ def source_autocomplete(request):
 
 def publication_autocomplete(request):
     term = request.GET.get('q')
-    publications = Publication.objects.filter(title__icontains=term).all()
+    publications = Source.objects.filter(publication__icontains=term).all()
 
     results = []
     for publication in publications:
         results.append({
-            'text': publication.title,
-            'country': publication.country,
-            'id': str(publication.id),
+            'id': publication.id,
+            'text': publication.publication,
+            'country': publication.publication_country,
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
 
-def view_source(request, source_id):
-    try:
-        source = Source.objects.get(id=source_id)
-
-    except Source.DoesNotExist:
-        return HttpResponseNotFound()
-
-    return render(request,
-                  'source/view.html',
-                  context={'source': source})
 
 def get_sources(request, object_type, object_id, field_name):
     field = ComplexFieldContainer.field_from_str_and_id(

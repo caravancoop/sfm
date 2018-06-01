@@ -3,13 +3,28 @@
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
-        <p><strong>Title: </strong>{{ source.title }}</p>
-        <p><strong>published on: </strong>{{ source.published_on }}</p>
-        <p><strong>publication: </strong>{{ source.publication.title }}</p>
-        <p><strong>publication country: </strong>{{ source.publication.country }}</p>
-        <p><strong>source url: </strong>{{ source.source_url }}</p>
-        <p><strong>archive url: </strong>{{ source.archive_url }}</p>
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-sm-10">
+                    <h2>{{ source.title }}</h2>
+                </div>
+                <div class="col-sm-2">
+                    <a href="{% url 'update-source' source.id %}" class="btn btn-success btn-lg"><i class="fa fa-edit"> </i> Edit</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <p>
+                        <strong>Publisher: </strong>{{ source.publication }} ({{ source.publication_country }})<br />
+                        <strong>Publication date: </strong>{{ source.published_on }}<br />
+                        <strong>URL: </strong>{{ source.source_url }}<br />
+                        <strong>Archive URL: </strong>{{ source.archive_url }}<br />
+                        <strong>Accessed on: </strong>{{ source.accessed_on }}<br />
+                        <strong>Last edited by: </strong>{{ source.user }}
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
 {% endblock %}
