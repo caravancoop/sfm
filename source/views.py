@@ -122,6 +122,7 @@ class SourceRevertView(LoginRequiredMixin, View):
         revision = Version.objects.get(id=version_id).revision
 
         reversion.set_comment(request.POST['comment'])
+        reversion.set_user(request.user)
 
         revision.revert()
 
@@ -156,6 +157,7 @@ def publication_autocomplete(request):
     results = []
     for publication in publications:
         results.append({
+            'id': publication.id,
             'text': publication.publication,
             'country': publication.publication_country,
         })
