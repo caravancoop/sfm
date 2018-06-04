@@ -48,7 +48,7 @@ class SourceEditView(RevisionMixin, LoginRequiredMixin):
         return context
 
     def get_success_url(self):
-        return reverse_lazy('view-source', kwargs={'pk': self.object.id})
+        return reverse_lazy('view-source', kwargs={'pk': self.object.uuid})
 
     def form_valid(self, form):
         self.form = form

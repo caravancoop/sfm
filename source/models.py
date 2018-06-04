@@ -1,4 +1,5 @@
 import threading
+import uuid
 
 import requests
 
@@ -12,6 +13,7 @@ from django.contrib.auth.models import User
 
 @reversion.register()
 class Source(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.TextField()
     publication = models.TextField(null=True)
     publication_country = models.CharField(max_length=1000, null=True)

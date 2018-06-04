@@ -42,7 +42,13 @@ SEARCH_ENTITY_TYPES = {
                          'country_ss_fct'],
         'facet_ranges': ['violation_start_date_dt',
                          'violation_end_date_dt'],
-    }
+    },
+    'Source': {
+        'model': Source,
+        'facet_fields': ['country_ss_fct',
+                         'publication_t'],
+        'facet_ranges': [],
+    },
 }
 
 # Search engine
@@ -333,7 +339,7 @@ def get_search_context(request, all_results=False):
     suggested_terms = None
     if hits['global'] < 10 and user_query:
         lookup = suggester.search(user_query)
-        suggestions = lookup.raw_response['suggest']['Suggester'][user_query]['suggestions']
+        suggestions = lookup.raw_response['suggest']['default'][user_query]['suggestions']
         # Filter out suggestions that exactly match the user's query
         suggested_terms = list(sugg['term'] for sugg in suggestions
                                if sugg['term'].lower() != user_query.lower())

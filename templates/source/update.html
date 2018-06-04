@@ -169,7 +169,7 @@
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <form class="form" action="{% url 'revert-source' source.id %}" method="POST">
+        <form class="form" action="{% url 'revert-source' source.uuid %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="version_id" value="{{ version.from_id }}">
             <div class="input-group">

@@ -230,7 +230,7 @@ class Command(BaseCommand):
                 'organization_area_ss': areas,
                 'organization_start_date_dt': first_cited,
                 'organization_end_date_dt': first_cited,
-                '_text_': content
+                'text': content
             }
 
             documents.append(document)
@@ -371,7 +371,7 @@ class Command(BaseCommand):
                 'person_last_cited_dt': last_cited,
                 'start_date_dt': first_cited,
                 'end_date_dt': last_cited,
-                '_text_': content
+                'text': content
             }
 
             documents.append(document)
@@ -530,7 +530,7 @@ class Command(BaseCommand):
                 'perpetrator_organization_alias_ss': perp_org_aliases,
                 'perpetrator_classification_ss': perp_org_classes,
                 'perpetrator_classification_count_i': perp_org_class_count,
-                '_text_': content
+                'text': content
             }
 
             documents.append(document)
@@ -547,7 +547,7 @@ class Command(BaseCommand):
 
         source_query= '''
             SELECT
-              id,
+              uuid,
               MAX(title) AS title,
               MAX(source_url) AS url,
               MAX(published_on)::timestamp as date_published,
@@ -558,11 +558,11 @@ class Command(BaseCommand):
 
         if doc_id:
             source_query += '''
-                WHERE id = '{doc_id}'
+                WHERE uuid = '{doc_id}'
             '''.format(doc_id=doc_id)
 
         source_query += '''
-            GROUP BY id
+            GROUP BY uuid
         '''
 
         source_cursor = connection.cursor()
@@ -587,15 +587,15 @@ class Command(BaseCommand):
                 continue
 
             document = {
-                'id': source['id'],
+                'id': source['uuid'],
                 'entity_type': 'Source',
                 'content': content,
                 'source_url_s': source['url'],
                 'source_title_t': source['title'],
                 'source_date_published_dt': date_published,
                 'publication_t': source['publication'],
-                'publication_country_s': source['publication_country'],
-                '_text_': content
+                'country_ss': source['publication_country'],
+                'text': content
             }
 
             documents.append(document)

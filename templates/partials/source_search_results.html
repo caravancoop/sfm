@@ -14,16 +14,16 @@
         {% for object in objects %}
             <tr>
                 <td>
-                    {{ object.title }}
+                    <a href="{% url 'view-source' object.uuid %}">{{ object.title }}</a>
                 </td>
                 <td>
-                    {{ object.publication.date }}
+                    {{ object.published_on }}
                 </td>
                 <td>
-                    {{ object.publication.title }}
+                    {{ object.publication }}
                 </td>
                 <td>
-                    {{ object.publication.country }}
+                    {{ object.publication_country|default_if_none:"" }}
                 </td>
             </tr>
         {% endfor %}

@@ -241,6 +241,42 @@
                     </div>
                 </div>
             {% endif %}
+
+            <!-- Sources -->
+
+            {% if 'Source' in entity_types and results.Source|length > 0 %}
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-target='#source-filters'>
+                        <a role="button" class="filter-heading">
+                            <h4 class="panel-title">
+                                {% trans "Filters for <strong><i class='fa fa-fw fa-exclamation-triangle'></i>Sources</strong>" %}
+                                <i class="fa fa-fw
+                                {% if show_filter.Search %}
+                                    fa-minus
+                                {% else %}
+                                    fa-plus
+                                {% endif %}
+                                pull-right"></i>
+                            </h4>
+                        </a>
+                    </div>
+                    <!-- Facets -->
+                    <div class="panel-body {% if show_filter.Source %}panel-show{% endif %} collapse" id="source-filters">
+                        <!-- Publication country type -->
+                        {% if facets.Search.facet_fields.country_ss_fct.any %}
+                            {% with facet_name='country_ss_fct' facet_label=_('Country of publication') selected_list=selected_facets.country_ss_fct item_list=facets.Source.facet_fields.country_ss_fct.counts %}
+                                {% include 'partials/search_filter.html' %}
+                            {% endwith %}
+                        {% endif %}
+                        <!-- Publication name -->
+                        {% if facets.Source.facet_fields.publication_t_fct.any %}
+                            {% with facet_name='publication_t_fct' facet_label=_('Publication name') selected_list=selected_facets.publication_t_fct item_list=facets.Source.facet_fields.publication_t_fct.counts %}
+                                {% include 'partials/search_filter.html' %}
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </form>
     <div class="col-xs-12 col-sm-8 pull-right">
@@ -276,6 +312,11 @@
         {% if 'Violation' in results.keys %}
             {% with objects=results.Violation hit_count=hits.Violation %}
                 {% include 'partials/violation_search_results.html' %}
+            {% endwith %}
+        {% endif %}
+        {% if 'Source' in results.keys %}
+            {% with objects=results.Source hit_count=hits.Source %}
+                {% include 'partials/source_search_results.html' %}
             {% endwith %}
         {% endif %}
     {% else %}
