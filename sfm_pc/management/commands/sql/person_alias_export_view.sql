@@ -12,5 +12,5 @@ CREATE MATERIALIZED VIEW person_alias_export AS
   LEFT JOIN person_personalias_sources AS ppas
     ON ppa.id = ppas.personalias_id
   LEFT JOIN source_source AS ppass
-    ON ppas.source_id = ppass.id
+    ON ppas.source_id = ppass.uuid
   GROUP BY pp.uuid, pa.value, ppa.confidence, ppass.id

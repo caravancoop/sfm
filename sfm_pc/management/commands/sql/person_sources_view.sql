@@ -1,5 +1,5 @@
-CREATE MATERIALIZED VIEW person_sources AS 
-  SELECT 
+CREATE MATERIALIZED VIEW person_sources AS
+  SELECT
     pp.uuid AS id,
     ppn.value AS name_value,
     MAX(ppn.confidence) AS name_confidence,
@@ -14,7 +14,7 @@ CREATE MATERIALIZED VIEW person_sources AS
   LEFT JOIN person_personname_sources AS ppns
     ON ppn.id = ppns.personname_id
   LEFT JOIN source_source AS ppnss
-    ON ppns.source_id = ppnss.id
+    ON ppns.source_id = ppnss.uuid
   LEFT JOIN person_personalias AS ppa
     ON pp.id = ppa.object_ref_id
   LEFT JOIN person_alias AS pa
@@ -22,7 +22,7 @@ CREATE MATERIALIZED VIEW person_sources AS
   LEFT JOIN person_personalias_sources AS ppas
     ON ppa.id = ppas.personalias_id
   LEFT JOIN source_source AS ppass
-    ON ppas.source_id = ppass.id
+    ON ppas.source_id = ppass.uuid
   LEFT JOIN person_persondivisionid AS ppd
     ON pp.id = ppd.object_ref_id
   GROUP BY pp.uuid, ppn.value, pa.value, ppd.value;

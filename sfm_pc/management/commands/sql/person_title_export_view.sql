@@ -15,5 +15,5 @@ CREATE MATERIALIZED VIEW person_title_export AS
   LEFT JOIN membershipperson_membershippersontitle_sources AS mmts
     ON mmt.id = mmts.membershippersontitle_id
   LEFT JOIN source_source AS mmtss
-    ON mmts.source_id = mmtss.id
+    ON mmts.source_id = mmtss.uuid
   GROUP BY pp.uuid, mm.id, mmt.value, mmt.confidence, mmtss.id

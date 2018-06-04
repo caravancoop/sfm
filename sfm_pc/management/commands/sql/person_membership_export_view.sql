@@ -15,7 +15,7 @@ CREATE MATERIALIZED VIEW person_membership_export AS
   LEFT JOIN membershipperson_membershippersonorganization_sources AS mmp
     ON mmo.id = mmp.membershippersonorganization_id
   LEFT JOIN source_source AS mmpss
-    ON mmp.source_id = mmpss.id
+    ON mmp.source_id = mmpss.uuid
   LEFT JOIN organization_organization AS oo
     ON mmo.value_id = oo.id
   GROUP BY mm.id, pp.uuid, oo.uuid, mmo.confidence, mmpss.id

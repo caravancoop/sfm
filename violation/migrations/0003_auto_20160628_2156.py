@@ -14,14 +14,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='violationsource',
-            name='source',
-        ),
-        migrations.RemoveField(
-            model_name='violationsource',
-            name='violation',
-        ),
+        # migrations.RemoveField(
+        #     model_name='violationsource',
+        #     name='source',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='violationsource',
+        #     name='violation',
+        # ),
         migrations.AddField(
             model_name='violationadminlevel1',
             name='confidence',

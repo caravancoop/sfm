@@ -10,5 +10,5 @@ CREATE MATERIALIZED VIEW person_name_export AS
   LEFT JOIN person_personname_sources AS ppns
     ON ppn.id = ppns.personname_id
   LEFT JOIN source_source AS ppnss
-    ON ppns.source_id = ppnss.id
+    ON ppns.source_id = ppnss.uuid
   GROUP BY pp.uuid, ppn.value, ppn.confidence, ppnss.id

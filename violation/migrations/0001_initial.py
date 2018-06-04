@@ -110,7 +110,7 @@ class Migration(migrations.Migration):
             name='ViolationSource',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('source', models.ForeignKey(to='source.Source')),
+                ('source', models.ForeignKey(to='source.Source', db_column='uuid')),
                 ('violation', models.ForeignKey(to='violation.Violation')),
             ],
         ),

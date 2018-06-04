@@ -17,5 +17,5 @@ CREATE MATERIALIZED VIEW organization_parent_export AS
   LEFT JOIN composition_compositionparent_sources AS ccps
     ON ccp.id = ccps.compositionparent_id
   LEFT JOIN source_source AS ccpss
-    ON ccps.source_id = ccpss.id
+    ON ccps.source_id = ccpss.uuid
   GROUP BY cc.id, oop.uuid, ooc.uuid, ccp.confidence, ccpss.id

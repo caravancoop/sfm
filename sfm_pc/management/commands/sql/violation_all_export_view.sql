@@ -23,7 +23,7 @@ CREATE MATERIALIZED VIEW violation_all_export AS
   LEFT JOIN violation_violationstartdate_sources AS vvsds
     ON vvsd.id = vvsds.violationstartdate_id
   LEFT JOIN source_source AS vss
-    ON vvsds.source_id = vss.id
+    ON vvsds.source_id = vss.uuid
   LEFT JOIN violation_violationenddate AS vved
     ON vv.id = vved.object_ref_id
   LEFT JOIN violation_violationlocationdescription AS vvld

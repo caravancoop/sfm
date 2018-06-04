@@ -18,5 +18,5 @@ CREATE MATERIALIZED VIEW person_firstciteddate_export AS
   LEFT JOIN membershipperson_membershippersonfirstciteddate_sources AS mmfcs
     ON mmfc.id = mmfcs.membershippersonfirstciteddate_id
   LEFT JOIN source_source AS mmfcss
-    ON mmfcs.source_id = mmfcss.id
+    ON mmfcs.source_id = mmfcss.uuid
   GROUP BY mm.id, pp.uuid, mmfc.value, mmrs.value, mmfc.confidence, mmfcss.id

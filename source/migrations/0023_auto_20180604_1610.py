@@ -4,23 +4,69 @@ from __future__ import unicode_literals
 
 import uuid
 
-from django.db import migrations, models
+from django.db import migrations, models, connection
+
+
+def update_source_tables(apps, schema_editor):
+    cursor = connection.cursor()
+    source_tables = '''
+        SELECT relname
+        FROM pg_catalog.pg_class
+        WHERE relkind = 'r'
+          AND relname LIKE '%_sources'
+    '''
+
+    cursor.execute(source_tables)
+
+    with connection.cursor() as curs:
+        curs.execute('ALTER TABLE source_source DROP CONSTRAINT source_source_pkey CASCADE')
+
+        for row in cursor:
+            source_table = row[0]
+
+            add_col = '''
+                ALTER TABLE {}
+                ADD COLUMN source_uuid uuid
+            '''.format(source_table)
+
+            update = '''
+                UPDATE {0} SET
+                source_uuid = s.uuid
+                FROM (
+                SELECT
+                    id,
+                    uuid
+                FROM source_source
+                ) AS s
+                WHERE {0}.source_id = s.id
+            '''.format(source_table)
+
+            remove_col = '''
+                ALTER TABLE {}
+                DROP COLUMN source_id
+                CASCADE
+            '''.format(source_table)
+
+            rename_col = '''
+                ALTER TABLE {}
+                RENAME COLUMN source_uuid TO source_id
+            '''.format(source_table)
+
+            curs.execute(add_col)
+            curs.execute(update)
+            curs.execute(remove_col)
+            curs.execute(rename_col)
 
 
 class Migration(migrations.Migration):
+
+    atomic = False
 
     dependencies = [
         ('source', '0022_auto_20180604_1610'),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='source',
-            name='id',
-        ),
-        migrations.AlterField(
-            model_name='source',
-            name='uuid',
-            field=models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
-        )
+        migrations.RunPython(update_source_tables, reverse_code=migrations.RunPython.noop),
+        migrations.RunSQL('ALTER TABLE source_source ADD PRIMARY KEY (uuid)'),
     ]

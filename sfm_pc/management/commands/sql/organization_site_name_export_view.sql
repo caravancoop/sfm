@@ -19,5 +19,5 @@ CREATE MATERIALIZED VIEW organization_site_name_export AS
   LEFT JOIN geosite_geositename_sources AS ggns
     ON ggn.id = ggns.geositename_id
   LEFT JOIN source_source AS ggnss
-    ON ggns.source_id = ggnss.id
+    ON ggns.source_id = ggnss.uuid
   GROUP BY oo.uuid, ee.id, gg.id, ggn.value, ggn.confidence, ggnss.id

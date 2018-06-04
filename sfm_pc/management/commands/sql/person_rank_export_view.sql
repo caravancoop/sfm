@@ -17,5 +17,5 @@ CREATE MATERIALIZED VIEW person_rank_export AS
   LEFT JOIN membershipperson_rank AS mmrk
     ON mmk.value_id = mmrk.id
   LEFT JOIN source_source AS mmrkss
-    ON mmrks.source_id = mmrkss.id
+    ON mmrks.source_id = mmrkss.uuid
   GROUP BY pp.uuid, mm.id, mmrk.value, mmk.confidence, mmrkss.id
