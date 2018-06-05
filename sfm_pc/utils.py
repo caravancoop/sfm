@@ -477,7 +477,7 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
           LEFT JOIN composition_compositionparent_sources AS cccs
             ON ccc.id = cccs.compositionparent_id
           LEFT JOIN source_source AS ss
-            ON cccs.source_id = ss.id
+            ON cccs.source_id = ss.uuid
           LEFT JOIN membershipperson AS mem
             ON o.id = mem.organization_id
           LEFT JOIN person
@@ -561,7 +561,7 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
           LEFT JOIN composition_compositionchild_sources AS cccs
             ON ccc.id = cccs.compositionchild_id
           LEFT JOIN source_source AS ss
-            ON cccs.source_id = ss.id
+            ON cccs.source_id = ss.uuid
           JOIN parents
             ON parents.id = h.parent_id
         ) SELECT * FROM parents WHERE id != %s
@@ -571,9 +571,9 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
     if when:
         hierarchy = '''
             {}
-            AND CASE 
-              WHEN (start_date IS NOT NULL AND 
-                    end_date IS NOT NULL AND 
+            AND CASE
+              WHEN (start_date IS NOT NULL AND
+                    end_date IS NOT NULL AND
                     comp_open_ended IN ('N', 'E'))
               THEN (%s::date BETWEEN start_date::date AND end_date::date)
               WHEN (start_date IS NOT NULL AND
@@ -592,7 +592,7 @@ def get_child_orgs_by_id(org_id, when=None, sources=False):
                     end_date IS NOT NULL AND
                     comp_open_ended IN ('N', 'E'))
               THEN (end_date::date = %s)
-              WHEN (start_date IS NULL AND 
+              WHEN (start_date IS NULL AND
                     end_date IS NOT NULL AND
                     comp_open_ended = 'Y')
               THEN TRUE
@@ -626,7 +626,7 @@ def deleted_in_str(objects):
         index += 1
 
     return objects
-    
+
 
 def import_class(cl):
     d = cl.rfind('.')

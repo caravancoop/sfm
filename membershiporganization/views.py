@@ -35,7 +35,7 @@ class MembershipOrganizationCreate(LoginRequiredMixin, BaseFormSetView):
         context = super().get_context_data(**kwargs)
         context['confidence_levels'] = settings.CONFIDENCE_LEVELS
 
-        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        context['source'] = Source.objects.get(uuid=self.request.session['source_id'])
         context['organizations'] = self.request.session.get('organizations')
 
         context['back_url'] = reverse_lazy('create-composition')
@@ -54,7 +54,7 @@ class MembershipOrganizationCreate(LoginRequiredMixin, BaseFormSetView):
         return context
 
     def formset_valid(self, formset):
-        source = Source.objects.get(id=self.request.session['source_id'])
+        source = Source.objects.get(uuid=self.request.session['source_id'])
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
 
         for i in range(0, num_forms):

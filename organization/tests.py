@@ -42,7 +42,7 @@ class OrganizationTest(TestCase):
         self.source = Source.objects.first()
 
         session = self.client.session
-        session['source_id'] = self.source.uuid
+        session['source_id'] = str(self.source.uuid)
         session.save()
 
     def tearDown(self):
@@ -200,7 +200,7 @@ class OrganizationTest(TestCase):
             'alias': [],
             'classification': [1, 2],
             'classification_confidence': 1,
-            'source': self.source.uuid,
+            'source': str(self.source.uuid),
         }
 
         response = self.client.post(reverse_lazy('edit_organization',

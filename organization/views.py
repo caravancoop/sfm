@@ -159,7 +159,7 @@ class OrganizationCreate(LoginRequiredMixin, BaseFormSetView):
         context['open_ended_choices'] = settings.OPEN_ENDED_CHOICES
 
         context['classifications'] = Classification.objects.all()
-        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        context['source'] = Source.objects.get(uuid=self.request.session['source_id'])
 
         context['back_url'] = reverse_lazy('create-source')
         context['skip_url'] = reverse_lazy('create-person')
@@ -228,7 +228,7 @@ class OrganizationCreate(LoginRequiredMixin, BaseFormSetView):
 
         self.organizations = []
 
-        self.source = Source.objects.get(id=self.request.session['source_id'])
+        self.source = Source.objects.get(uuid=self.request.session['source_id'])
 
         actual_form_index = 0
 
@@ -524,7 +524,7 @@ class OrganizationUpdate(LoginRequiredMixin, BaseUpdateView):
         context['form_data'] = form_data
         context['title'] = 'Organization'
         context['source_object'] = organization
-        context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
+        context['source'] = Source.objects.filter(uuid=self.request.GET.get('source_id')).first()
 
         if not self.sourced:
             context['source_error'] = 'Please include the source for your changes'
@@ -614,7 +614,7 @@ class OrganizationCreateGeography(LoginRequiredMixin, BaseFormSetView):
             context['skip_url'] = reverse_lazy('create-event')
 
         context['organizations'] = organizations
-        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        context['source'] = Source.objects.get(uuid=self.request.session['source_id'])
 
         form = self.form_class()
         context['geo_types'] = form.fields['geography_type'].choices
@@ -632,7 +632,7 @@ class OrganizationCreateGeography(LoginRequiredMixin, BaseFormSetView):
         return context
 
     def formset_valid(self, formset):
-        source = Source.objects.get(id=self.request.session['source_id'])
+        source = Source.objects.get(uuid=self.request.session['source_id'])
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
 
         for i in range(0, num_forms):

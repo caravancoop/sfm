@@ -243,13 +243,13 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                 if last == 'sources':
                     sources = []
                     source_ids = []
-                    
+
                     if v:
 
                         for source in v:
-                            if source and source['id'] not in source_ids:
+                            if source and source['uuid'] not in source_ids:
                                 sources.append(source)
-                                source_ids.append(source['id'])
+                                source_ids.append(source['uuid'])
                         v = sources
 
                 elif last == 'confidence':
@@ -397,7 +397,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             LEFT JOIN membershipperson_membershippersonmember_sources AS mps
               ON m.id = mps.membershippersonmember_id
             LEFT JOIN source_source AS ss
-              ON mps.source_id = ss.id
+              ON mps.source_id = ss.uuid
             WHERE m.organization_id = %s
             GROUP BY p.id
         '''
@@ -428,7 +428,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                 if source['id'] not in source_ids:
                     member['sources'].append(source)
                     source_ids.append(source['id'])
-            
+
             if row[10]:
                 member['confidence'] = REVERSE_CONFIDENCE[int(row[10])].title()
 
@@ -571,9 +571,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
         if when:
             site_present = '''
               {}
-              AND CASE 
-                    WHEN (e.start_date IS NOT NULL AND 
-                          e.end_date IS NOT NULL AND 
+              AND CASE
+                    WHEN (e.start_date IS NOT NULL AND
+                          e.end_date IS NOT NULL AND
                           e.open_ended IN ('N', 'E'))
                     THEN (%s::date BETWEEN e.start_date::date AND e.end_date::date)
                     WHEN (e.start_date IS NOT NULL AND
@@ -592,7 +592,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                           e.end_date IS NOT NULL AND
                           e.open_ended IN ('N', 'E'))
                     THEN (e.end_date::date = %s)
-                    WHEN (e.start_date IS NULL AND 
+                    WHEN (e.start_date IS NULL AND
                           e.end_date IS NOT NULL AND
                           e.open_ended = 'Y')
                     THEN TRUE
@@ -653,9 +653,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
 
             area_present = '''
                 {}
-                AND CASE 
-                      WHEN (ass.start_date IS NOT NULL AND 
-                            ass.end_date IS NOT NULL AND 
+                AND CASE
+                      WHEN (ass.start_date IS NOT NULL AND
+                            ass.end_date IS NOT NULL AND
                             ass.open_ended IN ('N', 'E'))
                       THEN (%s::date BETWEEN ass.start_date::date AND ass.end_date::date)
                       WHEN (ass.start_date IS NOT NULL AND
@@ -674,7 +674,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
                             ass.end_date IS NOT NULL AND
                             ass.open_ended IN ('N', 'E'))
                       THEN (ass.end_date::date = %s)
-                      WHEN (ass.start_date IS NULL AND 
+                      WHEN (ass.start_date IS NULL AND
                             ass.end_date IS NOT NULL AND
                             ass.open_ended = 'Y')
                       THEN TRUE
@@ -713,8 +713,8 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             properties['area_current'] = {}
 
         return properties
-    
-    def makeOrganizationGeoSources(self, 
+
+    def makeOrganizationGeoSources(self,
                                    properties,
                                    tolerance=0.001):
         properties['sites'] = []
@@ -741,13 +741,13 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
         '''
 
         q_params = [properties['id']]
-        
+
         cursor = connection.cursor()
         cursor.execute(sites, q_params)
         columns = [c[0] for c in cursor.description]
 
         sites = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
-        
+
         for site in sites:
             confidence = site['properties']['confidence']
 
@@ -758,7 +758,7 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
 
             properties['sites'].append(site)
 
-        areas = ''' 
+        areas = '''
             SELECT DISTINCT ON (ass.id)
               o.id,
               a.name,
@@ -777,15 +777,15 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             WHERE o.id = %s
             AND a.geometry IS NOT NULL
         '''
-        
+
         q_params = [tolerance, properties['id']]
-        
+
         cursor = connection.cursor()
         cursor.execute(areas, q_params)
         columns = [c[0] for c in cursor.description]
 
         areas = [self.makeFeature(r[-1], dict(zip(columns, r))) for r in cursor]
-        
+
         for area in areas:
             confidence = area['properties']['confidence']
 
@@ -823,9 +823,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
             properties = self.makeOrganizationGeographies(properties,
                                                           when,
                                                           tolerance=tolerance)
-        
+
         if all_geography:
-            properties = self.makeOrganizationGeoSources(properties, 
+            properties = self.makeOrganizationGeoSources(properties,
                                                          tolerance=tolerance)
 
         if memberships and properties.get('memberships'):
@@ -858,9 +858,9 @@ class JSONAPIView(JSONResponseMixin, TemplateView, CacheMixin):
 
                 for org_id, group in itertools.groupby(cursor, lambda x: x[0]):
                     grouping = [dict(zip(columns, r)) for r in group]
-                    
+
                     confidence = grouping[0]['confidence']
-                    
+
                     if confidence:
                         confidence = REVERSE_CONFIDENCE[int(confidence)].title()
 

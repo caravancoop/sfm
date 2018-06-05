@@ -145,7 +145,7 @@ def source_autocomplete(request):
                                         source.publication_country)
         results.append({
             'text': text,
-            'id': str(source.id),
+            'id': str(source.uuid),
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
@@ -157,7 +157,7 @@ def publication_autocomplete(request):
     results = []
     for publication in publications:
         results.append({
-            'id': publication.id,
+            'id': str(publication.uuid),
             'text': publication.publication,
             'country': publication.publication_country,
         })
@@ -175,7 +175,7 @@ def get_sources(request, object_type, object_id, field_name):
         "sources": [
             {
                 "source": source.source,
-                "id": source.id
+                "id": str(source.id)
             }
             for source in sources
         ]

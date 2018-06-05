@@ -58,7 +58,7 @@ class CompositionCreate(LoginRequiredMixin, BaseFormSetView):
         context['open_ended_choices'] = settings.OPEN_ENDED_CHOICES
 
         context['classifications'] = Classification.objects.all()
-        context['source'] = Source.objects.get(id=self.request.session['source_id'])
+        context['source'] = Source.objects.get(uuid=self.request.session['source_id'])
         context['organizations'] = self.request.session.get('organizations')
 
         context['org_pairs'] = self.get_org_pairs(context['organizations'])
@@ -79,7 +79,7 @@ class CompositionCreate(LoginRequiredMixin, BaseFormSetView):
         return context
 
     def formset_valid(self, formset):
-        source = Source.objects.get(id=self.request.session['source_id'])
+        source = Source.objects.get(uuid=self.request.session['source_id'])
         num_forms = int(formset.data['form-TOTAL_FORMS'][0])
 
         for i in range(0, num_forms):
