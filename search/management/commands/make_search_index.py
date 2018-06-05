@@ -590,10 +590,10 @@ class Command(BaseCommand):
                 'id': source['uuid'],
                 'entity_type': 'Source',
                 'content': content,
-                'source_url_s': source['url'],
+                'source_url_t': source['url'],
                 'source_title_t': source['title'],
                 'source_date_published_dt': date_published,
-                'publication_t': source['publication'],
+                'publication_s': source['publication'],
                 'country_ss': source['publication_country'],
                 'text': content
             }
