@@ -27,6 +27,26 @@ class SourceView(LoginRequiredMixin, DetailView):
     context_object_name = 'source'
     template_name = 'source/view.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        evidenced = context['source'].get_evidenced()
+
+        evidenced_table = []
+
+        for record in evidenced:
+            name = str(record)
+            record_type = record.object_ref._meta.object_name
+            field_name = record._meta.model_name.replace(record_type.lower(), '').title()
+            value = record.value
+            link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'pk': record.object_ref.id})
+
+            evidenced_table.append([name, record_type, field_name, value, link])
+
+        context['evidenced'] = evidenced_table
+
+        return context
+
 
 class SourceEditView(RevisionMixin, LoginRequiredMixin):
     fields = [
@@ -35,6 +55,7 @@ class SourceEditView(RevisionMixin, LoginRequiredMixin):
         'publication_country',
         'published_on',
         'source_url',
+        'archive_url',
         'page_number',
         'accessed_on'
     ]
@@ -152,12 +173,12 @@ def source_autocomplete(request):
 
 def publication_autocomplete(request):
     term = request.GET.get('q')
-    publications = Source.objects.filter(publication__icontains=term).all()
+    publications = Source.objects.filter(publication__icontains=term).distinct('uuid')
 
     results = []
     for publication in publications:
         results.append({
-            'id': str(publication.uuid),
+            'id': publication.publication,
             'text': publication.publication,
             'country': publication.publication_country,
         })

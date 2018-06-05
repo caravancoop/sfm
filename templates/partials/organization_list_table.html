@@ -92,13 +92,13 @@
                         {% endif %}
                         <!-- Name -->
                         <td>
-                            <a href="{% url 'detail_organization' object.id %}">{{ object.name.get_value }}</a>
+                            <a href="{% url 'view-organization' object.id %}">{{ object.name.get_value }}</a>
                         </td>
                         <!-- Parent -->
                         <td>
                             {% for comp in object.parent_organization.all %}
                                 {% with parent=comp.object_ref.parent.get_value %}
-                                    <a href="{% url 'detail_organization' parent.value.id %}">{{ parent.value.name.get_value }}</a>
+                                    <a href="{% url 'view-organization' parent.value.id %}">{{ parent.value.name.get_value }}</a>
                                 {% endwith %}
                                 {% if not forloop.last %}<br />{% endif %}
                             {% endfor %}

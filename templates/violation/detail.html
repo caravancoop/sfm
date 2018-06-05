@@ -205,7 +205,7 @@
                     {% for organization in violation.violationperpetratororganization_set.all %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'detail_organization' organization.value.id %}">
+                                <a href="{% url 'view-organization' organization.value.id %}">
                                     {{ organization.value.get_value }}
                                 </a>
                                 {% cite organization.value.get_value %}

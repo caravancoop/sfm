@@ -62,7 +62,7 @@ class OrganizationTest(TestCase):
     def test_view_organization(self):
 
         for org_id in range(1, 10):
-            response = self.client.get(reverse_lazy('detail_organization', args=[org_id]))
+            response = self.client.get(reverse_lazy('view-organization', args=[org_id]))
 
             try:
                 assert response.status_code == 200
@@ -180,7 +180,7 @@ class OrganizationTest(TestCase):
     def test_update_organization(self):
         organization = self.getRandomOrganization()
 
-        response = self.client.get(reverse_lazy('edit_organization',
+        response = self.client.get(reverse_lazy('update-organization',
                                    args=[organization.id]))
 
         assert response.status_code == 200
@@ -203,7 +203,7 @@ class OrganizationTest(TestCase):
             'source': str(self.source.uuid),
         }
 
-        response = self.client.post(reverse_lazy('edit_organization',
+        response = self.client.post(reverse_lazy('update-organization',
                                     args=[organization.id]), post_data)
 
         self.assertRedirects(response, reverse_lazy('dashboard'))

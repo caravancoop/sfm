@@ -41,7 +41,7 @@ class ViolationTest(TestCase):
     def test_view_violation(self):
 
         for viol_id in range(13, 23):
-            response = self.client.get(reverse_lazy('detail_violation', args=[viol_id]))
+            response = self.client.get(reverse_lazy('view-violation', args=[viol_id]))
 
             try:
                 assert response.status_code == 200

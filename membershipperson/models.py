@@ -75,7 +75,7 @@ class MembershipPerson(models.Model, BaseModel):
 
         organization = obj.organization.get_value().value
 
-        href = reverse('detail_organization', args=(organization.id,))
+        href = reverse('view-organization', args=(organization.id,))
 
         # Translators: This is part of the string "{Rank} of {unit}"
         joiner = _('of')

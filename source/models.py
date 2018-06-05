@@ -18,8 +18,8 @@ class Source(models.Model):
     publication = models.TextField(null=True)
     publication_country = models.CharField(max_length=1000, null=True)
     published_on = models.DateField()
-    source_url = models.URLField(max_length=1000, null=True)
-    archive_url = models.URLField(max_length=1000, null=True)
+    source_url = models.URLField(max_length=1000, null=True, blank=True)
+    archive_url = models.URLField(max_length=1000, null=True, blank=True)
 
     date_updated = models.DateTimeField(auto_now=True)
     date_added = models.DateTimeField(auto_now_add=True)
@@ -37,6 +37,22 @@ class Source(models.Model):
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('view-source', args=[self.id])
+
+    def get_evidenced(self):
+        evidenced = []
+
+        for prop in dir(self):
+
+            if prop.endswith('_related'):
+                related = getattr(self, prop).all()
+
+                if related:
+
+                    for rel in related:
+                        evidenced.append(rel)
+
+        return evidenced
+
 
 def archive_source_url(source):
 

@@ -92,7 +92,7 @@ class EntityMergeView(LoginRequiredMixin, FormView, UtilityMixin):
         if entity_type == 'organization':
             canonical_record = Organization.objects.get(id=canonical_record_id)
 
-            redirect_url = reverse_lazy('detail_organization', args=[canonical_record_id])
+            redirect_url = reverse_lazy('view-organization', args=[canonical_record_id])
 
             other_records = Organization.objects.filter(id__in=sub_entity_ids)
 
@@ -352,7 +352,7 @@ def command_chain(request, org_id='', when=None, parents=True):
             'id': str(org[from_key]),
             'label': org['label'],
             'detail_id': org['detail_id'],
-            'url': reverse('detail_organization', args=[org['detail_id']])
+            'url': reverse('view-organization', args=[org['detail_id']])
         }
         nodes.append(trimmed)
         edges.append({'from': str(org[from_key]), 'to': org[to_key]})

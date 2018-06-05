@@ -102,7 +102,7 @@
                     {% for member in memberships %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'detail_organization' member.organization.get_value.value.id %}">
+                                <a href="{% url 'view-organization' member.organization.get_value.value.id %}">
                                     {{ member.organization.get_value }}
                                 </a>
                                 {% cite member.organization.get_value %}
@@ -178,7 +178,7 @@
                     {% for superior in superiors %}
                     <tr>
                         <td class="cited">
-                            <a href="{% url 'detail-person' superior.commander.member.get_value.value.id %}">
+                            <a href="{% url 'view-person' superior.commander.member.get_value.value.id %}">
                                 {{ superior.commander.member.get_value }}
                             </a>
                             {% cite superior.commander.member.get_value %}
@@ -192,7 +192,7 @@
                             {% cite superior.commander.role.get_value %}
                         </td>
                         <td class="cited">
-                            <a href="{% url 'detail_organization' superior.organization.value.id %}">
+                            <a href="{% url 'view-organization' superior.organization.value.id %}">
                                 {{ superior.organization }}
                             </a>
                                 {% cite superior.organization %}
@@ -240,7 +240,7 @@
                     {% for subordinate in subordinates %}
                     <tr>
                         <td class="cited">
-                            <a href="{% url 'detail-person' subordinate.commander.member.get_value.value.id %}">
+                            <a href="{% url 'view-person' subordinate.commander.member.get_value.value.id %}">
                                 {{ subordinate.commander.member.get_value }}
                             </a>
                             {% cite subordinate.commander.member.get_value %}
@@ -254,7 +254,7 @@
                             {% cite subordinate.commander.role.get_value %}
                         </td>
                         <td class="cited">
-                            <a href="{% url 'detail_organization' subordinate.organization.id %}">
+                            <a href="{% url 'view-organization' subordinate.organization.id %}">
                                 {{ subordinate.organization }}
                             </a>
                                 {% cite subordinate.organization %}
