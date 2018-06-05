@@ -39,7 +39,11 @@ class SourceView(LoginRequiredMixin, DetailView):
             record_type = record.object_ref._meta.object_name
             field_name = record._meta.model_name.replace(record_type.lower(), '').title()
             value = record.value
-            link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'pk': record.object_ref.id})
+
+            link = None
+
+            if record_type in ['Organization', 'Person', 'Violation']:
+                link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'pk': record.object_ref.id})
 
             evidenced_table.append([name, record_type, field_name, value, link])
 

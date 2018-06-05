@@ -53,9 +53,13 @@
                     <tr>
                         <td>{{ name }}</td>
                         <td>
-                            <a href="{{ link }}">
+                            {% if link %}
+                                <a href="{{ link }}">
+                            {% endif %}
                                 {{ type }}
-                            </a>
+                            {% if link %}
+                                </a>
+                            {% endif %}
                         </td>
                         <td>{{ fieldname }}</td>
                         <td>{{ value }}</td>
