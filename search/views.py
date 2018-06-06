@@ -308,6 +308,8 @@ def get_search_context(request, all_results=False):
             sort_value = '_'.join(sorting.split('_')[:-1])
             search_context['sort'] = ' '.join((sort_value, sort_direction))
 
+        search_context['df'] = 'text'
+
         # Make sure to filter on this entity type
         etype_query += ' AND entity_type:{etype}'.format(etype=etype)
 
