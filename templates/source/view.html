@@ -19,9 +19,11 @@
                         </a>
                     </h2>
                 </div>
+                {% if request.user.is_staff %}
                 <div class="col-sm-2">
                     <a href="{% url 'update-source' source.uuid %}" class="btn btn-success btn-lg"><i class="fa fa-edit"> </i> Edit</a>
                 </div>
+                {% endif %}
             </div>
             <div class="row">
                 <div class="col-sm-12">

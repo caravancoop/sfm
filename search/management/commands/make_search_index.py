@@ -592,7 +592,8 @@ class Command(BaseCommand):
                 'content': content,
                 'source_url_t': source['url'],
                 'source_title_t': source['title'],
-                'source_date_published_dt': date_published,
+                'start_date_dt': date_published,
+                'end_date_dt': date_published,
                 'publication_s': source['publication'],
                 'country_ss': source['publication_country'],
                 'text': content

@@ -47,8 +47,8 @@ SEARCH_ENTITY_TYPES = {
         'model': Source,
         'facet_fields': ['country_ss_fct',
                          'publication_s_fct'],
-        'facet_ranges': ['published_on_dt',
-                         'published_on_dt'],
+        'facet_ranges': ['start_date_dt',
+                         'end_date_dt'],
     },
 }
 
@@ -89,7 +89,8 @@ def get_search_context(request, all_results=False):
     show_filter = {
         'Person': False,
         'Organization': False,
-        'Violation': False
+        'Violation': False,
+        'Source': False
     }
 
     # Parse selected facets (since URLs format lists of params in multiples, like
@@ -171,8 +172,8 @@ def get_search_context(request, all_results=False):
             #   * (rec.start < q.start) AND (rec.end > q.end
             #                           OR (rec.open_ended = 'N')
 
-            full_query += ' AND start_date_dt:[* TO {start_date}]' +\
-                          ' AND (end_date_dt:[{end_date} TO *]' +\
+            full_query += ' AND start_date_dt:[{start_date} TO *]' +\
+                          ' AND (end_date_dt:[* TO {end_date}]' +\
                             ' OR open_ended_s:"N")'
 
             full_query = full_query.format(start_date=formatted_start,
@@ -309,11 +310,6 @@ def get_search_context(request, all_results=False):
 
         # Make sure to filter on this entity type
         etype_query += ' AND entity_type:{etype}'.format(etype=etype)
-
-        print(etype_query)
-
-        import pprint
-        pprint.pprint(search_context)
 
         # Search that bad boy!
         response = solr.search(etype_query, **search_context)

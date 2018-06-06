@@ -22,7 +22,7 @@ from source.forms import SourceForm
 from source.utils import DictDiffer
 
 
-class SourceView(LoginRequiredMixin, DetailView):
+class SourceView(DetailView):
     model = Source
     context_object_name = 'source'
     template_name = 'source/view.html'
