@@ -353,7 +353,7 @@
                         {% with child=subsidiary.child.get_value.value %}
                             <tr>
                                 <td class="cited">
-                                    <a href="{% url 'detail_organization' child.id %}">
+                                    <a href="{% url 'view-organization' child.id %}">
                                         {{ child.name.get_value }}
                                     </a>
                                     {% cite child.name.get_value %}
@@ -418,7 +418,7 @@
                     {% for member in person_members %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'detail-person' member.member.get_value.value.id %}">
+                                <a href="{% url 'view-person' member.member.get_value.value.id %}">
                                     {{ member.member.get_value }}
                                 </a>
                                 {% cite member.member.get_value %}
@@ -464,7 +464,7 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <p class="cited">
-                            <a href="{% url 'detail_violation' event.id %}">
+                            <a href="{% url 'view-violation' event.id %}">
                                 {% with violation=event %}
                                     {% include 'partials/violation_title.html' %}
                                 {% endwith %}
