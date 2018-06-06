@@ -17,6 +17,8 @@ from complex_fields.models import ComplexFieldContainer
 
 from countries_plus.models import Country
 
+from sfm_pc.base_views import NeverCacheMixin
+
 from source.models import Source
 from source.forms import SourceForm
 from source.utils import DictDiffer
@@ -52,7 +54,7 @@ class SourceView(DetailView):
         return context
 
 
-class SourceEditView(RevisionMixin, LoginRequiredMixin):
+class SourceEditView(NeverCacheMixin, RevisionMixin, LoginRequiredMixin):
     fields = [
         'title',
         'publication',
