@@ -10,5 +10,5 @@ CREATE MATERIALIZED VIEW organization_name_export AS
   LEFT JOIN organization_organizationname_sources AS oons
     ON oon.id = oons.organizationname_id
   LEFT JOIN source_source AS oonss
-    ON oons.source_id = oonss.id
+    ON oons.source_id = oonss.uuid
   GROUP BY oo.uuid, oon.value, oon.confidence, oonss.id

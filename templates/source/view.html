@@ -6,25 +6,69 @@
         <div class="jumbotron">
             <div class="row">
                 <div class="col-sm-10">
-                    <h2>{{ source.title }}</h2>
+                    <h2>
+                        <a href="{{ source.source_url }}" target="_blank">
+                            {{ source.title }}
+                            {% if source.archive_url %}
+                                <small>
+                                    <a href="{{ source.archive_url }}" target="_blank">
+                                        (Archived version)
+                                    </a>
+                                </small>
+                            {% endif %}
+                        </a>
+                    </h2>
                 </div>
+                {% if request.user.is_staff %}
                 <div class="col-sm-2">
-                    <a href="{% url 'update-source' source.id %}" class="btn btn-success btn-lg"><i class="fa fa-edit"> </i> Edit</a>
+                    <a href="{% url 'update-source' source.uuid %}" class="btn btn-success btn-lg"><i class="fa fa-edit"> </i> Edit</a>
                 </div>
+                {% endif %}
             </div>
             <div class="row">
                 <div class="col-sm-12">
                     <p>
                         <strong>Publisher: </strong>{{ source.publication }} ({{ source.publication_country }})<br />
                         <strong>Publication date: </strong>{{ source.published_on }}<br />
-                        <strong>URL: </strong>{{ source.source_url }}<br />
-                        <strong>Archive URL: </strong>{{ source.archive_url }}<br />
                         <strong>Accessed on: </strong>{{ source.accessed_on }}<br />
                         <strong>Last edited by: </strong>{{ source.user }}
                     </p>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <h2>This source evidences the below data:</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Record Name</th>
+                    <th>Record Type</th>
+                    <th>Fieldname</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, type, fieldname, value, link in evidenced %}
+                    <tr>
+                        <td>{{ name }}</td>
+                        <td>
+                            {% if link %}
+                                <a href="{{ link }}">
+                            {% endif %}
+                                {{ type }}
+                            {% if link %}
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td>{{ fieldname }}</td>
+                        <td>{{ value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

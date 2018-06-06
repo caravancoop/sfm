@@ -95,6 +95,21 @@
                 {% endif %}
             </div>
         </div>
+    {% if form.archive_url.errors %}
+        <div class="form-group has-error has-feedback">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+            <label for="id_archive_url" class="control-label col-sm-2">{% trans "Archive URL" %}</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="id_archive_url" name="archive_url" value="{{ form.instance.archive_url }}">
+                {% if form.archive_url.errors %}
+                    {% for error in form.archive_url.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
     {% if form.page_number.errors %}
         <div class="form-group has-error has-feedback">
     {% else %}
@@ -169,7 +184,7 @@
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <form class="form" action="{% url 'revert-source' source.id %}" method="POST">
+        <form class="form" action="{% url 'revert-source' source.uuid %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="version_id" value="{{ version.from_id }}">
             <div class="input-group">

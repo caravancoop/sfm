@@ -42,7 +42,7 @@ class OrganizationTest(TestCase):
         self.source = Source.objects.first()
 
         session = self.client.session
-        session['source_id'] = self.source.id
+        session['source_id'] = str(self.source.uuid)
         session.save()
 
     def tearDown(self):
@@ -62,7 +62,7 @@ class OrganizationTest(TestCase):
     def test_view_organization(self):
 
         for org_id in range(1, 10):
-            response = self.client.get(reverse_lazy('detail_organization', args=[org_id]))
+            response = self.client.get(reverse_lazy('view-organization', args=[org_id]))
 
             try:
                 assert response.status_code == 200
@@ -180,7 +180,7 @@ class OrganizationTest(TestCase):
     def test_update_organization(self):
         organization = self.getRandomOrganization()
 
-        response = self.client.get(reverse_lazy('edit_organization',
+        response = self.client.get(reverse_lazy('update-organization',
                                    args=[organization.id]))
 
         assert response.status_code == 200
@@ -200,10 +200,10 @@ class OrganizationTest(TestCase):
             'alias': [],
             'classification': [1, 2],
             'classification_confidence': 1,
-            'source': self.source.id,
+            'source': str(self.source.uuid),
         }
 
-        response = self.client.post(reverse_lazy('edit_organization',
+        response = self.client.post(reverse_lazy('update-organization',
                                     args=[organization.id]), post_data)
 
         self.assertRedirects(response, reverse_lazy('dashboard'))

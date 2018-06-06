@@ -32,7 +32,7 @@ class PersonTest(TestCase):
         self.source = Source.objects.first()
 
         session = self.client.session
-        session['source_id'] = self.source.id
+        session['source_id'] = str(self.source.uuid)
         session.save()
 
     def tearDown(self):
@@ -41,7 +41,7 @@ class PersonTest(TestCase):
     def test_view_person(self):
 
         for person_id in range(1, 10):
-            response = self.client.get(reverse_lazy('detail-person', args=[person_id]))
+            response = self.client.get(reverse_lazy('view-person', args=[person_id]))
 
             try:
                 assert response.status_code == 200

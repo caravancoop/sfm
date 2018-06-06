@@ -230,7 +230,7 @@ class Command(BaseCommand):
                 'organization_area_ss': areas,
                 'organization_start_date_dt': first_cited,
                 'organization_end_date_dt': first_cited,
-                '_text_': content
+                'text': content
             }
 
             documents.append(document)
@@ -371,7 +371,7 @@ class Command(BaseCommand):
                 'person_last_cited_dt': last_cited,
                 'start_date_dt': first_cited,
                 'end_date_dt': last_cited,
-                '_text_': content
+                'text': content
             }
 
             documents.append(document)
@@ -530,7 +530,7 @@ class Command(BaseCommand):
                 'perpetrator_organization_alias_ss': perp_org_aliases,
                 'perpetrator_classification_ss': perp_org_classes,
                 'perpetrator_classification_count_i': perp_org_class_count,
-                '_text_': content
+                'text': content
             }
 
             documents.append(document)
@@ -547,24 +547,22 @@ class Command(BaseCommand):
 
         source_query= '''
             SELECT
-              src.id,
-              MAX(src.title) AS src_title,
-              MAX(src.source_url) AS src_url,
-              MAX(src.published_on)::timestamp as date_published,
-              MAX(pub.title) AS pub_title,
-              MAX(pub.country) AS pub_country
-            FROM source_source as src
-            LEFT JOIN source_publication as pub
-              ON src.publication_id = pub.id
+              uuid,
+              MAX(title) AS title,
+              MAX(source_url) AS url,
+              MAX(published_on)::timestamp as date_published,
+              MAX(publication) AS publication,
+              MAX(publication_country) AS publication_country
+            FROM source_source
         '''
 
         if doc_id:
             source_query += '''
-                WHERE src.id = '{doc_id}'
+                WHERE uuid = '{doc_id}'
             '''.format(doc_id=doc_id)
 
         source_query += '''
-            GROUP BY src.id
+            GROUP BY uuid
         '''
 
         source_cursor = connection.cursor()
@@ -582,22 +580,23 @@ class Command(BaseCommand):
 
             date_published = source['date_published'].strftime('%Y-%m-%dT%H:%M:%SZ')
 
-            content = source['src_title']
+            content = source['title']
 
             if len(content) == 0:
                 # The import data script is missing one title - skip it for now
                 continue
 
             document = {
-                'id': source['id'],
+                'id': source['uuid'],
                 'entity_type': 'Source',
                 'content': content,
-                'source_url_s': source['src_url'],
-                'source_title_t': source['src_title'],
-                'source_date_published_dt': date_published,
-                'publication_title_t': source['pub_title'],
-                'publication_country_s': source['pub_country'],
-                '_text_': content
+                'source_url_t': source['url'],
+                'source_title_t': source['title'],
+                'start_date_dt': date_published,
+                'end_date_dt': date_published,
+                'publication_s': source['publication'],
+                'country_ss': source['publication_country'],
+                'text': content
             }
 
             documents.append(document)

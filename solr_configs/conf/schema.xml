@@ -133,7 +133,7 @@
     <!-- doc values are enabled by default for primitive types such as long so we don't index the version field  -->
     <field name="_version_" type="long" indexed="false" stored="false"/>
     <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
-    <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
+    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
     <!-- Only enabled in the "schemaless" data-driven example (assuming the client
          does not know what fields may be searched) because it's very expensive to index everything twice. -->
@@ -622,7 +622,7 @@
       http://wiki.apache.org/solr/SolrAdaptersForLuceneSpatial4
     -->
     <fieldType name="location_rpt"   class="solr.RptWithGeometrySpatialField"
-               spatialContextFactory="org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory"
+               spatialContextFactory="JTS"
                autoIndex="true"
                validationRule="repairBuffer0"
                distErrPct="0.025"

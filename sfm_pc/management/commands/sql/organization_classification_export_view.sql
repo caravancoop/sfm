@@ -12,5 +12,5 @@ CREATE MATERIALIZED VIEW organization_classification_export AS
   LEFT JOIN organization_organizationclassification_sources AS oocs
     ON ooc.id = oocs.organizationclassification_id
   LEFT JOIN source_source AS oocss
-    ON oocs.source_id = oocss.id
+    ON oocs.source_id = oocss.uuid
   GROUP BY oo.uuid, oc.value, ooc.confidence, oocss.id

@@ -22,10 +22,34 @@ from source.forms import SourceForm
 from source.utils import DictDiffer
 
 
-class SourceView(LoginRequiredMixin, DetailView):
+class SourceView(DetailView):
     model = Source
     context_object_name = 'source'
     template_name = 'source/view.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        evidenced = context['source'].get_evidenced()
+
+        evidenced_table = []
+
+        for record in evidenced:
+            name = str(record)
+            record_type = record.object_ref._meta.object_name
+            field_name = record._meta.model_name.replace(record_type.lower(), '').title()
+            value = record.value
+
+            link = None
+
+            if record_type in ['Organization', 'Person', 'Violation']:
+                link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'pk': record.object_ref.id})
+
+            evidenced_table.append([name, record_type, field_name, value, link])
+
+        context['evidenced'] = evidenced_table
+
+        return context
 
 
 class SourceEditView(RevisionMixin, LoginRequiredMixin):
@@ -35,6 +59,7 @@ class SourceEditView(RevisionMixin, LoginRequiredMixin):
         'publication_country',
         'published_on',
         'source_url',
+        'archive_url',
         'page_number',
         'accessed_on'
     ]
@@ -48,7 +73,7 @@ class SourceEditView(RevisionMixin, LoginRequiredMixin):
         return context
 
     def get_success_url(self):
-        return reverse_lazy('view-source', kwargs={'pk': self.object.id})
+        return reverse_lazy('view-source', kwargs={'pk': self.object.uuid})
 
     def form_valid(self, form):
         self.form = form
@@ -145,19 +170,19 @@ def source_autocomplete(request):
                                         source.publication_country)
         results.append({
             'text': text,
-            'id': str(source.id),
+            'id': str(source.uuid),
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
 
 def publication_autocomplete(request):
     term = request.GET.get('q')
-    publications = Source.objects.filter(publication__icontains=term).all()
+    publications = Source.objects.filter(publication__icontains=term).distinct('uuid')
 
     results = []
     for publication in publications:
         results.append({
-            'id': publication.id,
+            'id': publication.publication,
             'text': publication.publication,
             'country': publication.publication_country,
         })
@@ -175,7 +200,7 @@ def get_sources(request, object_type, object_id, field_name):
         "sources": [
             {
                 "source": source.source,
-                "id": source.id
+                "id": str(source.id)
             }
             for source in sources
         ]

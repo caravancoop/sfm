@@ -206,7 +206,7 @@
                     {% for membership in memberships %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'detail_organization' membership.organization.get_value.value.id %}">
+                                <a href="{% url 'view-organization' membership.organization.get_value.value.id %}">
                                     {{ membership.organization.get_value.value.name.get_value }}
                                 </a>
                                 {% cite membership.organization.get_value.value.name.get_value %}
@@ -269,7 +269,7 @@
                     {% for membership in org_members %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'detail_organization' membership.member.get_value.value.id %}">
+                                <a href="{% url 'view-organization' membership.member.get_value.value.id %}">
                                     {{ membership.member.get_value.value.name.get_value }}
                                 </a>
                                 {% cite membership.member.get_value.value.name.get_value %}

@@ -1,0 +1,65 @@
+{% load tablesort %}
+{% load countries %}
+{% load facets %}
+{% load i18n %}
+
+<div class="responsive-table">
+    <table class="table table-striped table-condensed search-results-table">
+        <thead>
+            <tr>
+                <th>
+                    {% trans "Title" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Source_sort' sort_asc='source_title_t_asc' sort_desc='source_title_t_desc' selected_sort=sorts.Source %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Publication Date" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Source_sort' sort_asc='source_date_published_dt_asc' sort_desc='source_date_published_dt_desc' selected_sort=sorts.Source %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Publication" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Source_sort' sort_asc='publication_t_asc' sort_desc='publication_t_desc' selected_sort=sorts.Source %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Publication Country" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Source_sort' sort_asc='country_ss_asc' sort_desc='country_ss_desc' selected_sort=sorts.Source %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'view-source' object.uuid %}">
+                            {{ object.title|default_if_none:"Source" }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ object.published_on|default_if_none:"" }}
+                    </td>
+                    <td>
+                        {{ object.publication|default_if_none:"" }}
+                    </td>
+                    <td>
+                        {{ object.publication_country|default_if_none:"" }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

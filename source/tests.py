@@ -78,4 +78,4 @@ class SourceTest(TestCase):
         assert response.status_code == 200
         response_json = json.loads(response.content.decode('utf-8'))
 
-        assert len(response_json) == 95
+        assert len(response_json) == 96

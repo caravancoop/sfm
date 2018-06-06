@@ -13,5 +13,5 @@ CREATE MATERIALIZED VIEW organization_firstciteddate_export AS
   LEFT JOIN organization_organizationfirstciteddate_sources AS oofcds
     ON oofcd.id = oofcds.organizationfirstciteddate_id
   LEFT JOIN source_source AS oofcdss
-    ON oofcds.source_id = oofcdss.id
+    ON oofcds.source_id = oofcdss.uuid
   GROUP BY oo.uuid, oofcd.value, oors.value, oofcd.confidence, oofcdss.id

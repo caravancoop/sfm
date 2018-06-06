@@ -42,7 +42,14 @@ SEARCH_ENTITY_TYPES = {
                          'country_ss_fct'],
         'facet_ranges': ['violation_start_date_dt',
                          'violation_end_date_dt'],
-    }
+    },
+    'Source': {
+        'model': Source,
+        'facet_fields': ['country_ss_fct',
+                         'publication_s_fct'],
+        'facet_ranges': ['start_date_dt',
+                         'end_date_dt'],
+    },
 }
 
 # Search engine
@@ -82,7 +89,8 @@ def get_search_context(request, all_results=False):
     show_filter = {
         'Person': False,
         'Organization': False,
-        'Violation': False
+        'Violation': False,
+        'Source': False
     }
 
     # Parse selected facets (since URLs format lists of params in multiples, like
@@ -164,8 +172,8 @@ def get_search_context(request, all_results=False):
             #   * (rec.start < q.start) AND (rec.end > q.end
             #                           OR (rec.open_ended = 'N')
 
-            full_query += ' AND start_date_dt:[* TO {start_date}]' +\
-                          ' AND (end_date_dt:[{end_date} TO *]' +\
+            full_query += ' AND start_date_dt:[{start_date} TO *]' +\
+                          ' AND (end_date_dt:[* TO {end_date}]' +\
                             ' OR open_ended_s:"N")'
 
             full_query = full_query.format(start_date=formatted_start,
@@ -333,7 +341,7 @@ def get_search_context(request, all_results=False):
     suggested_terms = None
     if hits['global'] < 10 and user_query:
         lookup = suggester.search(user_query)
-        suggestions = lookup.raw_response['suggest']['Suggester'][user_query]['suggestions']
+        suggestions = lookup.raw_response['suggest']['default'][user_query]['suggestions']
         # Filter out suggestions that exactly match the user's query
         suggested_terms = list(sugg['term'] for sugg in suggestions
                                if sugg['term'].lower() != user_query.lower())

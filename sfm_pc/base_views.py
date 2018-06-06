@@ -86,7 +86,7 @@ class BaseUpdateView(NeverCacheMixin, UtilityMixin, FormView):
             self.sourced = False
             return self.form_invalid(self.form)
         else:
-            self.source = Source.objects.get(id=request.POST.get('source'))
+            self.source = Source.objects.get(uuid=request.POST.get('source'))
 
     def validateForm(self):
         if self.form.is_valid():

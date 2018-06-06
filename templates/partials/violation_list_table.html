@@ -104,7 +104,7 @@
                     <!-- Perpetrators -->
                     <td>
                         {% for organization in object.violationperpetratororganization_set.all %}
-                            <a href="{% url 'detail_organization' organization.value.id %}">
+                            <a href="{% url 'view-organization' organization.value.id %}">
                                 {{ organization.value.name.get_value }}
                             </a>
                             {% if not forloop.last %}<br />{% endif %}

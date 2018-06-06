@@ -53,7 +53,7 @@ class CompositionTest(TestCase):
         session = self.client.session
         session['organizations'] = organizations
 
-        session['source_id'] = self.source.id
+        session['source_id'] = str(self.source.uuid)
         session.save()
 
     def tearDown(self):
