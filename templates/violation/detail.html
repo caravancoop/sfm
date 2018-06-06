@@ -161,7 +161,7 @@
                     {% for person in violation.violationperpetrator_set.all %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'detail-person' person.value.id %}">
+                                <a href="{% url 'view-person' person.value.id %}">
                                     {{ person.value.get_value }}
                                 </a>
                                 {% cite person.value.get_value %}
