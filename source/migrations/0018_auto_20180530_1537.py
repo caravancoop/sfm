@@ -37,11 +37,6 @@ class Migration(migrations.Migration):
                 WHERE source_source.publication_id = s.id
             ''')]
         ),
-        migrations.AlterField(
-            model_name='source',
-            name='publication',
-            field=models.TextField(null=False),
-        ),
         migrations.DeleteModel(
             name='Publication',
         ),
