@@ -1,0 +1,126 @@
+{% extends 'source/base_source.html' %}
+{% load staticfiles %}
+{% load viewcomplexfield %}
+{% load i18n %}
+
+{% block form %}
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="nav nav-tabs">
+            <li role="presentation">
+                <a href="{% url 'update-source' source.uuid %}">{% trans "Basics" %}</a>
+            </li>
+            <li role="presentation" class="active">
+                <a href="{% url 'add-access-point' source.uuid %}">{% trans "Access Points" %}</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>{% trans "Archive URL" %}</th>
+                    <th>{% trans "Page(s)" %}</th>
+                    <th>{% trans "Access Date" %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for access_point in source.accesspoint_set.all %}
+                    {% if access_point.id != object.id %}
+                    <tr>
+                        <td>
+                            <a href="{{ acccess_point.archive_url }}" target="_blank">
+                                {{ access_point.archive_url }}
+                            </a>
+                        </td>
+                        <td>{{ access_point.page_number }}</td>
+                        <td>{{ access_point.accessed_on }}</td>
+                        <td>
+                            <a href="{% url 'update-access-points' source.uuid access_point.id %}">
+                                <i class="fa fa-pencil"> </i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                <tr>
+                    <td colspan="4">
+                        <a href="{% url 'add-access-point' source.uuid %}">
+                            <i class="fa fa-plus"></i> Add Access Point
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form class="form form-horizontal" method="POST">
+            {% csrf_token %}
+            {% if form.archive_url.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+            <label for="id_archive_url" class="control-label col-sm-2">{% trans "Archive URL" %}</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="id_archive_url" name="archive_url" value="{{ form.instance.archive_url|default_if_none:"" }}">
+                {% if form.archive_url.errors %}
+                    {% for error in form.archive_url.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+                </div>
+            </div>
+            {% if form.page_number.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+            <label for="id_page_number" class="control-label col-sm-2">{% trans "Page Number(s)" %}</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="id_page_number" name="page_number" value="{{ form.instance.page_number|default_if_none:"" }}">
+                {% if form.page_number.errors %}
+                    {% for error in form.page_number.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+                </div>
+            </div>
+            {% if form.accessed_on.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+            <label for="id_accessed_on" class="control-label col-sm-2">{% trans "Access Date" %}</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control datepicker" id="id_accessed_on" name="accessed_on" value="{{ form.instance.accessed_on|default_if_none:"" }}">
+                {% if form.accessed_on.errors %}
+                    {% for error in form.accessed_on.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="id_comment" class="control-label col-sm-2">{% trans "Comment" %}</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="id_comment" name="comment" placeholder="Describe your changes">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-12">
+                    <br />
+                    <button type="submit" class="btn btn-success pull-right">{% trans "Save" %}  <i class="fa fa-check"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

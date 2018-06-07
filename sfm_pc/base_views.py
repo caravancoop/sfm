@@ -40,23 +40,6 @@ class BaseFormSetView(NeverCacheMixin, UtilityMixin, FormSetView):
 
     required_session_data = []
 
-    def dispatch(self, *args, **kwargs):
-        # Redirect to source creation page if no source in session
-        if not self.request.session.get('source_id'):
-            messages.add_message(self.request,
-                                 messages.INFO,
-                                 _("Please add a source for this information"),
-                                 extra_tags='alert alert-info')
-            return redirect(reverse_lazy('create-source'))
-        elif self.required_session_data:
-            for session_key in self.required_session_data:
-                try:
-                    self.request.session[session_key]
-                except KeyError:
-                    return redirect(reverse_lazy('create-organization'))
-
-        return super().dispatch(*args, **kwargs)
-
     def post(self, request, *args, **kwargs):
         self.initFormset(request.POST)
         return self.validateFormSet()

@@ -56,6 +56,9 @@ class Source(models.Model):
 
         return evidenced
 
+    @property
+    def archive_urls(self):
+        return ' | '.join(a.archive_url for a in self.accesspoint_set.all())
 
 @reversion.register()
 class AccessPoint(models.Model):
