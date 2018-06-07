@@ -27,5 +27,5 @@ class Migration(migrations.Migration):
               archive_url,
               page_number
             FROM source_source
-        ''')
+        ''', reverse_sql=migrations.RunSQL.noop)
     ]
