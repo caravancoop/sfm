@@ -12,6 +12,7 @@
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
+        {% block well %}
         <div class="well">
             <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Edit source" %}</h2>
             <p>
@@ -19,6 +20,7 @@
                 <small>Last update <strong>{{ source.date_updated }}</strong> by <strong>{{ source.user.username }}</strong></small>
             </p>
         </div>
+        {% endblock %}
     </div>
 </div>
 {% block form %}{% endblock %}

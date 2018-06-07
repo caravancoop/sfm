@@ -2,20 +2,39 @@
 {% load staticfiles %}
 {% load viewcomplexfield %}
 {% load i18n %}
+{% block well %}
+    <div class="well">
+        {% if source.uuid %}
+            <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Edit source" %}</h2>
+            <p>
+                <small>ID: {{ source.uuid }}</small><br />
+                <small>Last update <strong>{{ source.date_updated }}</strong> by <strong>{{ source.user.username }}</strong></small>
+            </p>
+        {% else %}
+            <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Add source" %}</h2>
+        {% endif %}
+    </div>
+{% endblock %}
 {% block form %}
 <div class="row">
     <div class="col-sm-12">
         <ul class="nav nav-tabs">
             <li role="presentation" class="active">
-                <a href="{% url 'update-source' source.uuid %}">{% trans "Basics" %}</a>
-            </li>
-            <li role="presentation">
-                {% if source.accesspoint_set.first %}
-                    <a href="{% url 'update-access-points' source.uuid source.accesspoint_set.first.id %}">{% trans "Access Points" %}</a>
+                {% if source.uuid %}
+                    <a href="{% url 'update-source' source.uuid %}">{% trans "Basics" %}</a>
                 {% else %}
-                    <a href="{% url 'add-access-points' source.uuid %}">{% trans "Access Points" %}</a>
+                    <a href="{% url 'create-source' %}">{% trans "Basics" %}</a>
                 {% endif %}
             </li>
+            {% if source.uuid %}
+                <li role="presentation">
+                    {% if source.accesspoint_set.first %}
+                        <a href="{% url 'update-access-points' source.uuid source.accesspoint_set.first.id %}">{% trans "Access Points" %}</a>
+                    {% else %}
+                        <a href="{% url 'add-access-points' source.uuid %}">{% trans "Access Points" %}</a>
+                    {% endif %}
+                </li>
+            {% endif %}
         </ul>
     </div>
 </div>

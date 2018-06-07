@@ -108,6 +108,7 @@ class SourceEditView(NeverCacheMixin, RevisionMixin, VersionsMixin, LoginRequire
         'source_url',
     ]
     model = Source
+    template_name = 'source/update.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -129,7 +130,6 @@ class SourceEditView(NeverCacheMixin, RevisionMixin, VersionsMixin, LoginRequire
 
 
 class SourceUpdate(SourceEditView, UpdateView):
-    template_name = 'source/update.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -144,7 +144,17 @@ class SourceUpdate(SourceEditView, UpdateView):
 
 
 class SourceCreate(SourceEditView, CreateView):
-    template_name = 'source/create.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        self.request.session['source_id'] = str(uuid4())
+
+        return context
+
+    def form_valid(self, form):
+        form.instance.uuid = self.request.session['source_id']
+
+        return super().form_valid(form)
 
 
 class SourceRevertView(LoginRequiredMixin, View):
