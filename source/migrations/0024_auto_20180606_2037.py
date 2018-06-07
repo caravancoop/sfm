@@ -41,11 +41,16 @@ class Migration(migrations.Migration):
             name='uuid',
             field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
         ),
-        migrations.AddField(
-            model_name='accesspoint',
-            name='source',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='source.Source'),
-        ),
+        migrations.RunSQL('''
+            ALTER TABLE source_accesspoint
+            ADD COLUMN source_id uuid
+        '''),
+        migrations.RunSQL('''
+            ALTER TABLE source_accesspoint
+            ADD CONSTRAINT source_accesspoint_fk_source_source FOREIGN KEY (source_id)
+            REFERENCES source_source(uuid)
+            DEFERRABLE INITIALLY DEFERRED
+        '''),
         migrations.AddField(
             model_name='accesspoint',
             name='user',
