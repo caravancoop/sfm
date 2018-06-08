@@ -7,6 +7,8 @@ from io import StringIO, BytesIO
 import zipfile
 import csv
 
+from reversion.models import Version
+
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -289,6 +291,96 @@ class Downloader(object):
 
         zipout.seek(0)
         return zipout
+
+
+class DictDiffer(object):
+    """
+    Calculate the difference between two dictionaries as:
+    (1) items added
+    (2) items removed
+    (3) keys same in both but changed values
+    (4) keys same in both and unchanged values
+    """
+    def __init__(self, current_dict, past_dict):
+        self.current_dict, self.past_dict = current_dict, past_dict
+        self.set_current, self.set_past = set(current_dict.keys()), set(past_dict.keys())
+        self.intersect = self.set_current.intersection(self.set_past)
+    def added(self):
+        return self.set_current - self.intersect
+    def removed(self):
+        return self.set_past - self.intersect
+    def changed(self):
+        return set(o for o in self.intersect if self.past_dict[o] != self.current_dict[o])
+    def unchanged(self):
+        return set(o for o in self.intersect if self.past_dict[o] == self.current_dict[o])
+
+
+class VersionsMixin(object):
+    '''
+    Model mixin to get version diff for a given model instance
+    '''
+
+    def getVersions(self):
+        versions = Version.objects.get_for_object(self)
+
+        differences = []
+
+        for index, version in enumerate(versions):
+            try:
+                previous = versions[index - 1]
+            except (IndexError, AssertionError):
+                continue
+
+            differ = DictDiffer(version.field_dict, previous.field_dict)
+
+            diff = {
+                'modification_date': previous.revision.date_created,
+                'comment': previous.revision.comment,
+                'user': previous.revision.user,
+                'from_id': version.id,
+                'to_id': previous.id,
+                'field_diffs': [],
+                'model': self._meta.object_name,
+            }
+
+            skip_fields = ['date_updated']
+
+            # For the moment this will only ever return changes because all the
+            # fields are required.
+            if differ.changed():
+
+                for field in differ.changed():
+
+                    if field not in skip_fields:
+                        field_diff = {
+                            'field_name': field,
+                            'to': differ.past_dict[field],
+                            'from': differ.current_dict[field],
+                        }
+
+                        diff['field_diffs'].append(field_diff)
+
+                differences.append(diff)
+
+        return differences
+
+
+class ComplexVersionsMixin(object):
+    '''
+    Model mixin for models related to ComplexFields to get a unified snapshot of
+    a given change to all fields of a parent model
+    '''
+
+    def getVersions(self):
+        versions = Version.objects.get_for_object(self)
+
+        serialized = []
+
+        for version in versions:
+            for revision in version.revision.version_set.all():
+                serialized.append(revision.serialized_data)
+
+        return serialized
 
 
 def execute_sql(file_path):

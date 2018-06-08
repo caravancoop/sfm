@@ -1,5 +1,7 @@
 import uuid
 
+import reversion
+
 from django.db import models, connection
 from django.db.models.functions import Coalesce, Value
 from django.contrib.gis.geos import Point
@@ -14,18 +16,31 @@ from complex_fields.models import ComplexField, ComplexFieldContainer, \
     ComplexFieldListContainer
 from complex_fields.base_models import BaseModel
 
+from sfm_pc.utils import ComplexVersionsMixin
 
-class Person(models.Model, BaseModel):
-    
-    uuid = models.UUIDField(default=uuid.uuid4, 
-                            editable=False, 
+
+VERSION_RELATED_FIELDS = [
+    'personname_set',
+    'personalias_set',
+    'persondivisionid_set',
+    'membershippersonmember_set',
+    'violationperpetrator_set',
+]
+
+
+@reversion.register(follow=VERSION_RELATED_FIELDS)
+class Person(models.Model, BaseModel, ComplexVersionsMixin):
+
+    uuid = models.UUIDField(default=uuid.uuid4,
+                            editable=False,
                             db_index=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
         self.aliases = ComplexFieldListContainer(self, PersonAlias)
         self.division_id = ComplexFieldContainer(self, PersonDivisionId)
-        
+
         self.complex_fields = [self.name, self.division_id]
 
         self.required_fields = [
@@ -99,12 +114,12 @@ class PersonAlias(ComplexField):
 
 class Alias(models.Model):
     value = models.TextField()
-    
+
     def __str__(self):
         return self.value
 
-@versioned
 @sourced
+@versioned
 class PersonDivisionId(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)

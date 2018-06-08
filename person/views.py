@@ -35,6 +35,7 @@ from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 class PersonDetail(DetailView):
     model = Person
     template_name = 'person/detail.html'
+    slug_field = 'uuid'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -259,21 +260,6 @@ def sort_commanders(commanders):
     else:
         return commanders
 
-
-class PersonList(PaginatedList):
-    model = Person
-    template_name = 'person/list.html'
-    orderby_lookup = {
-        'name': 'personname__value',
-    }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Highlight the correct nav tab in the template
-        context['person_tab'] = 'selected-tab'
-        context['search_term'] = 'a person'
-        return context
 
 class PersonCreate(LoginRequiredMixin, BaseFormSetView):
     template_name = 'person/create.html'
@@ -538,16 +524,16 @@ class PersonUpdate(LoginRequiredMixin, BaseUpdateView):
     def post(self, request, *args, **kwargs):
 
         self.checkSource(request)
-        
+
         self.aliases = request.POST.getlist('alias')
 
         return self.validateForm()
-    
+
     def form_valid(self, form):
         response = super().form_valid(form)
-        
+
         person = Person.objects.get(pk=self.kwargs['pk'])
-        
+
         person_info = {
             'Person_PersonName': {
                 'value': form.cleaned_data['name_text'],
@@ -560,23 +546,23 @@ class PersonUpdate(LoginRequiredMixin, BaseUpdateView):
                 'sources': self.sourcesList(person, 'division_id')
             }
         }
-        
+
         person.update(person_info)
 
         if self.aliases:
             for alias in self.aliases:
-                
+
                 alias_obj, created = Alias.objects.get_or_create(value=alias)
 
                 pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
                                                                     value=alias_obj,
                                                                     lang=get_language())
-                
+
                 pa_obj.sources.add(self.source)
                 pa_obj.save()
-        
-        messages.add_message(self.request, 
-                             messages.INFO, 
+
+        messages.add_message(self.request,
+                             messages.INFO,
                              'Person {} saved!'.format(form.cleaned_data['name_text']))
 
         return response
@@ -584,13 +570,13 @@ class PersonUpdate(LoginRequiredMixin, BaseUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         person = Person.objects.get(pk=self.kwargs['pk'])
-        
+
         form_data = {
             'name': person.name.get_value(),
             'aliases': [i.get_value() for i in person.aliases.get_list()],
             'division_id': person.division_id.get_value(),
         }
-        
+
         context['form_data'] = form_data
         context['title'] = _('Person')
         context['source_object'] = person

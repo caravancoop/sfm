@@ -12,13 +12,15 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
+from sfm_pc.utils import VersionsMixin
+
 
 def get_deleted_user():
     return get_user_model().objects.get_or_create(username='deleted user')[0]
 
 
 @reversion.register()
-class Source(models.Model):
+class Source(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.TextField()
     publication = models.TextField(null=True)
@@ -61,7 +63,7 @@ class Source(models.Model):
         return ' | '.join(a.archive_url for a in self.accesspoint_set.all())
 
 @reversion.register()
-class AccessPoint(models.Model):
+class AccessPoint(models.Model, VersionsMixin):
     page_number = models.CharField(max_length=255, null=True, blank=True)
     accessed_on = models.DateField(null=True, blank=True)
     archive_url = models.URLField(max_length=1000, null=True, blank=True)

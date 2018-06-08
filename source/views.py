@@ -3,7 +3,6 @@ from uuid import uuid4
 import itertools
 
 from reversion.views import RevisionMixin
-from reversion.models import Version
 import reversion
 
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
@@ -21,7 +20,6 @@ from sfm_pc.base_views import NeverCacheMixin
 
 from source.models import Source, AccessPoint
 from source.forms import SourceForm
-from source.utils import DictDiffer
 
 
 class SourceView(DetailView):
@@ -54,52 +52,8 @@ class SourceView(DetailView):
         return context
 
 
-class VersionsMixin(object):
-    def getVersions(self, obj):
-        versions = Version.objects.get_for_object(obj)
 
-        differences = []
-
-        for index, version in enumerate(versions):
-            try:
-                previous = versions[index - 1]
-            except (IndexError, AssertionError):
-                continue
-
-            differ = DictDiffer(version.field_dict, previous.field_dict)
-
-            diff = {
-                'modification_date': previous.revision.date_created,
-                'comment': previous.revision.comment,
-                'user': previous.revision.user,
-                'from_id': version.id,
-                'to_id': previous.id,
-                'field_diffs': [],
-                'model': obj._meta.object_name,
-            }
-
-            skip_fields = ['date_updated']
-
-            # For the moment this will only ever return changes because all the
-            # fields are required.
-            if differ.changed():
-
-                for field in differ.changed():
-
-                    if field not in skip_fields:
-                        field_diff = {
-                            'field_name': field,
-                            'to': differ.past_dict[field],
-                            'from': differ.current_dict[field],
-                        }
-
-                        diff['field_diffs'].append(field_diff)
-
-                differences.append(diff)
-
-        return differences
-
-class SourceEditView(NeverCacheMixin, RevisionMixin, VersionsMixin, LoginRequiredMixin):
+class SourceEditView(NeverCacheMixin, RevisionMixin, LoginRequiredMixin):
     fields = [
         'title',
         'publication',
@@ -136,10 +90,10 @@ class SourceUpdate(SourceEditView, UpdateView):
         context = super().get_context_data(**kwargs)
 
         source = context['object']
-        context['versions'] = self.getVersions(source)
+        context['versions'] = source.getVersions()
 
         for access_point in source.accesspoint_set.all():
-            context['versions'].extend(self.getVersions(access_point))
+            context['versions'].extend(access_point.getVersions())
 
         return context
 
@@ -183,7 +137,6 @@ class SourceRevertView(LoginRequiredMixin, View):
 
 
 class AccessPointEdit(NeverCacheMixin,
-                      VersionsMixin,
                       LoginRequiredMixin,
                       RevisionMixin):
     fields = [
@@ -198,10 +151,10 @@ class AccessPointEdit(NeverCacheMixin,
         context = super().get_context_data(**kwargs)
 
         context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
-        context['versions'] = self.getVersions(context['source'])
+        context['versions'] = context['source'].getVersions()
 
         for access_point in context['source'].accesspoint_set.all():
-            context['versions'].extend(self.getVersions(access_point))
+            context['versions'].extend(access_point.getVersions())
 
         return context
 
