@@ -4,7 +4,7 @@ CREATE MATERIALIZED VIEW organization_membership_export AS
     mm.uuid AS member_organization_id,
     mo.uuid AS organization_id,
     mmo.confidence AS membership_confidence,
-    mmoss.id AS source_id
+    mmoss.uuid AS source_id
   FROM membershiporganization_membershiporganization AS m
   LEFT JOIN membershiporganization_m AS mom
     ON m.id = mom.object_ref_id

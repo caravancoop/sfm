@@ -16,7 +16,7 @@ CREATE MATERIALIZED VIEW violation_all_export AS
     pc.value AS perpetrator_classification,
     vt.code AS violation_type,
     MAX(vvd.confidence) AS confidence,
-    vss.id AS source_id
+    vss.uuid AS source_id
   FROM violation_violation AS vv
   LEFT JOIN violation_violationstartdate AS vvsd
     ON vv.id = vvsd.object_ref_id
@@ -75,4 +75,4 @@ CREATE MATERIALIZED VIEW violation_all_export AS
            oo.uuid,
            pc.value,
            vt.code,
-           vss.id
+           vss.uuid

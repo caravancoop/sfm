@@ -64,6 +64,7 @@ def setUpModule():
     fixtures = [
         'tests/fixtures/auth.json',
         'tests/fixtures/source.json',
+        'tests/fixtures/accesspoint.json',
         'tests/fixtures/organization.json',
         'tests/fixtures/person.json',
         'tests/fixtures/violation.json',
@@ -83,6 +84,7 @@ def tearDownModule():
     with connection.cursor() as conn:
         conn.execute('TRUNCATE auth_user CASCADE')
         conn.execute('TRUNCATE source_source CASCADE')
+        conn.execute('TRUNCATE source_accesspoint CASCADE')
         conn.execute('TRUNCATE organization_organization CASCADE')
         conn.execute('TRUNCATE person_person CASCADE')
         conn.execute('TRUNCATE violation_violation CASCADE')

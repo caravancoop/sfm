@@ -4,7 +4,7 @@ CREATE MATERIALIZED VIEW organization_site_name_export AS
     ee.id AS emplacement_id,
     ggn.value AS site_name,
     ggn.confidence AS site_name_confidence,
-    ggnss.id AS source_id
+    ggnss.uuid AS source_id
   FROM emplacement_emplacement AS ee
   LEFT JOIN emplacement_emplacementorganization AS eeo
     ON ee.id = eeo.object_ref_id
@@ -20,4 +20,4 @@ CREATE MATERIALIZED VIEW organization_site_name_export AS
     ON ggn.id = ggns.geositename_id
   LEFT JOIN source_source AS ggnss
     ON ggns.source_id = ggnss.uuid
-  GROUP BY oo.uuid, ee.id, gg.id, ggn.value, ggn.confidence, ggnss.id
+  GROUP BY oo.uuid, ee.id, gg.id, ggn.value, ggn.confidence, ggnss.uuid

@@ -4,7 +4,7 @@ CREATE MATERIALIZED VIEW person_rank_export AS
     mm.id AS membership_id,
     mmrk.value AS rank,
     mmk.confidence AS rank_confidence,
-    mmrkss.id AS source_id
+    mmrkss.uuid AS source_id
   FROM membershipperson_membershipperson AS mm
   LEFT JOIN membershipperson_membershippersonmember AS mmm
     ON mm.id = mmm.object_ref_id
@@ -18,4 +18,4 @@ CREATE MATERIALIZED VIEW person_rank_export AS
     ON mmk.value_id = mmrk.id
   LEFT JOIN source_source AS mmrkss
     ON mmrks.source_id = mmrkss.uuid
-  GROUP BY pp.uuid, mm.id, mmrk.value, mmk.confidence, mmrkss.id
+  GROUP BY pp.uuid, mm.id, mmrk.value, mmk.confidence, mmrkss.uuid

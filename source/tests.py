@@ -8,6 +8,8 @@ from django.db.models.signals import post_save
 from django.db import connection
 from django.core.management import call_command
 
+from reversion.models import Version
+
 from source.models import Source
 
 from sfm_pc.signals import update_source_index
@@ -40,15 +42,13 @@ class SourceTest(TestCase):
 
         response = self.client.get(reverse_lazy('create-source'), follow=True)
 
-        assert 'source_id' not in list(self.client.session.keys())
-
         post_data = {
             'publication': 'Test Publication Title',
             'publication_country': 'Nigeria',
             'title': 'Test Source Title',
             'source_url': 'http://test.com/',
             'published_on': '2014-01-01',
-            'accessed_on': '2016-01-01',
+            'comment': 'Test change',
         }
 
         response = self.client.post(reverse_lazy('create-source'), post_data, follow=True)
@@ -60,15 +60,15 @@ class SourceTest(TestCase):
         assert source.title == post_data['title']
         assert source.source_url == post_data['source_url']
 
+        revision = Version.objects.get_for_object(source).first().revision
+        assert revision.comment == 'Test change'
+
     def test_autocomplete(self):
         url = '{}?q=Nigeria'.format(reverse_lazy('source-autocomplete'))
 
         response = self.client.get(url)
 
         assert response.status_code == 200
-        response_json = json.loads(response.content.decode('utf-8'))
-
-        assert len(response_json) == 421
 
     def test_pub_autocomplete(self):
         url = '{}?q=Nigeria'.format(reverse_lazy('publications-autocomplete'))
@@ -76,6 +76,3 @@ class SourceTest(TestCase):
         response = self.client.get(url)
 
         assert response.status_code == 200
-        response_json = json.loads(response.content.decode('utf-8'))
-
-        assert len(response_json) == 96

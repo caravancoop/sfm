@@ -3,7 +3,7 @@ CREATE MATERIALIZED VIEW person_alias_export AS
     pp.uuid as person_id,
     pa.value AS alias,
     ppa.confidence AS alias_confidence,
-    ppass.id AS source_id
+    ppass.uuid AS source_id
   FROM person_person AS pp
   LEFT JOIN person_personalias AS ppa
     ON pp.id = ppa.object_ref_id
@@ -13,4 +13,4 @@ CREATE MATERIALIZED VIEW person_alias_export AS
     ON ppa.id = ppas.personalias_id
   LEFT JOIN source_source AS ppass
     ON ppas.source_id = ppass.uuid
-  GROUP BY pp.uuid, pa.value, ppa.confidence, ppass.id
+  GROUP BY pp.uuid, pa.value, ppa.confidence, ppass.uuid

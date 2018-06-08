@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 
 
 def get_deleted_user():
-    return get_user_model().objects.get_or_create(username='deleted')[0]
+    return get_user_model().objects.get_or_create(username='deleted user')[0]
 
 
 @reversion.register()
@@ -63,9 +63,9 @@ class Source(models.Model):
 @reversion.register()
 class AccessPoint(models.Model):
     page_number = models.CharField(max_length=255, null=True, blank=True)
-    accessed_on = models.DateField(null=True)
+    accessed_on = models.DateField(null=True, blank=True)
     archive_url = models.URLField(max_length=1000, null=True, blank=True)
-    source = models.ForeignKey(Source)
+    source = models.ForeignKey(Source, null=True)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.SET(get_deleted_user))
