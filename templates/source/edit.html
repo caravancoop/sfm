@@ -31,7 +31,7 @@
                     {% if source.accesspoint_set.first %}
                         <a href="{% url 'update-access-points' source.uuid source.accesspoint_set.first.id %}">{% trans "Access Points" %}</a>
                     {% else %}
-                        <a href="{% url 'add-access-points' source.uuid %}">{% trans "Access Points" %}</a>
+                        <a href="{% url 'add-access-point' source.uuid %}">{% trans "Access Points" %}</a>
                     {% endif %}
                 </li>
             {% endif %}
@@ -42,6 +42,11 @@
 <div id="basics-form" class="row">
     <div class="col-sm-12">
         <form method="post" class="form-horizontal">
+            {% if source.uuid %}
+            <input type="hidden" name="uuid" value="{{ source.uuid }}" />
+            {% else %}
+            <input type="hidden" name="uuid" value="{{ source_id }}" />
+            {% endif %}
             {% csrf_token %}
             {% if form.title.errors %}
                 <div class="form-group has-error has-feedback">

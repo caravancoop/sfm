@@ -108,7 +108,7 @@ class SourceEditView(NeverCacheMixin, RevisionMixin, VersionsMixin, LoginRequire
         'source_url',
     ]
     model = Source
-    template_name = 'source/update.html'
+    template_name = 'source/edit.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -126,6 +126,7 @@ class SourceEditView(NeverCacheMixin, RevisionMixin, VersionsMixin, LoginRequire
         reversion.set_comment(self.request.POST['comment'])
 
         self.form.instance.user = self.request.user
+
         return super().form_valid(form)
 
 
@@ -144,17 +145,23 @@ class SourceUpdate(SourceEditView, UpdateView):
 
 
 class SourceCreate(SourceEditView, CreateView):
+    fields = [
+        'title',
+        'publication',
+        'publication_country',
+        'published_on',
+        'source_url',
+        'uuid',
+    ]
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        self.request.session['source_id'] = str(uuid4())
+        context['source_id'] = str(uuid4())
 
         return context
 
-    def form_valid(self, form):
-        form.instance.uuid = self.request.session['source_id']
-
-        return super().form_valid(form)
+    def get_success_url(self):
+        return reverse_lazy('update-source', kwargs={'pk': self.object.uuid})
 
 
 class SourceRevertView(LoginRequiredMixin, View):
