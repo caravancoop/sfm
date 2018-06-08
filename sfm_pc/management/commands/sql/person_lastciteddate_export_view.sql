@@ -5,7 +5,7 @@ CREATE MATERIALIZED VIEW person_lastciteddate_export AS
     mmlc.value AS last_cited_date,
     mmre.value AS real_end_date,
     mmlc.confidence AS last_cited_date_confidence,
-    mmlcss.id AS source_id
+    mmlcss.uuid AS source_id
   FROM membershipperson_membershipperson AS mm
   LEFT JOIN membershipperson_membershippersonmember AS mmm
     ON mm.id = mmm.object_ref_id
@@ -19,4 +19,4 @@ CREATE MATERIALIZED VIEW person_lastciteddate_export AS
     ON mmlc.id = mmlcs.membershippersonlastciteddate_id
   LEFT JOIN source_source AS mmlcss
     ON mmlcs.source_id = mmlcss.uuid
-  GROUP BY pp.uuid, mm.id, mmlc.value, mmre.value, mmlc.confidence, mmlcss.id
+  GROUP BY pp.uuid, mm.id, mmlc.value, mmre.value, mmlc.confidence, mmlcss.uuid

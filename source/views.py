@@ -19,7 +19,7 @@ from countries_plus.models import Country
 
 from sfm_pc.base_views import NeverCacheMixin
 
-from source.models import Source
+from source.models import Source, AccessPoint
 from source.forms import SourceForm
 from source.utils import DictDiffer
 
@@ -54,43 +54,9 @@ class SourceView(DetailView):
         return context
 
 
-class SourceEditView(NeverCacheMixin, RevisionMixin, LoginRequiredMixin):
-    fields = [
-        'title',
-        'publication',
-        'publication_country',
-        'published_on',
-        'source_url',
-        'archive_url',
-        'page_number',
-        'accessed_on'
-    ]
-    model = Source
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['countries'] = Country.objects.all()
-
-        return context
-
-    def get_success_url(self):
-        return reverse_lazy('view-source', kwargs={'pk': self.object.uuid})
-
-    def form_valid(self, form):
-        self.form = form
-
-        self.form.instance.user = self.request.user
-        return super().form_valid(form)
-
-
-class SourceUpdate(SourceEditView, UpdateView):
-    template_name = 'source/update.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        versions = Version.objects.get_for_object(context['object'])
+class VersionsMixin(object):
+    def getVersions(self, obj):
+        versions = Version.objects.get_for_object(obj)
 
         differences = []
 
@@ -108,7 +74,8 @@ class SourceUpdate(SourceEditView, UpdateView):
                 'user': previous.revision.user,
                 'from_id': version.id,
                 'to_id': previous.id,
-                'field_diffs': []
+                'field_diffs': [],
+                'model': obj._meta.object_name,
             }
 
             skip_fields = ['date_updated']
@@ -130,13 +97,71 @@ class SourceUpdate(SourceEditView, UpdateView):
 
                 differences.append(diff)
 
-        context['versions'] = differences
+        return differences
+
+class SourceEditView(NeverCacheMixin, RevisionMixin, VersionsMixin, LoginRequiredMixin):
+    fields = [
+        'title',
+        'publication',
+        'publication_country',
+        'published_on',
+        'source_url',
+    ]
+    model = Source
+    template_name = 'source/edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['countries'] = Country.objects.all()
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('view-source', kwargs={'pk': self.object.uuid})
+
+    def form_valid(self, form):
+        self.form = form
+
+        reversion.set_comment(self.request.POST['comment'])
+
+        self.form.instance.user = self.request.user
+
+        return super().form_valid(form)
+
+
+class SourceUpdate(SourceEditView, UpdateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        source = context['object']
+        context['versions'] = self.getVersions(source)
+
+        for access_point in source.accesspoint_set.all():
+            context['versions'].extend(self.getVersions(access_point))
 
         return context
 
 
 class SourceCreate(SourceEditView, CreateView):
-    template_name = 'source/create.html'
+    fields = [
+        'title',
+        'publication',
+        'publication_country',
+        'published_on',
+        'source_url',
+        'uuid',
+    ]
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['source_id'] = str(uuid4())
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('update-source', kwargs={'pk': self.object.uuid})
 
 
 class SourceRevertView(LoginRequiredMixin, View):
@@ -155,6 +180,54 @@ class SourceRevertView(LoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse_lazy('update-source',
                                                  kwargs={'pk': kwargs['pk']}))
+
+
+class AccessPointEdit(NeverCacheMixin,
+                      VersionsMixin,
+                      LoginRequiredMixin,
+                      RevisionMixin):
+    fields = [
+        'page_number',
+        'accessed_on',
+        'archive_url'
+    ]
+    model = AccessPoint
+    template_name = 'source/access-points.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
+        context['versions'] = self.getVersions(context['source'])
+
+        for access_point in context['source'].accesspoint_set.all():
+            context['versions'].extend(self.getVersions(access_point))
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('update-access-point', kwargs={'pk': self.object.id,
+                                                            'source_id': self.object.source.uuid})
+
+    def form_valid(self, form):
+        self.form = form
+        source = Source.objects.get(uuid=self.kwargs['source_id'])
+
+        reversion.set_comment(self.request.POST['comment'])
+        reversion.add_to_revision(source)
+
+        self.form.instance.source = source
+        self.form.instance.user = self.request.user
+
+        return super().form_valid(form)
+
+
+class AccessPointUpdate(AccessPointEdit, UpdateView):
+    pass
+
+
+class AccessPointCreate(AccessPointEdit, CreateView):
+    pass
 
 
 def source_autocomplete(request):

@@ -4,7 +4,7 @@ CREATE MATERIALIZED VIEW organization_parent_export AS
     ooc.uuid AS organization_id,
     oop.uuid AS parent_id,
     ccp.confidence AS composition_confidence,
-    ccpss.id AS source_id
+    ccpss.uuid AS source_id
   FROM composition_composition AS cc
   LEFT JOIN composition_compositionparent AS ccp
     ON cc.id = ccp.object_ref_id
@@ -18,4 +18,4 @@ CREATE MATERIALIZED VIEW organization_parent_export AS
     ON ccp.id = ccps.compositionparent_id
   LEFT JOIN source_source AS ccpss
     ON ccps.source_id = ccpss.uuid
-  GROUP BY cc.id, oop.uuid, ooc.uuid, ccp.confidence, ccpss.id
+  GROUP BY cc.id, oop.uuid, ooc.uuid, ccp.confidence, ccpss.uuid

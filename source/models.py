@@ -5,29 +5,32 @@ import requests
 
 import reversion
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
 
+def get_deleted_user():
+    return get_user_model().objects.get_or_create(username='deleted user')[0]
+
+
 @reversion.register()
 class Source(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.TextField()
     publication = models.TextField(null=True)
     publication_country = models.CharField(max_length=1000, null=True)
     published_on = models.DateField()
     source_url = models.URLField(max_length=1000, null=True, blank=True)
-    archive_url = models.URLField(max_length=1000, null=True, blank=True)
 
     date_updated = models.DateTimeField(auto_now=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
-    user = models.ForeignKey(User)
-
-    page_number = models.CharField(max_length=255, null=True, blank=True)
-    accessed_on = models.DateField(null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.SET(get_deleted_user))
 
     def __str__(self):
         if self.title is None:
@@ -52,6 +55,23 @@ class Source(models.Model):
                         evidenced.append(rel)
 
         return evidenced
+
+    @property
+    def archive_urls(self):
+        return ' | '.join(a.archive_url for a in self.accesspoint_set.all())
+
+@reversion.register()
+class AccessPoint(models.Model):
+    page_number = models.CharField(max_length=255, null=True, blank=True)
+    accessed_on = models.DateField(null=True, blank=True)
+    archive_url = models.URLField(max_length=1000, null=True, blank=True)
+    source = models.ForeignKey(Source, null=True)
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.SET(get_deleted_user))
+
+    def __str__(self):
+        return '{0} {1}'.format(self.source, self.archive_url)
 
 
 def archive_source_url(source):

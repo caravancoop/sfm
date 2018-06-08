@@ -9,13 +9,6 @@
                     <h2>
                         <a href="{{ source.source_url }}" target="_blank">
                             {{ source.title }}
-                            {% if source.archive_url %}
-                                <small>
-                                    <a href="{{ source.archive_url }}" target="_blank">
-                                        (Archived version)
-                                    </a>
-                                </small>
-                            {% endif %}
                         </a>
                     </h2>
                 </div>
@@ -30,6 +23,7 @@
                     <p>
                         <strong>Publisher: </strong>{{ source.publication }} ({{ source.publication_country }})<br />
                         <strong>Publication date: </strong>{{ source.published_on }}<br />
+                        <strong>Archive URLs: </strong>{{ source.archive_urls }}<br />
                         <strong>Accessed on: </strong>{{ source.accessed_on }}<br />
                         <strong>Last edited by: </strong>{{ source.user }}
                     </p>
