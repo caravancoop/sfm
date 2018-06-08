@@ -102,6 +102,26 @@ class SourceTest(TestCase):
         response = self.client.get(reverse_lazy('update-source', kwargs={'pk': source.uuid}))
         assert response.status_code == 200
 
+        post_data = {
+            'publication': 'Test Publication Title',
+            'publication_country': source.publication_country,
+            'title': source.title,
+            'source_url': source.source_url,
+            'published_on': source.published_on,
+            'comment': 'Test change',
+            'uuid': source.uuid,
+        }
+
+        response = self.client.post(reverse_lazy('update-source', kwargs={'pk': source.uuid}), post_data, follow=True)
+
+        assert response.status_code == 200
+
+        source = Source.objects.get(uuid=source.uuid)
+        assert source.publication == 'Test Publication Title'
+
+        revision = Version.objects.get_for_object(source).first().revision
+        assert revision.comment == 'Test change'
+
     def test_update_accesspoint(self):
         accesspoint = AccessPoint.objects.order_by('?').first()
 
@@ -109,6 +129,26 @@ class SourceTest(TestCase):
                                                 kwargs={'source_id': accesspoint.source.uuid,
                                                         'pk': accesspoint.id}))
         assert response.status_code == 200
+
+        post_data = {
+            'archive_url': 'https://web.archive.org/',
+            'accessed_on': '2018-04-01',
+            'page_number': accesspoint.page_number,
+            'comment': 'This is a big change'
+        }
+
+        response = self.client.post(reverse_lazy('update-access-point',
+                                                kwargs={'source_id': accesspoint.source.uuid,
+                                                        'pk': accesspoint.id}),
+                                    post_data,
+                                    follow=True)
+        assert response.status_code == 200
+
+        accesspoint = AccessPoint.objects.get(id=accesspoint.id)
+        assert accesspoint.archive_url == 'https://web.archive.org/'
+
+        revision = Version.objects.get_for_object(accesspoint).first().revision
+        assert revision.comment == 'This is a big change'
 
     def test_autocomplete(self):
         url = '{}?q=Nigeria'.format(reverse_lazy('source-autocomplete'))
