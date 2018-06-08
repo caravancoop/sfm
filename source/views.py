@@ -206,7 +206,7 @@ class AccessPointEdit(NeverCacheMixin,
         return context
 
     def get_success_url(self):
-        return reverse_lazy('update-access-points', kwargs={'pk': self.object.id,
+        return reverse_lazy('update-access-point', kwargs={'pk': self.object.id,
                                                             'source_id': self.object.source.uuid})
 
     def form_valid(self, form):
