@@ -17,6 +17,11 @@
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
                 <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
             </a>
+            {% if request.user.is_staff %}
+            <a class="btn btn-default" type="button" role="button" href="{% url 'update-person' person.uuid %}">
+                    <i class="fa fa-fw fa-edit"></i>{% trans "Edit" %}
+                </a>
+            {% endif %}
         </small>
     </h2>
     {% if person.aliases.get_list %}
@@ -40,25 +45,23 @@
 {% endblock %}
 
 {% block sidebar %}
-    {% has_versions person as changelog %}
     {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
-    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+    {% if versions %}<li><a href="#version-history"><i class="fa fa-fw fa-refresh"></i> {% trans "Version History" %}</a></li>{% endif %}
 {% endblock %}
 
 {# This is exactly the same as the previous sidebar #}
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
-    {% has_versions person as changelog %}
     {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
-    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+    {% if versions %}<li><a href="#version-history"><i class="fa fa-fw fa-refresh"></i> {% trans "Version History" %}</a></li>{% endif %}
 {% endblock %}
 
 {% block details %}
@@ -296,22 +299,10 @@
     </div>
     {% endif %}
 
-    {% has_versions person as changelog %}
-        {% if changelog %}
-        <div class="row">
-            <div class="col-sm-12">
-                <h3 id="changelog">
-                    <i class="fa fa-fw fa-refresh"></i>
-                    {% trans "Changelog" %}
-                </h3>
-                <small>
-                    {% trans "Select an attribute below to review the changes our staff have made to this entity." %}
-                </small>
-                <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anotomy_changelog' %}</small>
-                <hr />
-                {% render_versions person %}
-            </div>
-        </div>
+        {% if versions %}
+            {% with object=person %}
+                {% include 'partials/version_list.html' %}
+            {% endwith %}
         {% endif %}
 {% endblock %}
 

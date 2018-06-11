@@ -100,29 +100,6 @@
 {% block extra_js %}
 <script src="{% static "js/select2.min.js" %}"></script>
 <script type="text/javascript">
-    var name_opts = {
-        ajax: {
-            url: "{% url 'person-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': -1,
-                                'text': params.term }]};
-                }
-            }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2,
-        tags: true
-    }
 
     var alias_opts = {
         ajax: {
@@ -190,7 +167,6 @@
         tags: true
     }
     $(document).ready(function(e) {
-        $('#id_name').select2(name_opts);
         $('#id_alias').select2(alias_opts);
         $('#id_source').select2(source_opts);
         $('#id_division_id').select2(division_opts);
@@ -212,14 +188,6 @@
                     $(input).remove();
                 }
             })
-        });
-
-        $('#id_name').on('select2:select', function(e){
-            var value = e.params.data.text;
-            $('#id_name').find(':selected').prop('selected', false);
-            $('#id_name_text').val(value);
-            $('#id_name:selected').attr('value', e.params.data.id);
-            $('#id_name:selected').text(value);
         });
 
         $('#id_division_id').on('select2:select', function(e){

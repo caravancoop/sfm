@@ -1,45 +1,56 @@
 {% load i18n %}
 
+<div class="row">
+    <div class="col-sm-12">
+        <h2>{% trans "Version History" %}</h2>
+    </div>
+</div>
 {% for version in versions %}
-    {% for type_name, type_group in version.items %}
-        {% if type_group|last|last|length > 0 %} {# Only create tables for groups containing revisions #}
-            {% if forloop.first %}
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-target="#show-{{type_name|slugify}}">
-                    <a role="button" class="filter-heading">
-                        <h4><strong>{{ type_name }}</strong></h4>
-                    </a>
-                </div>
-                <div class="panel-body collapse" id="show-{{type_name|slugify}}">
-                    <table class="table table-condensed">
-                        <thead>
-                            <th>{% trans "Value" %}</th>
-                            <th>{% trans "Confidence" %}</th>
-                            <th>{% trans "Date created" %}</th>
-                            <th>{% trans "User" %}</th>
-                            <th>{% trans "Sources" %}</th>
-                        </thead>
-                        <tbody>
-            {% endif %}
-                    {% for group, members in type_group %}
-                        {% for member in members %}
-                            <tr>
-                                <td>{{ member.object.value }}</td>
-                                <td>{{ member.object.confidence }}</td>
-                                <td>{{ member.revision.date_created }}</td>
-                                <td>{{ member.revision.user }}</td>
-                                <td>
-                                    {% for source in member.object.sources.all %}
-                                        {{ source.title }}{% if not forloop.last %},{% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+<div class="row">
+    <div class="col-sm-12">
+        <br />
+        <table class="table table-condensed">
+            <tbody>
+                <tr class="success">
+                    <td><strong>{% trans "Transition" %}</strong></td>
+                    <td>{{ version.from_id }} => {{ version.to_id }} ({{ version.model }})</td>
+                </tr>
+                <tr>
+                    <td>{% trans "User" %}</td>
+                    <td>{{ version.user.username }}</td>
+                </tr>
+                <tr>
+                    <td>{% trans "Timestamp" %}</td>
+                    <td>{{ version.modification_date }}</td>
+                </tr>
+                {% for change in version.field_diffs %}
+                    <tr>
+                        <td><strong>{% trans "Changed" %}</strong></td>
+                        <td>"{{ change.field_name }}" => {{ change.from }} <strong>to</strong> "{{ change.field_name }}" => {{ change.to }}</td>
+                    </tr>
+                {% endfor %}
+                {% if version.comment %}
+                <tr>
+                    <td><strong>{% trans "Comment" %}</strong></td>
+                    <td>{{ version.comment }}
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form class="form" action="{{ object.revert_url }}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="version_id" value="{{ version.from_id }}">
+            <div class="input-group">
+                <input type="text" class="form-control" name="comment" placeholder="{% trans "Reverting to version" %} {{ version.from_id }} {% trans "because ..." %}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">{% trans "Revert!" %}</button>
+                </span>
             </div>
-        {% endif %}
-    {% endfor %}
+        </form>
+    </div>
+</div>
 {% endfor %}

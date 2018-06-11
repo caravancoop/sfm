@@ -41,7 +41,7 @@ class Source(models.Model, VersionsMixin):
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
-        return reverse('view-source', args=[self.id])
+        return reverse('view-source', args=[self.uuid])
 
     def get_evidenced(self):
         evidenced = []
@@ -61,6 +61,11 @@ class Source(models.Model, VersionsMixin):
     @property
     def archive_urls(self):
         return ' | '.join(a.archive_url for a in self.accesspoint_set.all())
+
+    @property
+    def revert_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('revert-source', args=[self.uuid])
 
 @reversion.register()
 class AccessPoint(models.Model, VersionsMixin):

@@ -14,7 +14,9 @@
     <div class="col-sm-12">
         {% block well %}
         <div class="well">
-            <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Edit source" %}</h2>
+            <h2 class="page-title cited">
+                <i class="fa fa-fw fa-paperclip"></i> {% trans "Edit source" %}
+            </h2>
             <p>
                 <small>ID: {{ source.uuid }}</small><br />
                 <small>Last update <strong>{{ source.date_updated }}</strong> by <strong>{{ source.user.username }}</strong></small>
@@ -24,61 +26,11 @@
     </div>
 </div>
 {% block form %}{% endblock %}
+
 {% if versions %}
-<div class="row">
-    <div class="col-sm-12">
-        <h2>{% trans "Version History" %}</h2>
-    </div>
-</div>
-{% for version in versions %}
-<div class="row">
-    <div class="col-sm-12">
-        <br />
-        <table class="table table-condensed">
-            <tbody>
-                <tr class="success">
-                    <td><strong>{% trans "Transition" %}</strong></td>
-                    <td>{{ version.from_id }} => {{ version.to_id }} ({{ version.model }})</td>
-                </tr>
-                <tr>
-                    <td>{% trans "User" %}</td>
-                    <td>{{ version.user.username }}</td>
-                </tr>
-                <tr>
-                    <td>{% trans "Timestamp" %}</td>
-                    <td>{{ version.modification_date }}</td>
-                </tr>
-                {% for change in version.field_diffs %}
-                    <tr>
-                        <td><strong>{% trans "Changed" %}</strong></td>
-                        <td>"{{ change.field_name }}" => {{ change.from }} <strong>to</strong> "{{ change.field_name }}" => {{ change.to }}</td>
-                    </tr>
-                {% endfor %}
-                {% if version.comment %}
-                <tr>
-                    <td><strong>{% trans "Comment" %}</strong></td>
-                    <td>{{ version.comment }}
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-12">
-        <form class="form" action="{% url 'revert-source' source.uuid %}" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="version_id" value="{{ version.from_id }}">
-            <div class="input-group">
-                <input type="text" class="form-control" name="comment" placeholder="{% trans "Reverting to version" %} {{ version.from_id }} {% trans "because ..." %}">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="submit">{% trans "Revert!" %}</button>
-                </span>
-            </div>
-        </form>
-    </div>
-</div>
-{% endfor %}
+    {% with object=source %}
+        {% include 'partials/version_list.html' %}
+    {% endwith %}
 {% endif %}
 
 {% endblock %}

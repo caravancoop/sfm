@@ -34,7 +34,7 @@ from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
 
 class PersonDetail(DetailView):
     model = Person
-    template_name = 'person/detail.html'
+    template_name = 'person/view.html'
     slug_field = 'uuid'
 
     def get_context_data(self, **kwargs):
@@ -112,6 +112,8 @@ class PersonDetail(DetailView):
         events = context['person'].violationperpetrator_set.all()
         for event in events:
             context['events'].append(event.object_ref)
+
+        context['versions'] = context['person'].getVersions()
 
         return context
 
@@ -520,6 +522,7 @@ class PersonUpdate(LoginRequiredMixin, BaseUpdateView):
     form_class = PersonForm
     success_url = reverse_lazy('dashboard')
     sourced = True
+    slug_field = 'uuid'
 
     def post(self, request, *args, **kwargs):
 
@@ -569,7 +572,7 @@ class PersonUpdate(LoginRequiredMixin, BaseUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        person = Person.objects.get(pk=self.kwargs['pk'])
+        person = Person.objects.get(uuid=self.kwargs['slug'])
 
         form_data = {
             'name': person.name.get_value(),
@@ -583,11 +586,6 @@ class PersonUpdate(LoginRequiredMixin, BaseUpdateView):
         context['memberships'] = MembershipPerson.objects.filter(
             membershippersonmember__value=person
         ).filter(membershippersonorganization__value__isnull=False)
-        context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
-
-        if not self.sourced:
-            context['source_error'] = 'Please include the source for your changes'
-
 
         return context
 
