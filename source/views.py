@@ -268,7 +268,7 @@ def source_autocomplete(request):
 
 def publication_autocomplete(request):
     term = request.GET.get('q')
-    publications = Source.objects.filter(publication__icontains=term).distinct('uuid')
+    publications = Source.objects.filter(publication__icontains=term).distinct('publication')
 
     results = []
     for publication in publications:
