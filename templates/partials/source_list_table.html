@@ -34,7 +34,7 @@
                 <th>
                     {% trans "Publication Country" %}
                     {% if sortable == 'True' %}
-                        {% with sort_param='Source_sort' sort_asc='country_t_asc' sort_desc='country_t_desc' selected_sort=sorts.Source %}
+                        {% with sort_param='Source_sort' sort_asc='country_s_asc' sort_desc='country_s_desc' selected_sort=sorts.Source %}
                             {% include 'partials/sortable-list.html' %}
                         {% endwith %}
                     {% endif %}

@@ -595,7 +595,7 @@ class Command(BaseCommand):
                 'start_date_dt': date_published,
                 'end_date_dt': date_published,
                 'publication_s': source['publication'],
-                'country_t': source['publication_country'],
+                'country_s': source['publication_country'],
                 'country_ss': source['publication_country'],
                 'text': content
             }

@@ -62,6 +62,8 @@ class Source(models.Model):
 
 @reversion.register()
 class AccessPoint(models.Model):
+    # TODO: Change PK to UUID and alter complex field relationships to point to
+    # this table instead of source table
     page_number = models.CharField(max_length=255, null=True, blank=True)
     accessed_on = models.DateField(null=True, blank=True)
     archive_url = models.URLField(max_length=1000, null=True, blank=True)
