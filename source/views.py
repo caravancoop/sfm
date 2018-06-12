@@ -183,7 +183,25 @@ class SourceRevertView(LoginRequiredMixin, View):
                                                  kwargs={'pk': kwargs['pk']}))
 
 
-class AccessPointEdit(NeverCacheMixin,
+class AccessPointContextMixin(object):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['source'] = Source.objects.get(uuid=self.kwargs['pk'])
+        context['versions'] = self.getVersions(context['source'])
+
+        for access_point in context['source'].accesspoint_set.all():
+            context['versions'].extend(self.getVersions(access_point))
+
+        context['versions'] = sorted(context['versions'],
+                                     key=lambda x: x['modification_date'],
+                                     reverse=True)
+
+        return context
+
+
+class AccessPointEdit(AccessPointContextMixin,
+                      NeverCacheMixin,
                       VersionsMixin,
                       LoginRequiredMixin,
                       RevisionMixin):
@@ -194,17 +212,6 @@ class AccessPointEdit(NeverCacheMixin,
     ]
     model = AccessPoint
     template_name = 'source/access-points.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
-        context['versions'] = self.getVersions(context['source'])
-
-        for access_point in context['source'].accesspoint_set.all():
-            context['versions'].extend(self.getVersions(access_point))
-
-        return context
 
     def get_success_url(self):
         return reverse_lazy('add-access-point', kwargs={'source_id': self.object.source.uuid})
@@ -222,7 +229,8 @@ class AccessPointEdit(NeverCacheMixin,
         return super().form_valid(form)
 
 
-class AccessPointDetail(NeverCacheMixin,
+class AccessPointDetail(AccessPointContextMixin,
+                        NeverCacheMixin,
                         VersionsMixin,
                         LoginRequiredMixin,
                         DetailView):
