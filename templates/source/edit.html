@@ -2,19 +2,6 @@
 {% load staticfiles %}
 {% load viewcomplexfield %}
 {% load i18n %}
-{% block well %}
-    <div class="well">
-        {% if source.uuid %}
-            <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Editing" %}: {{ source.title }}</h2>
-            <p>
-                <small>ID: {{ source.uuid }}</small><br />
-                <small>Last update <strong>{{ source.date_updated }}</strong> by <strong>{{ source.user.username }}</strong></small>
-            </p>
-        {% else %}
-            <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Add source" %}</h2>
-        {% endif %}
-    </div>
-{% endblock %}
 {% block form %}
 <div class="row">
     <div class="col-sm-12">
