@@ -31,7 +31,10 @@
             <tbody>
                 {% for access_point in source.accesspoint_set.all %}
                     {% if access_point.id != object.id %}
-                    <tr>
+                        <tr>
+                    {% else %}
+                        <tr class="info">
+                    {% endif %}
                         <td>
                             <a href="{{ acccess_point.archive_url }}" target="_blank">
                                 {{ access_point.archive_url }}
@@ -45,7 +48,6 @@
                             </a>
                         </td>
                     </tr>
-                    {% endif %}
                 {% endfor %}
                 <tr>
                     <td colspan="4">
@@ -58,6 +60,7 @@
         </table>
     </div>
 </div>
+{% if form %}
 <div class="row">
     <div class="col-sm-12">
         <form class="form form-horizontal" method="POST">
@@ -122,5 +125,5 @@
         </form>
     </div>
 </div>
-
+{% endif %}
 {% endblock %}

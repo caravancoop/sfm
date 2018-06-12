@@ -29,7 +29,7 @@
             {% if source.uuid %}
                 <li role="presentation">
                     {% if source.accesspoint_set.first %}
-                        <a href="{% url 'update-access-point' source.uuid source.accesspoint_set.first.id %}">{% trans "Access Points" %}</a>
+                        <a href="{% url 'view-access-point' source.uuid %}">{% trans "Access Points" %}</a>
                     {% else %}
                         <a href="{% url 'add-access-point' source.uuid %}">{% trans "Access Points" %}</a>
                     {% endif %}

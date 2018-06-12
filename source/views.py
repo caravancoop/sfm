@@ -12,6 +12,7 @@ from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View
+from django.views.generic import ListView
 
 from complex_fields.models import ComplexFieldContainer
 
@@ -206,8 +207,7 @@ class AccessPointEdit(NeverCacheMixin,
         return context
 
     def get_success_url(self):
-        return reverse_lazy('update-access-point', kwargs={'pk': self.object.id,
-                                                            'source_id': self.object.source.uuid})
+        return reverse_lazy('add-access-point', kwargs={'source_id': self.object.source.uuid})
 
     def form_valid(self, form):
         self.form = form
@@ -220,6 +220,14 @@ class AccessPointEdit(NeverCacheMixin,
         self.form.instance.user = self.request.user
 
         return super().form_valid(form)
+
+
+class AccessPointDetail(NeverCacheMixin,
+                        VersionsMixin,
+                        LoginRequiredMixin,
+                        DetailView):
+    model = Source
+    template_name = 'source/access-points.html'
 
 
 class AccessPointUpdate(AccessPointEdit, UpdateView):
