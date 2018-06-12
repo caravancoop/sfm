@@ -342,6 +342,8 @@ def get_search_context(request, all_results=False):
     # If we didn't get many hits, look for search term suggestions
     suggested_terms = None
     if hits['global'] < 10 and user_query:
+        import pdb
+        pdb.set_trace()
         lookup = suggester.search(user_query)
         suggestions = lookup.raw_response['suggest']['default'][user_query]['suggestions']
         # Filter out suggestions that exactly match the user's query
