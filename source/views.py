@@ -187,7 +187,7 @@ class AccessPointContextMixin(object):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['source'] = Source.objects.get(uuid=self.kwargs['pk'])
+        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
         context['versions'] = self.getVersions(context['source'])
 
         for access_point in context['source'].accesspoint_set.all():

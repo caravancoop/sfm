@@ -54,9 +54,4 @@ class Migration(migrations.Migration):
             name='user',
             field=models.ForeignKey(on_delete=models.SET(source.models.get_deleted_user), to=settings.AUTH_USER_MODEL),
         ),
-        migrations.AddField(
-            model_name='source',
-            name='id',
-            field=models.IntegerField(null=True),
-        ),
     ]

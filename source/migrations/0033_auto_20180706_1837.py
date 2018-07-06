@@ -49,9 +49,16 @@ def insert_access_points(apps, schema_editor):
                     accesspoint_id,
                     {1}_id
                 )
-                SELECT accesspoint_id, {1}_id
-                FROM {2}
-            '''.format(ap_table, column_name, source_table)
+                SELECT
+                  ap.uuid AS accesspoint_id,
+                  source.{1}_id
+                FROM source_accesspoint AS ap
+                JOIN {3} AS source
+                  USING(source_id)
+            '''.format(ap_table,
+                       column_name,
+                       ap_table,
+                       source_table)
 
             curs.execute(insert)
 

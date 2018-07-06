@@ -10,6 +10,8 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('source', '0009_auto_20160615_1511'),
+        ('person', '0006_person_uuid'),
+        ('organization', '0007_organization_uuid'),
         ('violation', '0002_auto_20151102_2237'),
     ]
 
@@ -187,16 +189,16 @@ class Migration(migrations.Migration):
             name='sources',
             field=models.ManyToManyField(related_name='violation_violationtype_related', to='source.Source'),
         ),
-        # migrations.AlterField(
-        #     model_name='violationperpetrator',
-        #     name='value',
-        #     field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='person.Person'),
-        # ),
-        # migrations.AlterField(
-        #     model_name='violationperpetratororganization',
-        #     name='value',
-        #     field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='organization.Organization'),
-        # ),
+        migrations.AlterField(
+            model_name='violationperpetrator',
+            name='value',
+            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='person.Person'),
+        ),
+        migrations.AlterField(
+            model_name='violationperpetratororganization',
+            name='value',
+            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='organization.Organization'),
+        ),
         migrations.DeleteModel(
             name='ViolationSource',
         ),
