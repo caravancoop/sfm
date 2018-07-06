@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import uuid
 
-from django.db import migrations, models, connection
+from django.db import migrations, connection
 
 
 def update_source_tables(apps, schema_editor):
