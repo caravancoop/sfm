@@ -14,11 +14,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='accesspoint',
-            name='uuid',
-            field=models.UUIDField(default=uuid.uuid4, serialize=False),
-        ),
         migrations.AlterField(
             model_name='source',
             name='uuid',

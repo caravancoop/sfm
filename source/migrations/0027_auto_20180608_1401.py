@@ -13,10 +13,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='source',
-            name='id',
-        ),
         migrations.AlterField(
             model_name='accesspoint',
             name='accessed_on',
