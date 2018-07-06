@@ -233,9 +233,12 @@ class AccessPointDetail(AccessPointContextMixin,
                         NeverCacheMixin,
                         VersionsMixin,
                         LoginRequiredMixin,
-                        DetailView):
-    model = Source
+                        ListView):
+    model = AccessPoint
     template_name = 'source/access-points.html'
+
+    def get_queryset(self):
+        return AccessPoint.objects.filter(source__uuid=self.kwargs['source_id'])
 
 
 class AccessPointUpdate(AccessPointEdit, UpdateView):
