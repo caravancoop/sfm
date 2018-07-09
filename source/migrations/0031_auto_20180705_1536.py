@@ -45,6 +45,8 @@ def update_source_tables(apps, schema_editor):
             if column_name == 'moo':
                 column_name = 'membershiporganizationorganization'
 
+            print('SOURCE TABLE', source_table, 'COLUMN NAME', column_name)
+
             insert  = '''
                 INSERT INTO {0} (
                   source_id,

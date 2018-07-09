@@ -75,12 +75,7 @@ def setUpModule():
     for fixture in fixtures:
         call_command('loaddata', fixture)
 
-    from io import StringIO
-    stdout = StringIO()
-    stderr = StringIO()
     call_command('make_flattened_views', '--recreate', stdout=stdout, stderr=stderr)
-    print('STDOUT', stdout.getvalue())
-    print('STDERR', stderr.getvalue())
     # call_command('make_search_index')
 
 
