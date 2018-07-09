@@ -18,10 +18,14 @@ def update_source_tables(apps, schema_editor):
 
     cursor.execute(source_tables)
 
+    source_tables = [r[0] for r in cursor]
+
+    import pprint
+    pprint.pprint(source_tables)
+
     with connection.cursor() as curs:
 
-        for row in cursor:
-            source_table = row[0]
+        for source_table in source_tables:
 
             add_col = '''
                 ALTER TABLE {}
@@ -44,8 +48,6 @@ def update_source_tables(apps, schema_editor):
 
             if column_name == 'moo':
                 column_name = 'membershiporganizationorganization'
-
-            print('SOURCE TABLE', source_table, 'COLUMN NAME', column_name)
 
             insert  = '''
                 INSERT INTO {0} (
