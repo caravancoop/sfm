@@ -16,10 +16,12 @@ def insert_access_points(apps, schema_editor):
 
     cursor.execute(source_tables)
 
+    source_tables = [r[0] for r in cursor]
+
     with connection.cursor() as curs:
 
-        for row in cursor:
-            source_table = row[0]
+        for source_table in source_tables:
+
             column_name = source_table.split('_')[1]
             ap_table = source_table.replace('_sources', '_accesspoints')
 
@@ -84,14 +86,7 @@ def remove_access_points(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('source', '0032_remove_source_id'),
-        ('association', '0006_auto_20180706_1825'),
-        ('composition', '0008_auto_20180706_1825'),
-        ('emplacement', '0008_auto_20180706_1825'),
-        ('geosite', '0013_auto_20180706_1825'),
-        ('membershiporganization', '0007_auto_20180706_1825'),
-        ('membershipperson', '0004_auto_20180706_1825'),
-        ('person', '0007_auto_20180706_1825'),
+        ('source', '0031_auto_20180705_1536'),
         ('violation', '0014_auto_20180706_1825'),
     ]
 

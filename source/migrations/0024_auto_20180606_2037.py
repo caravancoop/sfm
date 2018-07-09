@@ -17,6 +17,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name='source',
+            name='id',
+        ),
+        migrations.AlterField(
+            model_name='source',
+            name='uuid',
+            field=models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False),
+        ),
         migrations.CreateModel(
             name='AccessPoint',
             fields=[

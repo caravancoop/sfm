@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('source', '0032_remove_source_id'),
+        ('source', '0031_auto_20180705_1536'),
         ('person', '0006_person_uuid'),
     ]
 

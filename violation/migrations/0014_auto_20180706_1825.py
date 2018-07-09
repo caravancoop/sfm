@@ -9,7 +9,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('source', '0032_remove_source_id'),
         ('violation', '0013_auto_20170915_1614'),
     ]
 

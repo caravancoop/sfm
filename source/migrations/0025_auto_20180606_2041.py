@@ -30,6 +30,15 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('source', '0024_auto_20180606_2037'),
+        ('area', '0009_auto_20161230_1629'),
+        ('association', '0005_auto_20170905_2006'),
+        ('composition', '0007_compositionrealstart'),
+        ('emplacement', '0007_auto_20170908_1835'),
+        ('membershiporganization', '0006_auto_20170907_1853'),
+        ('membershipperson', '0003_auto_20160810_2017'),
+        ('organization', '0011_organizationheadquarters'),
+        ('violation', '0013_auto_20170915_1614'),
+        ('person', '0006_person_uuid'),
     ]
 
     operations = [

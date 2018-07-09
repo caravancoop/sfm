@@ -18,14 +18,10 @@ def update_source_tables(apps, schema_editor):
 
     cursor.execute(source_tables)
 
-    source_tables = [r[0] for r in cursor]
-
-    import pprint
-    pprint.pprint(source_tables)
-
     with connection.cursor() as curs:
 
-        for source_table in source_tables:
+        for row in cursor:
+            source_table = row[0]
 
             add_col = '''
                 ALTER TABLE {}
