@@ -117,6 +117,7 @@ class SourceTest(TestCase):
         assert response.status_code == 200
 
         source = Source.objects.get(uuid=source.uuid)
+        print('SOURCE PUBLICATION', source.pubication)
         assert source.publication == 'Test Publication Title'
 
         revision = Version.objects.get_for_object(source).first().revision
