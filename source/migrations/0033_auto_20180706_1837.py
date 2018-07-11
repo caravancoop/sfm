@@ -25,6 +25,8 @@ def insert_access_points(apps, schema_editor):
             column_name = source_table.split('_')[1]
             ap_table = source_table.replace('_sources', '_accesspoints')
 
+            print(ap_table)
+
             # There are some columns / tables which don't follow the standard
             # naming convention. Sort those out here:
 
