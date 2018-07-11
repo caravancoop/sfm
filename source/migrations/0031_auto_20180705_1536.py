@@ -23,6 +23,8 @@ def update_source_tables(apps, schema_editor):
         for row in cursor:
             source_table = row[0]
 
+            print(source_table)
+
             add_col = '''
                 ALTER TABLE {}
                 ADD COLUMN accesspoint_id uuid
