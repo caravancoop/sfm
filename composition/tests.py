@@ -46,7 +46,7 @@ class CompositionTest(TestCase):
 
         self.classification, _ = Classification.objects.get_or_create(value='Command')
 
-        organizations = [self.getRandomOrganization() for i in range(3)]
+        organizations = Organization.objects.all()[:3]
         organizations = [{'id': o.id, 'name': o.name.get_value().value}
                          for o in organizations]
 
@@ -59,52 +59,44 @@ class CompositionTest(TestCase):
     def tearDown(self):
         self.client.logout()
 
-    def getRandomOrganization(self):
+    def test_create_composition(self):
 
-        count = Organization.objects.aggregate(count=Count('id'))['count']
+        response = self.client.get(reverse_lazy('create-composition'), follow=True)
 
-        random_index = randint(0, count - 1)
+        assert response.context['source'] == self.source
 
-        return Organization.objects.all()[random_index]
+        post_data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MAX_NUM_FORMS': '',
+        }
+        organizations = self.client.session.get('organizations')
+        for index, organization in enumerate(organizations):
 
-    # def test_create_composition(self):
+            # Skip the last org, so that we don't create a recursive hierarchy
+            if index == len(organizations) - 1:
+                continue
 
-    #     response = self.client.get(reverse_lazy('create-composition'), follow=True)
+            data = {
+                'form-{}-startdate'.format(index): '2001-01-01',
+                'form-{}-startdate_confidence'.format(index): 1,
+                'form-{}-realstart'.format(index): True,
+                'form-{}-enddate'.format(index): '2010-01-01',
+                'form-{}-enddate_confidence'.format(index): 1,
+                'form-{}-open_ended'.format(index): 'Y',
+                'form-{}-classification'.format(index): self.classification.id,
+                'form-{}-classification_confidence'.format(index): 1,
+                'form-{}-parent'.format(index): organization['id'],
+                'form-{}-parent_confidence'.format(index): 1,
+                'form-{}-child'.format(index): organizations[index - 1]['id'],
+                'form-{}-child_confidence'.format(index): 1,
+            }
 
-    #     assert response.context['source'] == self.source
+            post_data.update(data)
 
-    #     post_data = {
-    #         'form-TOTAL_FORMS': '2',
-    #         'form-INITIAL_FORMS': '0',
-    #         'form-MAX_NUM_FORMS': '',
-    #     }
-    #     organizations = self.client.session.get('organizations')
-    #     for index, organization in enumerate(organizations):
+        response = self.client.post(reverse_lazy('create-composition'), post_data)
 
-    #         # Skip the last org, so that we don't create a recursive hierarchy
-    #         if index == len(organizations) - 1:
-    #             continue
-
-    #         data = {
-    #             'form-{}-startdate'.format(index): '2001-01-01',
-    #             'form-{}-startdate_confidence'.format(index): 1,
-    #             'form-{}-realstart'.format(index): True,
-    #             'form-{}-enddate'.format(index): '2010-01-01',
-    #             'form-{}-enddate_confidence'.format(index): 1,
-    #             'form-{}-open_ended'.format(index): 'Y',
-    #             'form-{}-classification'.format(index): self.classification.id,
-    #             'form-{}-classification_confidence'.format(index): 1,
-    #             'form-{}-parent'.format(index): organization['id'],
-    #             'form-{}-parent_confidence'.format(index): 1,
-    #             'form-{}-child'.format(index): organizations[index - 1]['id'],
-    #             'form-{}-child_confidence'.format(index): 1,
-    #         }
-
-    #         post_data.update(data)
-
-    #     response = self.client.post(reverse_lazy('create-composition'), post_data)
-
-    #     self.assertRedirects(response, reverse_lazy('create-organization-membership'))
+        self.assertRedirects(response, reverse_lazy('create-organization-membership'))
 
     def test_identical_parent_and_child(self):
 

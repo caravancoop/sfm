@@ -97,7 +97,7 @@ class SourceTest(TestCase):
         assert revision.comment == 'This is a big change'
 
     def test_update_source(self):
-        source = Source.objects.order_by('?').first()
+        source = Source.objects.all().first()
 
         response = self.client.get(reverse_lazy('update-source', kwargs={'pk': source.uuid}))
         assert response.status_code == 200
@@ -117,7 +117,7 @@ class SourceTest(TestCase):
         assert response.status_code == 200
 
         source = Source.objects.get(uuid=source.uuid)
-        print('SOURCE PUBLICATION', source.publication)
+
         assert source.publication == 'Test Publication Title'
 
         revision = Version.objects.get_for_object(source).first().revision
