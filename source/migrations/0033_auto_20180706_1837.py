@@ -57,6 +57,7 @@ def insert_access_points(apps, schema_editor):
                 FROM source_accesspoint AS ap
                 JOIN {3} AS source
                   USING(source_id)
+                ON CONFLICT DO NOTHING
             '''.format(ap_table,
                        column_name,
                        ap_table,
