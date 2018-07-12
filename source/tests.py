@@ -70,7 +70,7 @@ class SourceTest(TestCase):
         source = Source.objects.order_by('?').first()
 
         response = self.client.get(reverse_lazy('add-access-point',
-                                                kwargs={'source_id': source.uuid}))
+                                                kwargs={'source_id': str(source.uuid)}))
 
         assert response.status_code == 200
 
@@ -82,7 +82,7 @@ class SourceTest(TestCase):
         }
 
         response = self.client.post(reverse_lazy('add-access-point',
-                                                 kwargs={'source_id': source.uuid}),
+                                                 kwargs={'source_id': str(source.uuid)}),
                                     post_data,
                                     follow=True)
 
@@ -97,7 +97,7 @@ class SourceTest(TestCase):
         assert revision.comment == 'This is a big change'
 
     def test_update_source(self):
-        source = Source.objects.order_by('?').first()
+        source = Source.objects.all().first()
 
         response = self.client.get(reverse_lazy('update-source', kwargs={'pk': source.uuid}))
         assert response.status_code == 200
@@ -117,6 +117,7 @@ class SourceTest(TestCase):
         assert response.status_code == 200
 
         source = Source.objects.get(uuid=source.uuid)
+
         assert source.publication == 'Test Publication Title'
 
         revision = Version.objects.get_for_object(source).first().revision
@@ -127,7 +128,7 @@ class SourceTest(TestCase):
 
         response = self.client.get(reverse_lazy('update-access-point',
                                                 kwargs={'source_id': accesspoint.source.uuid,
-                                                        'pk': accesspoint.id}))
+                                                        'pk': accesspoint.uuid}))
         assert response.status_code == 200
 
         post_data = {
@@ -139,12 +140,12 @@ class SourceTest(TestCase):
 
         response = self.client.post(reverse_lazy('update-access-point',
                                                 kwargs={'source_id': accesspoint.source.uuid,
-                                                        'pk': accesspoint.id}),
+                                                        'pk': accesspoint.uuid}),
                                     post_data,
                                     follow=True)
         assert response.status_code == 200
 
-        accesspoint = AccessPoint.objects.get(id=accesspoint.id)
+        accesspoint = AccessPoint.objects.get(uuid=accesspoint.uuid)
         assert accesspoint.archive_url == 'https://web.archive.org/'
 
         revision = Version.objects.get_for_object(accesspoint).first().revision

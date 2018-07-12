@@ -17,10 +17,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name='source',
+            name='id',
+        ),
+        migrations.AlterField(
+            model_name='source',
+            name='uuid',
+            field=models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False),
+        ),
         migrations.CreateModel(
             name='AccessPoint',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('uuid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
                 ('page_number', models.CharField(blank=True, max_length=255, null=True)),
                 ('accessed_on', models.DateField(null=True)),
                 ('archive_url', models.URLField(blank=True, max_length=1000, null=True)),
@@ -41,16 +50,14 @@ class Migration(migrations.Migration):
             name='uuid',
             field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
         ),
-        migrations.RunSQL('''
-            ALTER TABLE source_accesspoint
-            ADD COLUMN source_id uuid
-        '''),
-        migrations.RunSQL('''
-            ALTER TABLE source_accesspoint
-            ADD CONSTRAINT source_accesspoint_fk_source_source FOREIGN KEY (source_id)
-            REFERENCES source_source(uuid)
-            DEFERRABLE INITIALLY DEFERRED
-        '''),
+        migrations.AddField(
+            model_name='accesspoint',
+            name='source',
+            field=models.ForeignKey(null=True,
+                                    on_delete=django.db.models.deletion.CASCADE,
+                                    to='source.Source',
+                                    to_field='uuid'),
+        ),
         migrations.AddField(
             model_name='accesspoint',
             name='user',

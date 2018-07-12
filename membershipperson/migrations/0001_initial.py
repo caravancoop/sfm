@@ -9,7 +9,6 @@ import complex_fields.base_models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('source', '0001_initial'),
         ('organization', '0001_initial'),
         ('person', '0001_initial'),
     ]
