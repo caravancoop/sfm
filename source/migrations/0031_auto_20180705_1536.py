@@ -60,14 +60,8 @@ def update_source_tables(apps, schema_editor):
                     USING(source_id)
             '''.format(source_table, column_name)
 
-            delete = '''
-                DELETE FROM {}
-                WHERE accesspoint_id IS NULL
-            '''.format(source_table)
-
             curs.execute(add_col)
             curs.execute(insert)
-            curs.execute(delete)
 
 
 def remove_access_point(apps, schema_editor):
