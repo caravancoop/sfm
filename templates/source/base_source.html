@@ -13,15 +13,17 @@
 <div class="row">
     <div class="col-sm-12">
         {% block well %}
-        <div class="well">
-            <h2 class="page-title cited">
-                <i class="fa fa-fw fa-paperclip"></i> {% trans "Edit source" %}
-            </h2>
-            <p>
-                <small>ID: {{ source.uuid }}</small><br />
-                <small>Last update <strong>{{ source.date_updated }}</strong> by <strong>{{ source.user.username }}</strong></small>
-            </p>
-        </div>
+            <div class="well">
+                {% if source.uuid %}
+                    <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Editing" %}: {{ source.title }}</h2>
+                    <p>
+                        <small>ID: {{ source.uuid }}</small><br />
+                        <small>Last update <strong>{{ source.date_updated }}</strong> by <strong>{{ source.user.username }}</strong></small>
+                    </p>
+                {% else %}
+                    <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Add source" %}</h2>
+                {% endif %}
+            </div>
         {% endblock %}
     </div>
 </div>

@@ -18,7 +18,7 @@
                 <th>
                     {% trans "Publication Date" %}
                     {% if sortable == 'True' %}
-                        {% with sort_param='Source_sort' sort_asc='source_date_published_dt_asc' sort_desc='source_date_published_dt_desc' selected_sort=sorts.Source %}
+                        {% with sort_param='Source_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Source %}
                             {% include 'partials/sortable-list.html' %}
                         {% endwith %}
                     {% endif %}
@@ -26,7 +26,7 @@
                 <th>
                     {% trans "Publication" %}
                     {% if sortable == 'True' %}
-                        {% with sort_param='Source_sort' sort_asc='publication_t_asc' sort_desc='publication_t_desc' selected_sort=sorts.Source %}
+                        {% with sort_param='Source_sort' sort_asc='publication_s_asc' sort_desc='publication_s_desc' selected_sort=sorts.Source %}
                             {% include 'partials/sortable-list.html' %}
                         {% endwith %}
                     {% endif %}
@@ -34,7 +34,7 @@
                 <th>
                     {% trans "Publication Country" %}
                     {% if sortable == 'True' %}
-                        {% with sort_param='Source_sort' sort_asc='country_ss_asc' sort_desc='country_ss_desc' selected_sort=sorts.Source %}
+                        {% with sort_param='Source_sort' sort_asc='country_s_asc' sort_desc='country_s_desc' selected_sort=sorts.Source %}
                             {% include 'partials/sortable-list.html' %}
                         {% endwith %}
                     {% endif %}

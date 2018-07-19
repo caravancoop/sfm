@@ -10,6 +10,8 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('source', '0009_auto_20160615_1511'),
+        ('person', '0006_person_uuid'),
+        ('organization', '0007_organization_uuid'),
         ('violation', '0002_auto_20151102_2237'),
     ]
 

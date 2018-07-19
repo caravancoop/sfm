@@ -31,7 +31,10 @@
             <tbody>
                 {% for access_point in source.accesspoint_set.all %}
                     {% if access_point.id != object.id %}
-                    <tr>
+                        <tr>
+                    {% else %}
+                        <tr class="info">
+                    {% endif %}
                         <td>
                             <a href="{{ acccess_point.archive_url }}" target="_blank">
                                 {{ access_point.archive_url }}
@@ -40,12 +43,11 @@
                         <td>{{ access_point.page_number }}</td>
                         <td>{{ access_point.accessed_on }}</td>
                         <td>
-                            <a href="{% url 'update-access-point' source.uuid access_point.id %}">
+                            <a href="{% url 'update-access-point' source.uuid access_point.uuid %}">
                                 <i class="fa fa-pencil"> </i> Edit
                             </a>
                         </td>
                     </tr>
-                    {% endif %}
                 {% endfor %}
                 <tr>
                     <td colspan="4">
@@ -58,6 +60,7 @@
         </table>
     </div>
 </div>
+{% if form %}
 <div class="row">
     <div class="col-sm-12">
         <form class="form form-horizontal" method="POST">
@@ -122,5 +125,5 @@
         </form>
     </div>
 </div>
-
+{% endif %}
 {% endblock %}

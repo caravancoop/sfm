@@ -2,19 +2,6 @@
 {% load staticfiles %}
 {% load viewcomplexfield %}
 {% load i18n %}
-{% block well %}
-    <div class="well">
-        {% if source.uuid %}
-            <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Edit source" %}</h2>
-            <p>
-                <small>ID: {{ source.uuid }}</small><br />
-                <small>Last update <strong>{{ source.date_updated }}</strong> by <strong>{{ source.user.username }}</strong></small>
-            </p>
-        {% else %}
-            <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Add source" %}</h2>
-        {% endif %}
-    </div>
-{% endblock %}
 {% block form %}
 <div class="row">
     <div class="col-sm-12">
@@ -29,7 +16,7 @@
             {% if source.uuid %}
                 <li role="presentation">
                     {% if source.accesspoint_set.first %}
-                        <a href="{% url 'update-access-point' source.uuid source.accesspoint_set.first.id %}">{% trans "Access Points" %}</a>
+                        <a href="{% url 'view-access-point' source.uuid %}">{% trans "Access Points" %}</a>
                     {% else %}
                         <a href="{% url 'add-access-point' source.uuid %}">{% trans "Access Points" %}</a>
                     {% endif %}

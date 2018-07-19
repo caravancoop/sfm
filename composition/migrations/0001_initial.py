@@ -9,7 +9,7 @@ import django_date_extensions.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('source', '0001_initial'),
+        ('source', '0023_auto_20180604_1610'),
         ('organization', '0001_initial'),
     ]
 

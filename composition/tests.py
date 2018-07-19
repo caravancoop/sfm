@@ -46,7 +46,7 @@ class CompositionTest(TestCase):
 
         self.classification, _ = Classification.objects.get_or_create(value='Command')
 
-        organizations = [self.getRandomOrganization() for i in range(3)]
+        organizations = Organization.objects.all()[:3]
         organizations = [{'id': o.id, 'name': o.name.get_value().value}
                          for o in organizations]
 
@@ -58,14 +58,6 @@ class CompositionTest(TestCase):
 
     def tearDown(self):
         self.client.logout()
-
-    def getRandomOrganization(self):
-
-        count = Organization.objects.aggregate(count=Count('id'))['count']
-
-        random_index = randint(0, count - 1)
-
-        return Organization.objects.all()[random_index]
 
     def test_create_composition(self):
 

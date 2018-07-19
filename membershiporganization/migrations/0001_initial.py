@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('organization', '0007_organization_uuid'),
-        ('source', '0017_auto_20160826_2057'),
+        ('source', '0023_auto_20180604_1610'),
     ]
 
     operations = [

@@ -11,6 +11,7 @@ from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View
+from django.views.generic import ListView
 
 from complex_fields.models import ComplexFieldContainer
 
@@ -136,7 +137,26 @@ class SourceRevertView(LoginRequiredMixin, View):
                                                  kwargs={'pk': kwargs['pk']}))
 
 
-class AccessPointEdit(NeverCacheMixin,
+class AccessPointContextMixin(object):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
+        context['versions'] = context['source'].getVersions()
+
+        for access_point in context['source'].accesspoint_set.all():
+            context['versions'].extend(access_point.getVersions())
+
+        context['versions'] = sorted(context['versions'],
+                                     key=lambda x: x['modification_date'],
+                                     reverse=True)
+
+        return context
+
+
+class AccessPointEdit(AccessPointContextMixin,
+                      NeverCacheMixin,
+                      VersionsMixin,
                       LoginRequiredMixin,
                       RevisionMixin):
     fields = [
@@ -147,20 +167,8 @@ class AccessPointEdit(NeverCacheMixin,
     model = AccessPoint
     template_name = 'source/access-points.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
-        context['versions'] = context['source'].getVersions()
-
-        for access_point in context['source'].accesspoint_set.all():
-            context['versions'].extend(access_point.getVersions())
-
-        return context
-
     def get_success_url(self):
-        return reverse_lazy('update-access-point', kwargs={'pk': self.object.id,
-                                                            'source_id': self.object.source.uuid})
+        return reverse_lazy('add-access-point', kwargs={'source_id': self.object.source.uuid})
 
     def form_valid(self, form):
         self.form = form
@@ -173,6 +181,18 @@ class AccessPointEdit(NeverCacheMixin,
         self.form.instance.user = self.request.user
 
         return super().form_valid(form)
+
+
+class AccessPointDetail(AccessPointContextMixin,
+                        NeverCacheMixin,
+                        VersionsMixin,
+                        LoginRequiredMixin,
+                        ListView):
+    model = AccessPoint
+    template_name = 'source/access-points.html'
+
+    def get_queryset(self):
+        return AccessPoint.objects.filter(source__uuid=self.kwargs['source_id'])
 
 
 class AccessPointUpdate(AccessPointEdit, UpdateView):
@@ -205,7 +225,7 @@ def source_autocomplete(request):
 
 def publication_autocomplete(request):
     term = request.GET.get('q')
-    publications = Source.objects.filter(publication__icontains=term).distinct('uuid')
+    publications = Source.objects.filter(publication__icontains=term).distinct('publication')
 
     results = []
     for publication in publications:

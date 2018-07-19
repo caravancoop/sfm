@@ -1,5 +1,5 @@
 language: python
-python: '3.5'
+python: '3.6'
 
 dist: trusty
 sudo: false
@@ -15,7 +15,7 @@ install:
 - pip install -r requirements.txt
 
 script:
-- python manage.py test -k -v 2 --settings=tests.test_settings
+- python manage.py test --failfast -v 2 --settings=tests.test_settings
 
 deploy:
   - provider: codedeploy
