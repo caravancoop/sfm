@@ -18,6 +18,7 @@ from complex_fields.models import ComplexFieldContainer
 from countries_plus.models import Country
 
 from sfm_pc.base_views import NeverCacheMixin
+from sfm_pc.utils import VersionsMixin
 
 from source.models import Source, AccessPoint
 from source.forms import SourceForm
