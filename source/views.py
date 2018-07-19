@@ -54,7 +54,6 @@ class SourceView(DetailView):
         return context
 
 
-
 class SourceEditView(NeverCacheMixin, RevisionMixin, LoginRequiredMixin):
     fields = [
         'title',

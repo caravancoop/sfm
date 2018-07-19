@@ -5,22 +5,28 @@ from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
 
+from .models import Person, PersonName, PersonAlias
 
-class PersonForm(forms.Form):
-    name = forms.CharField(error_messages={'required': _('Name is required')})
-    name_text = forms.CharField()
-    name_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+class PersonForm(forms.ModelForm):
 
-    alias = forms.CharField(required=False)
-    alias_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    name = forms.ModelChoiceField(queryset=PersonName.objects.all())
+    aliases = forms.ModelMultipleChoiceField(queryset=PersonAlias.objects.all())
 
-    orgs = forms.CharField(required=False)
-    orgs_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    class Meta:
+        model = Person
+        fields = '__all__'
 
-    division_id = forms.CharField(error_messages={'required': _('Division ID is required')})
-    division_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
+    def clean_aliases(self):
+        data = self.cleaned_data['aliases']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        return data
 
-        self.empty_permitted = False
+    def clean_name(self):
+        data = self.cleaned_data['name']
+
+        return data
+
+    def save(self, commit=True):
+        print(self.instance)
+        return super().save(commit=commit)
+

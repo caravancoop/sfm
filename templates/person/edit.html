@@ -1,202 +1,58 @@
-{% extends "sfm/base_edit_template.html" %}
+{% extends "base.html" %}
 {% load i18n %}
 {% load render_versions %}
 {% load static %}
 {% block extra_head %}
     <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
 {% endblock %}
-{% block form_guts %}
-    {% if form.name.errors %}
-        <div class="form-group has-error has-feedback">
-    {% else %}
-        <div class="form-group">
-    {% endif %}
-        <label class="col-sm-2 control-label">{% trans "Person name" %}</label>
-        <div class="col-sm-8">
-            <select id="id_name" class="form-control" name="name">
-                    <option value="" selected="selected">--------</option>
-                {% if form_data.name %}
-                    <option value="{{ form_data.name.id }}" selected=true>{{ form_data.name.value }}</option>
-                {% endif %}
-            </select>
-            {% if form.name.errors %}
-                {% for error in form.name.errors %}
-                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                {% endfor %}
-            {% endif %}
-        <input type="hidden" name="name_text" id="id_name_text" value="{{ form_data.name.value }}" />
+{% block content %}
+
+    <div class="row header">
+        <div class="inner-title-wrapper">
+            {% block form_title %}{% endblock %}
         </div>
     </div>
-    {% if form.alias.errors %}
-        <div class="form-group has-error has-feedback">
-    {% else %}
-        <div class="form-group">
-    {% endif %}
-        <label class="col-sm-2 control-label">{% trans "Aliases" %}</label>
-        <div class="col-sm-8">
-            <select id="id_alias" class="form-control" name="alias" multiple="multiple">
-                {% for alias in form_data.aliases %}
-                    <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
-                {% endfor %}
-            </select>
-            {% if form.alias.errors %}
-                {% for error in form.alias.errors %}
-                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
-    {% if form.division_id.errors %}
-        <div class="form-group has-error has-feedback">
-    {% else %}
-        <div class="form-group">
-    {% endif %}
-        <label class="col-sm-2 control-label">{% trans "Division identifier" %}</label>
-        <div class="col-sm-8">
-            <select id="id_division_id" class="form-control division-field" name="division_id">
-                    <option value="" selected="selected">--------</option>
-                {% if form_data.division_id %}
-                    <option value="{{ form_data.division_id.value }}" selected=true>{{ form_data.division_id.value }}</option>
-                {% endif %}
-            </select>
-            {% if form.division_id.errors %}
-                {% for error in form.division_id.errors %}
-                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
-{% endblock %}
-{% block after_form %}
     <div class="row">
-        <h3>{% trans "Memberships" %}</h3>
-        <div class="col-sm-10 col-sm-offset-1">
-            <div class="table-responsive">
-                <table class="table table-condensed">
-                    <thead>
-                        <tr>
-                            <th class="col-sm-3">{% trans "Memberships" %}</th>
-                            <th class="col-sm-3">{% trans "Title" %}</th>
-                            <th class="col-sm-3">{% trans "Role" %}</th>
-                            <th class="col-sm-2">{% trans "Rank" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for member in memberships %}
-                        <tr>
-                            <td><a href="{% url 'edit-membership' pk=member.id %}?source_id={{ source.id }}">{{ member.organization.get_value }}</a></td>
-                            <td>{{ member.title.get_value }}</td>
-                            <td>{{ member.role.get_value.value }}</td>
-                            <td>{{ member.rank.get_value.value }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="col-sm-6">
+        <form class="form" method="POST">
+            {% csrf_token %}
+            {% if form.name.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Person name" %}</label>
+                <input type="text" value="{{ form.instance.name.get_field.value }}" />
+                <input type="hidden" name="name" value="{{ form.instance.name.get_field.id }}" />
+                {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% if form.alias.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Aliases" %}</label>
+                <select id="id_alias" class="form-control" name="aliases" multiple="multiple">
+                    {% for alias in form.instance.aliases.get_list %}
+                        <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.aliases.errors %}
+                    {% for error in form.aliases.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <br />
+            <hr>
+        </form>
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <button class="btn col-sm-2 pull-right" type="submit">Save</button>
             </div>
         </div>
-    </div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static "js/select2.min.js" %}"></script>
-<script type="text/javascript">
-
-    var alias_opts = {
-        ajax: {
-            url: "{% url 'person-alias-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': params.term,
-                                'text': params.term }]};
-                }
-            }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2,
-        tags: true
-    }
-
-    var source_opts = {
-        ajax: {
-            url: "{% url 'source-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                }
-            }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2
-    }
-    var division_opts = {
-        ajax: {
-            url: "{% url 'division-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': params.term,
-                                'text': params.term }]};
-                }
-            }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2,
-        tags: true
-    }
-    $(document).ready(function(e) {
-        $('#id_alias').select2(alias_opts);
-        $('#id_source').select2(source_opts);
-        $('#id_division_id').select2(division_opts);
-        $('#id_alias').on('select2:select', function(e){
-            var value = e.params.data.text;
-            var name = $(e.target).prop('name') + '_text';
-            var form_id = $(e.target).prop('name').split('-')[1]
-            var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
-            $('#person-form').append(hidden_input);
-        });
-
-        $('#id_alias').on('select2:unselect', function(e){
-            var value = e.params.data.text;
-            var inputs = $('#org-form').find('input[value="'+ value + '"]');
-            var form_id = $(e.target).prop('name').split('-')[1]
-
-            $.each(inputs, function(i, input){
-                if ($(input).data('form_id') == form_id){
-                    $(input).remove();
-                }
-            })
-        });
-
-        $('#id_division_id').on('select2:select', function(e){
-            var value = e.params.data.text;
-            $('#id_division_id').find(':selected').prop('selected', false);
-            $('#id_division_id:selected').attr('value', e.params.data.id);
-            $('#id_division_id:selected').text(value);
-        });
-    });
-
-</script>
 {% endblock %}
