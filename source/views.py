@@ -2,6 +2,8 @@ import json
 from uuid import uuid4
 import itertools
 
+import pysolr
+
 from reversion.views import RevisionMixin
 import reversion
 
@@ -10,12 +12,16 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import View
+from django.views.generic import View, TemplateView
 from django.views.generic import ListView
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from complex_fields.models import ComplexFieldContainer
 
 from countries_plus.models import Country
+
+from api.base_views import JSONResponseMixin
 
 from sfm_pc.base_views import NeverCacheMixin
 from sfm_pc.utils import VersionsMixin
@@ -203,55 +209,131 @@ class AccessPointCreate(AccessPointEdit, CreateView):
     pass
 
 
+class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):
+
+    http_method_names = ['post']
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def render_to_response(self, context, **response_kwargs):
+        return self.render_to_json_response(context, **response_kwargs)
+
+    def post(self, request, *args, **kwargs):
+
+        object_id = request.POST['object_id']
+        object_type = request.POST['object_type']
+        field_name = request.POST['field_name']
+        source_id = request.POST['source_id']
+
+        session_key = '{0}-{1}-{2}'.format(object_type, field_name, object_id)
+
+        try:
+            request.session[session_key].append(source_id)
+        except KeyError:
+            request.session[session_key] = [source_id]
+
+        request.session.modified = True
+
+        source = Source.objects.get(uuid=source_id)
+
+        context = {
+            'title': source.title,
+            'id': str(source.uuid),
+            'publication': source.publication,
+            'publication_country': source.publication_country,
+            'source_url': source.source_url,
+            'access_points': [],
+            'uncommitted': True,
+        }
+
+        for access_point in source.accesspoint_set.all():
+            ap_info = {
+                'id': str(access_point.uuid),
+                'page_number': access_point.page_number,
+                'archive_url': access_point.archive_url,
+            }
+
+            context['access_points'].append(ap_info)
+
+        return self.render_to_response(context)
+
+
 def source_autocomplete(request):
     term = request.GET.get('q')
-    sources = Source.objects.filter(title__icontains=term).all()
 
-    results = []
-    for source in sources:
+    response = {
+        'results': []
+    }
 
-        publication_title = ''
-        publication_country = ''
+    if term:
+        sources = Source.objects.filter(title__icontains=term).order_by('-date_updated')
 
-        text = '{0} ({1} - {2})'.format(source.title,
-                                        source.publication,
-                                        source.publication_country)
-        results.append({
-            'text': text,
-            'id': str(source.uuid),
-        })
+        for source in sources:
 
-    return HttpResponse(json.dumps(results), content_type='application/json')
+            publication_title = ''
+            publication_country = ''
 
-def publication_autocomplete(request):
-    term = request.GET.get('q')
-    publications = Source.objects.filter(publication__icontains=term).distinct('publication')
+            text = '{0} ({1} - {2})'.format(source.title,
+                                            source.publication,
+                                            source.publication_country)
+            response['results'].append({
+                'text': text,
+                'id': str(source.uuid),
+            })
 
-    results = []
-    for publication in publications:
-        results.append({
-            'id': publication.publication,
-            'text': publication.publication,
-            'country': publication.publication_country,
-        })
-
-    return HttpResponse(json.dumps(results), content_type='application/json')
+    return HttpResponse(json.dumps(response), content_type='application/json')
 
 
-def get_sources(request, object_type, object_id, field_name):
+def extract_source(source, uncommitted=False):
+    source_info = {
+        'title': source.title,
+        'id': str(source.uuid),
+        'publication': source.publication,
+        'publication_country': source.publication_country,
+        'source_url': source.source_url,
+        'access_points': [],
+        'uncommitted': uncommitted,
+    }
+
+    for access_point in source.accesspoint_set.all():
+        ap_info = {
+            'id': str(access_point.uuid),
+            'page_number': access_point.page_number,
+            'archive_url': access_point.archive_url,
+        }
+
+        source_info['access_points'].append(ap_info)
+
+    return source_info
+
+
+def get_sources(request):
+    object_type = request.GET['object_type']
+    object_id = request.GET['object_id']
+    field_name = request.GET['field_name']
+
     field = ComplexFieldContainer.field_from_str_and_id(
         object_type, object_id, field_name
     )
+
     sources = field.get_sources()
     sources_json = {
         "confidence": field.get_confidence(),
-        "sources": [
-            {
-                "source": source.source,
-                "id": str(source.id)
-            }
-            for source in sources
-        ]
+        "sources": []
     }
 
-    return HttpResponse(json.dumps(sources_json))
+    session_key = '{0}-{1}-{2}'.format(object_type, field_name, object_id)
+
+    if request.session.get(session_key):
+        uncommitted_sources = Source.objects.filter(uuid__in=request.session[session_key])
+
+        for source in uncommitted_sources:
+            sources_json['sources'].append(extract_source(source,
+                                                          uncommitted=True))
+
+    for source in sources:
+        sources_json['sources'].append(extract_source(source))
+
+    return HttpResponse(json.dumps(sources_json), content_type='application/json')

@@ -14,6 +14,7 @@ from person.models import Person
 from violation.models import Violation
 from sfm_pc.utils import get_osm_by_id, format_facets
 
+
 # Model-specific search parameters
 SEARCH_ENTITY_TYPES = {
     'Organization': {

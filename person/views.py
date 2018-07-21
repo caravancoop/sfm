@@ -9,7 +9,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.admin.utils import NestedObjects
 from django.contrib import messages
 from django.views.generic.edit import DeleteView, FormView, CreateView, UpdateView
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView, DetailView, RedirectView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
@@ -20,7 +20,11 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from complex_fields.models import ComplexFieldContainer
+
 from extra_views import FormSetView
+
+from api.base_views import JSONResponseMixin
 
 from person.models import Person, PersonName, PersonAlias, Alias
 from person.forms import PersonForm
@@ -295,17 +299,69 @@ def alias_autocomplete(request):
     return HttpResponse(json.dumps(results), content_type='application/json')
 
 
-class PersonEditView(NeverCacheMixin, LoginRequiredMixin):
+class PersonEditView(DetailView, NeverCacheMixin, LoginRequiredMixin):
     template_name = 'person/edit.html'
-    form_class = PersonForm
-    success_url = reverse_lazy('dashboard')
-    sourced = True
-    slug_field = 'uuid'
     model = Person
+    slug_field = 'uuid'
 
 
-class PersonUpdateView(PersonEditView, UpdateView):
-    pass
+class PersonUpdateView(RedirectView, LoginRequiredMixin):
+    http_method_names = ['post']
+    pattern_name = 'edit-person'
+    object_type = 'person'
+
+    # field name on person model, field name used to update complex field,
+    # and what the ForeignKey is if there are multiple values
+
+    edit_fields = [
+        ('name', 'Person_PersonName', None),
+        ('aliases', 'Person_PersonAlias', Alias)
+    ]
+
+    def get_object(self, uuid):
+        return Person.objects.get(uuid=uuid)
+
+    def post(self, request, *args, **kwargs):
+
+        person = self.get_object(kwargs['slug'])
+
+        for field_name, update_name, foreign_key in self.edit_fields:
+            session_key = '{0}-{1}-{2}'.format(self.object_type, field_name, person.id)
+
+            # If there are no new sources, we need to return an error. I guess
+            # maybe RedirectView isn't the best choice ...
+            new_source_ids = request.session.get(session_key)
+            new_sources = Source.objects.filter(uuid__in=new_source_ids)
+
+            field = ComplexFieldContainer.field_from_str_and_id(
+                'person', person.id, field_name
+            )
+
+            existing_sources = field.get_sources()
+
+            all_sources = new_sources | existing_sources
+
+            confidence = field.get_confidence()
+
+            for value in request.POST.getlist(field_name):
+
+                if foreign_key is not None:
+                    try:
+                        value = foreign_key.objects.get(id=value)
+                    except ValueError:
+                        value = foreign_key.object.create(value=value)
+
+                # TODO figure out complex fields source parsing ...
+                update_info = {
+                    update_name: {
+                        'sources': [s for s in all_sources],
+                        'confidence': confidence,
+                        'value': value
+                    },
+                }
+                person.update(update_info)
+
+        return super().post(request, *args, **kwargs)
 
 
 class PersonCreateView(PersonEditView, CreateView):
