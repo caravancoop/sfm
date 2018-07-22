@@ -8,6 +8,7 @@ from django.contrib.gis.geos import Point
 from django.utils.translation import ugettext as _
 from django.db.models import Max
 from django.http import HttpResponse
+from django.core.urlresolvers import reverse
 
 from django_date_extensions.fields import ApproximateDateField
 

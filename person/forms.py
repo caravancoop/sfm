@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
+import sys
+
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
+
+from complex_fields.models import ComplexFieldContainer
 
 from source.models import Source
 from .models import Person, PersonName, PersonAlias, Alias
@@ -17,12 +21,12 @@ class PersonForm(forms.ModelForm):
     # and what the ForeignKey is if there are multiple values
 
     edit_fields = [
-        ('name', 'Person_PersonName', None),
-        ('aliases', 'Person_PersonAlias', Alias)
+        ('name', PersonName, None),
+        ('aliases', PersonAlias, Alias)
     ]
 
-    name = forms.ModelChoiceField(queryset=PersonName.objects.all())
-    aliases = forms.ModelMultipleChoiceField(queryset=PersonAlias.objects.all())
+    name = forms.CharField()
+    aliases = forms.CharField(required=False)
 
     class Meta:
         model = Person
@@ -41,20 +45,16 @@ class PersonForm(forms.ModelForm):
             try:
                 self.request.POST['{}_source'.format(field)]
             except KeyError:
-                error = forms.ValidationError(_('The field %(field_name) requires another source'),
+                error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
                                               code='invalid',
                                               params={'field_name': field})
                 self.add_error(field, error)
 
-
     def save(self, commit=True):
-        for field_name, update_name, foreign_key in self.edit_fields:
-            session_key = '{0}-{1}-{2}'.format(self.object_type, field_name, person.id)
 
-            # If there are no new sources, we need to return an error. I guess
-            # maybe RedirectView isn't the best choice ...
-            print('session keys', self.request.session.keys())
-            new_source_ids = self.request.session.get(session_key)
+        for field_name, field_model, foreign_key in self.edit_fields:
+            new_source_ids = self.request.POST.getlist('{}_source'.format(field_name))
+
             new_sources = Source.objects.filter(uuid__in=new_source_ids)
 
             field = ComplexFieldContainer.field_from_str_and_id(
@@ -69,22 +69,26 @@ class PersonForm(forms.ModelForm):
 
             for update_value in self.request.POST.getlist(field_name):
 
+                relation_set = getattr(self.instance, '{}_set'.format(field_model._meta.model_name.lower()))
+
                 if foreign_key is not None:
 
-                    relation_name = update_name.rsplit('_', 1)[1]
-                    relation = getattr(sys.modules[__name__], relation_name)
-
                     try:
-                        update_value = relation.objects.get(id=update_value).value
+                        field_object = field_model.objects.get(id=update_value)
                     except ValueError:
-                        update_value = foreign_key.objects.create(value=update_value)
+                        update_value, created = foreign_key.objects.get_or_create(value=update_value)
+                        field_object = field_model.objects.create(value=update_value,
+                                                                  object_ref=self.instance)
+                else:
+                    field_object, created = field_model.objects.get_or_create(value=update_value)
 
-                update_info = {
-                    update_name: {
-                        'sources': [s for s in all_sources],
-                        'confidence': confidence,
-                        'value': update_value
-                    },
-                }
-                self.instance.update(update_info)
-                self.instance.save()
+                field_object.lang = 'en'
+                field_object.confidence = confidence
+                field_object.sources = all_sources
+
+                field_object.save()
+
+                relation_set.add(field_object)
+
+        self.instance.save()
+

@@ -311,52 +311,8 @@ class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
         form_kwargs['request'] = self.request
         return form_kwargs
 
-    # def post(self, request, *args, **kwargs):
-
-    #     person = self.get_object(kwargs['slug'])
-
-    #     for field_name, update_name, foreign_key in self.edit_fields:
-    #         session_key = '{0}-{1}-{2}'.format(self.object_type, field_name, person.id)
-
-    #         # If there are no new sources, we need to return an error. I guess
-    #         # maybe RedirectView isn't the best choice ...
-    #         print(request.session.keys())
-    #         new_source_ids = request.session.get(session_key)
-    #         new_sources = Source.objects.filter(uuid__in=new_source_ids)
-
-    #         field = ComplexFieldContainer.field_from_str_and_id(
-    #             'person', person.id, field_name
-    #         )
-
-    #         existing_sources = field.get_sources()
-
-    #         all_sources = new_sources | existing_sources
-
-    #         confidence = field.get_confidence()
-
-    #         for update_value in request.POST.getlist(field_name):
-
-    #             if foreign_key is not None:
-
-    #                 relation_name = update_name.rsplit('_', 1)[1]
-    #                 relation = getattr(sys.modules[__name__], relation_name)
-
-    #                 try:
-    #                     update_value = relation.objects.get(id=update_value).value
-    #                 except ValueError:
-    #                     update_value = foreign_key.objects.create(value=update_value)
-
-    #             update_info = {
-    #                 update_name: {
-    #                     'sources': [s for s in all_sources],
-    #                     'confidence': confidence,
-    #                     'value': update_value
-    #                 },
-    #             }
-    #             person.update(update_info)
-    #             person.save()
-
-    #     return super().post(request, *args, **kwargs)
+    def get_success_url(self):
+        return reverse('view-person', kwargs=self.kwargs)
 
 
 class PersonCreateView(PersonEditView, CreateView):

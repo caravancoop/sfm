@@ -18,7 +18,7 @@
                 <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
             </a>
             {% if request.user.is_staff %}
-            <a class="btn btn-default" type="button" role="button" href="{% url 'update-person' person.uuid %}">
+            <a class="btn btn-default" type="button" role="button" href="{% url 'edit-person' person.uuid %}">
                     <i class="fa fa-fw fa-edit"></i>{% trans "Edit" %}
                 </a>
             {% endif %}
