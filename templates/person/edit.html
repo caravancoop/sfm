@@ -23,7 +23,7 @@
     </div>
     </div>
     <div class="row">
-        <form class="form" method="POST" action="{% url 'update-person' object.uuid %}">
+        <form class="form" method="POST">
         {% csrf_token %}
         <div class="col-sm-6">
             <h2>{% trans "Edit basics" %}</h2>
@@ -75,6 +75,9 @@
             <% }) %>
         </p>
     </script>
+    <script type="text/EJS" id="source-input-template">
+        <input type="hidden" name="<%= field_name %>_source" value="<%= value %>" />
+    </script>
     <script type="text/javascript">
         var object_id = "{{ person.id }}"
         var field_name;
@@ -124,16 +127,17 @@
 
             $('#source-search').on('select2:select', function(e){
 
-                var post_data = {
-                    'source_id': e.params.data.id,
-                    'object_type': object_type,
-                    'object_id': object_id,
-                    'field_name': field_name
-                }
+                var data = {'source_id': e.params.data.id}
 
-                $.post("{% url 'stash-source' %}", post_data, function(source){
-                    var template = new EJS({'text': $('#source-list-template').html()});
-                    $('#source-list').prepend(template.render(source));
+                $.getJSON("{% url 'stash-source' %}", data, function(source){
+                    var source_template = new EJS({'text': $('#source-list-template').html()});
+                    $('#source-list').prepend(source_template.render(source));
+
+                    var selector = '*[name="' + field_name + '"]';
+                    var input_template = new EJS({'text': $('#source-input-template').html()});
+                    var input = input_template.render({'field_name': field_name, 'value': e.params.data.id})
+
+                    $(selector).after(input);
                     $('#source-search').val(null).trigger('change');
                 })
             })

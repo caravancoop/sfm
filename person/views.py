@@ -1,5 +1,6 @@
 import json
 import csv
+import sys
 
 from datetime import date
 from collections import namedtuple
@@ -299,69 +300,63 @@ def alias_autocomplete(request):
     return HttpResponse(json.dumps(results), content_type='application/json')
 
 
-class PersonEditView(DetailView, NeverCacheMixin, LoginRequiredMixin):
+class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
     template_name = 'person/edit.html'
     model = Person
     slug_field = 'uuid'
+    form_class = PersonForm
 
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['request'] = self.request
+        return form_kwargs
 
-class PersonUpdateView(RedirectView, LoginRequiredMixin):
-    http_method_names = ['post']
-    pattern_name = 'edit-person'
-    object_type = 'person'
+    # def post(self, request, *args, **kwargs):
 
-    # field name on person model, field name used to update complex field,
-    # and what the ForeignKey is if there are multiple values
+    #     person = self.get_object(kwargs['slug'])
 
-    edit_fields = [
-        ('name', 'Person_PersonName', None),
-        ('aliases', 'Person_PersonAlias', Alias)
-    ]
+    #     for field_name, update_name, foreign_key in self.edit_fields:
+    #         session_key = '{0}-{1}-{2}'.format(self.object_type, field_name, person.id)
 
-    def get_object(self, uuid):
-        return Person.objects.get(uuid=uuid)
+    #         # If there are no new sources, we need to return an error. I guess
+    #         # maybe RedirectView isn't the best choice ...
+    #         print(request.session.keys())
+    #         new_source_ids = request.session.get(session_key)
+    #         new_sources = Source.objects.filter(uuid__in=new_source_ids)
 
-    def post(self, request, *args, **kwargs):
+    #         field = ComplexFieldContainer.field_from_str_and_id(
+    #             'person', person.id, field_name
+    #         )
 
-        person = self.get_object(kwargs['slug'])
+    #         existing_sources = field.get_sources()
 
-        for field_name, update_name, foreign_key in self.edit_fields:
-            session_key = '{0}-{1}-{2}'.format(self.object_type, field_name, person.id)
+    #         all_sources = new_sources | existing_sources
 
-            # If there are no new sources, we need to return an error. I guess
-            # maybe RedirectView isn't the best choice ...
-            new_source_ids = request.session.get(session_key)
-            new_sources = Source.objects.filter(uuid__in=new_source_ids)
+    #         confidence = field.get_confidence()
 
-            field = ComplexFieldContainer.field_from_str_and_id(
-                'person', person.id, field_name
-            )
+    #         for update_value in request.POST.getlist(field_name):
 
-            existing_sources = field.get_sources()
+    #             if foreign_key is not None:
 
-            all_sources = new_sources | existing_sources
+    #                 relation_name = update_name.rsplit('_', 1)[1]
+    #                 relation = getattr(sys.modules[__name__], relation_name)
 
-            confidence = field.get_confidence()
+    #                 try:
+    #                     update_value = relation.objects.get(id=update_value).value
+    #                 except ValueError:
+    #                     update_value = foreign_key.objects.create(value=update_value)
 
-            for value in request.POST.getlist(field_name):
+    #             update_info = {
+    #                 update_name: {
+    #                     'sources': [s for s in all_sources],
+    #                     'confidence': confidence,
+    #                     'value': update_value
+    #                 },
+    #             }
+    #             person.update(update_info)
+    #             person.save()
 
-                if foreign_key is not None:
-                    try:
-                        value = foreign_key.objects.get(id=value)
-                    except ValueError:
-                        value = foreign_key.object.create(value=value)
-
-                # TODO figure out complex fields source parsing ...
-                update_info = {
-                    update_name: {
-                        'sources': [s for s in all_sources],
-                        'confidence': confidence,
-                        'value': value
-                    },
-                }
-                person.update(update_info)
-
-        return super().post(request, *args, **kwargs)
+    #     return super().post(request, *args, **kwargs)
 
 
 class PersonCreateView(PersonEditView, CreateView):

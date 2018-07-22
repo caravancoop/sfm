@@ -211,30 +211,14 @@ class AccessPointCreate(AccessPointEdit, CreateView):
 
 class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):
 
-    http_method_names = ['post']
-
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    http_method_names = ['get']
 
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
 
-        object_id = request.POST['object_id']
-        object_type = request.POST['object_type']
-        field_name = request.POST['field_name']
-        source_id = request.POST['source_id']
-
-        session_key = '{0}-{1}-{2}'.format(object_type, field_name, object_id)
-
-        try:
-            request.session[session_key].append(source_id)
-        except KeyError:
-            request.session[session_key] = [source_id]
-
-        request.session.modified = True
+        source_id = self.request.GET['source_id']
 
         source = Source.objects.get(uuid=source_id)
 
@@ -257,7 +241,7 @@ class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):
 
             context['access_points'].append(ap_info)
 
-        return self.render_to_response(context)
+        return context
 
 
 def source_autocomplete(request):
@@ -323,15 +307,6 @@ def get_sources(request):
         "confidence": field.get_confidence(),
         "sources": []
     }
-
-    session_key = '{0}-{1}-{2}'.format(object_type, field_name, object_id)
-
-    if request.session.get(session_key):
-        uncommitted_sources = Source.objects.filter(uuid__in=request.session[session_key])
-
-        for source in uncommitted_sources:
-            sources_json['sources'].append(extract_source(source,
-                                                          uncommitted=True))
 
     for source in sources:
         sources_json['sources'].append(extract_source(source))
