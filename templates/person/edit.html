@@ -121,23 +121,26 @@
             }
             return $.getJSON("{% url 'get-sources' %}", params)
         }
+
         function loadSources(e){
             field_name = $(e.target).prop('name');
 
             $.when(fetchSources()).then(function(data){
                 var source_list = []
+
                 $.each(data.sources, function(i, source){
                     var template = new EJS({'text': $('#source-list-template').html()});
                     source_list.push(template.render(source));
                 });
+
                 $('#source-list').html(source_list.join(''));
                 $('.field-bg').removeClass('bg-info');
+
                 var selector = '.' + field_name + '-row';
                 $(selector).addClass('bg-info');
             });
-
-
         }
+
         $(document).ready(function(){
             loadSources({'target': $('#id_name')});
 
@@ -155,9 +158,9 @@
                     }
                 }
             })
-            $('.sourced').on('click', loadSources)
+            $('.sourced').on('click', loadSources);
 
-            $('.select2-target').on('select2:opening', loadSources)
+            $('.select2-target').on('select2:opening', loadSources);
 
             $('#source-search').on('select2:select', function(e){
 
@@ -169,12 +172,12 @@
 
                     var selector = '*[name="' + field_name + '"]';
                     var input_template = new EJS({'text': $('#source-input-template').html()});
-                    var input = input_template.render({'field_name': field_name, 'value': e.params.data.id})
+                    var input = input_template.render({'field_name': field_name, 'value': e.params.data.id});
 
                     $(selector).after(input);
                     $('#source-search').val(null).trigger('change');
                 })
-            })
+            });
         })
     </script>
 {% endblock %}

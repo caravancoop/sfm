@@ -119,6 +119,7 @@ class Alias(models.Model):
     def __str__(self):
         return self.value
 
+
 @sourced
 @versioned
 class PersonDivisionId(ComplexField):

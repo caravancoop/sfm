@@ -63,32 +63,39 @@ class PersonForm(forms.ModelForm):
 
             existing_sources = field.get_sources()
 
-            all_sources = new_sources | existing_sources
+            if existing_sources:
+                all_sources = new_sources | existing_sources
 
             confidence = field.get_confidence()
 
+            relation_set = getattr(self.instance, '{}_set'.format(field_model._meta.model_name.lower()))
+
+            update_info = {}
+
             for update_value in self.request.POST.getlist(field_name):
 
-                relation_set = getattr(self.instance, '{}_set'.format(field_model._meta.model_name.lower()))
-
                 if foreign_key is not None:
-
                     try:
                         field_object = field_model.objects.get(id=update_value)
+                        update_value = field_object.value.value
+                        field_object.delete()
                     except ValueError:
-                        update_value, created = foreign_key.objects.get_or_create(value=update_value)
-                        field_object = field_model.objects.create(value=update_value,
-                                                                  object_ref=self.instance)
+                        pass
+
+                    update_value, _ = foreign_key.objects.get_or_create(value=update_value)
+                    field_object, created = field_model.objects.get_or_create(value=update_value,
+                                                                              object_ref=self.instance,
+                                                                              lang='en',
+                                                                              confidence=confidence)
+                    field_object.sources = all_sources
+                    field_object.save()
                 else:
-                    field_object, created = field_model.objects.get_or_create(value=update_value)
+                    update_info.update(**{
+                        '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name): {
+                            'sources': all_sources,
+                            'confidence': confidence,
+                            'value': update_value
+                        }
+                    })
 
-                field_object.lang = 'en'
-                field_object.confidence = confidence
-                field_object.sources = all_sources
-
-                field_object.save()
-
-                relation_set.add(field_object)
-
-        self.instance.save()
-
+            self.instance.update(update_info)
