@@ -181,7 +181,7 @@
                     {% for superior in superiors %}
                     <tr>
                         <td class="cited">
-                            <a href="{% url 'view-person' superior.commander.member.get_value.value.id %}">
+                            <a href="{% url 'view-person' superior.commander.member.get_value.value.uuid %}">
                                 {{ superior.commander.member.get_value }}
                             </a>
                             {% cite superior.commander.member.get_value %}
@@ -243,7 +243,7 @@
                     {% for subordinate in subordinates %}
                     <tr>
                         <td class="cited">
-                            <a href="{% url 'view-person' subordinate.commander.member.get_value.value.id %}">
+                            <a href="{% url 'view-person' subordinate.commander.member.get_value.value.uuid %}">
                                 {{ subordinate.commander.member.get_value }}
                             </a>
                             {% cite subordinate.commander.member.get_value %}

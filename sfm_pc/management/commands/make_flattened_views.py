@@ -30,6 +30,10 @@ class Command(BaseCommand):
         sql_dir = os.path.join(this_dir, 'sql')
 
         for view in os.listdir(sql_dir):
+
+            if 'old' in view:
+                continue
+
             file_path = os.path.join(sql_dir, view)
             view_name = view.rsplit('_', 1)[0]
 

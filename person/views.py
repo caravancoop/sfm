@@ -27,7 +27,7 @@ from extra_views import FormSetView
 
 from api.base_views import JSONResponseMixin
 
-from person.models import Person, PersonName, PersonAlias, Alias
+from person.models import Person, PersonName, PersonAlias
 from person.forms import PersonForm
 from organization.models import Organization
 from source.models import Source

@@ -43,6 +43,7 @@ class Person(models.Model, BaseModel, ComplexVersionsMixin):
         self.division_id = ComplexFieldContainer(self, PersonDivisionId)
 
         self.complex_fields = [self.name, self.division_id]
+        self.complex_lists = [self.aliases]
 
         self.required_fields = [
             "Person_PersonName",
@@ -110,14 +111,8 @@ class PersonName(ComplexField):
 @sourced
 class PersonAlias(ComplexField):
     object_ref = models.ForeignKey('Person')
-    value = models.ForeignKey('Alias', default=None, blank=True, null=True)
+    value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Alias")
-
-class Alias(models.Model):
-    value = models.TextField()
-
-    def __str__(self):
-        return self.value
 
 
 @sourced

@@ -10,7 +10,7 @@ from django_date_extensions.fields import ApproximateDateFormField
 from complex_fields.models import ComplexFieldContainer
 
 from source.models import Source
-from .models import Person, PersonName, PersonAlias, Alias
+from .models import Person, PersonName, PersonAlias
 
 
 class PersonForm(forms.ModelForm):
@@ -21,8 +21,8 @@ class PersonForm(forms.ModelForm):
     # and what the ForeignKey is if there are multiple values
 
     edit_fields = [
-        ('name', PersonName, None),
-        ('aliases', PersonAlias, Alias)
+        ('name', PersonName, False),
+        ('aliases', PersonAlias, True),
     ]
 
     name = forms.CharField()
@@ -52,7 +52,9 @@ class PersonForm(forms.ModelForm):
 
     def save(self, commit=True):
 
-        for field_name, field_model, foreign_key in self.edit_fields:
+        update_info = {}
+
+        for field_name, field_model, multiple_values in self.edit_fields:
             new_source_ids = self.request.POST.getlist('{}_source'.format(field_name))
 
             new_sources = Source.objects.filter(uuid__in=new_source_ids)
@@ -68,34 +70,24 @@ class PersonForm(forms.ModelForm):
 
             confidence = field.get_confidence()
 
-            relation_set = getattr(self.instance, '{}_set'.format(field_model._meta.model_name.lower()))
-
-            update_info = {}
-
             for update_value in self.request.POST.getlist(field_name):
+                update_key = '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name)
 
-                if foreign_key is not None:
+                if multiple_values:
                     try:
-                        field_object = field_model.objects.get(id=update_value)
-                        update_value = field_object.value.value
-                        field_object.delete()
-                    except ValueError:
-                        pass
-
-                    update_value, _ = foreign_key.objects.get_or_create(value=update_value)
-                    field_object, created = field_model.objects.get_or_create(value=update_value,
-                                                                              object_ref=self.instance,
-                                                                              lang='en',
-                                                                              confidence=confidence)
-                    field_object.sources = all_sources
-                    field_object.save()
-                else:
-                    update_info.update(**{
-                        '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name): {
+                        update_info[update_key]['values'].append(update_value)
+                    except KeyError:
+                        update_info[update_key] = {
+                            'values': [update_value],
                             'sources': all_sources,
                             'confidence': confidence,
-                            'value': update_value
+                            'field_name': 'aliases'
                         }
-                    })
+                else:
+                    update_info[update_key] = {
+                        'sources': all_sources,
+                        'confidence': confidence,
+                        'value': update_value
+                    }
 
-            self.instance.update(update_info)
+        self.instance.update(update_info)

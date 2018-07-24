@@ -264,7 +264,7 @@ class Command(BaseCommand):
             aliases = person.aliases.get_list()
             alias_count = 0
             if aliases:
-                content.extend(al.get_value().value.value for al in aliases)
+                content.extend(al.get_value().value for al in aliases)
                 alias_count = len(aliases)
 
             affiliations = person.memberships
