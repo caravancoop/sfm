@@ -76,6 +76,7 @@ class PersonForm(forms.ModelForm):
                 if multiple_values:
                     try:
                         update_info[update_key]['values'].append(update_value)
+                        update_info[update_key]['sources'] | all_sources
                     except KeyError:
                         update_info[update_key] = {
                             'values': [update_value],
