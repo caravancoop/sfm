@@ -23,6 +23,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from complex_fields.models import ComplexFieldContainer
 
+from countries_plus.models import Country
+
 from extra_views import FormSetView
 
 from api.base_views import JSONResponseMixin
@@ -305,6 +307,11 @@ class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
     model = Person
     slug_field = 'uuid'
     form_class = PersonForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['countries'] = Country.objects.all()
+        return context
 
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()

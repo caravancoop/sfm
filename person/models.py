@@ -41,9 +41,25 @@ class Person(models.Model, BaseModel, ComplexVersionsMixin):
         self.name = ComplexFieldContainer(self, PersonName)
         self.aliases = ComplexFieldListContainer(self, PersonAlias)
         self.division_id = ComplexFieldContainer(self, PersonDivisionId)
+        self.gender = ComplexFieldContainer(self, PersonGender)
+        self.date_of_birth = ComplexFieldContainer(self, PersonDateOfBirth)
+        self.date_of_death = ComplexFieldContainer(self, PersonDateOfDeath)
+        self.deceased = ComplexFieldContainer(self, PersonDeceased)
+        self.biography = ComplexFieldContainer(self, PersonBiography)
+        self.notes = ComplexFieldContainer(self, PersonNotes)
+        self.external_links = ComplexFieldListContainer(self, PersonExternalLink)
 
-        self.complex_fields = [self.name, self.division_id]
-        self.complex_lists = [self.aliases]
+        self.complex_fields = [
+            self.name,
+            self.division_id,
+            self.gender,
+            self.date_of_birth,
+            self.date_of_death,
+            self.deceased,
+            self.biography,
+            self.notes,
+        ]
+        self.complex_lists = [self.aliases, self.external_links]
 
         self.required_fields = [
             "Person_PersonName",
@@ -115,10 +131,69 @@ class PersonAlias(ComplexField):
     field_name = _("Alias")
 
 
+@translated
+@versioned
+@sourced
+class PersonGender(ComplexField):
+    object_ref = models.ForeignKey('Person')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Gender")
+
+
+@versioned
+@sourced
+class PersonDateOfBirth(ComplexField):
+    object_ref = models.ForeignKey('Person')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("Date of birth")
+
+
+@versioned
+@sourced
+class PersonDateOfDeath(ComplexField):
+    object_ref = models.ForeignKey('Person')
+    value = ApproximateDateField(default=None, blank=True, null=True)
+    field_name = _("Date of death")
+
+
+@versioned
+@sourced
+class PersonDeceased(ComplexField):
+    object_ref = models.ForeignKey('Person')
+    value = models.NullBooleanField(default=None, blank=True, null=True)
+    field_name = _("Deceased")
+
+
+@translated
+@versioned
+@sourced
+class PersonBiography(ComplexField):
+    object_ref = models.ForeignKey('Person')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Biography")
+
+
+@translated
+@versioned
+@sourced
+class PersonNotes(ComplexField):
+    object_ref = models.ForeignKey('Person')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Notes")
+
+
 @sourced
 @versioned
 class PersonDivisionId(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
-
     field_name = _('Division ID')
+
+
+@translated
+@versioned
+@sourced
+class PersonExternalLink(ComplexField):
+    object_ref = models.ForeignKey('Person')
+    value = models.TextField(default=None, blank=True, null=True)
+    field_name = _("Notes")

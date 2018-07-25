@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load render_versions %}
 {% load static %}
+{% load countries %}
 {% block extra_head %}
     <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
 {% endblock %}
@@ -34,7 +35,7 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                        <label class="control-label">{% trans "Person name" %}</label>
+                        <label class="control-label">{% trans "Name" %}</label>
                         <input id="id_name" type="text" class="form-control sourced" name="name" value="{{ form.instance.name.get_value }}" />
                         {% if form.name.errors %}
                             {% for error in form.name.errors %}
@@ -51,7 +52,7 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                        <label class="control-label">{% trans "Aliases" %}</label>
+                        <label class="control-label">{% trans "Other names" %}</label>
                         <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
                             {% for alias in form.instance.aliases.get_list %}
                                 <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
@@ -59,6 +60,162 @@
                         </select>
                         {% if form.aliases.errors %}
                             {% for error in form.aliases.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row gender-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.gender.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Gender" %}</label>
+                        <select id="id_gender" class="form-control sourced" name="gender">
+                            <option value="" selected=true>------</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        {% if form.gender.errors %}
+                            {% for error in form.gender.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row division_id-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.division_id.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Country" %}</label>
+                        <select id="id_division_id" class="form-control select2-target" name="division_id">
+                            {% if form.instance.division_id %}
+                                <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
+                            {% else %}
+                                <option value="" selected=true>------</option>
+                            {% endif %}
+                            {% for country in countries %}
+                                <option value="ocd-division/country-{{ country.iso|lower }}">{{ country.name }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.division_id.errors %}
+                            {% for error in form.division_id.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row date_of_birth-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.date_of_birth.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Date of birth" %}</label>
+                        <input type="text" name="date_of_birth" id="id_date_of_birth" class="form-control sourced">
+                        {% if form.date_of_birth.errors %}
+                            {% for error in form.date_of_birth.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row date_of_death-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.date_of_death.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Date of death" %}</label>
+                        <input type="text" name="date_of_death" id="id_date_of_death" class="form-control sourced">
+                        {% if form.date_of_death.errors %}
+                            {% for error in form.date_of_death.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row deceased-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.deceased.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <div class="checkbox">
+                            <label class="control-label">
+                                <input type="checkbox" name="deceased" id="id_deceased" class="sourced" /> {% trans "Deceased" %}
+                            </label>
+                        </div>
+                        {% if form.deceased.errors %}
+                            {% for error in form.deceased.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row biography-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.biography.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Biography" %}</label>
+                        <textarea rows=5 name="biography" id="id_biography" class="form-control sourced"></textarea>
+                        {% if form.biography.errors %}
+                            {% for error in form.biography.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row notes-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.notes.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Notes" %}</label>
+                        <textarea name="notes" id="id_notes" class="form-control sourced"></textarea>
+                        {% if form.notes.errors %}
+                            {% for error in form.notes.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row external_links-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.external_links.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "External link" %}</label>
+                        <select id="id_external_links" class="form-control select2-target" name="external_links" multiple="multiple">
+                            {% for link in form.instance.external_links.get_list %}
+                                <option value="{{ link.get_field.id }}" selected=true>{{ link.get_field.value }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.external_links.errors %}
+                            {% for error in form.external_links.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                             {% endfor %}
                         {% endif %}
@@ -92,7 +249,7 @@
 {% block extra_js %}
     <script src="{% static "js/ejs_production.js" %}"></script>
     <script type="text/EJS" id="source-list-template">
-        <% if (uncommitted) { %>
+        <% if(uncommitted){ %>
             <p class="bg-success">
         <% } else { %>
             <p>
@@ -106,7 +263,15 @@
         </p>
     </script>
     <script type="text/EJS" id="source-input-template">
-        <input type="hidden" name="<%= field_name %>_source" value="<%= value %>" />
+        <% $.each(access_points, function(i, access_point){ %>
+            <input type="hidden"
+                name="<%= field_name %>_source"
+                class="<%= field_name %>_source"
+                value="<%= value %>"
+                data-title="<%= title %>"
+                data-publication="<%= publication %>"
+                data-access_points="<%= access_point.archive_url %>" />
+        <% }) %>
     </script>
     <script type="text/javascript">
         var object_id = "{{ person.id }}"
@@ -128,10 +293,22 @@
             $.when(fetchSources()).then(function(data){
                 var source_list = []
 
+                var uncommitted_sources = $('.' + field_name + '_source');
+
+                $.each(uncommitted_sources, function(i, source){
+                    var source_info = $(source).data();
+                    source_info['uncommitted'] = true;
+                    source_info['access_points'] = [source_info['access_points']];
+
+                    var template = new EJS({'text': $('#source-list-template').html()});
+                    source_list.push(template.render(source_info));
+                })
+
                 $.each(data.sources, function(i, source){
                     var template = new EJS({'text': $('#source-list-template').html()});
                     source_list.push(template.render(source));
                 });
+
 
                 $('#source-list').html(source_list.join(''));
                 $('.field-bg').removeClass('bg-info');
@@ -147,6 +324,10 @@
             $('#id_alias').select2({
                 'tags': true
             });
+            $('#id_external_links').select2({
+                'tags': true
+            });
+            $('#id_division_id').select2();
             $('#source-search').select2({
                 ajax: {
                     url: "{% url 'source-autocomplete' %}",
@@ -159,6 +340,7 @@
                 }
             })
             $('.sourced').on('click', loadSources);
+            $('.sourced').on('change', loadSources);
 
             $('.select2-target').on('select2:opening', loadSources);
 
@@ -172,7 +354,13 @@
 
                     var selector = '*[name="' + field_name + '"]';
                     var input_template = new EJS({'text': $('#source-input-template').html()});
-                    var input = input_template.render({'field_name': field_name, 'value': e.params.data.id});
+                    var input = input_template.render({
+                        'field_name': field_name,
+                        'value': e.params.data.id,
+                        'title': source.title,
+                        'publication': source.publication,
+                        'access_points': source.access_points
+                    });
 
                     $(selector).after(input);
                     $('#source-search').val(null).trigger('change');
