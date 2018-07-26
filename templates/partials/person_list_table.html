@@ -92,7 +92,7 @@
                         <!-- Aliases -->
                         <td>
                             {% for alias in object.personalias_set.all %}
-                                {{ alias.value.value }}
+                                {{ alias.value }}
                                 {% if not forloop.last %}<br />{% endif %}
                             {% endfor %}
                         </td>
