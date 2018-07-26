@@ -315,7 +315,8 @@ class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
 
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
-        form_kwargs['request'] = self.request
+        form_kwargs['post_data'] = self.request.POST
+        form_kwargs['object_ref_pk'] = self.kwargs['slug']
         return form_kwargs
 
     def get_success_url(self):
