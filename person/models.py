@@ -160,7 +160,7 @@ class PersonDateOfDeath(ComplexField):
 @sourced
 class PersonDeceased(ComplexField):
     object_ref = models.ForeignKey('Person')
-    value = models.NullBooleanField(default=None, blank=True, null=True)
+    value = models.BooleanField(default=False)
     field_name = _("Deceased")
 
 

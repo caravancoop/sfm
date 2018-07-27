@@ -80,7 +80,7 @@ class PersonForm(forms.ModelForm):
     division_id = forms.CharField(required=False)
     date_of_birth = ApproximateDateFormField(required=False)
     date_of_death = ApproximateDateFormField(required=False)
-    deceased = forms.BooleanField(required=False)
+    deceased = forms.BooleanField()
     external_links = forms.CharField(required=False)
 
     class Meta:
@@ -88,7 +88,7 @@ class PersonForm(forms.ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        self.post_data = kwargs.pop('post_data')
+        self.post_data = dict(kwargs.pop('post_data'))
         object_ref_pk = kwargs.pop('object_ref_pk')
         super().__init__(*args, **kwargs)
         self.fields['aliases'] = GetOrCreateChoiceField(queryset=PersonAlias.objects.filter(object_ref__uuid=object_ref_pk),
@@ -99,9 +99,29 @@ class PersonForm(forms.ModelForm):
     def clean(self):
 
         # Get the fields and see if they have new sources attached
-        modified_fields = self.post_data.getlist('modified_fields')
+        modified_fields = self.post_data.get('modified_fields')
 
         for field in modified_fields:
+            # Check if a field is a boolean field. If so, and there are sources
+            # that were sent, that means that the user unchecked the box and we
+            # need to change the value from True to False.
+
+            if isinstance(self.fields[field], forms.BooleanField):
+                if self.post_data.get('{}_source'.format(field)):
+                    value = True
+
+                    # Clear out "field is required" validation error that
+                    # happens when you toggle from True to False. If there is an
+                    # error, we also know that the value should be False
+                    try:
+                        self.errors.pop(field)
+                        value = False
+                    except KeyError:
+                        pass
+
+                    self.cleaned_data[field] = value
+                    self.post_data[field] = [value]
+
             try:
                 self.post_data['{}_source'.format(field)]
             except KeyError:
@@ -116,9 +136,9 @@ class PersonForm(forms.ModelForm):
 
         for field_name, field_model, multiple_values in self.edit_fields:
 
-            if field_name in self.post_data.getlist('modified_fields'):
+            if field_name in self.post_data.get('modified_fields'):
 
-                new_source_ids = self.post_data.getlist('{}_source'.format(field_name))
+                new_source_ids = self.post_data.get('{}_source'.format(field_name))
 
                 sources = Source.objects.filter(uuid__in=new_source_ids)
 
@@ -137,7 +157,7 @@ class PersonForm(forms.ModelForm):
                 # a checkbox that is unchecked. So, checking for the absence of
                 # something might be hard.
 
-                for update_value in self.post_data.getlist(field_name):
+                for update_value in self.post_data.get(field_name):
                     update_key = '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name)
 
                     update_value = self.cleaned_data[field_name]

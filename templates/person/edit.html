@@ -159,10 +159,13 @@
                     {% else %}
                         <div class="form-group">
                     {% endif %}
-                        {{ form.instance.deceased }}
                         <div class="checkbox">
                             <label class="control-label">
-                                <input type="checkbox" name="deceased" id="id_deceased" class="sourced" {% if form.instance.deceased %}checked=true{% endif %}/> {% trans "Deceased" %}
+                                {% if form.instance.deceased.get_value.value %}
+                                    <input type="checkbox" name="deceased" id="id_deceased" class="sourced" checked="true" /> {% trans "Deceased" %}
+                                {% else %}
+                                    <input type="checkbox" name="deceased" id="id_deceased" class="sourced" /> {% trans "Deceased" %}
+                                {% endif %}
                             </label>
                         </div>
                         {% if form.deceased.errors %}
@@ -338,6 +341,9 @@
         }
 
         $(document).ready(function(){
+
+            $.ajaxSetup({cache: false});
+
             loadSources({'target': $('#id_name')});
 
             $('#id_alias').select2({
