@@ -184,7 +184,7 @@
                         <div class="form-group">
                     {% endif %}
                         <label class="control-label">{% trans "Biography" %}</label>
-                        <textarea rows=5 name="biography" id="id_biography" class="form-control sourced"></textarea>
+                        <textarea rows=5 name="biography" id="id_biography" class="form-control sourced">{{ form.instance.biography.get_value.value }}</textarea>
                         {% if form.biography.errors %}
                             {% for error in form.biography.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -201,7 +201,7 @@
                         <div class="form-group">
                     {% endif %}
                         <label class="control-label">{% trans "Notes" %}</label>
-                        <textarea name="notes" id="id_notes" class="form-control sourced"></textarea>
+                        <textarea name="notes" id="id_notes" class="form-control sourced">{{ form.instance.notes.get_value.value }}</textarea>
                         {% if form.notes.errors %}
                             {% for error in form.notes.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -349,9 +349,11 @@
             $('#id_alias').select2({
                 'tags': true
             });
+
             $('#id_external_links').select2({
                 'tags': true
             });
+
             $('#id_division_id').select2();
             $('#source-search').select2({
                 ajax: {
@@ -363,14 +365,16 @@
                         return query
                     }
                 }
-            })
+            });
+
             $('.sourced').on('click', loadSources);
+            $('.sourced').on('input', addModifiedField);
+
             $('.sourced-dropdown').on('click', loadSources);
             $('.sourced-dropdown').on('input', addModifiedField);
-            $('.sourced').on('input', addModifiedField);
-            $('.select2-target').on('select2:opening', addModifiedField);
 
             $('.select2-target').on('select2:opening', loadSources);
+            $('.select2-target').on('select2:opening', addModifiedField);
 
             $('#source-search').on('select2:select', function(e){
 

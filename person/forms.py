@@ -12,7 +12,7 @@ from complex_fields.models import ComplexFieldContainer
 from source.models import Source
 from .models import Person, PersonName, PersonAlias, PersonGender, \
     PersonDivisionId, PersonDateOfDeath, PersonDateOfBirth, PersonExternalLink, \
-    PersonDeceased
+    PersonDeceased, PersonBiography, PersonNotes
 
 
 class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
@@ -72,6 +72,8 @@ class PersonForm(forms.ModelForm):
         ('date_of_birth', PersonDateOfBirth, False),
         ('date_of_death', PersonDateOfDeath, False),
         ('deceased', PersonDeceased, False),
+        ('biography', PersonBiography, False),
+        ('notes', PersonNotes, False),
         ('external_links', PersonExternalLink, True),
     ]
 
@@ -81,7 +83,8 @@ class PersonForm(forms.ModelForm):
     date_of_birth = ApproximateDateFormField(required=False)
     date_of_death = ApproximateDateFormField(required=False)
     deceased = forms.BooleanField()
-    external_links = forms.CharField(required=False)
+    biography = forms.CharField(required=False)
+    notes = forms.CharField(required=False)
 
     class Meta:
         model = Person
@@ -95,6 +98,10 @@ class PersonForm(forms.ModelForm):
                                                         required=False,
                                                         object_ref_pk=object_ref_pk,
                                                         object_ref_model=self._meta.model)
+        self.fields['external_links'] = GetOrCreateChoiceField(queryset=PersonExternalLink.objects.filter(object_ref__uuid=object_ref_pk),
+                                                               required=False,
+                                                               object_ref_pk=object_ref_pk,
+                                                               object_ref_model=self._meta.model)
 
     def clean(self):
 
@@ -175,7 +182,7 @@ class PersonForm(forms.ModelForm):
                         update_info[update_key] = {
                             'sources': sources,
                             'confidence': confidence,
-                            'value': update_value
+                            'value': update_value.strip()
                         }
 
         if update_info:
