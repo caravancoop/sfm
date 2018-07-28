@@ -1,0 +1,28 @@
+{% extends 'person/edit.html' %}
+{% load i18n %}
+{% load countries %}
+
+{% block above_form %}
+    {% include 'person/partials/person-posting-list.html'%}
+{% endblock %}
+
+{% block form_content %}
+    <h2>{% trans 'Edit postings' %}</h2>
+    <div class="row organization-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.organization.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Organization" %}</label>
+                <input id="id_organization" type="text" class="form-control sourced" name="organization" value="{{ form.instance.organization.get_value.value }}" />
+                {% if form.organization.errors %}
+                    {% for error in form.organization.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

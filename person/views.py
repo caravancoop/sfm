@@ -30,7 +30,7 @@ from extra_views import FormSetView
 from api.base_views import JSONResponseMixin
 
 from person.models import Person, PersonName, PersonAlias
-from person.forms import PersonForm
+from person.forms import PersonBasicsForm, PersonPostingsForm
 from organization.models import Organization
 from source.models import Source
 from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
@@ -303,10 +303,10 @@ def alias_autocomplete(request):
 
 
 class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
-    template_name = 'person/edit.html'
     model = Person
     slug_field = 'uuid'
-    form_class = PersonForm
+    slug_field_kwarg = 'slug'
+    context_object_name = 'person'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -316,11 +316,43 @@ class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['post_data'] = self.request.POST
-        form_kwargs['object_ref_pk'] = self.kwargs['slug']
+        form_kwargs['object_ref_pk'] = self.kwargs[self.slug_field_kwarg]
         return form_kwargs
 
     def get_success_url(self):
         return reverse('view-person', kwargs=self.kwargs)
+
+
+class PersonEditBasicsView(PersonEditView):
+    template_name = 'person/edit-basics.html'
+    form_class = PersonBasicsForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # If there are no memberships, we shoult make sure to go to the create
+        # view when it exists.
+        context['first_membership'] = context['person'].memberships.first()
+
+        return context
+
+
+class PersonEditPostingsView(PersonEditView):
+    model = MembershipPerson
+    template_name = 'person/edit-postings.html'
+    form_class = PersonPostingsForm
+    context_object_name = 'current_membership'
+    slug_field_kwarg = 'person_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
+        context['first_membership'] = {'id': self.kwargs['pk']}
+        affiliations = context['person'].memberships
+        memberships = tuple(mem.object_ref for mem in affiliations)
+        context['memberships'] = memberships
+
+        return context
 
 
 class PersonCreateView(PersonEditView, CreateView):

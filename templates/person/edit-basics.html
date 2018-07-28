@@ -1,0 +1,211 @@
+{% extends 'person/edit.html' %}
+{% load i18n %}
+{% load countries %}
+
+{% block form_content %}
+    <h2>{% trans "Edit basics" %}</h2>
+    <div class="row name-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.name.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Name" %}</label>
+                <input id="id_name" type="text" class="form-control sourced" name="name" value="{{ form.instance.name.get_value }}" />
+                {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row aliases-row field-bg">
+        <div class="col-sm-12">
+            {% if form.aliases.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Other names" %}</label>
+                <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
+                    {% for alias in form.instance.aliases.get_list %}
+                        <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.aliases.errors %}
+                    {% for error in form.aliases.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row gender-row field-bg">
+        <div class="col-sm-12">
+            {% if form.gender.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Gender" %}</label>
+                <select id="id_gender" class="form-control sourced-dropdown" name="gender">
+                    <option value="">------</option>
+                    {% for value, choice in form.fields.gender.choices %}
+                        {% if form.instance.gender.get_value.value == choice %}
+                            <option value="{{ value }}" selected=true>{{ choice }}</option>
+                        {% else %}
+                            <option value="{{ value }}">{{ choice }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.gender.errors %}
+                    {% for error in form.gender.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row division_id-row field-bg">
+        <div class="col-sm-12">
+            {% if form.division_id.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Country" %}</label>
+                <select id="id_division_id" class="form-control select2-target" name="division_id">
+                    {% if form.instance.division_id %}
+                        <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
+                    {% else %}
+                        <option value="" selected=true>------</option>
+                    {% endif %}
+                    {% for country in countries %}
+                        <option value="ocd-division/country-{{ country.iso|lower }}">{{ country.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.division_id.errors %}
+                    {% for error in form.division_id.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row date_of_birth-row field-bg">
+        <div class="col-sm-12">
+            {% if form.date_of_birth.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Date of birth" %}</label>
+                <input type="text" name="date_of_birth" id="id_date_of_birth" class="form-control sourced" value="{{ form.instance.date_of_birth }}"/>
+                {% if form.date_of_birth.errors %}
+                    {% for error in form.date_of_birth.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row date_of_death-row field-bg">
+        <div class="col-sm-12">
+            {% if form.date_of_death.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Date of death" %}</label>
+                <input type="text" name="date_of_death" id="id_date_of_death" class="form-control sourced" value="{{ form.instance.date_of_death }}">
+                {% if form.date_of_death.errors %}
+                    {% for error in form.date_of_death.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row deceased-row field-bg">
+        <div class="col-sm-12">
+            {% if form.deceased.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.instance.deceased.get_value.value %}
+                            <input type="checkbox" name="deceased" id="id_deceased" class="sourced" checked="true" /> {% trans "Deceased" %}
+                        {% else %}
+                            <input type="checkbox" name="deceased" id="id_deceased" class="sourced" /> {% trans "Deceased" %}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.deceased.errors %}
+                    {% for error in form.deceased.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row biography-row field-bg">
+        <div class="col-sm-12">
+            {% if form.biography.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Biography" %}</label>
+                <textarea rows=5 name="biography" id="id_biography" class="form-control sourced">{{ form.instance.biography.get_value.value }}</textarea>
+                {% if form.biography.errors %}
+                    {% for error in form.biography.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row notes-row field-bg">
+        <div class="col-sm-12">
+            {% if form.notes.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Notes" %}</label>
+                <textarea name="notes" id="id_notes" class="form-control sourced">{{ form.instance.notes.get_value.value }}</textarea>
+                {% if form.notes.errors %}
+                    {% for error in form.notes.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row external_links-row field-bg">
+        <div class="col-sm-12">
+            {% if form.external_links.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "External link" %}</label>
+                <select id="id_external_links" class="form-control select2-target" name="external_links" multiple="multiple">
+                    {% for link in form.instance.external_links.get_list %}
+                        <option value="{{ link.get_field.id }}" selected=true>{{ link.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.external_links.errors %}
+                    {% for error in form.external_links.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

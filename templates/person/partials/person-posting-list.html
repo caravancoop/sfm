@@ -1,0 +1,47 @@
+{% load citations %}
+{% load i18n %}
+{% load help %}
+<h3 id="memberships">
+    <i class="fa fa-fw fa-users"></i>
+    {% trans "Postings" %}
+    <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_memberships' %}</small>
+</h3>
+<hr />
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>{% trans "Organization" %}</th>
+            <th>{% trans "Rank" %}</th>
+            <th>{% trans "Role" %}</th>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "First cited" %}</th>
+            <th>{% trans "Last cited" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for member in memberships %}
+            <tr>
+                <td class="cited">
+                    <a href="{% url 'view-organization' member.organization.get_value.value.id %}">
+                        {{ member.organization.get_value.value }}
+                    </a>
+                </td>
+                <td class="cited">
+                    {{ member.rank.get_value|default:"" }}
+                </td>
+                <td class="cited">
+                    {{ member.role.get_value|default:"" }}
+                </td>
+                <td class="cited">
+                    {{ member.title.get_value|default:"" }}
+                </td>
+                <td class="cited">
+                    {% datetype member.firstciteddate.get_value 'start' %}
+                </td>
+                <td class="cited">
+                    {% datetype member.lastciteddate.get_value 'end' %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
