@@ -89,6 +89,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('source', '0031_auto_20180705_1536'),
         ('violation', '0014_auto_20180706_1825'),
+        ('person', '0007_auto_20180706_1825'),
     ]
 
     operations = [
