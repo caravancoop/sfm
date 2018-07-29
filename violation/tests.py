@@ -5,6 +5,7 @@ from django.core.management import call_command
 from django.contrib.auth.models import User
 
 from source.models import Source
+from violation.models import Violation
 
 def setUpModule():
 
@@ -40,8 +41,10 @@ class ViolationTest(TestCase):
 
     def test_view_violation(self):
 
-        for viol_id in range(13, 23):
-            response = self.client.get(reverse_lazy('view-violation', args=[viol_id]))
+        them = Violation.objects.order_by('?')[:10]
+
+        for violation in them:
+            response = self.client.get(reverse_lazy('view-violation', args=[violation.id]))
 
             try:
                 assert response.status_code == 200

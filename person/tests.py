@@ -5,6 +5,7 @@ from django.core.management import call_command
 from django.contrib.auth.models import User
 
 from source.models import Source
+from person.models import Person
 
 def setUpModule():
 
@@ -29,23 +30,18 @@ class PersonTest(TestCase):
     def setUp(self):
         self.user = User.objects.first()
         self.client.force_login(self.user)
-        self.source = Source.objects.first()
-
-        session = self.client.session
-        session['source_id'] = str(self.source.uuid)
-        session.save()
 
     def tearDown(self):
         self.client.logout()
 
     def test_view_person(self):
 
-        for person_id in range(1, 10):
-            response = self.client.get(reverse_lazy('view-person', args=[person_id]))
+        them = Person.objects.order_by('?')[:10]
+
+        for person in them:
+            response = self.client.get(reverse_lazy('view-person', args=[person.uuid]))
 
             try:
                 assert response.status_code == 200
             except AssertionError as e:
-                print(person_id)
-                print(response.content)
                 raise(e)
