@@ -40,8 +40,67 @@ class PersonTest(TestCase):
 
         for person in them:
             response = self.client.get(reverse_lazy('view-person', args=[person.uuid]))
+            assert response.status_code == 200
 
-            try:
-                assert response.status_code == 200
-            except AssertionError as e:
-                raise(e)
+    def test_edit_person(self):
+        person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+        new_sources = Source.objects.order_by('?')[:2]
+
+        response = self.client.get(reverse_lazy('edit-person', kwargs={'slug': person.uuid}))
+
+        assert response.status_code == 200
+
+        new_source_ids = [s.uuid for s in new_sources]
+
+        post_data = {
+            'name': person.name.get_value(),
+            'name_source': new_source_ids,
+            'aliases': [p.get_value().id for p in person.aliases.get_list()] + ['Foo'],
+            'aliases_source': new_source_ids,
+            'division_id': 'ocd-division/country:us',
+            'division_id_source': new_source_ids,
+            'date_of_birth': '1976',
+            'date_of_birth_source': new_source_ids,
+            'date_of_death': '2012-02-14',
+            'date_of_death_source': new_source_ids,
+            'modified_fields': ['name', 'aliases', 'division_id', 'date_of_birth', 'date_of_death'],
+        }
+
+        response = self.client.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+
+        assert response.status_code == 200
+
+        assert set(new_source_ids) <= {s.uuid for s in person.name.get_value().sources.all()}
+
+        assert 'Foo' in [p.get_value().value for p in person.aliases.get_list()]
+
+        for alias in person.aliases.get_list():
+            assert set(new_source_ids) <= {a.uuid for a in alias.get_value().sources.all()}
+
+        assert person.division_id.get_value().value == 'ocd-division/country:us'
+        assert str(person.date_of_birth.get_value().value) == '1976'
+        assert str(person.date_of_death.get_value().value) == '14th February 2012'
+
+    def test_no_source_one_value(self):
+        person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+
+        post_data = {
+            'name': person.name.get_value(),
+            'modified_fields': ['name'],
+        }
+
+        response = self.client.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+
+        assert '"name" requires a new source' in response.context['form'].errors['name']
+
+    def test_no_source_multiple_value(self):
+        person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+
+        post_data = {
+            'aliases': person.name.get_value(),
+            'modified_fields': ['aliases'],
+        }
+
+        response = self.client.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+
+        assert '"aliases" requires a new source' in response.context['form'].errors['aliases']

@@ -105,37 +105,45 @@ class PersonForm(forms.ModelForm):
 
     def clean(self):
 
-        # Get the fields and see if they have new sources attached
         modified_fields = self.post_data.get('modified_fields')
 
-        for field in modified_fields:
-            # Check if a field is a boolean field. If so, and there are sources
-            # that were sent, that means that the user unchecked the box and we
-            # need to change the value from True to False.
+        for field in self.fields:
 
             if isinstance(self.fields[field], forms.BooleanField):
-                if self.post_data.get('{}_source'.format(field)):
-                    value = True
 
-                    # Clear out "field is required" validation error that
-                    # happens when you toggle from True to False. If there is an
-                    # error, we also know that the value should be False
-                    try:
-                        self.errors.pop(field)
-                        value = False
-                    except KeyError:
-                        pass
+                if field in modified_fields:
+                    if self.post_data.get('{}_source'.format(field)):
+                        value = True
 
-                    self.cleaned_data[field] = value
-                    self.post_data[field] = [value]
+                        # Clear out "field is required" validation error that
+                        # happens when you toggle from True to False. If there is an
+                        # error, we also know that the value should be False
+                        try:
+                            self.errors.pop(field)
+                            value = False
+                        except KeyError:
+                            pass
 
-            try:
-                self.post_data['{}_source'.format(field)]
-            except KeyError:
-                error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
-                                              code='invalid',
-                                              params={'field_name': field})
-                self.add_error(field, error)
+                        self.cleaned_data[field] = value
+                        self.post_data[field] = [value]
+                else:
+                    # The boolean fields are not actually required but Django
+                    # doesn't like that.
+                    self.errors.pop(field)
+
+            if field in modified_fields:
+                # Check if a field is a boolean field. If so, and there are sources
+                # that were sent, that means that the user unchecked the box and we
+                # need to change the value from True to False.
+
+
+                try:
+                    self.post_data['{}_source'.format(field)]
+                except KeyError:
+                    error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
+                                                code='invalid',
+                                                params={'field_name': field})
+                    self.add_error(field, error)
 
     def save(self, commit=True):
 
@@ -160,10 +168,6 @@ class PersonForm(forms.ModelForm):
 
                 confidence = field.get_confidence()
 
-                # TODO: It would appear that Django does not send anything for
-                # a checkbox that is unchecked. So, checking for the absence of
-                # something might be hard.
-
                 for update_value in self.post_data.get(field_name):
                     update_key = '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name)
 
@@ -182,7 +186,7 @@ class PersonForm(forms.ModelForm):
                         update_info[update_key] = {
                             'sources': sources,
                             'confidence': confidence,
-                            'value': update_value.strip()
+                            'value': update_value
                         }
 
         if update_info:
