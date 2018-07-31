@@ -12,13 +12,15 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
+from sfm_pc.utils import VersionsMixin
+
 
 def get_deleted_user():
     return get_user_model().objects.get_or_create(username='deleted user')[0]
 
 
 @reversion.register()
-class Source(models.Model):
+class Source(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.TextField()
     publication = models.TextField(null=True)
@@ -39,7 +41,7 @@ class Source(models.Model):
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
-        return reverse('view-source', args=[self.id])
+        return reverse('view-source', args=[self.uuid])
 
     def get_evidenced(self):
         evidenced = []
@@ -60,10 +62,13 @@ class Source(models.Model):
     def archive_urls(self):
         return ' | '.join(a.archive_url for a in self.accesspoint_set.all())
 
+    @property
+    def revert_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('revert-source', args=[self.uuid])
+
 @reversion.register()
-class AccessPoint(models.Model):
-    # TODO: Change PK to UUID and alter complex field relationships to point to
-    # this table instead of source table
+class AccessPoint(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     page_number = models.CharField(max_length=255, null=True, blank=True)
     accessed_on = models.DateField(null=True, blank=True)

@@ -1,234 +1,404 @@
-{% extends "sfm/base_edit_template.html" %}
+{% extends "base.html" %}
 {% load i18n %}
 {% load render_versions %}
 {% load static %}
+{% load countries %}
 {% block extra_head %}
     <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
 {% endblock %}
-{% block form_guts %}
-    {% if form.name.errors %}
-        <div class="form-group has-error has-feedback">
-    {% else %}
-        <div class="form-group">
-    {% endif %}
-        <label class="col-sm-2 control-label">{% trans "Person name" %}</label>
-        <div class="col-sm-8">
-            <select id="id_name" class="form-control" name="name">
-                    <option value="" selected="selected">--------</option>
-                {% if form_data.name %}
-                    <option value="{{ form_data.name.id }}" selected=true>{{ form_data.name.value }}</option>
-                {% endif %}
-            </select>
-            {% if form.name.errors %}
-                {% for error in form.name.errors %}
-                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                {% endfor %}
-            {% endif %}
-        <input type="hidden" name="name_text" id="id_name_text" value="{{ form_data.name.value }}" />
+{% block content %}
+
+    <div class="well">
+    <div class="row header">
+        <div class="col-sm-6">
+            <h1>{{ object.name.get_value }}</h1>
+            <p>
+                {% trans "ID:" %} {{ object.uuid }}<br />
+                {% trans "Last update by:" %} username goes here <br />
+                <a href="#">{% trans "View versions"%}</a>
+            </p>
+        </div>
+        <div class="col-sm-6">
+            <h1>{% trans "Edit:" %} <button class="btn btn-default">{% trans "Basics" %}</button> <button class="btn btn-primary">{% trans "Postings" %}</button></h1>
         </div>
     </div>
-    {% if form.alias.errors %}
-        <div class="form-group has-error has-feedback">
-    {% else %}
-        <div class="form-group">
-    {% endif %}
-        <label class="col-sm-2 control-label">{% trans "Aliases" %}</label>
-        <div class="col-sm-8">
-            <select id="id_alias" class="form-control" name="alias" multiple="multiple">
-                {% for alias in form_data.aliases %}
-                    <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
-                {% endfor %}
-            </select>
-            {% if form.alias.errors %}
-                {% for error in form.alias.errors %}
-                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                {% endfor %}
-            {% endif %}
-        </div>
     </div>
-    {% if form.division_id.errors %}
-        <div class="form-group has-error has-feedback">
-    {% else %}
-        <div class="form-group">
-    {% endif %}
-        <label class="col-sm-2 control-label">{% trans "Division identifier" %}</label>
-        <div class="col-sm-8">
-            <select id="id_division_id" class="form-control division-field" name="division_id">
-                    <option value="" selected="selected">--------</option>
-                {% if form_data.division_id %}
-                    <option value="{{ form_data.division_id.value }}" selected=true>{{ form_data.division_id.value }}</option>
-                {% endif %}
-            </select>
-            {% if form.division_id.errors %}
-                {% for error in form.division_id.errors %}
-                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
-{% endblock %}
-{% block after_form %}
     <div class="row">
-        <h3>{% trans "Memberships" %}</h3>
-        <div class="col-sm-10 col-sm-offset-1">
-            <div class="table-responsive">
-                <table class="table table-condensed">
-                    <thead>
-                        <tr>
-                            <th class="col-sm-3">{% trans "Memberships" %}</th>
-                            <th class="col-sm-3">{% trans "Title" %}</th>
-                            <th class="col-sm-3">{% trans "Role" %}</th>
-                            <th class="col-sm-2">{% trans "Rank" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for member in memberships %}
-                        <tr>
-                            <td><a href="{% url 'edit-membership' pk=member.id %}?source_id={{ source.id }}">{{ member.organization.get_value }}</a></td>
-                            <td>{{ member.title.get_value }}</td>
-                            <td>{{ member.role.get_value.value }}</td>
-                            <td>{{ member.rank.get_value.value }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <form class="form" method="POST">
+        {% csrf_token %}
+        <div class="col-sm-6">
+            <h2>{% trans "Edit basics" %}</h2>
+            <div class="row name-row field-bg bg-info">
+                <div class="col-sm-12">
+                    {% if form.name.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Name" %}</label>
+                        <input id="id_name" type="text" class="form-control sourced" name="name" value="{{ form.instance.name.get_value }}" />
+                        {% if form.name.errors %}
+                            {% for error in form.name.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row aliases-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.aliases.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Other names" %}</label>
+                        <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
+                            {% for alias in form.instance.aliases.get_list %}
+                                <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.aliases.errors %}
+                            {% for error in form.aliases.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row gender-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.gender.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Gender" %}</label>
+                        <select id="id_gender" class="form-control sourced-dropdown" name="gender">
+                            <option value="">------</option>
+                            {% for value, choice in form.fields.gender.choices %}
+                                {% if form.instance.gender.get_value.value == choice %}
+                                    <option value="{{ value }}" selected=true>{{ choice }}</option>
+                                {% else %}
+                                    <option value="{{ value }}">{{ choice }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        {% if form.gender.errors %}
+                            {% for error in form.gender.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row division_id-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.division_id.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Country" %}</label>
+                        <select id="id_division_id" class="form-control select2-target" name="division_id">
+                            {% if form.instance.division_id %}
+                                <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
+                            {% else %}
+                                <option value="" selected=true>------</option>
+                            {% endif %}
+                            {% for country in countries %}
+                                <option value="ocd-division/country-{{ country.iso|lower }}">{{ country.name }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.division_id.errors %}
+                            {% for error in form.division_id.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row date_of_birth-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.date_of_birth.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Date of birth" %}</label>
+                        <input type="text" name="date_of_birth" id="id_date_of_birth" class="form-control sourced" value="{{ form.instance.date_of_birth }}"/>
+                        {% if form.date_of_birth.errors %}
+                            {% for error in form.date_of_birth.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row date_of_death-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.date_of_death.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Date of death" %}</label>
+                        <input type="text" name="date_of_death" id="id_date_of_death" class="form-control sourced" value="{{ form.instance.date_of_death }}">
+                        {% if form.date_of_death.errors %}
+                            {% for error in form.date_of_death.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row deceased-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.deceased.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <div class="checkbox">
+                            <label class="control-label">
+                                {% if form.instance.deceased.get_value.value %}
+                                    <input type="checkbox" name="deceased" id="id_deceased" class="sourced" checked="true" /> {% trans "Deceased" %}
+                                {% else %}
+                                    <input type="checkbox" name="deceased" id="id_deceased" class="sourced" /> {% trans "Deceased" %}
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% if form.deceased.errors %}
+                            {% for error in form.deceased.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row biography-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.biography.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Biography" %}</label>
+                        <textarea rows=5 name="biography" id="id_biography" class="form-control sourced">{{ form.instance.biography.get_value.value }}</textarea>
+                        {% if form.biography.errors %}
+                            {% for error in form.biography.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row notes-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.notes.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "Notes" %}</label>
+                        <textarea name="notes" id="id_notes" class="form-control sourced">{{ form.instance.notes.get_value.value }}</textarea>
+                        {% if form.notes.errors %}
+                            {% for error in form.notes.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row external_links-row field-bg">
+                <div class="col-sm-12">
+                    {% if form.external_links.errors %}
+                        <div class="form-group has-error has-feedback">
+                    {% else %}
+                        <div class="form-group">
+                    {% endif %}
+                        <label class="control-label">{% trans "External link" %}</label>
+                        <select id="id_external_links" class="form-control select2-target" name="external_links" multiple="multiple">
+                            {% for link in form.instance.external_links.get_list %}
+                                <option value="{{ link.get_field.id }}" selected=true>{{ link.get_field.value }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.external_links.errors %}
+                            {% for error in form.external_links.errors %}
+                            <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <h2>{% trans "Edit sources" %}</h2>
+            <div class="row bg-info">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label class="control-label">{% trans "Add sources to the list" %}</label>
+                        <select multiple="multiple" id="source-search" class="form-control"></select>
+                    </div>
+                    <div id="sources">
+                        <div id="source-list"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <button class="btn col-sm-2 pull-right" type="submit">Save</button>
+        </div>
+    </div>
+    </form>
 {% endblock %}
-
 {% block extra_js %}
-<script src="{% static "js/select2.min.js" %}"></script>
-<script type="text/javascript">
-    var name_opts = {
-        ajax: {
-            url: "{% url 'person-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': -1,
-                                'text': params.term }]};
-                }
+    <script src="{% static "js/ejs_production.js" %}"></script>
+    <script type="text/EJS" id="source-list-template">
+        <% if(uncommitted){ %>
+            <p class="bg-success">
+        <% } else { %>
+            <p>
+        <% } %>
+            <strong>
+                <small><%= title %> (<%= publication %>)</small>
+            </strong><br />
+            <% $.each(access_points, function(i, access_point){ %>
+                <a href="<%= access_point.archive_url %>">Archive URL</a> <br />
+            <% }) %>
+        </p>
+    </script>
+    <script type="text/EJS" id="source-input-template">
+        <% $.each(access_points, function(i, access_point){ %>
+            <input type="hidden"
+                name="<%= field_name %>_source"
+                class="<%= field_name %>_source"
+                value="<%= value %>"
+                data-title="<%= title %>"
+                data-publication="<%= publication %>"
+                data-access_points="<%= access_point.archive_url %>" />
+        <% }) %>
+    </script>
+    <script type="text/EJS" id="source-list-title">
+        <h3 id="source-field-name" data-field_name="<%= field_name %>">
+            Sources already linked to the <strong class="text-capitalize"><%= field_name %></strong> datapoint ...
+        </h3>
+    </script>
+    <script type="text/javascript">
+        var object_id = "{{ person.id }}"
+        var object_type = 'person';
+
+        function fetchSources(field_name){
+            var params = {
+                'object_id': object_id,
+                'object_type': object_type,
+                'field_name': field_name
             }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2,
-        tags: true
-    }
+            return $.getJSON("{% url 'get-sources' %}", params)
+        }
 
-    var alias_opts = {
-        ajax: {
-            url: "{% url 'person-alias-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': params.term,
-                                'text': params.term }]};
-                }
+        function loadSources(e){
+            var field_name = $(e.target).prop('name');
+
+
+            $.when(fetchSources(field_name)).then(function(data){
+                var template = new EJS({'text': $('#source-list-title').html()});
+                var source_list = [template.render({'field_name': field_name})];
+
+                var uncommitted_sources = $('.' + field_name + '_source');
+
+                $.each(uncommitted_sources, function(i, source){
+                    var source_info = $(source).data();
+                    source_info['uncommitted'] = true;
+                    source_info['access_points'] = [source_info['access_points']];
+
+                    var template = new EJS({'text': $('#source-list-template').html()});
+                    source_list.push(template.render(source_info));
+                })
+
+                $.each(data.sources, function(i, source){
+                    var template = new EJS({'text': $('#source-list-template').html()});
+                    source_list.push(template.render(source));
+                });
+
+                $('#source-list').html(source_list.join(''));
+                $('.field-bg').removeClass('bg-info');
+
+                var selector = '.' + field_name + '-row';
+                $(selector).addClass('bg-info');
+            });
+        }
+
+        function addModifiedField(e){
+            var modified_name = $(e.target).prop('name');
+            var hidden_field = '<input type="hidden" name="modified_fields" value="' + modified_name + '" />';
+            var already_added = $('input[name="modified_fields"][value="' + modified_name + '"]');
+            if (already_added.length == 0){
+                $('form').append(hidden_field);
             }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2,
-        tags: true
-    }
+        }
 
-    var source_opts = {
-        ajax: {
-            url: "{% url 'source-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
+        $(document).ready(function(){
+
+            $.ajaxSetup({cache: false});
+
+            loadSources({'target': $('#id_name')});
+
+            $('#id_alias').select2({
+                'tags': true
+            });
+
+            $('#id_external_links').select2({
+                'tags': true
+            });
+
+            $('#id_division_id').select2();
+            $('#source-search').select2({
+                ajax: {
+                    url: "{% url 'source-autocomplete' %}",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
                 }
-            }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2
-    }
-    var division_opts = {
-        ajax: {
-            url: "{% url 'division-autocomplete' %}",
-            datType: 'json',
-            delay: 250,
-            data: function(params) {
-                return { q: params.term };
-            },
-            cache: true,
-            processResults: function(data, params) {
-                if (data.length >= 1) {
-                    return { results: data };
-                } else {
-                    return {results: [{
-                                'id': params.term,
-                                'text': params.term }]};
-                }
-            }
-        },
-        escapeMarkup: function(markup){ return markup; },
-        minimumInputLength: 2,
-        tags: true
-    }
-    $(document).ready(function(e) {
-        $('#id_name').select2(name_opts);
-        $('#id_alias').select2(alias_opts);
-        $('#id_source').select2(source_opts);
-        $('#id_division_id').select2(division_opts);
-        $('#id_alias').on('select2:select', function(e){
-            var value = e.params.data.text;
-            var name = $(e.target).prop('name') + '_text';
-            var form_id = $(e.target).prop('name').split('-')[1]
-            var hidden_input = '<input data-form_id="' + form_id + '" type="hidden" value="' + value + '" name="' + name + '" />';
-            $('#person-form').append(hidden_input);
-        });
+            });
 
-        $('#id_alias').on('select2:unselect', function(e){
-            var value = e.params.data.text;
-            var inputs = $('#org-form').find('input[value="'+ value + '"]');
-            var form_id = $(e.target).prop('name').split('-')[1]
+            $('.sourced').on('click', loadSources);
+            $('.sourced').on('input', addModifiedField);
 
-            $.each(inputs, function(i, input){
-                if ($(input).data('form_id') == form_id){
-                    $(input).remove();
-                }
-            })
-        });
+            $('.sourced-dropdown').on('click', loadSources);
+            $('.sourced-dropdown').on('input', addModifiedField);
 
-        $('#id_name').on('select2:select', function(e){
-            var value = e.params.data.text;
-            $('#id_name').find(':selected').prop('selected', false);
-            $('#id_name_text').val(value);
-            $('#id_name:selected').attr('value', e.params.data.id);
-            $('#id_name:selected').text(value);
-        });
+            $('.select2-target').on('select2:opening', loadSources);
+            $('.select2-target').on('select2:opening', addModifiedField);
 
-        $('#id_division_id').on('select2:select', function(e){
-            var value = e.params.data.text;
-            $('#id_division_id').find(':selected').prop('selected', false);
-            $('#id_division_id:selected').attr('value', e.params.data.id);
-            $('#id_division_id:selected').text(value);
-        });
-    });
+            $('#source-search').on('select2:select', function(e){
 
-</script>
+                var data = {'source_id': e.params.data.id}
+                var field_name = $('#source-field-name').data('field_name');
+
+                $.getJSON("{% url 'stash-source' %}", data, function(source){
+                    var source_template = new EJS({'text': $('#source-list-template').html()});
+                    $('#source-list').prepend(source_template.render(source));
+
+                    var selector = '*[name="' + field_name + '"]';
+                    var input_template = new EJS({'text': $('#source-input-template').html()});
+                    var input = input_template.render({
+                        'field_name': field_name,
+                        'value': e.params.data.id,
+                        'title': source.title,
+                        'publication': source.publication,
+                        'access_points': source.access_points
+                    });
+
+                    $(selector).after(input);
+                    $('#source-search').val(null).trigger('change');
+                })
+            });
+        })
+    </script>
 {% endblock %}

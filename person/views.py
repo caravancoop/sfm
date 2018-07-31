@@ -1,40 +1,29 @@
 import json
-import csv
 
 from datetime import date
 from collections import namedtuple
 
-from django.conf import settings
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.contrib.admin.utils import NestedObjects
-from django.contrib import messages
-from django.views.generic.edit import DeleteView, FormView
-from django.views.generic import TemplateView, DetailView
-from django.template.loader import render_to_string
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic import DetailView
 from django.http import HttpResponse
-from django.db import DEFAULT_DB_ALIAS
-from django.db.models import Q
 from django.db import connection
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-from django.utils.translation import get_language
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from extra_views import FormSetView
+from countries_plus.models import Country
 
-from person.models import Person, PersonName, PersonAlias, Alias
+from person.models import Person, PersonAlias
 from person.forms import PersonForm
-from organization.models import Organization
-from source.models import Source
-from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
-from sfm_pc.utils import (deleted_in_str, get_org_hierarchy_by_id,
-                          get_command_edges, get_command_nodes, Autofill)
-from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList
+from membershipperson.models import MembershipPersonMember
+from sfm_pc.utils import Autofill
+from sfm_pc.base_views import NeverCacheMixin
 
 
 class PersonDetail(DetailView):
     model = Person
-    template_name = 'person/detail.html'
+    template_name = 'person/view.html'
+    slug_field = 'uuid'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -111,6 +100,8 @@ class PersonDetail(DetailView):
         events = context['person'].violationperpetrator_set.all()
         for event in events:
             context['events'].append(event.object_ref)
+
+        context['versions'] = context['person'].getVersions()
 
         return context
 
@@ -260,245 +251,6 @@ def sort_commanders(commanders):
         return commanders
 
 
-class PersonList(PaginatedList):
-    model = Person
-    template_name = 'person/list.html'
-    orderby_lookup = {
-        'name': 'personname__value',
-    }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Highlight the correct nav tab in the template
-        context['person_tab'] = 'selected-tab'
-        context['search_term'] = 'a person'
-        return context
-
-class PersonCreate(LoginRequiredMixin, BaseFormSetView):
-    template_name = 'person/create.html'
-    form_class = PersonForm
-    success_url = reverse_lazy('create-membership')
-    extra = 1
-    max_num = None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
-
-        context['organizations'] = self.request.session.get('organizations')
-        context['source'] = Source.objects.get(id=self.request.session['source_id'])
-
-        if context['organizations']:
-            if len(context['organizations']) > 1:
-                back_url = reverse_lazy('create-organization-membership')
-            else:
-                back_url = reverse_lazy('create-organization')
-        else:
-            back_url = reverse_lazy('create-organization')
-
-        context['back_url'] = back_url
-        context['skip_url'] = reverse_lazy('create-geography')
-
-        existing_forms = self.request.session.get('forms', {})
-
-        if existing_forms and existing_forms.get('people') and not getattr(self, 'formset', False):
-
-            form_data = existing_forms.get('people')
-            self.initFormset(form_data)
-
-            context['formset'] = self.get_formset_context(self.formset)
-            context['browsing'] = True
-
-        return context
-
-    def get_formset_context(self, formset):
-
-        for index, form in enumerate(formset.forms):
-
-            alias_ids = form.data.get('form-{}-alias'.format(index))
-            org_ids = form.data.get('form-{}-orgs'.format(index))
-
-            form.aliases = []
-            form.organizations = []
-
-            if alias_ids:
-
-                for alias_id in alias_ids:
-                    try:
-                        alias_id = int(alias_id)
-                        alias = Alias.objects.get(id=alias_id)
-                    except ValueError:
-                        alias = {'id': alias_id, 'value': alias_id}
-                    form.aliases.append(alias)
-
-            if org_ids:
-
-                for org_id in org_ids:
-                    org_id = int(org_id)
-                    org = Organization.objects.get(id=org_id)
-                    form.organizations.append(org)
-
-        return formset
-
-    def post(self, request, *args, **kwargs):
-
-        form_data = {}
-
-        for key, value in request.POST.items():
-            if ('alias' in key or 'orgs' in key) and 'confidence' not in key:
-                form_data[key] = request.POST.getlist(key)
-            else:
-                form_data[key] = request.POST.get(key)
-
-        self.initFormset(form_data)
-
-        return self.validateFormSet()
-
-    def formset_invalid(self, formset):
-
-        formset = self.get_formset_context(formset)
-
-        response = super().formset_invalid(formset)
-        return response
-
-    def formset_valid(self, formset):
-        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
-
-        self.people = []
-        self.memberships = []
-
-        self.source = Source.objects.get(id=self.request.session['source_id'])
-
-        for i in range(0,num_forms):
-            first = True
-
-            form_prefix = 'form-{0}-'.format(i)
-
-            name_id_key = 'form-{0}-name'.format(i)
-            name_text_key = 'form-{0}-name_text'.format(i)
-            division_id_key = 'form-{}-division_id'.format(i)
-
-            name_id = formset.data[name_id_key]
-            name_text = formset.data[name_text_key]
-            division_id = formset.data[division_id_key]
-
-            name_confidence = int(formset.data.get(form_prefix +
-                                                   'name_confidence', 1))
-            division_confidence = int(formset.data.get(form_prefix +
-                                                       'division_confidence', 1))
-
-            person_info = {
-                'Person_PersonName': {
-                    'value': name_text,
-                    'confidence': name_confidence,
-                    'sources': [self.source],
-                },
-                'Person_PersonDivisionId': {
-                    'value': division_id,
-                    'confidence': division_confidence,
-                    'sources': [self.source],
-                }
-            }
-
-            if name_id == 'None':
-                return self.formset_invalid(formset)
-
-            elif name_id == '-1':
-                person = Person.create(person_info)
-                formset.data[name_id_key] = person.id
-
-            else:
-                person = Person.objects.get(id=name_id)
-                person_info['Person_PersonName']['sources'] = self.sourcesList(person, 'name')
-                person.update(person_info)
-
-            alias_id_key = 'form-{0}-alias'.format(i)
-            alias_text_key = 'form-{0}-alias_text'.format(i)
-            alias_confidence = int(formset.data.get(form_prefix +
-                                                    'alias_confidence', 1))
-
-            aliases = formset.data.get(alias_text_key)
-
-            if aliases:
-
-                for alias in aliases:
-
-                    alias_obj, created = Alias.objects.get_or_create(value=alias)
-
-                    pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
-                                                                        value=alias_obj,
-                                                                        lang=get_language(),
-                                                                        confidence=alias_confidence)
-
-                    pa_obj.sources.add(self.source)
-                    pa_obj.save()
-
-            self.people.append(person)
-
-            orgs_key = 'form-{0}-orgs'.format(i)
-            orgs = formset.data.get(orgs_key)
-            orgs_confidence = int(formset.data.get(form_prefix +
-                                                   'orgs_confidence', 1))
-
-            for org in orgs:
-
-                organization = Organization.objects.get(id=org)
-
-                mem_data = {
-                    'MembershipPerson_MembershipPersonMember': {
-                        'value': person,
-                        'confidence': orgs_confidence,
-                        'sources': [self.source],
-                    },
-                    'MembershipPerson_MembershipPersonOrganization': {
-                        'value': Organization.objects.get(id=org),
-                        'confidence': orgs_confidence,
-                        'sources': [self.source],
-                    }
-                }
-
-                membership, created = MembershipPerson.objects.get_or_create(membershippersonmember__value=person,
-                                                                             membershippersonorganization__value=organization)
-
-                # We only care about updating new memberships, since we show
-                # the user old memberships that weren't necessarily part of this
-                # source
-                if created:
-
-                    membership.update(mem_data)
-
-                    self.memberships.append({
-                        'person': str(person.name),
-                        'organization': str(organization.name),
-                        'membership': membership.id,
-                        'first': first
-                    })
-
-                first = False
-
-            # Queue up to be added to search index
-            to_index = self.request.session.get('index')
-
-            if not to_index:
-                self.request.session['index'] = {}
-
-            self.request.session['index'][str(person.uuid)] = 'people'
-
-        self.request.session['people'] = [{'id': p.id, 'name': p.name.get_value().value} \
-                                                     for p in self.people]
-        self.request.session['memberships'] = self.memberships
-
-        response = super().formset_valid(formset)
-
-        if not self.request.session.get('forms'):
-            self.request.session['forms'] = {}
-
-        self.request.session['forms']['people'] = formset.data
-        self.request.session.modified = True
-
-        return response
-
 def person_autocomplete(request):
     term = request.GET.get('q')
     people = Person.objects.filter(personname__value__icontains=term).all()
@@ -518,133 +270,27 @@ def person_autocomplete(request):
 
     return HttpResponse(json.dumps(attrs), content_type='application/json')
 
-def alias_autocomplete(request):
-    term = request.GET.get('q')
-    alias_query = PersonAlias.objects.filter(value__value__icontains=term)
-    results = []
-    for alias in alias_query:
-        results.append({
-            'text': alias.value.value,
-            'id': alias.value.id
-        })
-    return HttpResponse(json.dumps(results), content_type='application/json')
 
-class PersonUpdate(LoginRequiredMixin, BaseUpdateView):
+class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
     template_name = 'person/edit.html'
+    model = Person
+    slug_field = 'uuid'
     form_class = PersonForm
-    success_url = reverse_lazy('dashboard')
-    sourced = True
-
-    def post(self, request, *args, **kwargs):
-
-        self.checkSource(request)
-        
-        self.aliases = request.POST.getlist('alias')
-
-        return self.validateForm()
-    
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        
-        person = Person.objects.get(pk=self.kwargs['pk'])
-        
-        person_info = {
-            'Person_PersonName': {
-                'value': form.cleaned_data['name_text'],
-                'confidence': 1,
-                'sources': self.sourcesList(person, 'name'),
-            },
-            'Person_PersonDivisionId': {
-                'value': form.cleaned_data['division_id'],
-                'confidence': 1,
-                'sources': self.sourcesList(person, 'division_id')
-            }
-        }
-        
-        person.update(person_info)
-
-        if self.aliases:
-            for alias in self.aliases:
-                
-                alias_obj, created = Alias.objects.get_or_create(value=alias)
-
-                pa_obj, created = PersonAlias.objects.get_or_create(object_ref=person,
-                                                                    value=alias_obj,
-                                                                    lang=get_language())
-                
-                pa_obj.sources.add(self.source)
-                pa_obj.save()
-        
-        messages.add_message(self.request, 
-                             messages.INFO, 
-                             'Person {} saved!'.format(form.cleaned_data['name_text']))
-
-        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        person = Person.objects.get(pk=self.kwargs['pk'])
-        
-        form_data = {
-            'name': person.name.get_value(),
-            'aliases': [i.get_value() for i in person.aliases.get_list()],
-            'division_id': person.division_id.get_value(),
-        }
-        
-        context['form_data'] = form_data
-        context['title'] = _('Person')
-        context['source_object'] = person
-        context['memberships'] = MembershipPerson.objects.filter(
-            membershippersonmember__value=person
-        ).filter(membershippersonorganization__value__isnull=False)
-        context['source'] = Source.objects.filter(id=self.request.GET.get('source_id')).first()
-
-        if not self.sourced:
-            context['source_error'] = 'Please include the source for your changes'
-
-
+        context['countries'] = Country.objects.all()
         return context
 
-#############################################
-###                                       ###
-### Below here are currently unused views ###
-### which we'll probably need eventually  ###
-###                                       ###
-#############################################
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['post_data'] = self.request.POST
+        form_kwargs['object_ref_pk'] = self.kwargs['slug']
+        return form_kwargs
 
-class PersonDelete(LoginRequiredMixin, DeleteView):
-    model = Person
-    template_name = "delete_confirm.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(PersonDelete, self).get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)
-        collector.collect([context['object']])
-        deleted_elements = collector.nested()
-        context['deleted_elements'] = deleted_in_str(deleted_elements)
-        return context
-
-    def get_object(self, queryset=None):
-        obj = super(PersonDelete, self).get_object()
-
-        return obj
-
-def person_csv(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="persons.csv"'
-
-    terms = request.GET.dict()
-    person_query = Person.search(terms)
-
-    writer = csv.writer(response)
-    for person in person_query:
-        writer.writerow([
-            person.id,
-            person.name.get_value(),
-            person.alias.get_value(),
-            repr(person.deathdate.get_value())
-        ])
-
-    return response
+    def get_success_url(self):
+        return reverse('view-person', kwargs=self.kwargs)
 
 
+class PersonCreateView(PersonEditView, CreateView):
+    pass

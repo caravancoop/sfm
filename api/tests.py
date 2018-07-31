@@ -372,22 +372,22 @@ class OrganizationMap(TestBase):
 
 
 
-class OrganizationChart(TestBase):
-
-    def test_org_chart(self):
-        curs = connection.cursor()
-
-        curs.execute('''
-            SELECT id FROM organization
-            ORDER BY RANDOM()
-            LIMIT 15
-        ''')
-
-        for row in curs:
-            url = '{}?at=2014-01-01'.format(reverse_lazy('organization-chart', args=[row[0]]))
-            response = self.getPage(url)
-
-            assert response.status_code == 200
+# class OrganizationChart(TestBase):
+#
+#     def test_org_chart(self):
+#         curs = connection.cursor()
+#
+#         curs.execute('''
+#             SELECT id FROM organization
+#             ORDER BY RANDOM()
+#             LIMIT 15
+#         ''')
+#
+#         for row in curs:
+#             url = '{}?at=2014-01-01'.format(reverse_lazy('organization-chart', args=[row[0]]))
+#             response = self.getPage(url)
+#
+#             assert response.status_code == 200
 
 
 #class OrganizationDetail(TestBase):

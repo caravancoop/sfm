@@ -2,8 +2,9 @@ import json
 from uuid import uuid4
 import itertools
 
+import pysolr
+
 from reversion.views import RevisionMixin
-from reversion.models import Version
 import reversion
 
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
@@ -11,18 +12,22 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import View
+from django.views.generic import View, TemplateView
 from django.views.generic import ListView
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from complex_fields.models import ComplexFieldContainer
 
 from countries_plus.models import Country
 
+from api.base_views import JSONResponseMixin
+
 from sfm_pc.base_views import NeverCacheMixin
+from sfm_pc.utils import VersionsMixin
 
 from source.models import Source, AccessPoint
 from source.forms import SourceForm
-from source.utils import DictDiffer
 
 
 class SourceView(DetailView):
@@ -55,52 +60,7 @@ class SourceView(DetailView):
         return context
 
 
-class VersionsMixin(object):
-    def getVersions(self, obj):
-        versions = Version.objects.get_for_object(obj)
-
-        differences = []
-
-        for index, version in enumerate(versions):
-            try:
-                previous = versions[index - 1]
-            except (IndexError, AssertionError):
-                continue
-
-            differ = DictDiffer(version.field_dict, previous.field_dict)
-
-            diff = {
-                'modification_date': previous.revision.date_created,
-                'comment': previous.revision.comment,
-                'user': previous.revision.user,
-                'from_id': version.id,
-                'to_id': previous.id,
-                'field_diffs': [],
-                'model': obj._meta.object_name,
-            }
-
-            skip_fields = ['date_updated']
-
-            # For the moment this will only ever return changes because all the
-            # fields are required.
-            if differ.changed():
-
-                for field in differ.changed():
-
-                    if field not in skip_fields:
-                        field_diff = {
-                            'field_name': field,
-                            'to': differ.past_dict[field],
-                            'from': differ.current_dict[field],
-                        }
-
-                        diff['field_diffs'].append(field_diff)
-
-                differences.append(diff)
-
-        return differences
-
-class SourceEditView(NeverCacheMixin, RevisionMixin, VersionsMixin, LoginRequiredMixin):
+class SourceEditView(NeverCacheMixin, RevisionMixin, LoginRequiredMixin):
     fields = [
         'title',
         'publication',
@@ -137,10 +97,10 @@ class SourceUpdate(SourceEditView, UpdateView):
         context = super().get_context_data(**kwargs)
 
         source = context['object']
-        context['versions'] = self.getVersions(source)
+        context['versions'] = source.getVersions()
 
         for access_point in source.accesspoint_set.all():
-            context['versions'].extend(self.getVersions(access_point))
+            context['versions'].extend(access_point.getVersions())
 
         return context
 
@@ -188,10 +148,10 @@ class AccessPointContextMixin(object):
         context = super().get_context_data(**kwargs)
 
         context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
-        context['versions'] = self.getVersions(context['source'])
+        context['versions'] = context['source'].getVersions()
 
         for access_point in context['source'].accesspoint_set.all():
-            context['versions'].extend(self.getVersions(access_point))
+            context['versions'].extend(access_point.getVersions())
 
         context['versions'] = sorted(context['versions'],
                                      key=lambda x: x['modification_date'],
@@ -249,55 +209,106 @@ class AccessPointCreate(AccessPointEdit, CreateView):
     pass
 
 
+class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):
+
+    http_method_names = ['get']
+
+    def render_to_response(self, context, **response_kwargs):
+        return self.render_to_json_response(context, **response_kwargs)
+
+    def get_context_data(self, **kwargs):
+
+        source_id = self.request.GET['source_id']
+
+        source = Source.objects.get(uuid=source_id)
+
+        context = {
+            'title': source.title,
+            'id': str(source.uuid),
+            'publication': source.publication,
+            'publication_country': source.publication_country,
+            'source_url': source.source_url,
+            'access_points': [],
+            'uncommitted': True,
+        }
+
+        for access_point in source.accesspoint_set.all():
+            ap_info = {
+                'id': str(access_point.uuid),
+                'page_number': access_point.page_number,
+                'archive_url': access_point.archive_url,
+            }
+
+            context['access_points'].append(ap_info)
+
+        return context
+
+
 def source_autocomplete(request):
     term = request.GET.get('q')
-    sources = Source.objects.filter(title__icontains=term).all()
 
-    results = []
-    for source in sources:
+    response = {
+        'results': []
+    }
 
-        publication_title = ''
-        publication_country = ''
+    if term:
+        sources = Source.objects.filter(title__icontains=term).order_by('-date_updated')
 
-        text = '{0} ({1} - {2})'.format(source.title,
-                                        source.publication,
-                                        source.publication_country)
-        results.append({
-            'text': text,
-            'id': str(source.uuid),
-        })
+        for source in sources:
 
-    return HttpResponse(json.dumps(results), content_type='application/json')
+            publication_title = ''
+            publication_country = ''
 
-def publication_autocomplete(request):
-    term = request.GET.get('q')
-    publications = Source.objects.filter(publication__icontains=term).distinct('publication')
+            text = '{0} ({1} - {2})'.format(source.title,
+                                            source.publication,
+                                            source.publication_country)
+            response['results'].append({
+                'text': text,
+                'id': str(source.uuid),
+            })
 
-    results = []
-    for publication in publications:
-        results.append({
-            'id': publication.publication,
-            'text': publication.publication,
-            'country': publication.publication_country,
-        })
-
-    return HttpResponse(json.dumps(results), content_type='application/json')
+    return HttpResponse(json.dumps(response), content_type='application/json')
 
 
-def get_sources(request, object_type, object_id, field_name):
+def extract_source(source, uncommitted=False):
+    source_info = {
+        'title': source.title,
+        'id': str(source.uuid),
+        'publication': source.publication,
+        'publication_country': source.publication_country,
+        'source_url': source.source_url,
+        'access_points': [],
+        'uncommitted': uncommitted,
+    }
+
+    for access_point in source.accesspoint_set.all():
+        ap_info = {
+            'id': str(access_point.uuid),
+            'page_number': access_point.page_number,
+            'archive_url': access_point.archive_url,
+        }
+
+        source_info['access_points'].append(ap_info)
+
+    return source_info
+
+
+def get_sources(request):
+    object_type = request.GET['object_type']
+    object_id = request.GET['object_id']
+    field_name = request.GET['field_name']
+
     field = ComplexFieldContainer.field_from_str_and_id(
         object_type, object_id, field_name
     )
+
     sources = field.get_sources()
     sources_json = {
         "confidence": field.get_confidence(),
-        "sources": [
-            {
-                "source": source.source,
-                "id": str(source.id)
-            }
-            for source in sources
-        ]
+        "sources": []
     }
 
-    return HttpResponse(json.dumps(sources_json))
+    for source in sources:
+        sources_json['sources'].append(extract_source(source))
+
+    return HttpResponse(json.dumps(sources_json), content_type='application/json')

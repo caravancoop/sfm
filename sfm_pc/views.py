@@ -26,7 +26,7 @@ from extra_views import FormSetView
 from countries_plus.models import Country
 
 from organization.models import Organization, OrganizationAlias, Alias as OAlias
-from person.models import Person, PersonAlias, Alias as PAlias
+from person.models import Person, PersonAlias
 from violation.models import Violation
 from membershipperson.models import MembershipPerson
 from sfm_pc.templatetags.render_from_source import get_relations, \
@@ -145,10 +145,9 @@ class EntityMergeView(LoginRequiredMixin, FormView, UtilityMixin):
             redirect_url = reverse_lazy('detail-person', args=[canonical_record_id])
 
             for record in other_records:
-                new_alias, created = PAlias.objects.get_or_create(value=record.name.get_value().value)
-                palias, created = PersonAlias.objects.get_or_create(value=new_alias,
-                                                                          object_ref=canonical_record,
-                                                                          lang=get_language())
+                palias, created = PersonAlias.objects.get_or_create(value=record.name.get_value(),
+                                                                    object_ref=canonical_record,
+                                                                    lang=get_language())
                 canonical_record.personalias_set.add(palias)
 
                 for alias in record.personalias_set.all():

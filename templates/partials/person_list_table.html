@@ -87,12 +87,12 @@
                         {% endif %}
                         <!-- Name -->
                         <td>
-                            <a href="{% url 'view-person' object.id %}">{{ object.name.get_value }}</a>
+                            <a href="{% url 'view-person' object.uuid %}">{{ object.name.get_value }}</a>
                         </td>
                         <!-- Aliases -->
                         <td>
                             {% for alias in object.personalias_set.all %}
-                                {{ alias.value.value }}
+                                {{ alias.value }}
                                 {% if not forloop.last %}<br />{% endif %}
                             {% endfor %}
                         </td>

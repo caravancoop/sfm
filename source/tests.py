@@ -157,10 +157,3 @@ class SourceTest(TestCase):
         response = self.client.get(url)
 
         assert response.status_code == 200
-
-    def test_pub_autocomplete(self):
-        url = '{}?q=Nigeria'.format(reverse_lazy('publications-autocomplete'))
-
-        response = self.client.get(url)
-
-        assert response.status_code == 200
