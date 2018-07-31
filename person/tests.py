@@ -104,3 +104,50 @@ class PersonTest(TestCase):
         response = self.client.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
 
         assert '"aliases" requires a new source' in response.context['form'].errors['aliases']
+
+    def test_remove_value(self):
+        person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+
+        aliases = [a.get_value().id for a in person.aliases.get_list()]
+        removed = aliases.pop()
+
+        new_sources = Source.objects.order_by('?')[:2]
+        new_source_ids = [s.uuid for s in new_sources]
+
+        post_data = {
+            'name': person.name.get_value().value,
+            'name_sources': new_source_ids,
+            'aliases': aliases,
+            'aliases_source': new_source_ids,
+            'modified_fields': ['aliases'],
+        }
+
+        response = self.client.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+
+        assert response.status_code == 200
+
+        assert aliases == [a.get_value().id for a in person.aliases.get_list()]
+
+    def test_remove_value_same_sources(self):
+        person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+
+        aliases = [a.get_value().id for a in person.aliases.get_list()]
+        removed = aliases.pop()
+
+        sources = set()
+
+        for alias in person.aliases.get_list():
+            for source in alias.get_value().sources.all():
+                sources.add(source.uuid)
+
+        post_data = {
+            'name': person.name.get_value().value,
+            'name_sources': list(sources),
+            'aliases': aliases,
+            'aliases_source': list(sources),
+            'modified_fields': ['aliases'],
+        }
+
+        response = self.client.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+
+        assert response.status_code == 200
