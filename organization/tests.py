@@ -177,37 +177,37 @@ class OrganizationTest(TestCase):
 
     #     assert set(session_ids) == {new_org, *other_orgs}
 
-    def test_update_organization(self):
-        organization = self.getRandomOrganization()
+    # def test_update_organization(self):
+    #     organization = self.getRandomOrganization()
 
-        response = self.client.get(reverse_lazy('update-organization',
-                                   args=[organization.id]))
+    #     response = self.client.get(reverse_lazy('update-organization',
+    #                                args=[organization.id]))
 
-        assert response.status_code == 200
+    #     assert response.status_code == 200
 
-        assert response.context['source_object'] == organization
-        assert response.context['form_data']['name'] == organization.name.get_value()
+    #     assert response.context['source_object'] == organization
+    #     assert response.context['form_data']['name'] == organization.name.get_value()
 
-        post_data = {
-            'name': -1,
-            'name_text': 'Test Organization',
-            'name_confidence': 1,
-            'division_id': 'ocd-division/country:ng',
-            'division_confidence': 1,
-            'alias_text': ['Testy', 'Lil tester'],
-            'alias_confidence': 1,
-            'classification_text': ['Army', 'Military'],
-            'alias': [],
-            'classification': [1, 2],
-            'classification_confidence': 1,
-            'source': str(self.source.uuid),
-        }
+    #     post_data = {
+    #         'name': -1,
+    #         'name_text': 'Test Organization',
+    #         'name_confidence': 1,
+    #         'division_id': 'ocd-division/country:ng',
+    #         'division_confidence': 1,
+    #         'alias_text': ['Testy', 'Lil tester'],
+    #         'alias_confidence': 1,
+    #         'classification_text': ['Army', 'Military'],
+    #         'alias': [],
+    #         'classification': [1, 2],
+    #         'classification_confidence': 1,
+    #         'source': str(self.source.uuid),
+    #     }
 
-        response = self.client.post(reverse_lazy('update-organization',
-                                    args=[organization.id]), post_data)
+    #     response = self.client.post(reverse_lazy('update-organization',
+    #                                 args=[organization.id]), post_data)
 
-        self.assertRedirects(response, reverse_lazy('dashboard'))
+    #     self.assertRedirects(response, reverse_lazy('dashboard'))
 
-        edited = Organization.objects.get(id=organization.id)
+    #     edited = Organization.objects.get(id=organization.id)
 
-        assert str(edited.name.get_value()) == 'Test Organization'
+    #     assert str(edited.name.get_value()) == 'Test Organization'

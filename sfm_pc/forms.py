@@ -83,37 +83,62 @@ class BaseEditForm(forms.ModelForm):
 
     def clean(self):
 
-        # Get the fields and see if they have new sources attached
         modified_fields = self.post_data.get('modified_fields')
 
-        for field in modified_fields:
-            # Check if a field is a boolean field. If so, and there are sources
-            # that were sent, that means that the user unchecked the box and we
-            # need to change the value from True to False.
+        for field in self.fields:
 
             if isinstance(self.fields[field], forms.BooleanField):
-                if self.post_data.get('{}_source'.format(field)):
-                    value = True
 
-                    # Clear out "field is required" validation error that
-                    # happens when you toggle from True to False. If there is an
-                    # error, we also know that the value should be False
+                if field in modified_fields:
+                    if self.post_data.get('{}_source'.format(field)):
+                        value = True
+
+                        # Clear out "field is required" validation error that
+                        # happens when you toggle from True to False. If there is an
+                        # error, we also know that the value should be False
+                        try:
+                            self.errors.pop(field)
+                            value = False
+                        except KeyError:
+                            pass
+
+                        self.cleaned_data[field] = value
+                        self.post_data[field] = [value]
+                else:
+                    # The boolean fields are not actually required but Django
+                    # forces them to be.
                     try:
                         self.errors.pop(field)
-                        value = False
                     except KeyError:
                         pass
 
-                    self.cleaned_data[field] = value
-                    self.post_data[field] = [value]
+            if field in modified_fields:
 
-            try:
-                self.post_data['{}_source'.format(field)]
-            except KeyError:
-                error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
-                                              code='invalid',
-                                              params={'field_name': field})
-                self.add_error(field, error)
+                try:
+                    self.post_data['{}_source'.format(field)]
+                except KeyError:
+                    error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
+                                                code='invalid',
+                                                params={'field_name': field})
+                    self.add_error(field, error)
+
+                # If the posted value is empty but there are sources, that means
+                # that the user cleared out the value and gave evidence as to
+                # why that was the case. Unfortunately, if the value is empty,
+                # Django removes it from the POST data altogether (I guess it's
+                # trying to do us a favor?). Anyways, we need to add that back
+                # in so we can clear out the value from the field.
+
+                if not self.post_data.get(field) and self.post_data.get('{}_source'.format(field)) is not None:
+                    # If the field is a GetOrCreate field that means that we
+                    # should make the value an empty list. Otherwise it should
+                    # be None
+
+                    if isinstance(self.fields[field], GetOrCreateChoiceField):
+                        self.post_data[field] = []
+
+                    else:
+                        self.post_data[field] = None
 
     def save(self, commit=True):
 
@@ -128,7 +153,7 @@ class BaseEditForm(forms.ModelForm):
                 sources = Source.objects.filter(uuid__in=new_source_ids)
 
                 field = ComplexFieldContainer.field_from_str_and_id(
-                    self.object_type, self.instance.id, field_name
+                    'person', self.instance.id, field_name
                 )
 
                 existing_sources = field.get_sources()
@@ -138,26 +163,19 @@ class BaseEditForm(forms.ModelForm):
 
                 confidence = field.get_confidence()
 
-                for update_value in self.post_data.get(field_name):
-                    update_key = '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name)
+                update_value = self.cleaned_data[field_name]
+                update_key = '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name)
 
-                    update_value = self.cleaned_data[field_name]
+                update_info[update_key] = {
+                    'sources': sources,
+                    'confidence': confidence,
+                }
 
-                    if multiple_values:
-                        try:
-                            update_info[update_key]['values'] | update_value
-                        except KeyError:
-                            update_info[update_key] = {
-                                'values': update_value,
-                                'sources': sources,
-                                'confidence': confidence,
-                            }
-                    else:
-                        update_info[update_key] = {
-                            'sources': sources,
-                            'confidence': confidence,
-                            'value': update_value
-                        }
+                if multiple_values:
+                    update_info[update_key]['values'] = update_value
+
+                else:
+                    update_info[update_key]['value'] = update_value
 
         if update_info:
             self.instance.update(update_info)

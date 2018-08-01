@@ -60,9 +60,6 @@ class PersonBasicsForm(BaseEditForm):
                                                                object_ref_model=self._meta.model)
 
 
-# TODO: this needs to be reoriented around the MembershipPerson model probably.
-# Also need to sort out the view so that it's getting the correct instance for
-# the view. This should really probably live over in the membershipperson app
 class PersonPostingsForm(BaseEditForm):
     edit_fields = [
         ('organization', MembershipPersonOrganization, False)

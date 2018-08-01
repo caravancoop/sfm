@@ -1,42 +1,23 @@
 import json
-import csv
-import sys
 
 from datetime import date
 from collections import namedtuple
 
-from django.conf import settings
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.contrib.admin.utils import NestedObjects
-from django.contrib import messages
-from django.views.generic.edit import DeleteView, FormView, CreateView, UpdateView
-from django.views.generic import TemplateView, DetailView, RedirectView
-from django.template.loader import render_to_string
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic import DetailView
 from django.http import HttpResponse
-from django.db import DEFAULT_DB_ALIAS
-from django.db.models import Q
 from django.db import connection
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-from django.utils.translation import get_language
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-from complex_fields.models import ComplexFieldContainer
 
 from countries_plus.models import Country
 
-from extra_views import FormSetView
-
-from api.base_views import JSONResponseMixin
-
-from person.models import Person, PersonName, PersonAlias
-from person.forms import PersonBasicsForm, PersonPostingsForm
-from organization.models import Organization
-from source.models import Source
-from membershipperson.models import MembershipPerson, MembershipPersonMember, Role
-from sfm_pc.utils import (deleted_in_str, get_org_hierarchy_by_id,
-                          get_command_edges, get_command_nodes, Autofill)
-from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList, NeverCacheMixin
+from person.models import Person, PersonAlias
+from person.forms import PersonForm
+from membershipperson.models import MembershipPersonMember
+from sfm_pc.utils import Autofill
+from sfm_pc.base_views import NeverCacheMixin
 
 
 class PersonDetail(DetailView):
@@ -288,18 +269,6 @@ def person_autocomplete(request):
     attrs = autofill.attrs
 
     return HttpResponse(json.dumps(attrs), content_type='application/json')
-
-
-def alias_autocomplete(request):
-    term = request.GET.get('q')
-    alias_query = PersonAlias.objects.filter(value__value__icontains=term)
-    results = []
-    for alias in alias_query:
-        results.append({
-            'text': alias.value.value,
-            'id': alias.value.id
-        })
-    return HttpResponse(json.dumps(results), content_type='application/json')
 
 
 class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):

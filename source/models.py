@@ -68,9 +68,7 @@ class Source(models.Model, VersionsMixin):
         return reverse('revert-source', args=[self.uuid])
 
 @reversion.register()
-class AccessPoint(models.Model):
-    # TODO: Change PK to UUID and alter complex field relationships to point to
-    # this table instead of source table
+class AccessPoint(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     page_number = models.CharField(max_length=255, null=True, blank=True)
     accessed_on = models.DateField(null=True, blank=True)
