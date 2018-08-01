@@ -16,7 +16,9 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{% trans "Organization" %}</label>
-                <input id="id_organization" type="text" class="form-control sourced" name="organization" value="{{ form.instance.organization.get_value.value }}" />
+                <select id="id_organization" class="form-control sourced" name="organization">
+                    <option value="{{ form.instance.organization.get_value.id }}">{{ form.instance.organization.get_value.value }}</option>
+                </select>
                 {% if form.organization.errors %}
                     {% for error in form.organization.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -25,4 +27,24 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block extra_extra_js %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            loadSources({'target': $('#id_organization')});
+
+            $('#id_organization').select2({
+                ajax: {
+                    url: "{% url 'organization-autocomplete' %}",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                }
+            });
+
+        })
+    </script>
 {% endblock %}

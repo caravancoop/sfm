@@ -3,7 +3,6 @@ import sys
 
 from django import forms
 from django.conf import settings
-from django.utils.translation import ugettext as _, get_language
 
 from django_date_extensions.fields import ApproximateDateFormField
 

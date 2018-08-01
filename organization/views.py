@@ -553,28 +553,21 @@ def classification_autocomplete(request):
 
 def organization_autocomplete(request):
     term = request.GET.get('q')
-    organizations = Organization.objects.filter(organizationname__value__icontains=term).all()
 
-    simple_attrs = [
-        'headquarters',
-        'firstciteddate',
-        'realstart',
-        'lastciteddate',
-        'open_ended'
-    ]
+    response = {
+        'results': []
+    }
 
-    complex_attrs = ['division_id']
+    if term:
+        organizations = Organization.objects.filter(organizationname__value__icontains=term)[:10]
 
-    list_attrs = ['aliases', 'classification']
+        for organization in organizations:
+            response['results'].append({
+                'id': organization.id,
+                'text': organization.name.get_value().value,
+            })
 
-    autofill = Autofill(objects=organizations,
-                        simple_attrs=simple_attrs,
-                        complex_attrs=complex_attrs,
-                        list_attrs=list_attrs)
-
-    attrs = autofill.attrs
-
-    return HttpResponse(json.dumps(attrs), content_type='application/json')
+    return HttpResponse(json.dumps(response), content_type='application/json')
 
 
 def alias_autocomplete(request):

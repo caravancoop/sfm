@@ -209,3 +209,10 @@
     </div>
 
 {% endblock %}
+{% block extra_extra_js%}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            loadSources({'target': $('#id_name')});
+        })
+    </script>
+{% endblock%}

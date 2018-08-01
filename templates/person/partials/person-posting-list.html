@@ -20,28 +20,34 @@
     </thead>
     <tbody>
         {% for member in memberships %}
-            <tr>
-                <td class="cited">
-                    <a href="{% url 'view-organization' member.organization.get_value.value.id %}">
-                        {{ member.organization.get_value.value }}
-                    </a>
-                </td>
-                <td class="cited">
-                    {{ member.rank.get_value|default:"" }}
-                </td>
-                <td class="cited">
-                    {{ member.role.get_value|default:"" }}
-                </td>
-                <td class="cited">
-                    {{ member.title.get_value|default:"" }}
-                </td>
-                <td class="cited">
-                    {% datetype member.firstciteddate.get_value 'start' %}
-                </td>
-                <td class="cited">
-                    {% datetype member.lastciteddate.get_value 'end' %}
-                </td>
-            </tr>
+            {% with organization=member.object_ref.organization.get_value.value %}
+                {% if member.object_ref.id == object.object_ref.id %}
+                <tr class="bg-info">
+                {% else %}
+                <tr>
+                {% endif %}
+                    <td class="cited">
+                        <a href="{% url 'view-organization' organization.id %}">
+                            {{ organization.name.get_value.value }}
+                        </a>
+                    </td>
+                    <td class="cited">
+                        {{ member.object_ref.rank.get_value.value.value|default:"" }}
+                    </td>
+                    <td class="cited">
+                        {{ member.object_ref.role.get_value.value.value|default:"" }}
+                    </td>
+                    <td class="cited">
+                        {{ member.object_ref.title.get_value|default:"" }}
+                    </td>
+                    <td class="cited">
+                        {{ member.object_ref.firstciteddate.get_value.value }}
+                    </td>
+                    <td class="cited">
+                        {{ member.object_ref.lastciteddate.get_value.value }}
+                    </td>
+                </tr>
+            {% endwith %}
         {% endfor %}
     </tbody>
 </table>
