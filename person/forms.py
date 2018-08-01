@@ -129,7 +129,10 @@ class PersonForm(forms.ModelForm):
                 else:
                     # The boolean fields are not actually required but Django
                     # forces them to be.
-                    self.errors.pop(field)
+                    try:
+                        self.errors.pop(field)
+                    except KeyError:
+                        pass
 
             if field in modified_fields:
 
