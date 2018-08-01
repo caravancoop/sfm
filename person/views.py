@@ -14,8 +14,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from countries_plus.models import Country
 
 from person.models import Person, PersonAlias
-from person.forms import PersonForm
-from membershipperson.models import MembershipPersonMember
+from person.forms import PersonBasicsForm, PersonPostingsForm
+from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.utils import Autofill
 from sfm_pc.base_views import NeverCacheMixin
 

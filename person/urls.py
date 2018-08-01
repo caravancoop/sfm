@@ -1,7 +1,8 @@
 from django.conf.urls import url
 from django.views.decorators.cache import cache_page
 
-from person.views import PersonDetail, PersonCreateView, PersonEditView
+from person.views import PersonDetail, PersonCreateView, PersonEditBasicsView, \
+    PersonEditPostingsView
 
 urlpatterns = [
     url(r'^create/$',
