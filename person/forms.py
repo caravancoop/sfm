@@ -128,14 +128,10 @@ class PersonForm(forms.ModelForm):
                         self.post_data[field] = [value]
                 else:
                     # The boolean fields are not actually required but Django
-                    # doesn't like that.
+                    # forces them to be.
                     self.errors.pop(field)
 
             if field in modified_fields:
-                # Check if a field is a boolean field. If so, and there are sources
-                # that were sent, that means that the user unchecked the box and we
-                # need to change the value from True to False.
-
 
                 try:
                     self.post_data['{}_source'.format(field)]
@@ -144,6 +140,24 @@ class PersonForm(forms.ModelForm):
                                                 code='invalid',
                                                 params={'field_name': field})
                     self.add_error(field, error)
+
+                # If the posted value is empty but there are sources, that means
+                # that the user cleared out the value and gave evidence as to
+                # why that was the case. Unfortunately, if the value is empty,
+                # Django removes it from the POST data altogether (I guess it's
+                # trying to do us a favor?). Anyways, we need to add that back
+                # in so we can clear out the value from the field.
+
+                if not self.post_data.get(field) and self.post_data.get('{}_source'.format(field)) is not None:
+                    # If the field is a GetOrCreate field that means that we
+                    # should make the value an empty list. Otherwise it should
+                    # be None
+
+                    if isinstance(self.fields[field], GetOrCreateChoiceField):
+                        self.post_data[field] = []
+
+                    else:
+                        self.post_data[field] = None
 
     def save(self, commit=True):
 
@@ -168,26 +182,19 @@ class PersonForm(forms.ModelForm):
 
                 confidence = field.get_confidence()
 
-                for update_value in self.post_data.get(field_name):
-                    update_key = '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name)
+                update_value = self.cleaned_data[field_name]
+                update_key = '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name)
 
-                    update_value = self.cleaned_data[field_name]
+                update_info[update_key] = {
+                    'sources': sources,
+                    'confidence': confidence,
+                }
 
-                    if multiple_values:
-                        try:
-                            update_info[update_key]['values'] | update_value
-                        except KeyError:
-                            update_info[update_key] = {
-                                'values': update_value,
-                                'sources': sources,
-                                'confidence': confidence,
-                            }
-                    else:
-                        update_info[update_key] = {
-                            'sources': sources,
-                            'confidence': confidence,
-                            'value': update_value
-                        }
+                if multiple_values:
+                    update_info[update_key]['values'] = update_value
+
+                else:
+                    update_info[update_key]['value'] = update_value
 
         if update_info:
             self.instance.update(update_info)

@@ -151,3 +151,24 @@ class PersonTest(TestCase):
         response = self.client.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
 
         assert response.status_code == 200
+
+        assert aliases == [a.get_value().id for a in person.aliases.get_list()]
+
+    def test_remove_all_values(self):
+        person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+
+        sources = [s.uuid for s in person.name.get_value().sources.all()]
+
+        post_data = {
+            'name': person.name.get_value().value,
+            'name_source': sources,
+            'aliases': [],
+            'aliases_source': sources,
+            'modified_fields': ['aliases'],
+        }
+
+        response = self.client.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+
+        assert response.status_code == 200
+
+        assert [] == [a.get_value().id for a in person.aliases.get_list()]
