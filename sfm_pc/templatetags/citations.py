@@ -18,7 +18,7 @@ def get_citation_string(obj):
         (_('Archive URL'), 'archive_url'),
         (_('Date added'), 'date_added'),
         (_('Date updated'), 'date_updated'),
-        (_('Added by'), 'user'),
+        # (_('Added by'), 'user'),
         (_('Page number'), 'page_number'),
         (_('Accessed'), 'accessed_on'),
     )
