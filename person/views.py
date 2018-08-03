@@ -317,7 +317,11 @@ class PersonEditPostingsView(PersonEditView):
         context = super().get_context_data(**kwargs)
         context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
         context['first_membership'] = {'id': self.kwargs['pk']}
-        context['memberships'] = context['person'].membershippersonmember_set.all()
+
+        affiliations = context['person'].memberships
+        memberships = tuple(mem.object_ref for mem in affiliations)
+
+        context['memberships'] = memberships
 
         return context
 

@@ -20,31 +20,30 @@
     </thead>
     <tbody>
         {% for member in memberships %}
-            {% with organization=member.object_ref.organization.get_value.value %}
-                {% if member.object_ref.id == object.object_ref.id %}
+            {% with organization=member.organization.get_value.value %}
+
+                {% if member.id == object.id %}
                 <tr class="bg-info">
                 {% else %}
                 <tr>
                 {% endif %}
                     <td class="cited">
-                        <a href="{% url 'view-organization' organization.id %}">
-                            {{ organization.name.get_value.value }}
-                        </a>
+                        {{ organization.name.get_value.value }}
                     </td>
                     <td class="cited">
-                        {{ member.object_ref.rank.get_value.value.value|default:"" }}
+                        {{ member.rank.get_value.value.value|default:"" }}
                     </td>
                     <td class="cited">
-                        {{ member.object_ref.role.get_value.value.value|default:"" }}
+                        {{ member.role.get_value.value.value|default:"" }}
                     </td>
                     <td class="cited">
-                        {{ member.object_ref.title.get_value|default:"" }}
+                        {{ member.title.get_value|default:"" }}
                     </td>
                     <td class="cited">
-                        {{ member.object_ref.firstciteddate.get_value.value }}
+                        {{ member.firstciteddate.get_value.value }}
                     </td>
                     <td class="cited">
-                        {{ member.object_ref.lastciteddate.get_value.value }}
+                        {{ member.lastciteddate.get_value.value }}
                     </td>
                 </tr>
             {% endwith %}

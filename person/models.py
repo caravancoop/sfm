@@ -37,7 +37,6 @@ class Person(models.Model, BaseModel, ComplexVersionsMixin):
                             db_index=True)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
         self.aliases = ComplexFieldListContainer(self, PersonAlias)
         self.division_id = ComplexFieldContainer(self, PersonDivisionId)
@@ -65,11 +64,13 @@ class Person(models.Model, BaseModel, ComplexVersionsMixin):
             "Person_PersonName",
         ]
 
+        super().__init__(*args, **kwargs)
+
     def get_value(self):
         return self.name.get_value()
 
     def __str__(self):
-        return str(self.name)
+        return str(self.personname_set.first().value)
 
     @property
     def memberships(self):
@@ -80,6 +81,7 @@ class Person(models.Model, BaseModel, ComplexVersionsMixin):
         with nulls last.
         '''
         mems = self.membershippersonmember_set\
+                   .select_related('object_ref')\
                    .annotate(lcd=Coalesce('object_ref__membershippersonfirstciteddate__value',
                                           'object_ref__membershippersonlastciteddate__value',
                                           Value('1000-0-0')))\
