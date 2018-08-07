@@ -2,9 +2,10 @@ import urllib.request
 import urllib.parse
 import subprocess
 import os
-import tarfile
+import zipfile
 from io import BytesIO
 import json
+import re
 
 import sqlalchemy as sa
 import psycopg2
@@ -71,23 +72,22 @@ class Command(BaseCommand):
             download_only = True
             import_only = True
 
+        if download_only:
+            for country in settings.OSM_DATA:
+                #self.downloadPBFs(country)
+                self.downloadBoundaries(country)
+
+        if import_only:
+            #self.importPBF()
+            self.importBoundaries()
+            #self.createCombinedTable()
+
+    def createCombinedTable(self):
         for country in settings.OSM_DATA:
-
-            if download_only:
-                self.downloadPBFs(country)
-                #self.downloadBoundaries(country)
-
-            if import_only:
-                self.importPBF(country)
-                #self.importBoundaries(country)
-
-            #self.createCombinedTable(country)
-
-    def createCombinedTable(self, country):
-        self.makeDataTable()
-        self.makeRawTable(country)
-        self.findNewRecords(country)
-        self.insertNewRecords(country)
+            self.makeDataTable()
+            self.makeRawTable(country)
+            self.findNewRecords(country)
+            self.insertNewRecords(country)
 
     def makeDataTable(self):
         create = '''
@@ -219,41 +219,44 @@ class Command(BaseCommand):
         self.executeTransaction(sa.text(update_data), country_code=country['country_code'])
         self.executeTransaction(update_hierarchy)
 
-    def importPBF(self, country):
+    def importPBF(self):
 
         self.executeTransaction('DROP TABLE IF EXISTS planet_osm_point')
         self.executeTransaction('DROP INDEX planet_osm_point_index', raise_exc=False)
 
         DB_NAME = settings.DATABASES['default']['NAME']
 
-        filename = country['pbf_url'].rsplit('/', 1)[1]
+        for country in settings.OSM_DATA:
 
-        file_path = os.path.join(self.data_directory, filename)
+            filename = country['pbf_url'].rsplit('/', 1)[1]
 
-        process = subprocess.Popen(['osm2pgsql',
-                                    '-d',
-                                    DB_NAME,
-                                    '--cache-strategy',
-                                    'sparse',
-                                    '--slim',
-                                    '--cache',
-                                    '100',
-                                    file_path], stdout=subprocess.PIPE)
+            file_path = os.path.join(self.data_directory, filename)
 
-        output, error = process.communicate()
+            process = subprocess.Popen(['osm2pgsql',
+                                        '-d',
+                                        DB_NAME,
+                                        '--cache-strategy',
+                                        'sparse',
+                                        '--slim',
+                                        '--cache',
+                                        '100',
+                                        file_path], stdout=subprocess.PIPE)
 
-        if output:
-            self.stdout.write(self.style.SUCCESS(output.decode('utf-8')))
+            output, error = process.communicate()
 
-        if error:
-            self.stdout.write(self.style.ERROR(error.decode('utf-8')))
+            if output:
+                self.stdout.write(self.style.SUCCESS(output.decode('utf-8')))
 
-        self.executeTransaction('ALTER TABLE planet_osm_point ADD COLUMN country_code VARCHAR')
-        self.executeTransaction(sa.text('UPDATE planet_osm_point SET country_code = :code'), code=country['country_code'])
+            if error:
+                self.stdout.write(self.style.ERROR(error.decode('utf-8')))
+
+            self.executeTransaction('ALTER TABLE planet_osm_point ADD COLUMN country_code VARCHAR')
+            self.executeTransaction(sa.text('UPDATE planet_osm_point SET country_code = :code'), code=country['country_code'])
 
 
+    def importBoundaries(self):
 
-    def importBoundaries(self, country):
+        self.executeTransaction('DROP TABLE IF EXISTS osm_boundaries')
 
         create = '''
             CREATE TABLE osm_boundaries (
@@ -267,67 +270,71 @@ class Command(BaseCommand):
             )
         '''
 
-        self.executeTransaction('DROP TABLE IF EXISTS osm_boundaries')
         self.executeTransaction(create)
 
         self.executeTransaction("SELECT AddGeometryColumn ('public','osm_boundaries','geometry',4326,'MULTIPOLYGON',2)")
 
-        file_path = os.path.join(self.data_directory, '{}.tgz'.format(country['country']))
+        for country in settings.OSM_DATA:
 
-        insert_sql = '''
-            INSERT INTO osm_boundaries (
-              id,
-              tags,
-              admin_level,
-              name,
-              geometry,
-              country_code
-            )
-              SELECT
-                :id,
-                :tags,
-                :admin_level,
-                :name,
-                ST_SetSRID(ST_GeomFromGeoJSON(:geometry), 4326),
-                :country_code
-        '''
+            file_path = os.path.join(self.data_directory, '{}.zip'.format(country['country']))
 
-        inserts = []
-        count = 0
+            insert_sql = '''
+                INSERT INTO osm_boundaries (
+                  id,
+                  tags,
+                  admin_level,
+                  name,
+                  localname,
+                  geometry,
+                  country_code
+                )
+                  SELECT
+                    :id,
+                    :tags,
+                    :admin_level,
+                    :name,
+                    :localname,
+                    ST_SetSRID(ST_GeomFromGeoJSON(:geometry), 4326),
+                    :country_code
+            '''
 
-        with tarfile.open(file_path) as tf:
-            for filename in tf.getnames():
+            inserts = []
+            count = 0
 
-                if 'admin_level' in filename:
+            with zipfile.ZipFile(file_path) as zf:
+                for filename in zf.namelist():
 
-                    geojson = BytesIO(tf.extractfile(filename).read())
-                    geojson.seek(0)
+                    if "GeoJson" in filename:
 
-                    boundary_data = json.loads(geojson.getvalue().decode('utf-8'))
+                        with zf.open(filename) as geojson:
 
-                    for feature in boundary_data['features']:
+                            geojson_cleaned = re.sub(r'""(?!,)', '', geojson.read().decode('utf-8'))
+                            boundary_data = json.loads(geojson_cleaned)
 
-                        insert = {
-                            'id': feature['id'],
-                            'geometry': json.dumps(feature['geometry']),
-                            'tags': json.dumps(feature['properties']),
-                            'admin_level': feature['properties']['admin_level'],
-                            'name': feature['name'],
-                            'country_code': country['country_code'],
-                        }
+                            for feature in boundary_data['features']:
 
-                        inserts.append(insert)
+                                insert = {
+                                    'id': feature['properties']['id'],
+                                    'geometry': json.dumps(feature['geometry']),
+                                    'tags': json.dumps(feature['properties']),
+                                    'admin_level': feature['properties']['admin_level'],
+                                    'name': feature['properties']['name'],
+                                    'localname': feature['properties']['localname'],
+                                    'country_code': country['country_code'],
+                                }
 
-                        if len(inserts) % 10000 == 0:
-                            self.executeTransaction(sa.text(insert_sql), inserts)
-                            count += 10000
-                            inserts = []
-                            self.stdout.write(self.style.SUCCESS('Inserted {} boundaries'.format(count)))
+                                inserts.append(insert)
 
-            if inserts:
-                count += len(inserts)
-                self.executeTransaction(sa.text(insert_sql), inserts)
-                self.stdout.write(self.style.SUCCESS('Inserted {} boundaries'.format(count)))
+                                if len(inserts) % 10000 == 0:
+                                    self.executeTransaction(sa.text(insert_sql), inserts)
+                                    count += 10000
+                                    inserts = []
+                                    self.stdout.write(self.style.SUCCESS('Inserted {} boundaries'.format(count)))
+
+                if inserts:
+                    count += len(inserts)
+                    self.executeTransaction(sa.text(insert_sql), inserts)
+                    self.stdout.write(self.style.SUCCESS('Inserted {} boundaries'.format(count)))
 
     def downloadPBFs(self, country):
 
@@ -348,9 +355,10 @@ class Command(BaseCommand):
 
     def downloadBoundaries(self, country):
 
-        file_path = os.path.join(self.data_directory, '{}.tgz'.format(country['country']))
+        file_path = os.path.join(self.data_directory, '{}.zip'.format(country['country']))
+        url = 'https://wambachers-osm.website/boundaries/exportBoundaries?cliVersion=1.0&cliKey=e05676a7-72dc-4367-b8ed-6207c43926b4&exportFormat=json&exportLayout=levels&exportAreas=water&union=false&from_AL=2&to_AL=8&selected='
 
-        with urllib.request.urlopen(country['boundary_url']) as u:
+        with urllib.request.urlopen(url + country['relation_id']) as u:
             with open(file_path, 'wb') as f:
                 while True:
                     chunk = u.read(1024)
@@ -378,4 +386,3 @@ class Command(BaseCommand):
             trans.rollback()
             if raise_exc:
                 raise e
-
