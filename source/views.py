@@ -316,9 +316,6 @@ def get_sources(request):
     return HttpResponse(json.dumps(sources_json), content_type='application/json')
 
 
-# TODO: Write view that takes query parameters as above and returns the rendered
-# citation block from the template tags module
-
 def get_citation(request):
     object_info = request.GET['object_info']
 
@@ -336,3 +333,18 @@ def get_citation(request):
     source_html = get_citation_string(field_object)
 
     return HttpResponse(source_html)
+
+
+def publication_autocomplete(request):
+    term = request.GET.get('q')
+    publications = Source.objects.filter(publication__icontains=term).distinct('publication')
+
+    results = []
+    for publication in publications:
+        results.append({
+            'id': publication.publication,
+            'text': publication.publication,
+            'country': publication.publication_country,
+        })
+
+    return HttpResponse(json.dumps(results), content_type='application/json')

@@ -2,7 +2,8 @@ from django.conf.urls import url
 
 from source.views import get_sources, SourceCreate, source_autocomplete, \
     SourceView, SourceUpdate, SourceRevertView, StashSourceView, \
-    AccessPointUpdate, AccessPointCreate, AccessPointDetail, get_citation
+    AccessPointUpdate, AccessPointCreate, AccessPointDetail, get_citation, \
+    publication_autocomplete
 
 urlpatterns = [
     url(r'^get/$', get_sources, name="get-sources"),
@@ -16,4 +17,5 @@ urlpatterns = [
     url(r'^autocomplete/$', source_autocomplete, name="source-autocomplete"),
     url(r'^stash/$', StashSourceView.as_view(), name="stash-source"),
     url(r'^get-citation/$', get_citation, name="get-citation"),
+    url(r'^publication/autocomplete/$', publication_autocomplete, name="publications-autocomplete"),
 ]
