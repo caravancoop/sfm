@@ -1,6 +1,7 @@
 import json
 from uuid import uuid4
 import itertools
+import sys
 
 import pysolr
 
@@ -25,6 +26,7 @@ from api.base_views import JSONResponseMixin
 
 from sfm_pc.base_views import NeverCacheMixin
 from sfm_pc.utils import VersionsMixin
+from sfm_pc.templatetags.citations import get_citation_string
 
 from source.models import Source, AccessPoint
 from source.forms import SourceForm
@@ -312,3 +314,25 @@ def get_sources(request):
         sources_json['sources'].append(extract_source(source))
 
     return HttpResponse(json.dumps(sources_json), content_type='application/json')
+
+
+# TODO: Write view that takes query parameters as above and returns the rendered
+# citation block from the template tags module
+
+def get_citation(request):
+    object_info = request.GET['object_info']
+
+    field_object_name, object_id = object_info.split('_')
+
+    last_dot = field_object_name.rfind('.')
+    classname = field_object_name[last_dot + 1:len(field_object_name)]
+    module = __import__(field_object_name[0:last_dot],
+                        globals(),
+                        locals(),
+                        [classname])
+    field_object_class = getattr(module, classname)
+    field_object = field_object_class.objects.get(id=object_id)
+
+    source_html = get_citation_string(field_object)
+
+    return HttpResponse(source_html)

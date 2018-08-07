@@ -3,13 +3,12 @@ from django.conf import settings
 from django.utils.translation import get_language
 from django.utils.translation import ugettext as _
 
-
 register = template.Library()
 
 def get_citation_string(obj):
 
     source_citation = ''
-    sources = obj.sources.all()
+    sources = obj.sources.select_related('user').all()
     source_info = (
         (_('Title'), 'title'),
         (_('Publication'), 'publication'),
@@ -18,7 +17,7 @@ def get_citation_string(obj):
         (_('Archive URL'), 'archive_url'),
         (_('Date added'), 'date_added'),
         (_('Date updated'), 'date_updated'),
-        # (_('Added by'), 'user'),
+        (_('Added by'), 'user'),
         (_('Page number'), 'page_number'),
         (_('Accessed'), 'accessed_on'),
     )
@@ -67,18 +66,13 @@ def cite(obj):
             # Pass over the source/confidence logic if this is just a string
             return context
 
-        source_citation = get_citation_string(obj)
-        context['source_citation'] = source_citation
+        field_name = '{0}.{1}'.format(obj._meta.model.__module__,
+                                      obj._meta.object_name)
 
-        # translators: this phrase appears in the citations box to tell the user
-        # how many sources we've found
-        num_sources = obj.sources.count()
-        if num_sources > 1:
-            src_string = _('sources for this datapoint')
-        else:
-            src_string = _('source for this datapoint')
+        context['object_info'] = '{0}_{1}'.format(field_name,
+                                                  obj.id)
 
-        context['num_sources'] = str(num_sources) + ' ' + src_string
+        src_string = _('Sources for this datapoint')
 
         confidence = obj.confidence
 
