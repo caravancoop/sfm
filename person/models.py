@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from django.db.models import Max
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
+from django.utils.functional import cached_property
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -17,7 +18,7 @@ from complex_fields.models import ComplexField, ComplexFieldContainer, \
     ComplexFieldListContainer
 from complex_fields.base_models import BaseModel
 
-from sfm_pc.utils import ComplexVersionsMixin
+from sfm_pc.utils import VersionsMixin
 
 
 VERSION_RELATED_FIELDS = [
@@ -30,7 +31,7 @@ VERSION_RELATED_FIELDS = [
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-class Person(models.Model, BaseModel, ComplexVersionsMixin):
+class Person(models.Model, BaseModel, VersionsMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,
@@ -72,7 +73,7 @@ class Person(models.Model, BaseModel, ComplexVersionsMixin):
     def __str__(self):
         return str(self.personname_set.first().value)
 
-    @property
+    @cached_property
     def memberships(self):
         '''
         Return all of this person's memberships, in a custom sorting order.

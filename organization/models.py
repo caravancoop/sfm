@@ -11,8 +11,9 @@ from complex_fields.models import ComplexField, ComplexFieldContainer, ComplexFi
 from complex_fields.base_models import BaseModel
 from django_date_extensions.fields import ApproximateDateField
 
+from sfm_pc.utils import VersionsMixin
 
-class Organization(models.Model, BaseModel):
+class Organization(models.Model, BaseModel, VersionsMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,

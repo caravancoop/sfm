@@ -2,7 +2,8 @@ from django.conf.urls import url
 
 from source.views import get_sources, SourceCreate, source_autocomplete, \
     SourceView, SourceUpdate, SourceRevertView, StashSourceView, \
-    AccessPointUpdate, AccessPointCreate, AccessPointDetail
+    AccessPointUpdate, AccessPointCreate, AccessPointDetail, get_citation, \
+    publication_autocomplete
 
 urlpatterns = [
     url(r'^get/$', get_sources, name="get-sources"),
@@ -15,4 +16,6 @@ urlpatterns = [
     url(r'^revert/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$', SourceRevertView.as_view(), name="revert-source"),
     url(r'^autocomplete/$', source_autocomplete, name="source-autocomplete"),
     url(r'^stash/$', StashSourceView.as_view(), name="stash-source"),
+    url(r'^get-citation/$', get_citation, name="get-citation"),
+    url(r'^publication/autocomplete/$', publication_autocomplete, name="publications-autocomplete"),
 ]

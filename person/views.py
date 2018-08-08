@@ -47,18 +47,24 @@ class PersonDetail(DetailView):
             org = membership.organization.get_value().value
             org_id = str(org.uuid)
 
+            # Grab the other attributes of the membership so we're not
+            # duplicating queries
+
+            lastciteddate = membership.lastciteddate.get_value()
+            firstciteddate = membership.firstciteddate.get_value()
+
             # Get info about chain of command
             mem_data = {}
 
             when = None
-            if membership.lastciteddate.get_value():
+            if lastciteddate:
                 # Make the query using the raw date string, to accomodate
                 # fuzzy dates
-                when = repr(membership.lastciteddate.get_value().value)
+                when = repr(lastciteddate.value)
                 mem_data['when'] = when
 
                 # Display a formatted date
-                mem_data['display_date'] = str(membership.lastciteddate.get_value())
+                mem_data['display_date'] = str(lastciteddate)
 
             kwargs = {'org_id': org_id}
             ajax_route = 'command-chain'
@@ -76,7 +82,8 @@ class PersonDetail(DetailView):
             child_compositions = org.child_organization.all()
 
             if child_compositions:
-                child_commanders = get_commanders(membership,
+                child_commanders = get_commanders(firstciteddate,
+                                                  lastciteddate,
                                                   child_compositions,
                                                   relationship='child')
                 if child_commanders:
@@ -85,7 +92,8 @@ class PersonDetail(DetailView):
             parent_compositions = org.parent_organization.all()
 
             if parent_compositions:
-                parent_commanders = get_commanders(membership,
+                parent_commanders = get_commanders(firstciteddate,
+                                                   lastciteddate,
                                                    parent_compositions,
                                                    relationship='parent')
 
@@ -106,7 +114,7 @@ class PersonDetail(DetailView):
         return context
 
 
-def get_commanders(membership, compositions, relationship='child'):
+def get_commanders(mem_start, mem_end, compositions, relationship='child'):
 
     assert relationship in ('parent', 'child')
 
@@ -114,7 +122,7 @@ def get_commanders(membership, compositions, relationship='child'):
 
     # Get start and end date for this membership, to determine
     # overlap
-    mem_start = membership.firstciteddate.get_value()
+    # mem_start = membership.firstciteddate.get_value()
     no_start = False
     if mem_start is None:
         # Make a bogus date that everything will be greater than
@@ -123,7 +131,7 @@ def get_commanders(membership, compositions, relationship='child'):
     else:
         mem_start = repr(mem_start.value)
 
-    mem_end = membership.lastciteddate.get_value()
+    # mem_end = membership.lastciteddate.get_value()
     no_end = False
     if mem_end is None:
         mem_end = date.today()
