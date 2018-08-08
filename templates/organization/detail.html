@@ -418,7 +418,7 @@
                     {% for member in person_members %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-person' member.member.get_value.value.id %}">
+                                <a href="{% url 'view-person' member.member.get_value.value.uuid %}">
                                     {{ member.member.get_value }}
                                 </a>
                                 {% cite member.member.get_value %}

@@ -14,10 +14,12 @@ from source.models import Source
 from person.models import Person
 from organization.models import Organization
 from geosite.models import Geosite
+from sfm_pc.utils import VersionsMixin
 
-class Violation(models.Model, BaseModel):
-    uuid = models.UUIDField(default=uuid.uuid4, 
-                            editable=False, 
+
+class Violation(models.Model, BaseModel, VersionsMixin):
+    uuid = models.UUIDField(default=uuid.uuid4,
+                            editable=False,
                             db_index=True)
 
     def __init__(self, *args, **kwargs):
