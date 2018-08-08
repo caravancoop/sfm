@@ -40,6 +40,12 @@ except ImportError:
     RAVEN_CONFIG = {}
 
 try:
+    from .settings_local import EXTRA_DEBUG_TOOLBAR_PANELS
+except ImportError:
+    EXTRA_DEBUG_TOOLBAR_PANELS = []
+
+
+try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
         SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL, \
         CACHES
@@ -110,6 +116,22 @@ MIDDLEWARE_CLASSES = (
 
 # Debug toolbar middleware needs to be included as early as possible
 MIDDLEWARE_CLASSES = EXTRA_MIDDLEWARE_CLASSES + MIDDLEWARE_CLASSES
+
+DEBUG_TOOLBAR_PANELS = [
+    'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    'debug_toolbar.panels.settings.SettingsPanel',
+    'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.logging.LoggingPanel',
+    'debug_toolbar.panels.redirects.RedirectsPanel',
+] + EXTRA_DEBUG_TOOLBAR_PANELS
+
 
 ROOT_URLCONF = 'sfm_pc.urls'
 
