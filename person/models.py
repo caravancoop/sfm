@@ -18,7 +18,7 @@ from complex_fields.models import ComplexField, ComplexFieldContainer, \
     ComplexFieldListContainer
 from complex_fields.base_models import BaseModel
 
-from sfm_pc.utils import ComplexVersionsMixin
+from sfm_pc.utils import VersionsMixin
 
 
 VERSION_RELATED_FIELDS = [
@@ -31,7 +31,7 @@ VERSION_RELATED_FIELDS = [
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-class Person(models.Model, BaseModel, ComplexVersionsMixin):
+class Person(models.Model, BaseModel, VersionsMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,

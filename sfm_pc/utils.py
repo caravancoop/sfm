@@ -365,24 +365,6 @@ class VersionsMixin(object):
         return differences
 
 
-class ComplexVersionsMixin(object):
-    '''
-    Model mixin for models related to ComplexFields to get a unified snapshot of
-    a given change to all fields of a parent model
-    '''
-
-    def getVersions(self):
-        versions = Version.objects.get_for_object(self)
-
-        serialized = []
-
-        for version in versions:
-            for revision in version.revision.version_set.all():
-                serialized.append(revision.serialized_data)
-
-        return serialized
-
-
 def execute_sql(file_path):
     '''
     Execute arbitrary SQL code from a file location.
