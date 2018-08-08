@@ -21,7 +21,7 @@ Create a local settings file:
 
     cp sfm_pc/settings_local.py.example sfm_pc/settings_local.py
 
-Replace OSM_API_Key in `settings_local.py` with a Wambacher cliKey. Generate a key [here]([https://wambachers-osm.website/boundaries/]) by enabling OAuth, selecting a boundary, checking CLI, hitting Export, and looking at the generated URL.  
+Replace OSM_API_Key in `settings_local.py` with a Wambacher cliKey. Generate a key [here](https://wambachers-osm.website/boundaries/) by enabling OAuth, selecting a boundary, checking CLI, hitting Export, and looking at the generated URL.  
 
 Create a database:
 

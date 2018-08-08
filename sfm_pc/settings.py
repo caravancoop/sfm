@@ -236,7 +236,6 @@ ALLOWED_CLASS_FOR_NAME = [
     'Emplacement', 'Geosite', 'Violation'
 ]
 
-# OSM_URL = 'https://wambachers-osm.website/boundaries/exportBoundaries?cliVersion=1.0&cliKey=e05676a7-72dc-4367-b8ed-6207c43926b4&exportFormat=json&exportLayout=levels&exportAreas=water&union=false&from_AL=2&to_AL=8&selected='
 OSM_BASE_URL = 'https://wambachers-osm.website/boundaries/exportBoundaries'
 
 OSM_DATA = [
