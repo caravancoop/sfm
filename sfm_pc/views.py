@@ -341,17 +341,17 @@ def command_chain(request, org_id='', when=None, parents=True):
     # Add hierarchy to nodelist and edgelist
     if parents:
         hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
-        from_key, to_key = 'id', 'child_id'
+        from_key, to_key = 'organization_parent_id_ss', 'id'
     else:
         hierarchy_list = get_child_orgs_by_id(org_id, when=when)
-        from_key, to_key = 'parent_id', 'id'
+        from_key, to_key = 'id', 'organization_parent_id_ss'
 
     for org in hierarchy_list:
         trimmed = {
             'id': str(org[from_key]),
-            'label': org['label'],
-            'detail_id': org['detail_id'],
-            'url': reverse('view-organization', args=[org['detail_id']])
+            'label': org['organization_parent_name_ss'],
+            'detail_id': org['organization_pk_i'],
+            'url': reverse('view-organization', args=[org['organization_pk_i']])
         }
         nodes.append(trimmed)
         edges.append({'from': str(org[from_key]), 'to': org[to_key]})

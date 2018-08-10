@@ -7,6 +7,8 @@ from io import StringIO, BytesIO
 import zipfile
 import csv
 
+import pysolr
+
 from reversion.models import Version
 
 from django.conf import settings
@@ -507,101 +509,32 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
     return hierarchy
 
 # this makes an edge list that shows the parent relationships (see child_id)
+# TODO: http://127.0.0.1:8984/solr/sfm/query?q=*:*&fq={!graph+from=id+to=organization_parent_id_ss_fct%20returnRoot=true}id:d0ed3220-ba9f-40d2-8e4e-cbdde66e7178&fl=organization_name_s
+
+solr = pysolr.Solr(settings.SOLR_URL)
+
+
 def get_org_hierarchy_by_id(org_id, when=None, sources=False):
     '''
     org_id: uuid for the organization
-    date: date for limiting the search
-    '''
-    hierarchy = '''
-        WITH RECURSIVE children AS (
-          SELECT
-            o.*,
-            NULL::VARCHAR AS org_org_id,
-            NULL::VARCHAR AS child_id,
-            NULL::VARCHAR AS child_name,
-            NULL::VARCHAR AS start_date,
-            NULL::VARCHAR AS end_date,
-            NULL::VARCHAR AS comp_open_ended,
-            NULL::VARCHAR AS source,
-            NULL::VARCHAR AS confidence,
-            NULL::VARCHAR AS commander,
-            NULL::VARCHAR AS relationship_classification
-          FROM organization As o
-          WHERE id = %s
-          UNION
-          SELECT
-            o.*,
-            org_org.id::VARCHAR as org_org_id,
-            h.child_id::VARCHAR AS child_id,
-            children.name AS child_name,
-            h.start_date::VARCHAR,
-            h.end_date::VARCHAR,
-            h.open_ended AS comp_open_ended,
-            row_to_json(ss.*)::VARCHAR AS source,
-            ccc.confidence,
-            person.name,
-            h.classification AS relationship_classification
-          FROM organization AS o
-          JOIN organization_organization as org_org
-            on o.id = org_org.uuid
-          JOIN composition AS h
-            ON o.id = h.parent_id
-          JOIN composition_compositionparent AS ccc
-            ON h.id = ccc.object_ref_id
-          LEFT JOIN composition_compositionparent_sources AS cccs
-            ON ccc.id = cccs.compositionparent_id
-          LEFT JOIN source_source AS ss
-            ON cccs.source_id = ss.uuid
-          LEFT JOIN membershipperson AS mem
-            ON o.id = mem.organization_id
-          LEFT JOIN person
-            ON person.id = mem.member_id
-          JOIN children
-            ON children.id = h.child_id
-        ) SELECT *
-          FROM children
-          WHERE id != %s
-          AND relationship_classification = 'Command'
+    when: date for limiting the search
     '''
 
-    q_args = [org_id, org_id]
+    base_url = settings.SOLR_URL
+
+    filter_query = '{!graph from=id'
+    filter_query += 'to=organization_parent_id_ss_fct returnRoot=true}'
+    filter_query += 'id:{0}'.format(org_id)
+
     if when:
-        hierarchy = '''
-            {hierarchy}
-            AND CASE
-              WHEN (start_date IS NOT NULL AND
-                    end_date IS NOT NULL AND
-                    comp_open_ended IN ('N', 'E'))
-              THEN (%s BETWEEN start_date AND end_date)
-              WHEN (start_date IS NOT NULL AND
-                    end_date IS NOT NULL AND
-                    comp_open_ended = 'Y')
-              THEN (%s BETWEEN start_date AND NOW()::date::varchar)
-              WHEN (start_date IS NOT NULL AND
-                    end_date IS NULL AND
-                    comp_open_ended IN ('N', 'E'))
-              THEN (start_date = %s)
-              WHEN (start_date IS NOT NULL AND
-                    end_date IS NULL AND
-                    comp_open_ended = 'Y')
-              THEN (%s BETWEEN start_date AND NOW()::date::varchar)
-              WHEN (start_date IS NULL AND
-                    end_date IS NOT NULL AND
-                    comp_open_ended IN ('N', 'E'))
-              THEN (end_date = %s)
-              WHEN (start_date IS NULL AND
-                    end_date IS NOT NULL AND
-                    comp_open_ended = 'Y')
-              THEN TRUE
-            END
-        '''.format(hierarchy=hierarchy, when=when)
-        q_args.extend([when] * 5)
+        filter_query += ' AND {!field f=organization_parent_daterange_drs op=contains}%s' % when
 
-    hierarchy = '{} ORDER BY id'.format(hierarchy)
+    results = solr.search('*:*', fq=filter_query)
 
-    hierarchy = generate_hierarchy(hierarchy, q_args, 'child_id', sources=sources)
+    import pdb
+    pdb.set_trace()
 
-    return hierarchy
+    return [r for r in results]
 
 def get_child_orgs_by_id(org_id, when=None, sources=False):
     hierarchy = '''
