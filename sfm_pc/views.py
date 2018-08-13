@@ -322,39 +322,31 @@ def command_chain(request, org_id='', when=None, parents=True):
 
     nodes, edges = [], []
 
-    # Include the queried org in the nodelist and edgelist
-    queried_org = Organization.objects.get(uuid=org_id)
-
-    edges.append({'from': str(queried_org.uuid)})
-
-    label = '<b>' + str(queried_org.name) + '</b>'
-
-    org_on_detail = {
-        'id': str(queried_org.uuid),
-        'label': str(label),
-        'detail_id': '',
-        'url': ''
-    }
-
-    nodes.append(org_on_detail)
-
     # Add hierarchy to nodelist and edgelist
     if parents:
         hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
-        from_key, to_key = 'organization_parent_id_ss', 'id'
-    else:
-        hierarchy_list = get_child_orgs_by_id(org_id, when=when)
         from_key, to_key = 'id', 'organization_parent_id_ss'
+    else:
+        hierarchy_list = get_child_orgs_by_id(org_id, when=when, direction='down')
+        from_key, to_key = 'organization_parent_id_ss', 'id'
 
     for org in hierarchy_list:
         trimmed = {
-            'id': str(org[from_key]),
-            'label': org['organization_parent_name_ss'],
+            'id': org['id'],
+            'label': org['organization_name_s'],
             'detail_id': org['organization_pk_i'],
             'url': reverse('view-organization', args=[org['organization_pk_i']])
         }
         nodes.append(trimmed)
-        edges.append({'from': str(org[from_key]), 'to': org[to_key]})
+
+        try:
+            for edge in org['organization_parent_id_ss']:
+                if from_key == 'organization_parent_id_ss':
+                    edges.append({'from': org['id'], 'to': edge})
+                else:
+                    edges.append({'from': edge, 'to': org['id']})
+        except KeyError:
+            edges.append({'from': org['id'], 'to': None})
 
     edgelist = {'nodes': nodes, 'edges': edges, 'index': index}
 

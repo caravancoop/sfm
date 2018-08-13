@@ -509,12 +509,11 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
     return hierarchy
 
 # this makes an edge list that shows the parent relationships (see child_id)
-# TODO: http://127.0.0.1:8984/solr/sfm/query?q=*:*&fq={!graph+from=id+to=organization_parent_id_ss_fct%20returnRoot=true}id:d0ed3220-ba9f-40d2-8e4e-cbdde66e7178&fl=organization_name_s
 
 solr = pysolr.Solr(settings.SOLR_URL)
 
 
-def get_org_hierarchy_by_id(org_id, when=None, sources=False):
+def get_org_hierarchy_by_id(org_id, when=None, sources=False, direction='up'):
     '''
     org_id: uuid for the organization
     when: date for limiting the search
@@ -522,17 +521,29 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False):
 
     base_url = settings.SOLR_URL
 
-    filter_query = '{!graph from=id'
-    filter_query += 'to=organization_parent_id_ss_fct returnRoot=true}'
-    filter_query += 'id:{0}'.format(org_id)
+    if direction == 'up':
+        from_ = 'id'
+        to = 'organization_parent_id_ss_fct'
+    elif direction == 'down':
+        to = 'id'
+        from_ = 'organization_parent_id_ss_fct'
+
+    filter_query = '{!graph from=%s to=%s returnRoot=true}id:%s' % (from_, to, org_id)
 
     if when:
         filter_query += ' AND {!field f=organization_parent_daterange_drs op=contains}%s' % when
 
-    results = solr.search('*:*', fq=filter_query)
+    print(filter_query)
 
-    import pdb
-    pdb.set_trace()
+    fields = [
+        'organization_name_s',
+        'organization_pk_i',
+        'organization_parent_id_ss',
+        'organization_parent_name_ss',
+        'id',
+    ]
+
+    results = solr.search('*:*', fq=filter_query, fl=fields)
 
     return [r for r in results]
 
