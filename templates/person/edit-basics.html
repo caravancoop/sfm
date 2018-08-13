@@ -213,6 +213,15 @@
     <script type="text/javascript">
         $(document).ready(function(){
             loadSources({'target': $('#id_name')});
+            $('#id_alias').select2({
+                'tags': true
+            });
+
+            $('#id_external_links').select2({
+                'tags': true
+            });
+
+            $('#id_division_id').select2();
         })
     </script>
 {% endblock%}

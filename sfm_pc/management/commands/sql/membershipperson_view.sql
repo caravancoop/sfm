@@ -1,5 +1,5 @@
-CREATE MATERIALIZED VIEW membershipperson AS 
-  SELECT 
+CREATE MATERIALIZED VIEW membershipperson AS
+  SELECT
     mm.id,
     pp.uuid AS member_id,
     oo.uuid AS organization_id,
@@ -8,8 +8,8 @@ CREATE MATERIALIZED VIEW membershipperson AS
     mmrk.value AS rank,
     mmrs.value AS real_start,
     mmre.value AS real_end,
-    sc.value AS start_context,
-    ec.value AS end_context,
+    mmsc.value AS start_context,
+    mmec.value AS end_context,
     mmfc.value AS first_cited,
     mmlc.value AS last_cited
   FROM membershipperson_membershipperson AS mm
@@ -37,12 +37,8 @@ CREATE MATERIALIZED VIEW membershipperson AS
     ON mm.id = mmre.object_ref_id
   LEFT JOIN membershipperson_membershippersonstartcontext AS mmsc
     ON mm.id = mmsc.object_ref_id
-  LEFT JOIN membershipperson_context AS sc
-    ON mmsc.value_id = sc.id
   LEFT JOIN membershipperson_membershippersonendcontext AS mmec
     ON mm.id = mmec.object_ref_id
-  LEFT JOIN membershipperson_context AS ec
-    ON mmec.value_id = sc.id
   LEFT JOIN membershipperson_membershippersonfirstciteddate AS mmfc
     ON mm.id = mmfc.object_ref_id
   LEFT JOIN membershipperson_membershippersonlastciteddate AS mmlc

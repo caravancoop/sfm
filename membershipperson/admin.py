@@ -7,7 +7,7 @@ from .models import (MembershipPerson, MembershipPersonMember, MembershipPersonO
                      MembershipPersonFirstCitedDate, MembershipPersonLastCitedDate,
                      MembershipPersonRealStart, MembershipPersonRealEnd,
                      MembershipPersonStartContext, MembershipPersonEndContext,
-                     Role, Rank, Context)
+                     Role, Rank)
 
 
 class MembershipPersonAdmin(admin.ModelAdmin):
@@ -70,10 +70,6 @@ class RankAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class ContextAdmin(reversion.admin.VersionAdmin):
-    pass
-
-
 admin.site.register(MembershipPerson, MembershipPersonAdmin)
 admin.site.register(MembershipPersonMember, MembershipPersonMemberAdmin)
 admin.site.register(MembershipPersonOrganization, MembershipPersonOrganizationAdmin)
@@ -88,4 +84,3 @@ admin.site.register(MembershipPersonStartContext, MembershipPersonStartContextAd
 admin.site.register(MembershipPersonEndContext, MembershipPersonEndContextAdmin)
 admin.site.register(Role, RoleAdmin)
 admin.site.register(Rank, RankAdmin)
-admin.site.register(Context, ContextAdmin)

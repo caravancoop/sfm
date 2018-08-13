@@ -9,7 +9,11 @@ from django_date_extensions.fields import ApproximateDateFormField
 from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField
 
 from membershipperson.models import MembershipPersonOrganization, \
-    MembershipPerson
+    MembershipPerson, MembershipPersonRank, MembershipPersonRole, \
+    MembershipPersonTitle, MembershipPersonFirstCitedDate, \
+    MembershipPersonLastCitedDate, MembershipPersonRealStart, \
+    MembershipPersonRealEnd, MembershipPersonStartContext, \
+    MembershipPersonEndContext
 
 from .models import Person, PersonName, PersonAlias, PersonGender, \
     PersonDivisionId, PersonDateOfDeath, PersonDateOfBirth, PersonExternalLink, \
@@ -58,10 +62,28 @@ class PersonBasicsForm(BaseEditForm):
 
 class PersonPostingsForm(BaseEditForm):
     edit_fields = [
-        ('organization', MembershipPersonOrganization, False)
+        ('organization', MembershipPersonOrganization, False),
+        ('rank', MembershipPersonRank, False),
+        ('role', MembershipPersonRole, False),
+        ('title', MembershipPersonTitle, False),
+        ('firstciteddate', MembershipPersonFirstCitedDate, False),
+        ('lastciteddate', MembershipPersonLastCitedDate, False),
+        ('realstart', MembershipPersonRealStart, False),
+        ('realend', MembershipPersonRealEnd, False),
+        ('startcontext', MembershipPersonStartContext, False),
+        ('endcontext', MembershipPersonEndContext, False),
     ]
 
     organization = forms.ModelChoiceField(queryset=MembershipPersonOrganization.objects.all())
+    rank = forms.ModelChoiceField(queryset=MembershipPersonRank.objects.distinct('value__value'))
+    role = forms.CharField(required=False)
+    title = forms.CharField(required=False)
+    firstciteddate = ApproximateDateFormField(required=False)
+    lastciteddate = ApproximateDateFormField(required=False)
+    realstart = forms.BooleanField()
+    realend = forms.BooleanField()
+    startcontext = forms.CharField(required=False)
+    endcontext = forms.CharField(required=False)
 
     class Meta:
         model = MembershipPerson

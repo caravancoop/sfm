@@ -86,64 +86,87 @@ class BaseEditForm(forms.ModelForm):
     def object_type(self):
         return self._meta.model._meta.model_name
 
-    def clean(self):
+    def _validate_boolean(self, field):
+        if field in self.changed_data:
+            if self.post_data.get('{}_source'.format(field)):
+                value = True
 
-        modified_fields = self.post_data.get('modified_fields')
+                # Clear out "field is required" validation error that
+                # happens when you toggle from True to False. If there is an
+                # error, we also know that the value should be False
+                try:
+                    self.errors.pop(field)
+                    value = False
+                except KeyError:
+                    pass
+
+                self.cleaned_data[field] = value
+                self.post_data[field] = [value]
+        else:
+            # The boolean fields are not actually required but Django
+            # forces them to be.
+            try:
+                self.errors.pop(field)
+            except KeyError:
+                pass
+
+    def _validate_complex_field(self, field_instance, field):
+        if field_instance.get_value() and (field_instance.get_value().value != self.cleaned_data[field]):
+
+            try:
+                self.post_data['{}_source'.format(field)]
+            except KeyError:
+                error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
+                                            code='invalid',
+                                            params={'field_name': field})
+                self.add_error(field, error)
+
+    def _validate_complex_list(self, field_instance, field):
+        old_values = {f.get_value().value for f in field_instance.get_list()}
+        new_values = set(self.cleaned_data[field])
+
+        if new_values != old_values:
+            try:
+                self.post_data['{}_source'.format(field)]
+            except KeyError:
+                error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
+                                            code='invalid',
+                                            params={'field_name': field})
+                self.add_error(field, error)
+
+
+    def clean(self):
 
         for field in self.fields:
 
             if isinstance(self.fields[field], forms.BooleanField):
+                self._validate_boolean(field)
 
-                if field in modified_fields:
-                    if self.post_data.get('{}_source'.format(field)):
-                        value = True
+            field_instance = getattr(self.instance, field)
 
-                        # Clear out "field is required" validation error that
-                        # happens when you toggle from True to False. If there is an
-                        # error, we also know that the value should be False
-                        try:
-                            self.errors.pop(field)
-                            value = False
-                        except KeyError:
-                            pass
+            if field_instance in self.instance.complex_fields:
+                self._validate_complex_field(field_instance, field)
 
-                        self.cleaned_data[field] = value
-                        self.post_data[field] = [value]
+            elif field_instance in self.instance.complex_lists:
+                self._validate_complex_list(field_instance, field)
+
+            # If the posted value is empty but there are sources, that means
+            # that the user cleared out the value and gave evidence as to
+            # why that was the case. Unfortunately, if the value is empty,
+            # Django removes it from the POST data altogether (I guess it's
+            # trying to do us a favor?). Anyways, we need to add that back
+            # in so we can clear out the value from the field.
+
+            if not self.post_data.get(field) and self.post_data.get('{}_source'.format(field)) is not None:
+                # If the field is a GetOrCreate field that means that we
+                # should make the value an empty list. Otherwise it should
+                # be None
+
+                if isinstance(self.fields[field], GetOrCreateChoiceField):
+                    self.post_data[field] = []
+
                 else:
-                    # The boolean fields are not actually required but Django
-                    # forces them to be.
-                    try:
-                        self.errors.pop(field)
-                    except KeyError:
-                        pass
-
-            if field in modified_fields:
-
-                try:
-                    self.post_data['{}_source'.format(field)]
-                except KeyError:
-                    error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
-                                                code='invalid',
-                                                params={'field_name': field})
-                    self.add_error(field, error)
-
-                # If the posted value is empty but there are sources, that means
-                # that the user cleared out the value and gave evidence as to
-                # why that was the case. Unfortunately, if the value is empty,
-                # Django removes it from the POST data altogether (I guess it's
-                # trying to do us a favor?). Anyways, we need to add that back
-                # in so we can clear out the value from the field.
-
-                if not self.post_data.get(field) and self.post_data.get('{}_source'.format(field)) is not None:
-                    # If the field is a GetOrCreate field that means that we
-                    # should make the value an empty list. Otherwise it should
-                    # be None
-
-                    if isinstance(self.fields[field], GetOrCreateChoiceField):
-                        self.post_data[field] = []
-
-                    else:
-                        self.post_data[field] = None
+                    self.post_data[field] = None
 
     def save(self, commit=True):
 

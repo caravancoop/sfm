@@ -16,6 +16,7 @@
             <th>{% trans "Title" %}</th>
             <th>{% trans "First cited" %}</th>
             <th>{% trans "Last cited" %}</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -45,8 +46,18 @@
                     <td class="cited">
                         {{ member.lastciteddate.get_value.value }}
                     </td>
+                    <td>
+                        <a href="{% url 'edit-person-postings' member.member.get_value.value.uuid member.id %}">
+                            <i class="fa fa-pencil"> </i>
+                        </a>
+                    </td>
                 </tr>
             {% endwith %}
         {% endfor %}
+        <tr>
+            <td colspan="7">
+                <i class="fa fa-plus"> </i> Add posting
+            </td>
+        </tr>
     </tbody>
 </table>

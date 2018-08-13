@@ -34,9 +34,9 @@
         <div class="col-sm-6">
             {% block form_content %}{% endblock %}
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" id="source-wrapper-anchor">
             <h2>{% trans "Edit sources" %}</h2>
-            <div class="row bg-info">
+            <div class="row bg-info" id="source-wrapper">
                 <div class="col-sm-12">
                     <div class="form-group">
                         <label class="control-label">{% trans "Add sources to the list" %}</label>
@@ -141,21 +141,31 @@
             }
         }
 
+
+        function stickSources(){
+            var scroll_top = $(window).scrollTop();
+            var anchor_top = $('#source-wrapper-anchor').offset().top;
+            var width = $('#source-wrapper').width();
+            if (scroll_top > anchor_top){
+                $('#source-wrapper').css({
+                    position: 'fixed',
+                    top: '10px',
+                    width: width
+                })
+            } else {
+                $('#source-wrapper').css({
+                    position: 'relative',
+                    top: '',
+                    width: '100%'
+                })
+            }
+        }
+
         $(document).ready(function(){
+            $(window).scroll(stickSources);
 
             $.ajaxSetup({cache: false});
 
-            // loadSources({'target': $('form *[type="text"]').first()});
-
-            $('#id_alias').select2({
-                'tags': true
-            });
-
-            $('#id_external_links').select2({
-                'tags': true
-            });
-
-            $('#id_division_id').select2();
             $('#source-search').select2({
                 ajax: {
                     url: "{% url 'source-autocomplete' %}",
@@ -169,13 +179,13 @@
             });
 
             $('.sourced').on('click', loadSources);
-            $('.sourced').on('input', addModifiedField);
+            //$('.sourced').on('input', addModifiedField);
 
             $('.sourced-dropdown').on('click', loadSources);
-            $('.sourced-dropdown').on('input', addModifiedField);
+            //$('.sourced-dropdown').on('input', addModifiedField);
 
             $('.select2-target').on('select2:opening', loadSources);
-            $('.select2-target').on('select2:opening', addModifiedField);
+            //$('.select2-target').on('select2:opening', addModifiedField);
 
             $('#source-search').on('select2:select', function(e){
 

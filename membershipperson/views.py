@@ -19,7 +19,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from extra_views import FormSetView
 
-from membershipperson.models import MembershipPerson, Role, Rank, Context
+from membershipperson.models import MembershipPerson, Role, Rank
 from membershipperson.forms import MembershipPersonForm
 from source.models import Source
 from sfm_pc.utils import deleted_in_str
@@ -188,12 +188,12 @@ class MembershipPersonUpdate(LoginRequiredMixin, BaseUpdateView):
     def post(self, request, *args, **kwargs):
         self.checkSource(request)
         self.validateForm()
-    
+
     def form_valid(self, form):
         response = super().form_valid(form)
 
         membership = MembershipPerson.objects.get(pk=self.kwargs['pk'])
-        
+
         mem_info = {
             'MembershipPerson_MembershipPersonTitle': {
                 'value': form.cleaned_data['title'],
@@ -221,7 +221,7 @@ class MembershipPersonUpdate(LoginRequiredMixin, BaseUpdateView):
                 'sources': self.sourcesList(membership, 'realend')
             },
         }
-        
+
         if form.cleaned_data.get('role'):
             mem_info['MembershipPerson_MembershipPersonRole'] = {
                 'value': Role.objects.get(id=form.cleaned_data['role']),
@@ -242,7 +242,7 @@ class MembershipPersonUpdate(LoginRequiredMixin, BaseUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         membership = MembershipPerson.objects.get(pk=self.kwargs['pk'])
 
         form_data = {
@@ -256,7 +256,7 @@ class MembershipPersonUpdate(LoginRequiredMixin, BaseUpdateView):
             'firstciteddate': membership.firstciteddate.get_value(),
             'lastciteddate': membership.lastciteddate.get_value()
         }
-        
+
         context['form_data'] = form_data
         context['title'] = _("Membership Person")
         context['source_object'] = membership
