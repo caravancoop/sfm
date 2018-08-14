@@ -111,7 +111,7 @@ class BaseEditForm(forms.ModelForm):
                 pass
 
     def _validate_complex_field(self, field_instance, field):
-        if field_instance.get_value() and (field_instance.get_value().value != self.cleaned_data[field]):
+        if field_instance.get_value() and (field_instance.get_value().value != self.cleaned_data.get(field)):
 
             try:
                 self.post_data['{}_source'.format(field)]
@@ -123,7 +123,7 @@ class BaseEditForm(forms.ModelForm):
 
     def _validate_complex_list(self, field_instance, field):
         old_values = {f.get_value().value for f in field_instance.get_list()}
-        new_values = set(self.cleaned_data[field])
+        new_values = set(self.cleaned_data.get(field))
 
         if new_values != old_values:
             try:
@@ -134,21 +134,47 @@ class BaseEditForm(forms.ModelForm):
                                             params={'field_name': field})
                 self.add_error(field, error)
 
+    def _validate_sources_present(self, field):
+        field_instance = getattr(self.instance, field)
+
+        if field_instance in self.instance.complex_fields:
+            self._validate_complex_field(field_instance, field)
+
+        elif field_instance in self.instance.complex_lists:
+            self._validate_complex_list(field_instance, field)
 
     def clean(self):
+
+        sources_sent = {k.replace('_source', '') for k in self.post_data.keys() if '_source' in k}
+        values_sent = {f for f in self.post_data.keys() if not '_source' in f}
+
+        # If there were field values that were sent without sources, check to
+        # see if the value changed and if so, we need sources
+
+        values_without_sources = values_sent - sources_sent
+
+        for field in values_without_sources:
+            self._validate_sources_present(field)
+
+        # If there were sources sent without values, that's OK we just need to
+        # make sure that we save the sources
+
+        sources_without_values = sources_sent - values_sent
+
+        for field in sources_without_values:
+            field_instance = getattr(self.instance, field)
+            if field_instance in self.instance.complex_fields:
+                field_value = field_instance.get_value().value
+
+            elif field_instance in self.instance.complex_lists:
+                field_value = [f.get_value().id for f in field_instance.get_list()]
+
+            self.post_data[field] = field_value
 
         for field in self.fields:
 
             if isinstance(self.fields[field], forms.BooleanField):
                 self._validate_boolean(field)
-
-            field_instance = getattr(self.instance, field)
-
-            if field_instance in self.instance.complex_fields:
-                self._validate_complex_field(field_instance, field)
-
-            elif field_instance in self.instance.complex_lists:
-                self._validate_complex_list(field_instance, field)
 
             # If the posted value is empty but there are sources, that means
             # that the user cleared out the value and gave evidence as to
@@ -174,14 +200,14 @@ class BaseEditForm(forms.ModelForm):
 
         for field_name, field_model, multiple_values in self.edit_fields:
 
-            if field_name in self.post_data.get('modified_fields'):
+            if field_name in self.post_data:
 
-                new_source_ids = self.post_data.get('{}_source'.format(field_name))
+                new_source_ids = self.post_data['{}_source'.format(field_name)]
 
                 sources = Source.objects.filter(uuid__in=new_source_ids)
 
                 field = ComplexFieldContainer.field_from_str_and_id(
-                    'person', self.instance.id, field_name
+                    self.instance._meta.model_name, self.instance.id, field_name
                 )
 
                 existing_sources = field.get_sources()

@@ -11,15 +11,45 @@ class Migration(migrations.Migration):
         ('membershipperson', '0005_auto_20180813_2103'),
     ]
 
-    operations = [
+    database_operations = [
         migrations.AlterField(
             model_name='membershippersonendcontext',
             name='value',
-            field=models.TextField(),
+            field=models.ForeignKey('Context', db_constraint=False, db_index=True)
         ),
         migrations.AlterField(
             model_name='membershippersonstartcontext',
             name='value',
-            field=models.TextField(),
+            field=models.ForeignKey('Context', db_constraint=False, db_index=True)
+        ),
+    ]
+
+    state_operations = [
+        migrations.AlterField(
+            model_name='membershippersonendcontext',
+            name='value',
+            field=models.IntegerField(db_index=True, null=False)
+        ),
+        migrations.RenameField(
+            model_name='membershippersonendcontext',
+            old_name='value',
+            new_name='value_id'
+        ),
+        migrations.AlterField(
+            model_name='membershippersonstartcontext',
+            name='value',
+            field=models.IntegerField(db_index=True, null=False)
+        ),
+        migrations.RenameField(
+            model_name='membershippersonstartcontext',
+            old_name='value',
+            new_name='value_id'
+        ),
+    ]
+
+    operations = [
+        migrations.SeparateDatabaseAndState(
+            database_operations=database_operations,
+            state_operations=state_operations
         ),
     ]

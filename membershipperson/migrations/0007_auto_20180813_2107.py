@@ -4,22 +4,7 @@ from __future__ import unicode_literals
 
 import os
 
-from django.db import migrations, connection
-from django.conf import settings
-
-
-def remake_views(apps, schema_editor):
-
-    sql_folder_path = os.path.join(settings.BASE_DIR, 'sfm_pc/management/commands/sql')
-    view_paths = [
-        os.path.join(sql_folder_path, 'membershipperson_view.sql'),
-        os.path.join(sql_folder_path, 'membershipperson_sources_view.sql'),
-    ]
-
-    for view_path in view_paths:
-        with open(view_path) as sql:
-            with connection.cursor() as curs:
-                curs.execute(sql.read())
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -29,21 +14,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL('''
-            UPDATE membershipperson_membershippersonstartcontext SET
-              value = s.value
-            FROM (
-              SELECT id, value FROM membershipperson_context
-            ) AS s
-            WHERE membershipperson_membershippersonstartcontext.value_id = s.id
-        '''),
-        migrations.RunSQL('''
-            UPDATE membershipperson_membershippersonendcontext SET
-              value = s.value
-            FROM (
-              SELECT id, value FROM membershipperson_context
-            ) AS s
-            WHERE membershipperson_membershippersonendcontext.value_id = s.id
-        '''),
-        migrations.RunPython(remake_views),
+        migrations.AddField(
+            model_name='membershippersonendcontext',
+            name='value',
+            field=models.TextField(null=True)
+        ),
+        migrations.AddField(
+            model_name='membershippersonstartcontext',
+            name='value',
+            field=models.TextField(null=True)
+        ),
     ]

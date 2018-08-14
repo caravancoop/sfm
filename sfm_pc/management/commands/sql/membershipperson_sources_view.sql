@@ -129,8 +129,8 @@ CREATE MATERIALIZED VIEW membershipperson_sources AS
            mmrk.value,
            mmreals.value,
            mmre.value,
-           sc.value,
-           ec.value,
+           mmsc.value,
+           mmec.value,
            mmfc.value,
            mmlc.value;
 CREATE UNIQUE INDEX membershipperson_src_id_idx ON membershipperson_sources (
