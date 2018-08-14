@@ -10,30 +10,9 @@ from source.models import Source
 from person.models import Person
 
 
-@pytest.fixture(scope='module')
-@pytest.mark.django_db(transaction=True)
-def setUpModule(django_db_setup, django_db_blocker, request):
-
-    with django_db_blocker.unblock():
-        call_command('loaddata', 'tests/fixtures/auth.json')
-        call_command('loaddata', 'tests/fixtures/source.json')
-        call_command('loaddata', 'tests/fixtures/person.json')
-        call_command('loaddata', 'tests/fixtures/organization.json')
-        call_command('loaddata', 'tests/fixtures/membershipperson.json')
-        call_command('update_countries_plus')
-
-    @request.addfinalizer
-    def tearDownModule():
-        with django_db_blocker.unblock():
-            with connection.cursor() as conn:
-                conn.execute('TRUNCATE auth_user CASCADE')
-                conn.execute('TRUNCATE source_source CASCADE')
-                conn.execute('TRUNCATE person_person CASCADE')
-
-
 @pytest.fixture()
 @pytest.mark.django_db(transaction=True)
-def setUp(setUpModule, client, request):
+def setUp(django_db_setup, client, request):
     user = User.objects.first()
     client.force_login(user)
 
@@ -200,7 +179,7 @@ def test_just_add_source(setUp):
     alias_sources = set()
 
     for alias in person.aliases.get_list():
-        for source in alias.get_get_sources():
+        for source in alias.get_sources():
             alias_sources.add(source.uuid)
 
     external_link_sources = set()

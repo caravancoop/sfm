@@ -1,3 +1,5 @@
+import pytest
+
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
@@ -12,64 +14,18 @@ from sfm_pc.signals import update_orgname_index, update_orgalias_index, \
     update_source_index
 
 
-def setUpModule():
+@pytest.mark.django_db
+def test_view_organization(client):
 
-    post_save.disconnect(receiver=update_orgname_index, sender=OrganizationName)
-    post_save.disconnect(receiver=update_orgalias_index, sender=OrganizationAlias)
-    post_save.disconnect(receiver=update_source_index, sender=Source)
+    for org_id in range(1, 10):
+        response = client.get(reverse_lazy('view-organization', args=[org_id]))
 
-    call_command('loaddata', 'tests/fixtures/auth.json')
-    call_command('loaddata', 'tests/fixtures/source.json')
-    call_command('loaddata', 'tests/fixtures/organization.json')
-    call_command('update_countries_plus')
-
-
-def tearDownModule():
-
-    with connection.cursor() as conn:
-        conn.execute('TRUNCATE auth_user CASCADE')
-        conn.execute('TRUNCATE source_source CASCADE')
-        conn.execute('TRUNCATE organization_organization CASCADE')
-
-
-class OrganizationTest(TestCase):
-
-    client = Client()
-
-    def setUp(self):
-        self.user = User.objects.first()
-        self.client.force_login(self.user)
-        self.source = Source.objects.first()
-
-        session = self.client.session
-        session['source_id'] = str(self.source.uuid)
-        session.save()
-
-    def tearDown(self):
-        self.client.logout()
-
-    def getRandomOrganization(self):
-        from django.db.models.aggregates import Count
-        import random
-
-        count = Organization.objects.aggregate(count=Count('id'))['count']
-
-        random.seed(256)
-        random_index = random.randint(0, count - 1)
-
-        return Organization.objects.all()[random_index]
-
-    def test_view_organization(self):
-
-        for org_id in range(1, 10):
-            response = self.client.get(reverse_lazy('view-organization', args=[org_id]))
-
-            try:
-                assert response.status_code == 200
-            except AssertionError as e:
-                print(org_id)
-                print(response.content)
-                raise(e)
+        try:
+            assert response.status_code == 200
+        except AssertionError as e:
+            print(org_id)
+            print(response.content)
+            raise(e)
 
     # def test_create_organization(self):
     #     response = self.client.get(reverse_lazy('create-organization'), follow=True)

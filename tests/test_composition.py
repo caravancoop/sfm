@@ -16,48 +16,30 @@ from composition.views import CompositionCreate
 from sfm_pc.signals import update_orgname_index, update_orgalias_index, \
     update_personname_index, update_personalias_index, update_source_index
 
-def setUpModule():
 
-    post_save.disconnect(receiver=update_orgname_index, sender=OrganizationName)
-    post_save.disconnect(receiver=update_orgalias_index, sender=OrganizationAlias)
-    post_save.disconnect(receiver=update_source_index, sender=Source)
-
-    call_command('loaddata', 'tests/fixtures/auth.json')
-    call_command('loaddata', 'tests/fixtures/source.json')
-    call_command('loaddata', 'tests/fixtures/organization.json')
-
-
-def tearDownModule():
-
-    with connection.cursor() as conn:
-        conn.execute('TRUNCATE auth_user CASCADE')
-        conn.execute('TRUNCATE source_source CASCADE')
-        conn.execute('TRUNCATE organization_organization CASCADE')
-
-
-class CompositionTest(TestCase):
-
-    client = Client()
-
-    def setUp(self):
-        self.user = User.objects.first()
-        self.client.force_login(self.user)
-        self.source = Source.objects.first()
-
-        self.classification, _ = Classification.objects.get_or_create(value='Command')
-
-        organizations = Organization.objects.all()[:3]
-        organizations = [{'id': o.id, 'name': o.name.get_value().value}
-                         for o in organizations]
-
-        session = self.client.session
-        session['organizations'] = organizations
-
-        session['source_id'] = str(self.source.uuid)
-        session.save()
-
-    def tearDown(self):
-        self.client.logout()
+# class CompositionTest(TestCase):
+#
+#     client = Client()
+#
+#     def setUp(self):
+#         self.user = User.objects.first()
+#         self.client.force_login(self.user)
+#         self.source = Source.objects.first()
+#
+#         self.classification, _ = Classification.objects.get_or_create(value='Command')
+#
+#         organizations = Organization.objects.all()[:3]
+#         organizations = [{'id': o.id, 'name': o.name.get_value().value}
+#                         for o in organizations]
+#
+#         session = self.client.session
+#         session['organizations'] = organizations
+#
+#         session['source_id'] = str(self.source.uuid)
+#         session.save()
+#
+#     def tearDown(self):
+#         self.client.logout()
 
     # def test_create_composition(self):
 
