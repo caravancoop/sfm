@@ -79,7 +79,15 @@ class BaseEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.post_data = dict(kwargs.pop('post_data'))
+
+        try:
+            del self.post_data['csrfmiddlewaretoken']
+        except KeyError:
+            pass
+
         self.object_ref_pk = kwargs.pop('object_ref_pk')
+        self.update_fields = set()
+
         super().__init__(*args, **kwargs)
 
     @property
@@ -115,6 +123,7 @@ class BaseEditForm(forms.ModelForm):
 
             try:
                 self.post_data['{}_source'.format(field)]
+                self.update_fields.add(field)
             except KeyError:
                 error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
                                             code='invalid',
@@ -122,12 +131,13 @@ class BaseEditForm(forms.ModelForm):
                 self.add_error(field, error)
 
     def _validate_complex_list(self, field_instance, field):
-        old_values = {f.get_value().value for f in field_instance.get_list()}
+        old_values = {f.get_value() for f in field_instance.get_list()}
         new_values = set(self.cleaned_data.get(field))
 
         if new_values != old_values:
             try:
                 self.post_data['{}_source'.format(field)]
+                self.update_fields.add(field)
             except KeyError:
                 error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
                                             code='invalid',
@@ -144,6 +154,13 @@ class BaseEditForm(forms.ModelForm):
             self._validate_complex_list(field_instance, field)
 
     def clean(self):
+
+        # Need to validate booleans first cuz Django is being difficult
+
+        boolean_fields = [f for f in self.fields if isinstance(self.fields[f], forms.BooleanField)]
+
+        for field in boolean_fields:
+            self._validate_boolean(field)
 
         sources_sent = {k.replace('_source', '') for k in self.post_data.keys() if '_source' in k}
         values_sent = {f for f in self.post_data.keys() if not '_source' in f}
@@ -170,11 +187,11 @@ class BaseEditForm(forms.ModelForm):
                 field_value = [f.get_value().id for f in field_instance.get_list()]
 
             self.post_data[field] = field_value
+            self.update_fields.add(field)
 
-        for field in self.fields:
+        self.update_fields = self.update_fields | sources_sent
 
-            if isinstance(self.fields[field], forms.BooleanField):
-                self._validate_boolean(field)
+        for field in self.update_fields:
 
             # If the posted value is empty but there are sources, that means
             # that the user cleared out the value and gave evidence as to
@@ -200,14 +217,14 @@ class BaseEditForm(forms.ModelForm):
 
         for field_name, field_model, multiple_values in self.edit_fields:
 
-            if field_name in self.post_data:
+            if field_name in self.update_fields:
 
                 new_source_ids = self.post_data['{}_source'.format(field_name)]
 
                 sources = Source.objects.filter(uuid__in=new_source_ids)
 
                 field = ComplexFieldContainer.field_from_str_and_id(
-                    self.instance._meta.model_name, self.instance.id, field_name
+                    self.object_type, self.instance.id, field_name
                 )
 
                 existing_sources = field.get_sources()

@@ -56,9 +56,9 @@ def test_edit_person(setUp):
         'date_of_death_source': new_source_ids,
     }
 
-    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 302
 
     assert set(new_source_ids) <= {s.uuid for s in person.name.get_sources()}
 

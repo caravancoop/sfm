@@ -34,7 +34,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "rank" %}</label>
+                <label class="control-label">{% trans "Rank" %}</label>
                 <select id="id_rank" class="form-control sourced-dropdown select2-target" name="rank">
                     <option value="">------</option>
                     {% for value, choice in form.fields.rank.choices %}
@@ -60,7 +60,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "role" %}</label>
+                <label class="control-label">{% trans "Role" %}</label>
                 <input type="text" name="role" id="id_role" class="form-control sourced" value="{{ form.instance.role }}">
                 {% if form.role.errors %}
                     {% for error in form.role.errors %}
@@ -77,7 +77,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "title" %}</label>
+                <label class="control-label">{% trans "Title" %}</label>
                 <input type="text" name="title" id="id_title" class="form-control sourced" value="{{ form.instance.title }}">
                 {% if form.title.errors %}
                     {% for error in form.title.errors %}
@@ -94,7 +94,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Date of death" %}</label>
+                <label class="control-label">{% trans "Date first cited" %}</label>
                 <input type="text" name="firstciteddate" id="id_firstciteddate" class="form-control sourced" value="{{ form.instance.firstciteddate }}">
                 {% if form.firstciteddate.errors %}
                     {% for error in form.firstciteddate.errors %}
@@ -114,9 +114,9 @@
                 <div class="checkbox">
                     <label class="control-label">
                         {% if form.instance.realstart.get_value.value %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {% trans "realstart" %}
+                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {% trans "Start date?" %}
                         {% else %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {% trans "realstart" %}
+                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {% trans "Start date?" %}
                         {% endif %}
                     </label>
                 </div>
@@ -135,7 +135,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Date of death" %}</label>
+                <label class="control-label">{% trans "Context for start date" %}</label>
                 <input type="text" name="startcontext" id="id_startcontext" class="form-control sourced" value="{{ form.instance.startcontext }}">
                 {% if form.startcontext.errors %}
                     {% for error in form.startcontext.errors %}
