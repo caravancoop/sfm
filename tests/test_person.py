@@ -169,6 +169,24 @@ def test_remove_all_values(setUp):
 
 
 @pytest.mark.django_db
+def test_duplicate_source(setUp):
+    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+
+    sources = [s.uuid for s in person.name.get_sources()]
+
+    post_data = {
+        'name': person.name.get_value().value,
+        'name_source': sources + sources,
+    }
+
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+
+    assert response.status_code == 200
+
+    assert len(person.name.get_sources()) == len(sources)
+
+
+@pytest.mark.django_db
 def test_just_add_source(setUp):
     person = Person.objects.order_by('?').first()
 
