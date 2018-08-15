@@ -145,6 +145,64 @@
             </div>
         </div>
     </div>
+    <div class="row lastciteddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.lastciteddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Date last cited" %}</label>
+                <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.instance.lastciteddate }}">
+                {% if form.lastciteddate.errors %}
+                    {% for error in form.lastciteddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row realend-row field-bg">
+        <div class="col-sm-12">
+            {% if form.realend.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.instance.realend.get_value.value %}
+                            <input type="checkbox" name="realend" id="id_realend" class="sourced" checked="true" /> {% trans "End date?" %}
+                        {% else %}
+                            <input type="checkbox" name="realend" id="id_realend" class="sourced" /> {% trans "End date?" %}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.realend.errors %}
+                    {% for error in form.realend.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row endcontext-row field-bg">
+        <div class="col-sm-12">
+            {% if form.endcontext.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Context for end date" %}</label>
+                <input type="text" name="endcontext" id="id_endcontext" class="form-control sourced" value="{{ form.instance.endcontext }}">
+                {% if form.endcontext.errors %}
+                    {% for error in form.endcontext.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
 {% endblock %}
 {% block extra_extra_js %}
     <script type="text/javascript">

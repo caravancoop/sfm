@@ -31,7 +31,7 @@
         </div>
         <form class="form" method="POST">
         {% csrf_token %}
-        <div class="col-sm-6">
+        <div id="form-fields" class="col-sm-6">
             {% block form_content %}{% endblock %}
         </div>
         <div class="col-sm-6" id="source-wrapper-anchor">
@@ -60,17 +60,20 @@
     <script src="{% static "js/ejs_production.js" %}"></script>
     <script type="text/EJS" id="source-list-template">
         <% if(uncommitted){ %>
-            <p class="bg-success">
+            <div class="uncommitted-source alert alert-danger alert-dismissible">
         <% } else { %>
-            <p>
+            <div class="committed-source alert alert-warning alert-dismissible">
         <% } %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <strong>
                 <small><%= title %> (<%= publication %>)</small>
             </strong><br />
             <% $.each(access_points, function(i, access_point){ %>
-                <a href="<%= access_point.archive_url %>">Archive URL</a> <br />
+                <% if (access_point.archive_url){ %>
+                    <a href="<%= access_point.archive_url %>">Archive URL</a> <br />
+                <% } %>
             <% }) %>
-        </p>
+        </div>
     </script>
     <script type="text/EJS" id="source-input-template">
         <% $.each(access_points, function(i, access_point){ %>
@@ -129,40 +132,48 @@
 
                 var selector = '.' + field_name + '-row';
                 $(selector).addClass('bg-info');
+
+                $('.committed-source').on('close.bs.alert', function(e){
+                    console.log('removing a committed source');
+                });
+
+                $('.uncommitted-source').on('close.bs.alert', function(e){
+                    console.log('removing an uncommitted source');
+                });
+
             });
         }
 
-        function addModifiedField(e){
-            var modified_name = $(e.target).prop('name');
-            var hidden_field = '<input type="hidden" name="modified_fields" value="' + modified_name + '" />';
-            var already_added = $('input[name="modified_fields"][value="' + modified_name + '"]');
-            if (already_added.length == 0){
-                $('form').append(hidden_field);
-            }
-        }
-
-
         function stickSources(){
             var scroll_top = $(window).scrollTop();
+
+            var winheight = $(window).height()
+            var docheight = $(document).height()
+            var trackLength = docheight - winheight
+
             var anchor_top = $('#source-wrapper-anchor').offset().top;
             var width = $('#source-wrapper').width();
+            var max_height = $('#form-fields').height();
             if (scroll_top > anchor_top){
                 $('#source-wrapper').css({
                     position: 'fixed',
                     top: '10px',
-                    width: width
+                    width: width,
+                    'max-height': max_height,
+                    overflow: 'scroll'
                 })
             } else {
                 $('#source-wrapper').css({
                     position: 'relative',
                     top: '',
-                    width: '100%'
+                    width: '100%',
+                    'max-height': max_height,
+                    overflow: 'scroll'
                 })
             }
         }
 
         $(document).ready(function(){
-            $(window).scroll(stickSources);
 
             $.ajaxSetup({cache: false});
 
@@ -179,13 +190,10 @@
             });
 
             $('.sourced').on('click', loadSources);
-            //$('.sourced').on('input', addModifiedField);
 
             $('.sourced-dropdown').on('click', loadSources);
-            //$('.sourced-dropdown').on('input', addModifiedField);
 
             $('.select2-target').on('select2:opening', loadSources);
-            //$('.select2-target').on('select2:opening', addModifiedField);
 
             $('#source-search').on('select2:select', function(e){
 
@@ -208,6 +216,9 @@
 
                     $(selector).after(input);
                     $('#source-search').val(null).trigger('change');
+                    $('.uncommitted-source').on('close.bs.alert', function(e){
+                        console.log('removing an uncommitted source');
+                    });
                 })
             });
         })
