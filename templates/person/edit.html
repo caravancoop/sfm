@@ -226,13 +226,13 @@
             });
 
             // TODO: Figure out tab order stuff.
-            // $(document).on('focus', '.select2', function (e) {
-            //     console.log('originalEvent', e.orginalEvent);
-            //     if (e.originalEvent) {
-            //         console.log('siblings', $(this).siblings('select'));
-            //         $(this).siblings('select').select2('open');
-            //     }
-            // });
+            $(document).on('focus', '.select2', function (e) {
+                console.log('originalEvent', e.orginalEvent);
+                if (e.originalEvent) {
+                    console.log('siblings', $(this).siblings('select'));
+                    $(this).siblings('select').select2('open');
+                }
+            });
 
             // var inputs = $("input,select"); // You can use other elements such as textarea, button etc.
             //                     //depending on input field types you have used
