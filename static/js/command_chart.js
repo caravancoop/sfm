@@ -41,6 +41,7 @@ var CommandChart = {
     show: function() {
 
         // Build charts and add year
+        var display_charts = false;
         $.each(CommandChart.edgelists, function(index, org_data) {
 
             $("#command-chart-" + index).spin()
@@ -48,92 +49,102 @@ var CommandChart = {
             var command_chain_url = org_data['url'];
             var when = org_data['display_date'];
 
-            $.getJSON(command_chain_url, {index: index}, function(obj) {
-
+            $.when($.getJSON(command_chain_url, {index: index})).then(function(obj) {
                 var idx = obj['index'];
                 var cellID = "command-chart-" + idx;
                 var cellYearID = "command-chart-year-" + idx;
                 $('#' + cellID).spin(false);
 
-                var node_list = CommandChart.addMultiFont(obj['nodes']);
-                var edge_list = (obj['edges']);
+                if (obj['nodes'].length > 0){
+                    display_charts = true;
+                    var node_list = CommandChart.addMultiFont(obj['nodes']);
+                    var edge_list = (obj['edges']);
 
-                var nodes = new vis.DataSet(node_list);
-                var edges = new vis.DataSet(edge_list);
+                    var nodes = new vis.DataSet(node_list);
+                    var edges = new vis.DataSet(edge_list);
 
-                var container = document.getElementById(cellID);
-                var data = {
-                    nodes: nodes,
-                    edges: edges,
-                };
+                    var container = document.getElementById(cellID);
+                    var data = {
+                        nodes: nodes,
+                        edges: edges,
+                    };
 
-                var options = {
-                    nodes: {
-                        shape: 'box',
-                        fixed: {
-                            x:true,
-                            y:true,
-                        },
-                        shapeProperties: {
-                            borderRadius: 2,
-                        },
-                        color: {
-                            background: '#f4f4f4',
-                            border: '#D6D6D6',
-                            highlight: { // Change color of node on click
-                                background: '#EBEBEB',
+                    var options = {
+                        nodes: {
+                            shape: 'box',
+                            fixed: {
+                                x:true,
+                                y:true,
+                            },
+                            shapeProperties: {
+                                borderRadius: 2,
+                            },
+                            color: {
+                                background: '#f4f4f4',
                                 border: '#D6D6D6',
+                                highlight: { // Change color of node on click
+                                    background: '#EBEBEB',
+                                    border: '#D6D6D6',
+                                },
+                                hover: {
+                                    background:'#e0e0e0',
+                                    border:'#D6D6D6',
+                                },
                             },
-                            hover: {
-                                background:'#e0e0e0',
-                                border:'#D6D6D6',
+                            font: {
+                                color: '#777777',
+                                face: 'Open Sans',
                             },
                         },
-                        font: {
-                            color: '#777777',
-                            face: 'Open Sans',
+                        layout: {
+                            hierarchical: {
+                                levelSeparation: 100, // Distance between levels
+                                nodeSpacing: 300, // Distance between nodes
+                                direction: 'DU', // Inverts chart
+                                sortMethod: 'directed',
+                            }
                         },
-                    },
-                    layout: {
-                        hierarchical: {
-                            levelSeparation: 100, // Distance between levels
-                            nodeSpacing: 300, // Distance between nodes
-                            direction: 'UD', // Inverts chart
-                            sortMethod: 'directed',
-                        }
-                    },
-                    interaction: {
-                        zoomView: true,
-                        dragView: true,
-                        hover:true,
-                    },
-                };
+                        interaction: {
+                            zoomView: true,
+                            dragView: true,
+                            hover:true,
+                        },
+                    };
 
-                var network = new vis.Network(container, data, options);
+                    // $('#org-chart-container').css({
+                    //     'height': '600px'
+                    // })
 
-                if (typeof when != 'undefined' && when !== '') {
-                    $('#' + cellYearID).append(when);
-                } else {
-                    $('#' + cellYearID).append(CommandChart.dateMissingString);
-                }
+                    var network = new vis.Network(container, data, options);
 
-                // Bind click event to individual nodes
-                network.on("selectNode", function (params) {
-                    if (params.nodes.length === 1) {
-                        node = nodes.get(params.nodes[0]);
-                        window.location = node.url;
+                    if (typeof when != 'undefined' && when !== '') {
+                        $('#' + cellYearID).append(when);
+                    } else {
+                        $('#' + cellYearID).append(CommandChart.dateMissingString);
                     }
-                });
 
-                // Transform cursor (from hand into pointed finger and back again)
-                network.on("hoverNode", function (params) {
-                    network.canvas.body.container.style.cursor = 'pointer'
-                });
+                    // Bind click event to individual nodes
+                    network.on("selectNode", function (params) {
+                        if (params.nodes.length === 1) {
+                            node = nodes.get(params.nodes[0]);
+                            window.location = node.url;
+                        }
+                    });
 
-                network.on("blurNode", function (params) {
-                    network.canvas.body.container.style.cursor = 'default'
-                });
+                    // Transform cursor (from hand into pointed finger and back again)
+                    network.on("hoverNode", function (params) {
+                        network.canvas.body.container.style.cursor = 'pointer'
+                    });
 
+                    network.on("blurNode", function (params) {
+                        network.canvas.body.container.style.cursor = 'default'
+                    });
+                } else {
+                    $('#' + cellID).hide();
+                }
+                if(!display_charts){
+                    $('#command-chain').hide();
+                }
             });
 
         });

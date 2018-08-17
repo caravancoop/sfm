@@ -122,7 +122,6 @@ def get_commanders(mem_start, mem_end, compositions, relationship='child'):
 
     # Get start and end date for this membership, to determine
     # overlap
-    # mem_start = membership.firstciteddate.get_value()
     no_start = False
     if mem_start is None:
         # Make a bogus date that everything will be greater than
@@ -131,7 +130,6 @@ def get_commanders(mem_start, mem_end, compositions, relationship='child'):
     else:
         mem_start = repr(mem_start.value)
 
-    # mem_end = membership.lastciteddate.get_value()
     no_end = False
     if mem_end is None:
         mem_end = date.today()
