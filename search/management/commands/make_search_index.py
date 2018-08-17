@@ -176,29 +176,34 @@ class Command(BaseCommand):
                     if area_name:
                         areas.update([area_name.value])
 
-            parent_names, parent_ids, parent_classifications, parent_dateranges, parent_openendeds = [], [], [], [], []
+            parent_names, parent_ids = [], []
             parents = organization.parent_organization.all()
             parent_count = len(parents)
+
+            if parent_count == 0:
+                documents.append({
+                    'id': 'composition-{}'.format(org_id),
+                    'composition_parent_id_s': org_id,
+                    'composition_parent_name_s': name,
+                    'entity_type': 'Composition',
+                    'content': 'Composition',
+                })
+
             for parent in parents:
                 # `parent_organization` returns a list of CompositionChilds,
                 # so we have to jump through some hoops to get the foreign
                 # key value
                 composition = parent.object_ref
                 parent = composition.parent.get_value().value
-                parent_ids.append(parent.uuid)
-                if parent.name.get_value():
-                    parent_names.append(parent.name.get_value().value)
+                parent_name = parent.name.get_value().value
+                parent_names.append(parent_name)
 
                 start_date = self.format_date(composition.startdate.get_value())
                 end_date = self.format_date(composition.enddate.get_value())
                 classification = composition.classification.get_value()
                 open_ended = composition.open_ended.get_value()
 
-                if open_ended:
-                    parent_openendeds.append(open_ended.value)
-
-                if classification:
-                    parent_classifications.append(classification.value)
+                composition_daterange = None
 
                 if start_date and end_date:
                     start_date = start_date.split('T')[0]
@@ -210,15 +215,26 @@ class Command(BaseCommand):
                         args = [end_date, start_date]
 
                     composition_daterange = '[{0} TO {1}]'.format(*args)
-                    parent_dateranges.append(composition_daterange)
 
                 elif start_date and not end_date and open_ended and open_ended.value.strip() == 'Y':
                     composition_daterange = '[{} TO *]'.format(start_date.split('T')[0])
-                    parent_dateranges.append(composition_daterange)
 
                 elif not start_date and end_date:
                     composition_daterange = '[* TO {}]'.format(end_date.split('T')[0])
-                    parent_dateranges.append(composition_daterange)
+
+                if composition_daterange:
+                    documents.append({
+                        'id': 'composition-{}'.format(composition.id),
+                        'composition_parent_id_s': str(parent.uuid),
+                        'composition_parent_pk_i': parent.id,
+                        'composition_parent_name_s': parent_name,
+                        'composition_child_id_s': org_id,
+                        'composition_child_pk_i': organization.id,
+                        'composition_child_name_s': name,
+                        'composition_daterange_dr': composition_daterange,
+                        'entity_type': 'Composition',
+                        'content': 'Composition',
+                    })
 
             memberships = []
             mems = organization.membershiporganizationmember_set.all()
@@ -243,7 +259,6 @@ class Command(BaseCommand):
 
             document = {
                 'id': org_id,
-                'organization_pk_i': organization.id,
                 'entity_type': 'Organization',
                 'content': content,
                 'location': '',  # disabled until we implement map search
@@ -254,11 +269,7 @@ class Command(BaseCommand):
                 'open_ended_s': open_ended,
                 'organization_name_s': name,
                 'organization_parent_name_ss': parent_names,
-                'organization_parent_id_ss': parent_ids,
                 'organization_parent_count_i': parent_count,
-                'organization_parent_classification_ss': parent_classifications,
-                'organization_parent_open_ended_ss': parent_openendeds,
-                'organization_parent_daterange_drs': parent_dateranges,
                 'organization_membership_ss': memberships,
                 'organization_classification_ss': classes,
                 'organization_classification_count_i': class_count,
@@ -336,50 +347,88 @@ class Command(BaseCommand):
 
             for membership in memberships:
 
-                role = membership.role.get_value()
-                if role:
-                    roles.update([role.value.value])
-
-                rank = membership.rank.get_value()
-                if rank:
-                    ranks.update([rank.value.value])
-
-                title = membership.title.get_value()
-                if title:
-                    titles.update([title.value])
-
                 org = membership.organization.get_value()
+
                 if org:
+
                     org = org.value
+
+                    # Check to see if we can extend first/last cited dates
+                    fcd = membership.firstciteddate.get_value()
+                    if fcd:
+                        if first_cited:
+                            if fcd.value < first_cited.value:
+                                first_cited = fcd
+                        else:
+                            first_cited = fcd
+
+                    lcd = membership.lastciteddate.get_value()
+                    if lcd:
+                        if last_cited:
+                            if lcd.value > last_cited.value:
+                                last_cited = lcd
+                        else:
+                            last_cited = lcd
+
+                    assignment_range = None
+                    if fcd and lcd:
+                        fcd = self.format_date(fcd).split('T')[0]
+                        lcd = self.format_date(lcd).split('T')[0]
+
+                        args = [fcd, lcd]
+
+                        if dateparser.parse(fcd) > dateparser.parse(lcd):
+                            args = [lcd, fcd]
+
+                        assignment_range = '[{0} TO {1}]'.format(*args)
+                    elif fcd:
+                        fcd = self.format_date(fcd).split('T')[0]
+                        assignment_range = '[{} TO *]'.format(fcd)
+                    elif lcd:
+                        lcd = self.format_date(lcd).split('T')[0]
+                        assignment_range = '[* TO {}]'.format(lcd)
+
+                    role = membership.role.get_value()
+                    if role and role.value.value == 'Commander' and assignment_range:
+
+                        commander = {
+                            'id': 'commander-{}'.format(membership.id),
+                            'commander_person_id_s': person_id,
+                            'commander_person_name_s': name,
+                            'commander_org_id_s': org.uuid,
+                            'commander_org_name_s': org.name.get_value().value,
+                            'commander_assignment_range_dr': assignment_range,
+                            'entity_type': 'Commander',
+                            'content': 'Commander',
+                        }
+                        documents.append(commander)
+
+                    elif role:
+                        roles.add(role.value.value)
+
+                    rank = membership.rank.get_value()
+                    if rank:
+                        ranks.add(rank.value.value)
+
+                    title = membership.title.get_value()
+                    if title:
+                        titles.add(title.value)
+
 
                     # We also want to index the person based on the countries
                     # their member units have operated in
                     org_division_id = org.division_id.get_value()
+
                     if org_division_id:
                         division_ids.update([org_division_id.value])
                         org_country = country_name(org_division_id)
                         countries.update([org_country])
 
-                # Check to see if we can extend first/last cited dates
-                fcd = membership.firstciteddate.get_value()
-                if fcd:
-                    if first_cited:
-                        if fcd.value < first_cited.value:
-                            first_cited = fcd
-                    else:
-                        first_cited = fcd
 
-                lcd = membership.lastciteddate.get_value()
-                if lcd:
-                    if last_cited:
-                        if lcd.value > last_cited.value:
-                            last_cited = lcd
-                    else:
-                        last_cited = lcd
 
             # Convert sets to lists, for indexing
             division_ids, countries = list(division_ids), list(countries)
-            roles, ranks, titles = list(roles), list(ranks), list(titles)
+            ranks, roles, titles = list(ranks), list(roles), list(titles)
 
             # Add some attributes to the global index
             for attr in (roles, ranks, titles, countries):

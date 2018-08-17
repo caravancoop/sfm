@@ -325,28 +325,39 @@ def command_chain(request, org_id='', when=None, parents=True):
     # Add hierarchy to nodelist and edgelist
     if parents:
         hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
-        from_key, to_key = 'id', 'organization_parent_id_ss'
+        from_key, to_key = 'child', 'parent'
     else:
-        hierarchy_list = get_child_orgs_by_id(org_id, when=when, direction='down')
-        from_key, to_key = 'organization_parent_id_ss', 'id'
+        hierarchy_list = get_org_hierarchy_by_id(org_id, when=when, direction='down')
+        from_key, to_key = 'parent', 'child'
 
-    for org in hierarchy_list:
-        trimmed = {
-            'id': org['id'],
-            'label': org['organization_name_s'],
-            'detail_id': org['organization_pk_i'],
-            'url': reverse('view-organization', args=[org['organization_pk_i']])
-        }
-        nodes.append(trimmed)
+    organizations = []
 
-        try:
-            for edge in org['organization_parent_id_ss']:
-                if from_key == 'organization_parent_id_ss':
-                    edges.append({'from': org['id'], 'to': edge})
-                else:
-                    edges.append({'from': edge, 'to': org['id']})
-        except KeyError:
-            edges.append({'from': org['id'], 'to': None})
+    for composition in hierarchy_list:
+        node_fmt = 'composition_{}_id_s_fct'
+        for node in ['parent', 'child']:
+            label = '<b>{}</b>\n'.format(composition['composition_{}_name_s'.format(node)])
+
+            if when:
+                commanders = []
+                for commander in composition['commanders-{}'.format(node)]:
+
+                    if not commander['label'] in commanders:
+                        label += '{}\n'.format(commander['label'])
+                        commanders.append(commander['label'])
+
+            node_key = node_fmt.format(node)
+            if not composition[node_key] in organizations:
+
+                trimmed = {
+                    'id': composition[node_key],
+                    'label': label,
+                    'detail_id': composition['composition_{}_pk_i'.format(node)],
+                    'url': reverse('view-organization', args=[composition['composition_{}_pk_i'.format(node)]])
+                }
+                nodes.append(trimmed)
+                organizations.append(composition[node_key])
+
+        edges.append({'from': composition[node_fmt.format(from_key)], 'to': composition[node_fmt.format(to_key)]})
 
     edgelist = {'nodes': nodes, 'edges': edges, 'index': index}
 

@@ -522,30 +522,50 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False, direction='up'):
     base_url = settings.SOLR_URL
 
     if direction == 'up':
-        from_ = 'id'
-        to = 'organization_parent_id_ss_fct'
+        from_ = 'child'
+        to = 'parent'
     elif direction == 'down':
-        to = 'id'
-        from_ = 'organization_parent_id_ss_fct'
+        from_ = 'parent'
+        to = 'child'
 
-    filter_query = '{!graph from=%s to=%s returnRoot=true}id:%s' % (from_, to, org_id)
+    filter_query = '{!graph from=composition_%s_id_s_fct to=composition_%s_id_s_fct returnRoot=true}composition_%s_id_s_fct:%s' % (from_, to, from_, org_id)
 
     if when:
-        filter_query += ' AND {!field f=organization_parent_daterange_drs op=contains}%s' % when
+        filter_query += ' AND {!field f=composition_daterange_dr op=contains}%s' % when
 
-    print(filter_query)
+    results = solr.search('*:*', fq=filter_query)
 
-    fields = [
-        'organization_name_s',
-        'organization_pk_i',
-        'organization_parent_id_ss',
-        'organization_parent_name_ss',
-        'id',
-    ]
+    if when:
+        for result in results:
+            for key in [from_, to]:
+                org = result['composition_{}_id_s_fct'.format(key)]
+                args =  (org, when)
+                query = 'commander_org_id_s_fct:%s AND {!field f=commander_assignment_range_dr op=contains}%s' % args
 
-    results = solr.search('*:*', fq=filter_query, fl=fields)
+                commanders = solr.search(query)
 
-    return [r for r in results]
+                # We need to deduplicate commanders and then throw out the open ended date ranges.
+
+                result['commanders-{}'.format(key)] = []
+
+                for commander in commanders:
+                    label_fmt = '{name} ({start} - {end})'
+                    assignment_range = commander['commander_assignment_range_dr']
+                    start, end = assignment_range.replace('[', '').replace(']', '').split(' TO ')
+
+                    if start == '*':
+                        start = '?'
+                    if end == '*':
+                        end = '?'
+
+                    label = label_fmt.format(name=commander['commander_person_name_s'],
+                                            start=start,
+                                            end=end)
+
+                    commander['label'] = label
+                    result['commanders-{}'.format(key)].append(commander)
+
+    return results
 
 def get_child_orgs_by_id(org_id, when=None, sources=False):
     hierarchy = '''

@@ -321,12 +321,14 @@
 
             var edgelists = {{command_chain|safe}};
 
-            var chart = CommandChart;
-            chart.dateMissingString = "{% trans 'No known end date' %}"
-            chart.edgelists = edgelists;
+            if (edgelists){
+                var chart = CommandChart;
+                chart.dateMissingString = "{% trans 'No known end date' %}"
+                chart.edgelists = edgelists;
 
-            chart.initCarousel();
-            chart.show();
+                chart.initCarousel();
+                chart.show();
+            }
         });
 
         </script>

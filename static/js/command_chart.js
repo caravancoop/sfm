@@ -98,7 +98,7 @@ var CommandChart = {
                         hierarchical: {
                             levelSeparation: 100, // Distance between levels
                             nodeSpacing: 300, // Distance between nodes
-                            direction: 'UD', // Inverts chart
+                            direction: 'DU', // Inverts chart
                             sortMethod: 'directed',
                         }
                     },
