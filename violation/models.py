@@ -1,5 +1,7 @@
 import uuid
 
+import reversion
+
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
 from django.db.models import Max
@@ -16,7 +18,30 @@ from organization.models import Organization
 from geosite.models import Geosite
 from sfm_pc.utils import VersionsMixin
 
+VERSION_RELATED_FIELDS = [
+    'violationadminlevel1_set',
+    'violationadminlevel2_set',
+    'violationdescription_set',
+    'violationdivisionid_set',
+    'violationenddate_set',
+    'violationfirstallegation_set',
+    'violationlastupdate_set',
+    'violationlocation_set',
+    'violationlocationdescription_set',
+    'violationlocationid_set',
+    'violationlocationname_set',
+    'violationosmid_set',
+    'violationosmname_set',
+    'violationperpetrator_set',
+    'violationperpetratorclassification_set',
+    'violationperpetratororganization_set',
+    'violationstartdate_set',
+    'violationstatus_set',
+    'violationtype_set'
+]
 
+
+@reversion.register(follow=VERSION_RELATED_FIELDS)
 class Violation(models.Model, BaseModel, VersionsMixin):
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,
