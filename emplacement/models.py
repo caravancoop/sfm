@@ -27,7 +27,9 @@ class Emplacement(models.Model, BaseModel):
         self.aliases = ComplexFieldListContainer(self, EmplacementAlias)
 
         self.complex_fields = [self.startdate, self.enddate, self.organization,
-                               self.site, self.open_ended]
+                               self.site, self.open_ended, self.realstart]
+
+        self.complex_lists = [self.aliases]
 
         self.required_fields = [
             "Emplacement_EmplacementOrganization",
@@ -35,7 +37,7 @@ class Emplacement(models.Model, BaseModel):
         ]
 
     def get_value(self):
-        return '{0} ({1})'.format(self.organization.get_value(), 
+        return '{0} ({1})'.format(self.organization.get_value(),
                                   self.site.get_value())
 
 @versioned
@@ -91,12 +93,5 @@ class EmplacementSite(ComplexField):
 @sourced
 class EmplacementAlias(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
-    value = models.ForeignKey('Alias', default=None, blank=True, null=True)
+    value = models.TextField(blank=True, null=True)
     field_name = _("Alias")
-
-
-class Alias(models.Model):
-    value = models.TextField()
-
-    def __str__(self):
-        return self.value
