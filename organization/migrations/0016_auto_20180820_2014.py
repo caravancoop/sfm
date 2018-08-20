@@ -13,6 +13,8 @@ def remake_views(apps, schema_editor):
     view_paths = [
         os.path.join(sql_folder_path, 'organization_view.sql'),
         os.path.join(sql_folder_path, 'organization_sources_view.sql'),
+        os.path.join(sql_folder_path, 'organization_alias_export_view.sql'),
+        os.path.join(sql_folder_path, 'organization_classification_export_view.sql'),
     ]
 
     for view_path in view_paths:
@@ -44,5 +46,11 @@ class Migration(migrations.Migration):
             ) AS s
             WHERE organization_organizationclassification.value_id = s.id
         '''),
-        migrations.RunPython(remake_views)
+        migrations.RunPython(remake_views),
+        migrations.RunSQL('''
+            ALTER TABLE organization_organizationalias DROP COLUMN value_id
+        '''),
+        migrations.RunSQL('''
+            ALTER TABLE organization_organizationclassification DROP COLUMN value_id
+        '''),
     ]
