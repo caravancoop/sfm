@@ -11,7 +11,7 @@ from complex_fields.model_decorators import (versioned, sourced, sourced_optiona
 from complex_fields.models import (ComplexField, ComplexFieldContainer,
                                    ComplexFieldListContainer)
 from complex_fields.base_models import BaseModel
-from organization.models import Organization, Alias
+from organization.models import Organization
 from geosite.models import Geosite
 
 
