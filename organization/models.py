@@ -1,5 +1,7 @@
 import uuid
 
+import reversion
+
 from django.db import models
 from django.db.models.functions import Coalesce, Value
 from django.utils.translation import ugettext as _
@@ -12,6 +14,27 @@ from complex_fields.base_models import BaseModel
 from django_date_extensions.fields import ApproximateDateField
 
 from sfm_pc.utils import VersionsMixin
+
+VERSION_RELATED_FIELDS = [
+    'associationorganization_set',
+    'emplacementorganization_set',
+    'organizationalias_set',
+    'organizationclassification_set',
+    'organizationdivisionid_set',
+    'organizationfirstciteddate_set',
+    'organizationheadquarters_set',
+    'organizationlastciteddate_set',
+    'organizationname_set',
+    'organizationopenended_set',
+    'organizationrealstart_set',
+    'membershiporganizationmember_set',
+    'membershiporganizationorganization_set',
+    'membershippersonorganization_set',
+    'violationperpetratororganization_set',
+]
+
+
+@reversion.register(follow=VERSION_RELATED_FIELDS)
 
 class Organization(models.Model, BaseModel, VersionsMixin):
 

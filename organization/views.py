@@ -121,6 +121,8 @@ class OrganizationDetail(DetailView):
 
             context['parents_list'].append(org_data)
 
+        context['versions'] = context['organization'].getVersions()
+
         return context
 
 
