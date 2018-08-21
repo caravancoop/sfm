@@ -22,7 +22,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from extra_views import FormSetView
 
-from violation.models import Violation, Type, ViolationType, \
+from violation.models import Violation, ViolationType, \
     ViolationPerpetrator, ViolationPerpetratorOrganization
 from source.models import Source
 from geosite.models import Geosite

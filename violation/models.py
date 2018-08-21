@@ -85,6 +85,8 @@ class Violation(models.Model, BaseModel, VersionsMixin):
                                self.locationdescription, self.location,
                                self.description, self.division_id]
 
+        self.complex_lists = [self.perpetrator, self.perpetratororganization, self.types]
+
         self.required_fields = [self.description, self.startdate, self.enddate]
 
 
@@ -236,15 +238,8 @@ class ViolationPerpetratorOrganization(ComplexField):
 @translated
 class ViolationType(ComplexField):
     object_ref = models.ForeignKey('Violation', null=True)
-    value = models.ForeignKey('Type', default=None, blank=True, null=True)
+    value = models.TextField(blank=True, null=True)
     field_name = _("Violation type")
-
-
-class Type(models.Model):
-    code = models.TextField()
-
-    def __str__(self):
-        return self.code
 
 
 @versioned
@@ -252,12 +247,5 @@ class Type(models.Model):
 @translated
 class ViolationPerpetratorClassification(ComplexField):
     object_ref = models.ForeignKey('Violation', null=True)
-    value = models.ForeignKey('PerpetratorClassification', default=None, blank=True, null=True)
+    value = models.TextField(blank=True, null=True)
     field_name = _("Perpetrating unit classification")
-
-
-class PerpetratorClassification(models.Model):
-    value = models.TextField()
-
-    def __str__(self):
-        return self.value
