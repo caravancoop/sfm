@@ -1,18 +1,14 @@
 from django.conf.urls import url
 from django.views.decorators.cache import cache_page
 
-from organization.views import OrganizationCreate, OrganizationUpdate, \
-    organization_autocomplete, alias_autocomplete, \
-    OrganizationCreateGeography, classification_autocomplete, OrganizationDetail, \
-    OrganizationList
+from organization.views import organization_autocomplete, alias_autocomplete, \
+    classification_autocomplete, OrganizationDetail, OrganizationEditBasicsView
+
 
 urlpatterns = [
-    url(r'^create/$',
-        OrganizationCreate.as_view(),
-        name="create-organization"),
-    url(r'update/(?P<pk>\d+)/$', OrganizationUpdate.as_view(), name='update-organization'),
-    url(r'view/(?P<pk>\d+)/$', cache_page(60 * 60 * 24)(OrganizationDetail.as_view()), name='view-organization'),
-    url(r'list/$', OrganizationList.as_view(), name='list-organization'),
+    url(r'^view/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+        OrganizationDetail.as_view(),
+        name="view-organization"),
     url(r'name/autocomplete',
         organization_autocomplete,
         name="organization-autocomplete"),
@@ -20,5 +16,7 @@ urlpatterns = [
     url(r'^classification/autocomplete/$',
         classification_autocomplete,
         name="org-classification-autocomplete"),
-    url(r'^create/geography/$', OrganizationCreateGeography.as_view(), name="create-geography"),
+    url(r'edit/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+        OrganizationEditBasicsView.as_view(),
+        name='edit-organization'),
 ]

@@ -17,15 +17,11 @@ from sfm_pc.signals import update_orgname_index, update_orgalias_index, \
 @pytest.mark.django_db
 def test_view_organization(client):
 
-    for org_id in range(1, 10):
-        response = client.get(reverse_lazy('view-organization', args=[org_id]))
+    them = Organization.objects.order_by('?')[:10]
+    for it in them:
+        response = client.get(reverse_lazy('view-organization', args=[it.uuid]))
 
-        try:
-            assert response.status_code == 200
-        except AssertionError as e:
-            print(org_id)
-            print(response.content)
-            raise(e)
+        assert response.status_code == 200
 
     # def test_create_organization(self):
     #     response = self.client.get(reverse_lazy('create-organization'), follow=True)

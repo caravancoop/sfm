@@ -9,20 +9,14 @@
     <div class="well">
         <div class="row header">
             <div class="col-sm-6">
-                <h1>{{ person.name.get_value }}</h1>
+                <h1>{{ object.name.get_value }}</h1>
                 <p>
-                    {% trans "ID:" %} {{ person.uuid }}<br />
+                    {% trans "ID:" %} {{ object.uuid }}<br />
                     {% trans "Last update by:" %} username goes here <br />
                     <a href="#">{% trans "View versions"%}</a>
                 </p>
             </div>
-            <div class="col-sm-6">
-                <h1>
-                    {% trans "Edit:" %}
-                    <a href="{% url 'edit-person' person.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
-                    <a href="{% url 'edit-person-postings' person.uuid first_membership.id %}" class="btn btn-primary">{% trans "Postings" %}</a>
-                </h1>
-            </div>
+            {% block edit_links %}{% endblock %}
         </div>
     </div>
     <div class="row">

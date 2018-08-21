@@ -1,6 +1,16 @@
-{% extends 'person/edit.html' %}
+{% extends 'edit.html' %}
 {% load i18n %}
 {% load countries %}
+
+{% block edit_links %}
+    <div class="col-sm-6">
+        <h1>
+            {% trans "Edit:" %}
+            <a href="{% url 'edit-person' person.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
+            <a href="{% url 'edit-person-postings' person.uuid first_membership.id %}" class="btn btn-primary">{% trans "Postings" %}</a>
+        </h1>
+    </div>
+{% endblock %}
 
 {% block above_form %}
     {% include 'person/partials/person-posting-list.html'%}

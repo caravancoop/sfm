@@ -17,7 +17,7 @@ from person.models import Person, PersonAlias
 from person.forms import PersonBasicsForm, PersonPostingsForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.utils import Autofill
-from sfm_pc.base_views import NeverCacheMixin
+from sfm_pc.base_views import NeverCacheMixin, BaseEditView
 
 
 class PersonDetail(DetailView):
@@ -277,22 +277,11 @@ def person_autocomplete(request):
     return HttpResponse(json.dumps(attrs), content_type='application/json')
 
 
-class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
+class PersonEditView(BaseEditView):
     model = Person
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
     context_object_name = 'person'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['countries'] = Country.objects.all()
-        return context
-
-    def get_form_kwargs(self):
-        form_kwargs = super().get_form_kwargs()
-        form_kwargs['post_data'] = self.request.POST
-        form_kwargs['object_ref_pk'] = self.kwargs[self.slug_field_kwarg]
-        return form_kwargs
 
     def get_success_url(self):
         return reverse('view-person', kwargs=self.kwargs)
