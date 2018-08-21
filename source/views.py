@@ -348,3 +348,21 @@ def publication_autocomplete(request):
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
+
+
+def remove_source(request):
+
+    field_name = request.GET['field_name']
+    object_id = request.GET['object_id']
+    object_type = request.GET['object_type']
+    source_id = request.GET['id']
+
+    field = ComplexFieldContainer.field_from_str_and_id(
+        object_type, object_id, field_name
+    )
+
+    source = Source.objects.get(uuid=source_id)
+
+    field.get_field().sources.remove(source)
+
+    return HttpResponse(json.dumps({}), content_type='application/json')

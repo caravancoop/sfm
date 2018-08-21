@@ -60,9 +60,9 @@
     <script src="{% static "js/ejs_production.js" %}"></script>
     <script type="text/EJS" id="source-list-template">
         <% if(uncommitted){ %>
-            <div class="uncommitted-source alert alert-danger alert-dismissible">
+            <div data-field_name="<%= field_name %>" data-source_id="<%= id %>" class="uncommitted-source alert alert-danger alert-dismissible">
         <% } else { %>
-            <div class="committed-source alert alert-warning alert-dismissible">
+            <div data-field_name="<%= field_name %>" data-source_id="<%= id %>" class="committed-source alert alert-warning alert-dismissible">
         <% } %>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <strong>
@@ -104,6 +104,27 @@
             return $.getJSON("{% url 'get-sources' %}", params)
         }
 
+        function removeCommittedSource(e){
+            var field_name = $(e.target).data('field_name');
+            var source_id = $(e.target).data('source_id');
+            var params = {
+                'object_id': object_id,
+                'object_type': object_type,
+                'field_name': field_name,
+                'id': source_id
+            }
+            $.when($.getJSON('{% url "remove-source" %}', params)).then(function(response){
+                console.log(response);
+            })
+        }
+
+        function removeUncommittedSource(e){
+            var source_id = $(e.target).data('source_id');
+            var field_name = $(e.target).data('field_name');
+            var selector = 'input[name="' + field_name + '_source"][value="' + source_id + '"]';
+            $(selector).remove();
+        }
+
         function loadSources(e){
             var field_name = $(e.target).prop('name');
 
@@ -117,12 +138,13 @@
                     var source_info = $(source).data();
                     source_info['uncommitted'] = true;
                     source_info['access_points'] = [source_info['access_points']];
-
+                    source_info['field_name'] = field_name;
                     var template = new EJS({'text': $('#source-list-template').html()});
                     source_list.push(template.render(source_info));
                 })
 
                 $.each(data.sources, function(i, source){
+                    source['field_name'] = field_name;
                     var template = new EJS({'text': $('#source-list-template').html()});
                     source_list.push(template.render(source));
                 });
@@ -133,13 +155,9 @@
                 var selector = '.' + field_name + '-row';
                 $(selector).addClass('bg-info');
 
-                $('.committed-source').on('close.bs.alert', function(e){
-                    console.log('removing a committed source');
-                });
+                $('.committed-source').on('close.bs.alert', removeCommittedSource);
 
-                $('.uncommitted-source').on('close.bs.alert', function(e){
-                    console.log('removing an uncommitted source');
-                });
+                $('.uncommitted-source').on('close.bs.alert', removeUncommittedSource);
 
                 var max_height = $('#form-fields').height();
                 $('#source-wrapper').css({
@@ -204,6 +222,7 @@
                 var field_name = $('#source-field-name').data('field_name');
 
                 $.getJSON("{% url 'stash-source' %}", data, function(source){
+                    source['field_name'] = field_name;
                     var source_template = new EJS({'text': $('#source-list-template').html()});
                     $('#source-list').prepend(source_template.render(source));
 
@@ -219,20 +238,18 @@
 
                     $(selector).after(input);
                     $('#source-search').val(null).trigger('change');
-                    $('.uncommitted-source').on('close.bs.alert', function(e){
-                        console.log('removing an uncommitted source');
-                    });
+                    $('.uncommitted-source').on('close.bs.alert', removeUncommittedSource);
                 })
             });
 
             // TODO: Figure out tab order stuff.
-            $(document).on('focus', '.select2', function (e) {
-                console.log('originalEvent', e.orginalEvent);
-                if (e.originalEvent) {
-                    console.log('siblings', $(this).siblings('select'));
-                    $(this).siblings('select').select2('open');
-                }
-            });
+            // $(document).on('focus', '.select2', function (e) {
+            //     console.log('originalEvent', e.orginalEvent);
+            //     if (e.originalEvent) {
+            //         console.log('siblings', $(this).siblings('select'));
+            //         $(this).siblings('select').select2('open');
+            //     }
+            // });
 
             // var inputs = $("input,select"); // You can use other elements such as textarea, button etc.
             //                     //depending on input field types you have used
