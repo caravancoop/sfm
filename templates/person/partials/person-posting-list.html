@@ -54,10 +54,12 @@
                 </tr>
             {% endwith %}
         {% endfor %}
+        {% if 'edit' in request.path %}
         <tr>
             <td colspan="7">
                 <i class="fa fa-plus"> </i> Add posting
             </td>
         </tr>
+        {% endif %}
     </tbody>
 </table>
