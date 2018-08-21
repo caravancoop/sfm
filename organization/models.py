@@ -35,7 +35,6 @@ VERSION_RELATED_FIELDS = [
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-
 class Organization(models.Model, BaseModel, VersionsMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4,
@@ -57,6 +56,8 @@ class Organization(models.Model, BaseModel, VersionsMixin):
         self.complex_fields = [self.name, self.division_id, self.firstciteddate,
                                self.lastciteddate, self.realstart, self.open_ended,
                                self.headquarters]
+
+        self.complex_lists = [self.aliases, self.classification]
 
         self.required_fields = [
             "Organization_OrganizationName",
@@ -115,32 +116,17 @@ class OrganizationName(ComplexField):
 @sourced
 class OrganizationAlias(ComplexField):
     object_ref = models.ForeignKey('Organization')
-    value = models.ForeignKey('Alias', default=None, blank=True, null=True)
+    value = models.TextField(blank=True, null=True)
 
     field_name = _("Alias")
-
-
-class Alias(models.Model):
-    value = models.TextField()
-
-    def __str__(self):
-        return self.value
 
 
 @versioned
 @sourced
 class OrganizationClassification(ComplexField):
     object_ref = models.ForeignKey('Organization')
-    value = models.ForeignKey('Classification', default=None, blank=True,
-                              null=True)
+    value = models.TextField(blank=True, null=True)
     field_name = _("Classification")
-
-
-class Classification(models.Model):
-    value = models.TextField()
-
-    def __str__(self):
-        return self.value
 
 
 @versioned
