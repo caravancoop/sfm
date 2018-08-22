@@ -52,8 +52,8 @@ class SourceView(DetailView):
 
             link = None
 
-            if record_type in ['Organization', 'Person', 'Violation']:
-                link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'pk': record.object_ref.id})
+            if record_type in ['Organization', 'Person']:
+                link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'slug': record.object_ref.uuid})
 
             evidenced_table.append([name, record_type, field_name, value, link])
 
