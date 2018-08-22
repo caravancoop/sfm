@@ -62,18 +62,20 @@ class OrganizationRelationshipsForm(BaseEditForm):
         ('startdate', CompositionStartDate, False),
         ('enddate', CompositionEndDate, False),
         ('open_ended', CompositionOpenEnded, False),
-        ('classification', CompositionClassification, False),
+        ('classification', CompositionClassification, True),
     ]
 
     realstart = forms.BooleanField()
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
     open_ended = forms.ChoiceField(choices=[('Y', 'Yes'), ('N', 'No'), ('E', 'Last cited date is termination date')], required=False)
+    parent = forms.ModelChoiceField(queryset=Organization.objects.all())
+    child = forms.ModelChoiceField(queryset=Organization.objects.all())
 
-    # self.parent = ComplexFieldContainer(self, CompositionParent)
-    # self.child = ComplexFieldContainer(self, CompositionChild)
-    # self.startdate = ComplexFieldContainer(self, CompositionStartDate)
-    # self.realstart = ComplexFieldContainer(self, CompositionRealStart)
-    # self.enddate = ComplexFieldContainer(self, CompositionEndDate)
-    # self.open_ended = ComplexFieldContainer(self, CompositionOpenEnded)
-    # self.classification = ComplexFieldContainer(self, CompositionClassification)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['classification'] = GetOrCreateChoiceField(queryset=CompositionClassification.objects.filter(object_ref__id=self.object_ref_pk),
+                                                               required=False,
+                                                               object_ref_pk=self.object_ref_pk,
+                                                               object_ref_model=self._meta.model)

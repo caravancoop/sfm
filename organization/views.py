@@ -19,7 +19,10 @@ from area.models import Area
 
 from association.models import Association
 
-from organization.forms import OrganizationBasicsForm
+from composition.models import Composition
+
+from organization.forms import OrganizationBasicsForm, \
+    OrganizationRelationshipsForm
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification
 
@@ -139,19 +142,45 @@ class OrganizationEditView(BaseEditView):
     context_object_name = 'organization'
 
     def get_success_url(self):
-        return reverse('view-organization', kwargs=self.kwargs)
+        uuid = self.kwargs[self.slug_field_kwarg]
+        return reverse('view-organization', kwargs={'slug': uuid})
 
 
 class OrganizationEditBasicsView(OrganizationEditView):
     template_name = 'organization/edit-basics.html'
-
     form_class = OrganizationBasicsForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        first_composition = context['organization'].child_organization.first()
+
+        if not first_composition:
+            first_composition.parent_organization.first()
+
+        context['first_composition'] = first_composition
+
         return context
 
+class OrganizationEditRelationshipsView(OrganizationEditView):
+    template_name = 'organization/edit-relationships.html'
+    form_class = OrganizationRelationshipsForm
+    model = Composition
+    context_object_name = 'current_composition'
+    slug_field_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        first_composition = context['current_composition'].child.get_value()
+
+        if not first_composition:
+            first_composition = context['current_composition'].parent.get_value()
+
+        context['first_composition'] = first_composition
+
+        return context
 
 ################################################################
 ## The views below here are probably ready to be factored out ##
