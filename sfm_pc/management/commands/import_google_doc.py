@@ -205,7 +205,7 @@ class Command(UtilityMixin, BaseCommand):
         }
 
         #get source data
-        source_range = "sources!A2:N"
+        source_range = "sources!A:N"
         source_sheet = service.spreadsheets().values().get(
             spreadsheetId=options['source_doc_id'], range=source_range).execute()
 
@@ -444,6 +444,12 @@ class Command(UtilityMixin, BaseCommand):
             self.log_error('Row seems to be empty')
             return None
 
+        try:
+            country_code = org_data[org_positions['DivisionId']['value']]
+        except IndexError:
+            self.log_error('Country code missing')
+            return None
+
         if confidence and source:
 
             try:
@@ -455,12 +461,6 @@ class Command(UtilityMixin, BaseCommand):
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
 
             if confidence and sources:
-
-                try:
-                    country_code = org_data[org_positions['DivisionId']['value']]
-
-                except:
-                    country_code = self.country_code
 
                 org_info = {
                     'Organization_OrganizationName': {
@@ -1593,6 +1593,12 @@ class Command(UtilityMixin, BaseCommand):
             self.log_error('Row seems to be empty')
             return None
 
+        try:
+            country_code = person_data[person_positions['DivisionId']['value']]
+        except IndexError:
+            self.log_error('Country code missing')
+            return None
+
         if confidence and source:
 
             try:
@@ -1604,12 +1610,6 @@ class Command(UtilityMixin, BaseCommand):
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
 
             if confidence and sources:
-                
-                try:
-                    country_code = person_data[person_positions['DivisionId']['value']]
-
-                except:
-                    country_code = self.country_code
 
                 division_id = 'ocd-division/country:{}'.format(country_code)
 
@@ -2010,10 +2010,11 @@ class Command(UtilityMixin, BaseCommand):
                 },
             })
 
-        country_code = event_data[positions['DivisionId']['value']]
-
-        if not country_code:
-            country_code = self.country_code
+        try:
+            country_code = event_data[positions['DivisionId']['value']]
+        except IndexError:
+            self.log_error('Country code missing')
+            return None
 
         division_id = 'ocd-division/country:{}'.format(country_code)
 
