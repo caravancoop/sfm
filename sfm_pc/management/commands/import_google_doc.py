@@ -32,7 +32,7 @@ import reversion
 
 from countries_plus.models import Country
 
-from source.models import Source, Publication
+from source.models import Source, AccessPoint
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName, OrganizationRealStart
 
@@ -65,8 +65,14 @@ class Command(UtilityMixin, BaseCommand):
         parser.add_argument(
             '--doc_id',
             dest='doc_id',
-            default='1s9F-U2dnqBAyqytM3F6olbPWvxR7uGXgE7DF3HC3xd4',
+            default='1o-K13Od1pGc7FOQ-JS8LJW9Angk3_UPZHTmOU7hD3wU',
             help='Import data from specified Google Drive Document'
+        )
+        parser.add_argument(
+            '--source_doc_id',
+            dest='source_doc_id',
+            default='15lChqP4cKsjk8uUbUTaUA5gOUM09-t9YMIODORHw--8',
+            help='Import source data from specified Google Drive Document'
         )
         parser.add_argument(
             '--entity-types',
@@ -95,6 +101,7 @@ class Command(UtilityMixin, BaseCommand):
         )
 
     def get_credentials(self):
+        '''make sure relevant accounts have access to the sheets at console.developers.google.com'''
 
         this_dir = os.path.dirname(__file__)
         secrets_path = os.path.join(this_dir, 'credentials.json')
@@ -105,12 +112,11 @@ class Command(UtilityMixin, BaseCommand):
 
     def disconnectSignals(self):
         from django.db.models.signals import post_save
-        from sfm_pc.signals import update_source_index, update_publication_index, \
+        from sfm_pc.signals import update_source_index, \
             update_orgname_index, update_orgalias_index, update_personname_index, \
             update_personalias_index, update_violation_index
 
         post_save.disconnect(receiver=update_source_index, sender=Source)
-        post_save.disconnect(receiver=update_publication_index, sender=Publication)
         post_save.disconnect(receiver=update_orgname_index, sender=OrganizationName)
         post_save.disconnect(receiver=update_orgalias_index, sender=OrganizationAlias)
         post_save.disconnect(receiver=update_personname_index, sender=PersonName)
@@ -119,12 +125,11 @@ class Command(UtilityMixin, BaseCommand):
 
     def connectSignals(self):
         from django.db.models.signals import post_save
-        from sfm_pc.signals import update_source_index, update_publication_index, \
+        from sfm_pc.signals import update_source_index, \
             update_orgname_index, update_orgalias_index, update_personname_index, \
             update_personalias_index, update_violation_index
 
         post_save.connect(receiver=update_source_index, sender=Source)
-        post_save.connect(receiver=update_publication_index, sender=Publication)
         post_save.connect(receiver=update_orgname_index, sender=OrganizationName)
         post_save.connect(receiver=update_orgalias_index, sender=OrganizationAlias)
         post_save.connect(receiver=update_personname_index, sender=PersonName)
@@ -173,28 +178,38 @@ class Command(UtilityMixin, BaseCommand):
 
         sheet_mapping = {}
 
+        #exclude 3 internal columns at start of org, person, and event sheets
+        sheet_range = "!D:DM"
+
         for sheet in sheets:
             title = sheet['properties']['title']
 
             sheet_data = service.spreadsheets().values().get(
-                spreadsheetId=options['doc_id'], range=title).execute()
+                spreadsheetId=options['doc_id'], range=title + sheet_range).execute()
 
             sheet_mapping[title] = sheet_data['values']
 
         org_sheets = {title: data for title, data in sheet_mapping.items() \
-                          if 'organization' in title.lower() or 'mopol' in title.lower()}
+                          if 'orgs' in title.lower() or 'mopol' in title.lower()}
 
         person_sheets = {title: data for title, data in sheet_mapping.items() \
-                            if 'people' in title.lower()}
+                            if 'persons' in title.lower()}
 
         event_sheets = {title: data for title, data in sheet_mapping.items() \
-                            if 'event' in title.lower()}
+                            if 'events' in title.lower()}
 
         all_sheets = {
             'organization': org_sheets,
             'person': person_sheets,
             'event': event_sheets,
         }
+
+        #get source data
+        source_range = "sources!A2:N"
+        source_sheet = service.spreadsheets().values().get(
+            spreadsheetId=options['source_doc_id'], range=source_range).execute()
+
+        self.create_sources(source_sheet)
 
         skippers = ['Play Copy of Events']
         start = int(options['start'])
@@ -436,14 +451,15 @@ class Command(UtilityMixin, BaseCommand):
             except KeyError:
                 confidence = None
 
-            sources = self.create_sources(source)
+            sources = self.get_sources(source)
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
 
             if confidence and sources:
 
-                country_code = org_data[org_positions['DivisionId']['value']]
+                try:
+                    country_code = org_data[org_positions['DivisionId']['value']]
 
-                if not country_code:
+                except:
                     country_code = self.country_code
 
                 org_info = {
@@ -527,7 +543,7 @@ class Command(UtilityMixin, BaseCommand):
                         parent_confidence = None
 
                     try:
-                        parent_sources = self.create_sources(org_data[composition_positions['Parent']['source']])
+                        parent_sources = self.get_sources(org_data[composition_positions['Parent']['source']])
                     except IndexError:
                         self.log_error('Parent organization for {} does not have a source'.format(organization.name))
                         parent_sources = None
@@ -614,7 +630,7 @@ class Command(UtilityMixin, BaseCommand):
                         confidence = None
 
                     try:
-                        sources = self.create_sources(org_data[membership_positions['OrganizationOrganization']['source']])
+                        sources = self.get_sources(org_data[membership_positions['OrganizationOrganization']['source']])
                     except IndexError:
                         self.log_error('Member organization for {} does not have a source'.format(member_org_name))
                         sources = None
@@ -788,7 +804,7 @@ class Command(UtilityMixin, BaseCommand):
             else:
 
                 try:
-                    sources = self.create_sources(data[source_position])
+                    sources = self.get_sources(data[source_position])
                 except IndexError:
                     if source_required:
                         self.log_error('No source for {}'.format(field_name))
@@ -937,7 +953,7 @@ class Command(UtilityMixin, BaseCommand):
                 return None
 
             try:
-                area_sources = self.create_sources(org_data[positions['OSMName']['source']])
+                area_sources = self.get_sources(org_data[positions['OSMName']['source']])
             except IndexError:
                 self.log_error('OSMName for Area for {} does not have source'.format(organization.name))
                 return None
@@ -1105,7 +1121,7 @@ class Command(UtilityMixin, BaseCommand):
 
             site = self.get_or_create_site(osm_geo, exact_location, org_data, positions)
             confidence = self.get_confidence(org_data[positions['AdminName']['confidence']])
-            sources = self.create_sources(org_data[positions['AdminName']['source']])
+            sources = self.get_sources(org_data[positions['AdminName']['source']])
 
             if sources and confidence:
 
@@ -1202,7 +1218,7 @@ class Command(UtilityMixin, BaseCommand):
         else:
             name_confidence = 1
 
-        name_sources = self.create_sources(data[positions['AdminName']['source']])
+        name_sources = self.get_sources(data[positions['AdminName']['source']])
 
         site_data = {}
 
@@ -1241,7 +1257,7 @@ class Command(UtilityMixin, BaseCommand):
         else:
             confidence = 1
 
-        sources = self.create_sources(data[positions[confidence_key]['source']])
+        sources = self.get_sources(data[positions[confidence_key]['source']])
 
         if confidence and sources:
 
@@ -1268,7 +1284,7 @@ class Command(UtilityMixin, BaseCommand):
             else:
                 confidence = 1
 
-            sources = self.create_sources(data[positions['ExactLocation']['source']])
+            sources = self.get_sources(data[positions['ExactLocation']['source']])
 
             if confidence and sources:
 
@@ -1301,7 +1317,7 @@ class Command(UtilityMixin, BaseCommand):
             else:
                 confidence = 1
 
-            sources = self.create_sources(data[positions[attribute]['source']])
+            sources = self.get_sources(data[positions[attribute]['source']])
             value = data[positions[attribute]['value']]
             attr_osm_id = data[positions[attribute]['osmid']]
 
@@ -1431,104 +1447,72 @@ class Command(UtilityMixin, BaseCommand):
 
         instance.save()
 
-    def create_sources(self, sources_string):
+    def create_sources(self, source_sheet):
 
-        sources = []
-        unparsed = []
+        self.current_sheet = 'sources'
+        self.current_row = 2
 
-        for source in [src.strip() for src in sources_string.split(';') if src.strip()]:
-
-            date_gen = datefinder.find_dates(source, index=True)
+        for source in source_sheet['values']:
+            uuid = source[self.col('I')]
+            title = source[self.col('B')]
+            publication = source[self.col('M')]
+            publication_country = source[self.col('K')]
+            published_on = self.parse_date(source[self.col('D')])
+            source_url = source[5]
 
             try:
-                date_indices = next(date_gen)
-            except (StopIteration, TypeError):
-                # self.log_error('Unable to parse published on date from source string: {}'.format(source))
-                unparsed.append(source)
-                continue
+                new_source = Source.objects.get(uuid=uuid)
 
-            parsed_date, indices = date_indices
-            now = datetime.now()
-            today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                self.current_row += 1
 
-            while parsed_date.date() > now.date() or parsed_date.date() == today.date():
-                try:
-                    date_indices = next(date_gen)
-                    parsed_date, indices = date_indices
-                except StopIteration:
-                    # self.log_error('Unable to parse published on date from source string: {}'.format(source))
-                    parsed_date = None
-                    unparsed.append(source)
-                    break
+            except Source.DoesNotExist:
+                new_source = Source.objects.create(uuid=uuid,
+                                               title=title,
+                                               publication=publication,
+                                               publication_country=publication_country,
+                                               published_on=published_on,
+                                               source_url=source_url,
+                                               user=self.user)
 
-            if parsed_date:
-                before_date, after_date = source[:indices[0]], source[indices[1]:]
+                self.current_row += 1
 
-                # Source title, publication title and publication country should be
-                # before the date. If not, skip it
+            except ValueError:
+                self.current_row += 1
+                self.log_error("Invalid UUID: " + uuid)
+                return None
 
-                try:
-                    source_title, pub_title = before_date.split('.', 1)
-                except ValueError:
-                    # self.log_error('Unable to parse source title and publication title from source string: {}'.format(source))
-                    unparsed.append(source)
-                    continue
+            page_number = source[self.col('C')]
+            accessed_on = self.parse_date(source[self.col('E')])
+            archive_url = source[self.col('G')]
 
-                pub_country = None
-                first_paren = pub_title.find('(')
+            try:
+                access_point = AccessPoint.objects.get(archive_url=archive_url,
+                                                              source=new_source)
 
-                if first_paren > 0:
-                    last_paren = pub_title.find(')')
-                    pub_country = pub_title[first_paren + 1:last_paren]
-                    pub_title = pub_title[:first_paren]
+            except AccessPoint.DoesNotExist:
+                access_point = AccessPoint.objects.create(page_number=page_number,
+                                                          accessed_on=accessed_on,
+                                                          archive_url=archive_url,
+                                                          source=new_source,
+                                                          user=self.user)
 
-                try:
-                    pub_country = pub_country.strip()
-                    country = Country.objects.get(name=pub_country)
-                except (Country.DoesNotExist, AttributeError):
-                    # self.log_error('Unable to parse publication country from source string: {}'.format(source))
-                    pub_country = None
+            except ValueError:
+                self.log_error("Invalid access point at: " + uuid)
 
-                # Source URL and archive URL (if they exist) should be after the date.
+    def get_sources(self, source_id_string):
 
-                source_url, archive_url = None, None
-                urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', after_date)
+        sources = []
+        source_ids = source_id_string.strip().split(';')
 
-                if urls:
-                    source_url = urls[0]
-                    for url in urls[1:]:
-                        if 'web.archive.org' in url:
-                            archive_url = url
-                            break
-
-                try:
-                    publication = Publication.objects.get(title=pub_title.strip(),
-                                                          country=pub_country)
-                except Publication.DoesNotExist:
-                    publication_id = str(uuid4())
-                    publication = Publication.objects.create(title=pub_title.strip(),
-                                                             id=publication_id,
-                                                             country=pub_country)
-
-                source, created = Source.objects.get_or_create(title=source_title.strip(),
-                                                               source_url=source_url,
-                                                               archive_url=archive_url,
-                                                               publication=publication,
-                                                               published_on=parsed_date,
-                                                               user=self.user)
-
+        for source_id in source_ids:
+            try:
+                source = Source.objects.get(uuid=source_id)
                 sources.append(source)
 
-        for source in unparsed:
-            d = date(1900, 1, 1)
-
-            source, created = Source.objects.get_or_create(title=source,
-                                                           user=self.user,
-                                                           published_on=d)
-            sources.append(source)
+            except ValueError:
+                self.log_error("Invalid source: " + source_id)
 
         return sources
-
 
     def create_person(self, person_data):
         person = None
@@ -1616,12 +1600,17 @@ class Command(UtilityMixin, BaseCommand):
             except KeyError:
                 confidence = None
 
-            sources = self.create_sources(source)
+            sources = self.get_sources(source)
             self.stdout.write(self.style.SUCCESS('Working on {}'.format(name_value)))
 
             if confidence and sources:
+                
+                try:
+                    country_code = person_data[person_positions['DivisionId']['value']]
 
-                country_code = person_data[person_positions['DivisionId']['value']]
+                except:
+                    country_code = self.country_code
+
                 division_id = 'ocd-division/country:{}'.format(country_code)
 
                 person_info = {
@@ -1665,7 +1654,7 @@ class Command(UtilityMixin, BaseCommand):
                     return None
 
                 try:
-                    sources = self.create_sources(person_data[membership_positions['Organization']['source']])
+                    sources = self.get_sources(person_data[membership_positions['Organization']['source']])
                 except (KeyError, IndexError):
                     self.log_error('Person {0} as a member of {1} has no sources'.format(name_value, organization_name))
                     return None
@@ -1841,10 +1830,10 @@ class Command(UtilityMixin, BaseCommand):
                 'source': self.col('AF'),
                 'model_field': 'violationfirstallegation',
             },
-            'LastUpdated': {
+            'LastUpdate': {
                 'value': self.col('N'),
                 'source': self.col('AF'),
-                'model_field': 'violationlastupdated',
+                'model_field': 'violationlastupdate',
             },
             'Status': {
                 'value': self.col('R'),
@@ -1914,7 +1903,7 @@ class Command(UtilityMixin, BaseCommand):
             violation.save()
             reversion.set_user(self.user)
 
-        simple_attrs = ('StartDate', 'EndDate', 'FirstAllegation', 'LastUpdated',
+        simple_attrs = ('StartDate', 'EndDate', 'FirstAllegation', 'LastUpdate',
                         'Status', 'LocationDescription', 'Type', 'Description')
 
         for attr in simple_attrs:
@@ -1927,7 +1916,7 @@ class Command(UtilityMixin, BaseCommand):
 
         try:
             # All data in this sheet use the same source
-            sources = self.create_sources(event_data[positions['Type']['source']])
+            sources = self.get_sources(event_data[positions['Type']['source']])
         except IndexError:
             self.log_error('Row does not have required source column')
             return None
