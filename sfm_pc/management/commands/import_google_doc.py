@@ -52,7 +52,7 @@ from membershipperson.models import (MembershipPerson, Role, Rank,
 from membershiporganization.models import (MembershipOrganization,
                                            MembershipOrganizationRealStart,
                                            MembershipOrganizationRealEnd)
-from violation.models import Violation, Type, ViolationPerpetrator, \
+from violation.models import Violation, ViolationPerpetrator, \
     ViolationPerpetratorOrganization, ViolationDescription
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
@@ -205,7 +205,7 @@ class Command(UtilityMixin, BaseCommand):
         }
 
         #get source data
-        source_range = "sources!A:N"
+        source_range = "sources!A2:N"
         source_sheet = service.spreadsheets().values().get(
             spreadsheetId=options['source_doc_id'], range=source_range).execute()
 
@@ -264,10 +264,11 @@ class Command(UtilityMixin, BaseCommand):
         # Map legal input formats to the way that we want to
         # store them in the database
         formats = {
+            '%Y-%m-%d': '%Y-%m-%d',
             '%Y': '%Y-0-0',
             '%B %Y': '%Y-%m-0',
             '%m/%Y': '%Y-%m-0',
-            '%m/%d/%Y': '%Y-%m-%d',
+            '%m/%d/%Y': '%Y-%m-%d'
         }
 
         for in_format, out_format in formats.items():
@@ -829,10 +830,7 @@ class Command(UtilityMixin, BaseCommand):
                     value_objects = []
                     for value_text in [val.strip() for val in value.split(';') if val.strip()]:
 
-                        if value_model == Type:
-                            value_obj, created = value_model.objects.get_or_create(code=value_text)
-                        else:
-                            value_obj, created = value_model.objects.get_or_create(value=value_text)
+                        value_obj, created = value_model.objects.get_or_create(value=value_text)
 
                         relation_instance, created = relation_model.objects.get_or_create(value=value_obj,
                                                                                           object_ref=instance,
