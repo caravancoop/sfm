@@ -27,7 +27,7 @@
             {% endif %}
                 <label class="control-label">{% trans "Organization" %}</label>
                 <select id="id_organization" class="form-control sourced select2-target" name="organization">
-                    <option value="{{ form.instance.organization.get_value.id }}">{{ form.instance.organization.get_value.value }}</option>
+                    <option value="{{ form.instance.organization.get_value.value.id }}">{{ form.instance.organization.get_value.value }}</option>
                 </select>
                 {% if form.organization.errors %}
                     {% for error in form.organization.errors %}
@@ -46,9 +46,8 @@
             {% endif %}
                 <label class="control-label">{% trans "Rank" %}</label>
                 <select id="id_rank" class="form-control sourced-dropdown select2-target" name="rank">
-                    <option value="">------</option>
                     {% for value, choice in form.fields.rank.choices %}
-                        {% if form.instance.rank.get_value.value == choice %}
+                        {% if form.instance.rank.get_value.value.value == choice %}
                             <option value="{{ value }}" selected=true>{{ choice }}</option>
                         {% else %}
                             <option value="{{ value }}">{{ choice }}</option>
@@ -71,7 +70,16 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{% trans "Role" %}</label>
-                <input type="text" name="role" id="id_role" class="form-control sourced" value="{{ form.instance.role }}">
+                <select id="id_role" class="form-control sourced-dropdown select2-target" name="role">
+                    <option value="">------</option>
+                    {% for value, choice in form.fields.role.choices %}
+                        {% if form.instance.role.get_value.value.value == choice %}
+                            <option value="{{ value }}" selected=true>{{ choice }}</option>
+                        {% else %}
+                            <option value="{{ value }}">{{ choice }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
                 {% if form.role.errors %}
                     {% for error in form.role.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -232,6 +240,7 @@
             });
 
             $('#id_rank').select2();
+            $('#id_role').select2();
 
         })
     </script>

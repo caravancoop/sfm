@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 
 from source.models import Source
 from person.models import Person
+from organization.models import Organization
+from membershipperson.models import MembershipPerson, Rank, Role
 
 
 @pytest.fixture()
@@ -54,6 +56,8 @@ def test_edit_person(setUp):
         'date_of_birth_source': new_source_ids,
         'date_of_death': '2012-02-14',
         'date_of_death_source': new_source_ids,
+        'deceased': True,
+        'deceased_source': new_source_ids,
     }
 
     response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
@@ -70,6 +74,8 @@ def test_edit_person(setUp):
     assert person.division_id.get_value().value == 'ocd-division/country:us'
     assert str(person.date_of_birth.get_value().value) == '1976'
     assert str(person.date_of_death.get_value().value) == '14th February 2012'
+    assert person.deceased.get_value().value == True
+
 
 @pytest.mark.django_db
 def test_no_source_one_value(setUp):
@@ -186,6 +192,7 @@ def test_duplicate_source(setUp):
     assert len(person.name.get_sources()) == len(sources)
 
 
+
 @pytest.mark.django_db
 def test_just_add_source(setUp):
     person = Person.objects.order_by('?').first()
@@ -216,3 +223,65 @@ def test_just_add_source(setUp):
     assert response.status_code == 200
 
     assert new_source in person.name.get_sources()
+
+
+@pytest.mark.django_db
+def test_edit_posting(setUp):
+    membership = MembershipPerson.objects.order_by('?').first()
+    person = membership.member.get_value().value
+    response = setUp.get(reverse_lazy('edit-person-postings',
+                                      kwargs={'person_id': person.uuid,
+                                              'pk': membership.id}))
+
+    assert response.status_code == 200
+
+    sources = [s for s in membership.organization.get_sources()]
+
+    new_source = Source.objects.exclude(uuid__in=[s.uuid for s in sources]).first()
+
+    new_organization = Organization.objects.exclude(organizationname__isnull=True).order_by('?').first()
+    new_rank = Rank.objects.order_by('?').first()
+    new_role = Role.objects.order_by('?').first()
+
+    post_data = {
+        'organization': new_organization.id,
+        'organization_source': [new_source.uuid],
+        'rank': new_rank.id,
+        'rank_source': [new_source.uuid],
+        'role': new_role.id,
+        'role_source': [new_source.uuid],
+        'title': 'Floober',
+        'title_source': [new_source.uuid],
+        'firstciteddate': '2007',
+        'firstciteddate_source': [new_source.uuid],
+        'lastciteddate': 'April 2012',
+        'lastciteddate_source': [new_source.uuid],
+        'realstart': True,
+        'realstart_source': [new_source.uuid],
+        'startcontext': 'Floop de doop',
+        'startcontext_source': [new_source.uuid]
+    }
+
+    response = setUp.post(reverse_lazy('edit-person-postings',
+                                       kwargs={'person_id': person.uuid,
+                                               'pk': membership.id}),
+                          post_data)
+
+    assert response.status_code == 302
+
+    assert membership.organization.get_value().value.uuid == new_organization.uuid
+    assert new_source in membership.organization.get_sources()
+    assert membership.rank.get_value().value == new_rank
+    assert membership.role.get_value().value == new_role
+
+    # organization = forms.ModelChoiceField(queryset=MembershipPersonOrganization.objects.all())
+    # rank = forms.ModelChoiceField(queryset=MembershipPersonRank.objects.distinct('value__value'))
+    # role = forms.CharField(required=False)
+    # title = forms.CharField(required=False)
+    # firstciteddate = ApproximateDateFormField(required=False)
+    # lastciteddate = ApproximateDateFormField(required=False)
+    # realstart = forms.BooleanField()
+    # realend = forms.BooleanField()
+    # startcontext = forms.CharField(required=False)
+    # endcontext = forms.CharField(required=False)
+

@@ -13,7 +13,9 @@ from membershipperson.models import MembershipPersonOrganization, \
     MembershipPersonTitle, MembershipPersonFirstCitedDate, \
     MembershipPersonLastCitedDate, MembershipPersonRealStart, \
     MembershipPersonRealEnd, MembershipPersonStartContext, \
-    MembershipPersonEndContext
+    MembershipPersonEndContext, Rank, Role
+
+from organization.models import Organization
 
 from .models import Person, PersonName, PersonAlias, PersonGender, \
     PersonDivisionId, PersonDateOfDeath, PersonDateOfBirth, PersonExternalLink, \
@@ -74,9 +76,9 @@ class PersonPostingsForm(BaseEditForm):
         ('endcontext', MembershipPersonEndContext, False),
     ]
 
-    organization = forms.ModelChoiceField(queryset=MembershipPersonOrganization.objects.all())
-    rank = forms.ModelChoiceField(queryset=MembershipPersonRank.objects.distinct('value__value'))
-    role = forms.CharField(required=False)
+    organization = forms.ModelChoiceField(queryset=Organization.objects.all())
+    rank = forms.ModelChoiceField(queryset=Rank.objects.distinct('value'))
+    role = forms.ModelChoiceField(queryset=Role.objects.distinct('value'))
     title = forms.CharField(required=False)
     firstciteddate = ApproximateDateFormField(required=False)
     lastciteddate = ApproximateDateFormField(required=False)

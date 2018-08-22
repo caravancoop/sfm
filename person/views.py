@@ -284,7 +284,8 @@ class PersonEditView(BaseEditView):
     context_object_name = 'person'
 
     def get_success_url(self):
-        return reverse('view-person', kwargs=self.kwargs)
+        person_id = self.kwargs[self.slug_field_kwarg]
+        return reverse('view-person', kwargs={'slug': person_id})
 
 
 class PersonEditBasicsView(PersonEditView):
