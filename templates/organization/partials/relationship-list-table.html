@@ -1,0 +1,28 @@
+{% if composition == current_composition %}
+<tr class="bg-info">
+{% else %}
+<tr>
+{% endif %}
+    <td class="cited">
+        {{ related_organization.name.get_value.value }}
+    </td>
+    <td class="cited">
+        {% if relation_type == 'child' %}
+        <i class="fa fa-fw fa-sitemap"></i> Child
+        {% elif relation_type == 'parent' %}
+        <i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent
+        {% endif %}
+    </td>
+    <td class="cited">
+        {{ composition.firstcited.get_value.value }}
+    </td>
+    <td class="cited">
+        {{ composition.lastcited.get_value.value }}
+    </td>
+    <td>
+        <a href="{% url 'edit-organization-relationships' organization.uuid composition.id %}">
+            <i class="fa fa-pencil"> </i>
+        </a>
+    </td>
+</tr>
+

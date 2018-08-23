@@ -8,6 +8,7 @@ from django.utils.translation import get_language
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 
 from source.models import Source
 
@@ -172,7 +173,10 @@ class OrganizationEditRelationshipsView(OrganizationEditView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        organization = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        context['organization'] = organization
+        context['compositions'] = Composition.objects.filter(Q(compositionparent__value=organization) | Q(compositionchild__value=organization))
+
         first_composition = context['current_composition'].child.get_value()
 
         if not first_composition:

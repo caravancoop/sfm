@@ -8,6 +8,7 @@
 
     <div class="well">
         <div class="row header">
+            {% block header_title %}
             <div class="col-sm-6">
                 <h1>{{ object.name.get_value }}</h1>
                 <p>
@@ -16,6 +17,7 @@
                     <a href="#">{% trans "View versions"%}</a>
                 </p>
             </div>
+            {% endblock %}
             {% block edit_links %}{% endblock %}
         </div>
     </div>
@@ -122,6 +124,10 @@
         function loadSources(e){
             var field_name = $(e.target).prop('name');
 
+            if (typeof field_name === 'undefined'){
+                field_name = e;
+            }
+
             $.when(fetchSources(field_name)).then(function(data){
                 var template = new EJS({'text': $('#source-list-title').html()});
                 var source_list = [template.render({'field_name': field_name})];
@@ -147,7 +153,11 @@
                 $('.field-bg').removeClass('bg-info');
 
                 var selector = '.' + field_name + '-row';
-                $(selector).addClass('bg-info');
+                if ($(selector).length > 0){
+                    $(selector).addClass('bg-info');
+                } else {
+                    $('*[name="' + field_name +'"]').parent().parent().parent().addClass('bg-info');
+                }
 
                 $('.committed-source').on('close.bs.alert', removeCommittedSource);
 

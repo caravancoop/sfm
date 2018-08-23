@@ -69,8 +69,8 @@ class OrganizationRelationshipsForm(BaseEditForm):
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
     open_ended = forms.ChoiceField(choices=[('Y', 'Yes'), ('N', 'No'), ('E', 'Last cited date is termination date')], required=False)
-    parent = forms.ModelChoiceField(queryset=Organization.objects.all())
-    child = forms.ModelChoiceField(queryset=Organization.objects.all())
+    parent = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
+    child = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

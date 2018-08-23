@@ -101,6 +101,10 @@ class Organization(models.Model, BaseModel, VersionsMixin):
 
         return empls
 
+    @property
+    def alias_list(self):
+        return ', '.join(a.get_value().value for a in self.aliases.get_list())
+
 
 @translated
 @versioned
