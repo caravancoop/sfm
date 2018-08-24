@@ -71,11 +71,21 @@ class OrganizationRelationshipsForm(BaseEditForm):
     open_ended = forms.ChoiceField(choices=[('Y', 'Yes'), ('N', 'No'), ('E', 'Last cited date is termination date')], required=False)
     parent = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
     child = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
+    classification = forms.CharField(required=False)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def clean(self):
 
-        self.fields['classification'] = GetOrCreateChoiceField(queryset=CompositionClassification.objects.filter(object_ref__id=self.object_ref_pk),
-                                                               required=False,
-                                                               object_ref_pk=self.object_ref_pk,
-                                                               object_ref_model=self._meta.model)
+        self._validate_complex_field(self.instance.parent, 'parent')
+        self._validate_complex_field(self.instance.child, 'child')
+
+        if self.errors.get('parent') and self.post_data.get('child_source'):
+            self.post_data['parent_source'] = self.post_data['child_source']
+            self.cleaned_data['parent'] = Organization.objects.get(id=self.post_data['parent'][0])
+            del self.errors['parent']
+
+        if self.errors.get('child') and self.post_data.get('parent_source'):
+            self.post_data['child_source'] = self.post_data['parent_source']
+            self.cleaned_data['child'] = Organization.objects.get(id=self.post_data['child'][0])
+            del self.errors['child']
+
+        super().clean()

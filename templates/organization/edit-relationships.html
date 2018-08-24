@@ -65,7 +65,6 @@
 
 {% block form_content %}
     <h2>{% trans "Edit relationships" %}</h2>
-    {{ form.errors }}
     <div class="row relationship_type-row field-bg bg-info">
         <div class="col-sm-12">
             {% if form.name.errors %}
@@ -119,10 +118,10 @@
             {% endif %}
                 <label class="control-label">{% trans "Related organization" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
-                    <select id="id_related_organization" class="form-control select2-target" name="child">
+                    <select id="id_related_organization" class="form-control" name="child">
                         <option value="{{ form.instance.child.get_value.value.id }}">{{ form.instance.child.get_value.value }}</option>
                 {% elif current_composition.child.get_value.value == organization %}
-                    <select id="id_related_organization" class="form-control select2-target" name="parent">
+                    <select id="id_related_organization" class="form-control" name="parent">
                         <option value="{{ form.instance.parent.get_value.value.id }}">{{ form.instance.parent.get_value.value }}</option>
                 {% endif %}
                 </select>
@@ -258,6 +257,7 @@
                     $('#id_relationship_type').prop('name', 'parent');
                     $('#id_related_organization').prop('name', 'child');
                 }
+                loadSources({target: $('#id_relationship_type')});
             });
             $('#id_related_organization').select2({
                 ajax: {

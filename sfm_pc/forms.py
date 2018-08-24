@@ -98,29 +98,33 @@ class BaseEditForm(forms.ModelForm):
     def object_type(self):
         return self._meta.model._meta.model_name
 
-    def _validate_boolean(self, field):
-        if field in self.changed_data:
-            if self.post_data.get('{}_source'.format(field)):
-                value = True
+    def _validate_boolean(self):
+        boolean_fields = [f for f in self.fields if isinstance(self.fields[f], forms.BooleanField)]
 
-                # Clear out "field is required" validation error that
-                # happens when you toggle from True to False. If there is an
-                # error, we also know that the value should be False
+        for field in boolean_fields:
+
+            if field in self.changed_data:
+                if self.post_data.get('{}_source'.format(field)):
+                    value = True
+
+                    # Clear out "field is required" validation error that
+                    # happens when you toggle from True to False. If there is an
+                    # error, we also know that the value should be False
+                    try:
+                        self.errors.pop(field)
+                        value = False
+                    except KeyError:
+                        pass
+
+                    self.cleaned_data[field] = value
+                    self.post_data[field] = [value]
+            else:
+                # The boolean fields are not actually required but Django
+                # forces them to be.
                 try:
                     self.errors.pop(field)
-                    value = False
                 except KeyError:
                     pass
-
-                self.cleaned_data[field] = value
-                self.post_data[field] = [value]
-        else:
-            # The boolean fields are not actually required but Django
-            # forces them to be.
-            try:
-                self.errors.pop(field)
-            except KeyError:
-                pass
 
     def _validate_complex_field(self, field_instance, field):
         if field_instance.get_value() and field_instance.get_value().value and \
@@ -149,34 +153,31 @@ class BaseEditForm(forms.ModelForm):
                                             params={'field_name': field})
                 self.add_error(field, error)
 
-    def _validate_sources_present(self, field):
-        field_instance = getattr(self.instance, field)
-
-        if field_instance in self.instance.complex_fields:
-            self._validate_complex_field(field_instance, field)
-
-        elif field_instance in self.instance.complex_lists:
-            self._validate_complex_list(field_instance, field)
-
-    def clean(self):
-
-        # Need to validate booleans first cuz Django is being difficult
-
-        boolean_fields = [f for f in self.fields if isinstance(self.fields[f], forms.BooleanField)]
-
-        for field in boolean_fields:
-            self._validate_boolean(field)
-
-        sources_sent = {k.replace('_source', '') for k in self.post_data.keys() if '_source' in k}
-        values_sent = {f for f in self.post_data.keys() if not '_source' in f}
-
+    def _validate_sources_present(self, sources_sent, values_sent):
         # If there were field values that were sent without sources, check to
         # see if the value changed and if so, we need sources
 
         values_without_sources = values_sent - sources_sent
 
         for field in values_without_sources:
-            self._validate_sources_present(field)
+            field_instance = getattr(self.instance, field)
+
+            if field_instance in self.instance.complex_fields:
+                self._validate_complex_field(field_instance, field)
+
+            elif field_instance in self.instance.complex_lists:
+                self._validate_complex_list(field_instance, field)
+
+    def clean(self):
+
+        # Need to validate booleans first cuz Django is being difficult
+
+        self._validate_boolean()
+
+        sources_sent = {k.replace('_source', '') for k in self.post_data.keys() if '_source' in k}
+        values_sent = {f for f in self.post_data.keys() if not '_source' in f}
+
+        self._validate_sources_present(sources_sent, values_sent)
 
         # If there were sources sent without values, that's OK we just need to
         # make sure that we save the sources
@@ -253,8 +254,7 @@ class BaseEditForm(forms.ModelForm):
                 else:
                     update_info[update_key]['value'] = update_value
 
-        import pdb
-        pdb.set_trace()
-
         if update_info:
             self.instance.update(update_info)
+
+        self.instance.object_ref_saved()
