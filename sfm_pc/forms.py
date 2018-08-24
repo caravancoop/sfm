@@ -42,7 +42,11 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                 queryset = super().clean([v])
                 pks.append(v)
             except forms.ValidationError as e:
-                object_ref = self.object_ref_model.objects.get(uuid=self.object_ref_pk)
+                object_ref_fields = [f.column for f in self.object_ref_model._meta.fields]
+                if 'uuid' in object_ref_fields:
+                    object_ref = self.object_ref_model.objects.get(uuid=self.object_ref_pk)
+                else:
+                    object_ref = self.object_ref_model.objects.get(id=self.object_ref_pk)
                 instance = self.queryset.model.objects.create(value=e.params['pk'],
                                                               object_ref=object_ref,
                                                               lang=get_language())
@@ -119,7 +123,8 @@ class BaseEditForm(forms.ModelForm):
                 pass
 
     def _validate_complex_field(self, field_instance, field):
-        if field_instance.get_value() and (field_instance.get_value().value != self.cleaned_data.get(field)):
+        if field_instance.get_value() and field_instance.get_value().value and \
+                (field_instance.get_value().value != self.cleaned_data.get(field)):
 
             try:
                 self.post_data['{}_source'.format(field)]
@@ -247,6 +252,9 @@ class BaseEditForm(forms.ModelForm):
 
                 else:
                     update_info[update_key]['value'] = update_value
+
+        import pdb
+        pdb.set_trace()
 
         if update_info:
             self.instance.update(update_info)

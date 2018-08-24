@@ -72,6 +72,7 @@ def django_db_setup(django_db_setup, django_db_blocker, request):
             'tests/fixtures/violation.json',
             'tests/fixtures/membershiporganization.json',
             'tests/fixtures/membershipperson.json',
+            'tests/fixtures/composition.json',
         ]
 
         for fixture in fixtures:
@@ -93,3 +94,4 @@ def django_db_setup(django_db_setup, django_db_blocker, request):
                 conn.execute('TRUNCATE violation_violation CASCADE')
                 conn.execute('TRUNCATE membershipperson_membershipperson CASCADE')
                 conn.execute('TRUNCATE membershiporganization_membershiporganization CASCADE')
+                conn.execute('TRUNCATE composition_composition CASCADE')

@@ -14,10 +14,10 @@
         {% endif %}
     </td>
     <td class="cited">
-        {{ composition.firstcited.get_value.value }}
+        {{ composition.startdate.get_value.value }}
     </td>
     <td class="cited">
-        {{ composition.lastcited.get_value.value }}
+        {{ composition.enddate.get_value.value }}
     </td>
     <td>
         <a href="{% url 'edit-organization-relationships' organization.uuid composition.id %}">

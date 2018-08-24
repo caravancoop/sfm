@@ -131,7 +131,6 @@
             $.when(fetchSources(field_name)).then(function(data){
                 var template = new EJS({'text': $('#source-list-title').html()});
                 var source_list = [template.render({'field_name': field_name})];
-
                 var uncommitted_sources = $('.' + field_name + '_source');
 
                 $.each(uncommitted_sources, function(i, source){
@@ -139,6 +138,7 @@
                     source_info['uncommitted'] = true;
                     source_info['access_points'] = [source_info['access_points']];
                     source_info['field_name'] = field_name;
+                    source_info['id'] = $(source).val();
                     var template = new EJS({'text': $('#source-list-template').html()});
                     source_list.push(template.render(source_info));
                 })

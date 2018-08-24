@@ -30,6 +30,7 @@ from organization.models import Organization, OrganizationAlias, \
 from sfm_pc.utils import (get_osm_by_id, get_hierarchy_by_id,
                           get_org_hierarchy_by_id,  get_command_edges,
                           get_command_nodes, Autofill)
+from sfm_pc.templatetags.countries import country_name
 from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList, \
     BaseEditView
 
@@ -186,6 +187,37 @@ class OrganizationEditRelationshipsView(OrganizationEditView):
 
         return context
 
+    def get_success_url(self):
+        return reverse_lazy('view-organization',
+                            kwargs={'slug': self.kwargs['organization_id']})
+
+
+def organization_autocomplete(request):
+    term = request.GET.get('q')
+
+    response = {
+        'results': []
+    }
+
+    if term:
+        organizations = Organization.objects.filter(organizationname__value__icontains=term)[:10]
+
+        for organization in organizations:
+            result = {
+                'id': organization.id,
+                'text': organization.name.get_value().value,
+                'aliases': organization.alias_list,
+                'country': None,
+            }
+
+            if organization.division_id.get_value():
+                result['country'] = country_name(organization.division_id.get_value().value)
+
+            response['results'].append(result)
+
+    return HttpResponse(json.dumps(response), content_type='application/json')
+
+
 ################################################################
 ## The views below here are probably ready to be factored out ##
 ################################################################
@@ -208,25 +240,6 @@ def classification_autocomplete(request):
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
-
-
-def organization_autocomplete(request):
-    term = request.GET.get('q')
-
-    response = {
-        'results': []
-    }
-
-    if term:
-        organizations = Organization.objects.filter(organizationname__value__icontains=term)[:10]
-
-        for organization in organizations:
-            response['results'].append({
-                'id': organization.id,
-                'text': organization.name.get_value().value,
-            })
-
-    return HttpResponse(json.dumps(response), content_type='application/json')
 
 
 def alias_autocomplete(request):
