@@ -13,7 +13,9 @@ from membershipperson.models import MembershipPerson
 from composition.models import Composition
 
 def update_index(entity_type, object_id):
-    call_command('make_search_index', id=object_id)
+    call_command('make_search_index',
+                 '--id={}'.format(object_id),
+                 '--entity-types={}'.format(entity_type))
 
 
 @receiver(object_ref_saved, sender=Organization)

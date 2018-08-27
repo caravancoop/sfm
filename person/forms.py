@@ -6,16 +6,10 @@ from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField
-
-from membershipperson.models import MembershipPersonOrganization, \
-    MembershipPerson, MembershipPersonRank, MembershipPersonRole, \
-    MembershipPersonTitle, MembershipPersonFirstCitedDate, \
-    MembershipPersonLastCitedDate, MembershipPersonRealStart, \
-    MembershipPersonRealEnd, MembershipPersonStartContext, \
-    MembershipPersonEndContext, Rank, Role
+from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField, BasePostingsForm
 
 from organization.models import Organization
+from membershipperson.models import MembershipPersonOrganization
 
 from .models import Person, PersonName, PersonAlias, PersonGender, \
     PersonDivisionId, PersonDateOfDeath, PersonDateOfBirth, PersonExternalLink, \
@@ -62,31 +56,7 @@ class PersonBasicsForm(BaseEditForm):
                                                                object_ref_model=self._meta.model)
 
 
-class PersonPostingsForm(BaseEditForm):
-    edit_fields = [
-        ('organization', MembershipPersonOrganization, False),
-        ('rank', MembershipPersonRank, False),
-        ('role', MembershipPersonRole, False),
-        ('title', MembershipPersonTitle, False),
-        ('firstciteddate', MembershipPersonFirstCitedDate, False),
-        ('lastciteddate', MembershipPersonLastCitedDate, False),
-        ('realstart', MembershipPersonRealStart, False),
-        ('realend', MembershipPersonRealEnd, False),
-        ('startcontext', MembershipPersonStartContext, False),
-        ('endcontext', MembershipPersonEndContext, False),
-    ]
+class PersonPostingsForm(BasePostingsForm):
+    edit_fields = BasePostingsForm.edit_fields + [('organization', MembershipPersonOrganization, False)]
 
     organization = forms.ModelChoiceField(queryset=Organization.objects.all())
-    rank = forms.ModelChoiceField(queryset=Rank.objects.distinct('value'))
-    role = forms.ModelChoiceField(queryset=Role.objects.distinct('value'))
-    title = forms.CharField(required=False)
-    firstciteddate = ApproximateDateFormField(required=False)
-    lastciteddate = ApproximateDateFormField(required=False)
-    realstart = forms.BooleanField()
-    realend = forms.BooleanField()
-    startcontext = forms.CharField(required=False)
-    endcontext = forms.CharField(required=False)
-
-    class Meta:
-        model = MembershipPerson
-        fields = '__all__'

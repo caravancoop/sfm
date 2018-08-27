@@ -23,9 +23,11 @@ from association.models import Association
 from composition.models import Composition
 
 from organization.forms import OrganizationBasicsForm, \
-    OrganizationRelationshipsForm
+    OrganizationRelationshipsForm, OrganizationPersonnelForm
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification
+
+from membershipperson.models import MembershipPerson
 
 from sfm_pc.utils import (get_osm_by_id, get_hierarchy_by_id,
                           get_org_hierarchy_by_id,  get_command_edges,
@@ -162,6 +164,8 @@ class OrganizationEditBasicsView(OrganizationEditView):
 
         context['first_composition'] = first_composition
 
+        context['first_membership'] = context['organization'].membershippersonorganization_set.first()
+
         return context
 
 class OrganizationEditRelationshipsView(OrganizationEditView):
@@ -184,12 +188,36 @@ class OrganizationEditRelationshipsView(OrganizationEditView):
             first_composition = context['current_composition'].parent.get_value()
 
         context['first_composition'] = first_composition
+        context['first_membership'] = context['organization'].membershippersonorganization_set.first()
 
         return context
 
     def get_success_url(self):
         return reverse_lazy('view-organization',
                             kwargs={'slug': self.kwargs['organization_id']})
+
+
+class OrganizationEditPersonnelView(OrganizationEditView):
+    model = MembershipPerson
+    template_name = 'organization/edit-personnel.html'
+    form_class = OrganizationPersonnelForm
+    context_object_name = 'current_membership'
+    slug_field_kwarg = 'organization_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        context['first_membership'] = {'id': self.kwargs['pk']}
+
+        first_composition = context['organization'].child_organization.first()
+
+        if not first_composition:
+            first_composition.parent_organization.first()
+
+        context['first_composition'] = first_composition
+
+        return context
+
 
 
 def organization_autocomplete(request):

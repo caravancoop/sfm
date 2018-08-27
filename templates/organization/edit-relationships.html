@@ -18,7 +18,16 @@
         <h1>
             {% trans "Edit:" %}
             <a href="{% url 'edit-organization' organization.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
-            <a href="{% url 'edit-organization-relationships' organization.uuid first_composition.id %}" class="btn btn-default">{% trans "Relationships" %}</a>
+            {% if first_composition %}
+                <a href="{% url 'edit-organization-relationships' organization.uuid first_composition.id %}" class="btn btn-default">
+                    {% trans "Relationships" %}
+                </a>
+            {% endif %}
+            {% if first_membership %}
+                <a href="{% url 'edit-organization-personnel' organization.uuid first_membership.id %}" class="btn btn-primary">
+                    {% trans "Personnel" %}
+                </a>
+            {% endif %}
         </h1>
     </div>
 {% endblock %}

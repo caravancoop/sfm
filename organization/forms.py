@@ -6,14 +6,20 @@ from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField
+from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField, BasePostingsForm
 
-from composition.models import Composition, CompositionParent, CompositionChild, CompositionRealStart, CompositionStartDate, CompositionEndDate, CompositionOpenEnded, CompositionClassification
+from membershipperson.models import MembershipPersonMember
+from person.models import Person
+
+from composition.models import Composition, CompositionParent, \
+    CompositionChild, CompositionRealStart, CompositionStartDate, \
+    CompositionEndDate, CompositionOpenEnded, CompositionClassification
 
 from .models import Organization, OrganizationName, OrganizationAlias, \
     OrganizationClassification, OrganizationDivisionId, OrganizationHeadquarters, \
     OrganizationFirstCitedDate, OrganizationLastCitedDate, OrganizationRealStart, \
     OrganizationOpenEnded
+
 
 class OrganizationBasicsForm(BaseEditForm):
     class Meta:
@@ -89,3 +95,9 @@ class OrganizationRelationshipsForm(BaseEditForm):
             del self.errors['child']
 
         super().clean()
+
+
+class OrganizationPersonnelForm(BasePostingsForm):
+    edit_fields = BasePostingsForm.edit_fields + [('person', MembershipPersonMember, False)]
+
+    person = forms.ModelChoiceField(queryset=Person.objects.all())

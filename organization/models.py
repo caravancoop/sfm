@@ -102,6 +102,15 @@ class Organization(models.Model, BaseModel, VersionsMixin):
         return empls
 
     @property
+    def personnel(self):
+        '''
+        Returns all personnel ever assigned to a unit
+
+        Objects returned are MembershipPerson objects
+        '''
+        return [o.object_ref for o in self.membershippersonorganization_set.all()]
+
+    @property
     def alias_list(self):
         return ', '.join(a.get_value().value for a in self.aliases.get_list())
 

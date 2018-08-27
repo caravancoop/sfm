@@ -4,7 +4,17 @@ from django.utils.translation import ugettext as _, get_language
 
 from complex_fields.models import ComplexFieldContainer
 
+from django_date_extensions.fields import ApproximateDateFormField
+
 from source.models import Source
+from organization.models import Organization
+from membershipperson.models import \
+    MembershipPerson, MembershipPersonRank, MembershipPersonRole, \
+    MembershipPersonTitle, MembershipPersonFirstCitedDate, \
+    MembershipPersonLastCitedDate, MembershipPersonRealStart, \
+    MembershipPersonRealEnd, MembershipPersonStartContext, \
+    MembershipPersonEndContext, Rank, Role
+
 
 class MergeForm(forms.Form):
     canonical_record = forms.CharField()
@@ -39,7 +49,7 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
 
         for v in value:
             try:
-                queryset = super().clean([v])
+                super().clean([v])
                 pks.append(v)
             except forms.ValidationError as e:
                 object_ref_fields = [f.column for f in self.object_ref_model._meta.fields]
@@ -258,3 +268,32 @@ class BaseEditForm(forms.ModelForm):
             self.instance.update(update_info)
 
         self.instance.object_ref_saved()
+
+
+class BasePostingsForm(BaseEditForm):
+    edit_fields = [
+        ('rank', MembershipPersonRank, False),
+        ('role', MembershipPersonRole, False),
+        ('title', MembershipPersonTitle, False),
+        ('firstciteddate', MembershipPersonFirstCitedDate, False),
+        ('lastciteddate', MembershipPersonLastCitedDate, False),
+        ('realstart', MembershipPersonRealStart, False),
+        ('realend', MembershipPersonRealEnd, False),
+        ('startcontext', MembershipPersonStartContext, False),
+        ('endcontext', MembershipPersonEndContext, False),
+    ]
+
+    organization = forms.ModelChoiceField(queryset=Organization.objects.all())
+    rank = forms.ModelChoiceField(queryset=Rank.objects.distinct('value'))
+    role = forms.ModelChoiceField(queryset=Role.objects.distinct('value'))
+    title = forms.CharField(required=False)
+    firstciteddate = ApproximateDateFormField(required=False)
+    lastciteddate = ApproximateDateFormField(required=False)
+    realstart = forms.BooleanField()
+    realend = forms.BooleanField()
+    startcontext = forms.CharField(required=False)
+    endcontext = forms.CharField(required=False)
+
+    class Meta:
+        model = MembershipPerson
+        fields = '__all__'
