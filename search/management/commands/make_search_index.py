@@ -109,7 +109,7 @@ class Command(BaseCommand):
 
             aliases = organization.aliases.get_list()
             if aliases:
-                content.extend(al.get_value().value.value for al in aliases)
+                content.extend(al.get_value().value for al in aliases)
 
             classes = organization.classification.get_list()
             class_count = len(classes)
