@@ -23,11 +23,14 @@ from association.models import Association
 from composition.models import Composition
 
 from organization.forms import OrganizationBasicsForm, \
-    OrganizationRelationshipsForm, OrganizationPersonnelForm
+    OrganizationRelationshipsForm, OrganizationPersonnelForm, \
+    OrganizationEmplacementForm
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification
 
 from membershipperson.models import MembershipPerson
+
+from emplacement.models import Emplacement
 
 from sfm_pc.utils import (get_osm_by_id, get_hierarchy_by_id,
                           get_org_hierarchy_by_id,  get_command_edges,
@@ -218,6 +221,18 @@ class OrganizationEditPersonnelView(OrganizationEditView):
 
         return context
 
+
+class OrganizationEditEmplacementView(OrganizationEditView):
+    model = Emplacement
+    template_name = 'organization/edit-emplacement.html'
+    form_class = OrganizationEmplacementForm
+    context_object_name = 'current_emplacement'
+    slug_field_kwarg = 'organization_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
 
 
 def organization_autocomplete(request):
