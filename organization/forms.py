@@ -62,7 +62,7 @@ class OrganizationRelationshipsForm(BaseEditForm):
         ('startdate', CompositionStartDate, False),
         ('enddate', CompositionEndDate, False),
         ('open_ended', CompositionOpenEnded, False),
-        ('classification', CompositionClassification, True),
+        ('classification', CompositionClassification, False),
     ]
 
     realstart = forms.BooleanField()

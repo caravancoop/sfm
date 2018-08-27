@@ -2,20 +2,7 @@ import json
 
 import pytest
 
-from django.test import TestCase, Client
 from django.core.urlresolvers import reverse_lazy
-from django.db.models.signals import post_save
-from django.core.management import call_command
-from django.db import connection
-
-from sfm_pc.signals import update_source_index, \
-    update_orgname_index, update_orgalias_index, update_personname_index, \
-    update_personalias_index, update_violation_index
-
-from organization.models import OrganizationName, OrganizationAlias
-from person.models import PersonName, PersonAlias
-from violation.models import ViolationDescription
-from source.models import Source
 
 
 @pytest.mark.django_db

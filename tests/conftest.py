@@ -3,31 +3,14 @@ import subprocess
 
 import pytest
 
-from django.db.models.signals import post_save
 from django.core.management import call_command
 from django.db import connection
 from django.conf import settings
-
-from sfm_pc.signals import update_source_index, \
-    update_orgname_index, update_orgalias_index, update_personname_index, \
-    update_personalias_index, update_violation_index
-
-from organization.models import OrganizationName, OrganizationAlias
-from person.models import PersonName, PersonAlias
-from violation.models import ViolationDescription
-from source.models import Source
 
 
 @pytest.fixture(scope='session')
 @pytest.mark.django_db(transaction=True)
 def django_db_setup(django_db_setup, django_db_blocker, request):
-
-    post_save.disconnect(receiver=update_source_index, sender=Source)
-    post_save.disconnect(receiver=update_orgname_index, sender=OrganizationName)
-    post_save.disconnect(receiver=update_orgalias_index, sender=OrganizationAlias)
-    post_save.disconnect(receiver=update_personname_index, sender=PersonName)
-    post_save.disconnect(receiver=update_personalias_index, sender=PersonAlias)
-    post_save.disconnect(receiver=update_violation_index, sender=ViolationDescription)
 
     create = '''
         CREATE TABLE osm_data (
@@ -95,3 +78,9 @@ def django_db_setup(django_db_setup, django_db_blocker, request):
                 conn.execute('TRUNCATE membershipperson_membershipperson CASCADE')
                 conn.execute('TRUNCATE membershiporganization_membershiporganization CASCADE')
                 conn.execute('TRUNCATE composition_composition CASCADE')
+
+
+@pytest.fixture
+def fake_signal(mocker):
+    fake_signal = mocker.patch('complex_fields.base_models.object_ref_saved.send')
+    return fake_signal

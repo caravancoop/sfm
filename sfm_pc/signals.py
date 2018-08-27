@@ -9,7 +9,7 @@ from source.models import Source
 from organization.models import Organization
 from person.models import Person
 from violation.models import Violation
-from membership.models import MembershipPerson
+from membershipperson.models import MembershipPerson
 from composition.models import Composition
 
 def update_index(entity_type, object_id):

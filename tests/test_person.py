@@ -1,9 +1,6 @@
 import pytest
 
-from django.test import TestCase, Client
 from django.core.urlresolvers import reverse_lazy
-from django.db import connection
-from django.core.management import call_command
 from django.contrib.auth.models import User
 
 from source.models import Source
@@ -34,8 +31,9 @@ def test_view_person(setUp):
         response = setUp.get(reverse_lazy('view-person', args=[person.uuid]))
         assert response.status_code == 200
 
+
 @pytest.mark.django_db
-def test_edit_person(setUp):
+def test_edit_person(setUp, fake_signal):
     person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
     new_sources = Source.objects.order_by('?')[:2]
 
@@ -76,6 +74,8 @@ def test_edit_person(setUp):
     assert str(person.date_of_death.get_value().value) == '14th February 2012'
     assert person.deceased.get_value().value == True
 
+    fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
+
 
 @pytest.mark.django_db
 def test_no_source_one_value(setUp):
@@ -104,7 +104,7 @@ def test_no_source_multiple_value(setUp):
 
 
 @pytest.mark.django_db
-def test_remove_value(setUp):
+def test_remove_value(setUp, fake_signal):
     person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
 
     aliases = [a.get_value().id for a in person.aliases.get_list()]
@@ -126,9 +126,11 @@ def test_remove_value(setUp):
 
     assert aliases == [a.get_value().id for a in person.aliases.get_list()]
 
+    fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
+
 
 @pytest.mark.django_db
-def test_remove_value_same_sources(setUp):
+def test_remove_value_same_sources(setUp, fake_signal):
     person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
 
     aliases = [a.get_value().id for a in person.aliases.get_list()]
@@ -147,15 +149,17 @@ def test_remove_value_same_sources(setUp):
         'aliases_source': list(sources),
     }
 
-    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 302
 
     assert aliases == [a.get_value().id for a in person.aliases.get_list()]
 
+    fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
+
 
 @pytest.mark.django_db
-def test_remove_all_values(setUp):
+def test_remove_all_values(setUp, fake_signal):
     person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
 
     sources = [s.uuid for s in person.name.get_sources()]
@@ -167,15 +171,17 @@ def test_remove_all_values(setUp):
         'aliases_source': sources,
     }
 
-    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 302
 
     assert [] == [a.get_value().id for a in person.aliases.get_list()]
 
+    fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
+
 
 @pytest.mark.django_db
-def test_duplicate_source(setUp):
+def test_duplicate_source(setUp, fake_signal):
     person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
 
     sources = [s.uuid for s in person.name.get_sources()]
@@ -185,16 +191,16 @@ def test_duplicate_source(setUp):
         'name_source': sources + sources,
     }
 
-    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 302
 
     assert len(person.name.get_sources()) == len(sources)
-
+    fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
 
 
 @pytest.mark.django_db
-def test_just_add_source(setUp):
+def test_just_add_source(setUp, fake_signal):
     person = Person.objects.order_by('?').first()
 
     sources = [s.uuid for s in person.name.get_sources()]
@@ -218,15 +224,16 @@ def test_just_add_source(setUp):
         'name_source': [new_source.uuid],
     }
 
-    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 302
 
     assert new_source in person.name.get_sources()
+    fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
 
 
 @pytest.mark.django_db
-def test_edit_posting(setUp):
+def test_edit_posting(setUp, fake_signal):
     membership = MembershipPerson.objects.order_by('?').first()
     person = membership.member.get_value().value
     response = setUp.get(reverse_lazy('edit-person-postings',
@@ -274,14 +281,5 @@ def test_edit_posting(setUp):
     assert membership.rank.get_value().value == new_rank
     assert membership.role.get_value().value == new_role
 
-    # organization = forms.ModelChoiceField(queryset=MembershipPersonOrganization.objects.all())
-    # rank = forms.ModelChoiceField(queryset=MembershipPersonRank.objects.distinct('value__value'))
-    # role = forms.CharField(required=False)
-    # title = forms.CharField(required=False)
-    # firstciteddate = ApproximateDateFormField(required=False)
-    # lastciteddate = ApproximateDateFormField(required=False)
-    # realstart = forms.BooleanField()
-    # realend = forms.BooleanField()
-    # startcontext = forms.CharField(required=False)
-    # endcontext = forms.CharField(required=False)
-
+    fake_signal.assert_called_with(object_id=membership.id,
+                                   sender=MembershipPerson)
