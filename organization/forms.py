@@ -131,7 +131,7 @@ class OrganizationEmplacementForm(BaseEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['aliases'] = GetOrCreateChoiceField(queryset=EmplacementAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
+        self.fields['aliases'] = GetOrCreateChoiceField(queryset=EmplacementAlias.objects.filter(object_ref__id=self.object_ref_pk),
                                                         required=False,
                                                         object_ref_pk=self.object_ref_pk,
                                                         object_ref_model=self._meta.model)

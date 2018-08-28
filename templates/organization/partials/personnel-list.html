@@ -47,7 +47,7 @@
                         {{ member.lastciteddate.get_value.value }}
                     </td>
                     <td>
-                        <a href="{% url 'edit-person-postings' member.member.get_value.value.uuid member.id %}">
+                        <a href="{% url 'edit-organization-personnel' member.organization.get_value.value.uuid member.id %}">
                             <i class="fa fa-pencil"> </i>
                         </a>
                     </td>

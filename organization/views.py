@@ -148,6 +148,28 @@ class OrganizationEditView(BaseEditView):
     slug_field_kwarg = 'slug'
     context_object_name = 'organization'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['organization'] = self.get_reference_organization()
+
+        first_composition = context['organization'].child_organization.first()
+
+        if not first_composition:
+            context['organization'].parent_organization.first()
+
+        first_personnel = context['organization'].membershippersonorganization_set.first()
+
+        first_emplacement = context['organization'].emplacements.first()
+        first_association = context['organization'].associations.first()
+
+        context['first_personnel'] = getattr(first_personnel, 'object_ref', None)
+        context['first_composition'] = getattr(first_composition, 'object_ref', None)
+        context['first_emplacement'] = getattr(first_emplacement, 'object_ref', None)
+        context['first_association'] = getattr(first_association, 'object_ref', None)
+
+        return context
+
     def get_success_url(self):
         uuid = self.kwargs[self.slug_field_kwarg]
         return reverse('view-organization', kwargs={'slug': uuid})
@@ -157,19 +179,9 @@ class OrganizationEditBasicsView(OrganizationEditView):
     template_name = 'organization/edit-basics.html'
     form_class = OrganizationBasicsForm
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_reference_organization(self):
+        return Organization.objects.get(uuid=self.kwargs['slug'])
 
-        first_composition = context['organization'].child_organization.first()
-
-        if not first_composition:
-            first_composition.parent_organization.first()
-
-        context['first_composition'] = first_composition
-
-        context['first_membership'] = context['organization'].membershippersonorganization_set.first()
-
-        return context
 
 class OrganizationEditRelationshipsView(OrganizationEditView):
     template_name = 'organization/edit-relationships.html'
@@ -178,20 +190,16 @@ class OrganizationEditRelationshipsView(OrganizationEditView):
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'
 
+    def get_reference_organization(self):
+        return Organization.objects.get(uuid=self.kwargs['organization_id'])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        organization = Organization.objects.get(uuid=self.kwargs['organization_id'])
-        context['organization'] = organization
-        context['compositions'] = Composition.objects.filter(Q(compositionparent__value=organization) | Q(compositionchild__value=organization))
+        parents = Q(compositionparent__value=context['organization'])
+        children = Q(compositionchild__value=context['organization'])
 
-        first_composition = context['current_composition'].child.get_value()
-
-        if not first_composition:
-            first_composition = context['current_composition'].parent.get_value()
-
-        context['first_composition'] = first_composition
-        context['first_membership'] = context['organization'].membershippersonorganization_set.first()
+        context['compositions'] = Composition.objects.filter(parents | children)
 
         return context
 
@@ -207,19 +215,8 @@ class OrganizationEditPersonnelView(OrganizationEditView):
     context_object_name = 'current_membership'
     slug_field_kwarg = 'organization_id'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
-        context['first_membership'] = {'id': self.kwargs['pk']}
-
-        first_composition = context['organization'].child_organization.first()
-
-        if not first_composition:
-            first_composition.parent_organization.first()
-
-        context['first_composition'] = first_composition
-
-        return context
+    def get_reference_organization(self):
+        return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
 
 class OrganizationEditEmplacementView(OrganizationEditView):
@@ -227,13 +224,18 @@ class OrganizationEditEmplacementView(OrganizationEditView):
     template_name = 'organization/edit-emplacement.html'
     form_class = OrganizationEmplacementForm
     context_object_name = 'current_emplacement'
-    slug_field_kwarg = 'organization_id'
+    slug_field_kwarg = 'pk'
+
+    def get_reference_organization(self):
+        return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        return context
+        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
+        context['associations'] = [e.object_ref for e in context['organization'].associations]
 
+        return context
 
 def organization_autocomplete(request):
     term = request.GET.get('q')

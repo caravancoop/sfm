@@ -23,8 +23,8 @@
                     {% trans "Relationships" %}
                 </a>
             {% endif %}
-            {% if first_membership %}
-                <a href="{% url 'edit-organization-personnel' organization.uuid first_membership.id %}" class="btn btn-primary">
+            {% if first_personnel %}
+                <a href="{% url 'edit-organization-personnel' organization.uuid first_personnel.id %}" class="btn btn-primary">
                     {% trans "Personnel" %}
                 </a>
             {% endif %}
