@@ -25,6 +25,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='violationlocationdescription',
             name='sources',
-            field=models.ManyToManyField(related_name='violation_violationlocationdescription_related', to='source.Source'),
+            field=models.ManyToManyField(related_name='violation_violationlocationdescription_related', to='source.Source', db_column='uuid'),
         ),
     ]

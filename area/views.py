@@ -3,19 +3,20 @@ import csv
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.template.loader import render_to_string
-from django.contrib.admin.util import NestedObjects
+from django.contrib.admin.utils import NestedObjects
 from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Area, Code
 from .forms import ZoneForm
 from sfm_pc.utils import deleted_in_str
 
 
-class AreaDelete(DeleteView):
+class AreaDelete(LoginRequiredMixin, DeleteView):
     model = Area
     template_name = "delete_confirm.html"
 
@@ -57,7 +58,7 @@ def area_csv(request):
             area.id,
             area.name.get_value(),
             area.code.get_value(),
-            area.geoname.get_value(),
+            area.osmname.get_value(),
             str(area.geometry.get_value()),
         ])
 
@@ -107,7 +108,7 @@ def area_search(request):
     }))
 
 
-class AreaUpdate(TemplateView):
+class AreaUpdate(LoginRequiredMixin, TemplateView):
     template_name = 'area/edit.html'
 
     def post(self, request, *args, **kwargs):
@@ -143,11 +144,10 @@ class AreaUpdate(TemplateView):
         return context
 
 
-class AreaCreate(TemplateView):
+class AreaCreate(LoginRequiredMixin, TemplateView):
     template_name = 'area/edit.html'
 
     def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
 
         (errors, data) = Area().validate(data)

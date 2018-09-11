@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2 class="page-title cited">
+                        <a href="{{ source.source_url }}" target="_blank">
+                            {{ source.title }}
+                        </a>
+                        {% if request.user.is_staff %}
+                            <small class="pull-right">
+                                <a class="btn btn-default" type="button" role="button" href="{% url 'update-source' source.uuid %}">
+                                    <i class="fa fa-fw fa-edit"></i>{% trans "Edit" %}
+                                </a>
+                            </small>
+                        {% endif %}
+                    </h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <p>
+                        <strong>Publisher: </strong>{{ source.publication }} ({{ source.publication_country }})<br />
+                        <strong>Publication date: </strong>{{ source.published_on }}<br />
+                        <strong>Archive URLs: </strong>{{ source.archive_urls }}<br />
+                        <strong>Accessed on: </strong>{{ source.accessed_on }}<br />
+                        <strong>Last edited by: </strong>{{ source.user }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <h2>This source evidences the below data:</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Record Name</th>
+                    <th>Record Type</th>
+                    <th>Fieldname</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, type, fieldname, value, link in evidenced %}
+                    <tr>
+                        <td>{{ name }}</td>
+                        <td>
+                            {% if link %}
+                                <a href="{{ link }}">
+                            {% endif %}
+                                {{ type }}
+                            {% if link %}
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td>{{ fieldname }}</td>
+                        <td>{{ value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

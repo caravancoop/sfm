@@ -1,0 +1,46 @@
+import raven
+
+
+DATABASE_URL='postgis://localhost:5432/sfm'
+GOOGLE_MAPS_KEY='KEY FROM GOOGLE'
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY='super duper secret'
+
+IMPORTER_USER = {
+    'username': 'importer',
+    'password': 'super secret',
+    'email': 'importer@importer.com',
+    'first_name': 'Imp',
+    'last_name': 'Orter',
+    'is_staff': False,
+}
+
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
+OSM_API_KEY = ''
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
+EXTRA_APPS = (
+    'debug_toolbar',
+    'raven.contrib.django.raven_compat',
+)
+
+EXTRA_MIDDLEWARE_CLASSES = (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+)
+
+INTERNAL_IPS = ['127.0.0.1']
+
+SOLR_URL = 'http://127.0.0.1:8983/solr/sfm'
+
+RAVEN_CONFIG = {
+    'dsn': 'https://<key>:<secret>@sentry.io/<project>',
+}

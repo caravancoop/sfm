@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<h3>{% trans "Page not found" %}</h3>
+<p>{% trans "We were not able to find the page you were looking for." %}</p>
+<p><a href="/"><i class="fa fa-fw fa-arrow-left"></i>{% trans "Go back to the home page" %}</a></p>
+{% endblock %}

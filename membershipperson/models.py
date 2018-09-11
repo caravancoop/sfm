@@ -1,14 +1,14 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
-from django.db.models import Max
-
+from django.core.urlresolvers import reverse
 from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
+
 from person.models import Person
 from organization.models import Organization
 
@@ -33,10 +33,82 @@ class MembershipPerson(models.Model, BaseModel):
                                self.startcontext, self.endcontext,
                                self.firstciteddate, self.lastciteddate]
 
+        self.complex_lists = []
+
         self.required_fields = [
             "MembershipPerson_MembershipPersonMember",
-            "Membership_MembershipOrganization",
+            "MembershipPerson_MembershipPersonOrganization",
         ]
+
+    @property
+    def short_description(self):
+        '''
+        Get a description string (as HTML) for information on this membership,
+        such as:
+
+        "General Officer Commanding, Major General, Commander of 82 Division
+        (Military/Army, Nigeria) on 1st January 2013"
+        '''
+
+        obj = self
+
+        # Start with the epithets (title, rank, and role)
+        description = '<strong>'
+
+        epithets = [obj.title.get_value(),
+                    obj.rank.get_value(),
+                    obj.role.get_value()]
+
+        epithets = [str(ep.value) for ep in epithets if ep is not None]
+
+        if len(epithets) == 1:
+            description += epithets[0] + '</strong>'
+
+        elif len(epithets) == 2 or len(epithets) == 3:
+            separator = '</strong>, <strong>'
+            description += separator.join(epithets) + '</strong>'
+
+        else:
+            # Length must be 0, so use a generic title
+            description = _('Member')
+
+        # Member organization
+        description += ' '
+
+        organization = obj.organization.get_value().value
+
+        href = reverse('view-organization', args=(organization.id,))
+
+        # Translators: This is part of the string "{Rank} of {unit}"
+        joiner = _('of')
+
+        org_string = joiner + ' <strong><a href="{href}">{org}</a></strong>'
+
+        description += org_string.format(org=organization,
+                                         href=href)
+
+        # Classifications
+        description += ' '
+
+        classifications = organization.classification.get_list()
+        if classifications:
+            classifications = '/'.join(str(clss) for clss in classifications
+                                       if clss is not None)
+
+            description += '(%s)' % classifications
+
+        # Last cited date
+        description += ' '
+
+        last_cited = obj.lastciteddate.get_value()
+        if last_cited:
+            # Translators: This is part of the "Last seen as" string for a person,
+            # as in "last seen as {rank} of {unit} on {date}"
+            date_joiner = _('on')
+            date_string = date_joiner + ' <strong>%s</strong>' % last_cited
+            description += date_string
+
+        return description
 
     @classmethod
     def from_id(cls, id_):
@@ -46,33 +118,9 @@ class MembershipPerson(models.Model, BaseModel):
         except cls.DoesNotExist:
             return None
 
-    def validate(self, dict_values):
-        errors = {}
-
-        first_cited = dict_values.get("Membership_MembershipFirstCitedDate")
-        last_cited = dict_values.get("Membership_MembershipLastCitedDate")
-        if (first_cited and first_cited.get('value') != "" and
-                last_cited and last_cited.get("value") != "" and
-                first_cited.get('value') >= last_cited.get('value')):
-            errors["Membership_MembershipFirstCitedDate"] = (
-                "The first cited date must be before the last cited date"
-            )
-
-        real_start = dict_values.get("Membership_MembershipRealStart")
-        real_end = dict_values.get("Membership_MembershipRealEnd")
-        if (real_start is not None and real_start.get("value") == 'True' and
-            not len(real_start.get('sources'))):
-            errors['Membership_MembershipRealStart'] = ("Sources are required " +
-                                                        "to update this field")
-        if (real_end is not None and real_end.get("value") == 'True' and
-            not len(real_end.get('sources'))):
-            errors['Membership_MembershipRealEnd'] = ("Sources are required " +
-                                                      "to update this field")
-
-        (base_errors, values) = super().validate(dict_values)
-        errors.update(base_errors)
-
-        return (errors, values)
+    def get_value(self):
+        return '{0} member of {1}'.format(self.member.get_value(),
+                                          self.organization.get_value())
 
     @classmethod
     def create(cls, dict_values, lang=get_language()):
@@ -80,80 +128,11 @@ class MembershipPerson(models.Model, BaseModel):
         membership.update(dict_values, lang)
         return membership
 
-    @classmethod
-    def search(cls, terms):
-        order_by = terms.get('orderby')
-        if not order_by:
-            order_by = 'membershippersonrole__value'
-        elif order_by in ['title']:
-            order_by = 'membershipperson' + order_by + '__value'
-
-        direction = terms.get('direction')
-        if not direction:
-            direction = 'ASC'
-
-        dirsym = ''
-        if direction == 'DESC':
-            dirsym = '-'
-
-        membership_query = (MembershipPerson.objects
-                            .annotate(Max(order_by))
-                            .order_by(dirsym + order_by + "__max"))
-
-        role = terms.get("role")
-        if role:
-            membership_query = membership_query.filter(membershiprole__value=role)
-
-        rank = terms.get("rank")
-        if rank:
-            membership_query = membership_query.filter(membershiprank__value=rank)
-
-        title = terms.get("title")
-        if title:
-            membership_query = membership_query.filter(membershiptitle__value=title)
-
-        startdate_year = terms.get('startdate_year')
-        if startdate_year:
-            membership_query = membership_query.filter(
-                membershipfirstciteddate__value__startswith=startdate_year
-            )
-
-        startdate_month = terms.get('startdate_month')
-        if startdate_month:
-            membership_query = membership_query.filter(
-                membershipfirstciteddate__value__contains="-" + startdate_month + "-"
-            )
-
-        startdate_day = terms.get('startdate_day')
-        if startdate_day:
-            membership_query = membership_query.filter(
-                membershipfirstciteddate__value__endswith=startdate_day
-            )
-
-        enddate_year = terms.get('enddate_year')
-        if enddate_year:
-            membership_query = membership_query.filter(
-                membershiplastciteddate__value__startswith=enddate_year
-            )
-
-        enddate_month = terms.get('enddate_month')
-        if enddate_month:
-            membership_query = membership_query.filter(
-                membershiplastciteddate__value__contains="-" + enddate_month + "-"
-            )
-
-        enddate_day = terms.get('enddate_day')
-        if enddate_day:
-            membership_query = membership_query.filter(
-                membershiplastciteddate__value__endswith=enddate_day
-            )
-
-        return membership_query
-
 
 @versioned
 @sourced
 class MembershipPersonMember(ComplexField):
+
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.ForeignKey(Person, default=None, blank=True, null=True)
     field_name = _("Member")

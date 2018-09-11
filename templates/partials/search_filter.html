@@ -1,0 +1,36 @@
+<div class="panel panel-filter">
+    <div class="panel-heading" data-toggle="collapse" data-target="#filter-{{facet_name}}">
+        <a role="button" class="filter-heading">
+            <p class="panel-title">
+                <strong>{{facet_label}}</strong>
+                <i class="fa fa-fw {% if facet_name in selected_facets %}fa-minus {% else %} fa-plus {% endif %} pull-right"></i>
+            </p>
+        </a>
+    </div>
+    <div class="panel-body {% if facet_name in selected_facets %}panel-show{% endif %} collapse" id="filter-{{facet_name}}">
+        <ul class="search-facet-list">
+            {% for name, count in item_list %}
+                {% if count and count > 0 %}
+                    <!-- Dynamic date fields end with "dt" -->
+                    <!-- (default:"" helps handle Nones) -->
+                    {% if facet_name|default:""|slice:"-2:" == "dt" %}
+
+                        {% with facet_is_date=True %}
+                            {% include 'partials/search_filter_item.html' %}
+                        {% endwith %}
+
+                    {% elif facet_label == "Violation type" %}
+
+                        {% with facet_is_violation=True %}
+                            {% include 'partials/search_filter_item.html' %}
+                        {% endwith %}
+
+                    {% else %}
+                            {% include 'partials/search_filter_item.html' %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+        </ul>
+    </div>
+</div>

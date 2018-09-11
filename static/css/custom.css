@@ -1,0 +1,519 @@
+/* Custom styles */
+
+body {
+    color: #555555;
+    font-weight: 400;
+    font-size: 16px;
+}
+
+/* ====== *
+ * navbar *
+ * ====== */
+
+.pre-navbar {
+    /* Ad bar that sits above the navbar */
+    text-align: right;
+    display: block;
+    padding: 5px 20px;
+    background-color: #becfd5;
+    color: #5a5a5a;
+}
+
+.pre-navbar > p {
+    /* Text in the ad bar */
+    margin: 0;
+}
+
+.pre-navbar > p > a {
+    /* Link in the ad bar should be white */
+    color: inherit;
+    text-decoration: underline;
+}
+
+.pre-navbar > p > a:hover {
+    font-weight: 500;
+}
+
+.jumbotron p {
+    font-weight: 400;
+}
+
+.jumbotron p.small {
+    font-size: 95%;
+    margin-top:10px;
+}
+
+.jumbotron {
+    margin-top:50px;
+}
+
+.navbar {
+    background-color: #425263;
+    border-bottom: none;
+    border-radius: 0px;
+}
+
+.navbar-default {
+    color: white !important;  /* override bootstrap default */
+    border-color: #425263 !important;  /* override bootstrap default */
+    border-radius: 0px !important;
+}
+
+.navbar-header {
+    width: 100%;
+}
+
+.navbar-brand {
+    margin-top: 5px;
+    margin-left: 15px !important; /* override bootstrap default */
+    margin-bottom: 10px;
+    font-size: 2em;
+    color: white !important; /* override bootstrap default */
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: white;
+}
+
+.navbar-default .navbar-nav > li.selected-tab > a,
+.navbar-default .navbar-nav > li.selected-tab a:hover,
+.navbar-default .navbar-nav > li.selected-tab a:focus {
+    color: #555555;
+}
+
+.navbar-default a:hover,
+.navbar-default a:focus,
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #bfbfbf;
+}
+
+.navbar-toggle {
+    margin-top: 7px;
+}
+
+.lang-select-box {
+    margin-top: 10px;
+}
+
+.selected-tab {
+    background-color: #fcfcfc;
+}
+
+.select2-input-buffer {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.map-thumbnail {
+    max-height: 300px;
+    margin-bottom: 10px;
+}
+
+.btn-default:hover {
+    background: #7a7a7a;
+    border: 1px solid #7a7a7a;
+}
+
+.btn-default.active {
+    background-color: #757575 !important;
+    border-color: #606060 !important;
+}
+
+.search-results-table {
+    margin-top: 30px;
+}
+
+.main-search {
+    margin-bottom: 10px;
+}
+
+/* ====== *
+ * footer *
+ * ====== */
+
+footer {
+    margin-top: 30px;
+    background-color: #425263;
+    color: white;
+}
+
+footer a {
+    color: white;
+    text-decoration: underline;
+}
+
+footer h3 {
+    margin-top: 0px;
+    color: white;
+}
+
+
+/* ========== *
+ * typography *
+ * ========== */
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
+    color: #5c5c5c;
+}
+
+.post > h3 {
+    margin-top: 35px;
+    margin-bottom: 20px;
+}
+
+.post > h4 {
+    font-size: 20px;
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+p {
+    line-height: 160%;
+}
+
+a {
+    color: #2060cf;
+}
+
+a:hover, a:focus {
+    color: #5b84cb;
+}
+
+ul, ol {
+    margin-top: 15px;
+    margin-bottom: 18px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+.nav > li {
+    margin-bottom: 0;
+}
+
+.page-title {
+    margin-bottom: 20px;
+}
+
+.pagination > li > a:hover,
+.pagination > li > span:hover,
+.pagination > li > a:focus,
+.pagination > li > span:focus {
+    background-color: #d8731e !important; /* override bootstrap default */
+    border-color: #d8731e !important; /* override bootstrap default */
+}
+
+.pagination > .active > a,
+.pagination > .active > span {
+    background-color: #bf651a !important; /* override bootstrap default */
+    border-color: #bf651a !important; /* override bootstrap default */
+}
+
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+    background-color: #d8731e !important; /* override bootstrap default */
+    border-color: #d8731e !important; /* override bootstrap default */
+}
+
+/* ====== *
+ * facets *
+ * ====== */
+
+.filter-heading {
+    color: inherit;
+}
+
+.filter-heading:hover {
+    color: inherit;
+    cursor: pointer;
+}
+
+.search-facet-list{
+    padding-left: 0;
+    list-style-type: none;
+}
+
+.badge-facet{
+    background-color: #D9D9D9;
+}
+
+.remove-filter-value{
+    background-color: #eee;
+    border-radius: 10px;
+    font-size: .8em;
+    padding: 0px 4px 1px 4px;
+}
+
+.filter-value:hover,
+.remove-filter-value:hover,
+.did-you-mean:hover {
+    cursor: pointer;
+}
+
+.jumbotron,
+.detail-header {
+    background-color: #d9dde7;
+}
+
+.detail-header {
+    padding: 20px;
+    border-radius: 6px;
+}
+
+/* ======= *
+ * sorting *
+ * ======= */
+
+.sort-container {
+    display: inline-block;
+    margin-left: 2px;
+}
+
+.sort-container a.active {
+    color: #481212;
+}
+
+.sort-asc,
+.sort-desc {
+    display: block;
+    position: relative;
+}
+
+.sort-asc {
+    margin-top: -7px;
+    bottom: -3px;
+}
+
+.sort-link:hover {
+    text-decoration: none;
+}
+
+/* =======================  *
+ * show more/less logic for *
+ * long description boxes   *
+ * =======================  */
+
+a .show-more {
+    display: none;
+}
+
+a .show-less {
+    display: inline;
+}
+
+a.collapsed .show-more {
+    display: inline;
+}
+
+a.collapsed .show-less {
+    display: none;
+}
+
+.description-text:not(.in) {
+    min-height: 4.25em;
+    height: 4.25em;
+    display: block;
+    overflow: hidden;
+    visibility: visible;
+}
+
+/* ============= */
+/* Command chain chart */
+/* ============= */
+
+.carousel-cell {
+  width: 100%;
+}
+
+.chart-cell {
+    height: 350px;
+}
+
+.chart-date {
+    margin: auto;
+    width: 100%;
+    min-height: 20px;
+    padding: 4px;
+    margin-bottom: 20px;
+    background-color: #f4f4f4;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+}
+
+.flickity-page-dots .dot {
+  height: 4px;
+  width: 40px;
+  margin: 0;
+  border-radius: 0;
+}
+
+/* ========= */
+/* citations */
+/* ========= */
+
+.source-footnote {
+    min-width: 16px !important;
+    top: -.75em;
+    height: 16px !important;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 1em;
+    line-height: 0;
+    vertical-align: middle;
+    text-decoration: none;
+    background-color: #d9230f;
+    color: inherit;
+    cursor: pointer;
+}
+
+.source-footnote:hover,
+.source-footnote:focus {
+    opacity: .5;
+    color: inherit;
+    text-decoration: none;
+}
+
+.source-footnote:focus {
+    outline: none;
+}
+
+.help-widget {
+    color: #8d8d8d
+}
+
+.citation-container {
+    display: inline;
+}
+
+.citation {
+    visibility: hidden;
+}
+
+.low-confidence,
+.medium-confidence,
+.high-confidence {
+    display: inline-block;
+}
+
+.low-confidence .popover-title,
+.low-confidence .source-footnote {
+    background-color: #f5d7cd;
+}
+
+.medium-confidence .popover-title,
+.medium-confidence .source-footnote {
+    background-color: #f5f3cd;
+}
+
+.high-confidence .popover-title,
+.high-confidence .source-footnote {
+    background-color: #dcf3dc;
+}
+
+.popover-title {
+    line-height: 160%;
+}
+
+.popover-content {
+    width: 250px;
+    max-height: 200px;
+    overflow: auto;
+}
+
+.datetype {
+    color: inherit;
+    border-bottom: 1px dotted #555555;
+    text-decoration: none;
+}
+
+.confidence-footnote:hover,
+.confidence-footnote:focus,
+.help-widget:hover,
+.help-widget:focus,
+.datetype:hover,
+.datetype:focus{
+    cursor: pointer;
+    text-decoration: none;
+    outline: none;
+}
+
+/* ============= */
+/* media queries */
+/* ============= */
+
+@media (max-width: 465px) {
+    /* Responsive header styles for tiny screens */
+    .navbar-brand {
+        margin-left: 5px !important; /* override bootstrap default */
+        font-size: 1.5em;
+    }
+
+    .navbar-toggle {
+        margin-right: 0px;
+    }
+
+    .pre-navbar > p {
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 380px) {
+    /* Brand needs to be even smaller on smallest screens */
+    .navbar-brand {
+        font-size: 1.3em;
+    }
+}
+
+@media (max-width: 324px) {
+    .navbar-brand {
+        font-size: 1.1em;
+        padding-right: 0;
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 767px) {
+    /* Bootstrap's .table-responsive class doesn't look good at large sizes.
+     * Hack it to only display on small screens */
+    .responsive-table {
+        width: 100%;
+        margin-bottom: 13.5px;
+        overflow-y: hidden;
+        -ms-overflow-style: -ms-autohiding-scrollbar;
+        overflow-x: auto;
+        min-height: 0.01%;
+    }
+
+    .form-group > span.select2 {
+        width: 100% !important;
+    }
+
+    .navbar-header {
+        margin-top: 10px;
+        margin-bottom: 15px;
+    }
+}
+
+.form-group > span.select2 {
+    max-width: 100% !important;
+}
+
+@media (min-width: 768px) {
+    .navbar-nav > li > span.select2 {
+        margin-top: 5px;
+        margin-left: 5px;
+    }
+}
+
+@media (max-width: 767px) {
+    .navbar-nav > li > span.select2 {
+        margin-left: 15px;
+    }
+}

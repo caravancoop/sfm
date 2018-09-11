@@ -1,0 +1,16 @@
+{% load i18n %}
+
+{% load humanize %}
+<h3>
+    <strong><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</strong>
+    <small>{{ hit_count|intcomma }} {% trans "results" %}</small>
+    <a class="pull-right btn btn-default" href="{{ download_urls.Violation }}"><i class="fa fa-fw fa-download"></i>{% trans "Download results" %}</a>
+</h3>
+
+{% with object_list=objects sortable='True' %}
+    {% include 'partials/violation_list_table.html' %}
+{% endwith %}
+
+{% with page=pages.Violation page_type='Violation' %}
+    {% include 'partials/pagination.html' %}
+{% endwith %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+<h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Location: {{location.name}}</h2>
+<br />
+
+<div class="row">
+  <div class="col-sm-6">
+    <p>[Map TK here]</p>
+  </div>
+  <div class="col-sm-6">
+    <p><b>OSM ID:</b> {{ location.id }}</p>
+    <p><b>Country code:</b> {{ location.country_code }}</p>
+    <p><b>Feature type:</b> {{ location.feature_type }}</p>
+  </div>
+</div>
+{% endblock %}

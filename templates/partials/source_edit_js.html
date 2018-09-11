@@ -1,0 +1,71 @@
+{% load staticfiles %}
+{% load i18n %}
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+    $(document).ready(function(e){
+        var countries = []
+        {% for country in countries %}
+            {% if country.name == form.instance.publication_country %}
+                var country = new Option("{{ country.name }}", "{{ country.name }}", true, true);
+            {% else %}
+                var country = new Option("{{ country.name }}", "{{ country.name }}", false, false);
+            {% endif %}
+            countries.push(country);
+        {% endfor %}
+
+        $('#id_publication').select2({
+            ajax: {
+                url: "{% url 'publications-autocomplete' %}",
+                datType: 'json',
+                delay: 250,
+                data: function(params){
+                    return {
+                        q: params.term,
+                    };
+                },
+                processResults: function(data, params){
+                    if (data.length >= 1){
+                        return {
+                            results: data,
+                        }
+                    } else {
+                        return {results: [{
+                                    'id': params.term,
+                                    'text': params.term}]}
+                    }
+                },
+                cache: true
+            },
+            escapeMarkup: function(markup){ return markup; },
+            minimumInputLength: 2,
+            tags: true,
+            allowClear: true,
+            selectOnClose: true,
+            placeholder: '',
+            language: {
+                inputTooShort: function () {
+                    return '{% trans "Please enter two or more characters..." %}';
+                },
+                noResults: function (params) {
+                  return '{% trans "No results found" %}';
+                },
+            },
+        });
+        $('#id_publication_country').select2({
+            allowClear: true,
+            placeholder: '',
+            selectOnClose: true,
+            language: {
+                noResults: function (params) {
+                  return '{% trans "No results found" %}';
+                },
+            }
+        });
+        $.each(countries, function(i, country){
+            $('#id_publication_country').append(country).trigger('change');
+        })
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: "0d"});
+
+    });
+</script>
+

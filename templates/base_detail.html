@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load render_versions %}
+{% block extra_head %}{% endblock %}
+{% block content %}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="detail-header">
+            {% block header %}{% endblock %}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- On desktop, show a fixed scrollspy sidebar -->
+    <div class="col-md-3 hidden-xs hidden-sm">
+        <div id="sidebar">
+            <h3>
+                {% trans "Contents" %}
+                {% block contents_help %}{% endblock %}
+            </h3>
+            <ul class="nav nav-pills nav-stacked">
+                {% block sidebar %}{% endblock %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-md-9">
+        <!-- On mobile, show a table of contents near the top of the page -->
+        <div class="visible-xs visible-sm" id="table-of-contents">
+            <h3>
+                {% trans "Contents" %}
+                {% block contents_hlep %}{% endblock %}
+            </h3>
+            <ul>
+                {% block sidebar_mobile %}{% endblock %}
+            </ul>
+            <hr />
+        </div>
+
+        {# Main detail view #}
+        {% block details %}{% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}{% endblock %}

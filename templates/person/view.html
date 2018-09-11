@@ -1,0 +1,336 @@
+{% extends "base_detail.html" %}
+{% load i18n %}
+{% load static %}
+{% load countries %}
+{% load render_versions %}
+{% load citations %}
+{% load help %}
+
+{% block header %}
+    <h2 class="page-title cited">
+        <i class="fa fa-fw fa-user"></i>
+        {{ person.name.get_value }}
+        <small>{% help href='whowasincommand/personsrec.html#person_record_anatomy_titlearea' %}</small>
+        {% cite person.name.get_value %}
+        <small class="pull-right">
+            <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
+            <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
+                <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
+            </a>
+            {% if request.user.is_staff %}
+            <a class="btn btn-default" type="button" role="button" href="{% url 'edit-person' person.uuid %}">
+                    <i class="fa fa-fw fa-edit"></i>{% trans "Edit" %}
+                </a>
+            {% endif %}
+        </small>
+    </h2>
+    {% if person.aliases.get_list %}
+        <p class="cited">{% trans "Also known as:" %}
+            {% for alias in person.aliases.get_list %}
+            <strong>{{ alias.get_value }}</strong>{% if not forloop.last %} |{% else %}{% cite alias.get_value %}{% endif %}
+            {% endfor %}
+        </p>
+    {% endif %}
+    {% if person.division_id.get_value %}
+        <p class="cited">
+            {% trans "Country:" %}
+            <strong>{{ person.division_id.get_value | country_name }}</strong>
+            {% cite person.division_id.get_value %}
+        </p>
+    {% endif %}
+{% endblock %}
+
+{% block contents_help %}
+    <small>{% help href='whowasincommand/personsrec.html#person_record_anatomy_contentsidebar' %}</small>
+{% endblock %}
+
+{% block sidebar %}
+    {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
+    {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
+    {% if versions %}<li><a href="#version-history"><i class="fa fa-fw fa-refresh"></i> {% trans "Version History" %}</a></li>{% endif %}
+{% endblock %}
+
+{# This is exactly the same as the previous sidebar #}
+{# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
+{% block sidebar_mobile %}
+    {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
+    {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
+    {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
+    {% if versions %}<li><a href="#version-history"><i class="fa fa-fw fa-refresh"></i> {% trans "Version History" %}</a></li>{% endif %}
+{% endblock %}
+
+{% block details %}
+
+    {% if memberships %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="last-seen-as">
+                <i class="fa fa-fw fa-clock-o"></i>
+                {% trans "Last seen as" %}
+                <small>{% help href='whowasincommand/personsrec.html#person_record_anatomy_last_seen_as' %}</small>
+            </h3>
+            {% with membership=memberships|first %}
+                <p class="cited">{{ membership.short_description|safe }}{% cite membership.member.get_value %}</p>
+            {% endwith %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if memberships %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="memberships">
+                <i class="fa fa-fw fa-users"></i>
+                {% trans "Memberships" %}
+                <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_memberships' %}</small>
+            </h3>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Organization" %}</th>
+                        <th>{% trans "Rank" %}</th>
+                        <th>{% trans "Role" %}</th>
+                        <th>{% trans "Title" %}</th>
+                        <th>{% trans "First cited" %}</th>
+                        <th>{% trans "Last cited" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in memberships %}
+                        <tr>
+                            <td class="cited">
+                                <a href="{% url 'view-organization' member.organization.get_value.value.id %}">
+                                    {{ member.organization.get_value }}
+                                </a>
+                                {% cite member.organization.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ member.rank.get_value|default:"" }}
+                                {% cite member.rank.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ member.role.get_value|default:"" }}
+                                {% cite member.role.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ member.title.get_value|default:"" }}
+                                {% cite member.title.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% datetype member.firstciteddate.get_value 'start' %}
+                                {% cite member.firstciteddate.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% datetype member.lastciteddate.get_value 'end' %}
+                                {% cite member.lastciteddate.get_value %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if command_chain %}
+    <div id="command-chain" class="row">
+        <div class="col-sm-12">
+            <h3 id="chain-of-command">
+                <i class="fa fa-fw fa-sitemap fa-rotate-180"></i>
+                {% trans "Chain of command" %}
+            </h3>
+            <small>{% trans "Command relationships from a person's posting to the highest-level unit (calculated at the end of the posting)" %}</small>
+            <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_chain_of_command' %}</small>
+            <hr />
+            <small><em>{% trans "Swipe to zoom, click and drag to pan" %}</em></small>
+            <div id="org-chart-container" class="command-charts-carousel"></div>
+            <br>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if superiors %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="superiors">
+                <i class="fa fa-fw fa-share-alt fa-rotate-270"></i>
+                {% trans "Superiors" %}
+            </h3>
+            <small>{% trans "Commanders of units that were superior to any units commanded by this person" %}</small>
+            <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_superiors' %}</small>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Rank" %}</th>
+                        <th>{% trans "Role" %}</th>
+                        <th>{% trans "Unit" %}</th>
+                        <th>{% trans "Start of overlap" %}</th>
+                        <th>{% trans "End of overlap" %}</th>
+                        <th>{% trans "Duration of overlap" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for superior in superiors %}
+                    <tr>
+                        <td class="cited">
+                            <a href="{% url 'view-person' superior.commander.member.get_value.value.uuid %}">
+                                {{ superior.commander.member.get_value }}
+                            </a>
+                            {% cite superior.commander.member.get_value %}
+                        </td>
+                        <td class="cited">
+                            {{ superior.commander.rank.get_value|default:"" }}
+                            {% cite superior.commander.rank.get_value %}
+                        </td>
+                        <td class="cited">
+                            {{ superior.commander.role.get_value|default:"" }}
+                            {% cite superior.commander.role.get_value %}
+                        </td>
+                        <td class="cited">
+                            <a href="{% url 'view-organization' superior.organization.value.id %}">
+                                {{ superior.organization }}
+                            </a>
+                                {% cite superior.organization %}
+                        </td>
+                        <td class="cited">
+                            {{ superior.overlap_start }}
+                            {% cite superior.overlap_start %}
+                        </td>
+                        <td class="cited">
+                            {{ superior.overlap_end }}
+                            {% cite superior.overlap_end %}
+                        </td>
+                        <td>{{ superior.overlap_duration }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if subordinates %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="subordinates">
+                <i class="fa fa-fw fa-share-alt fa-rotate-90"></i>
+                {% trans "Subordinates" %}
+            </h3>
+            <small>{% trans "Commanders of units that were subordinate to any units commanded by this person" %}</small>
+            <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_subordinates' %}</small>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Rank" %}</th>
+                        <th>{% trans "Role" %}</th>
+                        <th>{% trans "Unit" %}</th>
+                        <th>{% trans "Start of overlap" %}</th>
+                        <th>{% trans "End of overlap" %}</th>
+                        <th>{% trans "Duration of overlap" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subordinate in subordinates %}
+                    <tr>
+                        <td class="cited">
+                            <a href="{% url 'view-person' subordinate.commander.member.get_value.value.uuid %}">
+                                {{ subordinate.commander.member.get_value }}
+                            </a>
+                            {% cite subordinate.commander.member.get_value %}
+                        </td>
+                        <td class="cited">
+                            {{ subordinate.commander.rank.get_value|default:"" }}
+                            {% cite subordinate.commander.rank.get_value %}
+                        </td>
+                        <td class="cited">
+                            {{ subordinate.commander.role.get_value|default:"" }}
+                            {% cite subordinate.commander.role.get_value %}
+                        </td>
+                        <td class="cited">
+                            <a href="{% url 'view-organization' subordinate.organization.id %}">
+                                {{ subordinate.organization }}
+                            </a>
+                                {% cite subordinate.organization %}
+                        </td>
+                        <td class="cited">
+                            {{ subordinate.overlap_start }}
+                            {% cite subordinate.overlap_start %}
+                        </td>
+                        <td class="cited">
+                            {{ subordinate.overlap_end }}
+                            {% cite subordinate.overlap_end %}
+                        </td>
+                        <td>{{ subordinate.overlap_duration }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if events %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>{% trans "Events" %}</h3>
+            <hr />
+            {% for event in events %}
+                <div class="row">
+                    <div class="col-sm-8">
+                        <p class="cited">
+                            {{ event.description.get_value }}
+                            {% cite event.description.get_value %}
+                        </p>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+        {% if versions %}
+            {% with object=person %}
+                {% include 'partials/version_list.html' %}
+            {% endwith %}
+        {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    {% if command_chain %}
+        <script src="{% static 'js/vis.min.js' %}"></script>
+        <script src="{% static 'js/spin.min.js' %}"></script>
+        <script src="{% static 'js/jquery.spin.js' %}"></script>
+        <script src="{% static 'js/command_chart.js' %}"></script>
+        <script src="{% static 'js/flickity.pkgd.min.js' %}"></script>
+        <script>
+
+        $(document).ready(function() {
+
+            $("#print-page").on("click", function(){ window.print(); });
+
+            var edgelists = {{command_chain|safe}};
+
+            if (edgelists){
+                var chart = CommandChart;
+                chart.dateMissingString = "{% trans 'No known end date' %}"
+                chart.edgelists = edgelists;
+
+                chart.initCarousel();
+                chart.show();
+            }
+        });
+
+        </script>
+    {% endif %}
+{% endblock %}

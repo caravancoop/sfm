@@ -1,120 +1,200 @@
 import json
-import csv
-from datetime import date
+from itertools import combinations
 
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.template.loader import render_to_string
-from django.contrib.admin.util import NestedObjects
-from django.views.generic.edit import DeleteView
+from django import forms
+from django.conf import settings
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse
-from django.db import DEFAULT_DB_ALIAS
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-from organization.models import Classification
-from composition.models import Composition
-from sfm_pc.utils import deleted_in_str
+from source.models import Source
+from organization.models import Organization
+from composition.models import Composition, Classification
+from composition.forms import CompositionForm, BaseCompositionFormSet
+from sfm_pc.base_views import BaseFormSetView
 
 
-class CompositionDelete(DeleteView):
-    model = Composition
-    template_name = "delete_confirm.html"
+class CompositionCreate(LoginRequiredMixin, BaseFormSetView):
+    template_name = 'composition/create.html'
+    form_class = CompositionForm
+    formset_class = BaseCompositionFormSet
+    success_url = reverse_lazy('create-organization-membership')
+    extra = 0
+    max_num = None
+
+    def get_org_pairs(self, orgs):
+
+        org_ids = [org['id'] for org in orgs]
+
+        return list(combinations(org_ids, 2))
+
+    def get_initial(self):
+
+        data = []
+
+        created_orgs = self.request.session.get('organizations')
+
+        if created_orgs:
+            # Generate forms for each unique combination of orgs
+            org_pairs = self.get_org_pairs(created_orgs)
+
+            for pair in org_pairs:
+                data.append({})
+
+        return data
+
+    def get(self, request, *args, **kwargs):
+        if self.request.session.get('organizations'):
+            if len(request.session['organizations']) == 1:
+                return redirect(reverse_lazy('create-organization-membership'))
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(CompositionDelete, self).get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)
-        collector.collect([context['object']])
-        deleted_elements = collector.nested()
-        context['deleted_elements'] = deleted_in_str(deleted_elements)
-        return context
 
-    def get_object(self, queryset=None):
-        obj = super(CompositionDelete, self).get_object()
-
-        return obj
-
-
-class CompositionView(TemplateView):
-    template_name = 'composition/search.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CompositionView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        context['confidence_levels'] = settings.CONFIDENCE_LEVELS
+        context['open_ended_choices'] = settings.OPEN_ENDED_CHOICES
 
         context['classifications'] = Classification.objects.all()
-        context['year_range'] = range(1950, date.today().year + 1)
-        context['day_range'] = range(1, 32)
+        context['source'] = Source.objects.get(uuid=self.request.session['source_id'])
+        context['organizations'] = self.request.session.get('organizations')
+
+        context['org_pairs'] = self.get_org_pairs(context['organizations'])
+
+        context['back_url'] = reverse_lazy('create-organization')
+        context['skip_url'] = reverse_lazy('create-organization-membership')
+
+        existing_forms = self.request.session.get('forms', {})
+
+        if existing_forms and existing_forms.get('compositions') and not getattr(self, 'formset', False):
+
+            form_data = existing_forms.get('compositions')
+            self.initFormset(form_data)
+
+            context['formset'] = self.formset
+            context['browsing'] = True
 
         return context
 
+    def formset_valid(self, formset):
+        source = Source.objects.get(uuid=self.request.session['source_id'])
+        num_forms = int(formset.data['form-TOTAL_FORMS'][0])
 
-def composition_csv(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="compositions.csv"'
+        for i in range(0, num_forms):
+            form_prefix = 'form-{0}-'.format(i)
 
-    terms = request.GET.dict()
-    composition_query = Composition.search(terms)
+            composition_info = {}
 
-    writer = csv.writer(response)
-    for composition in composition_query:
-        writer.writerow([
-            composition.id,
-            composition.parent.get_value(),
-            composition.child.get_value(),
-            composition.classification.get_value(),
-            repr(composition.startdate.get_value()),
-            repr(composition.enddate.get_value()),
-        ])
+            # Dates
+            startdate_confidence = int(formset.data.get(form_prefix +
+                                                        'startdate_confidence', 1))
+            enddate_confidence = int(formset.data.get(form_prefix +
+                                                      'enddate_confidence', 1))
 
-    return response
+            startdate = formset.data.get(form_prefix + 'startdate')
+            realstart = formset.data.get(form_prefix + 'realstart')
+            enddate = formset.data.get(form_prefix + 'enddate')
+            open_ended = formset.data.get(form_prefix + 'open_ended', 'N')
 
+            if startdate:
 
-def composition_search(request):
-    terms = request.GET.dict()
-
-    composition_query = Composition.search(terms)
-
-    page = int(terms.get('page', 1))
-
-    keys = ['parent', 'child', 'classification', 'startdate', 'enddate']
-
-    paginator = Paginator(composition_query, 15)
-    try:
-        composition_page = paginator.page(page)
-    except PageNotAnInteger:
-        composition_page = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        composition_page = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    compositions = [
-        {
-            "id": composition.id,
-            "parent": str(composition.parent.get_value()),
-            "child": str(composition.child.get_value()),
-            "classification": str(composition.classification.get_value()),
-            "startdate": str(composition.startdate.get_value()),
-            "enddate": str(composition.enddate.get_value()),
-        }
-        for composition in composition_page
-    ]
-
-    html_paginator = render_to_string(
-        'paginator.html',
-        {'actual': page, 'min': page - 5, 'max': page + 5,
-         'paginator': composition_page,
-         'pages': range(1, paginator.num_pages + 1)}
-    )
-
-    return HttpResponse(json.dumps({
-        'success': True,
-        'keys': keys,
-        'objects': compositions,
-        'paginator': html_paginator,
-        'result_number': len(composition_query)
-    }))
+                composition_info['Composition_CompositionStartDate'] = {
+                    'value': startdate,
+                    'confidence': startdate_confidence,
+                    'sources': [source]
+                }
 
 
-class CompositionUpdate(TemplateView):
+                if realstart:
+                    realstart = True
+                else:
+                    realstart = False
+
+                composition_info['Composition_CompositionRealStart'] = {
+                    'value': realstart,
+                    'confidence': startdate_confidence,
+                    'sources': [source]
+                }
+
+
+            if enddate:
+
+                composition_info['Composition_CompositionEndDate'] = {
+                    'value': enddate,
+                    'confidence': enddate_confidence,
+                    'sources': [source]
+                }
+
+            # We want to record a value for open_ended no matter what, since
+            # it can't be null. 'N' is effectively the null value, and form
+            # validation enforces the proper logic with regard to the existence
+            # of the enddate field.
+            composition_info['Composition_CompositionOpenEnded'] = {
+                'value': formset.data[form_prefix + 'open_ended'],
+                'confidence': enddate_confidence,
+                'sources': [source]
+            }
+
+            # Relationship classification
+            classification_id = formset.data[form_prefix + 'classification']
+            classification = Classification.objects.get(id=classification_id)
+            classification_confidence = int(formset.data.get(form_prefix +
+                                                             'classification_confidence', 1))
+
+            composition_info['Composition_CompositionClassification'] = {
+                'value': classification,
+                'confidence': classification_confidence,
+                'sources': [source]
+            }
+
+            # Parent and child orgs
+            parent_id = formset.data[form_prefix + 'parent']
+            parent = Organization.objects.get(id=parent_id)
+            parent_confidence = int(formset.data.get(form_prefix +
+                                                     'parent_confidence', 1))
+
+            child_id = formset.data[form_prefix + 'child']
+            child = Organization.objects.get(id=child_id)
+            child_confidence = int(formset.data.get(form_prefix +
+                                                    'child_confidence', 1))
+
+            composition, created = Composition.objects.get_or_create(compositionparent__value=parent,
+                                                                     compositionchild__value=child)
+
+            if created:
+                parent_sources = [source]
+                child_sources = parent_sources
+            else:
+                self.source = source
+                parent_sources = self.sourcesList(composition, 'parent')
+                child_sources = self.sourcesList(composition, 'child')
+
+            composition_info['Composition_CompositionParent'] = {
+                'value': parent,
+                'confidence': parent_confidence,
+                'sources': parent_sources
+            }
+            composition_info['Composition_CompositionChild'] = {
+                'value': child,
+                'confidence': child_confidence,
+                'sources': child_sources
+            }
+
+            composition.update(composition_info)
+
+        if not self.request.session.get('forms'):
+            self.request.session['forms'] = {}
+
+        self.request.session['forms']['compositions'] = formset.data
+        self.request.session.modified = True
+
+        response = super().formset_valid(formset)
+        return response
+
+
+class CompositionUpdate(LoginRequiredMixin, TemplateView):
     template_name = 'composition/edit.html'
 
     def post(self, request, *args, **kwargs):
@@ -142,30 +222,5 @@ class CompositionUpdate(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompositionUpdate, self).get_context_data(**kwargs)
         context['composition'] = Composition.objects.get(pk=context.get('pk'))
-
-        return context
-
-
-class CompositionCreate(TemplateView):
-    template_name = 'composition/edit.html'
-
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        data = json.loads(request.POST.dict()['object'])
-        (errors, data) = Composition().validate(data)
-        if len(errors):
-            return HttpResponse(
-                json.dumps({"success": False, "errors": errors}),
-                content_type="application/json"
-            )
-
-        composition = Composition.create(data)
-
-        return HttpResponse(json.dumps({"success": True, "id": composition.id}),
-                            content_type="application/json")
-
-    def get_context_data(self, **kwargs):
-        context = super(CompositionCreate, self).get_context_data(**kwargs)
-        context['composition'] = Composition()
 
         return context

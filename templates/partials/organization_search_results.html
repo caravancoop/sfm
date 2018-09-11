@@ -1,0 +1,16 @@
+{% load humanize %}
+{% load i18n %}
+
+<h3>
+    <strong><i class="fa fa-fw fa-users"></i> {% trans "Units" %}</strong>
+    <small>{{ hit_count|intcomma }} {% trans "results" %}</small>
+    <a class="pull-right btn btn-default" href="{{ download_urls.Organization }}"><i class="fa fa-fw fa-download"></i>{% trans "Download results" %}</a>
+</h3>
+
+{% with merge='False' object_list=objects sortable='True' %}
+    {% include 'partials/organization_list_table.html' %}
+{% endwith %}
+
+{% with page=pages.Organization page_type='Organization' %}
+    {% include 'partials/pagination.html' %}
+{% endwith %}

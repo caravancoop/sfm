@@ -5842,7 +5842,7 @@ section.content {
   max-width: 100%;
   padding-left: 3rem;
   padding-right: 3rem;
-  margin-left: 14.5rem; }
+  /* margin-left: 14.5rem; */  }
   section.content .form-group {
     text-overflow: ellipsis; }
   section.content .error-message {

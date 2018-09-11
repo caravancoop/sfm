@@ -1,31 +1,32 @@
+{% load i18n %}
 {% load menu %}
 <aside>
-  <div class="sidebar-title"></div>
+  <a href="/"><div class="sidebar-title"></div></a>
 
   <nav>
     <ul>
-      <li class="{% active "person"%}"><a href="/person/">People </a></li>
-      <li class="{% active "/membershipperson" %}"><a href="/membershipperson/">Person Membership</a></li>
-      <li class="{% active "/organization" %}"><a href="/organization/">Organization</a></li>
-      <li class="{% active "/composition" %}"><a href="/composition/">Composition</a></li>
-      <li class="{% active "/association" %}"><a href="/association/">Association</a></li>
-      <li class="{% active "/area" %}"><a href="/area/">Area</a></li>
-      <li class="{% active "/emplacement" %}"><a href="/emplacement/">Emplacement</a></li>
-      <li class="{% active "/geosite" %}"><a href="/geosite/">Site</a></li>
-      <li class="{% active "/violation" %}"><a href="/violation/">Violation</a></li>
+      <li class="{% active "person"%}"><a href="/person/">{% trans "People" %}</a></li>
+      <li class="{% active "/membershipperson" %}"><a href="/membershipperson/">{% trans "Person Membership" %}</a></li>
+      <li class="{% active "/organization" %}"><a href="/organization/">{% trans "Organization" %}</a></li>
+      <li class="{% active "/composition" %}"><a href="/composition/">{% trans "Composition" %}</a></li>
+      <li class="{% active "/association" %}"><a href="/association/">{% trans "Association" %}</a></li>
+      <li class="{% active "/area" %}"><a href="/area/">{% trans "Area" %}</a></li>
+      <li class="{% active "/emplacement" %}"><a href="/emplacement/">{% trans "Emplacement" %}</a></li>
+      <li class="{% active "/geosite" %}"><a href="/geosite/">{% trans "Site" %}</a></li>
+      <li class="{% active "/violation" %}"><a href="/violation/">{% trans "Violation" %}</a></li>
     </ul>
   </nav>
   <ul class="bottom-list">
     <li>
       <a href="#">
         <i class="fa fa-power-off"></i>
-        <a href="/logout">Log Out</a>
+        <a href="/logout">{% trans "Log Out" %}</a>
       </a>
     </li>
     <li>
       <a href="#">
         <i class="fa fa-cog"></i>
-        Settings
+        {% trans "Settings" %}
       </a>
     </li>
   </ul>

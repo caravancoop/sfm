@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('area', '0001_initial'),
-        ('source', '0001_initial'),
         ('organization', '0001_initial'),
     ]
 

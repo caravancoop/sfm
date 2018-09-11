@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load viewcomplexfield %}
+{% load i18n %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+
+  <script src="{% static "js/select2.min.js" %}"></script>
+
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        {% block well %}
+            <div class="well">
+                {% if source.uuid %}
+                    <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Editing" %}: {{ source.title }}</h2>
+                    <p>
+                        <small>ID: {{ source.uuid }}</small><br />
+                        <small>Last update <strong>{{ source.date_updated }}</strong> by <strong>{{ source.user.username }}</strong></small>
+                    </p>
+                {% else %}
+                    <h2><i class="fa fa-fw fa-paperclip"></i> {% trans "Add source" %}</h2>
+                {% endif %}
+            </div>
+        {% endblock %}
+    </div>
+</div>
+{% block form %}{% endblock %}
+
+{% if versions %}
+    {% with object=source %}
+        {% include 'partials/version_list.html' %}
+    {% endwith %}
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+    {% include 'partials/source_edit_js.html' %}
+{% endblock %}
+

@@ -3,18 +3,19 @@ import csv
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.contrib.admin.util import NestedObjects
+from django.contrib.admin.utils import NestedObjects
 from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Association
 from sfm_pc.utils import deleted_in_str
 
 
-class AssociationDelete(DeleteView):
+class AssociationDelete(LoginRequiredMixin, DeleteView):
     model = Association
     template_name = "delete_confirm.html"
 
@@ -110,7 +111,7 @@ def association_search(request):
     }))
 
 
-class AssociationUpdate(TemplateView):
+class AssociationUpdate(LoginRequiredMixin, TemplateView):
     template_name = 'association/edit.html'
 
     def post(self, request, *args, **kwargs):
@@ -143,11 +144,10 @@ class AssociationUpdate(TemplateView):
         return context
 
 
-class AssociationCreate(TemplateView):
+class AssociationCreate(LoginRequiredMixin, TemplateView):
     template_name = 'association/edit.html'
 
     def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
         data = json.loads(request.POST.dict()['object'])
         (errors, data) = Association().validate(data)
         if len(errors):

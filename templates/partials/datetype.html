@@ -1,0 +1,13 @@
+{% load i18n %}
+{% load help %}
+
+{% if real_date %}
+    <a type="button" role="button" class="datetype" data-toggle="popover"
+    data-html="true" data-placement="top" data-content="{{ content }}"
+    title="{{ title }}<a type='button' role='button' class='close pull-right' data-dismiss='popover' aria-hidden='true' aria-label='Close'>&times;</a><p class='pull-right'>{% help href='whowasincommand/generalfunctions.html#why-do-some-dates-have-a-dotted-line-beneath-them-and-some-dont' %}</p>"
+    data-trigger="focus" tabindex="0" aria-label="{% trans 'Real date label' %}">
+        {{ citation_date }}
+    </a>
+{% else %}
+    {{ citation_date }}
+{% endif %}

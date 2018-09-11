@@ -1,16 +1,19 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from django.views.decorators.cache import cache_page
 
-from .views import (ViolationCreate, ViolationUpdate, ViolationView, violation_search,
-                    violation_csv, ViolationDelete)
+from violation.views import ViolationCreate, ViolationUpdate, \
+    violation_csv, ViolationDelete, violation_type_autocomplete, \
+    ViolationDetail, ViolationList
 
-urlpatterns = patterns(
-    '',
-    url(r'add/$', ViolationCreate.as_view(), name='add_violation'),
-    url(r'search/', violation_search, name='violation_search'),
+urlpatterns = [
+    url(r'^create/$', ViolationCreate.as_view(), name="create-event"),
     url(r'csv/', violation_csv, name='violation_csv'),
     url(r'delete/(?P<pk>\d+)/$',
         ViolationDelete.as_view(success_url="/violation/"),
         name='delete_violation'),
-    url(r'(?P<pk>\d+)/$', ViolationUpdate.as_view(), name='edit_violation'),
-    url(r'^$', ViolationView.as_view(), name='violation'),
-)
+    url(r'update/(?P<pk>\d+)/$', ViolationUpdate.as_view(), name='update-violation'),
+    url(r'view/(?P<pk>\d+)/$', cache_page(60 * 60 * 24)(ViolationDetail.as_view()), name='view-violation'),
+    url(r'list/$', ViolationList.as_view(), name='list-violation'),
+    url(r'type/autocomplete/$', violation_type_autocomplete, name='violation-type-autocomplete'),
+
+]

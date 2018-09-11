@@ -1,0 +1,17 @@
+configs/auth.json
+configs/backup-credentials.txt
+configs/client_secrets.json
+configs/credentials.json
+configs/settings_local_importer.py
+configs/settings_local_production.py
+configs/settings_local_staging.py
+configs/sfm.conf.production.nginx
+configs/sfm.conf.production.supervisor
+configs/sfm.conf.staging.nginx
+configs/sfm.conf.staging.supervisor
+scripts/after_install.sh
+scripts/app_start.sh
+scripts/app_stop.sh
+scripts/backup.sh
+scripts/sfm-cron
+static/js/piwik_tracker_production.js

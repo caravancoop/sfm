@@ -10,20 +10,21 @@ class AssociationAdmin(admin.ModelAdmin):
     pass
 
 
-class AssociationStartDateAdmin(reversion.VersionAdmin):
+class AssociationStartDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class AssociationEndDateAdmin(reversion.VersionAdmin):
+class AssociationEndDateAdmin(reversion.admin.VersionAdmin):
     pass
 
 
-class AssociationOrganizationAdmin(reversion.VersionAdmin):
+class AssociationOrganizationAdmin(reversion.admin.VersionAdmin):
     pass
 
 
 class AssociationAreaAdmin(admin.ModelAdmin):
     pass
+
 
 admin.site.register(Association, AssociationAdmin)
 admin.site.register(AssociationStartDate, AssociationStartDateAdmin)

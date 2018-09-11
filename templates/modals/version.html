@@ -6,13 +6,13 @@
 <div class="modal-body row">
 	<div class="people_vr_info col-sm-8">
 		<ul class="versions_list">
-			<h5 class="col-sm-4">Versions</h5>
-			<h5 class="col-sm-6">Sources</h5>
-			<h5 class="col-sm-2">Revert</h5>
+			<h5 class="col-sm-4">{% trans "Versions" %}</h5>
+			<h5 class="col-sm-6">{% trans "Sources" %}</h5>
+			<h5 class="col-sm-2">{% trans "Revert" %}</h5>
 		</ul>
 	</div>
 	<div class="modal_vr_add col-sm-4">
-		<p>Choose Language</p>
+		<p>{% trans "Choose Language" %}</p>
 		<div class="row">
 			<select class="--ver-lang">
 				{% for lang in langs %}
@@ -23,5 +23,5 @@
 	</div>
 </div>
 <div class="modal-footer">
-	<button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">Close</button>
+	<button type="button" class="btn sfm-btn-cancel" data-dismiss="modal">{% trans "Close" %}</button>
 </div>

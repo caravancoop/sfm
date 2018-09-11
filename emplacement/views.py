@@ -3,18 +3,19 @@ import csv
 from datetime import date
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.contrib.admin.util import NestedObjects
+from django.contrib.admin.utils import NestedObjects
 from django.views.generic.edit import DeleteView
 from django.views.generic.base import TemplateView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.db import DEFAULT_DB_ALIAS
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Emplacement
 from sfm_pc.utils import deleted_in_str
 
 
-class EmplacementDelete(DeleteView):
+class EmplacementDelete(LoginRequiredMixin, DeleteView):
     model = Emplacement
     template_name = "delete_confirm.html"
 
@@ -109,7 +110,7 @@ def emplacement_search(request):
     }))
 
 
-class EmplacementUpdate(TemplateView):
+class EmplacementUpdate(LoginRequiredMixin, TemplateView):
     template_name = 'emplacement/edit.html'
 
     def post(self, request, *args, **kwargs):
@@ -142,7 +143,7 @@ class EmplacementUpdate(TemplateView):
         return context
 
 
-class EmplacementCreate(TemplateView):
+class EmplacementCreate(LoginRequiredMixin, TemplateView):
     template_name = 'emplacement/edit.html'
 
     def post(self, request, *args, **kwargs):

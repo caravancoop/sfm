@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row">
+    <div class="col-xs-12 col-md-10 col-md-offset-1 post">
+        <h2><i class="fa fa-fw fa-globe"></i>{% trans "Egypt" %}</h2>
+        <hr />
+
+        <p>
+            {% trans "The Security Force Monitor’s research on Egypt is in progress, currently we have partial coverage of Egyptian police forces." %}
+        </p>
+
+        <h3 id="general-background">{% trans "General Background on Security Forces" %}</h3>
+        <p>
+            {% blocktrans %}
+            Egypt has security forces with different responsibilities for internal security. Crime fighting is the prime responsibility of the General Investigations Police. The Central Security Forces (CSF) are tasked with policing public events and demonstrations, but may also be used in other internal security operations.
+            {% endblocktrans %}
+        </p>
+
+        <h3 id="administrative-division">{% trans "Administrative Division of Egypt" %}</h3>
+        <p>
+            {% blocktrans %}
+            Administratively, Egypt is broken up into 27 governorates each of which is headed by a governor who is appointed by the president. The number of governorates has varied over time, with several governorates being created and then disbanded in recent years.
+            {% endblocktrans %}
+        </p>
+
+        <h3 id="security-forces">{% trans "Security Forces of Egypt" %}</h3>
+
+        <h4 id="police">{% trans "Police (General Investigations Police)" %}</h4>
+        <p>
+            {% blocktrans %}
+            The General Investigations Police is the national police force of Egypt. The President of Egypt is the supreme commander of the police, which are housed inside of the Ministry of Interior. Police in each governorate are under the command of the Security Directorate of that governorate (headed by a Security Director)  who in turn reports to the Governor. Organizationally, most police operate from one of the approximately 1700 Police Stations.
+            {% endblocktrans %}
+        </p>
+
+        <h4 id="central-security-forces">{% trans "Central Security Forces" %}</h4>
+        <p>
+            {% blocktrans %}
+            The Central Security Forces (CSF) is a specialized force focused on “anti-riot” activities, meaning they are generally deployed to police protests or other public gatherings. The CSF sits inside of the Ministry of Interior.
+            {% endblocktrans %}
+        </p>
+        <p><em>This country summary will be updated as the Monitor publishes more information on the security forces of Egypt.</em></p>
+    </div>
+</div>
+{% endblock %}

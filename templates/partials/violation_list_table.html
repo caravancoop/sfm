@@ -1,0 +1,124 @@
+{% load tablesort %}
+{% load countries %}
+{% load facets %}
+{% load i18n %}
+
+<div class="responsive-table">
+    <table class="table table-striped table-condensed search-results-table">
+        <thead>
+            <tr>
+                <th>
+                    {% trans "Start Date" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "End Date" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='end_date_dt_asc' sort_desc='end_date_dt_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Description" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='violation_description_t_asc' sort_desc='violation_description_t_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Violation types" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='violation_type_count_i_asc' sort_desc='violation_type_count_i_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Location" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='violation_location_name_s_asc' sort_desc='violation_location_name_s_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Perpetrators" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='perpetrator_organization_count_i_asc' sort_desc='perpetrator_organization_count_i_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Perpetrator classification" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Violation_sort' sort_asc='perpetrator_classification_count_i_asc' sort_desc='perpetrator_classification_count_i_desc' selected_sort=sorts.Violation %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <!-- Start date -->
+                    <td>
+                        {% if object.startdate.get_value %}
+                            {{ object.startdate.get_value }}
+                        {% endif %}
+                    </td>
+                    <!-- End date -->
+                    <td>
+                        {% if object.enddate.get_value %}
+                            {{ object.enddate.get_value }}
+                        {% endif %}
+                    </td>
+                    <!-- Description -->
+                    <td>
+                        <a href="{% url 'view-violation' object.id %}">
+                        {% if object.description.get_value %}
+                            {{ object.description.get_value|truncatewords:25 }}
+                        {% else %}
+                            {% trans "View Detail" %}
+                        {% endif %}
+                        </a>
+                    </td>
+                    <!-- Violation type -->
+                    <td>
+                        {% for violation_type in object.types.get_list %}
+                            {{ violation_type.get_value|violation|title }}
+                            {% if not forloop.last %}<br />{% endif %}
+                        {% endfor %}
+                    </td>
+                    <!-- Location -->
+                    <td>
+                        {% render_location_string object %}
+                    </td>
+                    <!-- Perpetrators -->
+                    <td>
+                        {% for organization in object.violationperpetratororganization_set.all %}
+                            <a href="{% url 'view-organization' organization.value.id %}">
+                                {{ organization.value.name.get_value }}
+                            </a>
+                            {% if not forloop.last %}<br />{% endif %}
+                        {% endfor %}
+                    </td>
+                    <!-- Perpetrator classification -->
+                    <td>
+                        {% for classification in object.violationperpetratorclassification_set.all %}
+                            {{ classification.value.value }}
+                            {% if not forloop.last %}<br />{% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

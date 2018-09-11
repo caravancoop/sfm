@@ -1,0 +1,14 @@
+{% load i18n %}
+{% load citations %}
+
+<div id="description-content-{{ N }}" class="collapse description-text">
+    <p class="cited">
+        {{ description.get_value }}
+        {% cite description.get_value %}
+    </p>
+</div>
+<a href="#description-content-{{ N }}" data-toggle="collapse" class="collapsed">
+    <span class="show-more">{% trans "Show more" %} <i class="fa fa-fw fa-arrow-down"></i></span>
+    <span class="show-less">{% trans "Show less" %} <i class="fa fa-fw fa-arrow-up"></i></span>
+</a>
+

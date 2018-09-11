@@ -1,0 +1,264 @@
+{% extends "base_detail.html" %}
+{% load i18n %}
+{% load static %}
+{% load countries %}
+{% load render_versions %}
+{% load citations %}
+{% load help %}
+
+{% if location %}
+    {% block extra_head %}
+         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    {% endblock %}
+{% endif %}
+
+{% block header %}
+    <h2 class="page-title cited">
+        {% with violation=violation %}
+            {% include 'partials/violation_title.html' %}
+        {% endwith %}
+        <small>{% help href='whowasincommand/eventrec.html#incident_record_anatomy_title_area' %}</small>
+        {# All violation info uses the same source, so we can cite at the end #}
+        {% cite violation.description.get_value %}
+        <small class="pull-right">
+            <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
+            <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
+                <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
+            </a>
+        </small>
+    </h2>
+
+    {% if violation.locationdescription.get_value or violation.adminlevel1.get_value or violation.adminlevel2.get_value %}
+        <p class="cited">{% trans "Location:" %}
+            <strong>
+                {% render_location_string violation countries=False %}
+            </strong>
+            {% if violation.locationdescription.get_value %}
+                {% cite violation.locationdescription.get_value %}
+            {% elif violation.adminlevel1.get_value %}
+                {% cite violation.adminlevel1.get_value %}
+            {% elif violation.adminlevel2.get_value %}
+                {% cite violation.adminlevel2.get_value %}
+            {% endif %}
+        </p>
+    {% endif %}
+
+    {% if violation.division_id.get_value %}
+        <p class="cited">{% trans "Country:" %}
+            <strong>{{ violation.division_id.get_value | country_name }}</strong>
+            {% cite violation.division_id.get_value %}
+        </p>
+    {% endif %}
+
+    {% if violation.types.get_list %}
+        <p class="cited">
+        {% for type in violation.types.get_list %}
+            <span class="label label-default">
+                {{ type.get_value }}
+            </span>
+            {% cite type.get_value %}
+        {% endfor %}
+        </p>
+    {% endif %}
+
+    {% if violation.perpetratorclassification.get_value %}
+        <p class="cited">
+            <span class="label label-default">
+                {{ violation.perpetratorclassification.get_value }}
+            </span>
+            {% cite violation.perpetratorclassification.get_value %}
+        </p>
+    {% endif %}
+
+{% endblock %}
+
+{% block contents_help %}
+    <small>{% help href='whowasincommand/eventrec.html#incident_record_anatomy_content_sidebar' %}</small>
+{% endblock %}
+
+{% block sidebar %}
+    {% has_versions violation as changelog %}
+
+    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
+    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
+    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+
+{% endblock %}
+
+{# This is exactly the same as the previous sidebar #}
+{# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
+{% block sidebar_mobile %}
+    {% has_versions violation as changelog %}
+
+    {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
+    {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
+    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
+    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
+
+{% endblock %}
+
+{% block details %}
+
+    {% if location %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="location">
+                <i class="fa fa-fw fa-map-marker"></i>
+                {% trans "Location" %}
+                <small class="pull-right">{% help href='whowasincommand/eventrec.html#incident_record_anatomy_location' %}</small>
+            </h3>
+            <hr />
+            <div id="geoname_map" style="height:300px;margin-bottom:10px"></div>
+            <p class="cited">
+                {% trans "This incident took place in" %} <strong>{% render_location_string violation %}</strong>
+                {% if violation.locationdescription.get_value %}
+                    {% cite violation.locationdescription.get_value %}
+                {% elif violation.adminlevel1.get_value %}
+                    {% cite violation.adminlevel1.get_value %}
+                {% elif violation.adminlevel2.get_value %}
+                    {% cite violation.adminlevel2.get_value %}
+                {% elif violation.division_id.get_value %}
+                    {% cite violation.division_id.get_value %}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if violation.description %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="description" class="cited">
+                <i class="fa fa-fw fa-file-text-o"></i>
+                {% trans "Description" %}
+                <small class="pull-right">{% help href='whowasincommand/eventrec.html#incident_record_anatomy_description' %}</small>
+            </h3>
+            <hr />
+            {% with N=1 description=violation.description %}
+                {% include 'partials/violation_description.html' %}
+            {% endwith %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if violation.violationperpetrator_set.all %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for person in violation.violationperpetrator_set.all %}
+                        <tr>
+                            <td class="cited">
+                                <a href="{% url 'view-person' person.value.uuid %}">
+                                    {{ person.value.get_value }}
+                                </a>
+                                {% cite person.value.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% for alias in person.value.aliases.get_list %}
+                                    {{ alias.get_value }}
+                                    {% cite alias.get_value %}
+                                    {% if not forloop.last %}
+                                        <br/>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if violation.violationperpetratororganization_set.all %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="perpetrator-organizations">
+                <i class="fa fa-fw fa-users"></i>
+                {% trans "Perpetrator organizations" %}
+                <small class="pull-right">
+                    {% help href='whowasincommand/eventrec.html#incident_record_anatomy_perpetrator_organizations' %}
+                </small>
+            </h3>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Aliases" %}</th>
+                        <th>{% trans "Classification" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for organization in violation.violationperpetratororganization_set.all %}
+                        <tr>
+                            <td class="cited">
+                                <a href="{% url 'view-organization' organization.value.id %}">
+                                    {{ organization.value.get_value }}
+                                </a>
+                                {% cite organization.value.get_value %}
+                            </td>
+                            <td class="cited">
+                                {% for alias in organization.value.aliases.get_list %}
+                                    {{ alias.get_value }}
+                                    {% cite alias.get_value %}
+                                    {% if not forloop.last %}
+                                        <br/>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td class="cited">
+                                {% for classification in organization.value.classification.get_list %}
+                                    {{ classification.get_value }}
+                                    {% cite classification.get_value %}
+                                    {% if not forloop.last %}
+                                        <br/>
+                                    {% endif %}
+                                {% endfor %}
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+        {% if versions %}
+            {% with object=person %}
+                {% include 'partials/version_list.html' %}
+            {% endwith %}
+        {% endif %}
+
+{% endblock %}
+
+{% if location %}
+    {% block extra_js %}
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $("#print-page").on("click", function(){ window.print(); });
+                var center_x = {{ location.x|safe }};
+                var center_y = {{ location.y|safe }};
+                var map = L.map('geoname_map').setView([center_y, center_x], 10);
+                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            { attribution: attribution, detectRetina: true }).addTo(map);
+                var marker = L.marker([center_y, center_x]).addTo(map);
+            })
+        </script>
+    {% endblock %}
+{% endif %}

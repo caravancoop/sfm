@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from modal.views import SourceView, TranslationView, VersionView
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'source/(?P<object_type>[a-zA-Z]+)/' +
         '(?P<object_id>[0-9]+)/' +
         '(?P<field_name>[a-zA-Z0-9]+)/' +
@@ -37,4 +36,4 @@ urlpatterns = patterns(
         '(?P<field_name>[a-zA-Z0-9]+)/',
         VersionView.as_view(),
         name="translate_modal"),
-)
+]

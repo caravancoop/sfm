@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from version.views import get_versions, revert_field
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'revert/' +
         '(?P<object_type>[a-zA-Z]+)/' +
         '(?P<object_id>[0-9]+)/' +
@@ -21,4 +20,4 @@ urlpatterns = patterns(
         '(?P<field_name>[a-zA-Z0-9]+)/',
         get_versions,
         name="get_versions"),
-)
+]

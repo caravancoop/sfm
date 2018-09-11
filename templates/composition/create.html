@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load get_item %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+{% endblock %}
+{% block content %}
+{% include 'partials/nav-wizard.html' %}
+<div class="row">
+    <h2>
+        <i class="fa fa-fw fa-sitemap"></i>
+        {% trans "Unit relationships" %}
+    </h2>
+    <p>{% trans "Describe how units are related to one another in" %} <strong>{{ source.title }}</strong> ({{source.publication.title}}, {{ source.published_on|date:"F d, Y"}})</p>
+    <hr />
+</div>
+{% for error in formset.non_form_errors %}
+<div class="row">
+    <div class="alert alert-danger" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {{ error }}
+    </div>
+</div>
+{% endfor %}
+<div class="row">
+    <form method="post" action="" id="org-form" class="form-horizontal">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset %}
+            {% with org_pair=org_pairs|from_index:forloop.counter0 %}
+                <div id="form-{{ forloop.counter0 }}-wrapper">
+                <h4>
+                    {% trans "Relationship" %} <strong>&#35;{{ forloop.counter }}</strong>
+                    <button class="btn btn-link btn-sm remove-relationship" type="button" data-form_id="{{ forloop.counter0 }}">
+                        <i class="fa fa-fw fa-times"> </i> {% trans "Remove this relationship" %}
+                    </button>
+
+                </h4>
+                <div class="row">
+                    <div class="col-sm-2"></div>
+                    <div class="col-sm-8"><p><strong>{% trans "Value" %}</strong></p></div>
+                    <div class="col-sm-2"><p><strong>{% trans "Confidence" %}</strong></p></div>
+                </div>
+                {% if form.parent.errors or form.parent_confidence.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="col-sm-2 control-label">{% trans "Parent unit" %}</label>
+                        <div class="col-sm-8">
+                            <select id="id_form-{{ forloop.counter0 }}-parent" class="form-control organization-field" name="form-{{ forloop.counter0 }}-parent">
+                                {% for org in organizations %}
+                                    {% if form.cleaned_data %}
+                                        {% if form.cleaned_data.parent == org.id %}
+                                            <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
+                                        {% else %}
+                                            <option value="{{ org.id }}">{{ org.name }}</option>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if org_pair|first == org.id %}
+                                            <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
+                                        {% else %}
+                                            <option value="{{ org.id }}">{{ org.name }}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.parent.errors %}
+                                {% for error in form.parent.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-parent_confidence" name="form-{{ forloop.counter0 }}-parent_confidence">
+                                {% for value, name in confidence_levels %}
+                                    {% if form.cleaned_data.parent_confidence == value %}
+                                        <option value="{{ value }}" selected=true>{{ name }}</option>
+                                    {% else %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.parent_confidence.errors %}
+                                {% for error in form.parent_confidence.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {{ form.cleaned_data.child }}
+                {% if form.child.errors or form.child_confidence.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="col-sm-2 control-label">{% trans "Child unit" %}</label>
+                        <div class="col-sm-8">
+                            <select id="id_form-{{ forloop.counter0 }}-child" class="form-control organization-field" name="form-{{ forloop.counter0 }}-child">
+                                {% for org in organizations %}
+                                    {% if form.cleaned_data %}
+                                        {% if form.cleaned_data.child == org.id %}
+                                            <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
+                                        {% else %}
+                                            <option value="{{ org.id }}">{{ org.name }}</option>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if org_pair|last == org.id %}
+                                            <option value="{{ org.id }}" selected=true>{{ org.name }}</option>
+                                        {% else %}
+                                            <option value="{{ org.id }}">{{ org.name }}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.child.errors %}
+                                {% for error in form.child.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-child_confidence" name="form-{{ forloop.counter0 }}-child_confidence">
+                                {% for value, name in confidence_levels %}
+                                    {% if form.cleaned_data.child_confidence == value %}
+                                        <option value="{{ value }}" selected=true>{{ name }}</option>
+                                    {% else %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.child_confidence.errors %}
+                                {% for error in form.child_confidence.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% if form.classification.errors or form.classification_confidence.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                        <label class="col-sm-2 control-label">{% trans "Relationship type" %}</label>
+                        <div class="col-sm-8">
+                            <select id="id_form-{{ forloop.counter0 }}-classification" class="form-control classification-field" name="form-{{ forloop.counter0 }}-classification">
+                                {% for classification in classifications %}
+                                    {% if form.cleaned_data.classification.id == classification.id %}
+                                        <option value="{{ classification.id }}" selected=true>{{ classification.value }}</option>
+                                    {% else %}
+                                        <option value="{{ classification.id }}">{{ classification.value }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.classification.errors %}
+                                {% for error in form.classification.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-classification_confidence" name="form-{{ forloop.counter0 }}-classification_confidence">
+                                {% for value, name in confidence_levels %}
+                                    {% if form.cleaned_data.classification_confidence == value %}
+                                        <option value="{{ value }}" selected=true>{{ name }}</option>
+                                    {% else %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.classification_confidence.errors %}
+                                {% for error in form.classification_confidence.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% if form.startdate.errors or form.startdate_confidence.errors or form.realstart.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                    <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-startdate">{% trans "First citation date" %}</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-startdate" name="form-{{ forloop.counter0 }}-startdate" value="{{ form.cleaned_data.startdate|date:'Y-m-d' }}"/>
+                            {% if form.startdate.errors %}
+                                {% for error in form.startdate.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="id_form-{{ forloop.counter0 }}-realstart" class="checkbox-inline">
+                                <input type="checkbox" id="id_form-{{ forloop.counter0 }}-realstart" name="form-{{ forloop.counter0 }}-realstart" {% if form.cleaned_data.realstart %}checked{% endif %} > {% trans "This is the start date of the relationship" %}
+                            </label>
+                            {% if form.realstart.errors %}
+                                {% for error in form.realstart.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-startdate_confidence" name="form-{{ forloop.counter0 }}-startdate_confidence">
+                                {% for value, name in confidence_levels %}
+                                    {% if form.cleaned_data.startdate_confidence == value %}
+                                        <option value="{{ value }}" selected=true>{{ name }}</option>
+                                    {% else %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.startdate_confidence.errors %}
+                                {% for error in form.startdate_confidence.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% if form.enddate.errors or form.enddate_confidence.errors or form.open_ended.errors %}
+                    <div class="form-group has-error has-feedback">
+                {% else %}
+                    <div class="form-group">
+                {% endif %}
+                    <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-enddate">{% trans "Last citation" %}</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control datepicker" id="id_form-{{ forloop.counter0 }}-enddate" name="form-{{ forloop.counter0 }}-enddate" value="{{ form.cleaned_data.enddate|date:'Y-m-d' }}"/>
+                            {% if form.enddate.errors %}
+                                {% for error in form.enddate.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <label class="control-label col-sm-2" for="id_form-{{ forloop.counter0 }}-open_ended">{% trans "Open-ended?" %}</label>
+                        <div class="col-sm-2">
+                            <select class="form-control open-ended-field" id="id_form-{{ forloop.counter0 }}-open_ended" name="form-{{ forloop.counter0 }}-open_ended">
+                                {% for value, name in open_ended_choices %}
+                                    {% if form.cleaned_data.open_ended == value %}
+                                        <option value="{{ value }}" selected=true>{{ name }}</option>
+                                    {% else %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.open_ended.errors %}
+                                {% for error in form.open_ended.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control confidence-field" id="id_form-{{ forloop.counter0 }}-enddate_confidence" name="form-{{ forloop.counter0 }}-enddate_confidence">
+                                {% for value, name in confidence_levels %}
+                                    {% if form.cleaned_data.enddate_confidence == value %}
+                                        <option value="{{ value }}" selected=true>{{ name }}</option>
+                                    {% else %}
+                                        <option value="{{ value }}">{{ name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.enddate_confidence.errors %}
+                                {% for error in form.enddate_confidence.errors %}
+                                <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                <hr />
+                </div>
+            {% endwith %}
+        {% endfor %}
+        {% with has_next=True %}
+            {% include 'partials/back_skip_next.html' %}
+        {% endwith %}
+    </form>
+</div>
+
+<div id="delete-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title">{% trans "Remove relationship" %}</h3>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Are you sure you want to remove this relationship? All data will be lost." %}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">{% trans "Cancel" %}</button>
+                <button type="button" class="btn btn-primary" id="delete-confirm">
+                    <i class="fa fa-fw fa-times"></i> {% trans "Remove" %}</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script type="text/javascript">
+
+    var org_opts = {
+        placeholder: '{% trans "Select an organization" %}',
+        minimumResultsForSearch: Infinity
+    }
+
+    var classification_opts = {
+        placeholder: '{% trans "Select a classification" %}',
+        minimumResultsForSearch: Infinity
+    }
+
+    var confidence_opts = {
+        minimumResultsForSearch: Infinity
+    }
+
+    var open_ended_opts = confidence_opts
+
+    $(document).ready(function(e){
+
+        $('.datepicker').datepicker({'autoclose': true, format: "yyyy-mm-dd", endDate: '0d'});
+
+        $('.organization-field').select2(org_opts);
+        $('.classification-field').select2(classification_opts);
+        $('.confidence-field').select2(confidence_opts);
+        $('.open-ended-field').select2(open_ended_opts);
+
+        $('.remove-relationship').on('click', deleteForm);
+    });
+
+    function deleteForm(e){
+        e.preventDefault();
+        var form_id = $(e.target).data('form_id');
+        console.log(e.target)
+        var wrapper_id = '#form-' + form_id + '-wrapper';
+
+        $('#delete-confirm').data('wrapper_id', wrapper_id);
+        $('#delete-confirm').off();
+
+        $('#delete-modal').modal();
+        $('#delete-confirm').on('click', function(e){
+
+            e.preventDefault();
+            var wrapper_id = $(e.target).data('wrapper_id');
+
+            removeForm(wrapper_id);
+
+            $('#delete-modal').modal('hide');
+
+            var current_total = $('#id_form-TOTAL_FORMS').val();
+            var new_total = parseInt(current_total) - 1;
+
+            $('#id_form-TOTAL_FORMS').prop('value', new_total);
+
+        });
+    }
+
+    function removeForm(wrapper_id){
+        $(wrapper_id).remove();
+    }
+
+</script>
+{% endblock %}

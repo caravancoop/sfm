@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load citations %}
+
+<i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incident" %}
+{% comment %}Translators: The word "in" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date>] Words in [brackets] indicate variable text.{% endcomment %}
+{% if violation.osmname.get_value %}
+    {% trans "in" %} <strong>{{ violation.osmname.get_value }}</strong>{% endif %}
+
+{% if violation.startdate.get_value and violation.enddate.get_value %}
+    {% if violation.startdate.get_value.value == violation.enddate.get_value.value %}
+        {% comment %}Translators: The word "on" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date]" Words in [brackets] indicate variable text.{% endcomment %}
+        {% trans "on" %} <strong>{{ violation.startdate.get_value }}</strong>
+    {% else %}
+        {% comment %}Translators: The word "between" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
+        {% trans "between" %} <strong>{{ violation.startdate.get_value }}</strong> {% trans "and" %} <strong>{{ violation.enddate.get_value }}</strong>
+    {% endif %}
+
+{% elif violation.startdate.get_value %}
+    {% comment %}Translators: The word "starting" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
+    {% trans "starting" %} <strong>{{ violation.startdate.get_value }}</strong>
+
+{% elif violation.enddate.get_value %}
+    {% comment %}Translators: The word "ending" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.{% endcomment %}
+    {% trans "ending" %} <strong>{{ violation.enddate.get_value }}</strong>
+
+{% endif %}

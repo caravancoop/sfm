@@ -1,0 +1,144 @@
+{% load tablesort %}
+{% load citations %}
+{% load countries %}
+{% load i18n %}
+
+<div class="responsive-table">
+    <table class="table table-striped table-condensed search-results-table">
+        <thead>
+            <tr>
+                {% if merge == 'True' %}
+                    <th></th>
+                {% endif %}
+                <th>
+                    {% trans "Name" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Organization_sort' sort_asc='organization_name_s_asc' sort_desc='organization_name_s_desc' selected_sort=sorts.Organization %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Parents" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Organization_sort' sort_asc='organization_parent_count_i_asc' sort_desc='organization_parent_count_i_desc' selected_sort=sorts.Organization %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Classification" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Organization_sort' sort_asc='organization_classification_count_i_asc' sort_desc='organization_classification_count_i_desc' selected_sort=sorts.Organization %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Last site" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Organization_sort' sort_asc='organization_site_count_i_asc' sort_desc='organization_site_count_i_desc' selected_sort=sorts.Organization %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Country" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Organization_sort' sort_asc='organization_country_count_i_asc' sort_desc='organization_country_count_i_desc' selected_sort=sorts.Organization %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "First cited" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Organization_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Organization %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Last cited" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='Organization_sort' sort_asc='end_date_dt_asc' sort_desc='end_date_dt_desc' selected_sort=sorts.Organization %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+                {% if object.name.get_value %}
+                    <tr>
+                        {% if merge == 'True' %}
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" class="organization_ids" data-entity_id="{{object.id}}">
+                                    </label>
+                                </div>
+                            </td>
+                        {% endif %}
+                        {% if canonical == 'True' %}
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="radio" name="canonical_record" value="{{ object.id }}">
+                                    </label>
+                                </div>
+                            </td>
+                        {% endif %}
+                        <!-- Name -->
+                        <td>
+                            <a href="{% url 'view-organization' object.id %}">{{ object.name.get_value }}</a>
+                        </td>
+                        <!-- Parent -->
+                        <td>
+                            {% for comp in object.parent_organization.all %}
+                                {% with parent=comp.object_ref.parent.get_value %}
+                                    <a href="{% url 'view-organization' parent.value.id %}">{{ parent.value.name.get_value }}</a>
+                                {% endwith %}
+                                {% if not forloop.last %}<br />{% endif %}
+                            {% endfor %}
+                        </td>
+                        <!-- Classification -->
+                        <td>
+                            {% for classification in object.classification.get_list %}
+                                {% if classification.get_value %}
+                                    {{ classification.get_value.value.value }}
+                                {% endif %}
+                                {% if not forloop.last %}<br />{% endif %}
+                            {% endfor %}
+                        </td>
+                        <!-- Site name -->
+                        <td>
+                            {% with emplacement=object.emplacementorganization_set.last %}
+                                {% with site=emplacement.object_ref.emplacementsite_set.last %}
+                                    {% if site.value.location_id.get_value %}
+                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.location_id.get_value }}">{{ site }}</a>
+                                    {% else %}
+                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.admin_id.get_value }}">{{ site }}</a>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endwith %}
+                        </td>
+                        <!-- Country -->
+                        <td>
+                            {{ object.division_id|country_name }}
+                        </td>
+                        <!-- First citation -->
+                        <td>
+                            {% datetype object.firstciteddate.get_value 'start' %}
+                        </td>
+                        <!-- Last citation -->
+                        <td>
+                            {% datetype object.lastciteddate.get_value 'end' %}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
