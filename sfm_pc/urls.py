@@ -25,6 +25,7 @@ urlpatterns = i18n_patterns(
     url(r'^geosite/', include('geosite.urls')),
     url(r'^emplacement/', include('emplacement.urls')),
     url(r'^violation/', include('violation.urls')),
+    url(r'^location/', include('location.urls')),
     url(r'^countries/(?P<country>[a-zA-Z-]+)/background/$', country_background, name="background"),
     url(r'^countries/', Countries.as_view(), name="countries"),
     url(r'^help/', Help.as_view(), name="help"),
