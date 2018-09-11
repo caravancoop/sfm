@@ -96,6 +96,7 @@ INSTALLED_APPS = (
     'emplacement',
     'violation',
     'search',
+    'location'
 )
 
 INSTALLED_APPS += EXTRA_APPS
@@ -239,49 +240,49 @@ ALLOWED_CLASS_FOR_NAME = [
 OSM_BASE_URL = 'https://wambachers-osm.website/boundaries/exportBoundaries'
 
 OSM_DATA = [
-    {
-        'country': 'Nigeria',
-        'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
-        'relation_id': '192787',
-        'country_code': 'ng',
-    },
+    # {
+    #     'country': 'Nigeria',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
+    #     'relation_id': '192787',
+    #     'country_code': 'ng',
+    # },
     {
         'country': 'Mexico',
         'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
         'relation_id': '114686',
         'country_code': 'mx',
     },
-    {
-        'country': 'Sierra Leone',
-        'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
-        'relation_id': '192777',
-        'country_code': 'sl',
-    },
-    {
-        'country': 'Democratic Republic of the Congo',
-        'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
-        'relation_id': '192795',
-        'country_code': 'cd',
-    },
-    {
-        'country': 'Liberia',
-        'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
-        'relation_id': '192780',
-        'country_code': 'lr',
-    },
-    {
-        'country': 'Sudan',
-        'pbf_url': 'http://download.geofabrik.de/africa/sudan-latest.osm.pbf',
-        'relation_id': '192789',
-        'country_code': 'sd',
-    },
-    {
-        'country': 'Egypt',
-        'pbf_url': 'http://download.geofabrik.de/africa/egypt-latest.osm.pbf',
-        'relation_id': '1473947',
-        'country_code': 'eg',
-
-    }
+    # {
+    #     'country': 'Sierra Leone',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
+    #     'relation_id': '192777',
+    #     'country_code': 'sl',
+    # },
+    # {
+    #     'country': 'Democratic Republic of the Congo',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
+    #     'relation_id': '192795',
+    #     'country_code': 'cd',
+    # },
+    # {
+    #     'country': 'Liberia',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
+    #     'relation_id': '192780',
+    #     'country_code': 'lr',
+    # },
+    # {
+    #     'country': 'Sudan',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/sudan-latest.osm.pbf',
+    #     'relation_id': '192789',
+    #     'country_code': 'sd',
+    # },
+    # {
+    #     'country': 'Egypt',
+    #     'pbf_url': 'http://download.geofabrik.de/africa/egypt-latest.osm.pbf',
+    #     'relation_id': '1473947',
+    #     'country_code': 'eg',
+    #
+    # }
 ]
 
 # Override built-in messages tags

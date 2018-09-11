@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load tablesort %}
+
+{% block content %}
+<h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Locations</h2>
+
+<div class="responsive-table">
+    <table class="table table-striped table-condensed search-results-table">
+      <thead>
+        <th>OSM ID</th>
+        <th>Name</th>
+        <th>Country code</th>
+        <th>Feature type</th>
+      </thead>
+      <tbody>
+        {% for location in locations %}
+        <tr>
+          <td>{{ location.id }}</td>
+          <td><a href="/location/view/{{location.id}}">{{ location.name }}</a></td>
+          <td>{{ location.country_code }}</td>
+          <td>{{ location.feature_type }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+{% endblock %}
