@@ -24,7 +24,7 @@ from composition.models import Composition
 
 from organization.forms import OrganizationBasicsForm, \
     OrganizationRelationshipsForm, OrganizationPersonnelForm, \
-    OrganizationEmplacementForm
+    OrganizationEmplacementForm, OrganizationAssociationForm
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification
 
@@ -182,6 +182,13 @@ class OrganizationEditBasicsView(OrganizationEditView):
     def get_reference_organization(self):
         return Organization.objects.get(uuid=self.kwargs['slug'])
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['basics'] = True
+
+        return context
+
 
 class OrganizationEditRelationshipsView(OrganizationEditView):
     template_name = 'organization/edit-relationships.html'
@@ -236,6 +243,26 @@ class OrganizationEditEmplacementView(OrganizationEditView):
         context['associations'] = [e.object_ref for e in context['organization'].associations]
 
         return context
+
+
+class OrganizationEditAssociationView(OrganizationEditView):
+    model = Association
+    template_name = 'organization/edit-association.html'
+    form_class = OrganizationAssociationForm
+    context_object_name = 'current_association'
+    slug_field_kwarg = 'pk'
+
+    def get_reference_organization(self):
+        return Organization.objects.get(uuid=self.kwargs['organization_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
+        context['associations'] = [e.object_ref for e in context['organization'].associations]
+
+        return context
+
 
 def organization_autocomplete(request):
     term = request.GET.get('q')

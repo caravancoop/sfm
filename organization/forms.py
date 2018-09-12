@@ -10,19 +10,32 @@ from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField, BasePostingsForm
 
 from membershipperson.models import MembershipPersonMember
 from person.models import Person
+
 from emplacement.models import Emplacement, EmplacementStartDate, \
     EmplacementEndDate, EmplacementRealStart, EmplacementOpenEnded, \
     EmplacementOrganization, EmplacementSite, EmplacementAlias
+
 from geosite.models import Geosite
 
 from composition.models import Composition, CompositionParent, \
     CompositionChild, CompositionRealStart, CompositionStartDate, \
     CompositionEndDate, CompositionOpenEnded, CompositionClassification
 
+from association.models import Association, AssociationStartDate, \
+    AssociationRealStart, AssociationEndDate, AssociationOpenEnded, \
+    AssociationArea
+
 from .models import Organization, OrganizationName, OrganizationAlias, \
     OrganizationClassification, OrganizationDivisionId, OrganizationHeadquarters, \
     OrganizationFirstCitedDate, OrganizationLastCitedDate, OrganizationRealStart, \
     OrganizationOpenEnded
+
+
+OPEN_ENDED_CHOICES = [
+    ('Y', _('Yes')),
+    ('N', _('No')),
+    ('E', _('Last cited date is termination date')),
+]
 
 
 class OrganizationBasicsForm(BaseEditForm):
@@ -46,7 +59,7 @@ class OrganizationBasicsForm(BaseEditForm):
     firstciteddate = ApproximateDateFormField(required=False)
     lastciteddate = ApproximateDateFormField(required=False)
     realstart = forms.BooleanField()
-    open_ended = forms.ChoiceField(choices=[('Y', 'Yes'), ('N', 'No'), ('E', 'Last cited date is termination date')], required=False)
+    open_ended = forms.ChoiceField(choices=OPEN_ENDED_CHOICES, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,7 +91,7 @@ class OrganizationRelationshipsForm(BaseEditForm):
     realstart = forms.BooleanField()
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
-    open_ended = forms.ChoiceField(choices=[('Y', 'Yes'), ('N', 'No'), ('E', 'Last cited date is termination date')], required=False)
+    open_ended = forms.ChoiceField(choices=OPEN_ENDED_CHOICES, required=False)
     parent = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
     child = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
     classification = forms.CharField(required=False)
@@ -110,6 +123,36 @@ class OrganizationPersonnelForm(BasePostingsForm):
 class OrganizationEmplacementForm(BaseEditForm):
     class Meta:
         model = Emplacement
+        fields = '__all__'
+
+    edit_fields = [
+        ('startdate', EmplacementStartDate, False),
+        ('enddate', EmplacementEndDate, False),
+        ('realstart', EmplacementRealStart, False),
+        ('organization', EmplacementOrganization, False),
+        ('site', EmplacementSite, False),
+        ('open_ended', EmplacementOpenEnded, False),
+        ('aliases', EmplacementAlias, True),
+    ]
+
+    realstart = forms.BooleanField()
+    startdate = ApproximateDateFormField(required=False)
+    enddate = ApproximateDateFormField(required=False)
+    open_ended = forms.ChoiceField(choices=OPEN_ENDED_CHOICES, required=False)
+    organization = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
+    site = forms.ModelChoiceField(queryset=Geosite.objects.all(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['aliases'] = GetOrCreateChoiceField(queryset=EmplacementAlias.objects.filter(object_ref__id=self.object_ref_pk),
+                                                        required=False,
+                                                        object_ref_pk=self.object_ref_pk,
+                                                        object_ref_model=self._meta.model)
+
+
+class OrganizationAssociationForm(BaseEditForm):
+    class Meta:
+        model = Association
         fields = '__all__'
 
     edit_fields = [

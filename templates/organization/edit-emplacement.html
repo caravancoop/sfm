@@ -1,38 +1,8 @@
-{% extends 'edit.html' %}
+{% extends 'organization/base-organization.html' %}
 {% load i18n %}
 {% load countries %}
 {% block extra_head %}
      <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
-{% endblock %}
-
-{% block header_title %}
-<div class="col-sm-6">
-    <h1>{{ organization.name.get_value }}</h1>
-    <p>
-        {% trans "ID:" %} {{ organization.uuid }}<br />
-        {% trans "Last update by:" %} username goes here <br />
-        <a href="#">{% trans "View versions"%}</a>
-    </p>
-</div>
-{% endblock %}
-
-{% block edit_links %}
-    <div class="col-sm-6">
-        <h1>
-            {% trans "Edit:" %}
-            <a href="{% url 'edit-organization' organization.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
-            {% if first_composition %}
-                <a href="{% url 'edit-organization-relationships' organization.uuid first_composition.id %}" class="btn btn-default">{% trans "Relationships" %}</a>
-            {% endif %}
-            {% if first_personnel %}
-                <a href="{% url 'edit-organization-personnel' organization.uuid first_personnel.id %}" class="btn btn-primary">{% trans "Personnel" %}</a>
-            {% endif %}
-            {% if first_emplacement %}
-                <a href="{% url 'edit-organization-emplacement' organization.uuid first_emplacement.id %}" class="btn btn-primary">{% trans "Locations" %}</a>
-            {% elif first_association %}
-            {% endif %}
-        </h1>
-    </div>
 {% endblock %}
 
 {% block above_form %}
@@ -50,6 +20,7 @@
                     <th>{% trans "Type" %}</th>
                     <th>{% trans "Date first cited" %}</th>
                     <th>{% trans "Date last cited" %}</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -63,6 +34,11 @@
                         <td>{% trans "Site" %}</td>
                         <td>{{ emplacement.startdate.get_value.value }}</td>
                         <td>{{ emplacement.enddate.get_value.value }}</td>
+                        <td>
+                            <a href="{% url 'edit-organization-emplacement' organization.uuid emplacement.id %}">
+                                <i class="fa fa-pencil"> </i>
+                            </a>
+                        </td>
                     </tr>
                 {% endfor %}
                 {% for association in associations %}
@@ -71,6 +47,11 @@
                         <td>{% trans "Area of operations" %}</td>
                         <td>{{ association.startdate.get_value.value }}</td>
                         <td>{{ association.enddate.get_value.value }}</td>
+                        <td>
+                            <a href="{% url 'edit-organization-association' organization.uuid association.id %}">
+                                <i class="fa fa-pencil"> </i>
+                            </a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

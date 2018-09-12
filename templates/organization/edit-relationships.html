@@ -1,36 +1,7 @@
-{% extends 'edit.html' %}
+{% extends 'organization/base-organization.html' %}
 {% load i18n %}
 {% load countries %}
 {% load help %}
-
-{% block header_title %}
-<div class="col-sm-6">
-    <h1>{{ organization.name.get_value }}</h1>
-    <p>
-        {% trans "ID:" %} {{ organization.uuid }}<br />
-        {% trans "Last update by:" %} username goes here <br />
-        <a href="#">{% trans "View versions"%}</a>
-    </p>
-</div>
-{% endblock %}
-{% block edit_links %}
-    <div class="col-sm-6">
-        <h1>
-            {% trans "Edit:" %}
-            <a href="{% url 'edit-organization' organization.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
-            {% if first_composition %}
-                <a href="{% url 'edit-organization-relationships' organization.uuid first_composition.id %}" class="btn btn-default">
-                    {% trans "Relationships" %}
-                </a>
-            {% endif %}
-            {% if first_personnel %}
-                <a href="{% url 'edit-organization-personnel' organization.uuid first_personnel.id %}" class="btn btn-primary">
-                    {% trans "Personnel" %}
-                </a>
-            {% endif %}
-        </h1>
-    </div>
-{% endblock %}
 
 {% block above_form %}
 <h3 id="relationships">
