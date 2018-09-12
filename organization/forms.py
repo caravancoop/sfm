@@ -17,13 +17,15 @@ from emplacement.models import Emplacement, EmplacementStartDate, \
 
 from geosite.models import Geosite
 
+from area.models import Area
+
 from composition.models import Composition, CompositionParent, \
     CompositionChild, CompositionRealStart, CompositionStartDate, \
     CompositionEndDate, CompositionOpenEnded, CompositionClassification
 
 from association.models import Association, AssociationStartDate, \
     AssociationRealStart, AssociationEndDate, AssociationOpenEnded, \
-    AssociationArea
+    AssociationArea, AssociationOrganization
 
 from .models import Organization, OrganizationName, OrganizationAlias, \
     OrganizationClassification, OrganizationDivisionId, OrganizationHeadquarters, \
@@ -156,25 +158,16 @@ class OrganizationAssociationForm(BaseEditForm):
         fields = '__all__'
 
     edit_fields = [
-        ('startdate', EmplacementStartDate, False),
-        ('enddate', EmplacementEndDate, False),
-        ('realstart', EmplacementRealStart, False),
-        ('organization', EmplacementOrganization, False),
-        ('site', EmplacementSite, False),
-        ('open_ended', EmplacementOpenEnded, False),
-        ('aliases', EmplacementAlias, True),
+        ('startdate', AssociationStartDate, False),
+        ('enddate', AssociationEndDate, False),
+        ('realstart', AssociationRealStart, False),
+        ('organization', AssociationOrganization, False),
+        ('area', AssociationArea, False),
+        ('open_ended', AssociationOpenEnded, False),
     ]
 
-    realstart = forms.BooleanField()
     startdate = ApproximateDateFormField(required=False)
     enddate = ApproximateDateFormField(required=False)
-    open_ended = forms.ChoiceField(choices=[('Y', 'Yes'), ('N', 'No'), ('E', 'Last cited date is termination date')], required=False)
+    open_ended = forms.ChoiceField(choices=OPEN_ENDED_CHOICES, required=False)
     organization = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
-    site = forms.ModelChoiceField(queryset=Geosite.objects.all(), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['aliases'] = GetOrCreateChoiceField(queryset=EmplacementAlias.objects.filter(object_ref__id=self.object_ref_pk),
-                                                        required=False,
-                                                        object_ref_pk=self.object_ref_pk,
-                                                        object_ref_model=self._meta.model)
+    area = forms.ModelChoiceField(queryset=Area.objects.all(), required=False)
