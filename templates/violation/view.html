@@ -25,6 +25,11 @@
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
                 <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
             </a>
+            {% if request.user.is_staff %}
+                <a class="btn btn-default" type="button" role="button" href="{% url 'edit-violation' violation.uuid %}">
+                    <i class="fa fa-fw fa-edit"></i>{% trans "Edit" %}
+                </a>
+            {% endif %}
         </small>
     </h2>
 

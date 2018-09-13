@@ -1,9 +1,0 @@
-{% extends "base_list.html" %}
-{% load tablesort %}
-
-{% block object_table %}
-    {% with sortable='True' %}
-        {% include 'partials/violation_list_table.html' %}
-    {% endwith %}
-{% endblock %}
-

@@ -1,0 +1,152 @@
+{% extends 'edit.html' %}
+{% load i18n %}
+{% load countries %}
+{% block header_title %}
+<div class="col-sm-6">
+    <h1>{% include 'partials/violation_title.html' %}</h1>
+    <p>
+        {% trans "ID:" %} {{ object.uuid }}<br />
+        {% trans "Last update by:" %} username goes here <br />
+        <a href="#">{% trans "View versions"%}</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block edit_links %}
+    <div class="col-sm-6">
+        <h1>
+            {% trans "Edit:" %}
+            <a href="{% url 'edit-violation' violation.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
+        </h1>
+    </div>
+{% endblock %}
+
+{% block form_content %}
+    <h2>{% trans "Edit basics" %}</h2>
+    <div class="row startdate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.startdate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Start date" %}</label>
+                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}">
+                {% if form.startdate.errors %}
+                    {% for error in form.startdate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row enddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.enddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "End date" %}</label>
+                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
+                {% if form.enddate.errors %}
+                    {% for error in form.enddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row types-row field-bg">
+        <div class="col-sm-12">
+            {% if form.types.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Violation types" %}</label>
+                <select id="id_types" class="form-control select2-target" name="types" multiple="multiple">
+                    {% for type in form.instance.types.get_list %}
+                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.types.errors %}
+                    {% for error in form.types.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row description-row field-bg">
+        <div class="col-sm-12">
+            {% if form.description.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Description" %}</label>
+                <textarea rows=5 name="description" id="id_description" class="form-control sourced">{{ form.instance.description.get_value.value }}</textarea>
+                {% if form.description.errors %}
+                    {% for error in form.description.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row perpetrator-row field-bg">
+        <div class="col-sm-12">
+            {% if form.perpetrator.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Violation perpetrator" %}</label>
+                <select id="id_perpetrator" class="form-control select2-target" name="perpetrator" multiple="multiple">
+                    {% for type in form.instance.perpetrator.get_list %}
+                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.perpetrator.errors %}
+                    {% for error in form.perpetrator.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block extra_extra_js%}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            loadSources({'target': $('#id_startdate')});
+            $('#id_types').select2({
+                ajax: {
+                    url: "{% url 'violation-type-autocomplete' %}",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                },
+                minimumInputLength: 2
+            });
+            $('#id_perpetrator').select2({
+                ajax: {
+                    url: "{% url 'person-autocomplete' %}",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                },
+                minimumInputLength: 2
+            });
+            $('#id_division_id').select2();
+        })
+    </script>
+{% endblock%}

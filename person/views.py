@@ -261,20 +261,17 @@ def person_autocomplete(request):
     term = request.GET.get('q')
     people = Person.objects.filter(personname__value__icontains=term).all()
 
-    complex_attrs = ['division_id']
+    results = {
+        'results': []
+    }
 
-    list_attrs = ['aliases', 'classification']
+    for person in people:
+        results['results'].append({
+            'id': person.id,
+            'text': person.name.get_value().value
+        })
 
-    set_attrs = {'membershippersonmember_set': 'organization'}
-
-    autofill = Autofill(objects=people,
-                        set_attrs=set_attrs,
-                        complex_attrs=complex_attrs,
-                        list_attrs=list_attrs)
-
-    attrs = autofill.attrs
-
-    return HttpResponse(json.dumps(attrs), content_type='application/json')
+    return HttpResponse(json.dumps(results), content_type='application/json')
 
 
 class PersonEditView(BaseEditView):

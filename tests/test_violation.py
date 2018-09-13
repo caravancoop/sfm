@@ -16,11 +16,6 @@ def test_view_violation(client):
     them = Violation.objects.order_by('?')[:10]
 
     for violation in them:
-        response = client.get(reverse_lazy('view-violation', args=[violation.id]))
+        response = client.get(reverse_lazy('view-violation', args=[violation.uuid]))
 
-        try:
-            assert response.status_code == 200
-        except AssertionError as e:
-            print(viol_id)
-            print(response.content)
-            raise(e)
+        assert response.status_code == 200

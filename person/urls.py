@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.views.decorators.cache import cache_page
 
 from person.views import PersonDetail, PersonCreateView, PersonEditBasicsView, \
-    PersonEditPostingsView
+    PersonEditPostingsView, person_autocomplete
 
 urlpatterns = [
     url(r'^create/$',
@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'^view/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         PersonDetail.as_view(),
         name="view-person"),
+    url(r'autocomplete/$', person_autocomplete, name='person-autocomplete'),
 ]

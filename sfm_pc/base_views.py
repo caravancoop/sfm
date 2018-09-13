@@ -31,7 +31,7 @@ class NeverCacheMixin(object):
         return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
 
 
-class BaseEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
+class BaseEditView(LoginRequiredMixin, UpdateView, NeverCacheMixin):
     '''
     SubClasses need to implement meta like so:
 
