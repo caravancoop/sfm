@@ -260,7 +260,28 @@ class BaseEditForm(forms.ModelForm):
 
                 if multiple_values:
                     update_info[update_key]['values'] = update_value
+                    # Sometimes the object that we want the values to normalize
+                    # to are not the complex field containers. For instance, we
+                    # want the violation perpetrators to normalize to a Person
+                    # object, not a ViolationPerpetrator object so that we can
+                    # search across all the people, not just the ones who have
+                    # committed violations. So, if the values in update_value
+                    # are not instances of the field_model, we need to get or
+                    # create those and replace the values with the instances of
+                    # the field_model so that the validation, etc works under
+                    # the hood.
 
+                    new_values = []
+
+                    for value in update_value:
+                        if not isinstance(value, field_model):
+                            value, _ = field_model.objects.get_or_create(value=value,
+                                                                         object_ref=self.instance,
+                                                                         lang=get_language())
+                            new_values.append(value)
+
+                    if new_values:
+                        update_info[update_key]['values'] = new_values
                 else:
                     update_info[update_key]['value'] = update_value
 

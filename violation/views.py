@@ -10,7 +10,7 @@ from complex_fields.models import ComplexFieldContainer
 
 from sfm_pc.base_views import BaseEditView
 
-from .models import Violation, ViolationType
+from .models import Violation, ViolationType, ViolationPerpetratorClassification
 from .forms import ViolationBasicsForm
 
 class ViolationDetail(DetailView):
@@ -63,6 +63,7 @@ class ViolationEditBasicsView(ViolationEditView):
 
         return context
 
+
 def violation_type_autocomplete(request):
     term = request.GET.get('q')
     types = ViolationType.objects.filter(value__icontains=term).all()
@@ -76,6 +77,25 @@ def violation_type_autocomplete(request):
             'text': violation_type.value,
             'id': violation_type.id,
         })
+
+    return HttpResponse(json.dumps(results), content_type='application/json')
+
+
+def violation_perpetrator_classification_autocomplete(request):
+    term = request.GET.get('q')
+    classifications = ViolationPerpetratorClassification.objects.filter(value__icontains=term).all()
+
+    results = {
+        'results': []
+    }
+
+    for classification in classifications:
+
+        if classification.value:
+            results['results'].append({
+                'text': classification.value,
+                'id': classification.id,
+            })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
 

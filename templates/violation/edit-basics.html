@@ -102,7 +102,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Violation perpetrator" %}</label>
+                <label class="control-label">{% trans "Perpetrator name" %}</label>
                 <select id="id_perpetrator" class="form-control select2-target" name="perpetrator" multiple="multiple">
                     {% for type in form.instance.perpetrator.get_list %}
                         <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
@@ -110,6 +110,74 @@
                 </select>
                 {% if form.perpetrator.errors %}
                     {% for error in form.perpetrator.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row perpetratororganization-row field-bg">
+        <div class="col-sm-12">
+            {% if form.perpetratororganization.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Perpetrator unit" %}</label>
+                <select id="id_perpetratororganization" class="form-control select2-target" name="perpetratororganization" multiple="multiple">
+                    {% for type in form.instance.perpetratororganization.get_list %}
+                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.perpetratororganization.errors %}
+                    {% for error in form.perpetratororganization.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row perpetratorclassification-row field-bg">
+        <div class="col-sm-12">
+            {% if form.perpetratorclassification.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Perpetrator classification" %}</label>
+                <select id="id_perpetratorclassification" class="form-control select2-target" name="perpetratorclassification">
+                    <option value="{{ form.instance.perpetratorclassification.id }}" selected=true>
+                        {{ form.instance.perpetratorclassification.get_value.value }}
+                    </option>
+                </select>
+                {% if form.perpetratorclassification.errors %}
+                    {% for error in form.perpetratorclassification.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row division_id-row field-bg">
+        <div class="col-sm-12">
+            {% if form.division_id.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Country" %}</label>
+                <select id="id_division_id" class="form-control select2-target" name="division_id">
+                    {% if form.instance.division_id %}
+                        <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
+                    {% else %}
+                        <option value="" selected=true>------</option>
+                    {% endif %}
+                    {% for country in countries %}
+                        <option value="ocd-division/country-{{ country.iso|lower }}">{{ country.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.division_id.errors %}
+                    {% for error in form.division_id.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}
@@ -137,6 +205,30 @@
             $('#id_perpetrator').select2({
                 ajax: {
                     url: "{% url 'person-autocomplete' %}",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                },
+                minimumInputLength: 2
+            });
+            $('#id_perpetratororganization').select2({
+                ajax: {
+                    url: "{% url 'organization-autocomplete' %}",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                },
+                minimumInputLength: 2
+            });
+            $('#id_perpetratorclassification').select2({
+                ajax: {
+                    url: "{% url 'perpetrator-classification-autocomplete' %}",
                     data: function(params){
                         var query = {
                             q: params.term
