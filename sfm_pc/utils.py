@@ -374,24 +374,33 @@ class VersionsMixin(object):
                 'user': version.revision.user,
             }
 
-            complex_list_models = [c.field_model._meta.model_name for c in self.complex_lists]
+            complex_list_models = [c.field_model._meta.model_name for c in getattr(self, 'complex_lists', [])]
 
             for object_property in version.revision.version_set.all():
 
                 if object_property.object != self:
 
                     serialized_data = json.loads(object_property.serialized_data)[0]
-                    field_name = serialized_data['model'].split('.')[1]
-                    object_property_value = serialized_data['fields']['value']
 
-                    if field_name in complex_list_models:
-                        try:
-                            complete_revision[field_name].add(object_property_value)
-                        except KeyError:
-                            complete_revision[field_name] = {object_property_value}
-
+                    # a bit of a hack in order to get sources and access points
+                    # to work
+                    field_names = []
+                    if 'value' in serialized_data['fields']:
+                        field_names.append((serialized_data['fields']['value'],
+                                            serialized_data['model'].split('.')[1]))
                     else:
-                        complete_revision[field_name] = object_property_value
+                        for field in serialized_data['fields']:
+                            field_names.append((serialized_data['fields'][field], field))
+
+                    for value, field_name in field_names:
+                        if field_name in complex_list_models:
+                            try:
+                                complete_revision[field_name].add(value)
+                            except KeyError:
+                                complete_revision[field_name] = {value}
+
+                        else:
+                            complete_revision[field_name] = value
 
             revisions.append((complete_revision, version.revision))
 
