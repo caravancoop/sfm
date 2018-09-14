@@ -82,12 +82,15 @@ def test_no_source_one_value(setUp):
     person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
 
     post_data = {
-        'name': person.name.get_value().value + ' Foo',
+        'name': person.name.get_value().value,
+        'biography': person.name.get_value().value + ' Foo',
     }
 
-    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
 
-    assert '"name" requires a new source' in response.context['form'].errors['name']
+    assert response.status_code == 200
+
+    assert '"biography" requires a new source' in response.context['form'].errors['biography']
 
 
 @pytest.mark.django_db

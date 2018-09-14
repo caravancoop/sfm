@@ -10,6 +10,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from reversion.views import RevisionMixin
+
 from countries_plus.models import Country
 
 from extra_views import FormSetView
@@ -31,7 +33,10 @@ class NeverCacheMixin(object):
         return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
 
 
-class BaseEditView(LoginRequiredMixin, UpdateView, NeverCacheMixin):
+class BaseEditView(LoginRequiredMixin,
+                   UpdateView,
+                   NeverCacheMixin,
+                   RevisionMixin):
     '''
     SubClasses need to implement meta like so:
 

@@ -47,10 +47,13 @@
     </div>
     <div class="row">
         <div class="col-sm-12 col-md-12">
-            <button class="btn col-sm-2 pull-right" type="submit">Save</button>
+            <button class="btn btn-success col-sm-2 pull-right" type="submit">Save</button>
         </div>
     </div>
     </form>
+    {% if versions %}
+        {% include 'partials/version_list.html' %}
+    {% endif %}
 {% endblock %}
 {% block extra_js %}
     <script src="{% static "js/ejs_production.js" %}"></script>

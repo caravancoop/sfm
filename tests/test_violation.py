@@ -84,6 +84,6 @@ def test_edit_violation(setUp, fake_signal):
     assert violation.division_id.get_value().value == 'ocd-division/country:us'
     assert str(violation.startdate.get_value().value) == '1976'
     assert str(violation.enddate.get_value().value) == '14th February 2012'
-    assert [v.get_value().value for v in violation.types.get_list()] == [v.value for v in ViolationType.objects.filter(id__in=new_types)]
+    assert {v.get_value().value for v in violation.types.get_list()} == {v.value for v in ViolationType.objects.filter(id__in=new_types)}
 
     fake_signal.assert_called_with(object_id=violation.uuid, sender=Violation)

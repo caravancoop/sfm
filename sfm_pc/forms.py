@@ -137,8 +137,18 @@ class BaseEditForm(forms.ModelForm):
                     pass
 
     def _validate_complex_field(self, field_instance, field):
-        if field_instance.get_value() and field_instance.get_value().value and \
-                (field_instance.get_value().value != self.cleaned_data.get(field)):
+
+        if field_instance.get_value():
+            field_value = field_instance.get_value().value
+        else:
+            field_value = None
+
+        if self.cleaned_data.get(field) == '':
+            posted_value = None
+        else:
+            posted_value = self.cleaned_data.get(field)
+
+        if field_value != posted_value:
 
             try:
                 self.post_data['{}_source'.format(field)]

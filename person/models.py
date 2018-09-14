@@ -24,7 +24,13 @@ from sfm_pc.utils import VersionsMixin
 VERSION_RELATED_FIELDS = [
     'personname_set',
     'personalias_set',
+    'persongender_set',
     'persondivisionid_set',
+    'persondateofbirth_set',
+    'persondateofdeath_set',
+    'persondeceased_set',
+    'personbiography_set',
+    'personnotes_set',
     'membershippersonmember_set',
     'violationperpetrator_set',
 ]

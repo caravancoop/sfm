@@ -322,47 +322,107 @@ class VersionsMixin(object):
     Model mixin to get version diff for a given model instance
     '''
 
+    def _getDiff(self, differ):
+
+        skip_fields = ['date_updated', 'id']
+
+        def makeIt(change_type):
+
+            for field in getattr(differ, change_type)():
+
+                if field not in skip_fields:
+
+                    if change_type == 'changed':
+                        yield {
+                            'field_name': field,
+                            'to': differ.current_dict[field],
+                            'from': differ.past_dict[field],
+                        }
+                    elif change_type == 'added':
+                        yield {
+                            'field_name': field,
+                            'to': differ.current_dict[field],
+                            'from': None
+                        }
+                    elif change_type == 'removed':
+                        yield {
+                            'field_name': field,
+                            'to': None,
+                            'from': differ.past_dict[field]
+                        }
+
+        additions = [a for a in makeIt('added')]
+        changes = [c for c in makeIt('changed')]
+        removals = [r for r in makeIt('removed')]
+
+        return additions, changes, removals
+
     def getVersions(self):
         versions = Version.objects.get_for_object(self)
 
+        revisions = []
+
+        for version in versions:
+
+            complete_revision = {
+                'id': version.revision.id
+            }
+
+            revision_meta = {
+                'modification_date': version.revision.date_created,
+                'comment': version.revision.comment,
+                'user': version.revision.user,
+            }
+
+            complex_list_models = [c.field_model._meta.model_name for c in self.complex_lists]
+
+            for object_property in version.revision.version_set.all():
+
+                if object_property.object != self:
+
+                    serialized_data = json.loads(object_property.serialized_data)[0]
+                    field_name = serialized_data['model'].split('.')[1]
+                    object_property_value = serialized_data['fields']['value']
+
+                    if field_name in complex_list_models:
+                        try:
+                            complete_revision[field_name].add(object_property_value)
+                        except KeyError:
+                            complete_revision[field_name] = {object_property_value}
+
+                    else:
+                        complete_revision[field_name] = object_property_value
+
+            revisions.append((complete_revision, version.revision))
+
         differences = []
 
-        for index, version in enumerate(versions):
-            try:
-                previous = versions[index - 1]
-            except (IndexError, AssertionError):
+        for index, (version, revision) in enumerate(revisions):
+            if (index - 1) > 0:
+                try:
+                    previous, previous_revision = revisions[index - 1]
+                except (IndexError, AssertionError):
+                    continue
+            else:
                 continue
 
-            differ = DictDiffer(version.field_dict, previous.field_dict)
+            differ = DictDiffer(previous, version)
+
+            fields_added, fields_changed, fields_removed = self._getDiff(differ)
 
             diff = {
-                'modification_date': previous.revision.date_created,
-                'comment': previous.revision.comment,
-                'user': previous.revision.user,
-                'from_id': version.id,
-                'to_id': previous.id,
-                'field_diffs': [],
+                'modification_date': previous_revision.date_created,
+                'comment': previous_revision.comment,
+                'user': previous_revision.user,
+                'from_id': version['id'],
+                'to_id': previous_revision.id,
+                'fields_added': fields_added,
+                'fields_changed': fields_changed,
+                'fields_removed': fields_removed,
                 'model': self._meta.object_name,
             }
 
-            skip_fields = ['date_updated']
-
-            # For the moment this will only ever return changes because all the
-            # fields are required.
-            if differ.changed():
-
-                for field in differ.changed():
-
-                    if field not in skip_fields:
-                        field_diff = {
-                            'field_name': field,
-                            'to': differ.past_dict[field],
-                            'from': differ.current_dict[field],
-                        }
-
-                        diff['field_diffs'].append(field_diff)
-
-                differences.append(diff)
+            differences.append(diff)
 
         return differences
 
