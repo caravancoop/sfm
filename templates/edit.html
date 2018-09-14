@@ -179,11 +179,11 @@
 
         function stickSources(){
             var scroll_top = $(document).scrollTop();
-            var anchor_rectangle = $('#source-wrapper-anchor')[0].getBoundingClientRect();
+            var anchor_rectangle = $('#source-wrapper-anchor')[0].getBoundingClientRect().top + scroll_top;
             var offset = ($('#source-wrapper-anchor').offset().top - 20);
             var max_height = $('#form-fields').height();
 
-            if(scroll_top > anchor_rectangle.top){
+            if(scroll_top > anchor_rectangle){
                 var new_height = max_height - (scroll_top - offset);
                 $('#source-wrapper').css({
                     'position': 'absolute',

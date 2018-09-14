@@ -146,7 +146,7 @@
                             {% cite superior.commander.role.get_value %}
                         </td>
                         <td class="cited">
-                            <a href="{% url 'view-organization' superior.organization.value.id %}">
+                            <a href="{% url 'view-organization' superior.organization.value.uuid %}">
                                 {{ superior.organization }}
                             </a>
                                 {% cite superior.organization %}
@@ -208,7 +208,7 @@
                             {% cite subordinate.commander.role.get_value %}
                         </td>
                         <td class="cited">
-                            <a href="{% url 'view-organization' subordinate.organization.id %}">
+                            <a href="{% url 'view-organization' subordinate.organization.value.uuid %}">
                                 {{ subordinate.organization }}
                             </a>
                                 {% cite subordinate.organization %}

@@ -217,11 +217,12 @@ class BaseEditForm(forms.ModelForm):
             # in so we can clear out the value from the field.
 
             if not self.post_data.get(field) and self.post_data.get('{}_source'.format(field)) is not None:
-                # If the field is a GetOrCreate field that means that we
-                # should make the value an empty list. Otherwise it should
-                # be None
+                # If the field is a GetOrCreate field or
+                # a ModelMultipleChoiceField that means that we should make the
+                # value an empty list. Otherwise it should be None
 
-                if isinstance(self.fields[field], GetOrCreateChoiceField):
+                if isinstance(self.fields[field], GetOrCreateChoiceField) \
+                        or isinstance(self.fields[field], forms.ModelMultipleChoiceField):
                     self.post_data[field] = []
 
                 else:
