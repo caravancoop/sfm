@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'geosite',
     'emplacement',
     'violation',
+    'location'
 )
 
 MIDDLEWARE_CLASSES = (
