@@ -513,7 +513,7 @@ class Command(BaseCommand):
                 for perp in perps:
                     aliases = perp.aliases.get_list()
                     if aliases:
-                        perp_aliases.extend(al.get_value().value.value
+                        perp_aliases.extend(al.get_value().value
                                             for al in aliases)
 
                     perp_names.append(perp.name.get_value().value)
@@ -529,12 +529,12 @@ class Command(BaseCommand):
 
                     org_aliases = perp.aliases.get_list()
                     if org_aliases:
-                        perp_org_aliases.extend(al.get_value().value.value
+                        perp_org_aliases.extend(al.get_value().value
                                                 for al in org_aliases)
 
                     perp_org_names.append(perp.name.get_value().value)
 
-            perp_org_classes = list(cls.value.value for cls in
+            perp_org_classes = list(cls.value for cls in
                                     violation.violationperpetratorclassification_set.all())
             perp_org_class_count = len(perp_org_classes)
 
@@ -589,7 +589,7 @@ class Command(BaseCommand):
             for attr in global_index:
                 content.extend(attr)
 
-            content = '; '.join(content)
+            content = '; '.join([c for c in content if c])
 
             document = {
                 'id': viol_id,
