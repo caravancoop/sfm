@@ -10,7 +10,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic import ListView
 from django.core.urlresolvers import reverse_lazy
 
-from location.models import Location, LocationForm
+from .models import Location
+from .forms import LocationForm
 
 class LocationView(DetailView):
     model = Location
@@ -20,6 +21,7 @@ class LocationView(DetailView):
         context = super().get_context_data(**kwargs)
         return context
 
+
 class LocationCreate(CreateView):
     form_class = LocationForm
     template_name = 'location/create.html'
@@ -27,13 +29,9 @@ class LocationCreate(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        return context
-
-    #get osm data
-    def get(self, request):
         features = {}
-        location_type = request.GET.get('location_type')
-        location_name = request.GET.get('location_name')
+        location_type = self.request.GET.get('location_type')
+        location_name = self.request.GET.get('location_name')
 
         #this is using two different python wrappers. choose one! TK
         if location_name and location_type == "node":
@@ -42,19 +40,17 @@ class LocationCreate(CreateView):
             response = api.get(overpass_query)
             features = response["features"]
 
-            print(overpass_query)
-            print(features)
-
         if location_name and location_type == "rel":
             api = overpy.Overpass()
             overpass_query = location_type + '[\"name\"=\"' + location_name + '\"]; (._;>;); out body;'
             response = api.query(overpass_query)
             features = response.relations
 
-            print(overpass_query)
-            print(features)
+        context['features'] = features
+        context['location_type'] = location_type
+        context['location_name'] = location_name
+        return context
 
-        return render(request,'location/create.html', {'features':features, 'location_type': location_type})
 
 class LocationList(ListView):
     model = Location
