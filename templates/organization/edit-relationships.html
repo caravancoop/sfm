@@ -1,0 +1,259 @@
+{% extends 'organization/base-organization.html' %}
+{% load i18n %}
+{% load countries %}
+{% load help %}
+
+{% block above_form %}
+<h3 id="relationships">
+    <i class="fa fa-fw fa-users"></i>
+    {% trans "Relationships" %}
+    <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_subsidiaries' %}</small>
+</h3>
+<hr />
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>{% trans "Organization name" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Date first cited" %}</th>
+            <th>{% trans "Date last cited" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for composition in compositions %}
+            {% if composition.parent.get_value.value == organization %}
+                {% with related_organization=composition.child.get_value.value relation_type='child' %}
+                    {% include 'organization/partials/relationship-list-table.html' %}
+                {% endwith %}
+            {% elif composition.child.get_value.value == organization %}
+                {% with related_organization=composition.parent.get_value.value relation_type='parent' %}
+                    {% include 'organization/partials/relationship-list-table.html' %}
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+        {% if 'edit' in request.path %}
+        <tr>
+            <td colspan="7">
+                <i class="fa fa-plus"> </i> Add relationship
+            </td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block form_content %}
+    <h2>{% trans "Edit relationships" %}</h2>
+    <div class="row relationship_type-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.name.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Relationship type" %}</label>
+                {% if current_composition.parent.get_value.value == organization %}
+                    <select id="id_relationship_type" class="form-control sourced" name="parent">
+                        <option value="{{ current_composition.parent.get_value.value.id }}" selected=true>Parent</option>
+                        <option value="{{ current_composition.parent.get_value.value.id }}">Child</option>
+                {% elif current_composition.child.get_value.value == organization %}
+                    <select id="id_relationship_type" class="form-control sourced" name="child">
+                        <option value="{{ current_composition.child.get_value.value.id }}">Parent</option>
+                        <option value="{{ current_composition.child.get_value.value.id }}" selected=true>Child</option>
+                    {% endif %}
+                </select>
+                {% if form.relationship_type.errors %}
+                    {% for error in form.relationship_type.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row classification-row field-bg">
+        <div class="col-sm-12">
+            {% if form.classification.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Classification" %}</label>
+                classification {{ form.instance.classification.get_value }}
+                <input type="text" value="{{ form.instance.classification.get_value.value }}" class="form-control sourced" name="classification" />
+                {% if form.classification.errors %}
+                    {% for error in form.classification.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row related_organization-row field-bg">
+        <div class="col-sm-12">
+            {% if form.related_organization.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Related organization" %}</label>
+                {% if current_composition.parent.get_value.value == organization %}
+                    <select id="id_related_organization" class="form-control" name="child">
+                        <option value="{{ form.instance.child.get_value.value.id }}">{{ form.instance.child.get_value.value }}</option>
+                {% elif current_composition.child.get_value.value == organization %}
+                    <select id="id_related_organization" class="form-control" name="parent">
+                        <option value="{{ form.instance.parent.get_value.value.id }}">{{ form.instance.parent.get_value.value }}</option>
+                {% endif %}
+                </select>
+                {% if form.related_organization.errors %}
+                    {% for error in form.related_organization.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row related_organization_aliases-row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label">{% trans "Related organization other names" %}</label>
+                {% if current_composition.parent.get_value.value == organization %}
+                    <input type="text" id="related_organization_aliases" disabled=true value="{{ form.instance.child.get_value.value.alias_list }}" class="form-control" />
+                {% elif current_composition.child.get_value.value == organization %}
+                    <input type="text" disabled=true value="{{ form.instance.parent.get_value.value.alias_list }}" class="form-control" />
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row related_organization_divisionid-row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label">{% trans "Related organization country" %}</label>
+                {% if current_composition.parent.get_value.value == organization %}
+                    <input type="text" id="related_organization_country" disabled=true value="{{ form.instance.child.get_value.value.division_id.get_value|country_name }}" class="form-control" />
+                {% elif current_composition.child.get_value.value == organization %}
+                    <input type="text" disabled=true value="{{ form.instance.parent.get_value.value.division_id.get_value|country_name }}" class="form-control" />
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row startdate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.startdate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Date first cited" %}</label>
+                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}">
+                {% if form.startdate.errors %}
+                    {% for error in form.startdate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row realstart-row field-bg">
+        <div class="col-sm-12">
+            {% if form.realstart.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.instance.realstart.get_value.value %}
+                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {% trans "Start date?" %}
+                        {% else %}
+                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {% trans "Start date?" %}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.realstart.errors %}
+                    {% for error in form.realstart.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row enddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.enddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Date last cited" %}</label>
+                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
+                {% if form.enddate.errors %}
+                    {% for error in form.enddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row open_ended-row field-bg">
+        <div class="col-sm-12">
+            {% if form.open_ended.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Open ended" %}</label>
+                <select id="id_open_ended" class="form-control sourced-dropdown" name="open_ended">
+                    <option value="">------</option>
+                    {% for value, choice in form.fields.open_ended.choices %}
+                        {% if form.instance.open_ended.get_value.value == value %}
+                            <option value="{{ value }}" selected=true>{{ choice }}</option>
+                        {% else %}
+                            <option value="{{ value }}">{{ choice }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.open_ended.errors %}
+                    {% for error in form.open_ended.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block extra_extra_js%}
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            loadSources({target: $('#id_relationship_type')});
+
+            $('#id_relationship_type').on('change', function(e){
+                if($('#id_relationship_type').prop('name') == 'parent'){
+                    $('#id_relationship_type').prop('name', 'child');
+                    $('#id_related_organization').prop('name', 'parent');
+                } else if ($('#id_relationship_type').prop('name') == 'child'){
+                    $('#id_relationship_type').prop('name', 'parent');
+                    $('#id_related_organization').prop('name', 'child');
+                }
+                loadSources({target: $('#id_relationship_type')});
+            });
+            $('#id_related_organization').select2({
+                ajax: {
+                    url: "{% url 'organization-autocomplete' %}",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                }
+            });
+            $('#id_related_organization').on('select2:select', function(e){
+                $('#related_organization_aliases').val(e.params.data.aliases);
+                $('#related_organization_country').val(e.params.data.country);
+            })
+        })
+    </script>
+{% endblock%}

@@ -3,10 +3,11 @@ from django.conf.urls import url
 from source.views import get_sources, SourceCreate, source_autocomplete, \
     SourceView, SourceUpdate, SourceRevertView, StashSourceView, \
     AccessPointUpdate, AccessPointCreate, AccessPointDetail, get_citation, \
-    publication_autocomplete
+    publication_autocomplete, remove_source
 
 urlpatterns = [
     url(r'^get/$', get_sources, name="get-sources"),
+    url(r'^remove/$', remove_source, name="remove-source"),
     url(r'^create/$', SourceCreate.as_view(), name="create-source"),
     url(r'^update/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$', SourceUpdate.as_view(), name="update-source"),
     url(r'^update-access-point/(?P<source_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$', AccessPointUpdate.as_view(), name="update-access-point"),

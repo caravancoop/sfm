@@ -7,7 +7,6 @@ from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from composition.models import Classification
 from organization.models import Organization
 from sfm_pc.utils import get_command_edges
 
@@ -18,7 +17,6 @@ class CompositionForm(forms.Form):
     child = forms.CharField()
     child_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
-    classification = forms.ModelChoiceField(queryset=Classification.objects.all())
     classification_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
 
     startdate = ApproximateDateFormField(required=False)

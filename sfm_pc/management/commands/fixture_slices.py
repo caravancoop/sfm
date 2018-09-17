@@ -17,7 +17,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--apps',
-            default=['Organization', 'Person', 'Violation', 'MembershipOrganization', 'MembershipPerson'],
+            default=['Organization', 'Person', 'Violation', 'MembershipOrganization', 'MembershipPerson', 'Composition'],
             action='append',
             dest='apps',
             help="List of apps to include."
@@ -87,14 +87,3 @@ class Command(BaseCommand):
 
         with open(os.path.join(fixture_dir, 'accesspoint.json'), 'w') as f:
             f.write(accesspoint_fixture)
-
-
-
-        # 'tests/fixtures/auth.json',
-        # 'tests/fixtures/source.json',
-        # 'tests/fixtures/accesspoint.json',
-        # 'tests/fixtures/organization.json',
-        # 'tests/fixtures/person.json',
-        # 'tests/fixtures/violation.json',
-        # 'tests/fixtures/membershiporganization.json',
-        # 'tests/fixtures/membershipperson.json',

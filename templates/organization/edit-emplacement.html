@@ -1,0 +1,252 @@
+{% extends 'organization/base-organization.html' %}
+{% load i18n %}
+{% load countries %}
+{% block extra_head %}
+     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+{% endblock %}
+
+{% block above_form %}
+<div class="row">
+    <div class="col-sm-12">
+        <div id="osm_area_map" style="height:300px;"></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Date first cited" %}</th>
+                    <th>{% trans "Date last cited" %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emplacement in emplacements %}
+                    {% if emplacement == current_emplacement %}
+                        <tr class="bg-info">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+                        <td>{{ emplacement.site.get_value.value.name.get_value }}</td>
+                        <td>{% trans "Site" %}</td>
+                        <td>{{ emplacement.startdate.get_value.value }}</td>
+                        <td>{{ emplacement.enddate.get_value.value }}</td>
+                        <td>
+                            <a href="{% url 'edit-organization-emplacement' organization.uuid emplacement.id %}">
+                                <i class="fa fa-pencil"> </i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% for association in associations %}
+                    <tr>
+                        <td>{{ association.area.get_value.value.name.get_value }}</td>
+                        <td>{% trans "Area of operations" %}</td>
+                        <td>{{ association.startdate.get_value.value }}</td>
+                        <td>{{ association.enddate.get_value.value }}</td>
+                        <td>
+                            <a href="{% url 'edit-organization-association' organization.uuid association.id %}">
+                                <i class="fa fa-pencil"> </i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block form_content %}
+    <h2>{% trans "Edit Location" %}</h2>
+    <div class="row site-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.site.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Site" %}</label>
+                <input id="id_site" type="text" class="form-control sourced" name="site" value="{{ form.instance.site.get_value }}" />
+                {% if form.site.errors %}
+                    {% for error in form.site.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row aliases-row field-bg">
+        <div class="col-sm-12">
+            {% if form.aliases.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Other names" %}</label>
+                <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
+                    {% for alias in form.instance.aliases.get_list %}
+                        <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.aliases.errors %}
+                    {% for error in form.aliases.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row division_id-row field-bg">
+        <div class="col-sm-12">
+            {% if form.division_id.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Country" %}</label>
+                <select id="id_division_id" class="form-control select2-target" name="division_id">
+                    {% if form.instance.division_id %}
+                        <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
+                    {% else %}
+                        <option value="" selected=true>------</option>
+                    {% endif %}
+                    {% for country in countries %}
+                        <option value="ocd-division/country-{{ country.iso|lower }}">{{ country.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.division_id.errors %}
+                    {% for error in form.division_id.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row firstciteddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.firstciteddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "First cited date" %}</label>
+                <input type="text" name="firstciteddate" id="id_firstciteddate" class="form-control sourced" value="{{ form.instance.firstciteddate }}"/>
+                {% if form.firstciteddate.errors %}
+                    {% for error in form.firstciteddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row lastciteddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.lastciteddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Last cited date" %}</label>
+                <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.instance.lastciteddate }}">
+                {% if form.lastciteddate.errors %}
+                    {% for error in form.lastciteddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row realstart-row field-bg">
+        <div class="col-sm-12">
+            {% if form.realstart.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.instance.realstart.get_value.value %}
+                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {% trans "Real start?" %}
+                        {% else %}
+                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {% trans "Real start?" %}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.realstart.errors %}
+                    {% for error in form.realstart.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row open_ended-row field-bg">
+        <div class="col-sm-12">
+            {% if form.open_ended.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Open ended" %}</label>
+                <select id="id_open_ended" class="form-control sourced-dropdown" name="open_ended">
+                    <option value="">------</option>
+                    {% for value, choice in form.fields.open_ended.choices %}
+                        {% if form.instance.open_ended.get_value.value == choice %}
+                            <option value="{{ value }}" selected=true>{{ choice }}</option>
+                        {% else %}
+                            <option value="{{ value }}">{{ choice }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.open_ended.errors %}
+                    {% for error in form.open_ended.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block extra_extra_js%}
+    <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            loadSources({'target': $('#id_site')});
+            $('#id_alias').select2({
+                'tags': true
+            });
+
+            $('#id_division_id').select2();
+            // $('#id_division_id').prop('tabindex', 3);
+            function onEachFeature(feature, layer){
+                layer.bindPopup(feature.properties.name);
+            }
+            var area_map = L.map('osm_area_map');
+            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        { attribution: attribution, detectRetina: true }).addTo(area_map);
+            var areas = L.featureGroup();
+            {% for emplacement in emplacements %}
+                var geom = {{ emplacement.site.get_value.value.coordinates.get_value.value.geojson|safe}};
+                geom['properties'] = {'name': "{{ emplacement.site.get_value.value.name.get_value }}"};
+                areas.addLayer(
+                    L.geoJson(geom, {onEachFeature: onEachFeature})
+                );
+            {% endfor %}
+            {% for association in associations %}
+                var geom = {{ association.area.get_value.value.geometry.get_value.value.geojson|safe}};
+                geom['properties'] = {'name': "{{ association.area.get_value.value.name.get_value }}"};
+                areas.addLayer(
+                    L.geoJson(geom, {onEachFeature: onEachFeature})
+                );
+            {% endfor %}
+            areas.addTo(area_map);
+            area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+        })
+    </script>
+{% endblock%}

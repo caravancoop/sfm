@@ -25,6 +25,11 @@
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
                 <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
             </a>
+            {% if request.user.is_staff %}
+                <a class="btn btn-default" type="button" role="button" href="{% url 'edit-violation' violation.uuid %}">
+                    <i class="fa fa-fw fa-edit"></i>{% trans "Edit" %}
+                </a>
+            {% endif %}
         </small>
     </h2>
 
@@ -205,7 +210,7 @@
                     {% for organization in violation.violationperpetratororganization_set.all %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-organization' organization.value.id %}">
+                                <a href="{% url 'view-organization' organization.value.uuid %}">
                                     {{ organization.value.get_value }}
                                 </a>
                                 {% cite organization.value.get_value %}

@@ -7,6 +7,12 @@ from django.views.generic import ListView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.decorators.cache import cache_page, never_cache
 from django.utils.decorators import method_decorator
+from django.views.generic.edit import CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from reversion.views import RevisionMixin
+
+from countries_plus.models import Country
 
 from extra_views import FormSetView
 
@@ -25,6 +31,38 @@ class NeverCacheMixin(object):
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):
         return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
+
+
+class BaseEditView(LoginRequiredMixin,
+                   UpdateView,
+                   NeverCacheMixin,
+                   RevisionMixin):
+    '''
+    SubClasses need to implement meta like so:
+
+        model = Person
+        slug_field = 'uuid'
+        slug_field_kwarg = 'slug'
+        context_object_name = 'person'
+
+    They also need to provide a 'get_success_url' method
+    '''
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['countries'] = Country.objects.all()
+        return context
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['post_data'] = self.request.POST
+        form_kwargs['object_ref_pk'] = self.kwargs[self.slug_field_kwarg]
+        return form_kwargs
+
+
+################################################################
+## The views below here are probably ready to be factored out ##
+################################################################
 
 class UtilityMixin(object):
 

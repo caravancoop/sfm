@@ -23,6 +23,11 @@
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
                 <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
             </a>
+            {% if request.user.is_staff %}
+            <a class="btn btn-default" type="button" role="button" href="{% url 'edit-organization' organization.uuid %}">
+                <i class="fa fa-fw fa-edit"></i>{% trans "Edit" %}
+            </a>
+            {% endif %}
         </small>
     </h2>
     {% if organization.aliases.get_list %}
@@ -206,7 +211,7 @@
                     {% for membership in memberships %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-organization' membership.organization.get_value.value.id %}">
+                                <a href="{% url 'view-organization' membership.organization.get_value.value.uuid %}">
                                     {{ membership.organization.get_value.value.name.get_value }}
                                 </a>
                                 {% cite membership.organization.get_value.value.name.get_value %}
@@ -269,7 +274,7 @@
                     {% for membership in org_members %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-organization' membership.member.get_value.value.id %}">
+                                <a href="{% url 'view-organization' membership.member.get_value.value.uuid %}">
                                     {{ membership.member.get_value.value.name.get_value }}
                                 </a>
                                 {% cite membership.member.get_value.value.name.get_value %}
@@ -353,7 +358,7 @@
                         {% with child=subsidiary.child.get_value.value %}
                             <tr>
                                 <td class="cited">
-                                    <a href="{% url 'view-organization' child.id %}">
+                                    <a href="{% url 'view-organization' child.uuid %}">
                                         {{ child.name.get_value }}
                                     </a>
                                     {% cite child.name.get_value %}
@@ -464,7 +469,7 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <p class="cited">
-                            <a href="{% url 'view-violation' event.id %}">
+                            <a href="{% url 'view-violation' event.uuid %}">
                                 {% with violation=event %}
                                     {% include 'partials/violation_title.html' %}
                                 {% endwith %}
