@@ -77,7 +77,6 @@ class SourceEditView(NeverCacheMixin, RevisionMixin, LoginRequiredMixin):
         context = super().get_context_data(**kwargs)
 
         context['countries'] = Country.objects.all()
-        context['versions'] = context['object'].getVersions()
 
         return context
 

@@ -19,7 +19,7 @@ def get_deleted_user():
     return get_user_model().objects.get_or_create(username='deleted user')[0]
 
 
-@reversion.register(follow='accesspoint_set')
+@reversion.register(follow=['accesspoint_set'])
 class Source(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.TextField()
