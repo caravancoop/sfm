@@ -51,6 +51,7 @@
         </table>
     </div>
 </div>
+{% if request.user.is_staff %}
 <div class="row">
     <div class="col-sm-12">
         <form class="form" action="{{ object.revert_url }}" method="POST">
@@ -65,4 +66,5 @@
         </form>
     </div>
 </div>
+{% endif %}
 {% endfor %}

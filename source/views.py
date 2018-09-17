@@ -58,7 +58,7 @@ class SourceView(DetailView):
             evidenced_table.append([name, record_type, field_name, value, link])
 
         context['evidenced'] = evidenced_table
-
+        context['versions'] = context['source'].getVersions()
         return context
 
 
@@ -77,6 +77,7 @@ class SourceEditView(NeverCacheMixin, RevisionMixin, LoginRequiredMixin):
         context = super().get_context_data(**kwargs)
 
         context['countries'] = Country.objects.all()
+        context['versions'] = context['object'].getVersions()
 
         return context
 

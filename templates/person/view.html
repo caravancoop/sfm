@@ -250,11 +250,11 @@
     </div>
     {% endif %}
 
-        {% if versions %}
-            {% with object=person %}
-                {% include 'partials/version_list.html' %}
-            {% endwith %}
-        {% endif %}
+    {% if versions %}
+        {% with object=person %}
+            {% include 'partials/version_list.html' %}
+        {% endwith %}
+    {% endif %}
 {% endblock %}
 
 {% block extra_js %}

@@ -16,6 +16,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.db import connection
 
+
 CONFIDENCE_MAP = {
     'low': 1,
     'medium': 2,
@@ -358,6 +359,9 @@ class VersionsMixin(object):
         return additions, changes, removals
 
     def getVersions(self):
+
+        from source.models import Source, AccessPoint
+
         versions = Version.objects.get_for_object(self)
 
         revisions = []
@@ -378,7 +382,7 @@ class VersionsMixin(object):
 
             for object_property in version.revision.version_set.all():
 
-                if object_property.object != self:
+                if object_property.object != self or isinstance(self, Source):
 
                     serialized_data = json.loads(object_property.serialized_data)[0]
 
