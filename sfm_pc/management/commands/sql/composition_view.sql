@@ -1,12 +1,12 @@
-CREATE MATERIALIZED VIEW composition AS 
-  SELECT 
+CREATE MATERIALIZED VIEW composition AS
+  SELECT
     cc.id,
     oop.uuid AS parent_id,
     ooc.uuid AS child_id,
     ccsd.value AS start_date,
     ccrs.value AS real_start,
     cced.value AS end_date,
-    cls.value AS classification,
+    ccf.value AS classification,
     ccoe.value AS open_ended
   FROM composition_composition AS cc
   LEFT JOIN composition_compositionparent AS ccp
@@ -25,16 +25,14 @@ CREATE MATERIALIZED VIEW composition AS
     ON cc.id = cced.object_ref_id
   LEFT JOIN composition_compositionclassification AS ccf
     ON cc.id = ccf.object_ref_id
-  LEFT JOIN composition_classification AS cls
-    ON ccf.value_id = cls.id
   LEFT JOIN composition_compositionopenended AS ccoe
     ON cc.id = ccoe.object_ref_id;
 CREATE UNIQUE INDEX composition_id_index ON composition (
-  id, 
-  parent_id, 
-  child_id, 
-  classification, 
-  start_date, 
+  id,
+  parent_id,
+  child_id,
+  classification,
+  start_date,
   real_start,
   end_date,
   open_ended

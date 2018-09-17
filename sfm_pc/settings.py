@@ -232,7 +232,7 @@ MEDIA_URL = '/media/'
 SITE_ID = 1
 
 ALLOWED_CLASS_FOR_NAME = [
-    'Person', 'Organization', 'Membership', 'Composition', 'Association', 'Area',
+    'Person', 'Organization', 'MembershipPerson', 'Composition', 'Association', 'Area',
     'Emplacement', 'Geosite', 'Violation'
 ]
 

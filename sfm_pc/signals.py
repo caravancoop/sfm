@@ -1,72 +1,49 @@
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.db import connection
+from django.core.management import call_command
+
+from complex_fields.base_models import object_ref_saved
 
 from source.models import Source
-from organization.models import OrganizationName, OrganizationAlias
-from person.models import PersonAlias, PersonName
-from violation.models import ViolationDescription
+from organization.models import Organization
+from person.models import Person
+from violation.models import Violation
+from membershipperson.models import MembershipPerson
+from composition.models import Composition
 
-def update_index():
-    pass
-    # Blergh this takes too long ...
-    # with connection.cursor() as c:
-    #     c.execute('''
-    #         REFRESH MATERIALIZED VIEW CONCURRENTLY search_index
-    #     ''')
+def update_index(entity_type, object_id):
+    call_command('make_search_index',
+                 '--id={}'.format(object_id),
+                 '--entity-types={}'.format(entity_type))
 
-@receiver(post_save, sender=Source)
+
+@receiver(object_ref_saved, sender=Organization)
 def update_source_index(sender, **kwargs):
-    update_index()
+    update_index('organizations', kwargs['object_id'])
 
-@receiver(post_save, sender=OrganizationName)
-def update_orgname_index(sender, **kwargs):
-    update_index()
 
-@receiver(post_save, sender=OrganizationAlias)
-def update_orgalias_index(sender, **kwargs):
-    update_index()
+@receiver(object_ref_saved, sender=Person)
+def update_source_index(sender, **kwargs):
+    update_index('people', kwargs['object_id'])
 
-@receiver(post_save, sender=OrganizationAlias)
-def update_orgalias_index(sender, **kwargs):
-    update_index()
 
-@receiver(post_save, sender=PersonName)
-def update_personname_index(sender, **kwargs):
-    update_index()
+@receiver(object_ref_saved, sender=Violation)
+def update_source_index(sender, **kwargs):
+    update_index('violations', kwargs['object_id'])
 
-@receiver(post_save, sender=PersonAlias)
-def update_personalias_index(sender, **kwargs):
-    update_index()
 
-@receiver(post_save, sender=ViolationDescription)
-def update_violation_index(sender, **kwargs):
-    update_index()
+@receiver(object_ref_saved, sender=MembershipPerson)
+def update_source_index(sender, **kwargs):
+    membership = MembershipPerson.objects.get(id=kwargs['object_id'])
 
-@receiver(post_delete, sender=Source)
-def delete_source_index(sender, **kwargs):
-    update_index()
+    update_index('organizations', membership.organization.get_value().value.uuid)
+    update_index('person', membership.member.get_value().value.uuid)
 
-@receiver(post_delete, sender=OrganizationName)
-def delete_orgname_index(sender, **kwargs):
-    update_index()
 
-@receiver(post_delete, sender=OrganizationAlias)
-def delete_orgalias_index(sender, **kwargs):
-    update_index()
+@receiver(object_ref_saved, sender=Composition)
+def update_source_index(sender, **kwargs):
+    composition = Composition.objects.get(id=kwargs['object_id'])
 
-@receiver(post_delete, sender=OrganizationAlias)
-def delete_orgalias_index(sender, **kwargs):
-    update_index()
-
-@receiver(post_delete, sender=PersonName)
-def delete_personname_index(sender, **kwargs):
-    update_index()
-
-@receiver(post_delete, sender=PersonAlias)
-def delete_personalias_index(sender, **kwargs):
-    update_index()
-
-@receiver(post_delete, sender=ViolationDescription)
-def delete_violation_index(sender, **kwargs):
-    update_index()
+    update_index('organizations', composition.parent.get_value().value.uuid)
+    update_index('organizations', composition.child.get_value().value.uuid)

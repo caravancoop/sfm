@@ -24,7 +24,13 @@ from sfm_pc.utils import VersionsMixin
 VERSION_RELATED_FIELDS = [
     'personname_set',
     'personalias_set',
+    'persongender_set',
     'persondivisionid_set',
+    'persondateofbirth_set',
+    'persondateofdeath_set',
+    'persondeceased_set',
+    'personbiography_set',
+    'personnotes_set',
     'membershippersonmember_set',
     'violationperpetrator_set',
 ]
@@ -38,7 +44,6 @@ class Person(models.Model, BaseModel, VersionsMixin):
                             db_index=True)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, PersonName)
         self.aliases = ComplexFieldListContainer(self, PersonAlias)
         self.division_id = ComplexFieldContainer(self, PersonDivisionId)
@@ -66,11 +71,13 @@ class Person(models.Model, BaseModel, VersionsMixin):
             "Person_PersonName",
         ]
 
+        super().__init__(*args, **kwargs)
+
     def get_value(self):
         return self.name.get_value()
 
     def __str__(self):
-        return str(self.name)
+        return str(self.personname_set.first().value)
 
     @cached_property
     def memberships(self):

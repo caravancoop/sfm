@@ -3,57 +3,36 @@ from django import forms
 from django.conf import settings
 from django_date_extensions.fields import ApproximateDateFormField
 
-from leaflet.forms.widgets import LeafletWidget
-from .models import ViolationLocation
+from sfm_pc.forms import BaseEditForm
 
+from person.models import Person
+from organization.models import Organization
 
-class ViolationForm(forms.Form):
-    violation_id = forms.CharField(required=True)
+from .models import Violation, ViolationStartDate, ViolationEndDate, \
+    ViolationType, ViolationPerpetrator, ViolationPerpetratorOrganization, \
+    ViolationPerpetratorClassification, ViolationDescription, ViolationDivisionId
 
-    startdate = ApproximateDateFormField(required=True)
-    startdate_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
-    enddate = ApproximateDateFormField(required=True)
-    enddate_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
-
-    firstallegation = ApproximateDateFormField(required=False)
-    firstallegation_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
-    lastupdate = ApproximateDateFormField(required=False)
-    lastupdate_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
-
-    locationdescription = forms.CharField(required=False)
-    locationdescription_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
-    status = forms.CharField(required=False)
-    status_confidence = forms.CharField(required=False)
-
-    osm_id = forms.CharField(required=False)
-    osm_id_text = forms.CharField(required=False)
-    osm_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
-
-    exactlocation_id = forms.CharField(required=False)
-    exactlocation_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
-    exactlocation_text = forms.CharField(required=False)
-
-    description = forms.CharField(required=True)
-    description_confidence = forms.ChoiceField(choices=settings.CONFIDENCE_LEVELS)
-
-    perpetrators = forms.CharField(required=False)
-    perp_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
-
-    orgs = forms.CharField(required=False)
-    orgs_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
-
-    vtype = forms.CharField(required=False)
-    type_confidence = forms.ChoiceField(required=False, choices=settings.CONFIDENCE_LEVELS)
-
-
-class ZoneForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(ZoneForm, self).__init__(*args, **kwargs)
-        self.fields['value'].widget = LeafletWidget(attrs={
-            "id": "Violation_ViolationLocation"
-        })
-
+class ViolationBasicsForm(BaseEditForm):
     class Meta:
-        model = ViolationLocation
-        fields = ('value',)
-        widgets = {'value': LeafletWidget()}
+        model = Violation
+        fields = '__all__'
+
+    edit_fields = [
+        ('startdate', ViolationStartDate, False),
+        ('enddate', ViolationEndDate, False),
+        ('types', ViolationType, True),
+        ('description', ViolationDescription, False),
+        ('perpetrator', ViolationPerpetrator, True),
+        ('perpetratororganization', ViolationPerpetratorOrganization, True),
+        ('perpetratorclassification', ViolationPerpetratorClassification, False),
+        ('division_id', ViolationDivisionId, False),
+    ]
+
+    startdate = ApproximateDateFormField(required=False)
+    enddate = ApproximateDateFormField(required=False)
+    types = forms.ModelMultipleChoiceField(queryset=ViolationType.objects.all())
+    description = forms.CharField()
+    perpetrator = forms.ModelMultipleChoiceField(queryset=Person.objects.all(), required=False)
+    perpetratororganization = forms.ModelMultipleChoiceField(queryset=Organization.objects.all(), required=False)
+    perpetratorclassification = forms.ModelChoiceField(queryset=ViolationPerpetratorClassification.objects.all(), required=False)
+    division_id = forms.CharField(required=False)

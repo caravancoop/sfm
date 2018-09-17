@@ -14,10 +14,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from countries_plus.models import Country
 
 from person.models import Person, PersonAlias
-from person.forms import PersonForm
-from membershipperson.models import MembershipPersonMember
+from person.forms import PersonBasicsForm, PersonPostingsForm
+from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.utils import Autofill
-from sfm_pc.base_views import NeverCacheMixin
+from sfm_pc.base_views import NeverCacheMixin, BaseEditView
 
 
 class PersonDetail(DetailView):
@@ -261,41 +261,62 @@ def person_autocomplete(request):
     term = request.GET.get('q')
     people = Person.objects.filter(personname__value__icontains=term).all()
 
-    complex_attrs = ['division_id']
+    results = {
+        'results': []
+    }
 
-    list_attrs = ['aliases', 'classification']
+    for person in people:
+        results['results'].append({
+            'id': person.id,
+            'text': person.name.get_value().value
+        })
 
-    set_attrs = {'membershippersonmember_set': 'organization'}
-
-    autofill = Autofill(objects=people,
-                        set_attrs=set_attrs,
-                        complex_attrs=complex_attrs,
-                        list_attrs=list_attrs)
-
-    attrs = autofill.attrs
-
-    return HttpResponse(json.dumps(attrs), content_type='application/json')
+    return HttpResponse(json.dumps(results), content_type='application/json')
 
 
-class PersonEditView(UpdateView, NeverCacheMixin, LoginRequiredMixin):
-    template_name = 'person/edit.html'
+class PersonEditView(BaseEditView):
     model = Person
     slug_field = 'uuid'
-    form_class = PersonForm
+    slug_field_kwarg = 'slug'
+    context_object_name = 'person'
+
+    def get_success_url(self):
+        person_id = self.kwargs[self.slug_field_kwarg]
+        return reverse('view-person', kwargs={'slug': person_id})
+
+
+class PersonEditBasicsView(PersonEditView):
+    template_name = 'person/edit-basics.html'
+    form_class = PersonBasicsForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['countries'] = Country.objects.all()
+
+        # If there are no memberships, we shoult make sure to go to the create
+        # view when it exists.
+        context['first_membership'] = context['person'].memberships.first()
+
         return context
 
-    def get_form_kwargs(self):
-        form_kwargs = super().get_form_kwargs()
-        form_kwargs['post_data'] = self.request.POST
-        form_kwargs['object_ref_pk'] = self.kwargs['slug']
-        return form_kwargs
 
-    def get_success_url(self):
-        return reverse('view-person', kwargs=self.kwargs)
+class PersonEditPostingsView(PersonEditView):
+    model = MembershipPerson
+    template_name = 'person/edit-postings.html'
+    form_class = PersonPostingsForm
+    context_object_name = 'current_membership'
+    slug_field_kwarg = 'person_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
+        context['first_membership'] = {'id': self.kwargs['pk']}
+
+        affiliations = context['person'].memberships
+        memberships = tuple(mem.object_ref for mem in affiliations)
+
+        context['memberships'] = memberships
+
+        return context
 
 
 class PersonCreateView(PersonEditView, CreateView):

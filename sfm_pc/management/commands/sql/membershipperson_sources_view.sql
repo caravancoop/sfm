@@ -26,11 +26,11 @@ CREATE MATERIALIZED VIEW membershipperson_sources AS
     MAX(mmre.confidence) AS real_end_confidence,
     json_agg(DISTINCT mmress.*) AS real_end_sources,
 
-    sc.value AS start_context_value,
+    mmsc.value AS start_context_value,
     MAX(mmsc.confidence) AS start_context_confidence,
     json_agg(DISTINCT scss.*) AS start_context_sources,
 
-    ec.value AS end_context_value,
+    mmec.value AS end_context_value,
     MAX(mmec.confidence) AS end_context_confidence,
     json_agg(DISTINCT ecss.*) AS end_context_sources,
 
@@ -100,8 +100,6 @@ CREATE MATERIALIZED VIEW membershipperson_sources AS
     ON mmsc.id = mmscs.membershippersonstartcontext_id
   LEFT JOIN source_source AS scss
     ON mmscs.source_id = scss.uuid
-  LEFT JOIN membershipperson_context AS sc
-    ON mmsc.value_id = sc.id
 
   LEFT JOIN membershipperson_membershippersonendcontext AS mmec
     ON mm.id = mmec.object_ref_id
@@ -109,8 +107,6 @@ CREATE MATERIALIZED VIEW membershipperson_sources AS
     ON mmec.id = mmecs.membershippersonendcontext_id
   LEFT JOIN source_source AS ecss
     ON mmecs.source_id = ecss.uuid
-  LEFT JOIN membershipperson_context AS ec
-    ON mmec.value_id = ec.id
 
   LEFT JOIN membershipperson_membershippersonfirstciteddate AS mmfc
     ON mm.id = mmfc.object_ref_id
@@ -133,8 +129,8 @@ CREATE MATERIALIZED VIEW membershipperson_sources AS
            mmrk.value,
            mmreals.value,
            mmre.value,
-           sc.value,
-           ec.value,
+           mmsc.value,
+           mmec.value,
            mmfc.value,
            mmlc.value;
 CREATE UNIQUE INDEX membershipperson_src_id_idx ON membershipperson_sources (

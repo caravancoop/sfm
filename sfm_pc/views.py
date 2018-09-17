@@ -19,6 +19,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.edit import CreateView, UpdateView
 
 from reversion.models import Version
 from extra_views import FormSetView
@@ -92,7 +93,7 @@ class EntityMergeView(LoginRequiredMixin, FormView, UtilityMixin):
         if entity_type == 'organization':
             canonical_record = Organization.objects.get(id=canonical_record_id)
 
-            redirect_url = reverse_lazy('view-organization', args=[canonical_record_id])
+            redirect_url = reverse_lazy('view-organization', args=[canonical_record.uuid])
 
             other_records = Organization.objects.filter(id__in=sub_entity_ids)
 
@@ -351,8 +352,8 @@ def command_chain(request, org_id='', when=None, parents=True):
                 trimmed = {
                     'id': composition[node_key],
                     'label': label,
-                    'detail_id': composition['composition_{}_pk_i'.format(node)],
-                    'url': reverse('view-organization', args=[composition['composition_{}_pk_i'.format(node)]])
+                    'detail_id': composition['composition_{}_id_s'.format(node)],
+                    'url': reverse('view-organization', args=[composition['composition_{}_id_s'.format(node)]])
                 }
                 nodes.append(trimmed)
                 organizations.append(composition[node_key])

@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+{% endblock %}
+{% block content %}
+
+    <div class="well">
+        <div class="row header">
+            {% block header_title %}
+            <div class="col-sm-6">
+                <h1>{{ object.name.get_value }}</h1>
+                <p>
+                    {% trans "ID:" %} {{ object.uuid }}<br />
+                    {% trans "Last update by:" %} username goes here <br />
+                    <a href="#">{% trans "View versions"%}</a>
+                </p>
+            </div>
+            {% endblock %}
+            {% block edit_links %}{% endblock %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% block above_form %}{% endblock %}
+        </div>
+        <form class="form" method="POST">
+        {% csrf_token %}
+        <div id="form-fields" class="col-sm-6">
+            {% block form_content %}{% endblock %}
+        </div>
+        <div class="col-sm-6" id="source-wrapper-anchor">
+            <h2>{% trans "Edit sources" %}</h2>
+            <div class="row bg-info" id="source-wrapper">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label class="control-label">{% trans "Add sources to the list" %}</label>
+                        <select multiple="multiple" id="source-search" class="form-control"></select>
+                    </div>
+                    <div id="sources">
+                        <div id="source-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <button class="btn btn-success col-sm-2 pull-right" type="submit">Save</button>
+        </div>
+    </div>
+    </form>
+    {% if versions %}
+        {% include 'partials/version_list.html' %}
+    {% endif %}
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static "js/ejs_production.js" %}"></script>
+    <script type="text/EJS" id="source-list-template">
+        <% if(uncommitted){ %>
+            <div data-field_name="<%= field_name %>" data-source_id="<%= id %>" class="uncommitted-source alert alert-danger alert-dismissible">
+        <% } else { %>
+            <div data-field_name="<%= field_name %>" data-source_id="<%= id %>" class="committed-source alert alert-warning alert-dismissible">
+        <% } %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>
+                <small><%= title %> (<%= publication %>)</small>
+            </strong><br />
+            <% $.each(access_points, function(i, access_point){ %>
+                <% if (access_point.archive_url){ %>
+                    <a href="<%= access_point.archive_url %>">Archive URL</a> <br />
+                <% } %>
+            <% }) %>
+        </div>
+    </script>
+    <script type="text/EJS" id="source-input-template">
+        <% $.each(access_points, function(i, access_point){ %>
+            <input type="hidden"
+                name="<%= field_name %>_source"
+                class="<%= field_name %>_source"
+                value="<%= value %>"
+                data-title="<%= title %>"
+                data-publication="<%= publication %>"
+                data-access_points="<%= access_point.archive_url %>" />
+        <% }) %>
+    </script>
+    <script type="text/EJS" id="source-list-title">
+        <h3 id="source-field-name" data-field_name="<%= field_name %>">
+            Sources already linked to the <strong class="text-capitalize"><%= field_name %></strong> datapoint ...
+        </h3>
+    </script>
+    <script type="text/javascript">
+        var object_id = "{{ object.id }}"
+        var object_type = "{{ form.object_type }}";
+
+        function fetchSources(field_name){
+            var params = {
+                'object_id': object_id,
+                'object_type': object_type,
+                'field_name': field_name
+            }
+            return $.getJSON("{% url 'get-sources' %}", params)
+        }
+
+        function removeCommittedSource(e){
+            var field_name = $(e.target).data('field_name');
+            var source_id = $(e.target).data('source_id');
+            var params = {
+                'object_id': object_id,
+                'object_type': object_type,
+                'field_name': field_name,
+                'id': source_id
+            }
+            $.when($.getJSON('{% url "remove-source" %}', params)).then(function(response){
+                console.log(response);
+            })
+        }
+
+        function removeUncommittedSource(e){
+            var source_id = $(e.target).data('source_id');
+            var field_name = $(e.target).data('field_name');
+            var selector = 'input[name="' + field_name + '_source"][value="' + source_id + '"]';
+            $(selector).remove();
+        }
+
+        function loadSources(e){
+            var field_name = $(e.target).prop('name');
+
+            if (typeof field_name === 'undefined'){
+                field_name = e;
+            }
+
+            $.when(fetchSources(field_name)).then(function(data){
+                var template = new EJS({'text': $('#source-list-title').html()});
+                var source_list = [template.render({'field_name': field_name})];
+                var uncommitted_sources = $('.' + field_name + '_source');
+
+                $.each(uncommitted_sources, function(i, source){
+                    var source_info = $(source).data();
+                    source_info['uncommitted'] = true;
+                    source_info['access_points'] = [source_info['access_points']];
+                    source_info['field_name'] = field_name;
+                    source_info['id'] = $(source).val();
+                    var template = new EJS({'text': $('#source-list-template').html()});
+                    source_list.push(template.render(source_info));
+                })
+
+                $.each(data.sources, function(i, source){
+                    source['field_name'] = field_name;
+                    var template = new EJS({'text': $('#source-list-template').html()});
+                    source_list.push(template.render(source));
+                });
+
+                $('#source-list').html(source_list.join(''));
+                $('.field-bg').removeClass('bg-info');
+
+                var selector = '.' + field_name + '-row';
+                if ($(selector).length > 0){
+                    $(selector).addClass('bg-info');
+                } else {
+                    $('*[name="' + field_name +'"]').parent().parent().parent().addClass('bg-info');
+                }
+
+                $('.committed-source').on('close.bs.alert', removeCommittedSource);
+
+                $('.uncommitted-source').on('close.bs.alert', removeUncommittedSource);
+
+                var max_height = $('#form-fields').height();
+                $('#source-wrapper').css({
+                    'height': max_height,
+                    overflow: 'scroll'
+                });
+                $('#source-wrapper-anchor').css({
+                    'position': 'relative',
+                    'height': max_height,
+                });
+                stickSources();
+                $(window).scroll(stickSources);
+            });
+        }
+
+        function stickSources(){
+            var scroll_top = $(document).scrollTop();
+            var anchor_rectangle = $('#source-wrapper-anchor')[0].getBoundingClientRect().top + scroll_top;
+            var offset = ($('#source-wrapper-anchor').offset().top - 20);
+            var max_height = $('#form-fields').height();
+
+            if(scroll_top > anchor_rectangle){
+                var new_height = max_height - (scroll_top - offset);
+                $('#source-wrapper').css({
+                    'position': 'absolute',
+                    'bottom': '10px',
+                    'height': new_height
+                });
+            } else {
+                $('#source-wrapper').css({
+                    'position': 'relative',
+                    'height': max_height
+                })
+            }
+        }
+
+        $(document).ready(function(){
+            $.ajaxSetup({cache: false});
+
+            $('#source-search').select2({
+                ajax: {
+                    url: "{% url 'source-autocomplete' %}",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                }
+            });
+
+            $('.sourced').on('click', loadSources);
+            $('.sourced-dropdown').on('click', loadSources);
+            $('.sourced').on('focus', loadSources);
+            $('.sourced-dropdown').on('focus', loadSources);
+            $('.select2-target').on('focus', loadSources);
+            $('.select2-target').on('select2:opening', loadSources);
+
+            $('#source-search').on('select2:select', function(e){
+
+                var data = {'source_id': e.params.data.id}
+                var field_name = $('#source-field-name').data('field_name');
+
+                $.getJSON("{% url 'stash-source' %}", data, function(source){
+                    source['field_name'] = field_name;
+                    var source_template = new EJS({'text': $('#source-list-template').html()});
+                    $('#source-list').prepend(source_template.render(source));
+
+                    var selector = '*[name="' + field_name + '"]';
+                    var input_template = new EJS({'text': $('#source-input-template').html()});
+                    var input = input_template.render({
+                        'field_name': field_name,
+                        'value': e.params.data.id,
+                        'title': source.title,
+                        'publication': source.publication,
+                        'access_points': source.access_points
+                    });
+
+                    $(selector).after(input);
+                    $('#source-search').val(null).trigger('change');
+                    $('.uncommitted-source').on('close.bs.alert', removeUncommittedSource);
+                })
+            });
+
+            // TODO: Figure out tab order stuff.
+            // $(document).on('focus', '.select2', function (e) {
+            //     console.log('originalEvent', e.orginalEvent);
+            //     if (e.originalEvent) {
+            //         console.log('siblings', $(this).siblings('select'));
+            //         $(this).siblings('select').select2('open');
+            //     }
+            // });
+
+            // var inputs = $("input,select"); // You can use other elements such as textarea, button etc.
+            //                     //depending on input field types you have used
+            // $("select").on("select2:close",function(){
+            //     var pos = $(inputs).index(this) + 1;
+            //     var next = $(inputs).eq(pos);
+            //     setTimeout( function() {
+            //         next.focus();
+            //         // if (next.siblings(".select2").length) { //If it's a select
+            //         //     next.select2("open");
+            //         // }
+            //     }, 500); //The delay is required to allow default events to occur
+            // });
+
+        })
+    </script>
+{% endblock %}

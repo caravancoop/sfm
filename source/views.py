@@ -52,13 +52,13 @@ class SourceView(DetailView):
 
             link = None
 
-            if record_type in ['Organization', 'Person', 'Violation']:
-                link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'pk': record.object_ref.id})
+            if record_type in ['Organization', 'Person']:
+                link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'slug': record.object_ref.uuid})
 
             evidenced_table.append([name, record_type, field_name, value, link])
 
         context['evidenced'] = evidenced_table
-
+        context['versions'] = context['source'].getVersions()
         return context
 
 
@@ -348,3 +348,21 @@ def publication_autocomplete(request):
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
+
+
+def remove_source(request):
+
+    field_name = request.GET['field_name']
+    object_id = request.GET['object_id']
+    object_type = request.GET['object_type']
+    source_id = request.GET['id']
+
+    field = ComplexFieldContainer.field_from_str_and_id(
+        object_type, object_id, field_name
+    )
+
+    source = Source.objects.get(uuid=source_id)
+
+    field.get_field().sources.remove(source)
+
+    return HttpResponse(json.dumps({}), content_type='application/json')

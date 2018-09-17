@@ -80,16 +80,8 @@ class CompositionEndDate(ComplexField):
 @sourced
 class CompositionClassification(ComplexField):
     object_ref = models.ForeignKey(Composition)
-    value = models.ForeignKey("Classification", default=None, blank=True,
-                              null=True)
+    value = models.TextField(blank=True, null=True)
     field_name = _("Classification")
-
-
-class Classification(models.Model):
-    value = models.TextField()
-
-    def __str__(self):
-        return self.value
 
 
 @versioned

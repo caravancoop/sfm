@@ -1,0 +1,201 @@
+{% extends 'organization/base-organization.html' %}
+{% load i18n %}
+{% load countries %}
+{% block extra_head %}
+     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+{% endblock %}
+
+{% block above_form %}
+<div class="row">
+    <div class="col-sm-12">
+        <div id="osm_area_map" style="height:300px;"></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Date first cited" %}</th>
+                    <th>{% trans "Date last cited" %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emplacement in emplacements %}
+                    <tr>
+                        <td>{{ emplacement.site.get_value.value.name.get_value }}</td>
+                        <td>{% trans "Site" %}</td>
+                        <td>{{ emplacement.startdate.get_value.value }}</td>
+                        <td>{{ emplacement.enddate.get_value.value }}</td>
+                        <td>
+                            <a href="{% url 'edit-organization-emplacement' organization.uuid emplacement.id %}">
+                                <i class="fa fa-pencil"> </i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% for association in associations %}
+                    {% if association == current_association %}
+                        <tr class="bg-info">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+                        <td>{{ association.area.get_value.value.name.get_value }}</td>
+                        <td>{% trans "Area of operations" %}</td>
+                        <td>{{ association.startdate.get_value.value }}</td>
+                        <td>{{ association.enddate.get_value.value }}</td>
+                        <td>
+                            <a href="{% url 'edit-organization-association' organization.uuid association.id %}">
+                                <i class="fa fa-pencil"> </i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block form_content %}
+    <h2>{% trans "Edit Location" %}</h2>
+    <div class="row area-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.area.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Area" %}</label>
+                <input id="id_area" type="text" class="form-control sourced" name="area" value="{{ form.instance.area.get_value }}" />
+                {% if form.area.errors %}
+                    {% for error in form.area.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row startdate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.startdate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Start date" %}</label>
+                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}"/>
+                {% if form.startdate.errors %}
+                    {% for error in form.startdate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row enddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.enddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Last cited date" %}</label>
+                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
+                {% if form.enddate.errors %}
+                    {% for error in form.enddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row realstart-row field-bg">
+        <div class="col-sm-12">
+            {% if form.realstart.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.instance.realstart.get_value.value %}
+                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {% trans "Real start?" %}
+                        {% else %}
+                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {% trans "Real start?" %}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.realstart.errors %}
+                    {% for error in form.realstart.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row open_ended-row field-bg">
+        <div class="col-sm-12">
+            {% if form.open_ended.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Open ended" %}</label>
+                <select id="id_open_ended" class="form-control sourced-dropdown" name="open_ended">
+                    <option value="">------</option>
+                    {% for value, choice in form.fields.open_ended.choices %}
+                        {% if form.instance.open_ended.get_value.value == choice %}
+                            <option value="{{ value }}" selected=true>{{ choice }}</option>
+                        {% else %}
+                            <option value="{{ value }}">{{ choice }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.open_ended.errors %}
+                    {% for error in form.open_ended.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block extra_extra_js%}
+    <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            loadSources({'target': $('#id_area')});
+
+            // $('#id_division_id').prop('tabindex', 3);
+            function onEachFeature(feature, layer){
+                layer.bindPopup(feature.properties.name);
+            }
+            var area_map = L.map('osm_area_map');
+            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        { attribution: attribution, detectRetina: true }).addTo(area_map);
+            var areas = L.featureGroup();
+            {% for emplacement in emplacements %}
+                var geom = {{ emplacement.site.get_value.value.coordinates.get_value.value.geojson|safe}};
+                geom['properties'] = {'name': "{{ emplacement.site.get_value.value.name.get_value }}"};
+                areas.addLayer(
+                    L.geoJson(geom, {onEachFeature: onEachFeature})
+                );
+            {% endfor %}
+            {% for association in associations %}
+                var geom = {{ association.area.get_value.value.geometry.get_value.value.geojson|safe}};
+                geom['properties'] = {'name': "{{ association.area.get_value.value.name.get_value }}"};
+                areas.addLayer(
+                    L.geoJson(geom, {onEachFeature: onEachFeature})
+                );
+            {% endfor %}
+            areas.addTo(area_map);
+            area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+        })
+    </script>
+{% endblock%}
