@@ -266,9 +266,10 @@ class Command(UtilityMixin, BaseCommand):
         formats = {
             '%Y-%m-%d': '%Y-%m-%d',
             '%Y': '%Y-0-0',
+            '%Y-%m': '%Y-%m-0'
             '%B %Y': '%Y-%m-0',
             '%m/%Y': '%Y-%m-0',
-            '%m/%d/%Y': '%Y-%m-%d'
+            '%m/%d/%Y': '%Y-%m-%d',
         }
 
         for in_format, out_format in formats.items():
@@ -486,8 +487,7 @@ class Command(UtilityMixin, BaseCommand):
                 except Organization.DoesNotExist:
                     organization = Organization.create(org_info)
 
-                org_attributes = ['Alias', 'Classification', 'FirstCitedDate',
-                                  'LastCitedDate', 'OpenEnded', 'Headquarters']
+                org_attributes = ['Alias', 'Classification', 'OpenEnded', 'Headquarters']
 
                 for attr in org_attributes:
 
@@ -495,6 +495,18 @@ class Command(UtilityMixin, BaseCommand):
                                        org_positions[attr],
                                        org_data,
                                        organization)
+
+                self.make_relation('FirstCitedDate',
+                                   org_positions['FirstCitedDate'],
+                                   org_data,
+                                   organization,
+                                   date=True)
+
+                self.make_relation('LastCitedDate',
+                                   org_positions['LastCitedDate'],
+                                   org_data,
+                                   organization,
+                                   date=True)
 
                 self.make_real_date(data=org_data,
                                     position=org_positions['RealStart']['value'],
@@ -589,12 +601,14 @@ class Command(UtilityMixin, BaseCommand):
                         self.make_relation('StartDate',
                                            composition_positions['StartDate'],
                                            org_data,
-                                           composition)
+                                           composition,
+                                           date=True)
 
                         self.make_relation('EndDate',
                                            composition_positions['EndDate'],
                                            org_data,
-                                           composition)
+                                           composition,
+                                           date=True)
 
                         self.make_real_date(data=org_data,
                                             position=composition_positions['RealStart']['value'],
@@ -670,12 +684,14 @@ class Command(UtilityMixin, BaseCommand):
                         }
 
                         try:
-                            fcd = self.parse_date(org_data[membership_positions['FirstCitedDate']['value']])
+                            date_parts = [org_data[membership_positions['FirstCitedDate']['value'] + 3], org_data[membership_positions['FirstCitedDate']['value'] + 1], org_data[membership_positions['FirstCitedDate']['value'] + 2]]
+                            fcd = self.parse_date('-'.join(filter(None, date_parts)))
                         except IndexError:
                             fcd = None
 
                         try:
-                            lcd = self.parse_date(org_data[membership_positions['LastCitedDate']['value']])
+                            date_parts = org_data[membership_positions['LastCitedDate']['value'] + 3], org_data[membership_positions['LastCitedDate']['value'] + 1], org_data[membership_positions['LastCitedDate']['value'] + 2]
+                            lcd = self.parse_date('-'.join(filter(None, date_parts)))
                         except IndexError:
                             lcd = None
 
@@ -695,7 +711,8 @@ class Command(UtilityMixin, BaseCommand):
                         self.make_relation('LastCitedDate',
                                            membership_positions['LastCitedDate'],
                                            org_data,
-                                           membership)
+                                           membership,
+                                           date=True)
 
                         self.make_real_date(data=org_data,
                                             position=membership_positions['RealEnd']['value'],
@@ -706,7 +723,8 @@ class Command(UtilityMixin, BaseCommand):
                         self.make_relation('FirstCitedDate',
                                            membership_positions['FirstCitedDate'],
                                            org_data,
-                                           membership)
+                                           membership,
+                                           date=True)
 
                         self.make_real_date(data=org_data,
                                             position=membership_positions['RealStart']['value'],
@@ -742,7 +760,8 @@ class Command(UtilityMixin, BaseCommand):
                       data,
                       instance,
                       required=False,
-                      require_confidence=True):
+                      require_confidence=True,
+                      date=False):
 
         value_position = positions['value']
 
@@ -763,8 +782,13 @@ class Command(UtilityMixin, BaseCommand):
         source_position = positions['source']
 
         try:
-            value = data[value_position]
-            value = value.strip()
+            if not date:
+                value = data[value_position]
+                value = value.strip()
+            else:
+                date_parts = [data[value_position + 3], data[value_position + 1], data[value_position + 2]]
+                value = '-'.join(filter(None, date_parts))
+                print(value)
         except IndexError:
             value = None
 
@@ -1713,12 +1737,14 @@ class Command(UtilityMixin, BaseCommand):
                 }
 
                 try:
-                    fcd = self.parse_date(person_data[membership_positions['FirstCitedDate']['value']])
+                    date_parts = [person_data[membership_positions['FirstCitedDate']['value'] + 3], person_data[membership_positions['FirstCitedDate']['value'] + 1], person_data[membership_positions['FirstCitedDate']['value'] + 2]]
+                    fcd = self.parse_date('-'.join(filter(None, date_parts)))
                 except IndexError:
                     fcd = None
 
                 try:
-                    lcd = self.parse_date(person_data[membership_positions['LastCitedDate']['value']])
+                    date_parts = person_data[membership_positions['LastCitedDate']['value'] + 3], person_data[membership_positions['LastCitedDate']['value'] + 1], person_data[membership_positions['LastCitedDate']['value'] + 2]
+                    lcd = self.parse_date('-'.join(filter(None, date_parts)))
                 except IndexError:
                     lcd = None
 
@@ -1775,7 +1801,8 @@ class Command(UtilityMixin, BaseCommand):
                 self.make_relation('FirstCitedDate',
                                    membership_positions['FirstCitedDate'],
                                    person_data,
-                                   membership)
+                                   membership,
+                                   date=True)
 
                 self.make_real_date(data=person_data,
                                     position=membership_positions['RealStart']['value'],
@@ -1791,7 +1818,8 @@ class Command(UtilityMixin, BaseCommand):
                 self.make_relation('LastCitedDate',
                                    membership_positions['LastCitedDate'],
                                    person_data,
-                                   membership)
+                                   membership,
+                                   date=True)
 
                 self.make_real_date(data=person_data,
                                     position=membership_positions['RealEnd']['value'],
@@ -1901,8 +1929,7 @@ class Command(UtilityMixin, BaseCommand):
             violation.save()
             reversion.set_user(self.user)
 
-        simple_attrs = ('StartDate', 'EndDate', 'FirstAllegation', 'LastUpdate',
-                        'Status', 'LocationDescription', 'Type', 'Description')
+        simple_attrs = ('LocationDescription', 'Type', 'Description', 'Status')
 
         for attr in simple_attrs:
 
@@ -1911,6 +1938,17 @@ class Command(UtilityMixin, BaseCommand):
                                event_data,
                                violation,
                                require_confidence=False)
+
+        date_attrs = ('StartDate', 'EndDate', 'FirstAllegation', 'LastUpdate')
+
+        for attr in date_attrs:
+
+            self.make_relation(attr,
+                               positions[attr],
+                               event_data,
+                               violation,
+                               require_confidence=False,
+                               date=True)
 
         try:
             # All data in this sheet use the same source
