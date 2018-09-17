@@ -13,7 +13,7 @@
       <label for="location_type">OSM object type: </label>
       <select name="location_type" id="location_type">
         <option value="node">Node</option>
-        <option value="relation">Relation</option>
+        <option value="rel">Relation</option>
       </select>
 
       <div class="input-group location-search">
@@ -27,33 +27,55 @@
     <br />
     <p><b>Results</b></p>
 
-    <div class="responsive-table">
-        <table class="table table-striped table-condensed search-results-table">
-          <thead>
-            <th>OSM ID</th>
-            <th>Name</th>
-            <th>In</th>
-          </thead>
-          <tbody>
-            {% for feature in features %}
-            <tr>
-              <td>{{ feature.id }}</td>
-              <td>{{feature.properties.name}}</td>
-              <td>{{feature.properties.is_in}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-    </div>
+      <div class="row">
+      {% if location_type == "node" %}
+      <div class="responsive-table col-md-7">
+          <table class="table table-striped table-condensed search-results-table">
+            <thead>
+              <th>OSM ID</th>
+              <th>Name</th>
+              <th>Amenity</th>
+              <th>In</th>
+            </thead>
+            <tbody>
+              {% for feature in features %}
+              <tr>
+                <td>{{ feature.id }}</td>
+                <td>{{ feature.properties.name }}</td>
+                <td>{{ feature.properties.amenity }}</td>
+                <td>{{ feature.properties.is_in }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+      </div>
+      {% endif %}
 
-<br />
-<div>
-  <!-- <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Add Location">
-  </form> -->
-</div>
+      {% if location_type == "rel" %}
+      <div class="responsive-table col-md-7">
+          <table class="table table-striped table-condensed search-results-table">
+            <thead>
+              <th>OSM ID</th>
+              <th>Name</th>
+              <th>Admin Level</th>
+            </thead>
+            <tbody>
+              {% for feature in features %}
+              <tr>
+                <td>{{ feature.id }}</td>
+                <td>{{ feature.tags.name }}</td>
+                <td>{{ feature.tags.admin_level }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+      </div>
+      {% endif %}
+
+      <div class="col-md-5">
+        [map here]
+      </div>
+    </div>
 
 {% endblock %}
 

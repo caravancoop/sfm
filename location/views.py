@@ -1,4 +1,5 @@
 import overpass
+import overpy
 import requests
 
 from django.http import JsonResponse
@@ -34,18 +35,26 @@ class LocationCreate(CreateView):
         location_type = request.GET.get('location_type')
         location_name = request.GET.get('location_name')
 
-        if location_type and location_name:
+        #this is using two different python wrappers. choose one! TK
+        if location_name and location_type == "node":
             api = overpass.API()
             overpass_query = location_type + '[\"name\"=\"' + location_name + '\"]'
-            # overpass_query = location_type + '(' + location_id + ')'
             response = api.get(overpass_query)
             features = response["features"]
 
             print(overpass_query)
             print(features)
-            # print([(feature['properties']['name'], feature['id']) for feature in response['features']])
 
-        return render(request,'location/create.html', {'features':features})
+        if location_name and location_type == "rel":
+            api = overpy.Overpass()
+            overpass_query = location_type + '[\"name\"=\"' + location_name + '\"]; (._;>;); out body;'
+            response = api.query(overpass_query)
+            features = response.relations
+
+            print(overpass_query)
+            print(features)
+
+        return render(request,'location/create.html', {'features':features, 'location_type': location_type})
 
 class LocationList(ListView):
     model = Location
