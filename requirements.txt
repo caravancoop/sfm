@@ -28,3 +28,4 @@ raven
 django-debug-toolbar
 pysolr==3.6.0
 overpass==0.6.1
+overpy
