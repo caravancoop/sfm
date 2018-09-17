@@ -106,7 +106,7 @@
                         <td>
                             {% with membership=object.memberships.first %}
                                 {% with organization=membership.object_ref.organization.get_value %}
-                                    <a href="{% url 'view-organization' organization.value.id %}">{{ organization.value.name.get_value }}</a>
+                                    <a href="{% url 'view-organization' organization.value.uuid %}">{{ organization.value.name.get_value }}</a>
                                 {% endwith %}
                                 <br />
                             {% endwith %}

@@ -23,9 +23,21 @@
                     <td>{% trans "Timestamp" %}</td>
                     <td>{{ version.modification_date }}</td>
                 </tr>
-                {% for change in version.field_diffs %}
+                {% for change in version.fields_added %}
+                    <tr>
+                        <td><strong>{% trans "Added" %}</strong></td>
+                        <td>"{{ change.field_name }}" => {{ change.from }} <strong>to</strong> "{{ change.field_name }}" => {{ change.to }}</td>
+                    </tr>
+                {% endfor %}
+                {% for change in version.fields_changed %}
                     <tr>
                         <td><strong>{% trans "Changed" %}</strong></td>
+                        <td>"{{ change.field_name }}" => {{ change.from }} <strong>to</strong> "{{ change.field_name }}" => {{ change.to }}</td>
+                    </tr>
+                {% endfor %}
+                {% for change in version.fields_removed %}
+                    <tr>
+                        <td><strong>{% trans "Removed" %}</strong></td>
                         <td>"{{ change.field_name }}" => {{ change.from }} <strong>to</strong> "{{ change.field_name }}" => {{ change.to }}</td>
                     </tr>
                 {% endfor %}
@@ -39,6 +51,7 @@
         </table>
     </div>
 </div>
+{% if request.user.is_staff %}
 <div class="row">
     <div class="col-sm-12">
         <form class="form" action="{{ object.revert_url }}" method="POST">
@@ -53,4 +66,5 @@
         </form>
     </div>
 </div>
+{% endif %}
 {% endfor %}

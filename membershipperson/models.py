@@ -77,7 +77,7 @@ class MembershipPerson(models.Model, BaseModel):
 
         organization = obj.organization.get_value().value
 
-        href = reverse('view-organization', args=(organization.id,))
+        href = reverse('view-organization', args=(organization.uuid,))
 
         # Translators: This is part of the string "{Rank} of {unit}"
         joiner = _('of')
@@ -207,7 +207,7 @@ class MembershipPersonRealEnd(ComplexField):
 @sourced
 class MembershipPersonStartContext(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
-    value = models.ForeignKey('Context')
+    value = models.TextField()
     field_name = _("Start context")
 
 
@@ -215,7 +215,7 @@ class MembershipPersonStartContext(ComplexField):
 @sourced
 class MembershipPersonEndContext(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
-    value = models.ForeignKey('Context')
+    value = models.TextField()
     field_name = _("End context")
 
 
@@ -237,13 +237,6 @@ class Role(models.Model):
 
 
 class Rank(models.Model):
-    value = models.TextField()
-
-    def __str__(self):
-        return self.value
-
-
-class Context(models.Model):
     value = models.TextField()
 
     def __str__(self):

@@ -82,7 +82,7 @@
                     </td>
                     <!-- Description -->
                     <td>
-                        <a href="{% url 'view-violation' object.id %}">
+                        <a href="{% url 'view-violation' object.uuid %}">
                         {% if object.description.get_value %}
                             {{ object.description.get_value|truncatewords:25 }}
                         {% else %}

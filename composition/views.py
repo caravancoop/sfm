@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from source.models import Source
 from organization.models import Organization
-from composition.models import Composition, Classification
+from composition.models import Composition
 from composition.forms import CompositionForm, BaseCompositionFormSet
 from sfm_pc.base_views import BaseFormSetView
 
