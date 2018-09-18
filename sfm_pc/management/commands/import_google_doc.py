@@ -266,7 +266,7 @@ class Command(UtilityMixin, BaseCommand):
         formats = {
             '%Y-%m-%d': '%Y-%m-%d',
             '%Y': '%Y-0-0',
-            '%Y-%m': '%Y-%m-0'
+            '%Y-%m': '%Y-%m-0',
             '%B %Y': '%Y-%m-0',
             '%m/%Y': '%Y-%m-0',
             '%m/%d/%Y': '%Y-%m-%d',
@@ -788,7 +788,6 @@ class Command(UtilityMixin, BaseCommand):
             else:
                 date_parts = [data[value_position + 3], data[value_position + 1], data[value_position + 2]]
                 value = '-'.join(filter(None, date_parts))
-                print(value)
         except IndexError:
             value = None
 
