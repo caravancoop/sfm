@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% block extra_head %}
+    {% if features %}
+        <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+     {% endif %}
+{% endblock %}
 
 {% block content %}
 
@@ -21,8 +26,16 @@
                     <div class="form-group">
                         <label for="location_type" class="control-label">{% trans "OSM object type:" %} </label>
                         <select name="location_type" class="form-control" id="location_type">
-                            <option value="node">Node</option>
-                            <option value="rel">Relation</option>
+                            {% if location_type == 'node' %}
+                                <option value="node" selected=true>Node</option>
+                            {% else %}
+                                <option value="node">Node</option>
+                            {% endif %}
+                            {% if location_type == 'rel' %}
+                                <option value="rel" selected=true>Relation</option>
+                            {% else %}
+                                <option value="rel">Relation</option>
+                            {% endif %}
                         </select>
                     </div>
                 </div>
@@ -39,6 +52,18 @@
         </form>
     </div>
 </div>
+{% if overpass_error %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="alert alert-warning alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>Overpass API Error</strong> It looks like the Overpass API is currently working too hard. Try back in a few minutes.
+            </div>
+        </div>
+    </div>
+{% endif %}
 {% if features %}
     <div class="row">
         <div class="col-sm-12">
@@ -46,54 +71,46 @@
         </div>
         <div class="col-sm-12">
             <div class="row">
-                {% if location_type == "node" %}
                 <div class="responsive-table col-md-7">
                     <table class="table table-striped table-condensed search-results-table">
                     <thead>
                         <tr>
                             <th>OSM ID</th>
                             <th>Name</th>
-                            <th>Amenity</th>
                             <th>In</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for feature in features %}
-                            <tr>
-                                <td>{{ feature.id }}</td>
-                                <td>{{ feature.properties.name }}</td>
-                                <td>{{ feature.properties.amenity }}</td>
-                                <td>{{ feature.properties.is_in }}</td>
-                            </tr>
+                        {% for feature in features.features %}
+                            <form class="form" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value="{{ feature.properties.id }}" />
+                                <input type="hidden" name="name" value="{{ feature.properties.name }}" />
+                                <input type="hidden" name="feature_type" value="{{ location_type }}" />
+                                <input type="hidden" name="tags" value="{{ feature.json_properties }}" />
+                                <input type="hidden" name="geometry" value="{{ feature.geometry|safe }}" />
+                                <tr>
+                                    <td>{{ feature.properties.id }}</td>
+                                    <td>{{ feature.properties.name }}</td>
+                                    <td>{{ feature.properties.is_in }}</td>
+                                    {% if feature.properties.saved == 'yes' %}
+                                        <td></td>
+                                    {% else %}
+                                    <td>
+                                        <button class="btn btn-success">
+                                            <i class="fa fa-plus-circle"> </i> Add
+                                        </button>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                            </form>
                         {% endfor %}
                     </tbody>
                     </table>
                 </div>
-                {% endif %}
-                {% if location_type == "rel" %}
-                <div class="responsive-table col-md-7">
-                    <table class="table table-striped table-condensed search-results-table">
-                        <thead>
-                            <tr>
-                                <th>OSM ID</th>
-                                <th>Name</th>
-                                <th>Admin Level</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for feature in features %}
-                            <tr>
-                                <td>{{ feature.id }}</td>
-                                <td>{{ feature.tags.name }}</td>
-                                <td>{{ feature.tags.admin_level }}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% endif %}
                 <div class="col-md-5">
-                    [map here]
+                    <div id="location_map" style="height:300px;"></div>
                 </div>
             </div>
         </div>
@@ -102,4 +119,25 @@
 {% endblock %}
 
 {% block extra_js %}
+    {% if features %}
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                function onEachFeature(feature, layer){
+                    layer.bindPopup(feature.properties.name);
+                }
+                var area_map = L.map('location_map');
+                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            { attribution: attribution, detectRetina: true }).addTo(area_map);
+                var areas = L.featureGroup();
+                var geom = {{ features|safe }};
+                areas.addLayer(
+                    L.geoJson(geom, {onEachFeature: onEachFeature})
+                );
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds());
+            });
+        </script>
+    {% endif %}
 {% endblock %}

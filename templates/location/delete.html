@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
-
 {% block extra_head %}
      <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
 {% endblock %}
 
 {% block content %}
+
 <div class="row">
     <div class="col-sm-6">
         <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Location: {{location.name}}</h2>
@@ -30,9 +30,11 @@
             <strong>Feature type:</strong> {{ location.feature_type }}
         </p>
         <p>
-            <a href="{% url 'delete-location' location.id %}" class="btn btn-danger">
-                <i class="fa fa-remove"> </i> Delete
-            </a>
+            Are you sure you want to delete "{{ object }}"?
+            <form action="" method="post" class="form">
+                {% csrf_token %}
+                <input class="btn btn-danger" type="submit" value="Confirm" />
+            </form>
         </p>
     </div>
 </div>

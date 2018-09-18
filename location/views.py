@@ -1,3 +1,8 @@
+import re
+import zipfile
+import json
+from io import BytesIO
+
 import overpass
 import overpy
 import requests
@@ -7,8 +12,10 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
-from django.views.generic import ListView
+from django.views.generic import ListView, DeleteView
 from django.core.urlresolvers import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
 
 from .models import Location
 from .forms import LocationForm
@@ -21,34 +28,102 @@ class LocationView(DetailView):
         context = super().get_context_data(**kwargs)
         return context
 
+class LocationDelete(LoginRequiredMixin, DeleteView):
+    model = Location
+    success_url = reverse_lazy('list-location')
+    template_name = 'location/delete.html'
 
-class LocationCreate(CreateView):
+
+class LocationCreate(LoginRequiredMixin, CreateView):
     form_class = LocationForm
     template_name = 'location/create.html'
-    success_url=reverse_lazy('create-location')
+    success_url = reverse_lazy('list-location')
+
+    def queryOverpass(self, location_type, location_name):
+        query_fmt = '{location_type}["name"~"^{location_name}",i];(._;>;);out;'
+        api = overpy.Overpass()
+        query = query_fmt.format(location_type=location_type,
+                                 location_name=location_name)
+
+        response = api.query(query)
+
+        feature_collection = {
+            'type': 'FeatureCollection',
+            'features': []
+        }
+        all_ids = []
+
+        if location_type == 'node':
+            for feature in response.nodes:
+                feat = {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [float(feature.lon), float(feature.lat)],
+                    },
+                    'properties': feature.tags,
+                }
+                feat['properties']['id'] = feature.id
+                feature_collection['features'].append(feat)
+                all_ids.append(feature.id)
+
+        if location_type == "rel":
+
+            relation_ids = [str(r.id) for r in response.relations]
+            all_ids.extend(relation_ids)
+
+            wambacher = 'https://wambachers-osm.website/boundaries'
+            query_params = {
+                'selected': ','.join(relation_ids),
+                'cliVersion': '1.0',
+                'cliKey': settings.OSM_API_KEY,
+                'exportFormat': 'json',
+            }
+
+            relations = requests.get('{}/exportBoundaries'.format(wambacher), params=query_params)
+
+            with zipfile.ZipFile(BytesIO(relations.content)) as zf:
+
+                for filename in zf.namelist():
+
+                    if 'GeoJson' in filename:
+
+                        with zf.open(filename) as geojson:
+
+                            geojson_cleaned = re.sub(r'""(?!,)', '', geojson.read().decode('utf-8'))
+                            relation_data = json.loads(geojson_cleaned)
+                            feature_collection['features'].extend(relation_data['features'])
+
+        saved_location_ids = [l.id for l in Location.objects.filter(id__in=all_ids)]
+
+        for feature in feature_collection['features']:
+            is_in = [v for k, v in feature['properties'].items() if k.startswith('is_in')]
+            feature['properties']['is_in'] = ', '.join(is_in)
+            feature['json_properties'] = json.dumps(feature['properties'])
+            feature['properties']['saved'] = 'no'
+
+            if int(feature['properties']['id']) in saved_location_ids:
+                feature['properties']['saved'] = 'yes'
+
+        return feature_collection
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        features = {}
-        location_type = self.request.GET.get('location_type')
-        location_name = self.request.GET.get('location_name')
 
-        #this is using two different python wrappers. choose one! TK
-        if location_name and location_type == "node":
-            api = overpass.API()
-            overpass_query = location_type + '[\"name\"=\"' + location_name + '\"]'
-            response = api.get(overpass_query)
-            features = response["features"]
+        if self.request.method == 'GET':
+            location_type = self.request.GET.get('location_type')
+            location_name = self.request.GET.get('location_name')
 
-        if location_name and location_type == "rel":
-            api = overpy.Overpass()
-            overpass_query = location_type + '[\"name\"=\"' + location_name + '\"]; (._;>;); out body;'
-            response = api.query(overpass_query)
-            features = response.relations
+            if location_name and location_type:
+                try:
+                    context['features'] = self.queryOverpass(location_type,
+                                                             location_name)
+                except overpy.exception.OverpassTooManyRequests:
+                    context['overpass_error'] = True
 
-        context['features'] = features
-        context['location_type'] = location_type
-        context['location_name'] = location_name
+            context['location_type'] = location_type
+            context['location_name'] = location_name
+
         return context
 
 
