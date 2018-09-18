@@ -784,10 +784,10 @@ class Command(UtilityMixin, BaseCommand):
         try:
             if not date:
                 value = data[value_position]
-                value = value.strip()
             else:
                 date_parts = [data[value_position + 3], data[value_position + 1], data[value_position + 2]]
                 value = '-'.join(filter(None, date_parts))
+            value = value.strip()
         except IndexError:
             value = None
 
@@ -1048,12 +1048,27 @@ class Command(UtilityMixin, BaseCommand):
 
             for field_name, positions in relation_positions.items():
 
-                if field_name == 'RealStart':
+                if field_name == 'StartDate':
+                    self.make_relation(field_name,
+                                       positions,
+                                       org_data,
+                                       assoc,
+                                       date=True)
+
+                elif field_name == 'EndDate':
+                    self.make_relation(field_name,
+                                       positions,
+                                       org_data,
+                                       assoc,
+                                       date=True)
+
+                elif field_name == 'RealStart':
                     self.make_real_date(data=org_data,
                                         position=positions['value'],
                                         model=AssociationRealStart,
                                         attribute='realstart',
                                         object_ref=assoc)
+
                 else:
                     self.make_relation(field_name,
                                        positions,
@@ -1167,12 +1182,27 @@ class Command(UtilityMixin, BaseCommand):
 
                 for field_name, positions in relation_positions.items():
 
-                    if field_name == 'RealStart':
+                    if field_name == 'StartDate':
+                        self.make_relation(field_name,
+                                           positions,
+                                           org_data,
+                                           emplacement,
+                                           date=True)
+
+                    elif field_name == 'EndDate':
+                        self.make_relation(field_name,
+                                           positions,
+                                           org_data,
+                                           emplacement,
+                                           date=True)
+
+                    elif field_name == 'RealStart':
                         self.make_real_date(data=org_data,
                                             position=positions['value'],
                                             model=EmplacementRealStart,
                                             attribute='realstart',
                                             object_ref=emplacement)
+
                     else:
                         self.make_relation(field_name,
                                            positions,
@@ -1434,7 +1464,6 @@ class Command(UtilityMixin, BaseCommand):
         '''
         Record a value from the sheet (`data`) corresponding to a real start/end
         date for a particular model instance.
-
         Params:
             - `data`: the sheet in question
             - `position`: index from which to retrieve the value
