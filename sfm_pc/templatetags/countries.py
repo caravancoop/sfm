@@ -13,6 +13,7 @@ def country_name(division_id):
 
     "ocd-division/country:ng" -> "Nigeria"
     '''
+
     if division_id and division_id != '':
 
         split_id = division_id.split('country:')

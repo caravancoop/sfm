@@ -171,7 +171,6 @@
         $(document).ready(function(){
             loadSources({'target': $('#id_area')});
 
-            // $('#id_division_id').prop('tabindex', 3);
             function onEachFeature(feature, layer){
                 layer.bindPopup(feature.properties.name);
             }

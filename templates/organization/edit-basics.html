@@ -57,7 +57,7 @@
                         <option value="" selected=true>------</option>
                     {% endif %}
                     {% for country in countries %}
-                        <option value="ocd-division/country-{{ country.iso|lower }}">{{ country.name }}</option>
+                        <option value="ocd-division/country:{{ country.iso|lower }}">{{ country.name }}</option>
                     {% endfor %}
                 </select>
                 {% if form.division_id.errors %}
