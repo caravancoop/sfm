@@ -35,7 +35,6 @@ class NeverCacheMixin(object):
 
 class BaseEditView(LoginRequiredMixin,
                    UpdateView,
-                   NeverCacheMixin,
                    RevisionMixin):
     '''
     SubClasses need to implement meta like so:
@@ -47,6 +46,10 @@ class BaseEditView(LoginRequiredMixin,
 
     They also need to provide a 'get_success_url' method
     '''
+
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
