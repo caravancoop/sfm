@@ -532,7 +532,7 @@
                     markers.addLayer(mark);
                 {% endfor %}
                 markers.addTo(site_map);
-                site_map.fitBounds(markers.getBounds(), {'maxZoom': 11});
+                site_map.fitBounds(markers.getBounds(), {'maxZoom': 11, "padding": [20,20]});
             });
         </script>
     {% endif %}
