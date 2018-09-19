@@ -120,6 +120,7 @@
                             <a target="_blank" href="https://www.openstreetmap.org/relation/{{ association.area.get_value.value.osmid.get_value }}">
                                 {{ association.area.get_value.value.osmname.get_value }}
                             </a>
+                            <i class="fa fa-external-link"></i>
                             {% cite association.area.get_value %}
                         {% endif %}
                         </td>
@@ -163,12 +164,12 @@
                     <tr>
                         <td class="cited">
                         {% if emplacement.site.get_value.value.location_id.get_value %}
-                            <a target="_blank" href="https://www.openstreetmap.org/node/{{ emplacement.site.get_value.value.location_id.get_value }}">
-                        {% elif emplacement.site.get_value.value.admin_id.get_value %}
+                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ emplacement.site.get_value.value.location_id.get_value }}">                        {% elif emplacement.site.get_value.value.admin_id.get_value %}
                             <a target="_blank" href="https://www.openstreetmap.org/node/{{ emplacement.site.get_value.value.admin_id.get_value }}">
                         {% endif %}
                                 {{ emplacement.site.get_value.value.name.get_value }}
                             </a>
+                            <i class="fa fa-external-link"></i>
                             {% cite emplacement.site.get_value %}
                         </td>
                         <td class="cited">
