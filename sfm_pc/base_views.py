@@ -49,7 +49,7 @@ class BaseEditView(LoginRequiredMixin,
 
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):
-        return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
