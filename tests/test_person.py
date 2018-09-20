@@ -101,7 +101,27 @@ def test_no_source_multiple_value(setUp):
         'aliases': person.name.get_value(),
     }
 
-    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data, follow=True)
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
+
+    assert response.status_code == 200
+
+    assert '"aliases" requires a new source' in response.context['form'].errors['aliases']
+
+
+@pytest.mark.django_db
+def test_no_source_empty_start(setUp):
+    person = Person.objects.filter(personalias__isnull=True).order_by('?').first()
+    sources = [s.uuid for s in person.name.get_sources()]
+
+    post_data = {
+        'name': person.name.get_value().value,
+        'name_source': sources,
+        'aliases': person.name.get_value(),
+    }
+
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
+
+    assert response.status_code == 200
 
     assert '"aliases" requires a new source' in response.context['form'].errors['aliases']
 
@@ -171,14 +191,13 @@ def test_remove_all_values(setUp, fake_signal):
         'name': person.name.get_value().value,
         'name_source': sources,
         'aliases': [],
-        'aliases_source': sources,
     }
 
     response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
 
     assert response.status_code == 302
 
-    assert [] == [a.get_value().id for a in person.aliases.get_list()]
+    assert person.aliases.get_list() == []
 
     fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
 
