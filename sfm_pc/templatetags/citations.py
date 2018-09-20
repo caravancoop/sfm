@@ -111,13 +111,14 @@ def datetype(citation_date, position):
     if object_ref:
 
         html = None
+        src = ''
 
         if position == 'start':
 
             realstart = getattr(object_ref, 'realstart', None)
             if realstart:
                 if realstart.get_value():
-                    realstart_src = get_citation_string(realstart.get_value())
+                    src = get_citation_string(realstart.get_value())
                     realstart = realstart.get_value().value
 
                     if realstart is True:
@@ -125,14 +126,9 @@ def datetype(citation_date, position):
                         context['real_date'] = True
                         context['title'] = _('Real start date')
                         html = _('We believe that this date represents a real start date, as well as being the first recorded citation date.')
-                        html += '<br/>'
-                        html += realstart_src
-
-                        context['content'] = html
 
         elif position == 'end':
 
-            src = None
             open_ended =  getattr(object_ref, 'open_ended', None)
             if open_ended:
                 if open_ended.get_value():
@@ -150,9 +146,10 @@ def datetype(citation_date, position):
                 context['real_date'] = True
                 context['title'] = _('Real end date')
                 html = _('We believe that this date represents a real end date, as well as being the last recorded citation date.')
-                html += '<br/>'
-                html += src
 
-                context['content'] = html
+        if html:
+            html = '<div class="tooltip-content"><p class="text-left">{0}</p>{1}</div>'.format(html, src)
+
+            context['content'] = html
 
     return context
