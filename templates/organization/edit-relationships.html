@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load countries %}
 {% load help %}
+{% load citations %}
 
 {% block above_form %}
 <h3 id="relationships">
@@ -70,6 +71,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_name_source">
+            {% for source in form.instance.name.get_sources %}
+                {% source_input 'name' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row classification-row field-bg">
         <div class="col-sm-12">
@@ -87,6 +93,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_classification_source">
+            {% for source in form.instance.classification.get_sources %}
+                {% source_input 'classification' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row related_organization-row field-bg">
@@ -111,6 +122,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_parent_source">
+            {% for source in form.instance.parent.get_sources %}
+                {% source_input 'parent' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row related_organization_aliases-row">
@@ -153,6 +169,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_startdate_source">
+            {% for source in form.instance.startdate.get_sources %}
+                {% source_input 'startdate' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row realstart-row field-bg">
         <div class="col-sm-12">
@@ -177,6 +198,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_realstart_source">
+            {% for source in form.instance.realstart.get_sources %}
+                {% source_input 'realstart' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row enddate-row field-bg">
         <div class="col-sm-12">
@@ -193,6 +219,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_enddate_source">
+            {% for source in form.instance.enddate.get_sources %}
+                {% source_input 'enddate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row open_ended-row field-bg">
@@ -219,6 +250,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_open_ended_source">
+            {% for source in form.instance.open_ended.get_sources %}
+                {% source_input 'open_ended' source %}
+            {% endfor %}
         </div>
     </div>
 

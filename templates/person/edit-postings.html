@@ -1,6 +1,17 @@
 {% extends 'edit.html' %}
 {% load i18n %}
 {% load countries %}
+{% load citations %}
+{% block header_title %}
+<div class="col-sm-6">
+    <h1>{{ person.name.get_value }}</h1>
+    <p>
+        {% trans "ID:" %} {{ person.uuid }}<br />
+        {% trans "Last update by:" %} username goes here <br />
+        <a href="#">{% trans "View versions"%}</a>
+    </p>
+</div>
+{% endblock %}
 
 {% block edit_links %}
     <div class="col-sm-6">
@@ -36,6 +47,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_organization_source">
+            {% for source in form.instance.organization.get_sources %}
+                {% source_input 'organization' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row rank-row field-bg">
         <div class="col-sm-12">
@@ -60,6 +76,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_rank_source">
+            {% for source in form.instance.rank.get_sources %}
+                {% source_input 'rank' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row role-row field-bg">
@@ -87,6 +108,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_role_source">
+            {% for source in form.instance.role.get_sources %}
+                {% source_input 'role' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row title-row field-bg">
         <div class="col-sm-12">
@@ -104,6 +130,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_title_source">
+            {% for source in form.instance.title.get_sources %}
+                {% source_input 'title' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row firstciteddate-row field-bg">
         <div class="col-sm-12">
@@ -120,6 +151,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_firstciteddate_source">
+            {% for source in form.instance.firstciteddate.get_sources %}
+                {% source_input 'firstciteddate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row realstart-row field-bg">
@@ -145,6 +181,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_realstart_source">
+            {% for source in form.instance.realstart.get_sources %}
+                {% source_input 'realstart' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row startcontext-row field-bg">
         <div class="col-sm-12">
@@ -162,6 +203,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_startcontext_source">
+            {% for source in form.instance.startcontext.get_sources %}
+                {% source_input 'startcontext' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row lastciteddate-row field-bg">
         <div class="col-sm-12">
@@ -178,6 +224,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_lastciteddate_source">
+            {% for source in form.instance.lastciteddate.get_sources %}
+                {% source_input 'lastciteddate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row realend-row field-bg">
@@ -203,6 +254,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_realend_source">
+            {% for source in form.instance.realend.get_sources %}
+                {% source_input 'realend' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row endcontext-row field-bg">
         <div class="col-sm-12">
@@ -219,6 +275,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_endcontext_source">
+            {% for source in form.instance.endcontext.get_sources %}
+                {% source_input 'endcontext' source %}
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

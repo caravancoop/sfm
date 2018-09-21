@@ -33,6 +33,8 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
 
         self.object_ref_pk = kwargs.pop('object_ref_pk')
         self.object_ref_model = kwargs.pop('object_ref_model')
+        self.form = kwargs.pop('form')
+        self.field_name = kwargs.pop('field_name')
 
         super().__init__(queryset,
                          required=required,
@@ -52,12 +54,35 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                 super().clean([v])
                 pks.append(v)
             except forms.ValidationError as e:
+                # First, check to see if sources were sent with the field.
+
+                try:
+                    sources = self.form.post_data['{}_source'.format(self.field_name)]
+                except KeyError:
+                    raise forms.ValidationError(_('"%(field_name)s" requires a new source'),
+                                                code='invalid',
+                                                params={'field_name': self.field_name})
+
+                # If sources exist for the field, make the object so the rest of
+                # the processing will work
                 object_ref_fields = [f.column for f in self.object_ref_model._meta.fields]
                 if 'uuid' in object_ref_fields:
                     object_ref = self.object_ref_model.objects.get(uuid=self.object_ref_pk)
                 else:
                     object_ref = self.object_ref_model.objects.get(id=self.object_ref_pk)
-                instance = self.queryset.model.objects.create(value=e.params['pk'],
+
+                # It would seem that if someone tries to save a value in the
+                # form that can be cast as an integer, there is a slim chance
+                # that it will also resolve to a valid choice in which case the
+                # validation error above won't get raised. This might be an
+                # issue at some point.
+
+                if e.code == 'invalid_pk_value':
+                    value = e.params['pk']
+                elif e.code == 'invalid_choice':
+                    value = e.params['value']
+
+                instance = self.queryset.model.objects.create(value=value,
                                                               object_ref=object_ref,
                                                               lang=get_language())
                 pks.append(instance.id)
@@ -140,6 +165,10 @@ class BaseEditForm(forms.ModelForm):
 
         if field_instance.get_value():
             field_value = field_instance.get_value().value
+
+            if not field_value:
+                field_value = None
+
         else:
             field_value = None
 
@@ -148,7 +177,8 @@ class BaseEditForm(forms.ModelForm):
         else:
             posted_value = self.cleaned_data.get(field)
 
-        if field_value != posted_value:
+        # If the posted value is empty, this means that we don't need a source
+        if posted_value and field_value != posted_value:
 
             try:
                 self.post_data['{}_source'.format(field)]
@@ -180,22 +210,25 @@ class BaseEditForm(forms.ModelForm):
         values_without_sources = values_sent - sources_sent
 
         for field in values_without_sources:
-            field_instance = getattr(self.instance, field)
+            # Skip the field if an error has already been raised (in which case
+            # it won't be in the cleaned_data)
 
-            if field_instance in self.instance.complex_fields:
-                self._validate_complex_field(field_instance, field)
+            if not field in self.errors:
+                field_instance = getattr(self.instance, field)
 
-            elif field_instance in self.instance.complex_lists:
-                self._validate_complex_list(field_instance, field)
+                if field_instance in self.instance.complex_fields:
+                    self._validate_complex_field(field_instance, field)
+
+                elif field_instance in self.instance.complex_lists:
+                    self._validate_complex_list(field_instance, field)
 
     def clean(self):
 
         # Need to validate booleans first cuz Django is being difficult
-
         self._validate_boolean()
 
+        values_sent = {k for k,v in self.post_data.items() if v and not '_source' in k}
         sources_sent = {k.replace('_source', '') for k in self.post_data.keys() if '_source' in k}
-        values_sent = {f for f in self.post_data.keys() if not '_source' in f}
 
         self._validate_sources_present(sources_sent, values_sent)
 
@@ -215,49 +248,38 @@ class BaseEditForm(forms.ModelForm):
             self.post_data[field] = field_value
             self.update_fields.add(field)
 
+        self.empty_values = {k for k,v in self.cleaned_data.items() if not v}
+
         self.update_fields = self.update_fields | sources_sent
-
-        for field in self.update_fields:
-
-            # If the posted value is empty but there are sources, that means
-            # that the user cleared out the value and gave evidence as to
-            # why that was the case. Unfortunately, if the value is empty,
-            # Django removes it from the POST data altogether (I guess it's
-            # trying to do us a favor?). Anyways, we need to add that back
-            # in so we can clear out the value from the field.
-
-            if not self.post_data.get(field) and self.post_data.get('{}_source'.format(field)) is not None:
-                # If the field is a GetOrCreate field or
-                # a ModelMultipleChoiceField that means that we should make the
-                # value an empty list. Otherwise it should be None
-
-                if isinstance(self.fields[field], GetOrCreateChoiceField) \
-                        or isinstance(self.fields[field], forms.ModelMultipleChoiceField):
-                    self.post_data[field] = []
-
-                else:
-                    self.post_data[field] = None
 
     def save(self, commit=True):
 
         update_info = {}
 
         for field_name, field_model, multiple_values in self.edit_fields:
+            import pdb
+            pdb.set_trace()
 
-            if field_name in self.update_fields:
+            # Somehow when the field is a ComplexFieldListContainer
+            # this method is only ever returning the first one which is OK
+            # unless we are deleting in which case we need all of the associated
+            # fields
+            field = ComplexFieldContainer.field_from_str_and_id(
+                self.object_type, self.instance.id, field_name
+            )
 
-                new_source_ids = self.post_data['{}_source'.format(field_name)]
+            if field_name in self.empty_values:
+                field_model = field.get_value()
 
+                if field_model:
+                    field_model.delete()
+
+            source_key = '{}_source'.format(field_name)
+
+            if field_name in self.update_fields or self.post_data.get(source_key):
+
+                new_source_ids = self.post_data[source_key]
                 sources = Source.objects.filter(uuid__in=new_source_ids)
-
-                field = ComplexFieldContainer.field_from_str_and_id(
-                    self.object_type, self.instance.id, field_name
-                )
-
-                existing_sources = field.get_sources()
-
-                if existing_sources:
-                    sources = sources | existing_sources
 
                 confidence = field.get_confidence()
 
@@ -265,7 +287,7 @@ class BaseEditForm(forms.ModelForm):
                 update_key = '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name)
 
                 update_info[update_key] = {
-                    'sources': sources,
+                    'sources': self.post_data['{}_source'.format(field_name)],
                     'confidence': confidence,
                 }
 

@@ -54,6 +54,30 @@ def get_citation_string(obj):
     return source_citation
 
 
+@register.inclusion_tag('partials/source_input.html')
+def source_input(field_name, source):
+
+    context = {
+        'field_name': field_name,
+        'uncommitted': False,
+        'id': source.uuid,
+        'publication': source.publication,
+        'title': source.title,
+        'access_points': []
+    }
+
+    for access_point in source.accesspoint_set.all():
+        access_point_info = {
+            'archive_url': access_point.archive_url,
+            'id': access_point.uuid,
+            'page_number': access_point.page_number,
+            'accessed_on': access_point.accessed_on,
+        }
+        context['access_points'].append(access_point_info)
+
+    return context
+
+
 @register.inclusion_tag('partials/source_and_confidence.html')
 def cite(obj):
 
