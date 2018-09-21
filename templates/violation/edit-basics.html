@@ -1,6 +1,7 @@
 {% extends 'edit.html' %}
 {% load i18n %}
 {% load countries %}
+{% load citations %}
 {% block header_title %}
 <div class="col-sm-6">
     <h1>{% include 'partials/violation_title.html' %}</h1>
@@ -39,6 +40,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_startdate_source">
+            {% for source in form.instance.startdate.get_sources %}
+                {% source_input 'startdate' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row enddate-row field-bg">
         <div class="col-sm-12">
@@ -55,6 +61,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_enddate_source">
+            {% for source in form.instance.enddate.get_sources %}
+                {% source_input 'enddate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row types-row field-bg">
@@ -77,6 +88,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_name_source">
+            {% for source in form.instance.types.get_list.0.get_sources %}
+                {% source_input 'types' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row description-row field-bg">
         <div class="col-sm-12">
@@ -93,6 +109,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_description_source">
+            {% for source in form.instance.description.get_sources %}
+                {% source_input 'description' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row perpetrator-row field-bg">
@@ -115,6 +136,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_perpetrator_source">
+            {% for source in form.instance.perpetrator.get_sources %}
+                {% source_input 'perpetrator' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row perpetratororganization-row field-bg">
         <div class="col-sm-12">
@@ -136,6 +162,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_perpetratororganization_source">
+            {% for source in form.instance.perpetratororganization.get_sources %}
+                {% source_input 'perpetratororganization' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row perpetratorclassification-row field-bg">
         <div class="col-sm-12">
@@ -156,6 +187,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_perpetratorclassification_source">
+            {% for source in form.instance.perpetratorclassification.get_sources %}
+                {% source_input 'perpetratorclassification' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row division_id-row field-bg">
@@ -182,6 +218,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_division_id_source">
+            {% for source in form.instance.division_id.get_sources %}
+                {% source_input 'division_id' source %}
+            {% endfor %}
         </div>
     </div>
 

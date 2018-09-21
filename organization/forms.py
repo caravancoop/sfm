@@ -68,11 +68,15 @@ class OrganizationBasicsForm(BaseEditForm):
         self.fields['aliases'] = GetOrCreateChoiceField(queryset=OrganizationAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
                                                         required=False,
                                                         object_ref_pk=self.object_ref_pk,
-                                                        object_ref_model=self._meta.model)
+                                                        object_ref_model=self._meta.model,
+                                                        form=self,
+                                                        field_name='aliases')
         self.fields['classification'] = GetOrCreateChoiceField(queryset=OrganizationClassification.objects.filter(object_ref__uuid=self.object_ref_pk),
                                                                required=False,
                                                                object_ref_pk=self.object_ref_pk,
-                                                               object_ref_model=self._meta.model)
+                                                               object_ref_model=self._meta.model,
+                                                               form=self,
+                                                               field_name='classification')
 
 
 class OrganizationRelationshipsForm(BaseEditForm):
@@ -149,7 +153,9 @@ class OrganizationEmplacementForm(BaseEditForm):
         self.fields['aliases'] = GetOrCreateChoiceField(queryset=EmplacementAlias.objects.filter(object_ref__id=self.object_ref_pk),
                                                         required=False,
                                                         object_ref_pk=self.object_ref_pk,
-                                                        object_ref_model=self._meta.model)
+                                                        object_ref_model=self._meta.model,
+                                                        form=self,
+                                                        field_name='aliases')
 
 
 class OrganizationAssociationForm(BaseEditForm):

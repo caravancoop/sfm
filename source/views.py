@@ -11,12 +11,13 @@ import reversion
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View, TemplateView
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import get_template
 
 from complex_fields.models import ComplexFieldContainer
 
@@ -221,27 +222,31 @@ class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
 
         source_id = self.request.GET['source_id']
+        field_name = self.request.GET['field_name']
 
         source = Source.objects.get(uuid=source_id)
 
         context = {
-            'title': source.title,
-            'id': str(source.uuid),
-            'publication': source.publication,
-            'publication_country': source.publication_country,
-            'source_url': source.source_url,
-            'access_points': [],
+            'field_name': field_name,
             'uncommitted': True,
+            'id': source.uuid,
+            'publication': source.publication,
+            'title': source.title,
+            'access_points': [],
+            'source_url': reverse('view-source', kwargs={'pk': source.uuid}),
         }
 
         for access_point in source.accesspoint_set.all():
-            ap_info = {
-                'id': str(access_point.uuid),
-                'page_number': access_point.page_number,
+            access_point_info = {
                 'archive_url': access_point.archive_url,
+                'id': access_point.uuid,
+                'page_number': access_point.page_number,
+                'accessed_on': access_point.accessed_on,
             }
+            context['access_points'].append(access_point_info)
 
-            context['access_points'].append(ap_info)
+        template = get_template('partials/source_input.html')
+        context['source_input'] = template.render(context)
 
         return context
 

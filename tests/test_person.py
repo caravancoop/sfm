@@ -2,6 +2,7 @@ import pytest
 
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
+from django.db.models import Count
 
 from source.models import Source
 from person.models import Person
@@ -119,7 +120,9 @@ def test_no_source_empty_start(setUp):
         'aliases': person.name.get_value(),
     }
 
-    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
+    response = setUp.post(reverse_lazy('edit-person',
+                                       kwargs={'slug': person.uuid}),
+                          post_data)
 
     assert response.status_code == 200
 
@@ -128,19 +131,18 @@ def test_no_source_empty_start(setUp):
 
 @pytest.mark.django_db
 def test_remove_value(setUp, fake_signal):
-    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+    person = Person.objects\
+                   .annotate(alias_count=Count('personalias'))\
+                   .filter(alias_count__gte=2)[0]
 
     aliases = [a.get_value().id for a in person.aliases.get_list()]
     removed = aliases.pop()
 
-    new_sources = Source.objects.order_by('?')[:2]
-    new_source_ids = [s.uuid for s in new_sources]
-
     post_data = {
         'name': person.name.get_value().value,
-        'name_source': new_source_ids,
+        'name_source': [s.uuid for s in person.name.get_sources()],
         'aliases': aliases,
-        'aliases_source': new_source_ids,
+        'aliases_source': [s.uuid for s in person.aliases.get_list()[0].get_sources()],
     }
 
     response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
@@ -190,7 +192,6 @@ def test_remove_all_values(setUp, fake_signal):
     post_data = {
         'name': person.name.get_value().value,
         'name_source': sources,
-        'aliases': [],
     }
 
     response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)

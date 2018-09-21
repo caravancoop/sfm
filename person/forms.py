@@ -49,11 +49,15 @@ class PersonBasicsForm(BaseEditForm):
         self.fields['aliases'] = GetOrCreateChoiceField(queryset=PersonAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
                                                         required=False,
                                                         object_ref_pk=self.object_ref_pk,
-                                                        object_ref_model=self._meta.model)
+                                                        object_ref_model=self._meta.model,
+                                                        form=self,
+                                                        field_name='aliases')
         self.fields['external_links'] = GetOrCreateChoiceField(queryset=PersonExternalLink.objects.filter(object_ref__uuid=self.object_ref_pk),
                                                                required=False,
                                                                object_ref_pk=self.object_ref_pk,
-                                                               object_ref_model=self._meta.model)
+                                                               object_ref_model=self._meta.model,
+                                                               form=self,
+                                                               field_name='external_links')
 
 
 class PersonPostingsForm(BasePostingsForm):
