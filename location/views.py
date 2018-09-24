@@ -82,17 +82,20 @@ class LocationCreate(LoginRequiredMixin, CreateView):
 
             relations = requests.get('{}/exportBoundaries'.format(wambacher), params=query_params)
 
-            with zipfile.ZipFile(BytesIO(relations.content)) as zf:
+            try:
+                with zipfile.ZipFile(BytesIO(relations.content)) as zf:
 
-                for filename in zf.namelist():
+                    for filename in zf.namelist():
 
-                    if 'GeoJson' in filename:
+                        if 'GeoJson' in filename:
 
-                        with zf.open(filename) as geojson:
+                            with zf.open(filename) as geojson:
 
-                            geojson_cleaned = re.sub(r'""(?!,)', '', geojson.read().decode('utf-8'))
-                            relation_data = json.loads(geojson_cleaned)
-                            feature_collection['features'].extend(relation_data['features'])
+                                geojson_cleaned = re.sub(r'""(?!,)', '', geojson.read().decode('utf-8'))
+                                relation_data = json.loads(geojson_cleaned)
+                                feature_collection['features'].extend(relation_data['features'])
+            except zipfile.BadZipFile:
+                pass
 
         saved_location_ids = [l.id for l in Location.objects.filter(id__in=all_ids)]
 
@@ -118,6 +121,7 @@ class LocationCreate(LoginRequiredMixin, CreateView):
                 try:
                     context['features'] = self.queryOverpass(location_type,
                                                              location_name)
+                    context['feature_count'] = len(context['features']['features'])
                 except overpy.exception.OverpassTooManyRequests:
                     context['overpass_error'] = True
 
