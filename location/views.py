@@ -13,7 +13,7 @@ from django.shortcuts import render
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic import ListView, DeleteView
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 
@@ -37,7 +37,9 @@ class LocationDelete(LoginRequiredMixin, DeleteView):
 class LocationCreate(LoginRequiredMixin, CreateView):
     form_class = LocationForm
     template_name = 'location/create.html'
-    success_url = reverse_lazy('list-location')
+    # success_url = reverse_lazy('list-location')
+    def get_success_url(self):
+        return reverse('view-location', kwargs={'pk' : self.object.id})
 
     def queryOverpass(self, location_type, location_name):
         query_fmt = '{location_type}["name"~"^{location_name}",i];(._;>;);out;'
@@ -101,7 +103,7 @@ class LocationCreate(LoginRequiredMixin, CreateView):
 
         for feature in feature_collection['features']:
             is_in = [v for k, v in feature['properties'].items() if k.startswith('is_in')]
-            feature['properties']['is_in'] = ', '.join(is_in)
+            feature['properties']['is_in'] = ','.join(is_in).replace(',', ', ')
             feature['json_properties'] = json.dumps(feature['properties'])
             feature['properties']['saved'] = 'no'
 

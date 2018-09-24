@@ -67,14 +67,13 @@
 {% if features %}
     <div class="row">
         <div class="col-sm-12">
-            <h2>Results ({{ feature_count }})</h2>
+            <h2><b>Results</b> ({{ feature_count }})</h2>
         </div>
         <div class="col-sm-12">
+            {% if feature_count > 0 %}
             <div class="row">
                 <div class="col-md-12 col-lg-5">
-                    {% if feature_count > 0 %}
-                    <div id="location_map" style="height:450px;"></div>
-                    {% endif %}
+                    <div id="location_map" style="height:400px; margin-top:30px;"></div>
                 </div>
                 <div class="table-responsive col-md-12 col-lg-7">
                     <table class="table table-hover table-condensed search-results-table">
@@ -82,7 +81,13 @@
                         <tr>
                             <th>OSM ID</th>
                             <th>Name</th>
+
+                            {% if location_type == 'node' %}
                             <th>In</th>
+                            {% else %}
+                            <th>Admin Level</th>
+                            {% endif %}
+
                             <th></th>
                         </tr>
                     </thead>
@@ -98,9 +103,15 @@
                                 <tr>
                                     <td>{{ feature.properties.id }}</td>
                                     <td>{{ feature.properties.name }}</td>
+
+                                    {% if location_type == 'node' %}
                                     <td>{{ feature.properties.is_in }}</td>
+                                    {% else %}
+                                    <td>{{ feature.properties.admin_level }}</td>
+                                    {% endif %}
+
                                     {% if feature.properties.saved == 'yes' %}
-                                        <td></td>
+                                        <td><a href='/location/view/{{feature.properties.id}}'>Go to <i class="fa fa-arrow-circle-right"></i></a></td>
                                     {% else %}
                                     <td>
                                         <button class="btn btn-success">
@@ -115,6 +126,7 @@
                     </table>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 {% endif %}
@@ -126,7 +138,7 @@
         <script type="text/javascript">
             $(document).ready(function(){
                 function onEachFeature(feature, layer){
-                    layer.bindPopup(feature.properties.name);
+                    layer.bindPopup(feature.properties.name + ' (' + feature.properties.id + ')');
                 }
                 var area_map = L.map('location_map');
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';

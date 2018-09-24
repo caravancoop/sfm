@@ -9,7 +9,7 @@
 {% block content %}
 <div class="row">
     <div class="col-sm-6">
-        <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Location: {{location.name}}</h2>
+        <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp {{location.name}}</h2>
     </div>
     <div class="col-sm-6">
     </div>
@@ -20,15 +20,13 @@
         <div id="location_map" style="height:300px;"></div>
     </div>
     <div class="col-sm-6">
-        <p>
-            <strong>OSM ID:</strong> {{ location.id }}
-        </p>
-        <p>
-            <strong>Country code:</strong> {{ location.country_code }}
-        </p>
-        <p>
-            <strong>Feature type:</strong> {{ location.feature_type }}
-        </p>
+        <p><strong>OSM ID:</strong> {{ location.id }}</p>
+        <p><strong>Feature type:</strong> {{ location.feature_type }}</p>
+        {% if location.tags.is_in %}
+        <p><strong>In:</strong> {{ location.tags.is_in }}</p>
+        {% elif location.tags.admin_level %}
+        <p><strong>Admin level:</strong> {{ location.tags.admin_level }}</p>
+        {% endif %}
         <p>
             <a href="{% url 'delete-location' location.id %}" class="btn btn-danger">
                 <i class="fa fa-remove"> </i> Delete
