@@ -22,9 +22,9 @@
     <div class="col-sm-12">
         <form class="form" method="get">
             <div class="row">
-                <div class="col-sm-5">
+                <div class="col-sm-2">
                     <div class="form-group">
-                        <label for="location_type" class="control-label">{% trans "OSM object type:" %} </label>
+                        <label for="location_type" class="control-label">{% trans "Type:" %} </label>
                         <select name="location_type" class="form-control" id="location_type">
                             {% if location_type == 'node' %}
                                 <option value="node" selected=true>Node</option>
@@ -39,6 +39,22 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="location_country" class="control-label">{% trans "Country:" %} </label>
+                        <select name="location_country" class="form-control select-country" id="location_country">
+                          {% for country in countries %}
+                            {% if location_country == country.iso %}
+                                <option value="{{ country.iso }}" selected=true>{{ country.name }}</option>
+                            {% else %}
+                                <option value="{{ country.iso }}">{{ country.name }}</option>
+                            {% endif %}
+                          {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
                 <div class="col-sm-7">
                     <label for="location_type" class="control-label">&nbsp;</label>
                     <div class="input-group location-search">
@@ -98,6 +114,7 @@
                                 <input type="hidden" name="id" value="{{ feature.properties.id }}" />
                                 <input type="hidden" name="name" value="{{ feature.properties.name }}" />
                                 <input type="hidden" name="feature_type" value="{{ location_type }}" />
+                                <input type="hidden" name="country_code" value="{{ location_country }}" />
                                 <input type="hidden" name="tags" value="{{ feature.json_properties }}" />
                                 <input type="hidden" name="geometry" value="{{ feature.geometry|safe }}" />
                                 <tr>
@@ -111,7 +128,7 @@
                                     {% endif %}
 
                                     {% if feature.properties.saved == 'yes' %}
-                                        <td><a href='/location/view/{{feature.properties.id}}'>Go to <i class="fa fa-arrow-circle-right"></i></a></td>
+                                        <td><a href='/location/view/{{feature.properties.id}}'>Go to &nbsp<i class="fa fa-arrow-right"></i></a></td>
                                     {% else %}
                                     <td>
                                         <button class="btn btn-success">
@@ -133,6 +150,11 @@
 {% endblock %}
 
 {% block extra_js %}
+        <!-- <script>
+          $(document).ready(function() {
+            $('.select-country').select2();
+          });
+        </script> -->
     {% if features %}
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
         <script type="text/javascript">
@@ -151,6 +173,7 @@
                 );
                 areas.addTo(area_map);
                 area_map.fitBounds(areas.getBounds());
+                area_map.scrollWheelZoom.disable();
             });
         </script>
     {% endif %}

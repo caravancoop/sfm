@@ -22,11 +22,13 @@
     <div class="col-sm-6">
         <p><strong>OSM ID:</strong> {{ location.id }}</p>
         <p><strong>Feature type:</strong> {{ location.feature_type }}</p>
+        <p><strong>Country:</strong> {{ location.country_code }}</p>
         {% if location.tags.is_in %}
         <p><strong>In:</strong> {{ location.tags.is_in }}</p>
         {% elif location.tags.admin_level %}
         <p><strong>Admin level:</strong> {{ location.tags.admin_level }}</p>
         {% endif %}
+        <br />
         <p>
             <a href="{% url 'delete-location' location.id %}" class="btn btn-danger">
                 <i class="fa fa-remove"> </i> Delete
@@ -50,6 +52,7 @@
             );
             areas.addTo(area_map);
             area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+            area_map.scrollWheelZoom.disable();
         });
     </script>
 {% endblock %}

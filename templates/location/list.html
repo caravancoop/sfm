@@ -5,7 +5,7 @@
 <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Locations</h2>
 
 <a href="{% url 'create-location' %}" class="btn btn-success">
-    <i class="fa fa-plus-circle"> </i> Add new location
+    <i class="fa fa-plus-circle"> </i>&nbsp Add new location
 </a>
 
 <div class="responsive-table">
@@ -14,6 +14,7 @@
             <tr>
                 <th>OSM ID</th>
                 <th>Name</th>
+                <th>Country</th>
                 <th>Feature type</th>
                 <th></th>
             </tr>
@@ -23,6 +24,7 @@
             <tr>
                 <td>{{ location.id }}</td>
                 <td><a href="/location/view/{{location.id}}">{{ location.name }}</a></td>
+                <td>{{ location.country_code }}</td>
                 <td>{{ location.feature_type }}</td>
                 <td>
                     <a href="{% url 'delete-location' location.id %}" class="btn btn-danger">

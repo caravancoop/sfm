@@ -17,6 +17,8 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 
+from countries_plus.models import Country
+
 from .models import Location
 from .forms import LocationForm
 
@@ -41,10 +43,20 @@ class LocationCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('view-location', kwargs={'pk' : self.object.id})
 
-    def queryOverpass(self, location_type, location_name):
-        query_fmt = '{location_type}["name"~"^{location_name}",i];(._;>;);out;'
-        api = overpy.Overpass()
+    def queryOverpass(self, location_type, location_country, location_name):
+        # search by location type, country, and name
+        # query_fmt = 'area["ISO3166-1"="{location_country}"];{location_type}(area)["name"~"^{location_name}",i];(._;>;);out;'
+
+        # search by location type, country, name, and english name
+        query_fmt = 'area["ISO3166-1"="{location_country}"];{location_type}(area)[~"^nam[e|e:en]"~"^{location_name}",i];(._;>;);out;'
+
+        # search by location type and name
+        # query_fmt = '{location_type}[~"^nam[e|e:en]"~"^{location_name}",i];(._;>;);out;'
+
+        overpass_endpoint = 'https://overpass.kumi.systems/api/interpreter'
+        api = overpy.Overpass(url=overpass_endpoint)
         query = query_fmt.format(location_type=location_type,
+                                 location_country=location_country,
                                  location_name=location_name)
 
         response = api.query(query)
@@ -114,20 +126,24 @@ class LocationCreate(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['countries'] = Country.objects.all()
 
         if self.request.method == 'GET':
             location_type = self.request.GET.get('location_type')
+            location_country = self.request.GET.get('location_country')
             location_name = self.request.GET.get('location_name')
 
-            if location_name and location_type:
+            if location_name and location_type and location_country:
                 try:
                     context['features'] = self.queryOverpass(location_type,
+                                                             location_country,
                                                              location_name)
                     context['feature_count'] = len(context['features']['features'])
                 except overpy.exception.OverpassTooManyRequests:
                     context['overpass_error'] = True
 
             context['location_type'] = location_type
+            context['location_country'] = location_country
             context['location_name'] = location_name
 
         return context
