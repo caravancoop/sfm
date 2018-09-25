@@ -139,8 +139,7 @@ class LocationCreate(LoginRequiredMixin, CreateView):
                                                              location_country,
                                                              location_name)
                     context['feature_count'] = len(context['features']['features'])
-                except overpy.exception.OverpassTooManyRequests as e:
-                    print (e)
+                except overpy.exception.OverpassTooManyRequests:
                     context['overpass_error'] = True
 
             context['location_type'] = location_type
