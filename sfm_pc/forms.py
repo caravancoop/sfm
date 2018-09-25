@@ -126,37 +126,26 @@ class BaseEditForm(forms.ModelForm):
 
         for field in boolean_fields:
 
-            if field in self.changed_data:
-                if self.post_data.get('{}_source'.format(field)):
-                    value = True
+            # If the field isn't in the posted data and there are sources, that
+            # means the value should be set to False. If the field isn't in the
+            # posted data and there aren't sources, add the field to the empty
+            # fields. If the field is in the posted data, set it to True.
 
-                    # Clear out "field is required" validation error that
-                    # happens when you toggle from True to False. If there is an
-                    # error, we also know that the value should be False
-                    try:
-                        self.errors.pop(field)
-                        value = False
-                    except KeyError:
-                        pass
+            field_sources = self.post_data.get('{}_source'.format(field))
 
-                    self.cleaned_data[field] = value
-                    self.post_data[field] = [value]
-            else:
-                # The boolean fields are not actually required but Django
-                # forces them to be.
-                try:
-                    self.errors.pop(field)
-                except KeyError:
-                    pass
+            if not field in self.post_data and not field_sources:
+                self.empty_values.add(field)
+            elif not field in self.post_data and field_sources:
+                self.cleaned_data[field] = False
+            elif field in self.post_data:
+                self.cleaned_data[field] = True
 
-                field_value = getattr(self.instance, field).get_value()
-
-                if field_value is not None:
-                    self.cleaned_data[field] = field_value.value
-                    self.post_data['{}_source'.format(field)] = [str(s.uuid) for s in
-                                                                getattr(self.instance, field).get_sources()]
-                else:
-                    self.empty_values.add(field)
+            # The boolean fields are not actually required but Django
+            # forces them to be.
+            try:
+                self.errors.pop(field)
+            except KeyError:
+                pass
 
     def clean(self):
 
@@ -358,8 +347,8 @@ class BasePostingsForm(BaseEditForm):
     ]
 
     organization = forms.ModelChoiceField(queryset=Organization.objects.all())
-    rank = forms.ModelChoiceField(queryset=Rank.objects.distinct('value'))
-    role = forms.ModelChoiceField(queryset=Role.objects.distinct('value'))
+    rank = forms.ModelChoiceField(queryset=Rank.objects.distinct('value'), required=False)
+    role = forms.ModelChoiceField(queryset=Role.objects.distinct('value'), required=False)
     title = forms.CharField(required=False)
     firstciteddate = ApproximateDateFormField(required=False)
     lastciteddate = ApproximateDateFormField(required=False)

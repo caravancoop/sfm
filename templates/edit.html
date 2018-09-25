@@ -46,8 +46,12 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-12 col-md-12">
-            <button class="btn btn-success col-sm-2 pull-right" type="submit">Save</button>
+        <div class="col-sm-12">
+            <div class="pull-right">
+                <a href="{{ view.get_success_url }}" class="btn btn-default">Cancel</a>
+                <input class="btn btn-success" type="submit" name="_continue" value="Save & continue editing" />
+                <button class="btn btn-success" type="submit">Save</button>
+            </div>
         </div>
     </div>
     </form>

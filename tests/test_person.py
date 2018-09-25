@@ -368,3 +368,106 @@ def test_edit_posting(setUp, fake_signal):
 
     fake_signal.assert_called_with(object_id=membership.id,
                                    sender=MembershipPerson)
+
+
+@pytest.mark.django_db
+def test_boolean_none_to_true(setUp, fake_signal):
+    membership = MembershipPerson.objects.filter(membershippersonrealstart__value__isnull=True).first()
+    person = membership.member.get_value().value
+
+    new_source = Source.objects.order_by('?').first()
+
+    post_data = {
+        'organization': membership.organization.get_value().value.id,
+        'organization_source': [str(s.uuid) for s in membership.organization.get_sources()],
+        'realstart': 'on',
+        'realstart_source': [new_source.uuid],
+    }
+
+    response = setUp.post(reverse_lazy('edit-person-postings',
+                                       kwargs={'person_id': person.uuid,
+                                               'pk': membership.id}),
+                          post_data)
+
+    assert response.status_code == 302
+
+    assert membership.realstart.get_value().value == True
+
+    fake_signal.assert_called_with(object_id=membership.id,
+                                   sender=MembershipPerson)
+
+
+@pytest.mark.django_db
+def test_boolean_true_to_false(setUp, fake_signal):
+    membership = MembershipPerson.objects.filter(membershippersonrealstart__value=True).first()
+    person = membership.member.get_value().value
+
+    new_source = Source.objects.order_by('?').first()
+
+    post_data = {
+        'organization': membership.organization.get_value().value.id,
+        'organization_source': [str(s.uuid) for s in membership.organization.get_sources()],
+        'realstart_source': [new_source.uuid],
+    }
+
+    response = setUp.post(reverse_lazy('edit-person-postings',
+                                       kwargs={'person_id': person.uuid,
+                                               'pk': membership.id}),
+                          post_data)
+
+    assert response.status_code == 302
+
+    assert membership.realstart.get_value().value == False
+
+    fake_signal.assert_called_with(object_id=membership.id,
+                                   sender=MembershipPerson)
+
+
+@pytest.mark.django_db
+def test_boolean_false_to_true(setUp, fake_signal):
+    membership = MembershipPerson.objects.filter(membershippersonrealstart__value=False).first()
+    person = membership.member.get_value().value
+
+    new_source = Source.objects.order_by('?').first()
+
+    post_data = {
+        'organization': membership.organization.get_value().value.id,
+        'organization_source': [str(s.uuid) for s in membership.organization.get_sources()],
+        'realstart': 'on',
+        'realstart_source': [new_source.uuid],
+    }
+
+    response = setUp.post(reverse_lazy('edit-person-postings',
+                                       kwargs={'person_id': person.uuid,
+                                               'pk': membership.id}),
+                          post_data)
+
+    assert response.status_code == 302
+
+    assert membership.realstart.get_value().value == True
+
+    fake_signal.assert_called_with(object_id=membership.id,
+                                   sender=MembershipPerson)
+
+
+@pytest.mark.django_db
+def test_boolean_true_no_sources(setUp, fake_signal):
+    membership = MembershipPerson.objects.filter(membershippersonrealstart__value=False).first()
+    person = membership.member.get_value().value
+
+    post_data = {
+        'organization': membership.organization.get_value().value.id,
+        'organization_source': [str(s.uuid) for s in membership.organization.get_sources()],
+        'realstart': 'on',
+    }
+
+    response = setUp.post(reverse_lazy('edit-person-postings',
+                                       kwargs={'person_id': person.uuid,
+                                               'pk': membership.id}),
+                          post_data)
+
+    assert response.status_code == 200
+    assert '""'
+
+    fake_signal.assert_called_with(object_id=membership.id,
+                                   sender=MembershipPerson)

@@ -311,6 +311,14 @@ class PersonEditBasicsView(PersonEditView):
 
         return context
 
+    def get_success_url(self):
+        person_id = self.kwargs[self.slug_field_kwarg]
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-person', kwargs={'slug': person_id})
+        else:
+            return super().get_success_url()
+
 
 class PersonEditPostingsView(PersonEditView):
     model = MembershipPerson
@@ -330,6 +338,15 @@ class PersonEditPostingsView(PersonEditView):
         context['memberships'] = memberships
 
         return context
+
+    def get_success_url(self):
+        person_id = self.kwargs[self.slug_field_kwarg]
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-person-postings', kwargs={'slug': person_id,
+                                                           'pk': self.kwargs['pk']})
+        else:
+            return super().get_success_url()
 
 
 class PersonCreateView(PersonEditView, CreateView):
