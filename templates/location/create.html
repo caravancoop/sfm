@@ -25,7 +25,7 @@
                 <div class="col-sm-2">
                     <div class="form-group">
                         <label for="location_type" class="control-label">{% trans "Type:" %} </label>
-                        <select name="location_type" class="form-control" id="location_type">
+                        <select name="location_type" class="form-control" id="location_type" required>
                             {% if location_type == 'node' %}
                                 <option value="node" selected=true>Node</option>
                             {% else %}
@@ -43,7 +43,7 @@
                 <div class="col-sm-3">
                     <div class="form-group">
                         <label for="location_country" class="control-label">{% trans "Country:" %} </label>
-                        <select name="location_country" class="form-control select-country" id="location_country">
+                        <select name="location_country" class="form-control select-country" id="location_country" required>
                           {% for country in countries %}
                             {% if location_country == country.iso %}
                                 <option value="{{ country.iso }}" selected=true>{{ country.name }}</option>
@@ -58,7 +58,7 @@
                 <div class="col-sm-7">
                     <label for="location_type" class="control-label">&nbsp;</label>
                     <div class="input-group location-search">
-                        <input type="text" class="form-control" placeholder="Search by location name..." name="location_name" id="location_name" autofocus value="{% if location_name %}{{ location_name }}{% endif %}">
+                        <input type="text" class="form-control" placeholder="Search by location name..." name="location_name" id="location_name" autofocus value="{% if location_name %}{{ location_name }}{% endif %}" required>
                     <span class="input-group-btn">
                         <button class="btn btn-default" id="location-search">Go!</button>
                     </span>
