@@ -460,28 +460,6 @@
             minimumResultsForSearch: Infinity
         });
 
-        $('.merge').on('click', function(e){
-            e.preventDefault();
-            var entity_type = $(e.target).data('entity_type');
-            var entities = [];
-            $.each($('.' + entity_type + '_ids'), function(i, entity){
-                if($(entity).is(':checked')){
-                    entities.push($(entity).data('entity_id'));
-                }
-            });
-            entities = entities.join(',');
-
-            var params = {
-                'entity_type': entity_type,
-                'entities': entities
-            };
-
-            var redirect_path = "{% url 'merge' %}";
-            var redirect_url = window.location.protocol + '//'+ window.location.hostname + redirect_path + $.param(params);
-
-            window.location.assign(redirect_path + '?' + $.param(params));
-
-        });
     });
 
 </script>

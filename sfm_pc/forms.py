@@ -16,10 +16,6 @@ from membershipperson.models import \
     MembershipPersonEndContext, Rank, Role
 
 
-class MergeForm(forms.Form):
-    canonical_record = forms.CharField()
-
-
 class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
     def __init__(self,
                  queryset,
@@ -35,6 +31,7 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
         self.object_ref_model = kwargs.pop('object_ref_model')
         self.form = kwargs.pop('form')
         self.field_name = kwargs.pop('field_name')
+        self.new_instances = []
 
         super().__init__(queryset,
                          required=required,
@@ -46,7 +43,6 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                          **kwargs)
 
     def clean(self, value):
-
         pks = []
 
         for v in value:
@@ -54,15 +50,6 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                 super().clean([v])
                 pks.append(v)
             except forms.ValidationError as e:
-                # First, check to see if sources were sent with the field.
-
-                try:
-                    sources = self.form.post_data['{}_source'.format(self.field_name)]
-                except KeyError:
-                    raise forms.ValidationError(_('"%(field_name)s" requires a new source'),
-                                                code='invalid',
-                                                params={'field_name': self.field_name})
-
                 # If sources exist for the field, make the object so the rest of
                 # the processing will work
                 object_ref_fields = [f.column for f in self.object_ref_model._meta.fields]
@@ -86,6 +73,7 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                                                               object_ref=object_ref,
                                                               lang=get_language())
                 pks.append(instance.id)
+                self.new_instances.append(instance)
 
         return self.queryset.model.objects.filter(pk__in=pks)
 
@@ -161,94 +149,121 @@ class BaseEditForm(forms.ModelForm):
                 except KeyError:
                     pass
 
-    def _validate_complex_field(self, field_instance, field):
+                field_value = getattr(self.instance, field).get_value()
 
-        if field_instance.get_value():
-            field_value = field_instance.get_value().value
-
-            if not field_value:
-                field_value = None
-
-        else:
-            field_value = None
-
-        if self.cleaned_data.get(field) == '':
-            posted_value = None
-        else:
-            posted_value = self.cleaned_data.get(field)
-
-        # If the posted value is empty, this means that we don't need a source
-        if posted_value and field_value != posted_value:
-
-            try:
-                self.post_data['{}_source'.format(field)]
-                self.update_fields.add(field)
-            except KeyError:
-                error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
-                                            code='invalid',
-                                            params={'field_name': field})
-                self.add_error(field, error)
-
-    def _validate_complex_list(self, field_instance, field):
-        old_values = {f.get_value() for f in field_instance.get_list()}
-        new_values = set(self.cleaned_data.get(field))
-
-        if new_values != old_values:
-            try:
-                self.post_data['{}_source'.format(field)]
-                self.update_fields.add(field)
-            except KeyError:
-                error = forms.ValidationError(_('"%(field_name)s" requires a new source'),
-                                            code='invalid',
-                                            params={'field_name': field})
-                self.add_error(field, error)
-
-    def _validate_sources_present(self, sources_sent, values_sent):
-        # If there were field values that were sent without sources, check to
-        # see if the value changed and if so, we need sources
-
-        values_without_sources = values_sent - sources_sent
-
-        for field in values_without_sources:
-            # Skip the field if an error has already been raised (in which case
-            # it won't be in the cleaned_data)
-
-            if not field in self.errors:
-                field_instance = getattr(self.instance, field)
-
-                if field_instance in self.instance.complex_fields:
-                    self._validate_complex_field(field_instance, field)
-
-                elif field_instance in self.instance.complex_lists:
-                    self._validate_complex_list(field_instance, field)
+                if field_value is not None:
+                    self.cleaned_data[field] = field_value.value
+                    self.post_data['{}_source'.format(field)] = [str(s.uuid) for s in
+                                                                getattr(self.instance, field).get_sources()]
+                else:
+                    self.empty_values.add(field)
 
     def clean(self):
+
+        self.empty_values = {k for k,v in self.cleaned_data.items() if not v}
 
         # Need to validate booleans first cuz Django is being difficult
         self._validate_boolean()
 
-        values_sent = {k for k,v in self.post_data.items() if v and not '_source' in k}
-        sources_sent = {k.replace('_source', '') for k in self.post_data.keys() if '_source' in k}
+        fields_with_errors = {field for field in self.errors}
 
-        self._validate_sources_present(sources_sent, values_sent)
+        # At this stage it's OK to have empty values. If they were required, the
+        # error should already be attached to the field.
+        #
+        # Sources are required for single value fields if:
+        # 1. The value of the field went from blank to not blank
+        # 2. The value of the field changed
+        #
+        # For multiple value fields, these rules also apply:
+        # 1. The field has additional values in it.
+        #
+        # Sources are not required if (but the changes still need to be saved):
+        # 1. The value was cleared out
+        # 2. For multiple value fields, one or more values was removed.
 
-        # If there were sources sent without values, that's OK we just need to
-        # make sure that we save the sources
-
-        sources_without_values = sources_sent - values_sent
-
-        for field in sources_without_values:
+        for field in self.fields:
             field_instance = getattr(self.instance, field)
-            if field_instance in self.instance.complex_fields:
-                field_value = field_instance.get_value().value
 
-            elif field_instance in self.instance.complex_lists:
-                field_value = [f.get_value().id for f in field_instance.get_list()]
+            posted_sources = self.post_data.get('{}_source'.format(field))
 
-            self.post_data[field] = field_value
-            self.update_fields.add(field)
+            if posted_sources:
+                posted_sources = set(posted_sources)
+            else:
+                posted_sources = set()
 
-        self.empty_values = {k for k,v in self.cleaned_data.items() if not v}
+            try:
+                existing_sources = {str(s.uuid) for s in field_instance.get_sources()}
+            except AttributeError:
+                existing_sources = set()
+                for complex_field in field_instance.get_list():
+                    existing_sources = existing_sources | {str(s.uuid) for s in complex_field.get_sources()}
+
+            new_sources = posted_sources - existing_sources
+
+            if not field in (self.empty_values | fields_with_errors):
+                posted_value = self.cleaned_data[field]
+
+                if field_instance in self.instance.complex_lists:
+
+                    # Shrug, sometimes the values posted are top level entities
+                    # (Person, Organization) so we need to call
+                    # .get_value().value
+
+                    try:
+                        posted_value = {v.value for v in posted_value}
+                    except AttributeError:
+                        posted_value = set()
+                        for value in posted_value:
+                            if value.get_value():
+                                posted_value.add(value.get_value().value)
+                            else:
+                                posted_value.add(None)
+
+                    stored_value = {str(v.get_value()) for v in field_instance.get_list()}
+
+                    new_values = getattr(self.fields[field], 'new_instances', [])
+
+                    for value in new_values:
+                        stored_value.remove(value.value)
+
+                    # test for some new values
+                    if posted_value > stored_value and not new_sources:
+                        error = forms.ValidationError(_('"%(field_name)s" has new values so it requires sources'),
+                                                    code='invalid',
+                                                    params={'field_name': field})
+                        self.add_error(field, error)
+                        continue
+
+                    # test for all new values
+                    if not posted_value & stored_value and not new_sources:
+                        error = forms.ValidationError(_('"%(field_name)s" has new values so it requires sources'),
+                                                    code='invalid',
+                                                    params={'field_name': field})
+                        self.add_error(field, error)
+                        continue
+
+                else:
+                    stored_value = field_instance.get_value()
+                    if stored_value:
+                        stored_value = stored_value.value
+
+                    if posted_value and not stored_value and not new_sources:
+                        error = forms.ValidationError(_('"%(field_name)s" now has a value so it requires sources'),
+                                                    code='invalid',
+                                                    params={'field_name': field})
+                        self.add_error(field, error)
+                        continue
+
+                    if (posted_value != stored_value) and not new_sources:
+                        error = forms.ValidationError(_('The value of "%(field_name)s" changed so it requires sources'),
+                                                    code='invalid',
+                                                    params={'field_name': field})
+                        self.add_error(field, error)
+                        continue
+
+                self.update_fields.add(field)
+
+        sources_sent = {k.replace('_source', '') for k in self.post_data.keys() if '_source' in k}
 
         self.update_fields = self.update_fields | sources_sent
 
@@ -257,8 +272,6 @@ class BaseEditForm(forms.ModelForm):
         update_info = {}
 
         for field_name, field_model, multiple_values in self.edit_fields:
-            import pdb
-            pdb.set_trace()
 
             # Somehow when the field is a ComplexFieldListContainer
             # this method is only ever returning the first one which is OK
@@ -268,7 +281,14 @@ class BaseEditForm(forms.ModelForm):
                 self.object_type, self.instance.id, field_name
             )
 
-            if field_name in self.empty_values:
+            if field_name in self.empty_values and multiple_values:
+                field_models = getattr(self.instance, field_name)
+
+                for field in field_models.get_list():
+                    field_model = field.get_value()
+                    field_model.delete()
+
+            elif field_name in self.empty_values:
                 field_model = field.get_value()
 
                 if field_model:
@@ -296,13 +316,13 @@ class BaseEditForm(forms.ModelForm):
                     # Sometimes the object that we want the values to normalize
                     # to are not the complex field containers. For instance, we
                     # want the violation perpetrators to normalize to a Person
-                    # object, not a ViolationPerpetrator object so that we can
-                    # search across all the people, not just the ones who have
-                    # committed violations. So, if the values in update_value
-                    # are not instances of the field_model, we need to get or
-                    # create those and replace the values with the instances of
-                    # the field_model so that the validation, etc works under
-                    # the hood.
+                    # object for the form, not a ViolationPerpetrator object so
+                    # that we can search across all the people, not just the
+                    # ones who have committed violations. So, if the values in
+                    # update_value are not instances of the field_model, we need
+                    # to get or create those and replace the values with the
+                    # instances of the field_model so that the validation, etc
+                    # works under the hood.
 
                     new_values = []
 

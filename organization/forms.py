@@ -104,9 +104,6 @@ class OrganizationRelationshipsForm(BaseEditForm):
 
     def clean(self):
 
-        self._validate_complex_field(self.instance.parent, 'parent')
-        self._validate_complex_field(self.instance.child, 'child')
-
         if self.errors.get('parent') and self.post_data.get('child_source'):
             self.post_data['parent_source'] = self.post_data['child_source']
             self.cleaned_data['parent'] = Organization.objects.get(id=self.post_data['parent'][0])
