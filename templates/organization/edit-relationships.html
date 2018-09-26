@@ -85,7 +85,6 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.classification.label }}</label>
-                classification {{ form.instance.classification.get_value }}
                 <input type="text" value="{{ form.instance.classification.get_value.value }}" class="form-control sourced" name="classification" />
                 {% if form.classification.errors %}
                     {% for error in form.classification.errors %}
