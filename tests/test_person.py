@@ -468,3 +468,25 @@ def test_boolean_true_no_sources(setUp):
 
     assert response.status_code == 200
     assert '"realstart" now has a value so it requires sources' in response.context['form'].errors['realstart']
+
+
+@pytest.mark.django_db
+def test_no_existing_sources(setUp):
+    membership = MembershipPerson.objects.filter(membershippersonrealstart__value=False).first()
+    person = membership.member.get_value().value
+
+    membership.rank.get_value().sources.set([])
+
+    post_data = {
+        'organization': membership.organization.get_value().value.id,
+        'organization_source': [str(s.uuid) for s in membership.organization.get_sources()],
+        'rank': membership.rank.get_value().value.id,
+    }
+
+    response = setUp.post(reverse_lazy('edit-person-postings',
+                                       kwargs={'person_id': person.uuid,
+                                               'pk': membership.id}),
+                          post_data)
+
+    assert response.status_code == 200
+    assert 'Please add some sources to "rank"' in response.context['form'].errors['rank']

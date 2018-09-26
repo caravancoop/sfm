@@ -250,6 +250,20 @@ class BaseEditForm(forms.ModelForm):
                         self.add_error(field, error)
                         continue
 
+                # Sometimes there are fields that ended up without any sources
+                # associated with them. This is probaby due to a bug in the
+                # importer script that we used to get the data from the Google
+                # spreadsheets. All this code above assumes that if a field has
+                # a value in the database, it has sources associated with it.
+                # Because of this importer bug, this is not always the case.
+                # This is an attempt to handle those cases.
+
+                if (stored_value is not None or stored_value != set()) and not existing_sources:
+                    error = forms.ValidationError(_('Please add some sources to "%(field_name)s"'),
+                                                code='invalid',
+                                                params={'field_name': field})
+                    self.add_error(field, error)
+
                 self.update_fields.add(field)
 
         sources_sent = {k.replace('_source', '') for k in self.post_data.keys() if '_source' in k}

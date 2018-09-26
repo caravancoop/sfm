@@ -343,7 +343,7 @@ class PersonEditPostingsView(PersonEditView):
         person_id = self.kwargs[self.slug_field_kwarg]
 
         if self.request.POST.get('_continue'):
-            return reverse('edit-person-postings', kwargs={'slug': person_id,
+            return reverse('edit-person-postings', kwargs={'person_id': person_id,
                                                            'pk': self.kwargs['pk']})
         else:
             return super().get_success_url()
