@@ -258,7 +258,7 @@ class BaseEditForm(forms.ModelForm):
                 # Because of this importer bug, this is not always the case.
                 # This is an attempt to handle those cases.
 
-                if (stored_value is not None or stored_value != set()) and not existing_sources:
+                if (stored_value is not None or stored_value != set()) and not (existing_sources | posted_sources):
                     error = forms.ValidationError(_('Please add some sources to "%(field_name)s"'),
                                                 code='invalid',
                                                 params={'field_name': field})
