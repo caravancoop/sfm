@@ -451,7 +451,7 @@ def test_boolean_false_to_true(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_boolean_true_no_sources(setUp, fake_signal):
+def test_boolean_true_no_sources(setUp):
     membership = MembershipPerson.objects.filter(membershippersonrealstart__value=False).first()
     person = membership.member.get_value().value
 
@@ -467,7 +467,4 @@ def test_boolean_true_no_sources(setUp, fake_signal):
                           post_data)
 
     assert response.status_code == 200
-    assert '""'
-
-    fake_signal.assert_called_with(object_id=membership.id,
-                                   sender=MembershipPerson)
+    assert '"realstart" now has a value so it requires sources' in response.context['form'].errors['realstart']
