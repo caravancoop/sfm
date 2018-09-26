@@ -53,6 +53,32 @@
             {% endfor %}
         </div>
     </div>
+    <div class="row classification-row field-bg">
+        <div class="col-sm-12">
+            {% if form.classification.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Classification" %}</label>
+                <select id="id_classification" class="form-control select2-target" name="classification" multiple="multiple">
+                    {% for classification in form.instance.classification.get_list %}
+                        <option value="{{ classification.get_field.id }}" selected=true>{{ classification.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.classification.errors %}
+                    {% for error in form.classification.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_classification_source">
+            {% for source in form.instance.classification.get_list.0.get_sources %}
+                {% source_input 'classification' source %}
+            {% endfor %}
+        </div>
+    </div>
     <div class="row division_id-row field-bg">
         <div class="col-sm-12">
             {% if form.division_id.errors %}
@@ -195,6 +221,9 @@
         $(document).ready(function(){
             loadSources({'target': $('#id_name')});
             $('#id_alias').select2({
+                'tags': true
+            });
+            $('#id_classification').select2({
                 'tags': true
             });
 
