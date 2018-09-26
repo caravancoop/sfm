@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField, BasePostingsForm
+from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField
 
 from membershipperson.models import MembershipPersonMember
 from person.models import Person
@@ -18,6 +18,14 @@ from emplacement.models import Emplacement, EmplacementStartDate, \
 from geosite.models import Geosite
 
 from area.models import Area
+
+from membershipperson.models import \
+    MembershipPerson, MembershipPersonRank, MembershipPersonRole, \
+    MembershipPersonTitle, MembershipPersonFirstCitedDate, \
+    MembershipPersonLastCitedDate, MembershipPersonRealStart, \
+    MembershipPersonRealEnd, MembershipPersonStartContext, \
+    MembershipPersonEndContext, Rank, Role, MembershipPersonOrganization, \
+    MembershipPersonMember
 
 from composition.models import Composition, CompositionParent, \
     CompositionChild, CompositionRealStart, CompositionStartDate, \
@@ -119,10 +127,34 @@ class OrganizationRelationshipsForm(BaseEditForm):
         super().clean()
 
 
-class OrganizationPersonnelForm(BasePostingsForm):
-    edit_fields = BasePostingsForm.edit_fields + [('person', MembershipPersonMember, False)]
+class OrganizationPersonnelForm(BaseEditForm):
+    edit_fields = [
+        ('rank', MembershipPersonRank, False),
+        ('role', MembershipPersonRole, False),
+        ('title', MembershipPersonTitle, False),
+        ('firstciteddate', MembershipPersonFirstCitedDate, False),
+        ('lastciteddate', MembershipPersonLastCitedDate, False),
+        ('realstart', MembershipPersonRealStart, False),
+        ('realend', MembershipPersonRealEnd, False),
+        ('startcontext', MembershipPersonStartContext, False),
+        ('endcontext', MembershipPersonEndContext, False),
+        ('member', MembershipPersonMember, False),
+    ]
 
-    person = forms.ModelChoiceField(label=_("Person name"), queryset=Person.objects.all())
+    member = forms.ModelChoiceField(label=_("Person name"), queryset=Person.objects.all())
+    rank = forms.ModelChoiceField(label=_("Rank"), queryset=Rank.objects.distinct('value'), required=False)
+    role = forms.ModelChoiceField(label=_("Role"), queryset=Role.objects.distinct('value'), required=False)
+    title = forms.CharField(label=_("Title"), required=False)
+    firstciteddate = ApproximateDateFormField(label=_("Date first cited"), required=False)
+    lastciteddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
+    realstart = forms.BooleanField(label=_("Start date?"))
+    realend = forms.BooleanField(label=_("End date?"))
+    startcontext = forms.CharField(label=_("Context for start date"), required=False)
+    endcontext = forms.CharField(label=_("Context for end date"), required=False)
+
+    class Meta:
+        model = MembershipPerson
+        fields = '__all__'
 
 
 class OrganizationEmplacementForm(BaseEditForm):
