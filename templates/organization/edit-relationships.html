@@ -55,12 +55,10 @@
             {% endif %}
                 <label class="control-label">{% trans "Relationship type" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
-                    <select id="id_relationship_type" class="form-control sourced" name="parent">
+                    <select id="id_relationship_type" class="form-control sourced" name="parent" disabled=true>
                         <option value="{{ current_composition.parent.get_value.value.id }}" selected=true>Parent</option>
-                        <option value="{{ current_composition.parent.get_value.value.id }}">Child</option>
                 {% elif current_composition.child.get_value.value == organization %}
-                    <select id="id_relationship_type" class="form-control sourced" name="child">
-                        <option value="{{ current_composition.child.get_value.value.id }}">Parent</option>
+                    <select id="id_relationship_type" class="form-control sourced" name="child" disabled=true>
                         <option value="{{ current_composition.child.get_value.value.id }}" selected=true>Child</option>
                     {% endif %}
                 </select>
@@ -108,10 +106,10 @@
             {% endif %}
                 <label class="control-label">{% trans "Related organization" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
-                    <select id="id_related_organization" class="form-control" name="child">
+                    <select id="id_related_organization" class="form-control" name="child" disabled=true>
                         <option value="{{ form.instance.child.get_value.value.id }}">{{ form.instance.child.get_value.value }}</option>
                 {% elif current_composition.child.get_value.value == organization %}
-                    <select id="id_related_organization" class="form-control" name="parent">
+                    <select id="id_related_organization" class="form-control" name="parent" disabled=true>
                         <option value="{{ form.instance.parent.get_value.value.id }}">{{ form.instance.parent.get_value.value }}</option>
                 {% endif %}
                 </select>
@@ -261,34 +259,7 @@
 {% block extra_extra_js%}
     <script type="text/javascript">
         $(document).ready(function(){
-
             loadSources({target: $('#id_relationship_type')});
-
-            $('#id_relationship_type').on('change', function(e){
-                if($('#id_relationship_type').prop('name') == 'parent'){
-                    $('#id_relationship_type').prop('name', 'child');
-                    $('#id_related_organization').prop('name', 'parent');
-                } else if ($('#id_relationship_type').prop('name') == 'child'){
-                    $('#id_relationship_type').prop('name', 'parent');
-                    $('#id_related_organization').prop('name', 'child');
-                }
-                loadSources({target: $('#id_relationship_type')});
-            });
-            $('#id_related_organization').select2({
-                ajax: {
-                    url: "{% url 'organization-autocomplete' %}",
-                    data: function(params){
-                        var query = {
-                            q: params.term
-                        }
-                        return query
-                    }
-                }
-            });
-            $('#id_related_organization').on('select2:select', function(e){
-                $('#related_organization_aliases').val(e.params.data.aliases);
-                $('#related_organization_country').val(e.params.data.country);
-            })
         })
     </script>
 {% endblock%}
