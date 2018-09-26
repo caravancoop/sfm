@@ -156,7 +156,7 @@ class OrganizationEditView(BaseEditView):
         first_composition = context['organization'].child_organization.first()
 
         if not first_composition:
-            context['organization'].parent_organization.first()
+            first_composition = context['organization'].parent_organization.first()
 
         first_personnel = context['organization'].membershippersonorganization_set.first()
 

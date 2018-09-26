@@ -22,7 +22,7 @@
             <a href="{% url 'edit-organization' organization.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
             {% endif %}
             {% if first_composition and current_composition %}
-                <a href="{% url 'edit-organization-relationships' organization.uuid first_composition.id %}" class="btn btn-primary">{% trans "Relationships" %}</a>
+                <a href="{% url 'edit-organization-relationships' organization.uuid current_composition.id %}" class="btn btn-primary">{% trans "Relationships" %}</a>
             {% elif first_composition %}
                 <a href="{% url 'edit-organization-relationships' organization.uuid first_composition.id %}" class="btn btn-default">{% trans "Relationships" %}</a>
             {% endif %}
