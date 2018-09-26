@@ -38,7 +38,7 @@ def get_citation_string(obj):
 
                 # Wrap links in anchors
                 if key == _('Source URL') or key == _('Archive URL'):
-                    html_fmt = '<strong>{0}</strong>: <a href="{1}">{1}</a>'
+                    html_fmt = '<strong>{0}</strong>: <a href="{1}" target="_blank">{1}</a>'
                 else:
                     html_fmt = '<strong>{0}</strong>: {1}'
 
