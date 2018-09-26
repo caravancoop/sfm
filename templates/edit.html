@@ -79,7 +79,7 @@
     </script>
     <script type="text/EJS" id="source-list-title">
         <h3 id="source-field-name" data-field_name="<%= field_name %>">
-            Sources already linked to the <strong class="text-capitalize"><%= field_name %></strong> datapoint ...
+            Sources already linked to the <strong><%= field_label %></strong> datapoint ...
         </h3>
     </script>
     <script type="text/javascript">
@@ -104,13 +104,17 @@
 
         function loadSources(e){
             var field_name = $(e.target).prop('name');
+            var field_label = $(e.target).prev();
+            if (field_label.length == 0){
+                field_label = $(e.target).parent();
+            }
 
             if (typeof field_name === 'undefined'){
                 field_name = e;
             }
 
             var template = new EJS({'text': $('#source-list-title').html()});
-            var source_list = [template.render({'field_name': field_name})];
+            var source_list = [template.render({'field_name': field_name, 'field_label': field_label.text().trim()})];
 
             var selector = 'input[name="' + field_name + '_source"]';
 

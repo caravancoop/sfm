@@ -70,7 +70,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Site" %}</label>
+                <label class="control-label">{{ form.site.label }}</label>
                 <input id="id_site" type="text" class="form-control sourced" name="site" value="{{ form.instance.site.get_value }}" />
                 {% if form.site.errors %}
                     {% for error in form.site.errors %}
@@ -92,7 +92,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Other names" %}</label>
+                <label class="control-label">{{ form.aliases.label }}</label>
                 <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
                     {% for alias in form.instance.aliases.get_list %}
                         <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
@@ -118,7 +118,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Country" %}</label>
+                <label class="control-label">{{ form.division_id.label }}</label>
                 <select id="id_division_id" class="form-control select2-target" name="division_id">
                     {% if form.instance.division_id %}
                         <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
@@ -149,7 +149,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "First cited date" %}</label>
+                <label class="control-label">{{ form.firstciteddate.label }}</label>
                 <input type="text" name="firstciteddate" id="id_firstciteddate" class="form-control sourced" value="{{ form.instance.firstciteddate }}"/>
                 {% if form.firstciteddate.errors %}
                     {% for error in form.firstciteddate.errors %}
@@ -171,7 +171,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Last cited date" %}</label>
+                <label class="control-label">{{ form.lastciteddate.label }}</label>
                 <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.instance.lastciteddate }}">
                 {% if form.lastciteddate.errors %}
                     {% for error in form.lastciteddate.errors %}
@@ -196,9 +196,9 @@
                 <div class="checkbox">
                     <label class="control-label">
                         {% if form.instance.realstart.get_value.value %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {% trans "Real start?" %}
+                        <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {{ form.realstart.label }}
                         {% else %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {% trans "Real start?" %}
+                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {{ form.realstart.label }}
                         {% endif %}
                     </label>
                 </div>
@@ -222,7 +222,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Open ended" %}</label>
+                <label class="control-label">{{ form.open_ended.label }}</label>
                 <select id="id_open_ended" class="form-control sourced-dropdown" name="open_ended">
                     <option value="">------</option>
                     {% for value, choice in form.fields.open_ended.choices %}

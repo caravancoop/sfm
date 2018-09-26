@@ -31,7 +31,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Start date" %}</label>
+                <label class="control-label">{{ form.startdate.label }}</label>
                 <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}">
                 {% if form.startdate.errors %}
                     {% for error in form.startdate.errors %}
@@ -53,7 +53,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "End date" %}</label>
+                <label class="control-label">{{ form.enddate.label }}</label>
                 <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
                 {% if form.enddate.errors %}
                     {% for error in form.enddate.errors %}
@@ -75,7 +75,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Violation types" %}</label>
+                <label class="control-label">{{ form.types.label }}</label>
                 <select id="id_types" class="form-control select2-target" name="types" multiple="multiple">
                     {% for type in form.instance.types.get_list %}
                         <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
@@ -101,7 +101,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Description" %}</label>
+                <label class="control-label">{{ form.description.label }}</label>
                 <textarea rows=5 name="description" id="id_description" class="form-control sourced">{{ form.instance.description.get_value.value }}</textarea>
                 {% if form.description.errors %}
                     {% for error in form.description.errors %}
@@ -123,7 +123,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Perpetrator name" %}</label>
+                <label class="control-label">{{ form.perpetrator.label }}</label>
                 <select id="id_perpetrator" class="form-control select2-target" name="perpetrator" multiple="multiple">
                     {% for type in form.instance.perpetrator.get_list %}
                         <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
@@ -149,7 +149,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Perpetrator unit" %}</label>
+                <label class="control-label">{{ form.perpetratororganization.label }}</label>
                 <select id="id_perpetratororganization" class="form-control select2-target" name="perpetratororganization" multiple="multiple">
                     {% for type in form.instance.perpetratororganization.get_list %}
                         <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
@@ -175,7 +175,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Perpetrator classification" %}</label>
+                <label class="control-label">{{ form.perpetratorclassification.label }}</label>
                 <select id="id_perpetratorclassification" class="form-control select2-target" name="perpetratorclassification">
                     <option value="{{ form.instance.perpetratorclassification.id }}" selected=true>
                         {{ form.instance.perpetratorclassification.get_value.value }}
@@ -201,7 +201,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Country" %}</label>
+                <label class="control-label">{{ form.division_id.label }}</label>
                 <select id="id_division_id" class="form-control select2-target" name="division_id">
                     {% if form.instance.division_id %}
                         <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>

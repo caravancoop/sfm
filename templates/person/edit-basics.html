@@ -22,7 +22,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Name" %}</label>
+                <label class="control-label">{{ form.name.label }}</label>
                 <input id="id_name" type="text" class="form-control sourced" name="name" value="{{ form.instance.name.get_value }}" />
                 {% if form.name.errors %}
                     {% for error in form.name.errors %}
@@ -44,7 +44,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Other names" %}</label>
+                <label class="control-label">{{ form.aliases.label }}</label>
                 <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
                     {% for alias in form.instance.aliases.get_list %}
                         <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
@@ -70,7 +70,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Gender" %}</label>
+                <label class="control-label">{{ form.gender.label }}</label>
                 <select id="id_gender" class="form-control sourced-dropdown" name="gender">
                     <option value="">------</option>
                     {% for value, choice in form.fields.gender.choices %}
@@ -101,7 +101,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Country" %}</label>
+                <label class="control-label">{{ form.division_id.label }}</label>
                 <select id="id_division_id" class="form-control select2-target" name="division_id">
                     {% if form.instance.division_id %}
                         <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
@@ -132,7 +132,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Date of birth" %}</label>
+                <label class="control-label">{{ form.date_of_birth.label }}</label>
                 <input type="text" name="date_of_birth" id="id_date_of_birth" class="form-control sourced" value="{{ form.instance.date_of_birth }}"/>
                 {% if form.date_of_birth.errors %}
                     {% for error in form.date_of_birth.errors %}
@@ -154,7 +154,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Date of death" %}</label>
+                <label class="control-label">{{ form.date_of_death.label }}</label>
                 <input type="text" name="date_of_death" id="id_date_of_death" class="form-control sourced" value="{{ form.instance.date_of_death }}">
                 {% if form.date_of_death.errors %}
                     {% for error in form.date_of_death.errors %}
@@ -179,9 +179,9 @@
                 <div class="checkbox">
                     <label class="control-label">
                         {% if form.instance.deceased.get_value.value %}
-                            <input type="checkbox" name="deceased" id="id_deceased" class="sourced" checked="true" /> {% trans "Deceased" %}
+                            <input type="checkbox" name="deceased" id="id_deceased" class="sourced" checked="true" /> {{ form.deceased.label }}
                         {% else %}
-                            <input type="checkbox" name="deceased" id="id_deceased" class="sourced" /> {% trans "Deceased" %}
+                            <input type="checkbox" name="deceased" id="id_deceased" class="sourced" /> {{ form.deceased.label }}
                         {% endif %}
                     </label>
                 </div>
@@ -205,7 +205,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Biography" %}</label>
+                <label class="control-label">{{ form.biography.label }}</label>
                 <textarea rows=5 name="biography" id="id_biography" class="form-control sourced">{{ form.instance.biography.get_value.value }}</textarea>
                 {% if form.biography.errors %}
                     {% for error in form.biography.errors %}
@@ -227,7 +227,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Notes" %}</label>
+                <label class="control-label">{{ form.notes.label }}</label>
                 <textarea name="notes" id="id_notes" class="form-control sourced">{{ form.instance.notes.get_value.value }}</textarea>
                 {% if form.notes.errors %}
                     {% for error in form.notes.errors %}
@@ -249,7 +249,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "External link" %}</label>
+                <label class="control-label">{{ form.external_links.label }}</label>
                 <select id="id_external_links" class="form-control select2-target" name="external_links" multiple="multiple">
                     {% for link in form.instance.external_links.get_list %}
                         <option value="{{ link.get_field.id }}" selected=true>{{ link.get_field.value }}</option>

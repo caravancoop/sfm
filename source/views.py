@@ -312,7 +312,8 @@ def get_sources(request):
     sources = field.get_sources()
     sources_json = {
         "confidence": field.get_confidence(),
-        "sources": []
+        "sources": [],
+        "field_name": field.field_name,
     }
 
     for source in sources:

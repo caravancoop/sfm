@@ -56,22 +56,24 @@ class OrganizationBasicsForm(BaseEditForm):
         ('open_ended', OrganizationOpenEnded, False),
     ]
 
-    name = forms.CharField()
-    division_id = forms.CharField(required=False)
-    firstciteddate = ApproximateDateFormField(required=False)
-    lastciteddate = ApproximateDateFormField(required=False)
-    realstart = forms.BooleanField()
-    open_ended = forms.ChoiceField(choices=OPEN_ENDED_CHOICES, required=False)
+    name = forms.CharField(label=_("Name"))
+    division_id = forms.CharField(label=_("Country"), required=False)
+    firstciteddate = ApproximateDateFormField(label=_("Date first cited"), required=False)
+    lastciteddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
+    realstart = forms.BooleanField(label=_("Start date?"))
+    open_ended = forms.ChoiceField(label=_("Open-ended?"), choices=OPEN_ENDED_CHOICES, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['aliases'] = GetOrCreateChoiceField(queryset=OrganizationAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
+        self.fields['aliases'] = GetOrCreateChoiceField(label=_("Other names"),
+                                                        queryset=OrganizationAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
                                                         required=False,
                                                         object_ref_pk=self.object_ref_pk,
                                                         object_ref_model=self._meta.model,
                                                         form=self,
                                                         field_name='aliases')
-        self.fields['classification'] = GetOrCreateChoiceField(queryset=OrganizationClassification.objects.filter(object_ref__uuid=self.object_ref_pk),
+        self.fields['classification'] = GetOrCreateChoiceField(label=_("Classification"),
+                                                               queryset=OrganizationClassification.objects.filter(object_ref__uuid=self.object_ref_pk),
                                                                required=False,
                                                                object_ref_pk=self.object_ref_pk,
                                                                object_ref_model=self._meta.model,
@@ -94,13 +96,13 @@ class OrganizationRelationshipsForm(BaseEditForm):
         ('classification', CompositionClassification, False),
     ]
 
-    realstart = forms.BooleanField()
-    startdate = ApproximateDateFormField(required=False)
-    enddate = ApproximateDateFormField(required=False)
-    open_ended = forms.ChoiceField(choices=OPEN_ENDED_CHOICES, required=False)
+    realstart = forms.BooleanField(label=_("Start date?"))
+    startdate = ApproximateDateFormField(label=_("Date first cited"), required=False)
+    enddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
+    open_ended = forms.ChoiceField(label=_("Open-ended?"), choices=OPEN_ENDED_CHOICES, required=False)
     parent = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
     child = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
-    classification = forms.CharField(required=False)
+    classification = forms.CharField(label=_("Relationship classification"), required=False)
 
     def clean(self):
 
@@ -120,7 +122,7 @@ class OrganizationRelationshipsForm(BaseEditForm):
 class OrganizationPersonnelForm(BasePostingsForm):
     edit_fields = BasePostingsForm.edit_fields + [('person', MembershipPersonMember, False)]
 
-    person = forms.ModelChoiceField(queryset=Person.objects.all())
+    person = forms.ModelChoiceField(label=_("Person name"), queryset=Person.objects.all())
 
 
 class OrganizationEmplacementForm(BaseEditForm):
@@ -138,16 +140,17 @@ class OrganizationEmplacementForm(BaseEditForm):
         ('aliases', EmplacementAlias, True),
     ]
 
-    realstart = forms.BooleanField()
-    startdate = ApproximateDateFormField(required=False)
-    enddate = ApproximateDateFormField(required=False)
-    open_ended = forms.ChoiceField(choices=OPEN_ENDED_CHOICES, required=False)
-    organization = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
-    site = forms.ModelChoiceField(queryset=Geosite.objects.all(), required=False)
+    realstart = forms.BooleanField(label=_("Start date?"))
+    startdate = ApproximateDateFormField(label=_("Date first cited"), required=False)
+    enddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
+    open_ended = forms.ChoiceField(label=_("Open-ended?"), choices=OPEN_ENDED_CHOICES, required=False)
+    organization = forms.ModelChoiceField(label=_("Organization"), queryset=Organization.objects.all(), required=False)
+    site = forms.ModelChoiceField(label=_("Location name"), queryset=Geosite.objects.all(), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['aliases'] = GetOrCreateChoiceField(queryset=EmplacementAlias.objects.filter(object_ref__id=self.object_ref_pk),
+        self.fields['aliases'] = GetOrCreateChoiceField(label=_("Location other names"),
+                                                        queryset=EmplacementAlias.objects.filter(object_ref__id=self.object_ref_pk),
                                                         required=False,
                                                         object_ref_pk=self.object_ref_pk,
                                                         object_ref_model=self._meta.model,
@@ -169,8 +172,8 @@ class OrganizationAssociationForm(BaseEditForm):
         ('open_ended', AssociationOpenEnded, False),
     ]
 
-    startdate = ApproximateDateFormField(required=False)
-    enddate = ApproximateDateFormField(required=False)
-    open_ended = forms.ChoiceField(choices=OPEN_ENDED_CHOICES, required=False)
-    organization = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
-    area = forms.ModelChoiceField(queryset=Area.objects.all(), required=False)
+    startdate = ApproximateDateFormField(label=_("Date first cited"), required=False)
+    enddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
+    open_ended = forms.ChoiceField(label=_("Open-ended?"), choices=OPEN_ENDED_CHOICES, required=False)
+    organization = forms.ModelChoiceField(label=_("Organization"), queryset=Organization.objects.all(), required=False)
+    area = forms.ModelChoiceField(label=_("Location name"), queryset=Area.objects.all(), required=False)

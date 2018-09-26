@@ -360,16 +360,16 @@ class BasePostingsForm(BaseEditForm):
         ('endcontext', MembershipPersonEndContext, False),
     ]
 
-    organization = forms.ModelChoiceField(queryset=Organization.objects.all())
-    rank = forms.ModelChoiceField(queryset=Rank.objects.distinct('value'), required=False)
-    role = forms.ModelChoiceField(queryset=Role.objects.distinct('value'), required=False)
-    title = forms.CharField(required=False)
-    firstciteddate = ApproximateDateFormField(required=False)
-    lastciteddate = ApproximateDateFormField(required=False)
-    realstart = forms.BooleanField()
-    realend = forms.BooleanField()
-    startcontext = forms.CharField(required=False)
-    endcontext = forms.CharField(required=False)
+    organization = forms.ModelChoiceField(label=_("Organization"), queryset=Organization.objects.all())
+    rank = forms.ModelChoiceField(label=_("Rank"), queryset=Rank.objects.distinct('value'), required=False)
+    role = forms.ModelChoiceField(label=_("Role"), queryset=Role.objects.distinct('value'), required=False)
+    title = forms.CharField(label=_("Title"), required=False)
+    firstciteddate = ApproximateDateFormField(label=_("Date first cited"), required=False)
+    lastciteddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
+    realstart = forms.BooleanField(label=_("Start date?"))
+    realend = forms.BooleanField(label=_("End date?"))
+    startcontext = forms.CharField(label=_("Context for start date"), required=False)
+    endcontext = forms.CharField(label=_("Context for end date"), required=False)
 
     class Meta:
         model = MembershipPerson
