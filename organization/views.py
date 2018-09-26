@@ -189,6 +189,14 @@ class OrganizationEditBasicsView(OrganizationEditView):
 
         return context
 
+    def get_success_url(self):
+        organization_id = self.kwargs[self.slug_field_kwarg]
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-organization', kwargs={'slug': organization_id})
+        else:
+            return super().get_success_url()
+
 
 class OrganizationEditRelationshipsView(OrganizationEditView):
     template_name = 'organization/edit-relationships.html'
@@ -211,8 +219,15 @@ class OrganizationEditRelationshipsView(OrganizationEditView):
         return context
 
     def get_success_url(self):
-        return reverse_lazy('view-organization',
-                            kwargs={'slug': self.kwargs['organization_id']})
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-organization-relationships',
+                           kwargs={'organization_id': organization_id,
+                                   'pk': pk})
+        else:
+            return reverse('view-organization', kwargs={'slug': organization_id})
 
 
 class OrganizationEditPersonnelView(OrganizationEditView):
@@ -224,6 +239,17 @@ class OrganizationEditPersonnelView(OrganizationEditView):
 
     def get_reference_organization(self):
         return Organization.objects.get(uuid=self.kwargs['organization_id'])
+
+    def get_success_url(self):
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-organization-personnel',
+                           kwargs={'organization_id': organization_id,
+                                   'pk': pk})
+        else:
+            return reverse('view-organization', kwargs={'slug': organization_id})
 
 
 class OrganizationEditEmplacementView(OrganizationEditView):
@@ -244,6 +270,17 @@ class OrganizationEditEmplacementView(OrganizationEditView):
 
         return context
 
+    def get_success_url(self):
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-organization-emplacement',
+                           kwargs={'organization_id': organization_id,
+                                   'pk': pk})
+        else:
+            return reverse('view-organization', kwargs={'slug': organization_id})
+
 
 class OrganizationEditAssociationView(OrganizationEditView):
     model = Association
@@ -262,6 +299,17 @@ class OrganizationEditAssociationView(OrganizationEditView):
         context['associations'] = [e.object_ref for e in context['organization'].associations]
 
         return context
+
+    def get_success_url(self):
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-organization-association',
+                           kwargs={'organization_id': organization_id,
+                                   'pk': pk})
+        else:
+            return reverse('view-organization', kwargs={'slug': organization_id})
 
 
 def organization_autocomplete(request):
