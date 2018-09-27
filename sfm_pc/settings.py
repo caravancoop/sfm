@@ -280,8 +280,43 @@ OSM_DATA = [
         'pbf_url': 'http://download.geofabrik.de/africa/egypt-latest.osm.pbf',
         'relation_id': '1473947',
         'country_code': 'eg',
-
-    }
+    },
+    {
+        'country': 'Phillipines',
+        'pbf_url': 'http://download.geofabrik.de/asia/philippines-latest.osm.pbf',
+        'relation_id': '443174',
+        'country_code': 'ph',
+    },
+    {
+        'country': 'Myanmar',
+        'pbf_url': 'http://download.geofabrik.de/asia/myanmar-latest.osm.pbf',
+        'relation_id': '50371',
+        'country_code': 'mm',
+    },
+    {
+        'country': 'Saudi Arabia',
+        'pbf_url': 'http://download.geofabrik.de/asia/gcc-states-latest.osm.pbf',
+        'relation_id': '307584',
+        'country_code': 'sa',
+    },
+    {
+        'country': 'Bangladesh',
+        'pbf_url': 'http://download.geofabrik.de/asia/bangladesh-latest.osm.pbf',
+        'relation_id': '184640',
+        'country_code': 'bd',
+    },
+    {
+        'country': 'Uganda',
+        'pbf_url': 'http://download.geofabrik.de/africa/uganda-latest.osm.pbf',
+        'relation_id': '192796',
+        'country_code': 'ug',
+    },
+    {
+        'country': 'Rwanda',
+        'pbf_url': 'http://download.geofabrik.de/africa/rwanda-latest.osm.pbf',
+        'relation_id': '171496',
+        'country_code': 'rw',
+    },
 ]
 
 # Override built-in messages tags
