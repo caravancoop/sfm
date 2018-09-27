@@ -67,14 +67,26 @@
         <% } else { %>
             <div data-field_name="<%= field_name %>" data-source_id="<%= id %>" class="source-detail alert alert-warning alert-dismissible">
         <% } %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <a href="<%= source_url %>" target="_blank">
-                <strong>
-                    <small><%= title %> (<%= publication %>)</small>
-                </strong>
-            </a>
-            <br />
-            <a href="<%= archive_url %>">Archive URL</a> <br />
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span></button>
+            <h4>
+                <a href="<%= source_detail_url %>">
+                    <%= title %>
+                </a>
+                </br>
+                <small>
+                    <%= date_added %> -
+                    <a href="<%= source_url %>" target="_blank">
+                        <%= publication %>, <%= publication_country %>
+                    </a> -
+                    <% if (accessed_on && archive_url){ %>
+                        Access Point <a href="<%= archive_url %>"><%= accessed_on %></a>
+                    <% } else if (archive_url) { %>
+                        <a href="<%= archive_url %>">Access Point</a>
+                    <% } else if (page_number){ %>
+                        Access Point p <%= page_number %>
+                    <% } %>
+                </small>
+            </h4>
         </div>
     </script>
     <script type="text/EJS" id="source-list-title">
@@ -120,6 +132,7 @@
 
             $.each($(selector), function(e, source){
                 var source_info = $(source).data();
+                console.log(source_info)
                 source_info['field_name'] = field_name;
                 source_info['id'] = $(selector).val();
                 var template = new EJS({'text': $('#source-list-template').html()});
@@ -206,9 +219,13 @@
                     $.each(source.access_points, function(i, access_point){
                         access_point['field_name'] = field_name;
                         access_point['title'] = source.title;
+                        access_point['date_added'] = source.date_added;
                         access_point['publication'] = source.publication;
+                        access_point['publication_country'] = source.publication_country;
                         access_point['source_url'] = source.source_url;
+                        access_point['source_detail_url'] = source.source_detail_url;
                         access_point['uncommitted'] = source.uncommitted;
+                        console.log(access_point)
                         var source_template = new EJS({'text': $('#source-list-template').html()});
                         $('#source-list').prepend(source_template.render(access_point));
                     });

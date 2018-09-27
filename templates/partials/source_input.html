@@ -5,11 +5,14 @@
         value="{{ id }}"
         data-title="{{ title }}"
         data-access_point_id="{{ id }}"
-        data-source_url="{% url 'view-source' id %}"
+        data-source_url="{{ source_url }}"
+        data-source_detail_url="{% url 'view-source' id %}"
         data-source_publication_country="{{ publication_country|default_if_none:"" }}"
         data-publication="{{ publication|default_if_none:"" }}"
         data-archive_url="{{ access_point.archive_url|default_if_none:"" }}"
         data-page_number="{{ access_point.page_number|default_if_none:"" }}"
         data-accessed_on="{{ access_point.accessed_on|default_if_none:"" }}"
+        data-date_added="{{ date_added }}"
+        data-publication_country="{{ publication_country|default_if_none:"" }}"
         data-uncommitted="{{ uncommitted|lower }}" />
 {% endfor %}

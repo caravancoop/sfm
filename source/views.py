@@ -26,7 +26,7 @@ from countries_plus.models import Country
 from api.base_views import JSONResponseMixin
 
 from sfm_pc.base_views import NeverCacheMixin
-from sfm_pc.utils import VersionsMixin
+from sfm_pc.utils import VersionsMixin, get_source_context
 from sfm_pc.templatetags.citations import get_citation_string
 
 from source.models import Source, AccessPoint
@@ -220,30 +220,14 @@ class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):
         return self.render_to_json_response(context, **response_kwargs)
 
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
         source_id = self.request.GET['source_id']
         field_name = self.request.GET['field_name']
 
         source = Source.objects.get(uuid=source_id)
 
-        context = {
-            'field_name': field_name,
-            'uncommitted': True,
-            'id': source.uuid,
-            'publication': source.publication,
-            'title': source.title,
-            'access_points': [],
-            'source_url': reverse('view-source', kwargs={'pk': source.uuid}),
-        }
-
-        for access_point in source.accesspoint_set.all():
-            access_point_info = {
-                'archive_url': access_point.archive_url,
-                'id': access_point.uuid,
-                'page_number': access_point.page_number,
-                'accessed_on': access_point.accessed_on,
-            }
-            context['access_points'].append(access_point_info)
+        context.update(get_source_context(field_name, source))
 
         template = get_template('partials/source_input.html')
         context['source_input'] = template.render(context)
