@@ -413,7 +413,7 @@ a.collapsed .show-less {
 }
 
 .high-confidence .popover-title,
-.high-confidence .source-footnote {
+.high-confidence .source-footnote, {
     background-color: #dcf3dc;
 }
 
@@ -421,10 +421,33 @@ a.collapsed .show-less {
     line-height: 160%;
 }
 
-.popover-content {
+.popover-content, .tooltip-inner {
     width: 250px;
     max-height: 200px;
     overflow: auto;
+}
+
+.tooltip-inner {
+    background-color: #dcf3dc;
+    color: #000;
+    padding: 0px;
+}
+
+.tooltip-title {
+    padding: 3px 8px 0px 8px;
+}
+
+.tooltip-content {
+    background-color: #fff;
+    padding: 0px 8px 3px 8px;
+}
+
+.tooltip-content p {
+    margin: 0;
+}
+
+.tooltip-arrow {
+    border-top-color: #dcf3dc !important;
 }
 
 .datetype {
