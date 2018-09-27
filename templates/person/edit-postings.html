@@ -168,9 +168,9 @@
                 <div class="checkbox">
                     <label class="control-label">
                         {% if form.instance.realstart.get_value.value %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {{ form.realstart.label }}
+                            <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
                         {% else %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {{ form.realstart.label }}
+                            <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
                         {% endif %}
                     </label>
                 </div>
@@ -180,11 +180,6 @@
                     {% endfor %}
                 {% endif %}
             </div>
-        </div>
-        <div id="id_realstart_source">
-            {% for source in form.instance.realstart.get_sources %}
-                {% source_input 'realstart' source %}
-            {% endfor %}
         </div>
     </div>
     <div class="row startcontext-row field-bg">
@@ -241,9 +236,9 @@
                 <div class="checkbox">
                     <label class="control-label">
                         {% if form.instance.realend.get_value.value %}
-                            <input type="checkbox" name="realend" id="id_realend" class="sourced" checked="true" /> {{ form.realend.label }}
+                            <input type="checkbox" name="realend" id="id_realend" checked="true" /> {{ form.realend.label }}
                         {% else %}
-                            <input type="checkbox" name="realend" id="id_realend" class="sourced" /> {{ form.realend.label }}
+                            <input type="checkbox" name="realend" id="id_realend" /> {{ form.realend.label }}
                         {% endif %}
                     </label>
                 </div>
@@ -253,11 +248,6 @@
                     {% endfor %}
                 {% endif %}
             </div>
-        </div>
-        <div id="id_realend_source">
-            {% for source in form.instance.realend.get_sources %}
-                {% source_input 'realend' source %}
-            {% endfor %}
         </div>
     </div>
     <div class="row endcontext-row field-bg">

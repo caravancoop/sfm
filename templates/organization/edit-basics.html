@@ -164,9 +164,9 @@
                 <div class="checkbox">
                     <label class="control-label">
                         {% if form.instance.realstart.get_value.value %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {{ form.realstart.label }}
+                            <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
                         {% else %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {{ form.realstart.label }}
+                            <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
                         {% endif %}
                     </label>
                 </div>
@@ -177,11 +177,6 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_realstart_source">
-            {% for source in form.instance.realstart.get_sources %}
-                {% source_input 'realstart' source %}
-            {% endfor %}
-        </div>
     </div>
     <div class="row open_ended-row field-bg">
         <div class="col-sm-12">
@@ -191,7 +186,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.open_ended.label }}</label>
-                <select id="id_open_ended" class="form-control sourced-dropdown" name="open_ended">
+                <select id="id_open_ended" class="form-control" name="open_ended">
                     <option value="">------</option>
                     {% for value, choice in form.fields.open_ended.choices %}
                         {% if form.instance.open_ended.get_value.value == choice %}
@@ -207,11 +202,6 @@
                     {% endfor %}
                 {% endif %}
             </div>
-        </div>
-        <div id="id_open_ended_source">
-            {% for source in form.instance.open_ended.get_sources %}
-                {% source_input 'open_ended' source %}
-            {% endfor %}
         </div>
     </div>
 
