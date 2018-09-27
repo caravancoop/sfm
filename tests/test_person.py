@@ -466,8 +466,8 @@ def test_boolean_true_no_sources(setUp):
                                                'pk': membership.id}),
                           post_data)
 
-    assert response.status_code == 200
-    assert '"realstart" now has a value so it requires sources' in response.context['form'].errors['realstart']
+    assert response.status_code == 302
+    assert membership.realstart.get_value().value == True
 
 
 @pytest.mark.django_db

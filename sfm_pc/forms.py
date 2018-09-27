@@ -190,6 +190,11 @@ class BaseEditForm(forms.ModelForm):
             new_sources = posted_sources - existing_sources
 
             if not field in (self.empty_values | fields_with_errors):
+
+                if not field_instance.field_model.source_required:
+                    self.update_fields.add(field)
+                    continue
+
                 posted_value = self.cleaned_data[field]
 
                 if field_instance in self.instance.complex_lists:
@@ -301,18 +306,18 @@ class BaseEditForm(forms.ModelForm):
 
             if field_name in self.update_fields or self.post_data.get(source_key):
 
-                new_source_ids = self.post_data[source_key]
-                sources = Source.objects.filter(uuid__in=new_source_ids)
-
-                confidence = field.get_confidence()
-
                 update_value = self.cleaned_data[field_name]
-                update_key = '{0}_{1}'.format(self.instance._meta.object_name, field_model._meta.object_name)
+                update_key = '{0}_{1}'.format(self.instance._meta.object_name,
+                                              field_model._meta.object_name)
 
                 update_info[update_key] = {
-                    'sources': self.post_data['{}_source'.format(field_name)],
-                    'confidence': confidence,
+                    'confidence': field.get_confidence(),
                 }
+
+                if field_model.source_required:
+                    new_source_ids = self.post_data[source_key]
+                    sources = Source.objects.filter(uuid__in=new_source_ids)
+                    update_info[update_key]['sources'] = new_source_ids
 
                 if multiple_values:
                     update_info[update_key]['values'] = update_value
