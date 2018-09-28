@@ -16,7 +16,7 @@ import datefinder
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import models, transaction, IntegrityError, connection
-from django.db.utils import DataError
+from django.db.utils import DataError, ProgrammingError
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.management import call_command
 from django.utils.text import slugify
@@ -112,29 +112,27 @@ class Command(UtilityMixin, BaseCommand):
 
     def disconnectSignals(self):
         from django.db.models.signals import post_save
-        from sfm_pc.signals import update_source_index, \
-            update_orgname_index, update_orgalias_index, update_personname_index, \
-            update_personalias_index, update_violation_index
+        from sfm_pc.signals import update_organization_index, \
+            update_person_index, update_violation_index, \
+            update_membership_index, update_composition_index
 
-        post_save.disconnect(receiver=update_source_index, sender=Source)
-        post_save.disconnect(receiver=update_orgname_index, sender=OrganizationName)
-        post_save.disconnect(receiver=update_orgalias_index, sender=OrganizationAlias)
-        post_save.disconnect(receiver=update_personname_index, sender=PersonName)
-        post_save.disconnect(receiver=update_personalias_index, sender=PersonAlias)
-        post_save.disconnect(receiver=update_violation_index, sender=ViolationDescription)
+        post_save.disconnect(receiver=update_organization_index, sender=Organization)
+        post_save.disconnect(receiver=update_person_index, sender=Person)
+        post_save.disconnect(receiver=update_violation_index, sender=Violation)
+        post_save.disconnect(receiver=update_membership_index, sender=MembershipPerson)
+        post_save.disconnect(receiver=update_composition_index, sender=Composition)
 
     def connectSignals(self):
         from django.db.models.signals import post_save
-        from sfm_pc.signals import update_source_index, \
-            update_orgname_index, update_orgalias_index, update_personname_index, \
-            update_personalias_index, update_violation_index
+        from sfm_pc.signals import update_organization_index, \
+            update_person_index, update_violation_index, \
+            update_membership_index, update_composition_index
 
-        post_save.connect(receiver=update_source_index, sender=Source)
-        post_save.connect(receiver=update_orgname_index, sender=OrganizationName)
-        post_save.connect(receiver=update_orgalias_index, sender=OrganizationAlias)
-        post_save.connect(receiver=update_personname_index, sender=PersonName)
-        post_save.connect(receiver=update_personalias_index, sender=PersonAlias)
-        post_save.connect(receiver=update_violation_index, sender=ViolationDescription)
+        post_save.connect(receiver=update_organization_index, sender=Organization)
+        post_save.connect(receiver=update_person_index, sender=Person)
+        post_save.connect(receiver=update_violation_index, sender=Violation)
+        post_save.connect(receiver=update_membership_index, sender=MembershipPerson)
+        post_save.connect(receiver=update_composition_index, sender=Composition)
 
     # @transaction.atomic
     def handle(self, *args, **options):
@@ -573,7 +571,8 @@ class Command(UtilityMixin, BaseCommand):
                             }
                         }
                         try:
-                            parent_organization = Organization.objects.get(organizationname__value=parent_org_name)
+                            parent_organization = Organization.objects.get(organizationname__value=parent_org_name,
+                                                                           organizationdivisionid__value=division_id)
                             existing_sources = self.sourcesList(parent_organization, 'name')
                             parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
@@ -664,7 +663,8 @@ class Command(UtilityMixin, BaseCommand):
                         }
 
                         try:
-                            member_organization = Organization.objects.get(organizationname__value=member_org_name)
+                            member_organization = Organization.objects.get(organizationname__value=member_org_name,
+                                                                           organizationdivisionid__value=division_id)
                             existing_sources = self.sourcesList(member_organization, 'name')
                             member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
@@ -1377,7 +1377,7 @@ class Command(UtilityMixin, BaseCommand):
 
             try:
                 geo = get_osm_by_id(attr_osm_id)
-            except DataError:
+            except (DataError, ProgrammingError):
                 self.log_error('OSMName ID for Site {0} does not seem valid: {1}'.format(site.name, attr_osm_id))
                 geo = None
 
@@ -1726,7 +1726,8 @@ class Command(UtilityMixin, BaseCommand):
                 }
 
                 try:
-                    organization = Organization.objects.get(organizationname__value=organization_name)
+                    organization = Organization.objects.get(organizationname__value=organization_name,
+                                                            organizationdivisionid__value=division_id)
 
                 except Organization.DoesNotExist:
                     organization = Organization.create(org_info)
@@ -2008,7 +2009,7 @@ class Command(UtilityMixin, BaseCommand):
                     'confidence': 1
                 },
                 'Violation_ViolationLocationId': {
-                    'value': exactloc_,
+                    'value': exactloc_id,
                     'sources': sources,
                     'confidence': 1
                 },
@@ -2146,7 +2147,8 @@ class Command(UtilityMixin, BaseCommand):
             for org in orgs:
 
                 try:
-                    organization = Organization.objects.get(organizationname__value=org)
+                    organization = Organization.objects.get(organizationname__value=org,
+                                                            organizationdivisionid__value=division_id)
                 except (Organization.DoesNotExist, ValueError):
 
                     info = {

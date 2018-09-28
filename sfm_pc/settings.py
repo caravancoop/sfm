@@ -282,7 +282,7 @@ OSM_DATA = [
         'country_code': 'eg',
     },
     {
-        'country': 'Phillipines',
+        'country': 'Philippines',
         'pbf_url': 'http://download.geofabrik.de/asia/philippines-latest.osm.pbf',
         'relation_id': '443174',
         'country_code': 'ph',

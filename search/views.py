@@ -49,8 +49,7 @@ SEARCH_ENTITY_TYPES = {
         'facet_fields': ['country_s_fct',
                          'publication_s_fct',
                          'country_ss_fct'],
-        'facet_ranges': ['start_date_dt',
-                         'end_date_dt'],
+        'facet_ranges': [],
     },
 }
 

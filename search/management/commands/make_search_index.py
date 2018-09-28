@@ -641,7 +641,7 @@ class Command(BaseCommand):
               uuid,
               MAX(title) AS title,
               MAX(source_url) AS url,
-              MAX(published_on)::timestamp as date_published,
+              MAX(published_on) as date_published,
               MAX(publication) AS publication,
               MAX(publication_country) AS publication_country
             FROM source_source
@@ -669,8 +669,6 @@ class Command(BaseCommand):
             if update and self.check_index(source['id']):
                 continue
 
-            date_published = source['date_published'].strftime('%Y-%m-%dT%H:%M:%SZ')
-
             content = source['title']
 
             if len(content) == 0:
@@ -683,8 +681,8 @@ class Command(BaseCommand):
                 'content': content,
                 'source_url_t': source['url'],
                 'source_title_t': source['title'],
-                'start_date_dt': date_published,
-                'end_date_dt': date_published,
+                'start_date_t': source['date_published'],
+                'end_date_t': source['date_published'],
                 'publication_s': source['publication'],
                 'country_s': source['publication_country'],
                 'country_ss': source['publication_country'],
