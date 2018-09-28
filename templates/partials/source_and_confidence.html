@@ -2,6 +2,7 @@
 {% load citations %}
 {% load help %}
 
+{% if object_info %}
 <span class="citation-container">
     <span class="citation {{confidence_class}}">
         <sup>
@@ -15,10 +16,12 @@
                data-placement="top"
                data-content="Loading ..."
                title="<strong>{% trans 'Sources for this datapoint' %}<a type='button' role='button' class='close pull-right' data-dismiss='popover' aria-hidden='true' aria-label='Close'>&times;</a><p class='pull-right'>{% help href='whowasincommand/generalfunctions.html#how-do-i-see-the-sources-used-for-a-specific-datapoint' %}</p><br/>{{ confidence_string }}</strong>"
-            data-trigger="click" tabindex="0"
-            aria-label="{% trans 'Sources and confidence for this information' %}">
+               data-trigger="focus"
+               tabindex="1"
+               aria-label="{% trans 'Sources and confidence for this information' %}">
                 <span class="source-footnote-counter"></span>
             </a>
         </sup>
     </span>
 </span>
+{% endif %}

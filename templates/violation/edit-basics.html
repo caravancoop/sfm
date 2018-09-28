@@ -1,6 +1,7 @@
 {% extends 'edit.html' %}
 {% load i18n %}
 {% load countries %}
+{% load citations %}
 {% block header_title %}
 <div class="col-sm-6">
     <h1>{% include 'partials/violation_title.html' %}</h1>
@@ -30,7 +31,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Start date" %}</label>
+                <label class="control-label">{{ form.startdate.label }}</label>
                 <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}">
                 {% if form.startdate.errors %}
                     {% for error in form.startdate.errors %}
@@ -38,6 +39,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_startdate_source">
+            {% for source in form.instance.startdate.get_sources %}
+                {% source_input 'startdate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row enddate-row field-bg">
@@ -47,7 +53,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "End date" %}</label>
+                <label class="control-label">{{ form.enddate.label }}</label>
                 <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
                 {% if form.enddate.errors %}
                     {% for error in form.enddate.errors %}
@@ -55,6 +61,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_enddate_source">
+            {% for source in form.instance.enddate.get_sources %}
+                {% source_input 'enddate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row types-row field-bg">
@@ -64,7 +75,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Violation types" %}</label>
+                <label class="control-label">{{ form.types.label }}</label>
                 <select id="id_types" class="form-control select2-target" name="types" multiple="multiple">
                     {% for type in form.instance.types.get_list %}
                         <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
@@ -77,6 +88,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_name_source">
+            {% for source in form.instance.types.get_list.0.get_sources %}
+                {% source_input 'types' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row description-row field-bg">
         <div class="col-sm-12">
@@ -85,7 +101,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Description" %}</label>
+                <label class="control-label">{{ form.description.label }}</label>
                 <textarea rows=5 name="description" id="id_description" class="form-control sourced">{{ form.instance.description.get_value.value }}</textarea>
                 {% if form.description.errors %}
                     {% for error in form.description.errors %}
@@ -93,6 +109,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_description_source">
+            {% for source in form.instance.description.get_sources %}
+                {% source_input 'description' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row perpetrator-row field-bg">
@@ -102,7 +123,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Perpetrator name" %}</label>
+                <label class="control-label">{{ form.perpetrator.label }}</label>
                 <select id="id_perpetrator" class="form-control select2-target" name="perpetrator" multiple="multiple">
                     {% for type in form.instance.perpetrator.get_list %}
                         <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
@@ -115,6 +136,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_perpetrator_source">
+            {% for source in form.instance.perpetrator.get_sources %}
+                {% source_input 'perpetrator' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row perpetratororganization-row field-bg">
         <div class="col-sm-12">
@@ -123,7 +149,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Perpetrator unit" %}</label>
+                <label class="control-label">{{ form.perpetratororganization.label }}</label>
                 <select id="id_perpetratororganization" class="form-control select2-target" name="perpetratororganization" multiple="multiple">
                     {% for type in form.instance.perpetratororganization.get_list %}
                         <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
@@ -136,6 +162,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_perpetratororganization_source">
+            {% for source in form.instance.perpetratororganization.get_sources %}
+                {% source_input 'perpetratororganization' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row perpetratorclassification-row field-bg">
         <div class="col-sm-12">
@@ -144,7 +175,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Perpetrator classification" %}</label>
+                <label class="control-label">{{ form.perpetratorclassification.label }}</label>
                 <select id="id_perpetratorclassification" class="form-control select2-target" name="perpetratorclassification">
                     <option value="{{ form.instance.perpetratorclassification.id }}" selected=true>
                         {{ form.instance.perpetratorclassification.get_value.value }}
@@ -157,6 +188,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_perpetratorclassification_source">
+            {% for source in form.instance.perpetratorclassification.get_sources %}
+                {% source_input 'perpetratorclassification' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row division_id-row field-bg">
         <div class="col-sm-12">
@@ -165,7 +201,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Country" %}</label>
+                <label class="control-label">{{ form.division_id.label }}</label>
                 <select id="id_division_id" class="form-control select2-target" name="division_id">
                     {% if form.instance.division_id %}
                         <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
@@ -182,6 +218,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_division_id_source">
+            {% for source in form.instance.division_id.get_sources %}
+                {% source_input 'division_id' source %}
+            {% endfor %}
         </div>
     </div>
 

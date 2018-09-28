@@ -20,6 +20,7 @@ var Footnotes = {
 
             }
         });
+         $('[data-toggle="tooltip"]').tooltip();
 
         // Show footnotes on hover
         $('.citation-container, .cited').on('mouseover', function() {

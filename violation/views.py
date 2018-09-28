@@ -63,6 +63,14 @@ class ViolationEditBasicsView(ViolationEditView):
 
         return context
 
+    def get_success_url(self):
+        violation_id = self.kwargs['slug']
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-violation', kwargs={'slug': violation_id})
+        else:
+            return super().get_success_url()
+
 
 def violation_type_autocomplete(request):
     term = request.GET.get('q')

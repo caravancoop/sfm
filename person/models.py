@@ -137,7 +137,7 @@ class PersonName(ComplexField):
 class PersonAlias(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Alias")
+    field_name = _("Other names")
 
 
 @translated
@@ -196,7 +196,7 @@ class PersonNotes(ComplexField):
 class PersonDivisionId(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _('Division ID')
+    field_name = _('Country')
 
 
 @translated
@@ -205,4 +205,4 @@ class PersonDivisionId(ComplexField):
 class PersonExternalLink(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Notes")
+    field_name = _("External links")
