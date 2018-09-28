@@ -81,14 +81,13 @@ class Command(BaseCommand):
                 self.importPBF(country)
                 self.importBoundaries(country)
 
-        self.createCombinedTable()
+            self.createCombinedTable(country)
 
-    def createCombinedTable(self):
-        for country in settings.OSM_DATA:
-            self.makeDataTable()
-            self.makeRawTable(country)
-            self.findNewRecords(country)
-            self.insertNewRecords(country)
+    def createCombinedTable(self, country):
+        self.makeDataTable()
+        self.makeRawTable(country)
+        self.findNewRecords(country)
+        self.insertNewRecords(country)
 
     def makeDataTable(self):
         create = '''
