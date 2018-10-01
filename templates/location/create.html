@@ -65,13 +65,12 @@
         </div>
     </div>
 {% endif %}
-{% if features %}
+{% if feature_count == 0 %}
+    <div class="col-sm-12">
+        <h2>No results</h2>
+    </div>
+{% else %}
     <div class="row">
-        {% if feature_count == 0 %}
-        <div class="col-sm-12">
-            <h2>No results</h2>
-        </div>
-        {% else %}
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-md-12 col-lg-5">
@@ -100,7 +99,6 @@
                                 <input type="hidden" name="id" value="{{ feature.properties.id }}" />
                                 <input type="hidden" name="name" value="{{ feature.properties.name }}" />
                                 <input type="hidden" name="feature_type" value="{{ location_type }}" />
-                                <input type="hidden" name="country_code" value="{{ location_country }}" />
                                 <input type="hidden" name="tags" value="{{ feature.json_properties }}" />
                                 <input type="hidden" name="geometry" value="{{ feature.geometry|safe }}" />
                                 <tr>
@@ -130,7 +128,6 @@
                 </div>
             </div>
         </div>
-        {% endif %}
     </div>
 {% endif %}
 {% endblock %}

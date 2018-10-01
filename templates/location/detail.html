@@ -22,7 +22,6 @@
     <div class="col-sm-6">
         <p><strong>OSM ID:</strong> {{ location.id }}</p>
         <p><strong>Feature type:</strong> {{ location.feature_type }}</p>
-        <p><strong>Country:</strong> {{ location.country_code }}</p>
         {% if location.tags.is_in %}
         <p><strong>In:</strong> {{ location.tags.is_in }}</p>
         {% elif location.tags.admin_level %}

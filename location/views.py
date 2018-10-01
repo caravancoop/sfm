@@ -76,14 +76,15 @@ class LocationCreate(LoginRequiredMixin, CreateView):
 
         if location_type == 'way':
             print("This is a way!")
+            print(response.ways)
             for feature in response.ways:
-                print(feature.get_nodes(resolve_missing=True))
+                print(feature)
 
                 feat = {
                     'type': 'Feature',
                     'geometry': {
-                        'type': 'Way',
-                        'nodes': feature.get_nodes(resolve_missing=True),
+                        'type': 'LineString',
+                        'coordinates': [[float(n.lon), float(n.lat)] for n in feature.get_nodes(resolve_missing=True)],
                     },
                     'properties': feature.tags,
                 }
@@ -147,6 +148,8 @@ class LocationCreate(LoginRequiredMixin, CreateView):
                     context['features'] = self.queryOverpass(location_type,
                                                              location_id)
                     context['feature_count'] = len(context['features']['features'])
+                except overpy.exception.OverpassBadRequest:
+                    context['feature_count'] = 0
                 except overpy.exception.OverpassTooManyRequests:
                     context['overpass_error'] = True
 

@@ -14,7 +14,6 @@
             <tr>
                 <th>OSM ID</th>
                 <th>Name</th>
-                <th>Country</th>
                 <th>Feature type</th>
                 <th></th>
             </tr>
@@ -22,9 +21,8 @@
         <tbody>
             {% for location in locations %}
             <tr>
-                <td>{{ location.id }}</td>
+                <td><a href="/location/view/{{location.id}}">{{ location.id }}</a></td>
                 <td><a href="/location/view/{{location.id}}">{{ location.name }}</a></td>
-                <td>{{ location.country_code }}</td>
                 <td>{{ location.feature_type }}</td>
                 <td>
                     <a href="{% url 'delete-location' location.id %}" class="btn btn-danger">
