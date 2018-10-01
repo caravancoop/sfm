@@ -16,8 +16,6 @@ from reversion.models import Version
 from source.models import Source, AccessPoint
 from person.models import Person
 
-from sfm_pc.signals import update_source_index
-
 @pytest.fixture()
 @pytest.mark.django_db
 def setUp(client, request):

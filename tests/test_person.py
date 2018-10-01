@@ -451,7 +451,7 @@ def test_boolean_false_to_true(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_boolean_true_no_sources(setUp):
+def test_boolean_true_no_sources(setUp, fake_signal):
     membership = MembershipPerson.objects.filter(membershippersonrealstart__value=False).first()
     person = membership.member.get_value().value
 
@@ -468,6 +468,9 @@ def test_boolean_true_no_sources(setUp):
 
     assert response.status_code == 302
     assert membership.realstart.get_value().value == True
+
+    fake_signal.assert_called_with(object_id=membership.id,
+                                   sender=MembershipPerson)
 
 
 @pytest.mark.django_db
