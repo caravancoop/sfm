@@ -15,21 +15,21 @@
 
 <div class="row">
     <div class="col-sm-12">
-        <p>
-            <strong>Find a new OSM object to add</strong>
-        </p>
-    </div>
-    <div class="col-sm-12">
         <form class="form" method="get">
             <div class="row">
-                <div class="col-sm-2">
+                <div class="col-sm-4">
                     <div class="form-group">
-                        <label for="location_type" class="control-label">{% trans "Type:" %} </label>
+                        <label for="location_type" class="control-label"><b>{% trans "Location Type" %}</b></label>
                         <select name="location_type" class="form-control" id="location_type" required>
                             {% if location_type == 'node' %}
                                 <option value="node" selected=true>Node</option>
                             {% else %}
                                 <option value="node">Node</option>
+                            {% endif %}
+                            {% if location_type == 'way' %}
+                                <option value="way" selected=true>Way</option>
+                            {% else %}
+                                <option value="way">Way</option>
                             {% endif %}
                             {% if location_type == 'rel' %}
                                 <option value="rel" selected=true>Relation</option>
@@ -40,25 +40,10 @@
                     </div>
                 </div>
 
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label for="location_country" class="control-label">{% trans "Country:" %} </label>
-                        <select name="location_country" class="form-control select-country" id="location_country" required>
-                          {% for country in countries %}
-                            {% if location_country == country.iso %}
-                                <option value="{{ country.iso }}" selected=true>{{ country.name }}</option>
-                            {% else %}
-                                <option value="{{ country.iso }}">{{ country.name }}</option>
-                            {% endif %}
-                          {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col-sm-7">
-                    <label for="location_type" class="control-label">&nbsp;</label>
+                <div class="col-sm-8">
+                    <label for="location_id" class="control-label"><b>{% trans "Location ID" %}</b></label>
                     <div class="input-group location-search">
-                        <input type="text" class="form-control" placeholder="Search by location name..." name="location_name" id="location_name" autofocus value="{% if location_name %}{{ location_name }}{% endif %}" required>
+                        <input type="text" class="form-control" placeholder="Search by node, way, or relation ID..." name="location_id" id="location_id" autofocus value="{% if location_id %}{{ location_id }}{% endif %}" required>
                     <span class="input-group-btn">
                         <button class="btn btn-default" id="location-search">Go!</button>
                     </span>
@@ -82,11 +67,12 @@
 {% endif %}
 {% if features %}
     <div class="row">
+        {% if feature_count == 0 %}
         <div class="col-sm-12">
-            <h2><b>Results</b> ({{ feature_count }})</h2>
+            <h2>No results</h2>
         </div>
+        {% else %}
         <div class="col-sm-12">
-            {% if feature_count > 0 %}
             <div class="row">
                 <div class="col-md-12 col-lg-5">
                     <div id="location_map" style="height:400px; margin-top:30px;"></div>
@@ -143,8 +129,8 @@
                     </table>
                 </div>
             </div>
-            {% endif %}
         </div>
+        {% endif %}
     </div>
 {% endif %}
 {% endblock %}

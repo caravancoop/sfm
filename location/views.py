@@ -43,21 +43,14 @@ class LocationCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('view-location', kwargs={'pk' : self.object.id})
 
-    def queryOverpass(self, location_type, location_country, location_name):
-        # search by location type, country, and name
-        # query_fmt = 'area["ISO3166-1"="{location_country}"];{location_type}(area)["name"~"^{location_name}",i];(._;>;);out;'
-
-        # search by location type, country, name, and english name
-        query_fmt = 'area["ISO3166-1"="{location_country}"];{location_type}(area)[~"^nam[e|e:en]"~"^{location_name}",i];(._;>;);out;'
-
-        # search by location type and name
-        # query_fmt = '{location_type}[~"^nam[e|e:en]"~"^{location_name}",i];(._;>;);out;'
+    def queryOverpass(self, location_type, location_id):
+        # search by location ID
+        query_fmt = '( node({location_id}); way({location_id}); rel({location_id}); ); out;'
 
         overpass_endpoint = 'https://overpass.kumi.systems/api/interpreter'
         api = overpy.Overpass(url=overpass_endpoint)
         query = query_fmt.format(location_type=location_type,
-                                 location_country=location_country,
-                                 location_name=location_name)
+                                 location_id=location_id)
 
         response = api.query(query)
 
@@ -74,6 +67,23 @@ class LocationCreate(LoginRequiredMixin, CreateView):
                     'geometry': {
                         'type': 'Point',
                         'coordinates': [float(feature.lon), float(feature.lat)],
+                    },
+                    'properties': feature.tags,
+                }
+                feat['properties']['id'] = feature.id
+                feature_collection['features'].append(feat)
+                all_ids.append(feature.id)
+
+        if location_type == 'way':
+            print("This is a way!")
+            for feature in response.ways:
+                print(feature.get_nodes(resolve_missing=True))
+
+                feat = {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Way',
+                        'nodes': feature.get_nodes(resolve_missing=True),
                     },
                     'properties': feature.tags,
                 }
@@ -130,21 +140,18 @@ class LocationCreate(LoginRequiredMixin, CreateView):
 
         if self.request.method == 'GET':
             location_type = self.request.GET.get('location_type')
-            location_country = self.request.GET.get('location_country')
-            location_name = self.request.GET.get('location_name')
+            location_id = self.request.GET.get('location_id')
 
-            if location_name and location_type and location_country:
+            if location_id and location_type:
                 try:
                     context['features'] = self.queryOverpass(location_type,
-                                                             location_country,
-                                                             location_name)
+                                                             location_id)
                     context['feature_count'] = len(context['features']['features'])
                 except overpy.exception.OverpassTooManyRequests:
                     context['overpass_error'] = True
 
             context['location_type'] = location_type
-            context['location_country'] = location_country
-            context['location_name'] = location_name
+            context['location_id'] = location_id
 
         return context
 
