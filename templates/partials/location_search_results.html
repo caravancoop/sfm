@@ -28,25 +28,23 @@
     {% endif %}
 
     <!-- Page numbers -->
-    {% if pages >= 10 and page >= 9 %}
+    {% if pages >= 5 and page >= 4 %}
     <!-- First page + ellipses -->
     <li><a href="?q={{query}}&amp;sort={{sort}}&amp;page=1">1</a></li>
     <li class="disabled"><a href="#">&#8230;</a></li>
     {% endif %}
 
     {% for num in paginator.page_range %}
-      {% if not forloop.last and page|absubtract:num < 4 %}
+      {% if not forloop.last and page|absubtract:num < 2 %}
         <li {% if page == num %}class="active"{% endif %}>
           <a class="active" href="?q={{query}}&amp;sort={{sort}}&amp;page={{num}}">{{num}}</a>
         </li>
       {% endif %}
     {% endfor %}
 
-    {% if pages >= 10 %}
-        {% if pages|subtract:page >= 10 %}
-            <! -- Ellipses before the last page -->
-            <li class="disabled"><a href="#">&#8230;</a></li>
-        {% endif %}
+    {% if pages >= 5 and pages|subtract:page >= 3 %}
+        <! -- Ellipses before the last page -->
+        <li class="disabled"><a href="#">&#8230;</a></li>
     {% endif %}
 
     <!-- Last page -->
