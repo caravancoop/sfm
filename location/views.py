@@ -16,6 +16,7 @@ from django.views.generic import ListView, DeleteView
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from countries_plus.models import Country
 
@@ -45,7 +46,7 @@ class LocationCreate(LoginRequiredMixin, CreateView):
 
     def queryOverpass(self, location_type, location_id):
         # search by location ID
-        query_fmt = '( node({location_id}); way({location_id}); rel({location_id}); ); out;'
+        query_fmt = '{location_type}({location_id});out;'
 
         overpass_endpoint = 'https://overpass.kumi.systems/api/interpreter'
         api = overpy.Overpass(url=overpass_endpoint)
@@ -162,8 +163,36 @@ class LocationCreate(LoginRequiredMixin, CreateView):
 class LocationList(ListView):
     model = Location
     template_name = 'location/list.html'
+    per_page = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['locations'] = Location.objects.all()
+        context['results'] = Location.objects.all()
+
+        if self.request.method == 'GET':
+            query = self.request.GET.get('q')
+            sort = self.request.GET.get('sort')
+            page = self.request.GET.get('page', default=1)
+
+            if query:
+                context['results'] = Location.objects.filter(name__icontains=query)
+                context['query'] = query
+
+            if sort:
+                context['results'] = context['results'].order_by(sort)
+                context['sort'] = sort
+
+            paginator = Paginator(context['results'], self.per_page)
+            context['page'] = int(page)
+            context['pages'] = int(paginator.num_pages)
+
+            try:
+                context['results'] = paginator.page(page)
+            except PageNotAnInteger:
+                context['results'] = paginator.page(1)
+            except EmptyPage:
+                context['results'] = paginator.page(paginator.num_pages)
+
+        context['paginator'] = paginator
+        context['hits'] = paginator.count
         return context

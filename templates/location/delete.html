@@ -1,43 +1,80 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+
 {% block extra_head %}
      <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
 {% endblock %}
 
 {% block content %}
-
 <div class="row">
-    <div class="col-sm-6">
-        <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Location: {{location.name}}</h2>
+    <div class="col-md-12">
+    <div class="detail-header">
+        <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Location: <b>{{location.name}}</b></h2>
+        <p><b>ID:</b> {{location.id}}</p>
+        <p><b>Type:</b> {{location.feature_type}}</p>
     </div>
-    <div class="col-sm-6">
-    </div>
+  </div>
 </div>
 
 <div class="row">
-    <div class="col-sm-6">
-        <div id="location_map" style="height:300px;"></div>
+    <div class="col-md-6">
+        <div id="location_map" style="height:300px; margin-top:30px;"></div>
     </div>
-    <div class="col-sm-6">
-        <p>
-            <strong>OSM ID:</strong> {{ location.id }}
-        </p>
-        <p>
-            <strong>Country code:</strong> {{ location.country_code }}
-        </p>
-        <p>
-            <strong>Feature type:</strong> {{ location.feature_type }}
-        </p>
-        <p>
-            Are you sure you want to delete "{{ object }}"?
-            <form action="" method="post" class="form">
-                {% csrf_token %}
-                <input class="btn btn-danger" type="submit" value="Confirm" />
-            </form>
-        </p>
+    <div class="table-responsive col-md-6">
+        <table class="table table-striped table-condensed search-results-table">
+        <thead>
+        </thead>
+        <tbody>
+          <tr>
+              <td><b>Name</b></td>
+              <td>{{ location.name }}</td>
+          </tr>
+          {% if location.tags.int_name %}
+          <tr>
+              <td><b>International Name</b></td>
+              <td>{{ location.tags.int_name }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+              <td><b>OSM ID</b></td>
+              <td>{{ location.id }}</td>
+          </tr>
+          <tr>
+              <td><b>Type</b></td>
+              <td>{{ location.feature_type }}</td>
+          </tr>
+          {% if location.tags.is_in %}
+          <tr>
+              <td><b>In</b></td>
+              <td>{{ location.tags.is_in }}</td>
+          </tr>
+          {% elif location.tags.admin_level %}
+          <tr>
+              <td><b>Admin Level</b></td>
+              <td>{{ location.tags.admin_level }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+              <td></td>
+              <td align="right">
+                <i>Are you sure you want to delete "{{ object }}"?</i>
+              </td>
+          </tr>
+          <tr>
+              <td></td>
+              <td align="right">
+                <form action="" method="post" class="form">
+                    {% csrf_token %}
+                    <input class="btn btn-danger" type="submit" value="Confirm" />
+                </form>
+              </td>
+          </tr>
+        </tbody>
+        </table>
     </div>
 </div>
+
 {% endblock %}
 {% block extra_js %}
     <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
@@ -53,7 +90,8 @@
                 L.geoJson(geom)
             );
             areas.addTo(area_map);
-            area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+            area_map.fitBounds(areas.getBounds(), {'maxZoom': 12});
+            area_map.scrollWheelZoom.disable();
         });
     </script>
 {% endblock %}

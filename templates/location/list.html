@@ -1,37 +1,214 @@
 {% extends "base.html" %}
-{% load tablesort %}
-
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load help %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+{% endblock %}
 {% block content %}
-<h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Locations</h2>
+<div class="row">
+    <form class="form">
+        <div class="col-xs-12 col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title"><i class="fa fa-thumb-tack"></i>&nbsp <b>{% trans 'Locations' %}</b></h4>
+            </div>
+            <div class="panel-body">
+              <a href="{% url 'create-location' %}" class="btn btn-success">
+                  <i class="fa fa-plus-circle"> </i>&nbsp Add new location
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-8 pull-right">
+            <div class="input-group main-search">
+                <input type="text" class="form-control input-lg" placeholder="{% trans 'Search for a location by name' %}..." name="q" {% if query %}value="{{ query }}{% endif %}" id="q" autofocus>
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-lg" type="submit">{% trans "Go!" %}</button>
+                </span>
+            </div>
+        </div>
+    </form>
 
-<a href="{% url 'create-location' %}" class="btn btn-success">
-    <i class="fa fa-plus-circle"> </i>&nbsp Add new location
-</a>
-
-<div class="responsive-table">
-    <table class="table table-striped table-condensed search-results-table">
-        <thead>
-            <tr>
-                <th>OSM ID</th>
-                <th>Name</th>
-                <th>Feature type</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for location in locations %}
-            <tr>
-                <td><a href="/location/view/{{location.id}}">{{ location.id }}</a></td>
-                <td><a href="/location/view/{{location.id}}">{{ location.name }}</a></td>
-                <td>{{ location.feature_type }}</td>
-                <td>
-                    <a href="{% url 'delete-location' location.id %}" class="btn btn-danger">
-                        <i class="fa fa-remove"> </i> Delete
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        </table>
+    <div class="col-xs-12 col-sm-8 pull-right">
+    {% if hits == 0 %}
+        <h1>{% trans "No results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query  }}&rdquo;{% endif %}</h1>
+    {% endif %}
+    {% if results %}
+        {% with objects=results hit_count=hits %}
+            {% include 'partials/location_search_results.html' %}
+        {% endwith %}
+    {% else %}
+        <br />
+        <p>
+            {% trans "For better results, try adjusting your search filters." %}
+        {% help href='whowasincommand/generalfunctions.html#how-do-i-find-what-im-looking-for' %}
+        </p>
+        <p>{% trans "Think we're missing something?" %} <a href="mailto:technical@securityforcemonitor.org">{% trans "Let us know!" %}</a></p>
+    {% endif %}
+    </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/select2.min.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.min.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.es.js" %}"></script>
+<script src="{% static "js/bootstrap-datepicker.fr.js" %}"></script>
+<script type="text/javascript">
+    var osm_opts = {
+        ajax: {
+            url: "{% url 'osm-autocomplete' %}",
+            datType: 'json',
+            delay: 250,
+            data: function(params) {
+                return {
+                    q: params.term,
+                    types: ['city', 'district'],
+                };
+            },
+            cache: true,
+            processResults: function(data, params) {
+                if (data.length >= 1) {
+                    return { results: data };
+                } else {
+                        return { results: [] };
+                }
+            }
+        },
+        escapeMarkup: function(markup){ return markup; },
+        placeholder: 'Location',
+        minimumInputLength: 2,
+        allowClear: true
+    };
+    $(document).ready(function(){
+        // Language code
+        {% get_current_language as LANGUAGE_CODE %}
+            var language = '{{ LANGUAGE_CODE }}'
+
+        // Autofocus input on older browsers
+        if (!("autofocus" in document.createElement("input"))) {
+            $('#q').focus();
+        }
+
+        // Show dropdowns containing selected facets
+        $('.panel-show').addClass('in');
+
+        // Init dropdowns
+        $('.filter-heading').on('click', function(e) {
+            if ($(this).parent().siblings('.panel-body').hasClass("in")) {
+                $(this).find('i').removeClass("fa-minus").addClass("fa-plus");
+            } else {
+                $(this).find('i').removeClass("fa-plus").addClass("fa-minus");
+            }
+        });
+
+        // Init tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+
+        // Init datepicker
+        $('.datepicker').datepicker({
+            'autoclose': true,
+            format: "yyyy-mm-dd",
+            endDate: "0d",
+            clearBtn: true,
+            forceParse: false,
+            language: language
+        });
+
+        // Facet logic
+        var existing_q = decodeURIComponent("{{ q_filters }}")
+                         .replace(/&amp;/g, '&')
+                         .replace(/\+/g, ' ');
+
+        var existing_q_no_query = decodeURIComponent("{{ filters_no_query }}")
+                                  .replace(/&amp;/g, '&')
+                                  .replace(/\+/g, ' ');
+
+        var base_url = '/' + language
+
+        $(".filter-value").click(function() {
+            var addtl_filter = $(this).attr('data');
+            if (existing_q) {
+                window.location.assign(base_url + '/search/?' + existing_q +
+                                       '&selected_facets=' +
+                                       encodeURIComponent(addtl_filter));
+            } else {
+                window.location.assign(base_url + '/search/?selected_facets=' +
+                                       encodeURIComponent(addtl_filter));
+            }
+        });
+
+        // Clicking on "Did you mean?" queries should re-search
+        $('.did-you-mean').click(function(e) {
+            e.preventDefault();
+            var term = $(this).html();
+            if (existing_q) {
+                window.location.assign(base_url + '/search/?' + existing_q_no_query +
+                                       '&q=' + encodeURIComponent(term));
+            } else {
+                window.location.assign(base_url + '/search/?q=' +
+                                       encodeURIComponent(term));
+            }
+        });
+
+        $(".remove-filter-value").click(function() {
+            var to_remove = encodeURIComponent('selected_facets=' +
+                                               $(this).attr('data'));
+            var existing_components = existing_q.split("&");
+            var new_components = $.grep(existing_components, function(value) {
+                return encodeURIComponent(value) != to_remove;
+            });
+            window.location.assign(base_url + '/search/?' + new_components.join('&'));
+        });
+
+        $(".remove-order-value").click(function() {
+            var to_remove = $(this).attr('data');
+            var existing_components = existing_q.split("&");
+            for (var i = existing_components.length -1; i >= 0 ; i--) {
+                var el = existing_components[i];
+                if (el.includes('ascending') ||
+                    el.includes(to_remove) ||
+                    el.includes('descending')) {
+                        existing_components.splice(i, 1);
+                }
+            }
+            window.location.assign(base_url + '/search/?' + existing_components.join('&'));
+        });
+
+        // Init select2 boxes
+        $('#location-filter').select2(osm_opts);
+        $('#entity-type').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('#radius').select2({
+            minimumResultsForSearch: Infinity
+        });
+
+        $('.merge').on('click', function(e){
+            e.preventDefault();
+            var entity_type = $(e.target).data('entity_type');
+            var entities = [];
+            $.each($('.' + entity_type + '_ids'), function(i, entity){
+                if($(entity).is(':checked')){
+                    entities.push($(entity).data('entity_id'));
+                }
+            });
+            entities = entities.join(',');
+
+            var params = {
+                'entity_type': entity_type,
+                'entities': entities
+            };
+
+            var redirect_path = "{% url 'merge' %}";
+            var redirect_url = window.location.protocol + '//'+ window.location.hostname + redirect_path + $.param(params);
+
+            window.location.assign(redirect_path + '?' + $.param(params));
+
+        });
+    });
+
+</script>
 {% endblock %}
