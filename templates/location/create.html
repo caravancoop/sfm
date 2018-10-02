@@ -66,69 +66,69 @@
     </div>
 {% endif %}
 {% if feature_count == 0 %}
+<div class="col-sm-12">
+    <h2>No results</h2>
+</div>
+{% elif feature_count > 0 %}
+<div class="row">
     <div class="col-sm-12">
-        <h2>No results</h2>
-    </div>
-{% else %}
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="row">
-                <div class="col-md-12 col-lg-5">
-                    <div id="location_map" style="height:400px; margin-top:30px;"></div>
-                </div>
-                <div class="table-responsive col-md-12 col-lg-7">
-                    <table class="table table-hover table-condensed search-results-table">
-                    <thead>
-                        <tr>
-                            <th>OSM ID</th>
-                            <th>Name</th>
+        <div class="row">
+            <div class="col-md-12 col-lg-5">
+                <div id="location_map" style="height:400px; margin-top:30px;"></div>
+            </div>
+            <div class="table-responsive col-md-12 col-lg-7">
+                <table class="table table-hover table-condensed search-results-table">
+                <thead>
+                    <tr>
+                        <th>OSM ID</th>
+                        <th>Name</th>
 
-                            {% if location_type == 'node' %}
-                            <th>In</th>
-                            {% else %}
-                            <th>Admin Level</th>
-                            {% endif %}
+                        {% if location_type == 'node' %}
+                        <th>In</th>
+                        {% else %}
+                        <th>Admin Level</th>
+                        {% endif %}
 
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for feature in features.features %}
-                            <form class="form" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="id" value="{{ feature.properties.id }}" />
-                                <input type="hidden" name="name" value="{{ feature.properties.name }}" />
-                                <input type="hidden" name="feature_type" value="{{ location_type }}" />
-                                <input type="hidden" name="tags" value="{{ feature.json_properties }}" />
-                                <input type="hidden" name="geometry" value="{{ feature.geometry|safe }}" />
-                                <tr>
-                                    <td>{{ feature.properties.id }}</td>
-                                    <td>{{ feature.properties.name }}</td>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feature in features.features %}
+                        <form class="form" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ feature.properties.id }}" />
+                            <input type="hidden" name="name" value="{{ feature.properties.name }}" />
+                            <input type="hidden" name="feature_type" value="{{ location_type }}" />
+                            <input type="hidden" name="tags" value="{{ feature.json_properties }}" />
+                            <input type="hidden" name="geometry" value="{{ feature.geometry|safe }}" />
+                            <tr>
+                                <td>{{ feature.properties.id }}</td>
+                                <td>{{ feature.properties.name }}</td>
 
-                                    {% if location_type == 'node' %}
-                                    <td>{{ feature.properties.is_in }}</td>
-                                    {% else %}
-                                    <td>{{ feature.properties.admin_level }}</td>
-                                    {% endif %}
+                                {% if location_type == 'node' %}
+                                <td>{{ feature.properties.is_in }}</td>
+                                {% else %}
+                                <td>{{ feature.properties.admin_level }}</td>
+                                {% endif %}
 
-                                    {% if feature.properties.saved == 'yes' %}
-                                        <td><a href='/location/view/{{feature.properties.id}}'>Go to &nbsp<i class="fa fa-arrow-right"></i></a></td>
-                                    {% else %}
-                                    <td>
-                                        <button class="btn btn-success">
-                                            <i class="fa fa-plus-circle"> </i> Add
-                                        </button>
-                                    </td>
-                                    {% endif %}
-                                </tr>
-                            </form>
-                        {% endfor %}
-                    </tbody>
-                    </table>
-                </div>
+                                {% if feature.properties.saved == 'yes' %}
+                                    <td><a href='/location/view/{{feature.properties.id}}'>Go to &nbsp<i class="fa fa-arrow-right"></i></a></td>
+                                {% else %}
+                                <td>
+                                    <button class="btn btn-success">
+                                        <i class="fa fa-plus-circle"> </i> Add
+                                    </button>
+                                </td>
+                                {% endif %}
+                            </tr>
+                        </form>
+                    {% endfor %}
+                </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 {% endif %}
 {% endblock %}
 
