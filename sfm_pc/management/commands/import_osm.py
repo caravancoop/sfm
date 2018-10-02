@@ -100,7 +100,6 @@ class Command(BaseCommand):
                 name VARCHAR,
                 country_code VARCHAR,
                 feature_type VARCHAR,
-                search_index tsvector,
                 PRIMARY KEY (id)
             )
         '''
@@ -115,6 +114,10 @@ class Command(BaseCommand):
             CREATE INDEX geometry_index ON osm_data USING GIST (geometry)
         """, raise_exc=False)
 
+        self.executeTransaction("""
+            ALTER TABLE osm_data ALTER COLUMN admin_level TYPE VARCHAR
+        """, raise_exc=False)
+
     def makeRawTable(self, country):
         create = '''
             CREATE TABLE raw_osm_data AS
@@ -123,12 +126,11 @@ class Command(BaseCommand):
                 localname,
                 hierarchy,
                 tags,
-                admin_level,
+                admin_level::VARCHAR,
                 name,
                 country_code,
                 geometry,
-                'boundary'::VARCHAR AS feature_type,
-                to_tsvector('english', COALESCE(name, ''))
+                'boundary'::VARCHAR AS feature_type
               FROM osm_boundaries
               WHERE country_code = :country_code
               UNION
@@ -137,15 +139,28 @@ class Command(BaseCommand):
                 name AS localname,
                 NULL::VARCHAR[] AS hierarchy,
                 NULL::jsonb AS tags,
-                admin_level::integer,
+                admin_level::VARCHAR,
                 name AS name,
                 country_code,
                 ST_Transform(way, 4326) AS geometry,
-                'point'::VARCHAR AS feature_type,
-                to_tsvector('english', COALESCE(name, ''))
+                'point'::VARCHAR AS feature_type
               FROM planet_osm_point
               WHERE name IS NOT NULL
                 AND country_code = :country_code
+              UNION
+              SELECT
+                osm_id,
+                MAX(name) AS localname,
+                NULL::VARCHAR[] AS hierarchy,
+                NULL::jsonb AS tags,
+                MAX(admin_level)::VARCHAR,
+                MAX(name) AS name,
+                NULL::VARCHAR AS country_code,
+                ST_Transform(ST_Union(way), 4326) AS geometry,
+                'polygon'::VARCHAR AS feature_type
+              FROM planet_osm_polygon
+              WHERE name IS NOT NULL
+              GROUP BY osm_id
         '''
 
         self.executeTransaction('DROP TABLE IF EXISTS raw_osm_data')
@@ -185,8 +200,7 @@ class Command(BaseCommand):
               name,
               country_code,
               geometry,
-              feature_type,
-              search_index
+              feature_type
             )
               SELECT raw.*
               FROM new_osm_data AS new
