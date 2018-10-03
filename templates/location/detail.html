@@ -10,7 +10,12 @@
 <div class="row">
     <div class="col-md-12">
     <div class="detail-header">
-        <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Location: <b>{{location.name}}</b></h2>
+        <small class="pull-right">
+          <a href="{% url 'create-location' %}" class="btn btn-success">
+              <i class="fa fa-plus-circle"> </i>&nbsp Add new location
+          </a>
+        </small>
+        <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp <b>{{location.name}}</b></h2>
         <p><b>ID:</b> {{location.id}}</p>
         <p><b>Type:</b> {{location.feature_type}}</p>
     </div>
