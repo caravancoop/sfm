@@ -17,6 +17,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
 
 from countries_plus.models import Country
 
@@ -40,7 +41,7 @@ class LocationDelete(LoginRequiredMixin, DeleteView):
 class LocationCreate(LoginRequiredMixin, CreateView):
     form_class = LocationForm
     template_name = 'location/create.html'
-    # success_url = reverse_lazy('list-location')
+
     def get_success_url(self):
         return reverse('view-location', kwargs={'pk' : self.object.id})
 
@@ -175,7 +176,7 @@ class LocationList(ListView):
             page = self.request.GET.get('page', default=1)
 
             if query:
-                context['results'] = Location.objects.filter(name__icontains=query)
+                context['results'] = Location.objects.filter(Q(name__icontains=query) | Q(id__startswith=query))
                 context['query'] = query
 
             if sort:
