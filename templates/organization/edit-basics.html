@@ -1,6 +1,7 @@
 {% extends 'organization/base-organization.html' %}
 {% load i18n %}
 {% load countries %}
+{% load citations %}
 
 {% block form_content %}
     <h2>{% trans "Edit basics" %}</h2>
@@ -11,7 +12,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Name" %}</label>
+                <label class="control-label">{{ form.name.label }}</label>
                 <input id="id_name" type="text" class="form-control sourced" name="name" value="{{ form.instance.name.get_value }}" />
                 {% if form.name.errors %}
                     {% for error in form.name.errors %}
@@ -19,6 +20,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_name_source">
+            {% for source in form.instance.name.get_sources %}
+                {% source_input 'name' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row aliases-row field-bg">
@@ -28,7 +34,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Other names" %}</label>
+                <label class="control-label">{{ form.aliases.label }}</label>
                 <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
                     {% for alias in form.instance.aliases.get_list %}
                         <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
@@ -41,6 +47,37 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_aliases_source">
+            {% for source in form.instance.aliases.get_list.0.get_sources %}
+                {% source_input 'aliases' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row classification-row field-bg">
+        <div class="col-sm-12">
+            {% if form.classification.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.classification.label }}</label>
+                <select id="id_classification" class="form-control select2-target" name="classification" multiple="multiple">
+                    {% for classification in form.instance.classification.get_list %}
+                        <option value="{{ classification.get_field.id }}" selected=true>{{ classification.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.classification.errors %}
+                    {% for error in form.classification.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_classification_source">
+            {% for source in form.instance.classification.get_list.0.get_sources %}
+                {% source_input 'classification' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row division_id-row field-bg">
         <div class="col-sm-12">
@@ -49,7 +86,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Country" %}</label>
+                <label class="control-label">{{ form.division_id.label }}</label>
                 <select id="id_division_id" class="form-control select2-target" name="division_id">
                     {% if form.instance.division_id %}
                         <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
@@ -57,7 +94,7 @@
                         <option value="" selected=true>------</option>
                     {% endif %}
                     {% for country in countries %}
-                        <option value="ocd-division/country-{{ country.iso|lower }}">{{ country.name }}</option>
+                        <option value="ocd-division/country:{{ country.iso|lower }}">{{ country.name }}</option>
                     {% endfor %}
                 </select>
                 {% if form.division_id.errors %}
@@ -67,6 +104,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_division_id_source">
+            {% for source in form.instance.division_id.get_sources %}
+                {% source_input 'division_id' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row firstciteddate-row field-bg">
         <div class="col-sm-12">
@@ -75,7 +117,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "First cited date" %}</label>
+                <label class="control-label">{{ form.firstciteddate.label }}</label>
                 <input type="text" name="firstciteddate" id="id_firstciteddate" class="form-control sourced" value="{{ form.instance.firstciteddate }}"/>
                 {% if form.firstciteddate.errors %}
                     {% for error in form.firstciteddate.errors %}
@@ -83,6 +125,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_firstciteddate_source">
+            {% for source in form.instance.firstciteddate.get_sources %}
+                {% source_input 'firstciteddate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row lastciteddate-row field-bg">
@@ -92,7 +139,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Last cited date" %}</label>
+                <label class="control-label">{{ form.lasciteddate.label }}</label>
                 <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.instance.lastciteddate }}">
                 {% if form.lastciteddate.errors %}
                     {% for error in form.lastciteddate.errors %}
@@ -100,6 +147,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_lastciteddate_source">
+            {% for source in form.instance.lastciteddate.get_sources %}
+                {% source_input 'lastciteddate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row realstart-row field-bg">
@@ -112,9 +164,9 @@
                 <div class="checkbox">
                     <label class="control-label">
                         {% if form.instance.realstart.get_value.value %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {% trans "Real start?" %}
+                            <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
                         {% else %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {% trans "Real start?" %}
+                            <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
                         {% endif %}
                     </label>
                 </div>
@@ -133,8 +185,8 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Open ended" %}</label>
-                <select id="id_open_ended" class="form-control sourced-dropdown" name="open_ended">
+                <label class="control-label">{{ form.open_ended.label }}</label>
+                <select id="id_open_ended" class="form-control" name="open_ended">
                     <option value="">------</option>
                     {% for value, choice in form.fields.open_ended.choices %}
                         {% if form.instance.open_ended.get_value.value == choice %}
@@ -159,6 +211,9 @@
         $(document).ready(function(){
             loadSources({'target': $('#id_name')});
             $('#id_alias').select2({
+                'tags': true
+            });
+            $('#id_classification').select2({
                 'tags': true
             });
 

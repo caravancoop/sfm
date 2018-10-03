@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load countries %}
 {% load help %}
+{% load citations %}
 
 {% block above_form %}
 <h3 id="relationships">
@@ -54,12 +55,10 @@
             {% endif %}
                 <label class="control-label">{% trans "Relationship type" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
-                    <select id="id_relationship_type" class="form-control sourced" name="parent">
+                    <select id="id_relationship_type" class="form-control sourced" name="parent" disabled=true>
                         <option value="{{ current_composition.parent.get_value.value.id }}" selected=true>Parent</option>
-                        <option value="{{ current_composition.parent.get_value.value.id }}">Child</option>
                 {% elif current_composition.child.get_value.value == organization %}
-                    <select id="id_relationship_type" class="form-control sourced" name="child">
-                        <option value="{{ current_composition.child.get_value.value.id }}">Parent</option>
+                    <select id="id_relationship_type" class="form-control sourced" name="child" disabled=true>
                         <option value="{{ current_composition.child.get_value.value.id }}" selected=true>Child</option>
                     {% endif %}
                 </select>
@@ -70,6 +69,11 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_name_source">
+            {% for source in form.instance.name.get_sources %}
+                {% source_input 'name' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row classification-row field-bg">
         <div class="col-sm-12">
@@ -78,8 +82,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Classification" %}</label>
-                classification {{ form.instance.classification.get_value }}
+                <label class="control-label">{{ form.classification.label }}</label>
                 <input type="text" value="{{ form.instance.classification.get_value.value }}" class="form-control sourced" name="classification" />
                 {% if form.classification.errors %}
                     {% for error in form.classification.errors %}
@@ -87,6 +90,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_classification_source">
+            {% for source in form.instance.classification.get_sources %}
+                {% source_input 'classification' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row related_organization-row field-bg">
@@ -98,10 +106,10 @@
             {% endif %}
                 <label class="control-label">{% trans "Related organization" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
-                    <select id="id_related_organization" class="form-control" name="child">
+                    <select id="id_related_organization" class="form-control" name="child" disabled=true>
                         <option value="{{ form.instance.child.get_value.value.id }}">{{ form.instance.child.get_value.value }}</option>
                 {% elif current_composition.child.get_value.value == organization %}
-                    <select id="id_related_organization" class="form-control" name="parent">
+                    <select id="id_related_organization" class="form-control" name="parent" disabled=true>
                         <option value="{{ form.instance.parent.get_value.value.id }}">{{ form.instance.parent.get_value.value }}</option>
                 {% endif %}
                 </select>
@@ -111,6 +119,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_parent_source">
+            {% for source in form.instance.parent.get_sources %}
+                {% source_input 'parent' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row related_organization_aliases-row">
@@ -144,7 +157,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Date first cited" %}</label>
+                <label class="control-label">{{ form.startdate.label }}</label>
                 <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}">
                 {% if form.startdate.errors %}
                     {% for error in form.startdate.errors %}
@@ -152,6 +165,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_startdate_source">
+            {% for source in form.instance.startdate.get_sources %}
+                {% source_input 'startdate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row realstart-row field-bg">
@@ -164,9 +182,9 @@
                 <div class="checkbox">
                     <label class="control-label">
                         {% if form.instance.realstart.get_value.value %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" checked="true" /> {% trans "Start date?" %}
+                            <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
                         {% else %}
-                            <input type="checkbox" name="realstart" id="id_realstart" class="sourced" /> {% trans "Start date?" %}
+                            <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
                         {% endif %}
                     </label>
                 </div>
@@ -185,7 +203,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Date last cited" %}</label>
+                <label class="control-label">{{ form.enddate.label }}</label>
                 <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
                 {% if form.enddate.errors %}
                     {% for error in form.enddate.errors %}
@@ -193,6 +211,11 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_enddate_source">
+            {% for source in form.instance.enddate.get_sources %}
+                {% source_input 'enddate' source %}
+            {% endfor %}
         </div>
     </div>
     <div class="row open_ended-row field-bg">
@@ -202,8 +225,8 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Open ended" %}</label>
-                <select id="id_open_ended" class="form-control sourced-dropdown" name="open_ended">
+                <label class="control-label">{{ form.open_ended.label }}</label>
+                <select id="id_open_ended" class="form-control" name="open_ended">
                     <option value="">------</option>
                     {% for value, choice in form.fields.open_ended.choices %}
                         {% if form.instance.open_ended.get_value.value == value %}
@@ -226,34 +249,7 @@
 {% block extra_extra_js%}
     <script type="text/javascript">
         $(document).ready(function(){
-
             loadSources({target: $('#id_relationship_type')});
-
-            $('#id_relationship_type').on('change', function(e){
-                if($('#id_relationship_type').prop('name') == 'parent'){
-                    $('#id_relationship_type').prop('name', 'child');
-                    $('#id_related_organization').prop('name', 'parent');
-                } else if ($('#id_relationship_type').prop('name') == 'child'){
-                    $('#id_relationship_type').prop('name', 'parent');
-                    $('#id_related_organization').prop('name', 'child');
-                }
-                loadSources({target: $('#id_relationship_type')});
-            });
-            $('#id_related_organization').select2({
-                ajax: {
-                    url: "{% url 'organization-autocomplete' %}",
-                    data: function(params){
-                        var query = {
-                            q: params.term
-                        }
-                        return query
-                    }
-                }
-            });
-            $('#id_related_organization').on('select2:select', function(e){
-                $('#related_organization_aliases').val(e.params.data.aliases);
-                $('#related_organization_country').val(e.params.data.country);
-            })
         })
     </script>
 {% endblock%}

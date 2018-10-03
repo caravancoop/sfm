@@ -147,12 +147,10 @@ def get_commanders(mem_start, mem_end, compositions, relationship='child'):
         child_id = child.value.uuid
 
         child_commanders_query = '''
-            SELECT DISTINCT(person.id)
+            SELECT DISTINCT(membership.id)
             FROM membershipperson_membershipperson AS membership
             JOIN membershipperson_membershippersonmember AS member
               ON membership.id = member.object_ref_id
-            JOIN person_person AS person
-              ON member.value_id = person.id
             JOIN membershipperson_membershippersonorganization AS member_org
               ON membership.id = member_org.object_ref_id
             JOIN organization_organization AS organization
@@ -311,6 +309,14 @@ class PersonEditBasicsView(PersonEditView):
 
         return context
 
+    def get_success_url(self):
+        person_id = self.kwargs[self.slug_field_kwarg]
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-person', kwargs={'slug': person_id})
+        else:
+            return super().get_success_url()
+
 
 class PersonEditPostingsView(PersonEditView):
     model = MembershipPerson
@@ -330,6 +336,15 @@ class PersonEditPostingsView(PersonEditView):
         context['memberships'] = memberships
 
         return context
+
+    def get_success_url(self):
+        person_id = self.kwargs[self.slug_field_kwarg]
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-person-postings', kwargs={'person_id': person_id,
+                                                           'pk': self.kwargs['pk']})
+        else:
+            return super().get_success_url()
 
 
 class PersonCreateView(PersonEditView, CreateView):

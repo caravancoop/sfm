@@ -3,7 +3,7 @@ import uuid
 import reversion
 
 from django.db import models, connection
-from django.db.models.functions import Coalesce, Value
+from django.db.models.functions import Coalesce
 from django.contrib.gis.geos import Point
 from django.utils.translation import ugettext as _
 from django.db.models import Max
@@ -91,7 +91,7 @@ class Person(models.Model, BaseModel, VersionsMixin):
                    .select_related('object_ref')\
                    .annotate(lcd=Coalesce('object_ref__membershippersonfirstciteddate__value',
                                           'object_ref__membershippersonlastciteddate__value',
-                                          Value('1000-0-0')))\
+                                          models.Value('1000-0-0')))\
                    .order_by('-lcd')
 
         return mems
@@ -137,7 +137,7 @@ class PersonName(ComplexField):
 class PersonAlias(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Alias")
+    field_name = _("Other names")
 
 
 @translated
@@ -196,7 +196,7 @@ class PersonNotes(ComplexField):
 class PersonDivisionId(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _('Division ID')
+    field_name = _('Country')
 
 
 @translated
@@ -205,4 +205,4 @@ class PersonDivisionId(ComplexField):
 class PersonExternalLink(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Notes")
+    field_name = _("External links")

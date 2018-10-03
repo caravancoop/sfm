@@ -15,6 +15,7 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.db import connection
+from django.core.urlresolvers import reverse
 
 
 CONFIDENCE_MAP = {
@@ -745,6 +746,7 @@ def import_class(cl):
     m = __import__(cl[0:d], globals(), locals(), [classname])
     return getattr(m, classname)
 
+
 def format_facets(facet_dict):
     '''
     pysolr formats facets in a weird way. This helper function converts their
@@ -789,6 +791,7 @@ def format_facets(facet_dict):
 
     return out
 
+
 def get_command_edges(org_id, when=None, parents=True):
 
     edges = []
@@ -805,6 +808,7 @@ def get_command_edges(org_id, when=None, parents=True):
 
     return edges
 
+
 def get_command_nodes(org_id, when=None):
     hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
     # Iterate over the hierarchy_list, and convert/modify hierarchy object, as needed.
@@ -818,4 +822,37 @@ def get_command_nodes(org_id, when=None):
         nodes.append(trimmed)
 
     return nodes
+
+
+def get_source_context(field_name, source, uncommitted=True):
+    context = {
+        'field_name': field_name,
+        'uncommitted': uncommitted,
+        'id': source.uuid,
+        'publication': source.publication,
+        'publication_country': source.publication_country,
+        'title': source.title,
+        'access_points': [],
+        'date_added': None,
+        'source_url': source.source_url,
+        'source_detail_url': reverse('view-source', kwargs={'pk': source.uuid}),
+    }
+
+    if source.date_added:
+        context['date_added'] = source.date_added.strftime('%Y-%m-%d')
+
+    for access_point in source.accesspoint_set.all():
+        access_point_info = {
+            'archive_url': access_point.archive_url,
+            'id': access_point.uuid,
+            'page_number': access_point.page_number,
+        }
+
+        if access_point.accessed_on:
+            access_point_info['accessed_on'] = access_point.accessed_on.strftime('%Y-%m-%dT%H:%M:%S')
+
+        context['access_points'].append(access_point_info)
+
+    return context
+
 

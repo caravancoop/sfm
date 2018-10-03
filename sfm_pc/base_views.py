@@ -9,6 +9,7 @@ from django.views.decorators.cache import cache_page, never_cache
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 
 from reversion.views import RevisionMixin
 
@@ -33,9 +34,9 @@ class NeverCacheMixin(object):
         return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
 
 
+@method_decorator([never_cache, transaction.atomic], name='dispatch')
 class BaseEditView(LoginRequiredMixin,
                    UpdateView,
-                   NeverCacheMixin,
                    RevisionMixin):
     '''
     SubClasses need to implement meta like so:
@@ -58,6 +59,14 @@ class BaseEditView(LoginRequiredMixin,
         form_kwargs['post_data'] = self.request.POST
         form_kwargs['object_ref_pk'] = self.kwargs[self.slug_field_kwarg]
         return form_kwargs
+
+    def form_invalid(self, form):
+        for field in form.fields.values():
+            if hasattr(field, 'new_instances'):
+                for model in field.new_instances:
+                    model.delete()
+
+        return super().form_invalid(form)
 
 
 ################################################################

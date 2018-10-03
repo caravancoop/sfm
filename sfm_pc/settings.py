@@ -240,49 +240,84 @@ ALLOWED_CLASS_FOR_NAME = [
 OSM_BASE_URL = 'https://wambachers-osm.website/boundaries/exportBoundaries'
 
 OSM_DATA = [
-    # {
-    #     'country': 'Nigeria',
-    #     'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
-    #     'relation_id': '192787',
-    #     'country_code': 'ng',
-    # },
+    {
+        'country': 'Nigeria',
+        'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
+        'relation_id': '192787',
+        'country_code': 'ng',
+    },
     {
         'country': 'Mexico',
         'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
         'relation_id': '114686',
         'country_code': 'mx',
     },
-    # {
-    #     'country': 'Sierra Leone',
-    #     'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
-    #     'relation_id': '192777',
-    #     'country_code': 'sl',
-    # },
-    # {
-    #     'country': 'Democratic Republic of the Congo',
-    #     'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
-    #     'relation_id': '192795',
-    #     'country_code': 'cd',
-    # },
-    # {
-    #     'country': 'Liberia',
-    #     'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
-    #     'relation_id': '192780',
-    #     'country_code': 'lr',
-    # },
-    # {
-    #     'country': 'Sudan',
-    #     'pbf_url': 'http://download.geofabrik.de/africa/sudan-latest.osm.pbf',
-    #     'relation_id': '192789',
-    #     'country_code': 'sd',
-    # },
-    # {
-    #     'country': 'Egypt',
-    #     'pbf_url': 'http://download.geofabrik.de/africa/egypt-latest.osm.pbf',
-    #     'relation_id': '1473947',
-    #     'country_code': 'eg',
-    #
-    # }
+    {
+        'country': 'Sierra Leone',
+        'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
+        'relation_id': '192777',
+        'country_code': 'sl',
+    },
+    {
+        'country': 'Democratic Republic of the Congo',
+        'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
+        'relation_id': '192795',
+        'country_code': 'cd',
+    },
+    {
+        'country': 'Liberia',
+        'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
+        'relation_id': '192780',
+        'country_code': 'lr',
+    },
+    {
+        'country': 'Sudan',
+        'pbf_url': 'http://download.geofabrik.de/africa/sudan-latest.osm.pbf',
+        'relation_id': '192789',
+        'country_code': 'sd',
+    },
+    {
+        'country': 'Egypt',
+        'pbf_url': 'http://download.geofabrik.de/africa/egypt-latest.osm.pbf',
+        'relation_id': '1473947',
+        'country_code': 'eg',
+    },
+    {
+        'country': 'Philippines',
+        'pbf_url': 'http://download.geofabrik.de/asia/philippines-latest.osm.pbf',
+        'relation_id': '443174',
+        'country_code': 'ph',
+    },
+    {
+        'country': 'Myanmar',
+        'pbf_url': 'http://download.geofabrik.de/asia/myanmar-latest.osm.pbf',
+        'relation_id': '50371',
+        'country_code': 'mm',
+    },
+    {
+        'country': 'Saudi Arabia',
+        'pbf_url': 'http://download.geofabrik.de/asia/gcc-states-latest.osm.pbf',
+        'relation_id': '307584',
+        'country_code': 'sa',
+    },
+    {
+        'country': 'Bangladesh',
+        'pbf_url': 'http://download.geofabrik.de/asia/bangladesh-latest.osm.pbf',
+        'relation_id': '184640',
+        'country_code': 'bd',
+    },
+    {
+        'country': 'Uganda',
+        'pbf_url': 'http://download.geofabrik.de/africa/uganda-latest.osm.pbf',
+        'relation_id': '192796',
+        'country_code': 'ug',
+    },
+    {
+        'country': 'Rwanda',
+        'pbf_url': 'http://download.geofabrik.de/africa/rwanda-latest.osm.pbf',
+        'relation_id': '171496',
+        'country_code': 'rw',
+    },
 ]
 
 # Override built-in messages tags

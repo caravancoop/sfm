@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             FROM (
               SELECT id, value FROM violation_perpetratorclassification
             ) AS s
-            WHERE violation_violationperpetratorclassification.id = s.id
+            WHERE violation_violationperpetratorclassification.value_id = s.id
         '''),
         migrations.RunSQL('''
             UPDATE violation_violationtype SET
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             FROM (
               SELECT id, code AS value FROM violation_type
             ) AS s
-            WHERE violation_violationtype.id = s.id
+            WHERE violation_violationtype.value_id = s.id
         '''),
         migrations.RunPython(remake_views),
         migrations.RunSQL(
