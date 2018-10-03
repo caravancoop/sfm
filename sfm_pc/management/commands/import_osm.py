@@ -207,6 +207,7 @@ class Command(BaseCommand):
               FROM new_osm_data AS new
               JOIN raw_osm_data AS raw
                 ON new.id = raw.id
+                AND new.feature_type = raw.feature_type
         '''
 
         update_hierarchy = '''
