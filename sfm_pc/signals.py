@@ -19,22 +19,22 @@ def update_index(entity_type, object_id):
 
 
 @receiver(object_ref_saved, sender=Organization)
-def update_source_index(sender, **kwargs):
+def update_organization_index(sender, **kwargs):
     update_index('organizations', kwargs['object_id'])
 
 
 @receiver(object_ref_saved, sender=Person)
-def update_source_index(sender, **kwargs):
+def update_person_index(sender, **kwargs):
     update_index('people', kwargs['object_id'])
 
 
 @receiver(object_ref_saved, sender=Violation)
-def update_source_index(sender, **kwargs):
+def update_violation_index(sender, **kwargs):
     update_index('violations', kwargs['object_id'])
 
 
 @receiver(object_ref_saved, sender=MembershipPerson)
-def update_source_index(sender, **kwargs):
+def update_membership_index(sender, **kwargs):
     membership = MembershipPerson.objects.get(id=kwargs['object_id'])
 
     update_index('organizations', membership.organization.get_value().value.uuid)
@@ -42,7 +42,7 @@ def update_source_index(sender, **kwargs):
 
 
 @receiver(object_ref_saved, sender=Composition)
-def update_source_index(sender, **kwargs):
+def update_composition_index(sender, **kwargs):
     composition = Composition.objects.get(id=kwargs['object_id'])
 
     update_index('organizations', composition.parent.get_value().value.uuid)

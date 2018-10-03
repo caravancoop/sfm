@@ -3,13 +3,21 @@ import sys
 
 from django import forms
 from django.conf import settings
+from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField, BasePostingsForm
+from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField
 
 from organization.models import Organization
-from membershipperson.models import MembershipPersonOrganization
+
+from membershipperson.models import \
+    MembershipPerson, MembershipPersonRank, MembershipPersonRole, \
+    MembershipPersonTitle, MembershipPersonFirstCitedDate, \
+    MembershipPersonLastCitedDate, MembershipPersonRealStart, \
+    MembershipPersonRealEnd, MembershipPersonStartContext, \
+    MembershipPersonEndContext, Rank, Role, MembershipPersonOrganization, \
+    MembershipPersonMember
 
 from .models import Person, PersonName, PersonAlias, PersonGender, \
     PersonDivisionId, PersonDateOfDeath, PersonDateOfBirth, PersonExternalLink, \
@@ -31,14 +39,16 @@ class PersonBasicsForm(BaseEditForm):
         ('external_links', PersonExternalLink, True),
     ]
 
-    name = forms.CharField()
-    gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female')], required=False)
-    division_id = forms.CharField(required=False)
-    date_of_birth = ApproximateDateFormField(required=False)
-    date_of_death = ApproximateDateFormField(required=False)
-    deceased = forms.BooleanField()
-    biography = forms.CharField(required=False)
-    notes = forms.CharField(required=False)
+    name = forms.CharField(label=_("Name"))
+    gender = forms.ChoiceField(label=_("Gender"),
+                               choices=[('Male', _('Male')), ('Female', _('Female'))],
+                               required=False)
+    division_id = forms.CharField(label=_("Country"), required=False)
+    date_of_birth = ApproximateDateFormField(label=_("Date of birth"), required=False)
+    date_of_death = ApproximateDateFormField(label=_("Date of death"), required=False)
+    deceased = forms.BooleanField(label=_("Deceased"))
+    biography = forms.CharField(label=_("Biography"), required=False)
+    notes = forms.CharField(label=_("Notes"), required=False)
 
     class Meta:
         model = Person
@@ -46,17 +56,46 @@ class PersonBasicsForm(BaseEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['aliases'] = GetOrCreateChoiceField(queryset=PersonAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
+        self.fields['aliases'] = GetOrCreateChoiceField(label=_("Other names"),
+                                                        queryset=PersonAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
                                                         required=False,
                                                         object_ref_pk=self.object_ref_pk,
-                                                        object_ref_model=self._meta.model)
-        self.fields['external_links'] = GetOrCreateChoiceField(queryset=PersonExternalLink.objects.filter(object_ref__uuid=self.object_ref_pk),
+                                                        object_ref_model=self._meta.model,
+                                                        form=self,
+                                                        field_name='aliases')
+        self.fields['external_links'] = GetOrCreateChoiceField(label=_("External links"),
+                                                               queryset=PersonExternalLink.objects.filter(object_ref__uuid=self.object_ref_pk),
                                                                required=False,
                                                                object_ref_pk=self.object_ref_pk,
-                                                               object_ref_model=self._meta.model)
+                                                               object_ref_model=self._meta.model,
+                                                               form=self,
+                                                               field_name='external_links')
 
+class PersonPostingsForm(BaseEditForm):
+    edit_fields = [
+        ('rank', MembershipPersonRank, False),
+        ('role', MembershipPersonRole, False),
+        ('title', MembershipPersonTitle, False),
+        ('firstciteddate', MembershipPersonFirstCitedDate, False),
+        ('lastciteddate', MembershipPersonLastCitedDate, False),
+        ('realstart', MembershipPersonRealStart, False),
+        ('realend', MembershipPersonRealEnd, False),
+        ('startcontext', MembershipPersonStartContext, False),
+        ('endcontext', MembershipPersonEndContext, False),
+        ('organization', MembershipPersonOrganization, False),
+    ]
 
-class PersonPostingsForm(BasePostingsForm):
-    edit_fields = BasePostingsForm.edit_fields + [('organization', MembershipPersonOrganization, False)]
+    organization = forms.ModelChoiceField(label=_("Organization"), queryset=Organization.objects.all())
+    rank = forms.ModelChoiceField(label=_("Rank"), queryset=Rank.objects.distinct('value'), required=False)
+    role = forms.ModelChoiceField(label=_("Role"), queryset=Role.objects.distinct('value'), required=False)
+    title = forms.CharField(label=_("Title"), required=False)
+    firstciteddate = ApproximateDateFormField(label=_("Date first cited"), required=False)
+    lastciteddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
+    realstart = forms.BooleanField(label=_("Start date?"))
+    realend = forms.BooleanField(label=_("End date?"))
+    startcontext = forms.CharField(label=_("Context for start date"), required=False)
+    endcontext = forms.CharField(label=_("Context for end date"), required=False)
 
-    organization = forms.ModelChoiceField(queryset=Organization.objects.all())
+    class Meta:
+        model = MembershipPerson
+        fields = '__all__'

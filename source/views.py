@@ -11,12 +11,13 @@ import reversion
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View, TemplateView
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import get_template
 
 from complex_fields.models import ComplexFieldContainer
 
@@ -25,7 +26,7 @@ from countries_plus.models import Country
 from api.base_views import JSONResponseMixin
 
 from sfm_pc.base_views import NeverCacheMixin
-from sfm_pc.utils import VersionsMixin
+from sfm_pc.utils import VersionsMixin, get_source_context
 from sfm_pc.templatetags.citations import get_citation_string
 
 from source.models import Source, AccessPoint
@@ -219,29 +220,17 @@ class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):
         return self.render_to_json_response(context, **response_kwargs)
 
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
         source_id = self.request.GET['source_id']
+        field_name = self.request.GET['field_name']
 
         source = Source.objects.get(uuid=source_id)
 
-        context = {
-            'title': source.title,
-            'id': str(source.uuid),
-            'publication': source.publication,
-            'publication_country': source.publication_country,
-            'source_url': source.source_url,
-            'access_points': [],
-            'uncommitted': True,
-        }
+        context.update(get_source_context(field_name, source))
 
-        for access_point in source.accesspoint_set.all():
-            ap_info = {
-                'id': str(access_point.uuid),
-                'page_number': access_point.page_number,
-                'archive_url': access_point.archive_url,
-            }
-
-            context['access_points'].append(ap_info)
+        template = get_template('partials/source_input.html')
+        context['source_input'] = template.render(context)
 
         return context
 
@@ -307,7 +296,8 @@ def get_sources(request):
     sources = field.get_sources()
     sources_json = {
         "confidence": field.get_confidence(),
-        "sources": []
+        "sources": [],
+        "field_name": field.field_name,
     }
 
     for source in sources:

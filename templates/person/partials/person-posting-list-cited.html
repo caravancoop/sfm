@@ -29,22 +29,30 @@
                 <tr>
                 {% endif %}
                     <td class="cited">
-                        {{ organization.name.get_value.value }}
+                        <a href="{% url 'view-organization' organization.uuid %}">
+                            {{ organization.name.get_value }}
+                        </a>
+                        {% cite organization.name.get_value %}
                     </td>
                     <td class="cited">
                         {{ member.rank.get_value.value.value|default:"" }}
+                        {% cite member.rank.get_value %}
                     </td>
                     <td class="cited">
                         {{ member.role.get_value.value.value|default:"" }}
+                        {% cite member.role.get_value %}
                     </td>
                     <td class="cited">
                         {{ member.title.get_value|default:"" }}
+                        {% cite member.title.get_value|default:"" %}
                     </td>
                     <td class="cited">
                         {{ member.firstciteddate.get_value.value }}
+                        {% cite member.firstciteddate.get_value %}
                     </td>
                     <td class="cited">
                         {{ member.lastciteddate.get_value.value }}
+                        {% cite member.lastciteddate.get_value %}
                     </td>
                     <td>
                         {% if request.user.is_staff %}

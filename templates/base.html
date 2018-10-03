@@ -115,18 +115,20 @@
         </div>
     </div>
 </footer>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <script src="{% static "js/language.js" %}"></script>
-  <script src="{% static "js/version.js" %}"></script>
-  <script src="{% static 'js/select2.min.js' %}"></script>
-  <script src="{% static 'js/increment_footnotes.js' %}"></script>
-  <script type="text/javascript">
-  $(document).ready(function() {
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="{% static "js/language.js" %}"></script>
+<script src="{% static "js/version.js" %}"></script>
+<script src="{% static 'js/select2.min.js' %}"></script>
+<script src="{% static 'js/increment_footnotes.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $.ajaxSetup({cache: false});
 
     // Init popovers
     var fn = Footnotes;
     fn.increment();
     fn.initPopovers();
+
 
     // Get language code in url, prepend to array, and remove duplicate
     dataArray = JSON.parse('{{request.LANGUAGE_CODE|create_select2_data|safe}}');
@@ -153,10 +155,10 @@
         window.location = newUrl;
     });
 
-  });
-  </script>
-  {% block extra_js %}{% endblock %}
-  {% block extra_extra_js %}{% endblock %}
+});
+</script>
+{% block extra_js %}{% endblock %}
+{% block extra_extra_js %}{% endblock %}
 
 </body>
 

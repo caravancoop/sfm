@@ -7,7 +7,7 @@ from django.contrib.auth.views import logout_then_login
 from django.views.decorators.cache import cache_page
 
 from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
-                          EntityMergeView, Countries, command_chain,
+                          Countries, command_chain,
                           download_zip, Help, About, country_background)
 
 urlpatterns = i18n_patterns(
@@ -38,9 +38,6 @@ urlpatterns = i18n_patterns(
 
     # Dashboard
     url(r'^$', Dashboard.as_view(), name='dashboard'),
-
-    # Merge entities
-    url(r'^merge/$', EntityMergeView.as_view(), name='merge'),
 
     # Admin panel
     url(r'^admin/', include(admin.site.urls)),

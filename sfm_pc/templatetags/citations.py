@@ -3,6 +3,8 @@ from django.conf import settings
 from django.utils.translation import get_language
 from django.utils.translation import ugettext as _
 
+from sfm_pc.utils import get_source_context
+
 register = template.Library()
 
 def get_citation_string(obj):
@@ -38,7 +40,7 @@ def get_citation_string(obj):
 
                 # Wrap links in anchors
                 if key == _('Source URL') or key == _('Archive URL'):
-                    html_fmt = '<strong>{0}</strong>: <a href="{1}">{1}</a>'
+                    html_fmt = '<strong>{0}</strong>: <a href="{1}" target="_blank">{1}</a>'
                 else:
                     html_fmt = '<strong>{0}</strong>: {1}'
 
@@ -52,6 +54,12 @@ def get_citation_string(obj):
             source_citation += html
 
     return source_citation
+
+
+@register.inclusion_tag('partials/source_input.html')
+def source_input(field_name, source):
+
+    return get_source_context(field_name, source, uncommitted=False)
 
 
 @register.inclusion_tag('partials/source_and_confidence.html')
@@ -111,13 +119,14 @@ def datetype(citation_date, position):
     if object_ref:
 
         html = None
+        src = ''
 
         if position == 'start':
 
             realstart = getattr(object_ref, 'realstart', None)
             if realstart:
                 if realstart.get_value():
-                    realstart_src = get_citation_string(realstart.get_value())
+                    src = get_citation_string(realstart.get_value())
                     realstart = realstart.get_value().value
 
                     if realstart is True:
@@ -125,14 +134,9 @@ def datetype(citation_date, position):
                         context['real_date'] = True
                         context['title'] = _('Real start date')
                         html = _('We believe that this date represents a real start date, as well as being the first recorded citation date.')
-                        html += '<br/>'
-                        html += realstart_src
-
-                        context['content'] = html
 
         elif position == 'end':
 
-            src = None
             open_ended =  getattr(object_ref, 'open_ended', None)
             if open_ended:
                 if open_ended.get_value():
@@ -150,9 +154,10 @@ def datetype(citation_date, position):
                 context['real_date'] = True
                 context['title'] = _('Real end date')
                 html = _('We believe that this date represents a real end date, as well as being the last recorded citation date.')
-                html += '<br/>'
-                html += src
 
-                context['content'] = html
+        if html:
+            html = '<div class="tooltip-content"><p class="text-left">{0}</p>{1}</div>'.format(html, src)
+
+            context['content'] = html
 
     return context
