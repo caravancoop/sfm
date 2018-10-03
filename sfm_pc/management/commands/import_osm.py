@@ -100,7 +100,7 @@ class Command(BaseCommand):
                 name VARCHAR,
                 country_code VARCHAR,
                 feature_type VARCHAR,
-                PRIMARY KEY (id)
+                PRIMARY KEY (id, feature_type)
             )
         '''
 
@@ -171,7 +171,8 @@ class Command(BaseCommand):
         create = '''
             CREATE TABLE new_osm_data (
                 id BIGINT,
-                PRIMARY KEY (id)
+                feature_type VARCHAR,
+                PRIMARY KEY (id, feature_type)
             )
         '''
 
@@ -180,7 +181,7 @@ class Command(BaseCommand):
 
         insert = '''
             INSERT INTO new_osm_data
-              SELECT r.id
+              SELECT r.id, r.feature_type
               FROM raw_osm_data AS r
               LEFT JOIN osm_data AS d
                 ON r.id = d.id
