@@ -35,10 +35,10 @@
                             {% else %}
                                 <option value="way">Way</option>
                             {% endif %}
-                            {% if location_type == 'rel' %}
-                                <option value="rel" selected=true>Relation</option>
+                            {% if location_type == 'relation' %}
+                                <option value="relation" selected=true>Relation</option>
                             {% else %}
-                                <option value="rel">Relation</option>
+                                <option value="relation">Relation</option>
                             {% endif %}
                         </select>
                     </div>
@@ -92,58 +92,55 @@
                 <thead>
                 </thead>
                 <tbody>
-                    {% for feature in features.features %}
-                        <form class="form" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="id" value="{{ feature.properties.id }}" />
-                            <input type="hidden" name="name" value="{{ feature.properties.name }}" />
-                            <input type="hidden" name="feature_type" value="{{ location_type }}" />
-                            <input type="hidden" name="tags" value="{{ feature.json_properties }}" />
-                            <input type="hidden" name="geometry" value="{{ feature.geometry|safe }}" />
-                            <tr>
-                                <td><b>Name</b></td>
-                                <td>{{ feature.properties.name }}</td>
-                            </tr>
-                            {% if feature.properties.int_name %}
-                            <tr>
-                                <td><b>International Name</b></td>
-                                <td>{{ feature.properties.int_name }}</td>
-                            </tr>
-                            {% endif %}
-                            <tr>
-                                <td><b>OSM ID</b></td>
-                                <td>{{ feature.properties.id }}</td>
-                            </tr>
-                            <tr>
-                                <td><b>Type</b></td>
-                                <td>{{ location_type }}</td>
-                            </tr>
-                            {% if feature.properties.is_in %}
-                            <tr>
-                                <td><b>In</b></td>
-                                <td>{{ feature.properties.is_in }}</td>
-                            </tr>
-                            {% elif feature.properties.admin_level %}
-                            <tr>
-                                <td><b>Admin Level</b></td>
-                                <td>{{ feature.properties.admin_level }}</td>
-                            </tr>
-                            {% endif %}
-                            <tr>
-                            {% if feature.properties.saved == 'yes' %}
+                    {% for feature in features.elements %}
+                        {% if feature.id == location_id %}
+                            <form class="form" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value="{{ feature.id }}" />
+                                <input type="hidden" name="name" value="{{ feature.tags.name }}" />
+                                <input type="hidden" name="feature_type" value="{{ location_type }}" />
+                                <input type="hidden" name="tags" value="{{ feature.tags }}" />
+                                <input type="hidden" name="geometry" value="" />
+                                <tr>
+                                    <td><b>Name</b></td>
+                                    <td>{{ feature.tags.name }}</td>
+                                </tr>
+                                {% if feature.tags.int_name %}
+                                <tr>
+                                    <td><b>International Name</b></td>
+                                    <td>{{ feature.tags.int_name }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td><b>OSM ID</b></td>
+                                    <td>{{ feature.id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Type</b></td>
+                                    <td>{{ location_type }}</td>
+                                </tr>
+                                {% if feature.tags.admin_level %}
+                                <tr>
+                                    <td><b>Admin Level</b></td>
+                                    <td>{{ feature.tags.admin_level }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                {% if feature.tags.saved == 'yes' %}
+                                    <td></td>
+                                    <td align="right"><a href='{% url 'view-location' feature.id %}'>Go to &nbsp<i class="fa fa-arrow-right"></i></a></td>
+                                {% else %}
                                 <td></td>
-                                <td align="right"><a href='/location/view/{{feature.properties.id}}'>Go to &nbsp<i class="fa fa-arrow-right"></i></a></td>
-                            {% else %}
-                            <td></td>
-                            <td align="right">
-                                <button class="btn btn-success">
-                                    <i class="fa fa-plus-circle"> </i> Add
-                                </button>
-                            </td>
-                            {% endif %}
-                            </tr>
+                                <td align="right">
+                                    <button class="btn btn-success">
+                                        <i class="fa fa-plus-circle"> </i> Add
+                                    </button>
+                                </td>
+                                {% endif %}
+                                </tr>
+                            </form>
+                        {% endif %}
                     {% endfor %}
-                    </form>
                 </tbody>
                 </table>
             </div>
@@ -154,13 +151,9 @@
 {% endblock %}
 
 {% block extra_js %}
-        <!-- <script>
-          $(document).ready(function() {
-            $('.select-country').select2();
-          });
-        </script> -->
     {% if features %}
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <script src="{% static 'js/osmtogeojson.js'%}"></script>
         <script type="text/javascript">
             $(document).ready(function(){
                 function onEachFeature(feature, layer){
@@ -171,7 +164,8 @@
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             { attribution: attribution, detectRetina: true }).addTo(area_map);
                 var areas = L.featureGroup();
-                var geom = {{ features|safe }};
+                var geom = osmtogeojson({{ json_features|safe }});
+                $('input[name="geometry"]').val(JSON.stringify(geom));
                 areas.addLayer(
                     L.geoJson(geom, {onEachFeature: onEachFeature})
                 );
