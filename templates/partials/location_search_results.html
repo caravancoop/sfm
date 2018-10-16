@@ -1,0 +1,68 @@
+{% load i18n %}
+{% load arithmetic %}
+{% load humanize %}
+<h3>
+    <strong><i class="fa fa-thumb-tack"></i> {% trans "Locations" %}</strong>
+    {% if hit_count == 1 %}
+    <small>{{ hit_count|intcomma }} {% trans "result" %}</small>
+    {% else %}
+    <small>{{ hit_count|intcomma }} {% trans "results" %}</small>
+    {% endif %}
+</h3>
+
+{% with object_list=objects sortable='True' %}
+    {% include 'partials/location_list_table.html' %}
+{% endwith %}
+
+<!-- Pagination -->
+{% if objects.has_previous or objects.has_next %}
+<nav aria-label="{% trans 'Search results navigation' %}">
+  <ul class="pagination">
+    <! -- Previous button -->
+    {% if objects.has_previous %}
+    <li>
+        <a href="{% url 'list-location' %}?q={{query}}&amp;sort={{sort}}&amp;page={{ objects.previous_page_number }}" aria-label="Previous">
+        <span aria-hidden="true">&laquo; {% trans "Previous" %}</span>
+      </a>
+    </li>
+    {% endif %}
+
+    <!-- Page numbers -->
+    {% if pages >= 5 and page >= 4 %}
+    <!-- First page + ellipses -->
+    <li><a href="?q={{query}}&amp;sort={{sort}}&amp;page=1">1</a></li>
+    <li class="disabled"><a href="#">&#8230;</a></li>
+    {% endif %}
+
+    {% for num in paginator.page_range %}
+      {% if not forloop.last and page|absubtract:num < 2 %}
+        <li {% if page == num %}class="active"{% endif %}>
+          <a class="active" href="{% url 'list-location' %}?q={{query}}&amp;sort={{sort}}&amp;page={{num}}">{{num}}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if pages >= 5 and pages|subtract:page >= 3 %}
+        <! -- Ellipses before the last page -->
+        <li class="disabled"><a href="#">&#8230;</a></li>
+    {% endif %}
+
+    <!-- Last page -->
+    <li{% if paginator.num_pages == page %} class="active"{% endif %}>
+        <a href="{% url 'list-location' %}?q={{query}}&amp;sort={{sort}}&amp;page={{pages}}">
+            {{ pages }}
+        </a>
+    </li>
+
+    <!-- Next button -->
+    {% if objects.has_next %}
+    <li>
+        <a href="{% url 'list-location' %}?q={{query}}&amp;sort={{sort}}&amp;page={{ objects.next_page_number }}" aria-label="Next">
+        <span aria-hidden="true">{% trans "Next" %} &raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+
+  </ul>
+</nav>
+{% endif %}

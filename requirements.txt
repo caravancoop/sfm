@@ -27,5 +27,7 @@ datefinder==0.6.0
 raven
 django-debug-toolbar
 pysolr==3.6.0
+overpass==0.6.1
+overpy
 pytest-django==3.3.3
 pytest-mock==1.10

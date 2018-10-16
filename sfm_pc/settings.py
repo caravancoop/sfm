@@ -95,7 +95,8 @@ INSTALLED_APPS = (
     'geosite',
     'emplacement',
     'violation',
-    'search',
+    'location',
+    'search'
 )
 
 INSTALLED_APPS += EXTRA_APPS

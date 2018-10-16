@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load help %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
+{% endblock %}
+{% block content %}
+<div class="row">
+    <form class="form">
+        <div class="col-xs-12 col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title"><i class="fa fa-thumb-tack"></i>&nbsp <b>{% trans 'Locations' %}</b></h4>
+            </div>
+            <div class="panel-body">
+              <a href="{% url 'create-location' %}" class="btn btn-success">
+                  <i class="fa fa-plus-circle"> </i>&nbsp Add new location
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-8 pull-right">
+            <div class="input-group main-search">
+                <input type="text" class="form-control input-lg" placeholder="{% trans 'Search for a location by name' %}..." name="q" {% if query %}value="{{ query }}{% endif %}" id="q" autofocus>
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-lg" type="submit">{% trans "Go!" %}</button>
+                </span>
+            </div>
+        </div>
+    </form>
+
+    <div class="col-xs-12 col-sm-8 pull-right">
+    {% if hits == 0 %}
+        <h1>{% trans "No results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query  }}&rdquo;{% endif %}</h1>
+    {% endif %}
+    {% if results %}
+        {% with objects=results hit_count=hits %}
+            {% include 'partials/location_search_results.html' %}
+        {% endwith %}
+    {% else %}
+        <br />
+        <p>
+            {% trans "For better results, try adjusting your search filters." %}
+        {% help href='whowasincommand/generalfunctions.html#how-do-i-find-what-im-looking-for' %}
+        </p>
+        <p>{% trans "Think we're missing something?" %} <a href="mailto:technical@securityforcemonitor.org">{% trans "Let us know!" %}</a></p>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        // Language code
+        {% get_current_language as LANGUAGE_CODE %}
+            var language = '{{ LANGUAGE_CODE }}'
+
+        // Autofocus input on older browsers
+        if (!("autofocus" in document.createElement("input"))) {
+            $('#q').focus();
+        }
+    });
+</script>
+{% endblock %}

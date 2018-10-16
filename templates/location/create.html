@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load tablesort %}
+
+{% block extra_head %}
+    {% if features %}
+        <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+     {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="well">
+      <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Add location</h2>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form class="form" method="get">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label for="location_type" class="control-label"><b>{% trans "Location Type" %}</b></label>
+                        <select name="location_type" class="form-control" id="location_type" required>
+                            {% if location_type == 'node' %}
+                                <option value="node" selected=true>Node</option>
+                            {% else %}
+                                <option value="node">Node</option>
+                            {% endif %}
+                            {% if location_type == 'way' %}
+                                <option value="way" selected=true>Way</option>
+                            {% else %}
+                                <option value="way">Way</option>
+                            {% endif %}
+                            {% if location_type == 'relation' %}
+                                <option value="relation" selected=true>Relation</option>
+                            {% else %}
+                                <option value="relation">Relation</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-sm-8">
+                    <label for="location_id" class="control-label"><b>{% trans "Location ID" %}</b></label>
+                    <div class="input-group location-search">
+                        <input type="text" class="form-control" placeholder="Search by node, way, or relation ID..." name="location_id" id="location_id" autofocus value="{% if location_id %}{{ location_id }}{% endif %}" required>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" id="location-search">Go!</button>
+                    </span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% if overpass_error %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="alert alert-warning alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>Overpass API Error</strong> It looks like the Overpass API is currently working too hard. Try back in a few minutes.
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% if feature_count == 0 %}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="alert alert-warning alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>No results.</strong>
+        </div>
+    </div>
+</div>
+{% elif feature_count > 0 %}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-md-6">
+                <div id="location_map" style="height:300px; margin-top:30px;"></div>
+            </div>
+            <div class="table-responsive col-md-6">
+                <table class="table table-striped table-condensed search-results-table">
+                <thead>
+                </thead>
+                <tbody>
+                    {% for feature in features.elements %}
+                        {% if feature.id == location_id %}
+                            <form class="form" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value="{{ feature.id }}" />
+                                <input type="hidden" name="name" value="{{ feature.tags.name }}" />
+                                <input type="hidden" name="feature_type" value="{{ location_type }}" />
+                                <input type="hidden" name="tags" value="{{ feature.form_tags }}" />
+                                <input type="hidden" name="geometry" value="" />
+                                <tr>
+                                    <td><b>Name</b></td>
+                                    <td>{{ feature.tags.name }}</td>
+                                </tr>
+                                {% if feature.tags.int_name %}
+                                <tr>
+                                    <td><b>International Name</b></td>
+                                    <td>{{ feature.tags.int_name }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td><b>OSM ID</b></td>
+                                    <td>{{ feature.id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Type</b></td>
+                                    <td>{{ location_type }}</td>
+                                </tr>
+                                {% if feature.tags.admin_level %}
+                                <tr>
+                                    <td><b>Admin Level</b></td>
+                                    <td>{{ feature.tags.admin_level }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                {% if feature.tags.saved == 'yes' %}
+                                    <td></td>
+                                    <td align="right"><a href='{% url 'view-location' feature.id %}'>Go to &nbsp<i class="fa fa-arrow-right"></i></a></td>
+                                {% else %}
+                                <td></td>
+                                <td align="right">
+                                    <button class="btn btn-success">
+                                        <i class="fa fa-plus-circle"> </i> Add
+                                    </button>
+                                </td>
+                                {% endif %}
+                                </tr>
+                            </form>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    {% if features %}
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <script src="{% static 'js/osmtogeojson.js'%}"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                function onEachFeature(feature, layer){
+                    layer.bindPopup(feature.properties.name + ' (' + feature.properties.id + ')');
+                }
+                var area_map = L.map('location_map');
+                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            { attribution: attribution, detectRetina: true }).addTo(area_map);
+                var areas = L.featureGroup();
+                var geom = osmtogeojson({{ json_features|safe }});
+                var properties = geom['features'][0].properties;
+                geom = geom['features'][0].geometry;
+                geom.properties = properties;
+                $('input[name="geometry"]').val(JSON.stringify(geom));
+                areas.addLayer(
+                    L.geoJson(geom, {onEachFeature: onEachFeature})
+                );
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds(), {'maxZoom': 12});
+                area_map.scrollWheelZoom.disable();
+            });
+        </script>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,62 @@
+{% load tablesort %}
+{% load countries %}
+{% load facets %}
+{% load i18n %}
+
+<div class="responsive-table">
+    <table class="table table-striped table-condensed search-results-table">
+        <thead>
+            <tr>
+                <th>
+                    {% trans "OSM ID" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='sort' sort_asc='id' sort_desc='-id' selected_sort=sorts.Location %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Name" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='sort' sort_asc='name' sort_desc='-name' selected_sort=sorts.Location %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th>
+                    {% trans "Type" %}
+                    {% if sortable == 'True' %}
+                        {% with sort_param='sort' sort_asc='feature_type' sort_desc='-feature_type' selected_sort=sorts.Location %}
+                            {% include 'partials/sortable-list.html' %}
+                        {% endwith %}
+                    {% endif %}
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'view-location' object.id %}">
+                            {{ object.id }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'view-location' object.id %}">
+                        {{ object.name|default_if_none:"" }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ object.feature_type|default_if_none:"" }}
+                    </td>
+                    <td>
+                        <a href="{% url 'delete-location' object.id %}" class="btn btn-danger">
+                            <i class="fa fa-remove"> </i> Delete
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
