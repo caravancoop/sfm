@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load tablesort %}
+
 {% block extra_head %}
     {% if features %}
         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
@@ -99,7 +101,7 @@
                                 <input type="hidden" name="id" value="{{ feature.id }}" />
                                 <input type="hidden" name="name" value="{{ feature.tags.name }}" />
                                 <input type="hidden" name="feature_type" value="{{ location_type }}" />
-                                <input type="hidden" name="tags" value="{{ feature.tags }}" />
+                                <input type="hidden" name="tags" value="{{ feature.form_tags }}" />
                                 <input type="hidden" name="geometry" value="" />
                                 <tr>
                                     <td><b>Name</b></td>
@@ -165,6 +167,9 @@
                             { attribution: attribution, detectRetina: true }).addTo(area_map);
                 var areas = L.featureGroup();
                 var geom = osmtogeojson({{ json_features|safe }});
+                var properties = geom['features'][0].properties;
+                geom = geom['features'][0].geometry;
+                geom.properties = properties;
                 $('input[name="geometry"]').val(JSON.stringify(geom));
                 areas.addLayer(
                     L.geoJson(geom, {onEachFeature: onEachFeature})

@@ -102,6 +102,8 @@ class LocationCreate(LoginRequiredMixin, CreateView):
                 if int(feature['id']) in saved_location_ids:
                     feature['tags']['saved'] = 'yes'
 
+                feature['form_tags'] = json.dumps(feature['tags'])
+
         return elements
 
     def get_context_data(self, **kwargs):
@@ -118,8 +120,8 @@ class LocationCreate(LoginRequiredMixin, CreateView):
                 context['json_features'] = json.dumps(context['features'])
                 context['feature_count'] = len(context['features']['elements'])
 
-            context['location_type'] = location_type
-            context['location_id'] = int(location_id)
+                context['location_type'] = location_type
+                context['location_id'] = int(location_id)
 
         return context
 
