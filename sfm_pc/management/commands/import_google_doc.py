@@ -986,6 +986,12 @@ class Command(UtilityMixin, BaseCommand):
                 area.name = geo.name
                 area.geometry = geo.geometry
                 area.division_id = division_id
+
+                if area.feature_type == 'point':
+                    feature_type = 'node'
+                else:
+                    feature_type = 'relation'
+
                 area.save()
 
             try:
@@ -1227,6 +1233,8 @@ class Command(UtilityMixin, BaseCommand):
             osm_id = exact_location['id']
             division_id = None
             coords = exact_location['coords']
+            tags = exact_location['tags']
+            feature_type = 'node'
         else:
             osm_id = data[positions['AdminId']['value']]
             osm = get_osm_by_id(osm_id)
@@ -1234,11 +1242,13 @@ class Command(UtilityMixin, BaseCommand):
 
             division_id = 'ocd-division/country:{}'.format(osm.country_code)
 
-            point_string = 'POINT({lng} {lat})'
-            coord_string = (str(osm.st_x), str(osm.st_y))
-            coords = GEOSGeometry(point_string.format(lng=coord_string[0],
-                                                      lat=coord_string[1]),
-                                    srid=4326)
+            coords = osm.geometry
+            tags = osm.tags
+
+            if osm.feature_type == 'point':
+                feature_type = 'node'
+            else:
+                feature_type = 'relation'
 
         site, created = Location.objects.get_or_create(id=osm_id)
 
@@ -1246,9 +1256,9 @@ class Command(UtilityMixin, BaseCommand):
 
             site.name = name
             site.division_id = division_id
-
-
+            site.tags = tags
             site.geometry = coords
+
             site.save()
 
         return site
@@ -1307,6 +1317,7 @@ class Command(UtilityMixin, BaseCommand):
 
         point_string = 'POINT({lng} {lat})'.format(lng=lng, lat=lat)
         exact_location['coords'] = GEOSGeometry(point_string, srid=4326)
+        exact_location['tags'] = geo.tags
 
         return exact_location
 
