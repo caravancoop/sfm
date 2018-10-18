@@ -72,7 +72,32 @@
         </table>
     </div>
 </div>
-
+{% if related_entities %}
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Entity</th>
+                    <th>Entity type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entity in related_entities %}
+                    <tr>
+                        <td>
+                            <a href="{% url entity.view_name entity.uuid %}">{{ entity.name }}</a>
+                        </td>
+                        <td>
+                            {{ entity.type }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}
 {% block extra_js %}
     <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
