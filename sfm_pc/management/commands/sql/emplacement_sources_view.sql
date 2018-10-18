@@ -17,7 +17,7 @@ CREATE MATERIALIZED VIEW emplacement_sources AS
     MAX(eeo.confidence) AS organization_id_confidence,
     json_agg(DISTINCT eeoss.*) AS organization_id_source,
 
-    gg.id AS site_id_value,
+    ll.id AS site_id_value,
     MAX(ees.confidence) AS site_id_confidence,
     json_agg(DISTINCT eesss.*) AS site_id_source
   FROM emplacement_emplacement AS ee
@@ -49,8 +49,8 @@ CREATE MATERIALIZED VIEW emplacement_sources AS
     ON eeo.value_id = oo.id
   LEFT JOIN emplacement_emplacementsite AS ees
     ON ee.id = ees.object_ref_id
-  LEFT JOIN geosite_geosite AS gg
-    ON ees.value_id = gg.id
+  LEFT JOIN location_location AS ll
+    ON ees.value_id = ll.id
   LEFT JOIN emplacement_emplacementsite_sources AS eess
     ON ees.id = eess.emplacementsite_id
   LEFT JOIN source_source AS eesss
@@ -60,7 +60,7 @@ CREATE MATERIALIZED VIEW emplacement_sources AS
            eeed.value,
            eeoe.value,
            oo.uuid,
-           gg.id;
+           ll.id;
 CREATE UNIQUE INDEX emplacement_source_id_index
   ON emplacement_sources (id,
                           open_ended_value,
