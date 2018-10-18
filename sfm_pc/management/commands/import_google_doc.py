@@ -988,9 +988,9 @@ class Command(UtilityMixin, BaseCommand):
                 area.division_id = division_id
 
                 if area.feature_type == 'point':
-                    feature_type = 'node'
+                    area.feature_type = 'node'
                 else:
-                    feature_type = 'relation'
+                    area.feature_type = 'relation'
 
                 area.save()
 
@@ -1258,6 +1258,7 @@ class Command(UtilityMixin, BaseCommand):
             site.division_id = division_id
             site.tags = tags
             site.geometry = coords
+            site.feature_type = feature_type
 
             site.save()
 
