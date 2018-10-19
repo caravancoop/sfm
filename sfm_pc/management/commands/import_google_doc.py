@@ -1860,6 +1860,7 @@ class Command(UtilityMixin, BaseCommand):
         exactloc_name = exact_location.get('name')
 
         event_info = {}
+        osm_id = None
 
         if exactloc_name and exactloc_id:
             event_info.update({
@@ -1874,6 +1875,8 @@ class Command(UtilityMixin, BaseCommand):
                     'confidence': 1
                 },
             })
+
+            osm_id = exactloc_id
 
         geo, admin1, admin2 = None, None, None
         if admin_id:
@@ -1929,10 +1932,28 @@ class Command(UtilityMixin, BaseCommand):
                 },
             })
 
-        if coords:
+            osm_id = geo.id
+
+        if osm_id:
+            location, created = Location.objects.get_or_create(id=geo.id)
+
+            if created:
+                location.name = geo.name
+                location.geometry = geo.geometry
+
+                country_code = geo.country_code.lower()
+                location.division_id = 'ocd-division/country:{}'.format(country_code)
+
+                if location.feature_type == 'point':
+                    location.feature_type = 'node'
+                else:
+                    location.feature_type = 'relation'
+
+                location.save()
+
             event_info.update({
                 'Violation_ViolationLocation': {
-                    'value': coords,
+                    'value': location,
                     'sources': sources,
                     'confidence': 1
                 },
@@ -1953,8 +1974,7 @@ class Command(UtilityMixin, BaseCommand):
                 'confidence': 1,
             }
         })
-        import pdb
-        pdb.set_trace()
+
         violation.update(event_info)
 
         # Record perpetrators
