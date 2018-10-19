@@ -49,6 +49,7 @@ def django_db_setup(django_db_setup, django_db_blocker, request):
         fixtures = [
             'tests/fixtures/auth.json',
             'tests/fixtures/source.json',
+            'tests/fixtures/location.json',
             'tests/fixtures/accesspoint.json',
             'tests/fixtures/organization.json',
             'tests/fixtures/person.json',

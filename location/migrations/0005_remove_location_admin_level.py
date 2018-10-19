@@ -79,7 +79,6 @@ class Migration(migrations.Migration):
             LEFT JOIN geosite_geositecoordinates AS gg
               ON g.id = gg.object_ref_id
             WHERE gi.value IS NOT NULL
-            UNION
             ON CONFLICT (id) DO NOTHING
             ''',
             reverse_sql='TRUNCATE location_location CASCADE'

@@ -17,17 +17,10 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--apps',
-            default=['Organization', 'Person', 'Violation', 'MembershipOrganization', 'MembershipPerson', 'Composition'],
+            default=['Organization', 'Person',],# 'Violation', 'MembershipOrganization', 'MembershipPerson', 'Composition', 'Location'],
             action='append',
             dest='apps',
             help="List of apps to include."
-        )
-        parser.add_argument(
-            '--refresh',
-            action='store_true',
-            dest='refresh',
-            default=False,
-            help='Refresh all views'
         )
 
     def model_name(self, m):

@@ -9,7 +9,7 @@ CREATE MATERIALIZED VIEW violation_all_export AS
     vvg.value AS osmname,
     vvgi.value AS osm_id,
     vvdi.value AS division_id,
-    vvl.value_id AS location,
+    vvl.geometry AS location,
     vvd.value AS description,
     pp.uuid AS perpetrator_id,
     oo.uuid AS perpetrator_organization_id,
@@ -38,8 +38,10 @@ CREATE MATERIALIZED VIEW violation_all_export AS
     ON vv.id = vvgi.object_ref_id
   LEFT JOIN violation_violationdivisionid AS vvdi
     ON vv.id = vvdi.object_ref_id
-  LEFT JOIN violation_violationlocation AS vvl
-    ON vv.id = vvl.object_ref_id
+  LEFT JOIN violation_violationlocation AS vl
+    ON vv.id = vl.object_ref_id
+  LEFT JOIN location_location AS vvl
+    ON vl.value_id = vvl.id
   LEFT JOIN violation_violationdescription AS vvd
     ON vv.id = vvd.object_ref_id
   LEFT JOIN violation_violationdescription_sources AS vs
@@ -65,7 +67,7 @@ CREATE MATERIALIZED VIEW violation_all_export AS
            vvg.value,
            vvgi.value,
            vvdi.value,
-           vvl.value_id,
+           vvl.geometry,
            vvd.value,
            pp.uuid,
            oo.uuid,

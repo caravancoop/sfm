@@ -55,7 +55,7 @@ def model_name(m):
 class Command(LabelCommand):
     help = 'Output the contents of the database as a fixture of the given format.'
     args = 'modelname[pk] or modelname[id1:id2] repeated one or more times'
-    option_list = BaseCommand.option_list + (
+    option_list = (
         make_option('--skip-related', default=True, action='store_false', dest='propagate',
             help='Specifies if we shall not add related objects.'),
         make_option('--reverse', default=None, action='append', dest='reverse',
@@ -107,7 +107,8 @@ class Command(LabelCommand):
             if isinstance(slice, str) and slice:
                 objects.extend(model._default_manager.filter(pk__exact=slice))
             elif not slice or type(slice) is list:
-                items = model._default_manager.all().order_by(model._meta.pk.attname)
+                #items = model._default_manager.all().order_by(model._meta.pk.attname)
+                items = model._default_manager.all().order_by('?')
 
                 if slice[0]:
                     slice[0] = int(slice[0])

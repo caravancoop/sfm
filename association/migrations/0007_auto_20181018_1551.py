@@ -25,6 +25,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('association', '0006_auto_20180706_1825'),
+        ('location', '0005_remove_location_admin_level'),
     ]
 
     operations = [
