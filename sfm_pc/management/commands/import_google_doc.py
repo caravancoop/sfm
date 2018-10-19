@@ -1901,9 +1901,9 @@ class Command(UtilityMixin, BaseCommand):
 
             if hierarchy:
                 for member in hierarchy:
-                    if member.admin_level == 6 and not admin1:
+                    if int(member.admin_level) == 6 and not admin1:
                         admin1 = member.name
-                    elif member.admin_level == 4:
+                    elif int(member.admin_level) == 4:
                         admin2 = member.name
 
             event_info.update({
@@ -1953,7 +1953,8 @@ class Command(UtilityMixin, BaseCommand):
                 'confidence': 1,
             }
         })
-
+        import pdb
+        pdb.set_trace()
         violation.update(event_info)
 
         # Record perpetrators

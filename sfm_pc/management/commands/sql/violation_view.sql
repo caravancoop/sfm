@@ -12,7 +12,7 @@ CREATE MATERIALIZED VIEW violation AS
     vvg.value AS osmname,
     vvgi.value AS osm_id,
     vvdi.value AS division_id,
-    vvl.value AS location,
+    vvl.value_id AS location,
     vvd.value AS description,
     pp.uuid AS perpetrator_id,
     oo.uuid AS perpetrator_organization_id,

@@ -15,8 +15,9 @@ from complex_fields.base_models import BaseModel
 from source.models import Source
 from person.models import Person
 from organization.models import Organization
-from geosite.models import Geosite
 from sfm_pc.utils import VersionsMixin
+from location.models import Location
+
 
 VERSION_RELATED_FIELDS = [
     'violationadminlevel1_set',
@@ -188,8 +189,7 @@ class ViolationDivisionId(ComplexField):
 @sourced
 class ViolationLocation(ComplexField):
     object_ref = models.ForeignKey('Violation')
-    value = models.PointField(default=None, blank=True, null=True)
-    objects = models.GeoManager()
+    value = models.ForeignKey(Location, null=True)
     field_name = _("Location")
 
 
