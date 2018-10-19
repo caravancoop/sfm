@@ -116,11 +116,10 @@
                 {% for association in associations %}
                     <tr>
                         <td class="cited">
-                        {% if association.area.get_value.value.osmid.get_value %}
-                            <a target="_blank" href="https://www.openstreetmap.org/relation/{{ association.area.get_value.value.osmid.get_value }}">
-                                {{ association.area.get_value.value.osmname.get_value }}
-                            </a>
-                            <i class="fa fa-external-link"></i>
+                        {% if association.area.get_value.value %}
+                        <a  href="{% url 'view-location' association.area.get_value.value.id %}">
+                                {{ association.area.get_value.value.name }}
+                        </a>
                             {% cite association.area.get_value %}
                         {% endif %}
                         </td>
@@ -163,13 +162,11 @@
                 {% for emplacement in emplacements %}
                     <tr>
                         <td class="cited">
-                        {% if emplacement.site.get_value.value.location_id.get_value %}
-                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ emplacement.site.get_value.value.location_id.get_value }}">                        {% elif emplacement.site.get_value.value.admin_id.get_value %}
-                            <a target="_blank" href="https://www.openstreetmap.org/node/{{ emplacement.site.get_value.value.admin_id.get_value }}">
-                        {% endif %}
-                                {{ emplacement.site.get_value.value.name.get_value }}
-                            </a>
-                            <i class="fa fa-external-link"></i>
+                            {% if emplacement.site.get_value.value %}
+                                <a href="{% url 'view-location' emplacement.site.get_value.value.id %}">
+                                    {{ emplacement.site.get_value.value.name }}
+                                </a>
+                            {% endif %}
                             {% cite emplacement.site.get_value %}
                         </td>
                         <td class="cited">
@@ -514,21 +511,16 @@
     {% if sites %}
         <script type="text/javascript">
             $(document).ready(function(){
-                var center_x = {{ sites.0.coordinates.get_value.value.x|safe }};
-                var center_y = {{ sites.0.coordinates.get_value.value.y|safe }};
+                var center_x = {{ sites.0.geometry.x|safe }};
+                var center_y = {{ sites.0.geometry.y|safe }};
                 var site_map = L.map('osm_site_map').setView([center_y, center_x], 10);
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             { attribution: attribution, detectRetina: true }).addTo(site_map);
                 var markers = L.featureGroup();
                 {% for site in sites %}
-                    var mark = L.marker([{{ site.coordinates.get_value.value.y|safe }},{{ site.coordinates.get_value.value.x|safe }}]);
-                    var name = '';
-                    if ("{{ site.location_name }}".length > 0) {
-                        name = "{{ site.location_name }}";
-                    } else {
-                        name = "{{ site.admin_name }}";
-                    }
+                    var mark = L.marker([{{ site.geometry.y|safe }},{{ site.geometry.x|safe }}]);
+                    var name = "{{ site.name }}";
                     mark.bindPopup(name);
                     markers.addLayer(mark);
                 {% endfor %}

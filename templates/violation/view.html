@@ -256,8 +256,8 @@
         <script type="text/javascript">
             $(document).ready(function(){
                 $("#print-page").on("click", function(){ window.print(); });
-                var center_x = {{ location.x|safe }};
-                var center_y = {{ location.y|safe }};
+                var center_x = {{ location.geometry.x|safe }};
+                var center_y = {{ location.geometry.y|safe }};
                 var map = L.map('geoname_map').setView([center_y, center_x], 10);
                 var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',

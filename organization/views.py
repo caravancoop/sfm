@@ -89,21 +89,19 @@ class OrganizationDetail(DetailView):
         emplacements = tuple(context['organization'].emplacements)
         context['emplacements'] = (em.object_ref for em in emplacements)
         for emplacement in emplacements:
-            if emplacement.object_ref.site.get_value().value.admin_id.get_value():
-                context['sites'].append(emplacement.object_ref.site.get_value().value)
+            context['sites'].append(emplacement.object_ref.site.get_value().value)
 
         context['areas'] = []
         associations = tuple(context['organization'].associations)
         context['associations'] = (ass.object_ref for ass in associations)
         for association in associations:
-            if association.object_ref.area.get_value().value.osmid.get_value():
-                geom = association.object_ref.area.get_value().value.geometry
-                area = geom.get_value().value.simplify(tolerance=0.01)
-                area_obj = {
-                    'geom': area,
-                    'name': association.object_ref.area.get_value().value.osmname.get_value()
-                }
-                context['areas'].append(area_obj)
+            geom = association.object_ref.area.get_value().value.geometry
+            area = geom.simplify(tolerance=0.01)
+            area_obj = {
+                'geom': area,
+                'name': association.object_ref.area.get_value().value.name
+            }
+            context['areas'].append(area_obj)
 
         context['parents'] = []
         context['parents_list'] = []
