@@ -61,24 +61,24 @@ class CountryDetailView(JSONAPIView):
         cursor = connection.cursor()
         cursor.execute(country_query, [country_code])
         columns = [c[0] for c in cursor.description]
-        
+
         country_row = cursor.fetchone()
-        
+
         if country_row:
-            
+
             context = OrderedDict(zip(columns, country_row))
 
-            event_query = ''' 
+            event_query = '''
                 SELECT COUNT(DISTINCT id)
                 FROM violation
                 WHERE division_id = %s
             '''
-            
+
             cursor = connection.cursor()
             cursor.execute(event_query, [division_id])
 
             event_row = cursor.fetchone()
-            
+
             context.update({'events_count': event_row[0]})
 
         return context
@@ -194,7 +194,7 @@ class CountryMapView(JSONAPIView):
 
         country_code = kwargs['id']
         division_id = 'ocd-division/country:{}'.format(country_code)
-        
+
         when = self.request.GET['at']
         bbox = self.request.GET.get('bbox')
         classification = self.request.GET.get('classification__in')
@@ -209,7 +209,7 @@ class CountryMapView(JSONAPIView):
               array_agg(DISTINCT TRIM(o.classification))
                 FILTER (WHERE TRIM(o.classification) IS NOT NULL) AS classifications,
               ST_AsGeoJSON(
-                COALESCE(MAX(g.coordinates), 
+                COALESCE(MAX(g.coordinates),
                          MAX(ST_Centroid(a.geometry))))::json AS location,
               COALESCE(MAX(e.start_date), MAX(ass.start_date)) AS start_date,
               COALESCE(MAX(e.end_date), MAX(ass.end_date)) AS end_date,
@@ -226,9 +226,9 @@ class CountryMapView(JSONAPIView):
             LEFT JOIN violation AS v
               ON o.id = v.perpetrator_organization_id
             WHERE o.division_id = %s
-              AND ((CASE 
-                     WHEN (e.start_date IS NOT NULL AND 
-                           e.end_date IS NOT NULL AND 
+              AND ((CASE
+                     WHEN (e.start_date IS NOT NULL AND
+                           e.end_date IS NOT NULL AND
                            e.open_ended IN ('N', 'E'))
                      THEN (%s::date BETWEEN e.start_date::date AND e.end_date::date)
                      WHEN (e.start_date IS NOT NULL AND
@@ -247,14 +247,14 @@ class CountryMapView(JSONAPIView):
                            e.end_date IS NOT NULL AND
                            e.open_ended IN ('N', 'E'))
                      THEN (e.end_date::date = %s)
-                     WHEN (e.start_date IS NULL AND 
+                     WHEN (e.start_date IS NULL AND
                            e.end_date IS NOT NULL AND
                            e.open_ended = 'Y')
                      THEN TRUE
-                  END) 
-              OR (CASE 
-                    WHEN (ass.start_date IS NOT NULL AND 
-                          ass.end_date IS NOT NULL AND 
+                  END)
+              OR (CASE
+                    WHEN (ass.start_date IS NOT NULL AND
+                          ass.end_date IS NOT NULL AND
                           ass.open_ended IN ('N', 'E'))
                     THEN (%s::date BETWEEN ass.start_date::date AND ass.end_date::date)
                     WHEN (ass.start_date IS NOT NULL AND
@@ -273,7 +273,7 @@ class CountryMapView(JSONAPIView):
                           ass.end_date IS NOT NULL AND
                           ass.open_ended IN ('N', 'E'))
                     THEN (ass.end_date::date = %s)
-                    WHEN (ass.start_date IS NULL AND 
+                    WHEN (ass.start_date IS NULL AND
                           ass.end_date IS NOT NULL AND
                           ass.open_ended = 'Y')
                     THEN TRUE
@@ -333,10 +333,11 @@ class CountryMapView(JSONAPIView):
             LEFT JOIN organization AS o
               ON v.perpetrator_organization_id = o.id
             WHERE v.division_id = %s
-              AND (v.start_date::date <= %s AND v.end_date::date >= %s)
         '''
+        # AND (v.start_date::date <= %s AND v.end_date::date >= %s)
 
-        args = [division_id, when, when]
+        # args = [division_id, when, when]
+        args = [division_id]
 
         if bbox:
             events = '''
