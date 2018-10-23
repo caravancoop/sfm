@@ -27,16 +27,51 @@ class Migration(migrations.Migration):
         ('emplacement', '0012_auto_20180820_1927'),
     ]
 
-    operations = [
-        migrations.DeleteModel(
-            name='Alias',
-        ),
+    database_operations = [
         migrations.RunSQL('DROP MATERIALIZED VIEW IF EXISTS emplacement'),
         migrations.RunSQL('DROP MATERIALIZED VIEW IF EXISTS emplacement_sources'),
+        migrations.RunSQL('ALTER TABLE emplacement_emplacementsite DROP CONSTRAINT emplacement_emplacement_value_id_59e5197e_fk_geosite_geosite_id'),
+        migrations.RunSQL('ALTER TABLE emplacement_emplacementsite ALTER COLUMN value_id TYPE bigint'),
+        migrations.RunSQL('''
+            UPDATE emplacement_emplacementsite SET
+              value_id=s.value_id
+            FROM (
+              SELECT
+                emp_site.id AS site_id,
+                osm.value AS value_id
+              FROM emplacement_emplacementsite AS emp_site
+              JOIN geosite_geosite AS site
+                ON emp_site.value_id = site.id
+              JOIN geosite_geositeadminid AS osm
+                ON site.id = osm.object_ref_id
+              UNION
+              SELECT
+                emp_site.id AS site_id,
+                osm.value AS value_id
+              FROM emplacement_emplacementsite AS emp_site
+              JOIN geosite_geosite AS site
+                ON emp_site.value_id = site.id
+              JOIN geosite_geositelocationid AS osm
+                ON site.id = osm.object_ref_id
+            ) AS s
+            WHERE emplacement_emplacementsite.id = s.site_id
+        '''),
+        migrations.RunPython(remake_views),
+    ]
+    state_operations = [
         migrations.AlterField(
             model_name='emplacementsite',
             name='value',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='location.Location'),
         ),
-        migrations.RunPython(remake_views),
+    ]
+
+    operations = [
+        migrations.DeleteModel(
+            name='Alias',
+        ),
+        migrations.SeparateDatabaseAndState(
+            state_operations=state_operations,
+            database_operations=database_operations
+        ),
     ]
