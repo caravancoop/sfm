@@ -31,7 +31,7 @@
                     {% else %}
                         <tr>
                     {% endif %}
-                        <td>{{ emplacement.site.get_value.value.name.get_value }}</td>
+                        <td>{{ emplacement.site.get_value.value.name }}</td>
                         <td>{% trans "Site" %}</td>
                         <td>{{ emplacement.startdate.get_value.value }}</td>
                         <td>{{ emplacement.enddate.get_value.value }}</td>
@@ -44,7 +44,7 @@
                 {% endfor %}
                 {% for association in associations %}
                     <tr>
-                        <td>{{ association.area.get_value.value.name.get_value }}</td>
+                        <td>{{ association.area.get_value.value.name }}</td>
                         <td>{% trans "Area of operations" %}</td>
                         <td>{{ association.startdate.get_value.value }}</td>
                         <td>{{ association.enddate.get_value.value }}</td>
@@ -258,8 +258,8 @@
                         { attribution: attribution, detectRetina: true }).addTo(area_map);
             var areas = L.featureGroup();
             {% for emplacement in emplacements %}
-                var geom = {{ emplacement.site.get_value.value.coordinates.get_value.value.geojson|safe}};
-                geom['properties'] = {'name': "{{ emplacement.site.get_value.value.name.get_value }}"};
+                var geom = {{ emplacement.site.get_value.value.geometry.geojson|safe }};
+                geom['properties'] = {'name': "{{ emplacement.site.get_value.value.name }}"};
                 areas.addLayer(
                     L.geoJson(geom, {onEachFeature: onEachFeature})
                 );
