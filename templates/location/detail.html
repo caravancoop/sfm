@@ -72,7 +72,45 @@
         </table>
     </div>
 </div>
-
+{% if related_entities %}
+<div class="row">
+    <div class="col-sm-12">
+        <h3>Entities related to this location</h3>
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Entity</th>
+                    <th>Entity type</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Open ended</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entity in related_entities %}
+                    <tr>
+                        <td>
+                            <a href="{{ entity.url }}">{{ entity.name }}</a>
+                        </td>
+                        <td>
+                            {{ entity.entity_type }}
+                        </td>
+                        <td>
+                            {{ entity.start_date }}
+                        </td>
+                        <td>
+                            {{ entity.end_date }}
+                        </td>
+                        <td>
+                            {{ entity.open_ended }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 {% block extra_js %}
     <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>

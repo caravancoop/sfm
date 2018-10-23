@@ -40,9 +40,7 @@ from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
                           CONFIDENCE_MAP, execute_sql)
 from sfm_pc.base_views import UtilityMixin
 
-from geosite.models import Geosite
 from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
-from area.models import Area, AreaOSMId
 from association.models import Association, AssociationOpenEnded, AssociationRealStart
 from composition.models import Composition, CompositionOpenEnded, CompositionRealStart
 from person.models import Person, PersonName, PersonAlias
@@ -54,6 +52,8 @@ from membershiporganization.models import (MembershipOrganization,
                                            MembershipOrganizationRealEnd)
 from violation.models import Violation, ViolationPerpetrator, \
     ViolationPerpetratorOrganization, ViolationDescription
+
+from location.models import Location
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
@@ -980,6 +980,20 @@ class Command(UtilityMixin, BaseCommand):
 
             division_id = 'ocd-division/country:{}'.format(country_code)
 
+            area, created = Location.objects.get_or_create(id=geo.id)
+
+            if created:
+                area.name = geo.name
+                area.geometry = geo.geometry
+                area.division_id = division_id
+
+                if area.feature_type == 'point':
+                    area.feature_type = 'node'
+                else:
+                    area.feature_type = 'relation'
+
+                area.save()
+
             try:
                 area_confidence = self.get_confidence(org_data[positions['OSMName']['confidence']])
             except (IndexError, KeyError):
@@ -993,52 +1007,6 @@ class Command(UtilityMixin, BaseCommand):
                 return None
 
             area_info = {
-                'Area_AreaName': {
-                    'value': geo.name,
-                    'confidence': area_confidence,
-                    'sources': area_sources
-                },
-                'Area_AreaOSMName': {
-                    'value': geo.name,
-                    'confidence': area_confidence,
-                    'sources': area_sources
-                },
-                'Area_AreaOSMId': {
-                    'value': geo.id,
-                    'confidence': area_confidence,
-                    'sources': area_sources
-                },
-                'Area_AreaGeometry': {
-                    'value': geo.geometry,
-                    'confidence': area_confidence,
-                    'sources': area_sources
-                },
-                'Area_AreaDivisionId': {
-                    'value': division_id,
-                    'confidence': area_confidence,
-                    'sources': area_sources
-                },
-            }
-
-            try:
-                area = Area.objects.get(areaosmid__value=geo.id)
-
-                try:
-                    area.update(area_info)
-                except TypeError:
-                    # Probably means that the geometry is wrong
-                    self.log_error('OSM ID "{0}" for area "{1}" does not seem to be a relation'.format(geo.id, geo.name))
-                    return None
-
-            except Area.DoesNotExist:
-                try:
-                    area = Area.create(area_info)
-                except TypeError:
-                    # Probably means that the geometry is wrong
-                    self.log_error('OSM ID "{0}" for area "{1}" does not seem to be a relation'.format(geo.id, geo.name))
-                    return None
-
-            area_info = {
                 'Association_AssociationOrganization': {
                     'value': organization,
                     'confidence': area_confidence,
@@ -1050,7 +1018,6 @@ class Command(UtilityMixin, BaseCommand):
                     'sources': area_sources
                 },
             }
-
 
             try:
                 assoc = Association.objects.get(associationorganization__value=organization,
@@ -1241,7 +1208,7 @@ class Command(UtilityMixin, BaseCommand):
 
     def get_or_create_site(self, osm, exact_location, data, positions):
         '''
-        Helper method to get or create a Geosite based on spreadsheet data.
+        Helper method to get or create a Location based on spreadsheet data.
 
         Params:
             * osm: OSMFeature
@@ -1251,7 +1218,7 @@ class Command(UtilityMixin, BaseCommand):
               and source values for each model represented in the sheet.
 
         Returns:
-            * Geosite object.
+            * Location object.
         '''
 
         names = [
@@ -1262,160 +1229,38 @@ class Command(UtilityMixin, BaseCommand):
 
         name = ', '.join([n for n in names if n])
 
-        try:
-            if exact_location.get('id'):
-                site = Geosite.objects.get(geositelocationid__value=exact_location.get('id'),
-                                           geositename__value=name)
-            else:
-                osm_id = data[positions['AdminId']['value']]
-                osm = get_osm_by_id(osm_id)
-                site = Geosite.objects.get(geositeadminid__value=osm.id,
-                                           geositename__value=name)
-        except Geosite.DoesNotExist:
-            with reversion.create_revision():
-                site = Geosite()
-                site.save()
-                reversion.set_user(self.user)
-
-        if positions['AdminName'].get('confidence'):
-            name_confidence = self.get_confidence(data[positions['AdminName']['confidence']])
-        else:
-            name_confidence = 1
-
-        name_sources = self.get_sources(data[positions['AdminName']['source']])
-
-        site_data = {}
-
-        if name and name_confidence and name_sources:
-
-            site_data['Geosite_GeositeName'] = {
-                'value': name,
-                'confidence': name_confidence,
-                'sources': name_sources,
-            }
-
-        else:
-            missing = []
-            if not name_confidence:
-                missing.append('confidence')
-            if not name_sources:
-                missing.append('sources')
-
-            self.log_error('GeositeName {0} did not have {1}'.format(name, ', '.join(missing)))
-
-        # Get Coordinates
-        if exact_location.get('coords'):
+        if exact_location.get('id'):
+            osm_id = exact_location['id']
+            division_id = None
             coords = exact_location['coords']
-            confidence_key = 'ExactLocation'
+            tags = exact_location['tags']
+            feature_type = 'node'
         else:
-            point_string = 'POINT({lng} {lat})'
-            coord_string = (str(osm.st_x), str(osm.st_y))
-            coords = GEOSGeometry(point_string.format(lng=coord_string[0],
-                                                      lat=coord_string[1]),
-                                  srid=4326)
+            osm_id = data[positions['AdminId']['value']]
+            osm = get_osm_by_id(osm_id)
+            osm_id = osm.id
 
-            confidence_key = 'AdminId'
+            division_id = 'ocd-division/country:{}'.format(osm.country_code)
 
-        if positions[confidence_key].get('confidence'):
-            confidence = self.get_confidence(data[positions[confidence_key]['confidence']])
-        else:
-            confidence = 1
+            coords = osm.geometry
+            tags = osm.tags
 
-        sources = self.get_sources(data[positions[confidence_key]['source']])
-
-        if confidence and sources:
-
-            site_data['Geosite_GeositeCoordinates'] = {
-                'value': coords,
-                'confidence': confidence,
-                'sources': sources,
-            }
-
-        else:
-            missing = []
-            if not confidence:
-                missing.append('confidence')
-            if not sources:
-                missing.append('sources')
-
-            self.log_error('Coordinates for OSM ID {0} did not have {1}'.format(osm.id, ', '.join(missing)))
-
-        # Exact location, if it exists
-        if exact_location.get('name') and exact_location.get('id'):
-
-            if positions['ExactLocation'].get('confidence'):
-                confidence = self.get_confidence(data[positions['ExactLocation']['confidence']])
+            if osm.feature_type == 'point':
+                feature_type = 'node'
             else:
-                confidence = 1
+                feature_type = 'relation'
 
-            sources = self.get_sources(data[positions['ExactLocation']['source']])
+        site, created = Location.objects.get_or_create(id=osm_id)
 
-            if confidence and sources:
+        if created:
 
-                site_data['Geosite_GeositeLocationName'] = {
-                    'value': exact_location.get('name'),
-                    'confidence': confidence,
-                    'sources': sources,
-                }
+            site.name = name
+            site.division_id = division_id
+            site.tags = tags
+            site.geometry = coords
+            site.feature_type = feature_type
 
-                site_data['Geosite_GeositeLocationId'] = {
-                    'value': exact_location.get('id'),
-                    'confidence': confidence,
-                    'sources': sources,
-                }
-
-            else:
-                missing = []
-                if not confidence:
-                    missing.append('confidence')
-                if not sources:
-                    missing.append('sources')
-
-                self.log_error('Exact location for OSM ID {0} did not have {1}'.format(osm.id, ', '.join(missing)))
-
-        # Process the rest of the OSM data
-        for attribute in ['AdminLevel1', 'AdminName', 'AdminId']:
-
-            if positions[attribute].get('confidence'):
-                confidence = self.get_confidence(data[positions[attribute]['confidence']])
-            else:
-                confidence = 1
-
-            sources = self.get_sources(data[positions[attribute]['source']])
-            value = data[positions[attribute]['value']]
-            attr_osm_id = data[positions[attribute]['osmid']]
-
-            try:
-                geo = get_osm_by_id(attr_osm_id)
-            except (DataError, ProgrammingError):
-                self.log_error('OSMName ID for Site {0} does not seem valid: {1}'.format(site.name, attr_osm_id))
-                geo = None
-
-            if geo and confidence and sources:
-
-                site_data['Geosite_Geosite{}'.format(attribute)] = {
-                    'value': value,
-                    'confidence': confidence,
-                    'sources': sources,
-                }
-
-            elif not confidence or not sources:
-                missing = []
-                if not confidence:
-                    missing.append('confidence')
-                if not sources:
-                    missing.append('sources')
-
-                self.log_error('{0} {1} did not have {2}'.format(attribute, value, ', '.join(missing)))
-
-            elif not geo:
-                self.log_error("Can't find OSM ID {0} for Site {1}".format(attr_osm_id, site.name))
-
-        try:
-            site.update(site_data)
-        except TypeError as e:
-            # Probably means that the geometry is wrong
-            self.log_error('OSM ID "{0}" for site "{1}" does not seem to be a node'.format(osm.id, site.name))
+            site.save()
 
         return site
 
@@ -1473,6 +1318,7 @@ class Command(UtilityMixin, BaseCommand):
 
         point_string = 'POINT({lng} {lat})'.format(lng=lng, lat=lat)
         exact_location['coords'] = GEOSGeometry(point_string, srid=4326)
+        exact_location['tags'] = geo.tags
 
         return exact_location
 
@@ -2014,6 +1860,7 @@ class Command(UtilityMixin, BaseCommand):
         exactloc_name = exact_location.get('name')
 
         event_info = {}
+        osm_id = None
 
         if exactloc_name and exactloc_id:
             event_info.update({
@@ -2028,6 +1875,8 @@ class Command(UtilityMixin, BaseCommand):
                     'confidence': 1
                 },
             })
+
+            osm_id = exactloc_id
 
         geo, admin1, admin2 = None, None, None
         if admin_id:
@@ -2055,9 +1904,9 @@ class Command(UtilityMixin, BaseCommand):
 
             if hierarchy:
                 for member in hierarchy:
-                    if member.admin_level == 6 and not admin1:
+                    if int(member.admin_level) == 6 and not admin1:
                         admin1 = member.name
-                    elif member.admin_level == 4:
+                    elif int(member.admin_level) == 4:
                         admin2 = member.name
 
             event_info.update({
@@ -2083,10 +1932,28 @@ class Command(UtilityMixin, BaseCommand):
                 },
             })
 
-        if coords:
+            osm_id = geo.id
+
+        if osm_id:
+            location, created = Location.objects.get_or_create(id=geo.id)
+
+            if created:
+                location.name = geo.name
+                location.geometry = geo.geometry
+
+                country_code = geo.country_code.lower()
+                location.division_id = 'ocd-division/country:{}'.format(country_code)
+
+                if location.feature_type == 'point':
+                    location.feature_type = 'node'
+                else:
+                    location.feature_type = 'relation'
+
+                location.save()
+
             event_info.update({
                 'Violation_ViolationLocation': {
-                    'value': coords,
+                    'value': location,
                     'sources': sources,
                     'confidence': 1
                 },

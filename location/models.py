@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import JSONField
 class Location(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.TextField(blank=True, null=True)
-    country_code = models.TextField(blank=True, null=True)
+    division_id = models.TextField(blank=True, null=True)
     feature_type = models.TextField(blank=True, null=True)
     tags = JSONField(blank=True, null=True)
     geometry = GeometryField(blank=True, null=True)

@@ -142,39 +142,25 @@ class Command(BaseCommand):
             for emp in emplacements:
                 emp = emp.object_ref
                 site = emp.site.get_value()
+
                 if site:
-                    site = site.value
+                    exactloc_name = site.value.name
+                    emp_division_id = site.value.division_id
 
-                    exactloc_name = site.location_name.get_value()
-                    if exactloc_name:
-                        exactloc_names.update([exactloc_name.value])
-
-                    admin_name = site.admin_name.get_value()
-                    if admin_name:
-                        admin_names.update([admin_name.value])
-
-                    admin_l1_name = site.adminlevel1.get_value()
-                    if admin_l1_name:
-                        admin_l1_names.update([admin_l1_name.value])
-
-                    emp_division_id = site.division_id.get_value()
                     if emp_division_id:
-                        division_ids.update([emp_division_id.value])
+                        division_ids.update([emp_division_id])
                         emp_country = country_name(emp_division_id)
                         countries.update([emp_country])
 
-            # For now, only index whether a site exists or not based on what we
-            # display in the search table
-            last_site_exists = int(max(len(exactloc_names), len(admin_names)) > 0)
+            last_site_exists = len(exactloc_names)
 
             areas = set()
             assocs = organization.associationorganization_set.all()
             for assoc in assocs:
                 area = assoc.object_ref.area.get_value()
                 if area:
-                    area_name = area.value.osmname.get_value()
-                    if area_name:
-                        areas.update([area_name.value])
+                    area_name = area.value.name
+                    areas.update([area_name])
 
             parent_names, parent_ids = [], []
             parents = organization.parent_organization.all()
@@ -247,12 +233,11 @@ class Command(BaseCommand):
 
             # Convert sets to lists, for indexing
             division_ids, countries = list(division_ids), list(countries)
-            exactloc_names, admin_names = list(exactloc_names), list(admin_names)
-            admin_l1_names, areas = list(admin_l1_names), list(areas)
+            exactloc_names = list(exactloc_names)
+            areas = list(areas)
 
             # Add some attributes to the global index
-            for attr in (parent_names, countries, exactloc_names, admin_names,
-                         admin_l1_names, areas):
+            for attr in (parent_names, countries, exactloc_names, areas):
                 content.extend(attr)
 
             content = '; '.join(content)
@@ -278,8 +263,6 @@ class Command(BaseCommand):
                 'organization_exact_location_ss': exactloc_names,
                 'organization_site_count_i': last_site_exists,
                 'organization_country_count_i': country_count,
-                'organization_admin_ss': admin_names,
-                'organization_adminlevel1_ss': admin_l1_names,
                 'organization_area_ss': areas,
                 'organization_start_date_dt': first_cited,
                 'organization_end_date_dt': first_cited,

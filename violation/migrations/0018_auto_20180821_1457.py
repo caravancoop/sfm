@@ -8,20 +8,6 @@ from django.db import migrations, connection
 from django.conf import settings
 
 
-def remake_views(apps, schema_editor):
-    sql_folder_path = os.path.join(settings.BASE_DIR, 'sfm_pc/management/commands/sql')
-    view_paths = [
-        os.path.join(sql_folder_path, 'violation_view.sql'),
-        os.path.join(sql_folder_path, 'violation_sources_view.sql'),
-        os.path.join(sql_folder_path, 'violation_all_export_view.sql'),
-    ]
-    for view_path in view_paths:
-        with open(view_path) as sql:
-            with connection.cursor() as curs:
-                curs.execute(sql.read())
-
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -45,7 +31,6 @@ class Migration(migrations.Migration):
             ) AS s
             WHERE violation_violationtype.value_id = s.id
         '''),
-        migrations.RunPython(remake_views),
         migrations.RunSQL(
             '''
             ALTER TABLE violation_violationperpetratorclassification DROP COLUMN value_id

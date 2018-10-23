@@ -16,6 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
+from django.template.defaultfilters import truncatewords
 
 from countries_plus.models import Country
 
@@ -40,6 +41,54 @@ class LocationView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        related_entities = []
+        location = context['location']
+
+        for area in location.associationarea_set.all():
+            association = area.object_ref
+            organization = association.organization.get_value().value
+            entity = {
+                'name': organization.name.get_value().value,
+                'entity_type': 'Organization',
+                'url': reverse('view-organization', kwargs={'slug': organization.uuid}),
+                'start_date': association.startdate.get_value(),
+                'end_date': association.enddate.get_value(),
+                'open_ended': association.open_ended.get_value(),
+            }
+
+            related_entities.append(entity)
+
+        for site in location.emplacementsite_set.all():
+            emplacement = site.object_ref
+            organization = emplacement.organization.get_value().value
+            entity = {
+                'name': organization.name.get_value().value,
+                'entity_type': 'Organization',
+                'url': reverse('view-organization', kwargs={'slug': organization.uuid}),
+                'start_date': emplacement.startdate.get_value(),
+                'end_date': emplacement.enddate.get_value(),
+                'open_ended': emplacement.open_ended.get_value(),
+            }
+
+            related_entities.append(entity)
+
+        context['related_entities'] = related_entities
+
+        for violation_location in location.violationlocation_set.all():
+            violation = violation_location.object_ref
+
+            entity = {
+                'name': truncatewords(violation.description.get_value(), 10),
+                'entity_type': 'Incident',
+                'url': reverse('view-violation', kwargs={'slug': violation.uuid}),
+                'start_date': violation.startdate.get_value(),
+                'end_date': violation.enddate.get_value(),
+                'open_ended': '',
+            }
+
+            related_entities.append(entity)
+
         return context
 
 class LocationDelete(LoginRequiredMixin, DeleteView):
