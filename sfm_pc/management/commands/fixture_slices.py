@@ -240,6 +240,12 @@ class Command(BaseCommand):
                                   people_fields=['membershippersonmember_set'],
                                   organization_fields=['membershippersonorganization_set'])
 
+        role_ids = [m['fields']['value'] for m in output if m['model'] == 'membershipperson.membershippersonrole']
+        rank_ids = [m['fields']['value'] for m in output if m['model'] == 'membershipperson.membershippersonrank']
+
+        output.extend(self.buildOutput(Role.objects.filter(id__in=role_ids)))
+        output.extend(self.buildOutput(Rank.objects.filter(id__in=rank_ids)))
+
         output.extend(self.buildOutput(people))
         output.extend(self.buildOutput(more_people))
 
