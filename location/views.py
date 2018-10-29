@@ -226,6 +226,10 @@ class LocationAutoComplete(JSONResponseMixin, TemplateView):
 
         results = Location.objects.filter(Q(name__icontains=query) | Q(id__startswith=query))
 
+        if self.request.GET.get('feature_type'):
+            feature_type = self.request.GET['feature_type']
+            results = results.filter(feature_type=feature_type)
+
         context = {
             'results': []
         }

@@ -5,6 +5,10 @@
 
 {% block form_content %}
     <h2>{% trans "Edit Location" %}</h2>
+    <input type="hidden" name="organization" value="{{ form.instance.organization.get_value.value.id }}" />
+    {% for source in form.instance.organization.get_sources %}
+        <input type="hidden" name="organization_source" value="{{ source.uuid }}" />
+    {% endfor %}
     <div class="row area-row field-bg bg-info">
         <div class="col-sm-12">
             {% if form.area.errors %}

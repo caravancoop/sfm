@@ -226,7 +226,6 @@
                         access_point['source_detail_url'] = source.source_detail_url;
                         access_point['uncommitted'] = source.uncommitted;
                         var source_template = new EJS({'text': $('#source-list-template').html()});
-                        console.log(access_point);
                         $('#source-list').prepend(source_template.render(access_point));
                     });
 

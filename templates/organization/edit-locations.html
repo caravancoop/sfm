@@ -43,7 +43,11 @@
                     </tr>
                 {% endfor %}
                 {% for association in associations %}
-                    <tr>
+                    {% if association == current_association %}
+                        <tr class="bg-info">
+                    {% else %}
+                        <tr>
+                    {% endif %}
                         <td>{{ association.area.get_value.value.name }}</td>
                         <td>{% trans "Area of operations" %}</td>
                         <td>{{ association.startdate.get_value.value }}</td>
@@ -71,11 +75,13 @@
                 'tags': true
             });
 
-            $('#id_division_id').select2();
-
             $('.location').select2({
                 ajax: {
-                    url: "{% url 'location-autocomplete' %}",
+                    {% if current_emplacement %}
+                        url: "{% url 'location-autocomplete' %}?feature_type=node",
+                    {% else %}
+                        url: "{% url 'location-autocomplete' %}?feature_type=relation",
+                    {% endif %}
                     data: function(params){
                         var query = {
                             q: params.term
