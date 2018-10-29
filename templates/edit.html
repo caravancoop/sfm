@@ -78,12 +78,13 @@
                     <a href="<%= source_url %>" target="_blank">
                         <%= publication %>, <%= publication_country %>
                     </a> -
-                    <% if (accessed_on && archive_url){ %>
+                    <% if (accessed_on !== '' && archive_url){ %>
                         Access Point <a href="<%= archive_url %>"><%= accessed_on %></a>
                     <% } else if (archive_url) { %>
                         <a href="<%= archive_url %>">Access Point</a>
-                    <% } else if (page_number){ %>
-                        Access Point p <%= page_number %>
+                    <% } %>
+                    <% if (page_number){ %>
+                        page <%= page_number %>
                     <% } %>
                 </small>
             </h4>
@@ -132,7 +133,6 @@
 
             $.each($(selector), function(e, source){
                 var source_info = $(source).data();
-                console.log(source_info)
                 source_info['field_name'] = field_name;
                 source_info['id'] = $(selector).val();
                 var template = new EJS({'text': $('#source-list-template').html()});
@@ -225,8 +225,8 @@
                         access_point['source_url'] = source.source_url;
                         access_point['source_detail_url'] = source.source_detail_url;
                         access_point['uncommitted'] = source.uncommitted;
-                        console.log(access_point)
                         var source_template = new EJS({'text': $('#source-list-template').html()});
+                        console.log(access_point);
                         $('#source-list').prepend(source_template.render(access_point));
                     });
 

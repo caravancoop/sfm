@@ -277,6 +277,7 @@ def extract_source(source, uncommitted=False):
             'id': str(access_point.uuid),
             'page_number': access_point.page_number,
             'archive_url': access_point.archive_url,
+            'accessed_on': access_point.accessed_on,
         }
 
         source_info['access_points'].append(ap_info)

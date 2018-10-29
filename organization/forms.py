@@ -15,9 +15,7 @@ from emplacement.models import Emplacement, EmplacementStartDate, \
     EmplacementEndDate, EmplacementRealStart, EmplacementOpenEnded, \
     EmplacementOrganization, EmplacementSite, EmplacementAlias
 
-from geosite.models import Geosite
-
-from area.models import Area
+from location.models import Location
 
 from membershipperson.models import \
     MembershipPerson, MembershipPersonRank, MembershipPersonRole, \
@@ -177,7 +175,7 @@ class OrganizationEmplacementForm(BaseEditForm):
     enddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
     open_ended = forms.ChoiceField(label=_("Open-ended?"), choices=OPEN_ENDED_CHOICES, required=False)
     organization = forms.ModelChoiceField(label=_("Organization"), queryset=Organization.objects.all(), required=False)
-    site = forms.ModelChoiceField(label=_("Location name"), queryset=Geosite.objects.all(), required=False)
+    site = forms.ModelChoiceField(label=_("Location name"), queryset=Location.objects.all(), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -196,6 +194,7 @@ class OrganizationAssociationForm(BaseEditForm):
         fields = '__all__'
 
     edit_fields = [
+        ('realstart', AssociationRealStart, False),
         ('startdate', AssociationStartDate, False),
         ('enddate', AssociationEndDate, False),
         ('realstart', AssociationRealStart, False),
@@ -204,8 +203,9 @@ class OrganizationAssociationForm(BaseEditForm):
         ('open_ended', AssociationOpenEnded, False),
     ]
 
+    realstart = forms.BooleanField(label=_("Start date?"))
     startdate = ApproximateDateFormField(label=_("Date first cited"), required=False)
     enddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
     open_ended = forms.ChoiceField(label=_("Open-ended?"), choices=OPEN_ENDED_CHOICES, required=False)
     organization = forms.ModelChoiceField(label=_("Organization"), queryset=Organization.objects.all(), required=False)
-    area = forms.ModelChoiceField(label=_("Location name"), queryset=Area.objects.all(), required=False)
+    area = forms.ModelChoiceField(label=_("Location name"), queryset=Location.objects.all(), required=False)

@@ -846,6 +846,7 @@ def get_source_context(field_name, source, uncommitted=True):
             'archive_url': access_point.archive_url,
             'id': access_point.uuid,
             'page_number': access_point.page_number,
+            'accessed_on': None,
         }
 
         if access_point.accessed_on:

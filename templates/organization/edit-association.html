@@ -1,66 +1,7 @@
-{% extends 'organization/base-organization.html' %}
+{% extends 'organization/edit-locations.html' %}
 {% load i18n %}
 {% load countries %}
 {% load citations %}
-
-{% block extra_head %}
-     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
-{% endblock %}
-
-{% block above_form %}
-<div class="row">
-    <div class="col-sm-12">
-        <div id="osm_area_map" style="height:300px;"></div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-12">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>{% trans "Name" %}</th>
-                    <th>{% trans "Type" %}</th>
-                    <th>{% trans "Date first cited" %}</th>
-                    <th>{% trans "Date last cited" %}</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for emplacement in emplacements %}
-                    <tr>
-                        <td>{{ emplacement.site.get_value.value.name.get_value }}</td>
-                        <td>{% trans "Site" %}</td>
-                        <td>{{ emplacement.startdate.get_value.value }}</td>
-                        <td>{{ emplacement.enddate.get_value.value }}</td>
-                        <td>
-                            <a href="{% url 'edit-organization-emplacement' organization.uuid emplacement.id %}">
-                                <i class="fa fa-pencil"> </i>
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                {% for association in associations %}
-                    {% if association == current_association %}
-                        <tr class="bg-info">
-                    {% else %}
-                        <tr>
-                    {% endif %}
-                        <td>{{ association.area.get_value.value.name.get_value }}</td>
-                        <td>{% trans "Area of operations" %}</td>
-                        <td>{{ association.startdate.get_value.value }}</td>
-                        <td>{{ association.enddate.get_value.value }}</td>
-                        <td>
-                            <a href="{% url 'edit-organization-association' organization.uuid association.id %}">
-                                <i class="fa fa-pencil"> </i>
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endblock %}
 
 {% block form_content %}
     <h2>{% trans "Edit Location" %}</h2>
@@ -72,7 +13,12 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.area.label }}</label>
-                <input id="id_area" type="text" class="form-control sourced" name="area" value="{{ form.instance.area.get_value }}" />
+                <select id="id_area" class="form-control sourced location" name="area">
+                    <option value="{{ form.instance.area.get_value.value.id }}">
+                    {{ form.instance.area.get_value.value.name }}
+                    ({{ form.instance.area.get_value.value.feature_type }} - {{ form.instance.area.get_value.value.id }})
+                    </option>
+                </select>
                 {% if form.area.errors %}
                     {% for error in form.area.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -182,36 +128,3 @@
     </div>
 
 {% endblock %}
-{% block extra_extra_js%}
-    <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function(){
-            loadSources({'target': $('#id_area')});
-
-            function onEachFeature(feature, layer){
-                layer.bindPopup(feature.properties.name);
-            }
-            var area_map = L.map('osm_area_map');
-            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        { attribution: attribution, detectRetina: true }).addTo(area_map);
-            var areas = L.featureGroup();
-            {% for emplacement in emplacements %}
-                var geom = {{ emplacement.site.get_value.value.coordinates.get_value.value.geojson|safe}};
-                geom['properties'] = {'name': "{{ emplacement.site.get_value.value.name.get_value }}"};
-                areas.addLayer(
-                    L.geoJson(geom, {onEachFeature: onEachFeature})
-                );
-            {% endfor %}
-            {% for association in associations %}
-                var geom = {{ association.area.get_value.value.geometry.get_value.value.geojson|safe}};
-                geom['properties'] = {'name': "{{ association.area.get_value.value.name.get_value }}"};
-                areas.addLayer(
-                    L.geoJson(geom, {onEachFeature: onEachFeature})
-                );
-            {% endfor %}
-            areas.addTo(area_map);
-            area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
-        })
-    </script>
-{% endblock%}
