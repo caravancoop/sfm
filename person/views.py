@@ -7,7 +7,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import DetailView
 from django.http import HttpResponse
 from django.db import connection
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -348,10 +348,14 @@ class PersonEditPostingsView(PersonEditView):
 
 
 class PersonCreateView(BaseCreateView):
-    template_name = 'person/edit-basics.html'
+    template_name = 'person/create-basics.html'
     form_class = PersonBasicsForm
     context_object_name = 'person'
+    slug_field_kwarg = 'slug'
+    model = Person
 
     def get_success_url(self):
-        person_id = self.kwargs['uuid']
-        return reverse('view-person', kwargs={'slug': person_id})
+        if self.object:
+            return reverse_lazy('view-person', kwargs={'slug': self.object.uuid})
+        else:
+            return '{}?entity_type=Person'.format(reverse_lazy('search'))

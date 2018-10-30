@@ -79,6 +79,9 @@ class Person(models.Model, BaseModel, VersionsMixin):
     def __str__(self):
         return str(self.personname_set.first().value)
 
+    def get_absolute_url(self):
+        return reverse('view-person', kwargs={'slug': self.uuid})
+
     @cached_property
     def memberships(self):
         '''

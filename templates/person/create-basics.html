@@ -1,0 +1,30 @@
+{% extends 'person/edit-basics.html' %}
+{% load i18n %}
+{% load countries %}
+{% load citations %}
+{% block header_title %}
+<div class="col-sm-6">
+    <h1>Add a new person</h1>
+</div>
+{% endblock %}
+
+{% block edit_links %}
+
+{% endblock %}
+
+{% block extra_extra_js %}
+    <script type="text/javascript">
+        loadSources({'target': $('#id_name')});
+        $(document).ready(function(){
+            $('#id_alias').select2({
+                'tags': true
+            });
+
+            $('#id_external_links').select2({
+                'tags': true
+            });
+
+            $('#id_division_id').select2();
+        })
+    </script>
+{% endblock%}

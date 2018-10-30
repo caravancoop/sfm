@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.utils.translation import ugettext as _, get_language
+from django.core.exceptions import ObjectDoesNotExist
 
 from complex_fields.models import ComplexFieldContainer
 
@@ -54,9 +55,16 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                 # the processing will work
                 object_ref_fields = [f.column for f in self.object_ref_model._meta.fields]
                 if 'uuid' in object_ref_fields:
-                    object_ref = self.object_ref_model.objects.get(uuid=self.object_ref_pk)
+                    try:
+                        object_ref = self.object_ref_model.objects.get(uuid=self.object_ref_pk)
+                    except ObjectDoesNotExist:
+                        object_ref = self.object_ref_model.objects.create(uuid=self.form.post_data['pk'])
+
                 else:
-                    object_ref = self.object_ref_model.objects.get(id=self.object_ref_pk)
+                    try:
+                        object_ref = self.object_ref_model.objects.get(id=self.object_ref_pk)
+                    except ObjectDoesNotExist:
+                        object_ref = self.object_ref_model.objects.create(id=self.form.post_data['pk'])
 
                 # It would seem that if someone tries to save a value in the
                 # form that can be cast as an integer, there is a slim chance
@@ -112,7 +120,7 @@ class BaseEditForm(forms.ModelForm):
         except KeyError:
             pass
 
-        self.object_ref_pk = kwargs.pop('object_ref_pk')
+        self.object_ref_pk = kwargs.pop('object_ref_pk', None)
         self.update_fields = set()
 
         super().__init__(*args, **kwargs)
