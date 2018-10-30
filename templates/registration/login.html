@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block content %}
+<div class="row">
+
+    <div class="col-sm-6 col-sm-offset-3">
+    <h2 class="form-signin-heading text-center">Security Force Monitor</h2>
+    <form class="form-signin" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="inputEmail" class="sr-only">{% trans "Email address" %}</label>
+            <input type="email" id="inputEmail" class="form-control" placeholder="Email address" name="username" required autofocus>
+        </div>
+        <div class="form-group">
+            <label for="inputPassword" class="sr-only">{% trans "Password" %}</label>
+            <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="password" required>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-lg sfm-btn-action" type="submit">{% trans "Sign in" %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

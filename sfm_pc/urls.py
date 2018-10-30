@@ -42,6 +42,9 @@ urlpatterns = i18n_patterns(
     # API endpoints
     url(r'^api/', include('api.urls')),
 
+    # auth
+    url('^', include('django.contrib.auth.urls')),
+
 )
 
 # Rosetta translation app

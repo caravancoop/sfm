@@ -17,7 +17,7 @@ from person.models import Person, PersonAlias
 from person.forms import PersonBasicsForm, PersonPostingsForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.utils import Autofill
-from sfm_pc.base_views import BaseUpdateView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView
 
 
 class PersonDetail(DetailView):
@@ -347,5 +347,11 @@ class PersonEditPostingsView(PersonEditView):
             return super().get_success_url()
 
 
-class PersonCreateView(PersonEditView, CreateView):
-    pass
+class PersonCreateView(BaseCreateView):
+    template_name = 'person/edit-basics.html'
+    form_class = PersonBasicsForm
+    context_object_name = 'person'
+
+    def get_success_url(self):
+        person_id = self.kwargs['uuid']
+        return reverse('view-person', kwargs={'slug': person_id})
