@@ -1,8 +1,7 @@
 from django.conf.urls import url
 from django.views.decorators.cache import cache_page
 
-from organization.views import organization_autocomplete, alias_autocomplete, \
-    OrganizationDetail, \
+from organization.views import organization_autocomplete, OrganizationDetail, \
     OrganizationEditBasicsView, OrganizationEditRelationshipsView, \
     OrganizationEditPersonnelView, OrganizationEditEmplacementView, \
     OrganizationEditAssociationView
@@ -15,7 +14,6 @@ urlpatterns = [
     url(r'name/autocomplete',
         organization_autocomplete,
         name="organization-autocomplete"),
-    url(r'^alias/autocomplete/$', alias_autocomplete, name="org-alias-autocomplete"),
     url(r'edit/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         OrganizationEditBasicsView.as_view(),
         name='edit-organization'),
