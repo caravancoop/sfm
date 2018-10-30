@@ -316,20 +316,3 @@ def organization_autocomplete(request):
             response['results'].append(result)
 
     return HttpResponse(json.dumps(response), content_type='application/json')
-
-
-################################################################
-## The views below here are probably ready to be factored out ##
-################################################################
-
-
-def alias_autocomplete(request):
-    term = request.GET.get('q')
-    alias_query = OrganizationAlias.objects.filter(value__value__icontains=term)
-    results = []
-    for alias in alias_query:
-        results.append({
-            'text': alias.value.value,
-            'id': alias.id
-        })
-    return HttpResponse(json.dumps(results), content_type='application/json')
