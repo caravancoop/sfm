@@ -25,7 +25,6 @@ from countries_plus.models import Country
 
 from api.base_views import JSONResponseMixin
 
-from sfm_pc.base_views import NeverCacheMixin
 from sfm_pc.utils import VersionsMixin, get_source_context
 from sfm_pc.templatetags.citations import get_citation_string
 
@@ -63,7 +62,7 @@ class SourceView(DetailView):
         return context
 
 
-class SourceEditView(NeverCacheMixin, RevisionMixin, LoginRequiredMixin):
+class SourceEditView(LoginRequiredMixin, RevisionMixin):
     fields = [
         'title',
         'publication',
@@ -163,10 +162,9 @@ class AccessPointContextMixin(object):
         return context
 
 
-class AccessPointEdit(AccessPointContextMixin,
-                      NeverCacheMixin,
+class AccessPointEdit(LoginRequiredMixin,
+                      AccessPointContextMixin,
                       VersionsMixin,
-                      LoginRequiredMixin,
                       RevisionMixin):
     fields = [
         'page_number',
@@ -192,10 +190,9 @@ class AccessPointEdit(AccessPointContextMixin,
         return super().form_valid(form)
 
 
-class AccessPointDetail(AccessPointContextMixin,
-                        NeverCacheMixin,
+class AccessPointDetail(LoginRequiredMixin,
+                        AccessPointContextMixin,
                         VersionsMixin,
-                        LoginRequiredMixin,
                         ListView):
     model = AccessPoint
     template_name = 'source/access-points.html'

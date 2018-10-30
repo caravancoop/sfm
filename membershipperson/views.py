@@ -23,7 +23,7 @@ from membershipperson.models import MembershipPerson, Role, Rank
 from membershipperson.forms import MembershipPersonForm
 from source.models import Source
 from sfm_pc.utils import deleted_in_str
-from sfm_pc.base_views import BaseFormSetView, BaseUpdateView
+from sfm_pc.base_views import BaseUpdateView
 
 
 class MembershipPersonCreate(LoginRequiredMixin, BaseFormSetView):

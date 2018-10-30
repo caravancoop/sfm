@@ -36,7 +36,6 @@ from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
 from sfm_pc.utils import (import_class, get_osm_by_id, get_org_hierarchy_by_id,
                           get_child_orgs_by_id, Downloader)
-from sfm_pc.base_views import UtilityMixin
 from search.views import get_search_context
 
 

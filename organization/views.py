@@ -1,22 +1,11 @@
 import json
 
-from django.contrib import messages
 from django.views.generic import DetailView
 from django.http import HttpResponse
-from django.db import connection
-from django.utils.translation import get_language
-from django.core.urlresolvers import reverse_lazy, reverse
-from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 
-from source.models import Source
-
-from geosite.models import Geosite
-
 from emplacement.models import Emplacement
-
-from area.models import Area
 
 from association.models import Association
 
@@ -25,19 +14,12 @@ from composition.models import Composition
 from organization.forms import OrganizationBasicsForm, \
     OrganizationRelationshipsForm, OrganizationPersonnelForm, \
     OrganizationEmplacementForm, OrganizationAssociationForm
-from organization.models import Organization, OrganizationAlias, \
-    OrganizationClassification
+from organization.models import Organization, OrganizationAlias
 
 from membershipperson.models import MembershipPerson
 
-from emplacement.models import Emplacement
-
-from sfm_pc.utils import (get_osm_by_id, get_hierarchy_by_id,
-                          get_org_hierarchy_by_id,  get_command_edges,
-                          get_command_nodes, Autofill)
 from sfm_pc.templatetags.countries import country_name
-from sfm_pc.base_views import BaseFormSetView, BaseUpdateView, PaginatedList, \
-    BaseEditView
+from sfm_pc.base_views import BaseUpdateView
 
 
 class OrganizationDetail(DetailView):
@@ -140,7 +122,7 @@ class OrganizationDetail(DetailView):
         return context
 
 
-class OrganizationEditView(BaseEditView):
+class OrganizationEditView(BaseUpdateView):
     model = Organization
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
@@ -339,25 +321,6 @@ def organization_autocomplete(request):
 ################################################################
 ## The views below here are probably ready to be factored out ##
 ################################################################
-
-
-def classification_autocomplete(request):
-    term = request.GET.get('q')
-
-    classifications = '''
-        SELECT DISTINCT TRIM(value) AS value
-    '''
-
-    classifications = Classification.objects.filter(value__icontains=term).all()
-
-    results = []
-    for classification in classifications:
-        results.append({
-            'text': classification.value,
-            'id': classification.id,
-        })
-
-    return HttpResponse(json.dumps(results), content_type='application/json')
 
 
 def alias_autocomplete(request):

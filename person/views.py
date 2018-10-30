@@ -17,7 +17,7 @@ from person.models import Person, PersonAlias
 from person.forms import PersonBasicsForm, PersonPostingsForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.utils import Autofill
-from sfm_pc.base_views import NeverCacheMixin, BaseEditView
+from sfm_pc.base_views import BaseUpdateView
 
 
 class PersonDetail(DetailView):
@@ -285,7 +285,7 @@ def person_autocomplete(request):
     return HttpResponse(json.dumps(results), content_type='application/json')
 
 
-class PersonEditView(BaseEditView):
+class PersonEditView(BaseUpdateView):
     model = Person
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'

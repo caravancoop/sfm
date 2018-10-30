@@ -8,7 +8,7 @@ from django.utils.translation import get_language
 
 from complex_fields.models import ComplexFieldContainer
 
-from sfm_pc.base_views import BaseEditView
+from sfm_pc.base_views import BaseUpdateView
 
 from .models import Violation, ViolationType, ViolationPerpetratorClassification
 from .forms import ViolationBasicsForm
@@ -38,7 +38,7 @@ class ViolationDetail(DetailView):
         return context
 
 
-class ViolationEditView(BaseEditView):
+class ViolationEditView(BaseUpdateView):
     model = Violation
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'

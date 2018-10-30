@@ -11,10 +11,7 @@ from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
                           download_zip, Help, About, country_background)
 
 urlpatterns = i18n_patterns(
-    url(r'^composition/', include('composition.urls')),
     url(r'^organization/', include('organization.urls')),
-    url(r'^membershipperson/', include('membershipperson.urls')),
-    url(r'^membershiporganization/', include('membershiporganization.urls')),
     url(r'^person/', include('person.urls')),
     url(r'^modal/', include('modal.urls')),
     url(r'^translate/', include('translation.urls')),
