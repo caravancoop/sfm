@@ -95,13 +95,17 @@
             <li>{% trans "Other country specific sources." %}</li>
         </ul>
         <p>
-        {% trans "Every piece of data in WhoWasInCommand is linked to one or more these sources. We have also preserved every source possible using the Internet Archive, so you can access the sources even if the original version has disappeared from the Internet." %}
+        {% blocktrans %}
+         "Every piece of data in WhoWasInCommand is linked to one or more these sources. We have also preserved every source possible using the Internet Archive, so you can access the sources even if the original version has disappeared from the Internet."
+         {% endblocktrans %}
         </p>
         <p>
             {% comment %}
             Translators: Make sure to keep the HTML tags intact in this sentence.
             {% endcomment %}
-            {% trans "Our <a target="_blank" href='https://help.securityforcemonitor.org'>Research Handbook</a> contains a thorough description of the method and tools used to create the data in WhoWasInCommand." %}
+            {% blocktrans %}
+            Our <a target="_blank" href='https://help.securityforcemonitor.org'>Research Handbook</a> contains a thorough description of the method and tools used to create the data in WhoWasInCommand.
+            {% endblocktrans %}
         </p>
 
         <h3 id="countries" class="faq-header">{% trans "Why have you singled out particular countries?" %}</h3>
@@ -120,7 +124,9 @@
             {% comment %}
             Translators: Make sure to keep the HTML tags intact in this sentence.
             {% endcomment %}
-            {% trans "In our <a target="_blank" href='http://help.securityforcemonitor.org'>Research Handbook</a>, we’ve created some guides to the different ways that data are displayed in WhoWasInCommand." %}
+            {% blocktrans %}
+            In our <a target="_blank" href='http://help.securityforcemonitor.org'>Research Handbook</a>, we’ve created some guides to the different ways that data are displayed in WhoWasInCommand."
+            {% endblocktrans %}
         </p>
 
         <h3 id="copyright" class="faq-header">{% trans "Can I use the data in my own work?" %}</h3>
@@ -128,7 +134,9 @@
             {% comment %}
             Translators: Make sure to keep the HTML tags intact in this sentence.
             {% endcomment %}
-            {% trans "Yes. You can download any data published on WhoWasInCommand and use it under the terms of <a target="_blank" href='https://creativecommons.org/licenses/by/4.0/'>Creative Commons Attribution License 4.0</a>. This means you’re welcome to use, share and adapt any data from WhoWasInCommand as long as you credit Security Force Monitor and promise not to place any additional restrictions on others’ ability to use the data." %}
+            {% blocktrans %}
+            Yes. You can download any data published on WhoWasInCommand and use it under the terms of <a target="_blank" href='https://creativecommons.org/licenses/by/4.0/'>Creative Commons Attribution License 4.0</a>. This means you’re welcome to use, share and adapt any data from WhoWasInCommand as long as you credit Security Force Monitor and promise not to place any additional restrictions on others’ ability to use the data.
+            {% endblocktrans %}
         </p>
 
         <h3 id="what-do-i-do" class="faq-header">{% trans "Something isn’t working, what do I do?" %}</h3>
@@ -190,7 +198,9 @@
             {% comment %}
             Translators: Make sure to keep the HTML tags intact in this sentence.
             {% endcomment %}
-            {% trans "Our <a target="_blank" href='https://help.securityforcemonitor.org'>Research Handbook</a> has detailed descriptions of all the fields and terminology used on WhoWasInCommand. If something isn’t clear, please write to us and let us know." %}
+            {% blocktrans %}
+            Our <a target="_blank" href='https://help.securityforcemonitor.org'>Research Handbook</a> has detailed descriptions of all the fields and terminology used on WhoWasInCommand. If something isn’t clear, please write to us and let us know.
+            {% endblocktrans %}
         </p>
     </div>
 </div>
