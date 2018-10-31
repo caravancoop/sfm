@@ -4,7 +4,7 @@ from django.conf import settings
 from django_date_extensions.fields import ApproximateDateFormField
 from django.utils.translation import ugettext as _
 
-from sfm_pc.forms import BaseEditForm
+from sfm_pc.forms import BaseUpdateForm
 
 from person.models import Person
 from organization.models import Organization
@@ -13,7 +13,7 @@ from .models import Violation, ViolationStartDate, ViolationEndDate, \
     ViolationType, ViolationPerpetrator, ViolationPerpetratorOrganization, \
     ViolationPerpetratorClassification, ViolationDescription, ViolationDivisionId
 
-class ViolationBasicsForm(BaseEditForm):
+class ViolationBasicsForm(BaseUpdateForm):
     class Meta:
         model = Violation
         fields = '__all__'

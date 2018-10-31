@@ -29,6 +29,7 @@
 
 {% block form_content %}
     <h2>{% trans 'Edit postings' %}</h2>
+    <input type="hidden" name="member" value="{{ person.id }}" />
     <div class="row organization-row field-bg bg-info">
         <div class="col-sm-12">
             {% if form.organization.errors %}

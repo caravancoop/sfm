@@ -14,7 +14,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from countries_plus.models import Country
 
 from person.models import Person, PersonAlias
-from person.forms import PersonBasicsForm, PersonPostingsForm
+from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \
+    PersonPostingsForm, PersonCreatePostingForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.utils import Autofill
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView
@@ -349,13 +350,40 @@ class PersonEditPostingsView(PersonEditView):
 
 class PersonCreateView(BaseCreateView):
     template_name = 'person/create-basics.html'
-    form_class = PersonBasicsForm
+    form_class = PersonCreateBasicsForm
     context_object_name = 'person'
     slug_field_kwarg = 'slug'
     model = Person
 
     def get_success_url(self):
-        if self.object:
-            return reverse_lazy('view-person', kwargs={'slug': self.object.uuid})
+
+        if self.get_form().object_ref_pk:
+            return reverse_lazy('create-person-posting', kwargs={'person_id': self.get_form().object_ref_pk})
+        else:
+            return '{}?entity_type=Person'.format(reverse_lazy('search'))
+
+
+class PersonCreatePostingView(BaseCreateView):
+    model = MembershipPerson
+    template_name = 'person/create-posting.html'
+    form_class = PersonCreatePostingForm
+    context_object_name = 'current_membership'
+    slug_field_kwarg = 'person_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
+
+        return context
+
+    def form_invalid(self, form):
+        import pdb
+        pdb.set_trace()
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+
+        if self.get_form().object_ref_pk:
+            return reverse_lazy('view-person', kwargs={'slug': self.get_form().object_ref_pk})
         else:
             return '{}?entity_type=Person'.format(reverse_lazy('search'))

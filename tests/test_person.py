@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 
 from django.core.urlresolvers import reverse_lazy
@@ -493,3 +495,99 @@ def test_no_existing_sources(setUp):
 
     assert response.status_code == 200
     assert 'Please add some sources to "rank"' in response.context['form'].errors['rank']
+
+
+@pytest.mark.django_db
+def test_create_person(setUp, fake_signal):
+    new_person_id = str(uuid4())
+    new_sources = Source.objects.order_by('?')[:2]
+
+    response = setUp.get(reverse_lazy('create-person'))
+
+    assert response.status_code == 200
+
+    new_source_ids = [s.uuid for s in new_sources]
+
+    post_data = {
+        'pk': new_person_id,
+        'name': 'Someone Something',
+        'name_source': new_source_ids,
+        'aliases': ['Foo', 'Bar', 'Baz'],
+        'aliases_source': new_source_ids,
+        'division_id': 'ocd-division/country:us',
+        'division_id_source': new_source_ids,
+        'date_of_birth': '1976',
+        'date_of_birth_source': new_source_ids,
+        'date_of_death': '2012-02-14',
+        'date_of_death_source': new_source_ids,
+        'deceased': True,
+        'deceased_source': new_source_ids,
+    }
+
+    response = setUp.post(reverse_lazy('create-person'), post_data)
+
+    assert response.status_code == 302
+
+    person = Person.objects.get(uuid=new_person_id)
+
+    assert 'Foo' in [p.get_value().value for p in person.aliases.get_list()]
+
+    assert person.division_id.get_value().value == 'ocd-division/country:us'
+    assert str(person.date_of_birth.get_value().value) == '1976'
+    assert str(person.date_of_death.get_value().value) == '14th February 2012'
+    assert person.deceased.get_value().value == True
+
+    fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
+
+
+@pytest.mark.django_db
+def test_create_posting(setUp, fake_signal):
+    person = Person.objects.first()
+
+    response = setUp.get(reverse_lazy('create-person-posting',
+                                      kwargs={'person_id': person.uuid}))
+
+    assert response.status_code == 200
+
+    sources = [s for s in person.name.get_sources()]
+
+    new_source = Source.objects.exclude(uuid__in=[s.uuid for s in sources]).first()
+
+    new_organization = Organization.objects.exclude(organizationname__isnull=True).order_by('?').first()
+    new_rank = Rank.objects.order_by('?').first()
+    new_role = Role.objects.order_by('?').first()
+
+    post_data = {
+        'organization': new_organization.id,
+        'organization_source': [new_source.uuid],
+        'rank': new_rank.id,
+        'rank_source': [new_source.uuid],
+        'role': new_role.id,
+        'role_source': [new_source.uuid],
+        'title': 'Floober',
+        'title_source': [new_source.uuid],
+        'firstciteddate': '2007',
+        'firstciteddate_source': [new_source.uuid],
+        'lastciteddate': 'April 2012',
+        'lastciteddate_source': [new_source.uuid],
+        'realstart': True,
+        'realstart_source': [new_source.uuid],
+        'startcontext': 'Floop de doop',
+        'startcontext_source': [new_source.uuid]
+    }
+
+    response = setUp.post(reverse_lazy('create-person-posting',
+                                       kwargs={'person_id': person.uuid}),
+                          post_data)
+
+    assert response.status_code == 302
+
+    membership = MembershipPerson.objects.get(membershippersontitle__value='Floober')
+
+    assert membership.organization.get_value().value.uuid == new_organization.uuid
+    assert new_source in membership.organization.get_sources()
+    assert membership.rank.get_value().value == new_rank
+    assert membership.role.get_value().value == new_role
+
+    fake_signal.assert_called_with(object_id=membership.id,
+                                   sender=MembershipPerson)

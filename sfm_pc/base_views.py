@@ -73,7 +73,6 @@ class BaseUpdateView(BaseEditView, UpdateView):
         return form_kwargs
 
 
-
 class BaseCreateView(BaseEditView, CreateView):
 
     def get_context_data(self, **kwargs):
@@ -84,5 +83,5 @@ class BaseCreateView(BaseEditView, CreateView):
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['post_data'] = self.request.POST
+        form_kwargs['object_ref_pk'] = self.kwargs.get(self.slug_field_kwarg)
         return form_kwargs
-

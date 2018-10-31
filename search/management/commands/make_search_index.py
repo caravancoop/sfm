@@ -326,11 +326,14 @@ class Command(BaseCommand):
             last_cited = None
 
             # Get most recent information
-            latest_title = memberships[0].title.get_value()
-            latest_role = memberships[0].role.get_value()
-            most_recent_unit = memberships[0].organization.get_value()
-            most_recent_rank = memberships[0].rank.get_value()
-            latest_rank = most_recent_rank
+            if memberships:
+                latest_title = memberships[0].title.get_value()
+                latest_role = memberships[0].role.get_value()
+                most_recent_unit = memberships[0].organization.get_value()
+                most_recent_rank = memberships[0].rank.get_value()
+                latest_rank = most_recent_rank
+            else:
+                latest_title, latest_role, most_recent_unit, most_recent_rank, latest_rank = None, None, None, None, None
 
             for membership in memberships:
 
@@ -410,8 +413,6 @@ class Command(BaseCommand):
                         division_ids.update([org_division_id.value])
                         org_country = country_name(org_division_id)
                         countries.update([org_country])
-
-
 
             # Convert sets to lists, for indexing
             division_ids, countries = list(division_ids), list(countries)

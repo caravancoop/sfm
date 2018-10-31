@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField
+from sfm_pc.forms import BaseUpdateForm, GetOrCreateChoiceField
 
 from membershipperson.models import MembershipPersonMember
 from person.models import Person
@@ -46,7 +46,7 @@ OPEN_ENDED_CHOICES = [
 ]
 
 
-class OrganizationBasicsForm(BaseEditForm):
+class OrganizationBasicsForm(BaseUpdateForm):
     class Meta:
         model = Organization
         fields = '__all__'
@@ -87,7 +87,7 @@ class OrganizationBasicsForm(BaseEditForm):
                                                                field_name='classification')
 
 
-class OrganizationRelationshipsForm(BaseEditForm):
+class OrganizationRelationshipsForm(BaseUpdateForm):
     class Meta:
         model = Composition
         fields = '__all__'
@@ -125,7 +125,7 @@ class OrganizationRelationshipsForm(BaseEditForm):
         super().clean()
 
 
-class OrganizationPersonnelForm(BaseEditForm):
+class OrganizationPersonnelForm(BaseUpdateForm):
     edit_fields = [
         ('rank', MembershipPersonRank, False),
         ('role', MembershipPersonRole, False),
@@ -155,7 +155,7 @@ class OrganizationPersonnelForm(BaseEditForm):
         fields = '__all__'
 
 
-class OrganizationEmplacementForm(BaseEditForm):
+class OrganizationEmplacementForm(BaseUpdateForm):
     class Meta:
         model = Emplacement
         fields = '__all__'
@@ -188,7 +188,7 @@ class OrganizationEmplacementForm(BaseEditForm):
                                                         field_name='aliases')
 
 
-class OrganizationAssociationForm(BaseEditForm):
+class OrganizationAssociationForm(BaseUpdateForm):
     class Meta:
         model = Association
         fields = '__all__'

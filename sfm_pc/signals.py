@@ -38,7 +38,7 @@ def update_membership_index(sender, **kwargs):
     membership = MembershipPerson.objects.get(id=kwargs['object_id'])
 
     update_index('organizations', membership.organization.get_value().value.uuid)
-    update_index('person', membership.member.get_value().value.uuid)
+    update_index('people', membership.member.get_value().value.uuid)
 
 
 @receiver(object_ref_saved, sender=Composition)
