@@ -70,21 +70,24 @@ class OrganizationBasicsForm(BaseUpdateForm):
     open_ended = forms.ChoiceField(label=_("Open-ended?"), choices=OPEN_ENDED_CHOICES, required=False)
 
     def __init__(self, *args, **kwargs):
+        organization_id = kwargs.pop('organization_id')
+
         super().__init__(*args, **kwargs)
+
         self.fields['aliases'] = GetOrCreateChoiceField(label=_("Other names"),
-                                                        queryset=OrganizationAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
+                                                        queryset=OrganizationAlias.objects.filter(object_ref__uuid=organization_id),
                                                         required=False,
-                                                        object_ref_pk=self.object_ref_pk,
                                                         object_ref_model=self._meta.model,
                                                         form=self,
-                                                        field_name='aliases')
+                                                        field_name='aliases',
+                                                        object_ref_pk=organization_id)
         self.fields['classification'] = GetOrCreateChoiceField(label=_("Classification"),
-                                                               queryset=OrganizationClassification.objects.filter(object_ref__uuid=self.object_ref_pk),
+                                                               queryset=OrganizationClassification.objects.filter(object_ref__uuid=organization_id),
                                                                required=False,
-                                                               object_ref_pk=self.object_ref_pk,
                                                                object_ref_model=self._meta.model,
                                                                form=self,
-                                                               field_name='classification')
+                                                               field_name='classification',
+                                                               object_ref_pk=organization_id)
 
 
 class OrganizationRelationshipsForm(BaseUpdateForm):
@@ -137,6 +140,7 @@ class OrganizationPersonnelForm(BaseUpdateForm):
         ('startcontext', MembershipPersonStartContext, False),
         ('endcontext', MembershipPersonEndContext, False),
         ('member', MembershipPersonMember, False),
+        ('organization', MembershipPersonOrganization, False),
     ]
 
     member = forms.ModelChoiceField(label=_("Person name"), queryset=Person.objects.all())
@@ -149,6 +153,13 @@ class OrganizationPersonnelForm(BaseUpdateForm):
     realend = forms.BooleanField(label=_("End date?"))
     startcontext = forms.CharField(label=_("Context for start date"), required=False)
     endcontext = forms.CharField(label=_("Context for end date"), required=False)
+
+    def __init__(self, *args, **kwargs):
+        organization_id = kwargs.pop('organization_id')
+
+        super().__init__(*args, **kwargs)
+
+        self.fields['organization'] = forms.ModelChoiceField(queryset=Person.objects.filter(uuid=organization_id))
 
     class Meta:
         model = MembershipPerson
@@ -178,14 +189,15 @@ class OrganizationEmplacementForm(BaseUpdateForm):
     site = forms.ModelChoiceField(label=_("Location name"), queryset=Location.objects.all(), required=False)
 
     def __init__(self, *args, **kwargs):
+        organization_id = kwargs.pop('organization_id')
         super().__init__(*args, **kwargs)
         self.fields['aliases'] = GetOrCreateChoiceField(label=_("Location other names"),
-                                                        queryset=EmplacementAlias.objects.filter(object_ref__id=self.object_ref_pk),
+                                                        queryset=EmplacementAlias.objects.filter(object_ref__id=organization_id),
                                                         required=False,
-                                                        object_ref_pk=self.object_ref_pk,
                                                         object_ref_model=self._meta.model,
                                                         form=self,
-                                                        field_name='aliases')
+                                                        field_name='aliases',
+                                                        object_ref_pk=organization_id)
 
 
 class OrganizationAssociationForm(BaseUpdateForm):

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import uuid
+
 from django import forms
 from django.utils.translation import ugettext as _, get_language
 from django.core.exceptions import ObjectDoesNotExist
@@ -29,6 +31,7 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                  **kwargs):
 
         self.object_ref_model = kwargs.pop('object_ref_model')
+        self.object_ref_pk = kwargs.pop('object_ref_pk')
         self.form = kwargs.pop('form')
         self.field_name = kwargs.pop('field_name')
         self.new_instances = []
@@ -53,19 +56,19 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                 # If sources exist for the field, make the object so the rest of
                 # the processing will work
                 object_ref_fields = [f.column for f in self.object_ref_model._meta.fields]
-                pk = self.form.object_ref_pk
+                pk = self.object_ref_pk
+                object_ref_created = False
 
-                if 'uuid' in object_ref_fields:
-                    try:
-                        object_ref = self.object_ref_model.objects.get(uuid=pk)
-                    except ObjectDoesNotExist:
-                        object_ref = self.object_ref_model.objects.create(uuid=pk)
-
+                if pk and 'uuid' in object_ref_fields:
+                    object_ref = self.object_ref_model.objects.get(uuid=pk)
+                elif 'uuid' in object_ref_fields:
+                    object_ref = self.object_ref_model.objects.create(uuid=str(uuid.uuid4()))
+                    object_ref_created = True
+                elif pk:
+                    object_ref = self.object_ref_model.objects.get(id=pk)
                 else:
-                    try:
-                        object_ref = self.object_ref_model.objects.get(id=pk)
-                    except ObjectDoesNotExist:
-                        object_ref = self.object_ref_model.objects.create()
+                    object_ref = self.object_ref_model.objects.create()
+                    object_ref_created = True
 
                 self.form.object_ref = object_ref
 
@@ -85,7 +88,9 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                                                               lang=get_language())
                 pks.append(instance.id)
                 self.new_instances.append(instance)
-                self.new_instances.append(object_ref)
+
+                if object_ref_created:
+                    self.new_instances.append(object_ref)
 
         return self.queryset.model.objects.filter(pk__in=pks)
 
@@ -126,7 +131,6 @@ class BaseEditForm(forms.ModelForm):
         except KeyError:
             pass
 
-        self.object_ref_pk = kwargs.pop('object_ref_pk', None)
         self.update_fields = set()
 
         super().__init__(*args, **kwargs)
@@ -189,6 +193,10 @@ class BaseUpdateForm(BaseEditForm):
 
         for field in self.fields:
             field_instance = getattr(self.instance, field)
+
+            if self.clone_sources.get(field):
+                other_field = self.clone_sources[field]
+                self.post_data['{}_source'.format(field)] = self.post_data['{}_source'.format(other_field)]
 
             posted_sources = self.post_data.get('{}_source'.format(field))
 
@@ -420,10 +428,9 @@ class BaseCreateForm(BaseEditForm):
 
         if not hasattr(self, 'object_ref'):
             object_ref_fields = [f.column for f in self._meta.model._meta.fields]
-            pk = self.object_ref_pk
 
             if 'uuid' in object_ref_fields:
-                self.object_ref = self._meta.model.objects.create(uuid=pk)
+                self.object_ref = self._meta.model.objects.create(uuid=str(uuid.uuid4()))
             else:
                 self.object_ref = self._meta.model.objects.create()
 
@@ -470,9 +477,6 @@ class BaseCreateForm(BaseEditForm):
                         update_info[update_key]['values'] = new_values
                 else:
                     update_info[update_key]['value'] = update_value
-
-        import pdb
-        pdb.set_trace()
 
         if update_info:
             self.object_ref.update(update_info)

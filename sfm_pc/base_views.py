@@ -69,19 +69,12 @@ class BaseUpdateView(BaseEditView, UpdateView):
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['post_data'] = self.request.POST
-        form_kwargs['object_ref_pk'] = self.kwargs[self.slug_field_kwarg]
         return form_kwargs
 
 
 class BaseCreateView(BaseEditView, CreateView):
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['pk'] = str(uuid4())
-        return context
-
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['post_data'] = self.request.POST
-        form_kwargs['object_ref_pk'] = self.kwargs.get(self.slug_field_kwarg)
         return form_kwargs

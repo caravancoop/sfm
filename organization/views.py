@@ -177,6 +177,11 @@ class OrganizationEditBasicsView(OrganizationEditView):
         else:
             return super().get_success_url()
 
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['organization_id'] = self.kwargs['slug']
+        return form_kwargs
+
 
 class OrganizationEditRelationshipsView(OrganizationEditView):
     template_name = 'organization/edit-relationships.html'
@@ -231,6 +236,11 @@ class OrganizationEditPersonnelView(OrganizationEditView):
         else:
             return reverse('view-organization', kwargs={'slug': organization_id})
 
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['organization_id'] = self.kwargs['organization_id']
+        return form_kwargs
+
 
 class OrganizationEditEmplacementView(OrganizationEditView):
     model = Emplacement
@@ -260,6 +270,11 @@ class OrganizationEditEmplacementView(OrganizationEditView):
                                    'pk': pk})
         else:
             return reverse('view-organization', kwargs={'slug': organization_id})
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['organization_id'] = self.kwargs['organization_id']
+        return form_kwargs
 
 
 class OrganizationEditAssociationView(OrganizationEditView):

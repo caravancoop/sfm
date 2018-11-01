@@ -27,9 +27,6 @@
         </div>
         <form class="form" method="POST">
         {% csrf_token %}
-        {% if not self.object %}
-            <input type="hidden" value="{{ pk }}" name="pk" />
-        {% endif %}
         <div id="form-fields" class="col-sm-6">
             {% block form_content %}{% endblock %}
         </div>

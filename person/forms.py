@@ -55,19 +55,24 @@ class PersonBasicsForm(BaseUpdateForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
+        person_id = kwargs.pop('person_id', None)
+
         super().__init__(*args, **kwargs)
+
         self.fields['aliases'] = GetOrCreateChoiceField(label=_("Other names"),
-                                                        queryset=PersonAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
+                                                        queryset=PersonAlias.objects.filter(object_ref__uuid=person_id),
                                                         required=False,
                                                         object_ref_model=self._meta.model,
                                                         form=self,
-                                                        field_name='aliases')
+                                                        field_name='aliases',
+                                                        object_ref_pk=person_id)
         self.fields['external_links'] = GetOrCreateChoiceField(label=_("External links"),
-                                                               queryset=PersonExternalLink.objects.filter(object_ref__uuid=self.object_ref_pk),
+                                                               queryset=PersonExternalLink.objects.filter(object_ref__uuid=person_id),
                                                                required=False,
                                                                object_ref_model=self._meta.model,
                                                                form=self,
-                                                               field_name='external_links')
+                                                               field_name='external_links',
+                                                               object_ref_pk=person_id)
 
 
 class PersonCreateBasicsForm(BaseCreateForm, PersonBasicsForm):
@@ -105,8 +110,11 @@ class PersonPostingsForm(BaseUpdateForm):
     endcontext = forms.CharField(label=_("Context for end date"), required=False)
 
     def __init__(self, *args, **kwargs):
+        person_id = kwargs.pop('person_id')
+
         super().__init__(*args, **kwargs)
-        self.fields['member'] = forms.ModelChoiceField(queryset=Person.objects.filter(uuid=self.object_ref_pk))
+
+        self.fields['member'] = forms.ModelChoiceField(queryset=Person.objects.filter(uuid=person_id))
 
     class Meta:
         model = MembershipPerson

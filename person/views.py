@@ -301,6 +301,11 @@ class PersonEditBasicsView(PersonEditView):
     template_name = 'person/edit-basics.html'
     form_class = PersonBasicsForm
 
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['person_id'] = self.kwargs['slug']
+        return form_kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -325,6 +330,11 @@ class PersonEditPostingsView(PersonEditView):
     form_class = PersonPostingsForm
     context_object_name = 'current_membership'
     slug_field_kwarg = 'person_id'
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['person_id'] = self.kwargs['person_id']
+        return form_kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -357,8 +367,8 @@ class PersonCreateView(BaseCreateView):
 
     def get_success_url(self):
 
-        if self.get_form().object_ref_pk:
-            return reverse_lazy('create-person-posting', kwargs={'person_id': self.get_form().object_ref_pk})
+        if self.object:
+            return reverse_lazy('create-person-posting', kwargs={'person_id': self.object.uuid})
         else:
             return '{}?entity_type=Person'.format(reverse_lazy('search'))
 
@@ -370,20 +380,16 @@ class PersonCreatePostingView(BaseCreateView):
     context_object_name = 'current_membership'
     slug_field_kwarg = 'person_id'
 
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['person_id'] = self.kwargs['person_id']
+        return form_kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
-
         return context
-
-    def form_invalid(self, form):
-        import pdb
-        pdb.set_trace()
-        return super().form_invalid(form)
 
     def get_success_url(self):
 
-        if self.get_form().object_ref_pk:
-            return reverse_lazy('view-person', kwargs={'slug': self.get_form().object_ref_pk})
-        else:
-            return '{}?entity_type=Person'.format(reverse_lazy('search'))
+        return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})

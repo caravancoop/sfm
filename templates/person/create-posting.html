@@ -1,0 +1,17 @@
+{% extends 'person/edit-postings.html' %}
+{% load i18n %}
+{% load countries %}
+{% load citations %}
+{% block header_title %}
+<div class="col-sm-6">
+    <h1>{% trans "Add a posting" %}</h1>
+</div>
+{% endblock %}
+{% block edit_links %}
+    <div class="col-sm-6">
+        <h1>
+            {% trans "Edit:" %}
+            <a href="{% url 'edit-person' person.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
+        </h1>
+    </div>
+{% endblock %}
