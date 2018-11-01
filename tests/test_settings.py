@@ -164,7 +164,8 @@ LOGIN_URL = reverse_lazy('account_login')
 LOGIN_REDIRECT_URL = '/'
 
 AUTHENTICATION_BACKENDS = (
-    'allauth.account.auth_backends.AuthenticationBackend',
+    'sfm_pc.backends.EmailAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 ACCOUNT_EMAIL_REQUIRED = True
