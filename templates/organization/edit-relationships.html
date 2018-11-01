@@ -33,13 +33,13 @@
                 {% endwith %}
             {% endif %}
         {% endfor %}
-        {% if 'edit' in request.path %}
         <tr>
             <td colspan="7">
+                <a href="{% url 'create-organization-relationships' organization.uuid %}">
                 <i class="fa fa-plus"> </i> Add relationship
+                </a>
             </td>
         </tr>
-        {% endif %}
     </tbody>
 </table>
 {% endblock %}

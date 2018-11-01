@@ -13,13 +13,14 @@ from composition.models import Composition
 
 from organization.forms import OrganizationBasicsForm, \
     OrganizationRelationshipsForm, OrganizationPersonnelForm, \
-    OrganizationEmplacementForm, OrganizationAssociationForm
+    OrganizationEmplacementForm, OrganizationAssociationForm, \
+    OrganizationCreateBasicsForm, OrganizationCreateRelationshipsForm
 from organization.models import Organization, OrganizationAlias
 
 from membershipperson.models import MembershipPerson
 
 from sfm_pc.templatetags.countries import country_name
-from sfm_pc.base_views import BaseUpdateView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView
 
 
 class OrganizationDetail(DetailView):
@@ -183,6 +184,19 @@ class OrganizationEditBasicsView(OrganizationEditView):
         return form_kwargs
 
 
+class OrganizationCreateBasicsView(BaseCreateView):
+    model = Organization
+    slug_field = 'uuid'
+    slug_field_kwarg = 'slug'
+    context_object_name = 'organization'
+    template_name = 'organization/create-basics.html'
+    form_class = OrganizationCreateBasicsForm
+
+    def get_success_url(self):
+        # TODO: Make this redirect someplace saner.
+        return '{}?entity_type=Organization'.format(reverse('search'))
+
+
 class OrganizationEditRelationshipsView(OrganizationEditView):
     template_name = 'organization/edit-relationships.html'
     form_class = OrganizationRelationshipsForm
@@ -215,6 +229,29 @@ class OrganizationEditRelationshipsView(OrganizationEditView):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
+class OrganizationCreateRelationshipsView(BaseCreateView):
+    template_name = 'organization/create-relationships.html'
+    form_class = OrganizationCreateRelationshipsForm
+    model = Composition
+    context_object_name = 'current_composition'
+    slug_field_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        return context
+
+    def get_success_url(self):
+        organization_id = self.kwargs['organization_id']
+
+        if self.object:
+            return reverse('edit-organization-relationships',
+                           kwargs={'organization_id': organization_id,
+                                   'pk': self.object.id})
+        else:
+            return reverse('view-organization', kwargs={'slug': organization_id})
+
+
 class OrganizationEditPersonnelView(OrganizationEditView):
     model = MembershipPerson
     template_name = 'organization/edit-personnel.html'
@@ -240,6 +277,10 @@ class OrganizationEditPersonnelView(OrganizationEditView):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['organization_id'] = self.kwargs['organization_id']
         return form_kwargs
+
+
+class OrganizationCreatePersonnelView(BaseCreateView):
+    pass
 
 
 class OrganizationEditEmplacementView(OrganizationEditView):
@@ -277,6 +318,10 @@ class OrganizationEditEmplacementView(OrganizationEditView):
         return form_kwargs
 
 
+class OrganizationCreateEmplacementView(BaseCreateView):
+    pass
+
+
 class OrganizationEditAssociationView(OrganizationEditView):
     model = Association
     template_name = 'organization/edit-association.html'
@@ -305,6 +350,10 @@ class OrganizationEditAssociationView(OrganizationEditView):
                                    'pk': pk})
         else:
             return reverse('view-organization', kwargs={'slug': organization_id})
+
+
+class OrganizationCreateAssociationView(BaseCreateView):
+    pass
 
 
 def organization_autocomplete(request):

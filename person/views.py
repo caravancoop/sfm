@@ -388,6 +388,12 @@ class PersonCreatePostingView(BaseCreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
+
+        affiliations = context['person'].memberships
+        memberships = tuple(mem.object_ref for mem in affiliations)
+
+        context['memberships'] = memberships
+
         return context
 
     def get_success_url(self):

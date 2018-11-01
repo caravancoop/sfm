@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^create/$',
         PersonCreateView.as_view(),
         name="create-person"),
-    url(r'create/postings/(?P<person_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+    url(r'create/posting/(?P<person_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         PersonCreatePostingView.as_view(),
         name='create-person-posting'),
     url(r'edit/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
