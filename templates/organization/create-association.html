@@ -5,62 +5,26 @@
 
 {% block form_content %}
     <h2>{% trans "Edit Location" %}</h2>
-    <input type="hidden" name="organization" value="{{ form.instance.organization.get_value.value.id }}">
-    {% for source in form.instance.organization.get_sources %}
-        <input type="hidden" name="organization_source" value="{{ source.uuid }}" />
-    {% endfor %}
-    <div class="row site-row field-bg bg-info">
+    <input type="hidden" name="organization" value="{{ organization.id }}" />
+    <div class="row area-row field-bg bg-info">
         <div class="col-sm-12">
-            {% if form.site.errors %}
+            {% if form.area.errors %}
                 <div class="form-group has-error has-feedback">
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{{ form.site.label }}</label>
-                <select id="id_site" class="form-control sourced location" name="site">
-                    {% if form.instance.site.get_value %}
-                    <option value="{{ form.instance.site.get_value.value.id }}">
-                    {{ form.instance.site.get_value.value.name }}
-                    ({{ form.instance.site.get_value.value.feature_type }} - {{ form.instance.site.get_value.value.id }})
-                    </option>
-                    {% endif %}
-                </select>
-                {% if form.site.errors %}
-                    {% for error in form.site.errors %}
+                <label class="control-label">{{ form.area.label }}</label>
+                <select id="id_area" class="form-control sourced location" name="area"></select>
+                {% if form.area.errors %}
+                    {% for error in form.area.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}
             </div>
         </div>
-        <div id="id_site_source">
-            {% for source in form.instance.site.get_sources %}
-                {% source_input 'site' source %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="row aliases-row field-bg">
-        <div class="col-sm-12">
-            {% if form.aliases.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <label class="control-label">{{ form.aliases.label }}</label>
-                <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
-                    {% for alias in form.instance.aliases.get_list %}
-                        <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.aliases.errors %}
-                    {% for error in form.aliases.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-        <div id="id_aliases_source">
-            {% for source in form.instance.aliases.get_list.0.get_sources %}
-                {% source_input 'aliases' source %}
+        <div id="id_area_source">
+            {% for source in form.instance.area.get_sources %}
+                {% source_input 'area' source %}
             {% endfor %}
         </div>
     </div>
@@ -118,7 +82,7 @@
                 <div class="checkbox">
                     <label class="control-label">
                         {% if form.instance.realstart.get_value.value %}
-                        <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
+                            <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
                         {% else %}
                             <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
                         {% endif %}

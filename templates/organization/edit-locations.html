@@ -12,6 +12,7 @@
         <div id="osm_area_map" style="height:300px;"></div>
     </div>
 </div>
+{% if emplacements or associations %}
 <div class="row">
     <div class="col-sm-12">
         <table class="table">
@@ -59,10 +60,25 @@
                         </td>
                     </tr>
                 {% endfor %}
+                <tr>
+                    <td colspan=5>
+                        <a href="{% url 'create-organization-emplacement' organization.uuid %}">
+                            <i class="fa fa-plus"></i> Add site
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan=5>
+                        <a href="{% url 'create-organization-association' organization.uuid %}">
+                            <i class="fa fa-plus"></i> Add area
+                        </a>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block form_content %}{% endblock %}
@@ -88,10 +104,10 @@
                         }
                         return query
                     }
-                }
+                },
+                minimumInputLength: 2,
             });
 
-            // $('#id_division_id').prop('tabindex', 3);
             function onEachFeature(feature, layer){
                 layer.bindPopup(feature.properties.name);
             }
@@ -99,23 +115,39 @@
             var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                         { attribution: attribution, detectRetina: true }).addTo(area_map);
+
             var areas = L.featureGroup();
-            {% for emplacement in emplacements %}
-                var geom = {{ emplacement.site.get_value.value.geometry.geojson|safe }};
-                geom['properties'] = {'name': "{{ emplacement.site.get_value.value.name }}"};
+
+            {% if emplacements or associations %}
+                {% for emplacement in emplacements %}
+                    var geom = {{ emplacement.site.get_value.value.geometry.geojson|safe }};
+                    geom['properties'] = {'name': "{{ emplacement.site.get_value.value.name }}"};
+                    areas.addLayer(
+                        L.geoJson(geom, {onEachFeature: onEachFeature})
+                    );
+                {% endfor %}
+                {% for association in associations %}
+                    var geom = {{ association.area.get_value.value.geometry.geojson|safe}};
+                    geom['properties'] = {'name': "{{ association.area.get_value.value.name }}"};
+                    areas.addLayer(
+                        L.geoJson(geom, {onEachFeature: onEachFeature})
+                    );
+                {% endfor %}
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+            {% else %}
+                area_map.setView([40.807056, -73.960322], 17);
+            {% endif %}
+            $('.location').on('select2:select', function(e){
+                var geom = e.params.data.geometry;
+                geom['properties'] = {'name': e.params.data.text};
                 areas.addLayer(
                     L.geoJson(geom, {onEachFeature: onEachFeature})
                 );
-            {% endfor %}
-            {% for association in associations %}
-                var geom = {{ association.area.get_value.value.geometry.geojson|safe}};
-                geom['properties'] = {'name': "{{ association.area.get_value.value.name }}"};
-                areas.addLayer(
-                    L.geoJson(geom, {onEachFeature: onEachFeature})
-                );
-            {% endfor %}
-            areas.addTo(area_map);
-            area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds(), {'maxZoom': 14});
+            })
+
         })
     </script>
 {% endblock%}

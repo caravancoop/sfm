@@ -195,7 +195,12 @@ class OrganizationEmplacementForm(BaseUpdateForm):
         ('site', EmplacementSite, False),
         ('open_ended', EmplacementOpenEnded, False),
         ('aliases', EmplacementAlias, True),
+        ('organization', EmplacementOrganization, False),
     ]
+
+    clone_sources = {
+        'organization': 'site',
+    }
 
     realstart = forms.BooleanField(label=_("Start date?"))
     startdate = ApproximateDateFormField(label=_("Date first cited"), required=False)
@@ -208,12 +213,16 @@ class OrganizationEmplacementForm(BaseUpdateForm):
         organization_id = kwargs.pop('organization_id')
         super().__init__(*args, **kwargs)
         self.fields['aliases'] = GetOrCreateChoiceField(label=_("Location other names"),
-                                                        queryset=EmplacementAlias.objects.filter(object_ref__id=organization_id),
+                                                        queryset=EmplacementAlias.objects.all(),
                                                         required=False,
                                                         object_ref_model=self._meta.model,
                                                         form=self,
                                                         field_name='aliases',
                                                         object_ref_pk=organization_id)
+
+
+class OrganizationCreateEmplacementForm(BaseCreateForm, OrganizationEmplacementForm):
+    pass
 
 
 class OrganizationAssociationForm(BaseUpdateForm):
@@ -231,9 +240,17 @@ class OrganizationAssociationForm(BaseUpdateForm):
         ('open_ended', AssociationOpenEnded, False),
     ]
 
+    clone_sources = {
+        'organization': 'area'
+    }
+
     realstart = forms.BooleanField(label=_("Start date?"))
     startdate = ApproximateDateFormField(label=_("Date first cited"), required=False)
     enddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
     open_ended = forms.ChoiceField(label=_("Open-ended?"), choices=OPEN_ENDED_CHOICES, required=False)
     organization = forms.ModelChoiceField(label=_("Organization"), queryset=Organization.objects.all(), required=False)
     area = forms.ModelChoiceField(label=_("Location name"), queryset=Location.objects.all(), required=False)
+
+
+class OrganizationCreateAssociationForm(BaseCreateForm, OrganizationAssociationForm):
+    pass

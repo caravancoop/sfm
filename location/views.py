@@ -234,13 +234,14 @@ class LocationAutoComplete(JSONResponseMixin, TemplateView):
             'results': []
         }
 
-        for result in results:
+        for result in results[:10]:
             location = {
                 'id': result.id,
                 'text': '{}, {} ({} - {})'.format(result.name,
                                                   country_name(result.division_id),
                                                   result.feature_type,
-                                                  result.id)
+                                                  result.id),
+                'geometry': json.loads(result.geometry.geojson),
             }
             context['results'].append(location)
 

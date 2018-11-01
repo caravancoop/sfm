@@ -15,7 +15,8 @@ from organization.forms import OrganizationBasicsForm, \
     OrganizationRelationshipsForm, OrganizationPersonnelForm, \
     OrganizationEmplacementForm, OrganizationAssociationForm, \
     OrganizationCreateBasicsForm, OrganizationCreateRelationshipsForm, \
-    OrganizationCreatePersonnelForm
+    OrganizationCreatePersonnelForm, OrganizationCreateEmplacementForm, \
+    OrganizationCreateAssociationForm
 from organization.models import Organization, OrganizationAlias
 
 from membershipperson.models import MembershipPerson
@@ -240,17 +241,16 @@ class OrganizationCreateRelationshipsView(BaseCreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+
+        parents = Q(compositionparent__value=context['organization'])
+        children = Q(compositionchild__value=context['organization'])
+
+        context['compositions'] = Composition.objects.filter(parents | children)
+
         return context
 
     def get_success_url(self):
-        organization_id = self.kwargs['organization_id']
-
-        if self.object:
-            return reverse('edit-organization-relationships',
-                           kwargs={'organization_id': organization_id,
-                                   'pk': self.object.id})
-        else:
-            return reverse('view-organization', kwargs={'slug': organization_id})
+        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationEditPersonnelView(OrganizationEditView):
@@ -287,11 +287,6 @@ class OrganizationCreatePersonnelView(BaseCreateView):
     context_object_name = 'current_membership'
     slug_field_kwarg = 'organization_id'
 
-    def form_invalid(self, form):
-        import pdb
-        pdb.set_trace()
-        return super().form_invalid(form)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
@@ -303,9 +298,7 @@ class OrganizationCreatePersonnelView(BaseCreateView):
         return form_kwargs
 
     def get_success_url(self):
-        organization_id = self.kwargs['organization_id']
-        return reverse('view-organization', kwargs={'slug': organization_id})
-
+        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationEditEmplacementView(OrganizationEditView):
@@ -344,7 +337,25 @@ class OrganizationEditEmplacementView(OrganizationEditView):
 
 
 class OrganizationCreateEmplacementView(BaseCreateView):
-    pass
+    model = Emplacement
+    template_name = 'organization/create-emplacement.html'
+    form_class = OrganizationCreateEmplacementForm
+    slug_field_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
+        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        return context
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['organization_id'] = self.kwargs['organization_id']
+        return form_kwargs
+
+    def get_success_url(self):
+        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationEditAssociationView(OrganizationEditView):
@@ -378,7 +389,20 @@ class OrganizationEditAssociationView(OrganizationEditView):
 
 
 class OrganizationCreateAssociationView(BaseCreateView):
-    pass
+    model = Association
+    template_name = 'organization/create-association.html'
+    form_class = OrganizationCreateAssociationForm
+    slug_field_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
+        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        return context
+
+    def get_success_url(self):
+        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 def organization_autocomplete(request):
