@@ -151,6 +151,10 @@ class OrganizationPersonnelForm(BaseUpdateForm):
         ('organization', MembershipPersonOrganization, False),
     ]
 
+    clone_sources = {
+        'organization': 'member',
+    }
+
     member = forms.ModelChoiceField(label=_("Person name"), queryset=Person.objects.all())
     rank = forms.ModelChoiceField(label=_("Rank"), queryset=Rank.objects.distinct('value'), required=False)
     role = forms.ModelChoiceField(label=_("Role"), queryset=Role.objects.distinct('value'), required=False)
@@ -167,11 +171,15 @@ class OrganizationPersonnelForm(BaseUpdateForm):
 
         super().__init__(*args, **kwargs)
 
-        self.fields['organization'] = forms.ModelChoiceField(queryset=Person.objects.filter(uuid=organization_id))
+        self.fields['organization'] = forms.ModelChoiceField(queryset=Organization.objects.filter(uuid=organization_id))
 
     class Meta:
         model = MembershipPerson
         fields = '__all__'
+
+
+class OrganizationCreatePersonnelForm(BaseCreateForm, OrganizationPersonnelForm):
+    pass
 
 
 class OrganizationEmplacementForm(BaseUpdateForm):

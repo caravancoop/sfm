@@ -14,7 +14,8 @@ from composition.models import Composition
 from organization.forms import OrganizationBasicsForm, \
     OrganizationRelationshipsForm, OrganizationPersonnelForm, \
     OrganizationEmplacementForm, OrganizationAssociationForm, \
-    OrganizationCreateBasicsForm, OrganizationCreateRelationshipsForm
+    OrganizationCreateBasicsForm, OrganizationCreateRelationshipsForm, \
+    OrganizationCreatePersonnelForm
 from organization.models import Organization, OrganizationAlias
 
 from membershipperson.models import MembershipPerson
@@ -280,7 +281,31 @@ class OrganizationEditPersonnelView(OrganizationEditView):
 
 
 class OrganizationCreatePersonnelView(BaseCreateView):
-    pass
+    model = MembershipPerson
+    template_name = 'organization/create-personnel.html'
+    form_class = OrganizationCreatePersonnelForm
+    context_object_name = 'current_membership'
+    slug_field_kwarg = 'organization_id'
+
+    def form_invalid(self, form):
+        import pdb
+        pdb.set_trace()
+        return super().form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        return context
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['organization_id'] = self.kwargs['organization_id']
+        return form_kwargs
+
+    def get_success_url(self):
+        organization_id = self.kwargs['organization_id']
+        return reverse('view-organization', kwargs={'slug': organization_id})
+
 
 
 class OrganizationEditEmplacementView(OrganizationEditView):

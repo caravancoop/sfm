@@ -3,7 +3,7 @@
 {% load help %}
 <h3 id="memberships">
     <i class="fa fa-fw fa-users"></i>
-    {% trans "Postings" %}
+    {% trans "Personnel" %}
     <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_memberships' %}</small>
 </h3>
 <hr />
@@ -54,12 +54,12 @@
                 </tr>
             {% endwith %}
         {% endfor %}
-        {% if 'edit' in request.path %}
         <tr>
             <td colspan="7">
-                <i class="fa fa-plus"> </i> Add posting
+                <a href="{% url 'create-organization-personnel' organization.uuid %}">
+                    <i class="fa fa-plus"> </i> Add posting
+                </a>
             </td>
         </tr>
-        {% endif %}
     </tbody>
 </table>
