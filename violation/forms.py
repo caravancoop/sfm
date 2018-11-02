@@ -4,7 +4,7 @@ from django.conf import settings
 from django_date_extensions.fields import ApproximateDateFormField
 from django.utils.translation import ugettext as _
 
-from sfm_pc.forms import BaseUpdateForm
+from sfm_pc.forms import BaseUpdateForm, BaseCreateForm
 
 from person.models import Person
 from organization.models import Organization
@@ -37,3 +37,7 @@ class ViolationBasicsForm(BaseUpdateForm):
     perpetratororganization = forms.ModelMultipleChoiceField(label=_("Perpetrator unit"), queryset=Organization.objects.all(), required=False)
     perpetratorclassification = forms.ModelChoiceField(label=_("Perpetrator classification"), queryset=ViolationPerpetratorClassification.objects.all(), required=False)
     division_id = forms.CharField(label=_("Country"), required=False)
+
+
+class ViolationCreateBasicsForm(BaseCreateForm, ViolationBasicsForm):
+    pass

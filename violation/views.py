@@ -8,10 +8,10 @@ from django.utils.translation import get_language
 
 from complex_fields.models import ComplexFieldContainer
 
-from sfm_pc.base_views import BaseUpdateView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView
 
 from .models import Violation, ViolationType, ViolationPerpetratorClassification
-from .forms import ViolationBasicsForm
+from .forms import ViolationBasicsForm, ViolationCreateBasicsForm
 
 class ViolationDetail(DetailView):
     model = Violation
@@ -53,9 +53,6 @@ class ViolationEditBasicsView(ViolationEditView):
     template_name = 'violation/edit-basics.html'
     form_class = ViolationBasicsForm
 
-    def get_reference_organization(self):
-        return Violation.objects.get(uuid=self.kwargs['slug'])
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -70,6 +67,23 @@ class ViolationEditBasicsView(ViolationEditView):
             return reverse('edit-violation', kwargs={'slug': violation_id})
         else:
             return super().get_success_url()
+
+
+class ViolationCreateBasicsView(BaseCreateView):
+    model = Violation
+    slug_field = 'uuid'
+    slug_field_kwarg = 'slug'
+    context_object_name = 'violation'
+    template_name = 'violation/edit-basics.html'
+    form_class = ViolationCreateBasicsForm
+
+    def get_success_url(self):
+        violation_id = self.kwargs['slug']
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-violation', kwargs={'slug': violation_id})
+        else:
+            return reverse('view-violation', kwargs={'slug': violation_id})
 
 
 def violation_type_autocomplete(request):
