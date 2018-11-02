@@ -31,13 +31,6 @@ class Migration(migrations.Migration):
         ('violation', '0018_auto_20180821_1457'),
         ('location', '0005_remove_location_admin_level'),
     ]
-    operations = [
-        migrations.AlterField(
-            model_name='violationlocation',
-            name='value',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='location.Location'),
-        ),
-    ]
 
     state_operations = [
         migrations.AlterField(

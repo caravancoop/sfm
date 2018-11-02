@@ -149,7 +149,7 @@ class ViolationLocationDescription(ComplexField):
 @sourced
 class ViolationAdminLevel1(ComplexField):
     object_ref = models.ForeignKey('Violation')
-    value = models.TextField(default=None, blank=True, null=True)
+    value = models.ForeignKey(Location, null=True)
     field_name = _("Admin level 1")
 
 
@@ -157,7 +157,7 @@ class ViolationAdminLevel1(ComplexField):
 @sourced
 class ViolationAdminLevel2(ComplexField):
     object_ref = models.ForeignKey('Violation')
-    value = models.TextField(default=None, blank=True, null=True)
+    value = models.ForeignKey(Location, null=True)
     field_name = _("Admin level 2")
 
 

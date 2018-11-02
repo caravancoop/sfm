@@ -38,7 +38,6 @@ from organization.models import Organization, OrganizationAlias, \
 
 from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
                           CONFIDENCE_MAP, execute_sql)
-from sfm_pc.base_views import UtilityMixin
 
 from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
 from association.models import Association, AssociationOpenEnded, AssociationRealStart
@@ -58,7 +57,9 @@ from location.models import Location
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 
-class Command(UtilityMixin, BaseCommand):
+
+
+class Command(BaseCommand):
     help = 'Import data from Google Drive Spreadsheet'
 
     def add_arguments(self, parser):
@@ -99,6 +100,11 @@ class Command(UtilityMixin, BaseCommand):
             default=1,
             help='First row to begin parsing (for debugging)'
         )
+
+    def sourcesList(self, obj, attribute):
+        sources = [s for s in getattr(obj, attribute).get_sources()] \
+                      + [self.source]
+        return list(set(s for s in sources if s))
 
     def get_credentials(self):
         '''make sure relevant accounts have access to the sheets at console.developers.google.com'''
@@ -1729,6 +1735,25 @@ class Command(UtilityMixin, BaseCommand):
             else:
                 self.log_error('{} did not have a confidence or source'.format(name_value))
 
+    def get_or_create_location(self, geo):
+        location, created = Location.objects.get_or_create(id=geo.id)
+
+        if created:
+            location.name = geo.name
+            location.geometry = geo.geometry
+
+            country_code = geo.country_code.lower()
+            location.division_id = 'ocd-division/country:{}'.format(country_code)
+
+            if location.feature_type == 'point':
+                location.feature_type = 'node'
+            else:
+                location.feature_type = 'relation'
+
+            location.save()
+
+        return location
+
     def create_event(self, event_data):
 
         positions = {
@@ -1900,14 +1925,12 @@ class Command(UtilityMixin, BaseCommand):
 
             hierarchy = get_hierarchy_by_id(admin_id)
 
-            admin1 = event_data[positions['AdminLevel1Name']['value']]
-
             if hierarchy:
                 for member in hierarchy:
                     if int(member.admin_level) == 6 and not admin1:
-                        admin1 = member.name
+                        admin1 = self.get_or_create_location(member)
                     elif int(member.admin_level) == 4:
-                        admin2 = member.name
+                        admin2 = self.get_or_create_location(member)
 
             event_info.update({
                 'Violation_ViolationAdminLevel2': {
@@ -1935,25 +1958,10 @@ class Command(UtilityMixin, BaseCommand):
             osm_id = geo.id
 
         if osm_id:
-            location, created = Location.objects.get_or_create(id=geo.id)
-
-            if created:
-                location.name = geo.name
-                location.geometry = geo.geometry
-
-                country_code = geo.country_code.lower()
-                location.division_id = 'ocd-division/country:{}'.format(country_code)
-
-                if location.feature_type == 'point':
-                    location.feature_type = 'node'
-                else:
-                    location.feature_type = 'relation'
-
-                location.save()
 
             event_info.update({
                 'Violation_ViolationLocation': {
-                    'value': location,
+                    'value': self.get_or_create_location(geo),
                     'sources': sources,
                     'confidence': 1
                 },
