@@ -9,9 +9,13 @@ from sfm_pc.forms import BaseUpdateForm, BaseCreateForm
 from person.models import Person
 from organization.models import Organization
 
+from location.models import Location
+
 from .models import Violation, ViolationStartDate, ViolationEndDate, \
     ViolationType, ViolationPerpetrator, ViolationPerpetratorOrganization, \
-    ViolationPerpetratorClassification, ViolationDescription, ViolationDivisionId
+    ViolationPerpetratorClassification, ViolationDescription, ViolationDivisionId, \
+    ViolationLocationDescription, ViolationAdminLevel1, ViolationAdminLevel2, \
+    ViolationLocation
 
 class ViolationBasicsForm(BaseUpdateForm):
     class Meta:
@@ -41,3 +45,21 @@ class ViolationBasicsForm(BaseUpdateForm):
 
 class ViolationCreateBasicsForm(BaseCreateForm, ViolationBasicsForm):
     pass
+
+
+class ViolationLocationsForm(BaseUpdateForm):
+    class Meta:
+        model = Violation
+        fields = '__all__'
+
+    edit_fields = [
+        ('locationdescription', ViolationLocationDescription, False),
+        ('adminlevel1', ViolationAdminLevel1, False),
+        ('adminlevel2', ViolationAdminLevel2, False),
+        ('location', ViolationDescription, False),
+    ]
+
+    locationdescription = forms.CharField(label=_("Location Description"))
+    adminlevel1 = forms.ModelMultipleChoiceField(label=_("Settlement"), queryset=Location.objects.all(), required=False)
+    adminlevel2 = forms.ModelMultipleChoiceField(label=_("Top administrative area"), queryset=Location.objects.all(), required=False)
+    location = forms.ModelMultipleChoiceField(label=_("Exact Location"), queryset=Location.objects.all(), required=False)

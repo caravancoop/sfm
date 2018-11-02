@@ -11,7 +11,7 @@ from complex_fields.models import ComplexFieldContainer
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView
 
 from .models import Violation, ViolationType, ViolationPerpetratorClassification
-from .forms import ViolationBasicsForm, ViolationCreateBasicsForm
+from .forms import ViolationBasicsForm, ViolationCreateBasicsForm, ViolationLocationsForm
 
 class ViolationDetail(DetailView):
     model = Violation
@@ -84,6 +84,35 @@ class ViolationCreateBasicsView(BaseCreateView):
             return reverse('edit-violation', kwargs={'slug': violation_id})
         else:
             return reverse('view-violation', kwargs={'slug': violation_id})
+
+
+class ViolationEditLocationsView(ViolationEditView):
+    template_name = 'violation/edit-locations.html'
+    form_class = ViolationLocationsForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['locations'] = []
+
+        if context['violation'].location.get_value():
+            context['locations'].append(context['violation'].location.get_value().value)
+
+        if context['violation'].adminlevel1.get_value():
+            context['locations'].append(context['violation'].adminlevel1.get_value().value)
+
+        if context['violation'].adminlevel2.get_value():
+            context['locations'].append(context['violation'].adminlevel2.get_value().value)
+
+        return context
+
+    def get_success_url(self):
+        violation_id = self.kwargs['slug']
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-violation', kwargs={'slug': violation_id})
+        else:
+            return super().get_success_url()
 
 
 def violation_type_autocomplete(request):

@@ -151,7 +151,7 @@
     </div>
     {% endif %}
 
-    {% if violation.violationperpetrator_set.all %}
+    {% if violation.perpetrator.get_list %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</h3>
@@ -163,17 +163,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for person in violation.violationperpetrator_set.all %}
+                    {% for person in violation.perpetrator.get_list %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-person' person.value.uuid %}">
-                                    {{ person.value.get_value }}
+                                <a href="{% url 'view-person' person.get_value.value.uuid %}">
+                                    {{ person.get_value }}
                                 </a>
-                                {% cite person.value.get_value %}
+                                {% cite person.get_value %}
                             </td>
                             <td class="cited">
-                                {% for alias in person.value.aliases.get_list %}
-                                    {{ alias.get_value }}
+                                {% for alias in person.get_value.value.aliases.get_list %}
+                                    {{ alias.get_value.value }}
                                     {% cite alias.get_value %}
                                     {% if not forloop.last %}
                                         <br/>
@@ -188,7 +188,7 @@
     </div>
     {% endif %}
 
-    {% if violation.violationperpetratororganization_set.all %}
+    {% if violation.perpetratororganization.get_list %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="perpetrator-organizations">
@@ -207,18 +207,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for organization in violation.violationperpetratororganization_set.all %}
+                    {% for organization in violation.perpetratororganization.get_list %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-organization' organization.value.uuid %}">
-                                    {{ organization.value.get_value }}
+                                <a href="{% url 'view-organization' organization.get_value.value.uuid %}">
+                                    {{ organization.get_value }}
                                 </a>
-                                {% cite organization.value.get_value %}
+                                {% cite organization.get_value %}
                             </td>
                             <td class="cited">
-                                {% for alias in organization.value.aliases.get_list %}
-                                    {{ alias.get_value }}
-                                    {% cite alias.get_value %}
+                                {% for alias in organization.get_value.value.aliases.get_list %}
+                                    {{ alias.get_value.value }}
+                                    {% cite alias.get_value.value %}
                                     {% if not forloop.last %}
                                         <br/>
                                     {% endif %}
@@ -241,12 +241,6 @@
         </div>
     </div>
     {% endif %}
-
-        {% if versions %}
-            {% with object=person %}
-                {% include 'partials/version_list.html' %}
-            {% endwith %}
-        {% endif %}
 
 {% endblock %}
 

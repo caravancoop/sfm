@@ -17,84 +17,15 @@
     <div class="col-sm-6">
         <h1>
             {% trans "Edit:" %}
-            <a href="{% url 'edit-violation' violation.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
+            <a href="{% url 'edit-violation' violation.uuid %}" class="btn btn-primary">{% trans "Basics" %}</a>
+            <a href="{% url 'edit-violation-locations' violation.uuid %}" class="btn btn-default">{% trans "Locations" %}</a>
         </h1>
     </div>
 {% endblock %}
 
 {% block form_content %}
     <h2>{% trans "Edit basics" %}</h2>
-    <div class="row startdate-row field-bg">
-        <div class="col-sm-12">
-            {% if form.startdate.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <label class="control-label">{{ form.startdate.label }}</label>
-                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}">
-                {% if form.startdate.errors %}
-                    {% for error in form.startdate.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-        <div id="id_startdate_source">
-            {% for source in form.instance.startdate.get_sources %}
-                {% source_input 'startdate' source %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="row enddate-row field-bg">
-        <div class="col-sm-12">
-            {% if form.enddate.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <label class="control-label">{{ form.enddate.label }}</label>
-                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
-                {% if form.enddate.errors %}
-                    {% for error in form.enddate.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-        <div id="id_enddate_source">
-            {% for source in form.instance.enddate.get_sources %}
-                {% source_input 'enddate' source %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="row types-row field-bg">
-        <div class="col-sm-12">
-            {% if form.types.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <label class="control-label">{{ form.types.label }}</label>
-                <select id="id_types" class="form-control select2-target" name="types" multiple="multiple">
-                    {% for type in form.instance.types.get_list %}
-                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.types.errors %}
-                    {% for error in form.types.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-        <div id="id_name_source">
-            {% for source in form.instance.types.get_list.0.get_sources %}
-                {% source_input 'types' source %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="row description-row field-bg">
+    <div class="row description-row field-bg bg-info">
         <div class="col-sm-12">
             {% if form.description.errors %}
                 <div class="form-group has-error has-feedback">
@@ -116,6 +47,76 @@
             {% endfor %}
         </div>
     </div>
+    <div class="row startdate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.startdate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.startdate.label }}</label>
+                <input type="text" name="startdate" id="id_startdate" class="form-control" value="{{ form.instance.startdate }}">
+                {% if form.startdate.errors %}
+                    {% for error in form.startdate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_startdate_source">
+            {% for source in form.instance.startdate.get_sources %}
+                {% source_input 'startdate' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row enddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.enddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.enddate.label }}</label>
+                <input type="text" name="enddate" id="id_enddate" class="form-control" value="{{ form.instance.enddate }}">
+                {% if form.enddate.errors %}
+                    {% for error in form.enddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_enddate_source">
+            {% for source in form.instance.enddate.get_sources %}
+                {% source_input 'enddate' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row types-row field-bg">
+        <div class="col-sm-12">
+            {% if form.types.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.types.label }}</label>
+                <select id="id_types" class="form-control" name="types" multiple="multiple">
+                    {% for type in form.instance.types.get_list %}
+                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.types.errors %}
+                    {% for error in form.types.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_name_source">
+            {% for source in form.instance.types.get_list.0.get_sources %}
+                {% source_input 'types' source %}
+            {% endfor %}
+        </div>
+    </div>
     <div class="row perpetrator-row field-bg">
         <div class="col-sm-12">
             {% if form.perpetrator.errors %}
@@ -124,9 +125,9 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetrator.label }}</label>
-                <select id="id_perpetrator" class="form-control select2-target" name="perpetrator" multiple="multiple">
+                <select id="id_perpetrator" class="form-control" name="perpetrator" multiple="multiple">
                     {% for type in form.instance.perpetrator.get_list %}
-                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
+                        <option value="{{ type.get_value.value.id }}" selected=true>{{ type.get_value.value }}</option>
                     {% endfor %}
                 </select>
                 {% if form.perpetrator.errors %}
@@ -150,9 +151,9 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetratororganization.label }}</label>
-                <select id="id_perpetratororganization" class="form-control select2-target" name="perpetratororganization" multiple="multiple">
+                <select id="id_perpetratororganization" class="form-control" name="perpetratororganization" multiple="multiple">
                     {% for type in form.instance.perpetratororganization.get_list %}
-                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
+                        <option value="{{ type.get_value.value.id }}" selected=true>{{ type.get_value.value }}</option>
                     {% endfor %}
                 </select>
                 {% if form.perpetratororganization.errors %}
@@ -176,7 +177,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetratorclassification.label }}</label>
-                <select id="id_perpetratorclassification" class="form-control select2-target" name="perpetratorclassification">
+                <select id="id_perpetratorclassification" class="form-control" name="perpetratorclassification">
                     <option value="{{ form.instance.perpetratorclassification.id }}" selected=true>
                         {{ form.instance.perpetratorclassification.get_value.value }}
                     </option>
@@ -202,7 +203,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.division_id.label }}</label>
-                <select id="id_division_id" class="form-control select2-target" name="division_id">
+                <select id="id_division_id" class="form-control" name="division_id">
                     {% if form.instance.division_id %}
                         <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
                     {% else %}
@@ -230,7 +231,7 @@
 {% block extra_extra_js%}
     <script type="text/javascript">
         $(document).ready(function(){
-            loadSources({'target': $('#id_startdate')});
+            loadSources({'target': $('#id_description')});
             $('#id_types').select2({
                 ajax: {
                     url: "{% url 'violation-type-autocomplete' %}",

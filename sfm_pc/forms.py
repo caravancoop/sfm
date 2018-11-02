@@ -216,7 +216,7 @@ class BaseUpdateForm(BaseEditForm):
 
             if not field in (self.empty_values | fields_with_errors):
 
-                if not field_instance.field_model.source_required:
+                if not getattr(field_instance.field_model, 'source_required', False):
                     self.update_fields.add(field)
                     continue
 
@@ -339,7 +339,7 @@ class BaseUpdateForm(BaseEditForm):
                     'confidence': field.get_confidence(),
                 }
 
-                if field_model.source_required:
+                if getattr(field_model, 'source_required', False):
                     new_source_ids = self.post_data[source_key]
                     sources = Source.objects.filter(uuid__in=new_source_ids)
                     update_info[update_key]['sources'] = new_source_ids
@@ -403,7 +403,7 @@ class BaseCreateForm(BaseEditForm):
 
             if not field_name in (self.empty_values | fields_with_errors):
 
-                if not field_model.source_required:
+                if not getattr(field_model, 'source_required', False):
                     self.update_fields.add(field_name)
                     continue
 
@@ -456,7 +456,7 @@ class BaseCreateForm(BaseEditForm):
                     'confidence': field.get_confidence(),
                 }
 
-                if field_model.source_required:
+                if getattr(field_model, 'source_required', False):
                     new_source_ids = self.post_data[source_key]
                     sources = Source.objects.filter(uuid__in=new_source_ids)
                     update_info[update_key]['sources'] = new_source_ids

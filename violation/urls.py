@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.views.decorators.cache import cache_page
 
 from violation.views import violation_csv, violation_type_autocomplete, \
-    ViolationDetail, ViolationEditBasicsView, \
+    ViolationDetail, ViolationEditBasicsView, ViolationEditLocationsView, \
     ViolationCreateBasicsView, violation_perpetrator_classification_autocomplete
 
 urlpatterns = [
@@ -13,6 +13,9 @@ urlpatterns = [
     url(r'^edit/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         ViolationEditBasicsView.as_view(),
         name="edit-violation"),
+    url(r'^edit/locations/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+        ViolationEditLocationsView.as_view(),
+        name="edit-violation-locations"),
     url(r'^create/$',
         ViolationCreateBasicsView.as_view(),
         name="create-violation"),

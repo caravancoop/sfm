@@ -539,7 +539,7 @@ class Command(BaseCommand):
 
             location_name = violation.location_name.get_value()
             if location_name:
-                location_name = location_name.value
+                location_name = location_name.value.name
 
             osmname = violation.osmname.get_value()
             if osmname:
@@ -547,11 +547,11 @@ class Command(BaseCommand):
 
             admin_l1_name = violation.adminlevel1.get_value()
             if admin_l1_name:
-                admin_l1_name = admin_l1_name.value
+                admin_l1_name = admin_l1_name.value.name
 
             admin_l2_name = violation.adminlevel2.get_value()
             if admin_l2_name:
-                admin_l2_name = admin_l2_name.value
+                admin_l2_name = admin_l2_name.value.name
 
             start_date = self.format_date(violation.startdate.get_value())
             end_date = self.format_date(violation.enddate.get_value())
