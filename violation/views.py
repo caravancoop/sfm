@@ -2,7 +2,7 @@ import json
 import csv
 
 from django.views.generic import DetailView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language
 
@@ -74,16 +74,21 @@ class ViolationCreateBasicsView(BaseCreateView):
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
     context_object_name = 'violation'
-    template_name = 'violation/edit-basics.html'
+    template_name = 'violation/create-basics.html'
     form_class = ViolationCreateBasicsForm
 
-    def get_success_url(self):
-        violation_id = self.kwargs['slug']
+    def form_valid(self, form):
+        form.save(commit=True)
+        return HttpResponseRedirect(reverse('view-violation',
+                                            kwargs={'slug': form.object_ref.uuid}))
 
-        if self.request.POST.get('_continue'):
-            return reverse('edit-violation', kwargs={'slug': violation_id})
-        else:
-            return reverse('view-violation', kwargs={'slug': violation_id})
+    def get_success_url(self):
+        # This method doesn't ever really get called but since Django does not
+        # seem to recognize when we place a get_absolute_url method on the model
+        # and some way of determining where to redirect after the form is saved
+        # is required, here ya go. The redirect actually gets handled in the
+        # form_valid method above.
+        return '{}?entity_type=Violation'.format(reverse('search'))
 
 
 class ViolationEditLocationsView(ViolationEditView):

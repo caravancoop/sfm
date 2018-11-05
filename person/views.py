@@ -5,7 +5,7 @@ from collections import namedtuple
 
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import DetailView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
@@ -365,12 +365,18 @@ class PersonCreateView(BaseCreateView):
     slug_field_kwarg = 'slug'
     model = Person
 
-    def get_success_url(self):
+    def form_valid(self, form):
+        form.save(commit=True)
+        return HttpResponseRedirect(reverse('view-person',
+                                    kwargs={'slug': form.object_ref.uuid}))
 
-        if self.object:
-            return reverse_lazy('create-person-posting', kwargs={'person_id': self.object.uuid})
-        else:
-            return '{}?entity_type=Person'.format(reverse_lazy('search'))
+    def get_success_url(self):
+        # This method doesn't ever really get called but since Django does not
+        # seem to recognize when we place a get_absolute_url method on the model
+        # and some way of determining where to redirect after the form is saved
+        # is required, here ya go. The redirect actually gets handled in the
+        # form_valid method above.
+        return '{}?entity_type=Person'.format(reverse_lazy('search'))
 
 
 class PersonCreatePostingView(BaseCreateView):

@@ -101,7 +101,7 @@
                 <label class="control-label">{{ form.types.label }}</label>
                 <select id="id_types" class="form-control" name="types" multiple="multiple">
                     {% for type in form.instance.types.get_list %}
-                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
+                        <option value="{{ type.get_value.id }}" selected=true>{{ type.get_value }}</option>
                     {% endfor %}
                 </select>
                 {% if form.types.errors %}

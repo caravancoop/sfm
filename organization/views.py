@@ -194,8 +194,17 @@ class OrganizationCreateBasicsView(BaseCreateView):
     template_name = 'organization/create-basics.html'
     form_class = OrganizationCreateBasicsForm
 
+    def form_valid(self, form):
+        form.save(commit=True)
+        return HttpResponseRedirect(reverse('view-organization',
+                                    kwargs={'slug': form.object_ref.uuid}))
+
     def get_success_url(self):
-        # TODO: Make this redirect someplace saner.
+        # This method doesn't ever really get called but since Django does not
+        # seem to recognize when we place a get_absolute_url method on the model
+        # and some way of determining where to redirect after the form is saved
+        # is required, here ya go. The redirect actually gets handled in the
+        # form_valid method above.
         return '{}?entity_type=Organization'.format(reverse('search'))
 
 
