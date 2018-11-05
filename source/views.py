@@ -317,6 +317,8 @@ def get_citation(request):
                         [classname])
     field_object_class = getattr(module, classname)
     field_object = field_object_class.objects.get(id=object_id)
+    if classname.startswith('Violation'):
+        field_object = field_object.object_ref.description.get_value()
 
     source_html = get_citation_string(field_object)
 
