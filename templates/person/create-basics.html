@@ -45,8 +45,8 @@
                 <label class="control-label">{{ form.aliases.label }}</label>
                 <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
                     {% if form.aliases.data %}
-                        {% for alias in form.aliases.data %}
-                            <option value="{{ alias }}" selected=true>{{ alias }}</option>
+                        {% for alias in form.cleaned_data.aliases %}
+                            <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
                         {% endfor %}
                     {% endif %}
                 </select>
