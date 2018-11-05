@@ -392,7 +392,7 @@ class BaseCreateForm(BaseEditForm):
 
             if self.clone_sources.get(field_name):
                 other_field = self.clone_sources[field_name]
-                self.post_data['{}_source'.format(field_name)] = self.post_data['{}_source'.format(other_field)]
+                self.post_data['{}_source'.format(field_name)] = self.post_data.get('{}_source'.format(other_field), [])
 
             posted_sources = self.post_data.get('{}_source'.format(field_name))
 
