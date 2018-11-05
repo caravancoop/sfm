@@ -73,8 +73,19 @@ class BaseUpdateView(BaseEditView, UpdateView):
 
 
 class BaseCreateView(BaseEditView, CreateView):
-
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['post_data'] = self.request.POST
         return form_kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['source_info'] = {}
+
+        for form_field in self.request.POST:
+            if form_field.endswith('_source'):
+                value = self.request.POST.getlist(form_field)
+                context['source_info'][form_field] = Source.objects.filter(uuid__in=value)
+
+        return context

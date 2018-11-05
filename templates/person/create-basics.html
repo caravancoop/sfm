@@ -11,3 +11,262 @@
 {% block edit_links %}
 
 {% endblock %}
+{% block form_content %}
+    <h2>{% trans "Edit basics" %}</h2>
+    <div class="row name-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.name.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.name.label }}</label>
+                <input id="id_name" type="text" class="form-control sourced" name="name" value="{{ form.name.data|default_if_none:"" }}" />
+                {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_name_source">
+            {% for source in source_info.name_source %}
+                {% source_input 'name' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row aliases-row field-bg">
+        <div class="col-sm-12">
+            {% if form.aliases.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.aliases.label }}</label>
+                <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
+                    {% if form.aliases.data %}
+                        {% for alias in form.aliases.data %}
+                            <option value="{{ alias }}" selected=true>{{ alias }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+                {% if form.aliases.errors %}
+                    {% for error in form.aliases.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_aliases_source">
+            {% for source in source_info.aliases_source %}
+                {% source_input 'aliases' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row gender-row field-bg">
+        <div class="col-sm-12">
+            {% if form.gender.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.gender.label }}</label>
+                <select id="id_gender" class="form-control sourced-dropdown" name="gender">
+                    <option value="">------</option>
+                    {% for value, choice in form.fields.gender.choices %}
+                        {% if form.gender.data == choice %}
+                            <option value="{{ value }}" selected=true>{{ choice }}</option>
+                        {% else %}
+                            <option value="{{ value }}">{{ choice }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.gender.errors %}
+                    {% for error in form.gender.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_gender_source">
+            {% for source in source_info.gender_source %}
+                {% source_input 'gender' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row division_id-row field-bg">
+        <div class="col-sm-12">
+            {% if form.division_id.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.division_id.label }}</label>
+                <select id="id_division_id" class="form-control select2-target" name="division_id">
+                    {% if form.division_id.data %}
+                        <option value="{{ form.division_id.data }}">{{ form.division_id.data|country_name }}</option>
+                    {% else %}
+                        <option value="" selected=true>------</option>
+                    {% endif %}
+                    {% for country in countries %}
+                        <option value="ocd-division/country:{{ country.iso|lower }}">{{ country.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.division_id.errors %}
+                    {% for error in form.division_id.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_division_id_source">
+            {% for source in source_info.division_id %}
+                {% source_input 'division_id' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row date_of_birth-row field-bg">
+        <div class="col-sm-12">
+            {% if form.date_of_birth.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.date_of_birth.label }}</label>
+                <input type="text" name="date_of_birth" id="id_date_of_birth" class="form-control sourced" value="{{ form.date_of_birth.data|default_if_none:"" }}"/>
+                {% if form.date_of_birth.errors %}
+                    {% for error in form.date_of_birth.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_date_of_birth_source">
+            {% for source in source_info.date_of_birth %}
+                {% source_input 'date_of_birth' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row date_of_death-row field-bg">
+        <div class="col-sm-12">
+            {% if form.date_of_death.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.date_of_death.label }}</label>
+                <input type="text" name="date_of_death" id="id_date_of_death" class="form-control sourced" value="{{ form.date_of_death.data|default_if_none:"" }}">
+                {% if form.date_of_death.errors %}
+                    {% for error in form.date_of_death.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_date_of_death_source">
+            {% for source in source_info.date_of_death %}
+                {% source_input 'date_of_death' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row deceased-row field-bg">
+        <div class="col-sm-12">
+            {% if form.deceased.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.deceased.data %}
+                            <input type="checkbox" name="deceased" id="id_deceased" class="sourced" checked="true" /> {{ form.deceased.label }}
+                        {% else %}
+                            <input type="checkbox" name="deceased" id="id_deceased" class="sourced" /> {{ form.deceased.label }}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.deceased.errors %}
+                    {% for error in form.deceased.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_deceased_source">
+            {% for source in source_info.deceased_source %}
+                {% source_input 'deceased' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row biography-row field-bg">
+        <div class="col-sm-12">
+            {% if form.biography.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.biography.label }}</label>
+                <textarea rows=5 name="biography" id="id_biography" class="form-control sourced">{{ form.biography.data|default_if_none:"" }}</textarea>
+                {% if form.biography.errors %}
+                    {% for error in form.biography.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_biography_source">
+            {% for source in source_info.biography %}
+                {% source_input 'biography' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row notes-row field-bg">
+        <div class="col-sm-12">
+            {% if form.notes.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.notes.label }}</label>
+                <textarea name="notes" id="id_notes" class="form-control sourced">{{ form.notes.data|default_if_none:"" }}</textarea>
+                {% if form.notes.errors %}
+                    {% for error in form.notes.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_notes_source">
+            {% for source in source_info.notes %}
+                {% source_input 'notes' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row external_links-row field-bg">
+        <div class="col-sm-12">
+            {% if form.external_links.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.external_links.label }}</label>
+                <select id="id_external_links" class="form-control select2-target" name="external_links" multiple="multiple">
+                    {% for link in form.external_links.data %}
+                        <option value="{{ link }}" selected=true>{{ link }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.external_links.errors %}
+                    {% for error in form.external_links.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_external_links_source">
+            {% for source in source_info.external_links_source %}
+                {% source_input 'external_links' source %}
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
