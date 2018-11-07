@@ -23,7 +23,7 @@
             </div>
         </div>
         <div id="id_site_source">
-            {% for source in form.instance.site.get_sources %}
+            {% for source in source_info.site_source %}
                 {% source_input 'site' source %}
             {% endfor %}
         </div>
@@ -37,8 +37,8 @@
             {% endif %}
                 <label class="control-label">{{ form.aliases.label }}</label>
                 <select id="id_alias" class="form-control select2-target" name="aliases" multiple="multiple">
-                    {% for alias in form.instance.aliases.get_list %}
-                        <option value="{{ alias.get_field.id }}" selected=true>{{ alias.get_field.value }}</option>
+                    {% for alias in form.cleaned_data.aliases %}
+                        <option value="{{ alias.id }}" selected=true>{{ alias.value }}</option>
                     {% endfor %}
                 </select>
                 {% if form.aliases.errors %}
@@ -49,7 +49,7 @@
             </div>
         </div>
         <div id="id_aliases_source">
-            {% for source in form.instance.aliases.get_list.0.get_sources %}
+            {% for source in source_info.aliases_source %}
                 {% source_input 'aliases' source %}
             {% endfor %}
         </div>
@@ -62,7 +62,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.startdate.label }}</label>
-                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}"/>
+                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.startdate.data }}"/>
                 {% if form.startdate.errors %}
                     {% for error in form.startdate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -71,7 +71,7 @@
             </div>
         </div>
         <div id="id_startdate_source">
-            {% for source in form.instance.startdate.get_sources %}
+            {% for source in source_info.startdate_source %}
                 {% source_input 'startdate' source %}
             {% endfor %}
         </div>
@@ -84,7 +84,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.enddate.label }}</label>
-                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
+                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.enddate.data }}">
                 {% if form.enddate.errors %}
                     {% for error in form.enddate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -93,7 +93,7 @@
             </div>
         </div>
         <div id="id_enddate_source">
-            {% for source in form.instance.enddate.get_sources %}
+            {% for source in source_info.enddate_source %}
                 {% source_input 'enddate' source %}
             {% endfor %}
         </div>
@@ -107,7 +107,7 @@
             {% endif %}
                 <div class="checkbox">
                     <label class="control-label">
-                        {% if form.instance.realstart.get_value.value %}
+                        {% if form.realstart.data %}
                         <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
                         {% else %}
                             <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
@@ -133,7 +133,7 @@
                 <select id="id_open_ended" class="form-control" name="open_ended">
                     <option value="">------</option>
                     {% for value, choice in form.fields.open_ended.choices %}
-                        {% if form.instance.open_ended.get_value.value == choice %}
+                        {% if form.open_ended.data == choice %}
                             <option value="{{ value }}" selected=true>{{ choice }}</option>
                         {% else %}
                             <option value="{{ value }}">{{ choice }}</option>
