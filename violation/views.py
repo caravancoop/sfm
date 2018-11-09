@@ -122,7 +122,7 @@ class ViolationEditLocationsView(ViolationEditView):
 
 def violation_type_autocomplete(request):
     term = request.GET.get('q')
-    types = ViolationType.objects.filter(value__icontains=term).all()
+    types = ViolationType.objects.filter(value__icontains=term).distinct('value').order_by('value')
 
     results = {
         'results': []
@@ -139,7 +139,7 @@ def violation_type_autocomplete(request):
 
 def violation_perpetrator_classification_autocomplete(request):
     term = request.GET.get('q')
-    classifications = ViolationPerpetratorClassification.objects.filter(value__icontains=term).all()
+    classifications = ViolationPerpetratorClassification.objects.filter(value__icontains=term).distinct('value').order_by('value')
 
     results = {
         'results': []
