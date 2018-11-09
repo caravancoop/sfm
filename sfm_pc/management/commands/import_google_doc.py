@@ -102,8 +102,7 @@ class Command(BaseCommand):
         )
 
     def sourcesList(self, obj, attribute):
-        sources = [s for s in getattr(obj, attribute).get_sources()] \
-                      + [self.source]
+        sources = [s for s in getattr(obj, attribute).get_sources()]
         return list(set(s for s in sources if s))
 
     def get_credentials(self):
@@ -880,7 +879,8 @@ class Command(BaseCommand):
                         if created:
 
                             for source in sources:
-                                relation_instance.sources.add(source)
+                                relation_instance.accesspoints.add(source)
+                                relation_instance.sources.add(source.source)
 
                             with reversion.create_revision():
                                 relation_instance.confidence = confidence
@@ -897,7 +897,8 @@ class Command(BaseCommand):
                         if created:
 
                             for source in sources:
-                                relation_instance.sources.add(source)
+                                relation_instance.accesspoints.add(source)
+                                relation_instance.sources.add(source.source)
 
                             with reversion.create_revision():
                                 relation_instance.confidence = confidence
@@ -919,7 +920,8 @@ class Command(BaseCommand):
                         if created:
 
                             for source in sources:
-                                relation_instance.sources.add(source)
+                                relation_instance.accesspoints.add(source)
+                                relation_instance.sources.add(source.source)
 
                             with reversion.create_revision():
                                 relation_instance.confidence = confidence
@@ -1368,7 +1370,6 @@ class Command(BaseCommand):
     def create_sources(self, source_sheet):
 
         self.current_sheet = 'sources'
-        self.current_row = 2
 
         for source in source_sheet['values']:
             uuid = source[self.col('I')]
@@ -1378,41 +1379,28 @@ class Command(BaseCommand):
             published_on = self.parse_date(source[self.col('D')])
             source_url = source[5]
 
-            try:
-                new_source = Source.objects.get(uuid=uuid)
-
-                self.current_row += 1
-
-            except Source.DoesNotExist:
-                new_source = Source.objects.create(uuid=uuid,
-                                               title=title,
-                                               publication=publication,
-                                               publication_country=publication_country,
-                                               published_on=published_on,
-                                               source_url=source_url,
-                                               user=self.user)
-
-                self.current_row += 1
-
-            except ValueError:
-                self.current_row += 1
-                self.log_error("Invalid UUID: " + uuid)
-                return None
-
             page_number = source[self.col('C')]
             accessed_on = self.parse_date(source[self.col('E')])
             archive_url = source[self.col('G')]
 
             try:
-                access_point = AccessPoint.objects.get(archive_url=archive_url,
-                                                              source=new_source)
+                access_point = AccessPoint.objects.get(uuid=uuid)
 
             except AccessPoint.DoesNotExist:
-                access_point = AccessPoint.objects.create(page_number=page_number,
+                new_source, created = Source.objects.get_or_create(title=title,
+                                                                   publication=publication,
+                                                                   publication_country=publication_country,
+                                                                   published_on=published_on,
+                                                                   source_url=source_url,
+                                                                   user=self.user)
+
+                access_point = AccessPoint.objects.create(uuid=uuid,
+                                                          page_number=page_number,
                                                           accessed_on=accessed_on,
                                                           archive_url=archive_url,
                                                           source=new_source,
                                                           user=self.user)
+
 
             except ValueError:
                 self.log_error("Invalid access point at: " + uuid)
@@ -1424,7 +1412,7 @@ class Command(BaseCommand):
 
         for source_id in source_ids:
             try:
-                source = Source.objects.get(uuid=source_id)
+                source = AccessPoint.objects.get(uuid=source_id)
                 sources.append(source)
 
             except (ValueError, ValidationError):
@@ -2020,7 +2008,8 @@ class Command(BaseCommand):
 
                     with reversion.create_revision():
                         for source in sources:
-                            vp.sources.add(source)
+                            vp.accesspoints.add(source)
+                            vp.sources.add(source.source)
                         vp.save()
                         reversion.set_user(self.user)
 
@@ -2061,7 +2050,8 @@ class Command(BaseCommand):
 
                     with reversion.create_revision():
                         for source in sources:
-                            vpo_obj.sources.add(source)
+                            vpo_obj.accesspoints.add(source)
+                            vpo_obj.sources.add(source.source)
                         vpo_obj.save()
                         reversion.set_user(self.user)
 

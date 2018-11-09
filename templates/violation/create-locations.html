@@ -1,0 +1,208 @@
+{% extends 'edit.html' %}
+{% load i18n %}
+{% load countries %}
+{% load citations %}
+
+{% block extra_head %}
+     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+{% endblock %}
+
+{% block header_title %}
+<div class="col-sm-6">
+    <h1>{% include 'partials/violation_title.html' %}</h1>
+    <p>
+        {% trans "ID:" %} {{ object.uuid }}<br />
+        {% trans "Last update by:" %} username goes here <br />
+        <a href="#">{% trans "View versions"%}</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block edit_links %}
+    <div class="col-sm-6">
+        <h1>
+            {% trans "Edit:" %}
+            <a href="{% url 'edit-violation' violation.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
+            <a href="{% url 'create-violation-locations' violation.uuid %}" class="btn btn-primary">{% trans "Locations" %}</a>
+        </h1>
+    </div>
+{% endblock %}
+
+{% block above_form %}
+<div class="row">
+    <div class="col-sm-12">
+        <div id="osm_area_map" style="height:300px;"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block form_content %}
+    <h2>{% trans "Edit locations" %}</h2>
+    <div class="row locationdescription-row field-bg">
+        <div class="col-sm-12">
+            {% if form.locationdescription.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.locationdescription.label }}</label>
+                <textarea rows=5 name="locationdescription" id="id_locationdescription" class="form-control">{{ form.locationdescription.data }}</textarea>
+                {% if form.locationdescription.errors %}
+                    {% for error in form.locationdescription.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row location-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.location.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.location.label }}</label>
+                <select id="id_location" class="form-control location" name="location">
+                    {% if form.cleaned_data.location %}
+                    <option value="{{ form.cleaned_data.location.value.id }}">
+                    {{ form.cleaned_data.location.value.name }}
+                    ({{ form.cleaned_data.location.get_value.value.feature_type }} - {{ form.cleaned_data.location.value }})
+                    </option>
+                    {% endif %}
+                </select>
+                {% if form.location.errors %}
+                    {% for error in form.location.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row adminlevel1-row field-bg">
+        <div class="col-sm-12">
+            {% if form.adminlevel1.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.adminlevel1.label }}</label>
+                <select id="id_adminlevel1" class="form-control sourced location select2-target" name="adminlevel1">
+                    {% if form.cleaned_data.adminlevel1 %}
+                    <option value="{{ form.cleaned_data.adminlevel1.value.id }}">
+                    {{ form.cleaned_data.adminlevel1.value.name }}
+                    ({{ form.cleaned_data.adminlevel1.value.feature_type }} - {{ form.cleaned_data.adminlevel1.value.id }})
+                    </option>
+                    {% endif %}
+                </select>
+                {% if form.adminlevel1.errors %}
+                    {% for error in form.adminlevel1.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row adminlevel2-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.adminlevel2.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.adminlevel2.label }}</label>
+                <select id="id_adminlevel2" class="form-control sourced location select2-target" name="adminlevel2">
+                    {% if form.cleaned_data.adminlevel2 %}
+                    <option value="{{ form.cleaned_data.adminlevel2.value.id }}">
+                    {{ form.cleaned_data.adminlevel2.value.name }}
+                    ({{ form.cleaned_data.adminlevel2.value.feature_type }} - {{ form.cleaned_data.adminlevel2.value.id }})
+                    </option>
+                    {% endif %}
+                </select>
+                {% if form.adminlevel2.errors %}
+                    {% for error in form.adminlevel2.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_extra_js%}
+    <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            loadSources({'target': $('#id_locationdescription')});
+            $('#id_location').select2({
+                ajax: {
+                    url: "{% url 'location-autocomplete' %}?feature_type=node",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                },
+                minimumInputLength: 2,
+            });
+            $('#id_adminlevel1').select2({
+                ajax: {
+                    url: "{% url 'location-autocomplete' %}?feature_type=relation",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                },
+                minimumInputLength: 2,
+            });
+            $('#id_adminlevel2').select2({
+                ajax: {
+                    url: "{% url 'location-autocomplete' %}?feature_type=relation",
+                    data: function(params){
+                        var query = {
+                            q: params.term
+                        }
+                        return query
+                    }
+                },
+                minimumInputLength: 2,
+            });
+
+            function onEachFeature(feature, layer){
+                layer.bindPopup(feature.properties.name);
+            }
+            var area_map = L.map('osm_area_map');
+            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        { attribution: attribution, detectRetina: true }).addTo(area_map);
+
+            var areas = L.featureGroup();
+
+            {% if locations %}
+                {% for location in locations %}
+                    var geom = {{ location.geometry.geojson|safe }};
+                    geom['properties'] = {'name': "{{ location.name }}"};
+                    areas.addLayer(
+                        L.geoJson(geom, {onEachFeature: onEachFeature})
+                    );
+                {% endfor %}
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+            {% else %}
+                area_map.setView([40.807056, -73.960322], 17);
+            {% endif %}
+            $('.location').on('select2:select', function(e){
+                var geom = e.params.data.geometry;
+                geom['properties'] = {'name': e.params.data.text};
+                areas.addLayer(
+                    L.geoJson(geom, {onEachFeature: onEachFeature})
+                );
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds(), {'maxZoom': 14});
+            })
+
+        })
+    </script>
+{% endblock%}

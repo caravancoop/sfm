@@ -112,6 +112,7 @@
             var source_id = $(e.target).data('source_id');
             var field_name = $(e.target).data('field_name');
             var selector = 'input[name="' + field_name + '_source"][value="' + source_id + '"]';
+            console.log('removeSource', selector);
             $(selector).remove();
         }
 
@@ -149,8 +150,6 @@
                 $('*[name="' + field_name +'"]').parent().parent().parent().addClass('bg-info');
             }
 
-            $('.source-detail').on('close.bs.alert', removeSource);
-
             var max_height = $('#form-fields').height();
             $('#source-wrapper').css({
                 'height': max_height,
@@ -185,6 +184,26 @@
             }
         }
 
+        function formatSource(source){
+
+            if (typeof source.title === 'undefined'){
+                return source.text;
+            }
+
+            var source_info = '<p>' + source.title + ' ' + '(' + source.publication + ')';
+            source_info += '<br />' + '<small>';
+
+            if(source.page_number){
+                source_info += 'p' + source.page_number;
+            } else {
+                source_info += source.archive_url;
+            }
+
+            source_info += '</small></p>';
+
+            return $(source_info);
+        }
+
         $(document).ready(function(){
 
             $('#source-search').select2({
@@ -196,7 +215,9 @@
                         }
                         return query
                     }
-                }
+                },
+                templateResult: formatSource,
+                minimumInputLength: 2
             });
 
             $('.sourced').on('click', loadSources);
@@ -206,12 +227,14 @@
             $('.select2-target').on('focus', loadSources);
             $('.select2-target').on('select2:opening', loadSources);
 
+            $(document).on('close.bs.alert', '.source-detail', removeSource);
+
             $('#source-search').on('select2:select', function(e){
 
                 var field_name = $('#source-field-name').data('field_name');
 
                 var data = {
-                    'source_id': e.params.data.id,
+                    'accesspoint_id': e.params.data.id,
                     'field_name': field_name
                 }
 
@@ -226,6 +249,7 @@
                         access_point['source_detail_url'] = source.source_detail_url;
                         access_point['uncommitted'] = source.uncommitted;
                         var source_template = new EJS({'text': $('#source-list-template').html()});
+                        console.log(access_point);
                         $('#source-list').prepend(source_template.render(access_point));
                     });
 
@@ -235,7 +259,6 @@
                 });
 
                 $('#source-search').val(null).trigger('change');
-                $('.source-detail').on('close.bs.alert', removeSource);
             });
 
             // TODO: Figure out tab order stuff.

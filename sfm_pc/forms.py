@@ -9,7 +9,7 @@ from complex_fields.models import ComplexFieldContainer
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from source.models import Source
+from source.models import AccessPoint
 from organization.models import Organization
 from membershipperson.models import \
     MembershipPerson, MembershipPersonRank, MembershipPersonRole, \
@@ -341,8 +341,8 @@ class BaseUpdateForm(BaseEditForm):
 
                 if getattr(field_model, 'source_required', False):
                     new_source_ids = self.post_data[source_key]
-                    sources = Source.objects.filter(uuid__in=new_source_ids)
-                    update_info[update_key]['sources'] = new_source_ids
+                    sources = AccessPoint.objects.filter(uuid__in=new_source_ids)
+                    update_info[update_key]['sources'] = sources
 
                 if multiple_values:
                     update_info[update_key]['values'] = update_value
@@ -458,8 +458,8 @@ class BaseCreateForm(BaseEditForm):
 
                 if getattr(field_model, 'source_required', False):
                     new_source_ids = self.post_data[source_key]
-                    sources = Source.objects.filter(uuid__in=new_source_ids)
-                    update_info[update_key]['sources'] = new_source_ids
+                    sources = AccessPoint.objects.filter(uuid__in=new_source_ids)
+                    update_info[update_key]['sources'] = sources
 
                 if multiple_values:
                     update_info[update_key]['values'] = update_value

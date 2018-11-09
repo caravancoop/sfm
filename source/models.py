@@ -68,6 +68,7 @@ class Source(models.Model, VersionsMixin):
         from django.core.urlresolvers import reverse
         return reverse('revert-source', args=[self.uuid])
 
+
 @reversion.register()
 class AccessPoint(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)

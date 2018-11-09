@@ -6,7 +6,7 @@ from django.db import connection
 from django.core.management import call_command
 from django.contrib.auth.models import User
 
-from source.models import Source
+from source.models import AccessPoint
 from person.models import Person
 from organization.models import Organization
 from violation.models import Violation, ViolationType, \
@@ -48,7 +48,7 @@ def test_edit_violation(setUp, fake_signal):
     perpetratororganizations = [o.id for o in Organization.objects.order_by('?')[:2]]
     perpetratorclassification = ViolationPerpetratorClassification.objects.order_by('?').first()
 
-    new_sources = Source.objects.order_by('?')[:2]
+    new_sources = AccessPoint.objects.order_by('?')[:2]
 
     response = setUp.get(reverse_lazy('edit-violation', kwargs={'slug': violation.uuid}))
 

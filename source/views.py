@@ -219,14 +219,14 @@ class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        source_id = self.request.GET['source_id']
+        source_id = self.request.GET['accesspoint_id']
         field_name = self.request.GET['field_name']
 
-        source = Source.objects.get(uuid=source_id)
+        access_point = AccessPoint.objects.get(uuid=source_id)
 
-        context.update(get_source_context(field_name, source))
+        context.update(get_source_context(field_name, access_point))
 
-        template = get_template('partials/source_input.html')
+        template = get_template('partials/access_point_input.html')
         context['source_input'] = template.render(context)
 
         return context
@@ -244,16 +244,17 @@ def source_autocomplete(request):
 
         for source in sources:
 
-            publication_title = ''
-            publication_country = ''
+            for access_point in source.accesspoint_set.all():
 
-            text = '{0} ({1} - {2})'.format(source.title,
-                                            source.publication,
-                                            source.publication_country)
-            response['results'].append({
-                'text': text,
-                'id': str(source.uuid),
-            })
+                response['results'].append({
+                    'title': source.title,
+                    'publication': source.publication,
+                    'publication_country': source.publication_country,
+                    'page_number': access_point.page_number,
+                    'archive_url': access_point.archive_url,
+                    'text': source.title,
+                    'id': str(access_point.uuid),
+                })
 
     return HttpResponse(json.dumps(response), content_type='application/json')
 
@@ -338,21 +339,3 @@ def publication_autocomplete(request):
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
-
-
-def remove_source(request):
-
-    field_name = request.GET['field_name']
-    object_id = request.GET['object_id']
-    object_type = request.GET['object_type']
-    source_id = request.GET['id']
-
-    field = ComplexFieldContainer.field_from_str_and_id(
-        object_type, object_id, field_name
-    )
-
-    source = Source.objects.get(uuid=source_id)
-
-    field.get_field().sources.remove(source)
-
-    return HttpResponse(json.dumps({}), content_type='application/json')

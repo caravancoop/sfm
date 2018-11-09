@@ -824,35 +824,29 @@ def get_command_nodes(org_id, when=None):
     return nodes
 
 
-def get_source_context(field_name, source, uncommitted=True):
+def get_source_context(field_name, access_point, uncommitted=True):
     context = {
         'field_name': field_name,
         'uncommitted': uncommitted,
-        'id': source.uuid,
-        'publication': source.publication,
-        'publication_country': source.publication_country,
-        'title': source.title,
-        'access_points': [],
+        'id': access_point.uuid,
+        'publication': access_point.source.publication,
+        'publication_country': access_point.source.publication_country,
+        'title': access_point.source.title,
         'date_added': None,
-        'source_url': source.source_url,
-        'source_detail_url': reverse('view-source', kwargs={'pk': source.uuid}),
+        'source_url': access_point.source.source_url,
+        'source_detail_url': reverse('view-source', kwargs={'pk': access_point.source.uuid}),
+        'archive_url': access_point.archive_url,
+        'id': access_point.uuid,
+        'source_id': access_point.source.uuid,
+        'page_number': access_point.page_number,
+        'accessed_on': None,
     }
 
-    if source.date_added:
-        context['date_added'] = source.date_added.strftime('%Y-%m-%d')
+    if access_point.source.date_added:
+        context['date_added'] = access_point.source.date_added.strftime('%Y-%m-%d')
 
-    for access_point in source.accesspoint_set.all():
-        access_point_info = {
-            'archive_url': access_point.archive_url,
-            'id': access_point.uuid,
-            'page_number': access_point.page_number,
-            'accessed_on': None,
-        }
-
-        if access_point.accessed_on:
-            access_point_info['accessed_on'] = access_point.accessed_on.strftime('%Y-%m-%dT%H:%M:%S')
-
-        context['access_points'].append(access_point_info)
+    if access_point.accessed_on:
+        context['accessed_on'] = access_point.accessed_on.strftime('%Y-%m-%dT%H:%M:%S')
 
     return context
 

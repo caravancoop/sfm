@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification
-from source.models import Source
+from source.models import AccessPoint
 from composition.models import Composition
 
 
@@ -41,7 +41,7 @@ def test_edit_organization(setUp, fake_signal):
 
     assert response.status_code == 200
 
-    new_sources = Source.objects.order_by('?')[:2]
+    new_sources = AccessPoint.objects.order_by('?')[:2]
     new_source_ids = [s.uuid for s in new_sources]
 
     post_data = {
@@ -71,7 +71,7 @@ def test_create_organization(setUp, fake_signal):
 
     assert response.status_code == 200
 
-    new_sources = Source.objects.order_by('?')[:2]
+    new_sources = AccessPoint.objects.order_by('?')[:2]
     new_source_ids = [s.uuid for s in new_sources]
 
     classifications = OrganizationClassification.objects.order_by('?')[:2]
@@ -122,7 +122,7 @@ def test_edit_relationship(setUp, fake_signal):
 
     assert response.status_code == 200
 
-    new_sources = Source.objects.order_by('?')[:2]
+    new_sources = AccessPoint.objects.order_by('?')[:2]
     new_source_ids = [s.uuid for s in new_sources]
 
     post_data = {
@@ -157,7 +157,7 @@ def test_create_relationship(setUp, fake_signal):
 
     assert response.status_code == 200
 
-    new_sources = Source.objects.order_by('?')[:2]
+    new_sources = AccessPoint.objects.order_by('?')[:2]
     new_source_ids = [s.uuid for s in new_sources]
 
     post_data = {
