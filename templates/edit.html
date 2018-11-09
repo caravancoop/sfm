@@ -238,23 +238,11 @@
                     'field_name': field_name
                 }
 
-                $.getJSON("{% url 'stash-source' %}", data, function(source){
-                    $.each(source.access_points, function(i, access_point){
-                        access_point['field_name'] = field_name;
-                        access_point['title'] = source.title;
-                        access_point['date_added'] = source.date_added;
-                        access_point['publication'] = source.publication;
-                        access_point['publication_country'] = source.publication_country;
-                        access_point['source_url'] = source.source_url;
-                        access_point['source_detail_url'] = source.source_detail_url;
-                        access_point['uncommitted'] = source.uncommitted;
-                        var source_template = new EJS({'text': $('#source-list-template').html()});
-                        console.log(access_point);
-                        $('#source-list').prepend(source_template.render(access_point));
-                    });
-
+                $.getJSON("{% url 'stash-source' %}", data, function(access_point){
+                    var source_template = new EJS({'text': $('#source-list-template').html()});
+                    $('#source-list').prepend(source_template.render(access_point));
                     var selector = '#id_' + field_name + '_source';
-                    $(selector).append(source['source_input']);
+                    $(selector).append(access_point['source_input']);
 
                 });
 
