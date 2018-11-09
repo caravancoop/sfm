@@ -73,8 +73,8 @@ class Source(models.Model, VersionsMixin):
 class AccessPoint(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     page_number = models.CharField(max_length=255, null=True, blank=True)
-    accessed_on = models.DateField(null=True, blank=True)
-    archive_url = models.URLField(max_length=1000, null=True, blank=True)
+    accessed_on = models.DateField(null=True)
+    archive_url = models.URLField(max_length=1000, null=True,)
     source = models.ForeignKey(Source, null=True, to_field='uuid')
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL,

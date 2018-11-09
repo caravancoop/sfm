@@ -30,13 +30,13 @@
             </thead>
             <tbody>
                 {% for access_point in source.accesspoint_set.all %}
-                    {% if access_point.id != object.id %}
+                    {% if access_point.uuid != object.uuid %}
                         <tr>
                     {% else %}
                         <tr class="info">
                     {% endif %}
                         <td>
-                            <a href="{{ acccess_point.archive_url }}" target="_blank">
+                            <a href="{{ access_point.archive_url }}" target="_blank">
                                 {{ access_point.archive_url }}
                             </a>
                         </td>
