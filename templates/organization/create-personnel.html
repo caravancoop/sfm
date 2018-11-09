@@ -97,7 +97,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.title.label }}</label>
-                <input type="text" name="title" id="id_title" class="form-control sourced" value="{{ form.title.data }}">
+                <input type="text" name="title" id="id_title" class="form-control sourced" value="{{ form.title.data|default_if_none:"" }}">
                 {% if form.title.errors %}
                     {% for error in form.title.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -119,7 +119,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.firstciteddate.label }}</label>
-                <input type="text" name="firstciteddate" id="id_firstciteddate" class="form-control sourced" value="{{ form.firstciteddate.data }}">
+                <input type="text" name="firstciteddate" id="id_firstciteddate" class="form-control sourced" value="{{ form.firstciteddate.data|default_if_none:"" }}">
                 {% if form.firstciteddate.errors %}
                     {% for error in form.firstciteddate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -165,7 +165,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.startcontext.label }}</label>
-                <input type="text" name="startcontext" id="id_startcontext" class="form-control sourced" value="{{ form.startcontext.data }}">
+                <input type="text" name="startcontext" id="id_startcontext" class="form-control sourced" value="{{ form.startcontext.data|default_if_none:"" }}">
                 {% if form.startcontext.errors %}
                     {% for error in form.startcontext.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -187,7 +187,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.lastciteddate.label }}</label>
-                <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.lastciteddate.data }}">
+                <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.lastciteddate.data|default_if_none:"" }}">
                 {% if form.lastciteddate.errors %}
                     {% for error in form.lastciteddate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -233,7 +233,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.endcontext.label }}</label>
-                <input type="text" name="endcontext" id="id_endcontext" class="form-control sourced" value="{{ form.endcontext.data }}">
+                <input type="text" name="endcontext" id="id_endcontext" class="form-control sourced" value="{{ form.endcontext.data|default_if_none:"" }}">
                 {% if form.endcontext.errors %}
                     {% for error in form.endcontext.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>

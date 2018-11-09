@@ -270,3 +270,19 @@
     </div>
 
 {% endblock %}
+{% block extra_extra_js %}
+    <script type="text/javascript">
+        loadSources({'target': $('#id_name')});
+        $(document).ready(function(){
+            $('#id_alias').select2({
+                'tags': true
+            });
+
+            $('#id_external_links').select2({
+                'tags': true
+            });
+
+            $('#id_division_id').select2();
+        })
+    </script>
+{% endblock%}

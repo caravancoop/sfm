@@ -246,15 +246,21 @@ def source_autocomplete(request):
 
             for access_point in source.accesspoint_set.all():
 
-                response['results'].append({
+                result = {
                     'title': source.title,
                     'publication': source.publication,
                     'publication_country': source.publication_country,
                     'page_number': access_point.page_number,
                     'archive_url': access_point.archive_url,
+                    'accessed_on': None,
                     'text': source.title,
                     'id': str(access_point.uuid),
-                })
+                }
+
+                if access_point.accessed_on:
+                    result['accessed_on'] = access_point.accessed_on.isoformat()
+
+                response['results'].append(result)
 
     return HttpResponse(json.dumps(response), content_type='application/json')
 

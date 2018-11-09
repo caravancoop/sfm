@@ -60,7 +60,7 @@
                 {% elif current_composition.child.get_value.value == organization %}
                     <select id="id_relationship_type" class="form-control sourced" name="child" disabled=true>
                         <option value="{{ current_composition.child.get_value.value.id }}" selected=true>Child</option>
-                    {% endif %}
+                {% endif %}
                 </select>
                 {% if form.relationship_type.errors %}
                     {% for error in form.relationship_type.errors %}
@@ -69,11 +69,19 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_name_source">
-            {% for source in form.instance.name.get_sources %}
-                {% source_input 'name' source %}
-            {% endfor %}
-        </div>
+        {% if current_composition.parent.get_value.value == organization %}
+            <div id="id_parent_source">
+                {% for source in form.instance.parent.get_sources %}
+                    {% source_input 'parent' source %}
+                {% endfor %}
+            </div>
+        {% elif current_composition.child.get_value.value == organization %}
+            <div id="id_child_source">
+                {% for source in form.instance.child.get_sources %}
+                    {% source_input 'child' source %}
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
     <div class="row classification-row field-bg">
         <div class="col-sm-12">

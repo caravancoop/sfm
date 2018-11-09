@@ -112,7 +112,6 @@
             var source_id = $(e.target).data('source_id');
             var field_name = $(e.target).data('field_name');
             var selector = 'input[name="' + field_name + '_source"][value="' + source_id + '"]';
-            console.log('removeSource', selector);
             $(selector).remove();
         }
 
@@ -124,7 +123,7 @@
             }
 
             if (typeof field_name === 'undefined'){
-                field_name = e;
+                return
             }
 
             var template = new EJS({'text': $('#source-list-title').html()});
@@ -193,10 +192,11 @@
             var source_info = '<p>' + source.title + ' ' + '(' + source.publication + ')';
             source_info += '<br />' + '<small>';
 
-            if(source.page_number){
-                source_info += 'p' + source.page_number;
-            } else {
-                source_info += source.archive_url;
+            if (source.accessed_on){
+                source_info += 'Accessed on: <strong>' + source.accessed_on + '</strong>';
+            }
+            if (source.page_number){
+                source_info += ' Page number: <strong>' + source.page_number + '</strong>';
             }
 
             source_info += '</small></p>';

@@ -241,7 +241,7 @@ class LocationAutoComplete(JSONResponseMixin, TemplateView):
                                                   country_name(result.division_id),
                                                   result.feature_type,
                                                   result.id),
-                'geometry': json.loads(result.geometry.geojson),
+                'geometry': json.loads(result.geometry.simplify(tolerance=0.01).geojson),
             }
             context['results'].append(location)
 

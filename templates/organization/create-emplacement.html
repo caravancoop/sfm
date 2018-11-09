@@ -62,7 +62,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.startdate.label }}</label>
-                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.startdate.data }}"/>
+                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.startdate.data|default_if_none:"" }}"/>
                 {% if form.startdate.errors %}
                     {% for error in form.startdate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -84,7 +84,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.enddate.label }}</label>
-                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.enddate.data }}">
+                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.enddate.data|default_if_none:"" }}">
                 {% if form.enddate.errors %}
                     {% for error in form.enddate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -149,4 +149,18 @@
         </div>
     </div>
 
+{% endblock %}
+{% block location_select2 %}
+$('.location').select2({
+    ajax: {
+        url: "{% url 'location-autocomplete' %}?feature_type=node",
+        data: function(params){
+            var query = {
+                q: params.term
+            }
+            return query
+        }
+    },
+    minimumInputLength: 2,
+});
 {% endblock %}

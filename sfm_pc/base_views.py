@@ -20,7 +20,7 @@ from countries_plus.models import Country
 
 from extra_views import FormSetView
 
-from source.models import Source
+from source.models import AccessPoint
 
 class CacheMixin(object):
     cache_timeout = 60 * 60 * 24
@@ -62,7 +62,18 @@ class BaseEditView(LoginRequiredMixin,
 
     They also need to provide a 'get_success_url' method
     '''
-    pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['source_info'] = {}
+
+        for form_field in self.request.POST:
+            if form_field.endswith('_source'):
+                value = self.request.POST.getlist(form_field)
+                context['source_info'][form_field] = AccessPoint.objects.filter(uuid__in=value)
+
+        return context
 
 
 class BaseUpdateView(BaseEditView, UpdateView):
@@ -77,15 +88,3 @@ class BaseCreateView(BaseEditView, CreateView):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['post_data'] = self.request.POST
         return form_kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['source_info'] = {}
-
-        for form_field in self.request.POST:
-            if form_field.endswith('_source'):
-                value = self.request.POST.getlist(form_field)
-                context['source_info'][form_field] = Source.objects.filter(uuid__in=value)
-
-        return context

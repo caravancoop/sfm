@@ -90,7 +90,7 @@
             $('#id_alias').select2({
                 'tags': true
             });
-
+            {% block location_select2 %}
             $('.location').select2({
                 ajax: {
                     {% if current_emplacement %}
@@ -107,7 +107,7 @@
                 },
                 minimumInputLength: 2,
             });
-
+            {% endblock %}
             function onEachFeature(feature, layer){
                 layer.bindPopup(feature.properties.name);
             }

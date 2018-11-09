@@ -18,7 +18,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.name.label }}</label>
-                <input id="id_name" type="text" class="form-control sourced" name="name" value="{{ form.name.data }}" />
+                <input id="id_name" type="text" class="form-control sourced" name="name" value="{{ form.name.data|default_if_none:"" }}" />
                 {% if form.name.errors %}
                     {% for error in form.name.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -123,7 +123,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.firstciteddate.label }}</label>
-                <input type="text" name="firstciteddate" id="id_firstciteddate" class="form-control sourced" value="{{ form.firstciteddate.data }}"/>
+                <input type="text" name="firstciteddate" id="id_firstciteddate" class="form-control sourced" value="{{ form.firstciteddate.data|default_if_none:"" }}"/>
                 {% if form.firstciteddate.errors %}
                     {% for error in form.firstciteddate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -144,8 +144,8 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{{ form.lasciteddate.label }}</label>
-                <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.lastciteddate.date }}">
+                <label class="control-label">{{ form.lastciteddate.label }}</label>
+                <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.lastciteddate.data|default_if_none:"" }}" />
                 {% if form.lastciteddate.errors %}
                     {% for error in form.lastciteddate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>

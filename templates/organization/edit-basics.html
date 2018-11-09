@@ -139,7 +139,7 @@
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{{ form.lasciteddate.label }}</label>
+                <label class="control-label">{{ form.lastciteddate.label }}</label>
                 <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.instance.lastciteddate }}">
                 {% if form.lastciteddate.errors %}
                     {% for error in form.lastciteddate.errors %}
