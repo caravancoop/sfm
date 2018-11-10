@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from sfm_pc.forms import BaseEditForm, GetOrCreateChoiceField
+from sfm_pc.forms import BaseUpdateForm, BaseCreateForm, GetOrCreateChoiceField
 
 from organization.models import Organization
 
@@ -24,7 +24,7 @@ from .models import Person, PersonName, PersonAlias, PersonGender, \
     PersonDeceased, PersonBiography, PersonNotes
 
 
-class PersonBasicsForm(BaseEditForm):
+class PersonBasicsForm(BaseUpdateForm):
 
     edit_fields = [
         ('name', PersonName, False),
@@ -55,23 +55,31 @@ class PersonBasicsForm(BaseEditForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
+        person_id = kwargs.pop('person_id', None)
+
         super().__init__(*args, **kwargs)
+
         self.fields['aliases'] = GetOrCreateChoiceField(label=_("Other names"),
-                                                        queryset=PersonAlias.objects.filter(object_ref__uuid=self.object_ref_pk),
+                                                        queryset=PersonAlias.objects.filter(object_ref__uuid=person_id),
                                                         required=False,
-                                                        object_ref_pk=self.object_ref_pk,
                                                         object_ref_model=self._meta.model,
                                                         form=self,
-                                                        field_name='aliases')
+                                                        field_name='aliases',
+                                                        object_ref_pk=person_id)
         self.fields['external_links'] = GetOrCreateChoiceField(label=_("External links"),
-                                                               queryset=PersonExternalLink.objects.filter(object_ref__uuid=self.object_ref_pk),
+                                                               queryset=PersonExternalLink.objects.filter(object_ref__uuid=person_id),
                                                                required=False,
-                                                               object_ref_pk=self.object_ref_pk,
                                                                object_ref_model=self._meta.model,
                                                                form=self,
-                                                               field_name='external_links')
+                                                               field_name='external_links',
+                                                               object_ref_pk=person_id)
 
-class PersonPostingsForm(BaseEditForm):
+
+class PersonCreateBasicsForm(BaseCreateForm, PersonBasicsForm):
+    pass
+
+
+class PersonPostingsForm(BaseUpdateForm):
     edit_fields = [
         ('rank', MembershipPersonRank, False),
         ('role', MembershipPersonRole, False),
@@ -83,7 +91,12 @@ class PersonPostingsForm(BaseEditForm):
         ('startcontext', MembershipPersonStartContext, False),
         ('endcontext', MembershipPersonEndContext, False),
         ('organization', MembershipPersonOrganization, False),
+        ('member', MembershipPersonMember, False),
     ]
+
+    clone_sources = {
+        'member': 'organization',
+    }
 
     organization = forms.ModelChoiceField(label=_("Organization"), queryset=Organization.objects.all())
     rank = forms.ModelChoiceField(label=_("Rank"), queryset=Rank.objects.distinct('value'), required=False)
@@ -96,6 +109,17 @@ class PersonPostingsForm(BaseEditForm):
     startcontext = forms.CharField(label=_("Context for start date"), required=False)
     endcontext = forms.CharField(label=_("Context for end date"), required=False)
 
+    def __init__(self, *args, **kwargs):
+        person_id = kwargs.pop('person_id')
+
+        super().__init__(*args, **kwargs)
+
+        self.fields['member'] = forms.ModelChoiceField(queryset=Person.objects.filter(uuid=person_id))
+
     class Meta:
         model = MembershipPerson
         fields = '__all__'
+
+
+class PersonCreatePostingForm(BaseCreateForm, PersonPostingsForm):
+    pass

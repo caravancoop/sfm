@@ -38,7 +38,6 @@ from organization.models import Organization, OrganizationAlias, \
 
 from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
                           CONFIDENCE_MAP, execute_sql)
-from sfm_pc.base_views import UtilityMixin
 
 from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
 from association.models import Association, AssociationOpenEnded, AssociationRealStart
@@ -58,7 +57,9 @@ from location.models import Location
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 
-class Command(UtilityMixin, BaseCommand):
+
+
+class Command(BaseCommand):
     help = 'Import data from Google Drive Spreadsheet'
 
     def add_arguments(self, parser):
@@ -99,6 +100,10 @@ class Command(UtilityMixin, BaseCommand):
             default=1,
             help='First row to begin parsing (for debugging)'
         )
+
+    def sourcesList(self, obj, attribute):
+        sources = [s for s in getattr(obj, attribute).get_sources()]
+        return list(set(s for s in sources if s))
 
     def get_credentials(self):
         '''make sure relevant accounts have access to the sheets at console.developers.google.com'''
@@ -874,7 +879,8 @@ class Command(UtilityMixin, BaseCommand):
                         if created:
 
                             for source in sources:
-                                relation_instance.sources.add(source)
+                                relation_instance.accesspoints.add(source)
+                                relation_instance.sources.add(source.source)
 
                             with reversion.create_revision():
                                 relation_instance.confidence = confidence
@@ -891,7 +897,8 @@ class Command(UtilityMixin, BaseCommand):
                         if created:
 
                             for source in sources:
-                                relation_instance.sources.add(source)
+                                relation_instance.accesspoints.add(source)
+                                relation_instance.sources.add(source.source)
 
                             with reversion.create_revision():
                                 relation_instance.confidence = confidence
@@ -913,7 +920,8 @@ class Command(UtilityMixin, BaseCommand):
                         if created:
 
                             for source in sources:
-                                relation_instance.sources.add(source)
+                                relation_instance.accesspoints.add(source)
+                                relation_instance.sources.add(source.source)
 
                             with reversion.create_revision():
                                 relation_instance.confidence = confidence
@@ -1362,7 +1370,6 @@ class Command(UtilityMixin, BaseCommand):
     def create_sources(self, source_sheet):
 
         self.current_sheet = 'sources'
-        self.current_row = 2
 
         for source in source_sheet['values']:
             uuid = source[self.col('I')]
@@ -1372,41 +1379,28 @@ class Command(UtilityMixin, BaseCommand):
             published_on = self.parse_date(source[self.col('D')])
             source_url = source[5]
 
-            try:
-                new_source = Source.objects.get(uuid=uuid)
-
-                self.current_row += 1
-
-            except Source.DoesNotExist:
-                new_source = Source.objects.create(uuid=uuid,
-                                               title=title,
-                                               publication=publication,
-                                               publication_country=publication_country,
-                                               published_on=published_on,
-                                               source_url=source_url,
-                                               user=self.user)
-
-                self.current_row += 1
-
-            except ValueError:
-                self.current_row += 1
-                self.log_error("Invalid UUID: " + uuid)
-                return None
-
             page_number = source[self.col('C')]
             accessed_on = self.parse_date(source[self.col('E')])
             archive_url = source[self.col('G')]
 
             try:
-                access_point = AccessPoint.objects.get(archive_url=archive_url,
-                                                              source=new_source)
+                access_point = AccessPoint.objects.get(uuid=uuid)
 
             except AccessPoint.DoesNotExist:
-                access_point = AccessPoint.objects.create(page_number=page_number,
+                new_source, created = Source.objects.get_or_create(title=title,
+                                                                   publication=publication,
+                                                                   publication_country=publication_country,
+                                                                   published_on=published_on,
+                                                                   source_url=source_url,
+                                                                   user=self.user)
+
+                access_point = AccessPoint.objects.create(uuid=uuid,
+                                                          page_number=page_number,
                                                           accessed_on=accessed_on,
                                                           archive_url=archive_url,
                                                           source=new_source,
                                                           user=self.user)
+
 
             except ValueError:
                 self.log_error("Invalid access point at: " + uuid)
@@ -1418,7 +1412,7 @@ class Command(UtilityMixin, BaseCommand):
 
         for source_id in source_ids:
             try:
-                source = Source.objects.get(uuid=source_id)
+                source = AccessPoint.objects.get(uuid=source_id)
                 sources.append(source)
 
             except (ValueError, ValidationError):
@@ -1729,6 +1723,25 @@ class Command(UtilityMixin, BaseCommand):
             else:
                 self.log_error('{} did not have a confidence or source'.format(name_value))
 
+    def get_or_create_location(self, geo):
+        location, created = Location.objects.get_or_create(id=geo.id)
+
+        if created:
+            location.name = geo.name
+            location.geometry = geo.geometry
+
+            country_code = geo.country_code.lower()
+            location.division_id = 'ocd-division/country:{}'.format(country_code)
+
+            if location.feature_type == 'point':
+                location.feature_type = 'node'
+            else:
+                location.feature_type = 'relation'
+
+            location.save()
+
+        return location
+
     def create_event(self, event_data):
 
         positions = {
@@ -1900,14 +1913,12 @@ class Command(UtilityMixin, BaseCommand):
 
             hierarchy = get_hierarchy_by_id(admin_id)
 
-            admin1 = event_data[positions['AdminLevel1Name']['value']]
-
             if hierarchy:
                 for member in hierarchy:
                     if int(member.admin_level) == 6 and not admin1:
-                        admin1 = member.name
+                        admin1 = self.get_or_create_location(member)
                     elif int(member.admin_level) == 4:
-                        admin2 = member.name
+                        admin2 = self.get_or_create_location(member)
 
             event_info.update({
                 'Violation_ViolationAdminLevel2': {
@@ -1935,25 +1946,10 @@ class Command(UtilityMixin, BaseCommand):
             osm_id = geo.id
 
         if osm_id:
-            location, created = Location.objects.get_or_create(id=geo.id)
-
-            if created:
-                location.name = geo.name
-                location.geometry = geo.geometry
-
-                country_code = geo.country_code.lower()
-                location.division_id = 'ocd-division/country:{}'.format(country_code)
-
-                if location.feature_type == 'point':
-                    location.feature_type = 'node'
-                else:
-                    location.feature_type = 'relation'
-
-                location.save()
 
             event_info.update({
                 'Violation_ViolationLocation': {
-                    'value': location,
+                    'value': self.get_or_create_location(geo),
                     'sources': sources,
                     'confidence': 1
                 },
@@ -2012,7 +2008,8 @@ class Command(UtilityMixin, BaseCommand):
 
                     with reversion.create_revision():
                         for source in sources:
-                            vp.sources.add(source)
+                            vp.accesspoints.add(source)
+                            vp.sources.add(source.source)
                         vp.save()
                         reversion.set_user(self.user)
 
@@ -2053,7 +2050,8 @@ class Command(UtilityMixin, BaseCommand):
 
                     with reversion.create_revision():
                         for source in sources:
-                            vpo_obj.sources.add(source)
+                            vpo_obj.accesspoints.add(source)
+                            vpo_obj.sources.add(source.source)
                         vpo_obj.save()
                         reversion.set_user(self.user)
 

@@ -74,9 +74,6 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django_date_extensions',
     'rosetta',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
     'languages_plus',
     'countries_plus',
     'reversion',
@@ -214,16 +211,13 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-LOGIN_URL = reverse_lazy('account_login')
 LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = reverse_lazy('login')
 
 AUTHENTICATION_BACKENDS = (
+    'sfm_pc.backends.EmailAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
 )
-
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = "email"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'

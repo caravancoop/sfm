@@ -9,20 +9,6 @@ import django.db.models.deletion
 from django.conf import settings
 
 
-def remake_views(apps, schema_editor):
-    sql_folder_path = os.path.join(settings.BASE_DIR, 'sfm_pc/management/commands/sql')
-
-    violation_view = os.path.join(sql_folder_path, 'violation_view.sql')
-    violation_source_view = os.path.join(sql_folder_path, 'violation_sources_view.sql')
-    violation_export_view = os.path.join(sql_folder_path, 'violation_all_export_view.sql')
-
-    with open(violation_view) as vv, open(violation_source_view) as vsv, open(violation_export_view) as vev:
-        with connection.cursor() as curs:
-            curs.execute(vv.read())
-            curs.execute(vsv.read())
-            curs.execute(vev.read())
-
-
 class Migration(migrations.Migration):
 
     atomic = False
@@ -30,13 +16,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('violation', '0018_auto_20180821_1457'),
         ('location', '0005_remove_location_admin_level'),
-    ]
-    operations = [
-        migrations.AlterField(
-            model_name='violationlocation',
-            name='value',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='location.Location'),
-        ),
     ]
 
     state_operations = [
@@ -85,7 +64,6 @@ class Migration(migrations.Migration):
         reverse_sql='''
             ALTER TABLE violation_violationlocation RENAME COLUMN value_id TO value
         '''),
-        migrations.RunPython(remake_views),
     ]
 
     operations = [

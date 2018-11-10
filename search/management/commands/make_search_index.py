@@ -326,11 +326,14 @@ class Command(BaseCommand):
             last_cited = None
 
             # Get most recent information
-            latest_title = memberships[0].title.get_value()
-            latest_role = memberships[0].role.get_value()
-            most_recent_unit = memberships[0].organization.get_value()
-            most_recent_rank = memberships[0].rank.get_value()
-            latest_rank = most_recent_rank
+            if memberships:
+                latest_title = memberships[0].title.get_value()
+                latest_role = memberships[0].role.get_value()
+                most_recent_unit = memberships[0].organization.get_value()
+                most_recent_rank = memberships[0].rank.get_value()
+                latest_rank = most_recent_rank
+            else:
+                latest_title, latest_role, most_recent_unit, most_recent_rank, latest_rank = None, None, None, None, None
 
             for membership in memberships:
 
@@ -410,8 +413,6 @@ class Command(BaseCommand):
                         division_ids.update([org_division_id.value])
                         org_country = country_name(org_division_id)
                         countries.update([org_country])
-
-
 
             # Convert sets to lists, for indexing
             division_ids, countries = list(division_ids), list(countries)
@@ -538,7 +539,7 @@ class Command(BaseCommand):
 
             location_name = violation.location_name.get_value()
             if location_name:
-                location_name = location_name.value
+                location_name = location_name.value.name
 
             osmname = violation.osmname.get_value()
             if osmname:
@@ -546,11 +547,11 @@ class Command(BaseCommand):
 
             admin_l1_name = violation.adminlevel1.get_value()
             if admin_l1_name:
-                admin_l1_name = admin_l1_name.value
+                admin_l1_name = admin_l1_name.value.name
 
             admin_l2_name = violation.adminlevel2.get_value()
             if admin_l2_name:
-                admin_l2_name = admin_l2_name.value
+                admin_l2_name = admin_l2_name.value.name
 
             start_date = self.format_date(violation.startdate.get_value())
             end_date = self.format_date(violation.enddate.get_value())
