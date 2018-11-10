@@ -59,29 +59,31 @@ def make_admin_levels(apps, schema):
 
         location = violation.violationlocation_set.first()
 
-        cursor = connection.cursor()
-        cursor.execute(hierarchy, [location.value.id])
+        if location:
 
-        columns = [c[0] for c in cursor.description]
-        results_tuple = namedtuple('OSMFeature', columns)
+            cursor = connection.cursor()
+            cursor.execute(hierarchy, [location.value.id])
 
-        hierarchy = [results_tuple(*r) for r in cursor]
+            columns = [c[0] for c in cursor.description]
+            results_tuple = namedtuple('OSMFeature', columns)
 
-        violation_info = {}
-        sources = location.sources.all()
+            hierarchy = [results_tuple(*r) for r in cursor]
 
-        if hierarchy:
-            for member in hierarchy:
-                if int(member.admin_level) == 6:
-                    admin1 = get_or_create_location(member)
-                    admin_obj, created = ViolationAdminLevel1.objects.get_or_create(value=admin1,
-                                                                                    object_ref=violation)
-                if int(member.admin_level) == 4:
-                    admin2 = get_or_create_location(member)
-                    admin_obj, created = ViolationAdminLevel2.objects.get_or_create(value=admin2,
-                                                                                    object_ref=violation)
+            violation_info = {}
+            sources = location.sources.all()
 
-                violation.save()
+            if hierarchy:
+                for member in hierarchy:
+                    if int(member.admin_level) == 6:
+                        admin1 = get_or_create_location(member)
+                        admin_obj, created = ViolationAdminLevel1.objects.get_or_create(value=admin1,
+                                                                                        object_ref=violation)
+                    if int(member.admin_level) == 4:
+                        admin2 = get_or_create_location(member)
+                        admin_obj, created = ViolationAdminLevel2.objects.get_or_create(value=admin2,
+                                                                                        object_ref=violation)
+
+                    violation.save()
 
 
 def remake_views(apps, schema_editor):
