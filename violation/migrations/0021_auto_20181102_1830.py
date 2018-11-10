@@ -59,7 +59,7 @@ def make_admin_levels(apps, schema):
 
         location = violation.violationlocation_set.first()
 
-        if location:
+        if location.value:
 
             cursor = connection.cursor()
             cursor.execute(hierarchy, [location.value.id])
