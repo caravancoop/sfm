@@ -21,7 +21,11 @@ def country_name(division_id):
         if len(split_id) > 1:
 
             iso = split_id[1].upper()
-            country = Country.objects.get(iso=iso)
+
+            try:
+                country = Country.objects.get(iso=iso)
+            except Country.DoesNotExist:
+                return ''
 
             return country.name
 

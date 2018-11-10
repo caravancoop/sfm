@@ -155,26 +155,3 @@ def test_autocomplete(setUp):
     response = setUp.get(url)
 
     assert response.status_code == 200
-
-
-@pytest.mark.django_db
-def test_remove_source(setUp):
-    person = Person.objects\
-                   .annotate(name_sources=Count('personname__sources'))\
-                   .filter(name_sources__gte=2)[0]
-
-    sources = [s.uuid for s in person.name.get_sources()]
-    removed = sources.pop()
-
-    params = {
-        'object_type': 'person',
-        'field_name': 'name',
-        'object_id': person.name.get_value().id,
-        'id': removed
-    }
-
-    response = setUp.get(reverse_lazy('remove-source'), params)
-
-    assert response.status_code == 200
-
-    assert removed not in [s.uuid for s in person.name.get_sources()]

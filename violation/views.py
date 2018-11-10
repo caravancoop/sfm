@@ -2,16 +2,16 @@ import json
 import csv
 
 from django.views.generic import DetailView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language
 
 from complex_fields.models import ComplexFieldContainer
 
-from sfm_pc.base_views import BaseEditView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView
 
 from .models import Violation, ViolationType, ViolationPerpetratorClassification
-from .forms import ViolationBasicsForm
+from .forms import ViolationBasicsForm, ViolationCreateBasicsForm, ViolationLocationsForm
 
 class ViolationDetail(DetailView):
     model = Violation
@@ -38,7 +38,7 @@ class ViolationDetail(DetailView):
         return context
 
 
-class ViolationEditView(BaseEditView):
+class ViolationEditView(BaseUpdateView):
     model = Violation
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
@@ -52,9 +52,6 @@ class ViolationEditView(BaseEditView):
 class ViolationEditBasicsView(ViolationEditView):
     template_name = 'violation/edit-basics.html'
     form_class = ViolationBasicsForm
-
-    def get_reference_organization(self):
-        return Violation.objects.get(uuid=self.kwargs['slug'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -72,9 +69,60 @@ class ViolationEditBasicsView(ViolationEditView):
             return super().get_success_url()
 
 
+class ViolationCreateBasicsView(BaseCreateView):
+    model = Violation
+    slug_field = 'uuid'
+    slug_field_kwarg = 'slug'
+    context_object_name = 'violation'
+    template_name = 'violation/create-basics.html'
+    form_class = ViolationCreateBasicsForm
+
+    def form_valid(self, form):
+        form.save(commit=True)
+        return HttpResponseRedirect(reverse('view-violation',
+                                            kwargs={'slug': form.object_ref.uuid}))
+
+    def get_success_url(self):
+        # This method doesn't ever really get called but since Django does not
+        # seem to recognize when we place a get_absolute_url method on the model
+        # and some way of determining where to redirect after the form is saved
+        # is required, here ya go. The redirect actually gets handled in the
+        # form_valid method above.
+        return '{}?entity_type=Violation'.format(reverse('search'))
+
+
+class ViolationEditLocationsView(ViolationEditView):
+    template_name = 'violation/edit-locations.html'
+    form_class = ViolationLocationsForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['locations'] = []
+
+        if context['violation'].location.get_value():
+            context['locations'].append(context['violation'].location.get_value().value)
+
+        if context['violation'].adminlevel1.get_value():
+            context['locations'].append(context['violation'].adminlevel1.get_value().value)
+
+        if context['violation'].adminlevel2.get_value():
+            context['locations'].append(context['violation'].adminlevel2.get_value().value)
+
+        return context
+
+    def get_success_url(self):
+        violation_id = self.kwargs['slug']
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-violation', kwargs={'slug': violation_id})
+        else:
+            return super().get_success_url()
+
+
 def violation_type_autocomplete(request):
     term = request.GET.get('q')
-    types = ViolationType.objects.filter(value__icontains=term).all()
+    types = ViolationType.objects.filter(value__icontains=term).distinct('value').order_by('value')
 
     results = {
         'results': []
@@ -91,7 +139,7 @@ def violation_type_autocomplete(request):
 
 def violation_perpetrator_classification_autocomplete(request):
     term = request.GET.get('q')
-    classifications = ViolationPerpetratorClassification.objects.filter(value__icontains=term).all()
+    classifications = ViolationPerpetratorClassification.objects.filter(value__icontains=term).distinct('value').order_by('value')
 
     results = {
         'results': []

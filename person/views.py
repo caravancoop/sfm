@@ -5,19 +5,20 @@ from collections import namedtuple
 
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import DetailView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from countries_plus.models import Country
 
 from person.models import Person, PersonAlias
-from person.forms import PersonBasicsForm, PersonPostingsForm
+from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \
+    PersonPostingsForm, PersonCreatePostingForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.utils import Autofill
-from sfm_pc.base_views import NeverCacheMixin, BaseEditView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView
 
 
 class PersonDetail(DetailView):
@@ -285,7 +286,7 @@ def person_autocomplete(request):
     return HttpResponse(json.dumps(results), content_type='application/json')
 
 
-class PersonEditView(BaseEditView):
+class PersonEditView(BaseUpdateView):
     model = Person
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
@@ -299,6 +300,11 @@ class PersonEditView(BaseEditView):
 class PersonEditBasicsView(PersonEditView):
     template_name = 'person/edit-basics.html'
     form_class = PersonBasicsForm
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['person_id'] = self.kwargs['slug']
+        return form_kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -325,6 +331,11 @@ class PersonEditPostingsView(PersonEditView):
     context_object_name = 'current_membership'
     slug_field_kwarg = 'person_id'
 
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['person_id'] = self.kwargs['person_id']
+        return form_kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
@@ -347,5 +358,50 @@ class PersonEditPostingsView(PersonEditView):
             return super().get_success_url()
 
 
-class PersonCreateView(PersonEditView, CreateView):
-    pass
+class PersonCreateView(BaseCreateView):
+    template_name = 'person/create-basics.html'
+    form_class = PersonCreateBasicsForm
+    context_object_name = 'person'
+    slug_field_kwarg = 'slug'
+    model = Person
+
+    def form_valid(self, form):
+        form.save(commit=True)
+        return HttpResponseRedirect(reverse('view-person',
+                                    kwargs={'slug': form.object_ref.uuid}))
+
+    def get_success_url(self):
+        # This method doesn't ever really get called but since Django does not
+        # seem to recognize when we place a get_absolute_url method on the model
+        # and some way of determining where to redirect after the form is saved
+        # is required, here ya go. The redirect actually gets handled in the
+        # form_valid method above.
+        return '{}?entity_type=Person'.format(reverse_lazy('search'))
+
+
+class PersonCreatePostingView(BaseCreateView):
+    model = MembershipPerson
+    template_name = 'person/create-posting.html'
+    form_class = PersonCreatePostingForm
+    context_object_name = 'current_membership'
+    slug_field_kwarg = 'person_id'
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['person_id'] = self.kwargs['person_id']
+        return form_kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
+
+        affiliations = context['person'].memberships
+        memberships = tuple(mem.object_ref for mem in affiliations)
+
+        context['memberships'] = memberships
+
+        return context
+
+    def get_success_url(self):
+
+        return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})

@@ -1,0 +1,140 @@
+{% extends 'organization/edit-locations.html' %}
+{% load i18n %}
+{% load countries %}
+{% load citations %}
+
+{% block form_content %}
+    <h2>{% trans "Edit Location" %}</h2>
+    <input type="hidden" name="organization" value="{{ organization.id }}" />
+    <div class="row area-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.area.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.area.label }}</label>
+                <select id="id_area" class="form-control sourced location" name="area"></select>
+                {% if form.area.errors %}
+                    {% for error in form.area.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_area_source">
+            {% for source in source_info.area_source %}
+                {% source_input 'area' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row startdate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.startdate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.startdate.label }}</label>
+                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.startdate.data|default_if_none:"" }}"/>
+                {% if form.startdate.errors %}
+                    {% for error in form.startdate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_startdate_source">
+            {% for source in source_info.startdate_source %}
+                {% source_input 'startdate' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row enddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.enddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.enddate.label }}</label>
+                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.enddate.data|default_if_none:"" }}">
+                {% if form.enddate.errors %}
+                    {% for error in form.enddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_enddate_source">
+            {% for source in source_info.enddate_source %}
+                {% source_input 'enddate' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row realstart-row field-bg">
+        <div class="col-sm-12">
+            {% if form.realstart.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.realstart.data %}
+                            <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
+                        {% else %}
+                            <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.realstart.errors %}
+                    {% for error in form.realstart.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row open_ended-row field-bg">
+        <div class="col-sm-12">
+            {% if form.open_ended.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.open_ended.label }}</label>
+                <select id="id_open_ended" class="form-control" name="open_ended">
+                    <option value="">------</option>
+                    {% for value, choice in form.fields.open_ended.choices %}
+                        {% if form.open_ended.data == choice %}
+                            <option value="{{ value }}" selected=true>{{ choice }}</option>
+                        {% else %}
+                            <option value="{{ value }}">{{ choice }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.open_ended.errors %}
+                    {% for error in form.open_ended.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block location_select2 %}
+$('.location').select2({
+    ajax: {
+        url: "{% url 'location-autocomplete' %}?feature_type=relation",
+        data: function(params){
+            var query = {
+                q: params.term
+            }
+            return query
+        }
+    },
+    minimumInputLength: 2,
+});
+{% endblock %}

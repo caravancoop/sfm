@@ -56,10 +56,10 @@ def get_citation_string(obj):
     return source_citation
 
 
-@register.inclusion_tag('partials/source_input.html')
-def source_input(field_name, source):
+@register.inclusion_tag('partials/access_point_input.html')
+def source_input(field_name, access_point):
 
-    return get_source_context(field_name, source, uncommitted=False)
+    return get_source_context(field_name, access_point, uncommitted=False)
 
 
 @register.inclusion_tag('partials/source_and_confidence.html')

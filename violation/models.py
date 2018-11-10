@@ -96,7 +96,6 @@ class Violation(models.Model, BaseModel, VersionsMixin):
 
 
 @versioned
-@sourced
 class ViolationStartDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
@@ -104,7 +103,6 @@ class ViolationStartDate(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationFirstAllegation(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
@@ -112,7 +110,6 @@ class ViolationFirstAllegation(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationEndDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
@@ -120,7 +117,6 @@ class ViolationEndDate(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationLastUpdate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
@@ -129,7 +125,6 @@ class ViolationLastUpdate(ComplexField):
 
 @translated
 @versioned
-@sourced
 class ViolationStatus(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
@@ -138,7 +133,6 @@ class ViolationStatus(ComplexField):
 
 @translated
 @versioned
-@sourced
 class ViolationLocationDescription(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
@@ -146,23 +140,20 @@ class ViolationLocationDescription(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationAdminLevel1(ComplexField):
     object_ref = models.ForeignKey('Violation')
-    value = models.TextField(default=None, blank=True, null=True)
+    value = models.ForeignKey(Location, null=True)
     field_name = _("Admin level 1")
 
 
 @versioned
-@sourced
 class ViolationAdminLevel2(ComplexField):
     object_ref = models.ForeignKey('Violation')
-    value = models.TextField(default=None, blank=True, null=True)
+    value = models.ForeignKey(Location, null=True)
     field_name = _("Admin level 2")
 
 
 @versioned
-@sourced
 class ViolationOSMName(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
@@ -170,7 +161,6 @@ class ViolationOSMName(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationOSMId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
@@ -178,7 +168,6 @@ class ViolationOSMId(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationDivisionId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
@@ -186,7 +175,6 @@ class ViolationDivisionId(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationLocation(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Location, null=True)
@@ -194,7 +182,6 @@ class ViolationLocation(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationLocationName(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
@@ -202,7 +189,6 @@ class ViolationLocationName(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationLocationId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
@@ -218,7 +204,6 @@ class ViolationDescription(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationPerpetrator(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Person, default=None, blank=True, null=True)
@@ -226,7 +211,6 @@ class ViolationPerpetrator(ComplexField):
 
 
 @versioned
-@sourced
 class ViolationPerpetratorOrganization(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Organization, default=None, blank=True, null=True)
@@ -234,7 +218,6 @@ class ViolationPerpetratorOrganization(ComplexField):
 
 
 @versioned
-@sourced
 @translated
 class ViolationType(ComplexField):
     object_ref = models.ForeignKey('Violation', null=True)
@@ -243,7 +226,6 @@ class ViolationType(ComplexField):
 
 
 @versioned
-@sourced
 @translated
 class ViolationPerpetratorClassification(ComplexField):
     object_ref = models.ForeignKey('Violation', null=True)

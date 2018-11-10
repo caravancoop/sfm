@@ -56,10 +56,12 @@
                 </tr>
             {% endwith %}
         {% endfor %}
-        {% if 'edit' in request.path %}
+        {% if request.user.is_staff %}
         <tr>
             <td colspan="7">
+                <a href="{% url 'create-person-posting' person.uuid %}">
                 <i class="fa fa-plus"> </i> Add posting
+                </a>
             </td>
         </tr>
         {% endif %}

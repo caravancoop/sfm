@@ -1,6 +1,12 @@
 {% extends 'edit.html' %}
 {% load i18n %}
 {% load countries %}
+{% load citations %}
+
+{% block extra_head %}
+     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+{% endblock %}
+
 {% block header_title %}
 <div class="col-sm-6">
     <h1>{% include 'partials/violation_title.html' %}</h1>
@@ -17,182 +23,139 @@
         <h1>
             {% trans "Edit:" %}
             <a href="{% url 'edit-violation' violation.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
+            <a href="{% url 'edit-violation-locations' violation.uuid %}" class="btn btn-primary">{% trans "Locations" %}</a>
         </h1>
     </div>
 {% endblock %}
 
+{% block above_form %}
+<div class="row">
+    <div class="col-sm-12">
+        <div id="osm_area_map" style="height:300px;"></div>
+    </div>
+</div>
+{% endblock %}
+
 {% block form_content %}
     <h2>{% trans "Edit locations" %}</h2>
-    <div class="row startdate-row field-bg">
+    <div class="row locationdescription-row field-bg">
         <div class="col-sm-12">
-            {% if form.startdate.errors %}
+            {% if form.locationdescription.errors %}
                 <div class="form-group has-error has-feedback">
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Start date" %}</label>
-                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}">
-                {% if form.startdate.errors %}
-                    {% for error in form.startdate.errors %}
+                <label class="control-label">{{ form.locationdescription.label }}</label>
+                <textarea rows=5 name="locationdescription" id="id_locationdescription" class="form-control sourced">{{ form.instance.locationdescription.get_value.value }}</textarea>
+                {% if form.locationdescription.errors %}
+                    {% for error in form.locationdescription.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}
             </div>
         </div>
-    </div>
-    <div class="row enddate-row field-bg">
-        <div class="col-sm-12">
-            {% if form.enddate.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <label class="control-label">{% trans "End date" %}</label>
-                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
-                {% if form.enddate.errors %}
-                    {% for error in form.enddate.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
+        <div id="id_locationdescription_source">
+            {% for source in form.instance.locationdescription.get_sources %}
+                {% source_input 'locationdescription' source %}
+            {% endfor %}
         </div>
     </div>
-    <div class="row types-row field-bg">
+    <div class="row location-row field-bg bg-info">
         <div class="col-sm-12">
-            {% if form.types.errors %}
+            {% if form.location.errors %}
                 <div class="form-group has-error has-feedback">
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Violation types" %}</label>
-                <select id="id_types" class="form-control select2-target" name="types" multiple="multiple">
-                    {% for type in form.instance.types.get_list %}
-                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.types.errors %}
-                    {% for error in form.types.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="row description-row field-bg">
-        <div class="col-sm-12">
-            {% if form.description.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <label class="control-label">{% trans "Description" %}</label>
-                <textarea rows=5 name="description" id="id_description" class="form-control sourced">{{ form.instance.description.get_value.value }}</textarea>
-                {% if form.description.errors %}
-                    {% for error in form.description.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="row perpetrator-row field-bg">
-        <div class="col-sm-12">
-            {% if form.perpetrator.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <label class="control-label">{% trans "Perpetrator name" %}</label>
-                <select id="id_perpetrator" class="form-control select2-target" name="perpetrator" multiple="multiple">
-                    {% for type in form.instance.perpetrator.get_list %}
-                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.perpetrator.errors %}
-                    {% for error in form.perpetrator.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="row perpetratororganization-row field-bg">
-        <div class="col-sm-12">
-            {% if form.perpetratororganization.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <label class="control-label">{% trans "Perpetrator unit" %}</label>
-                <select id="id_perpetratororganization" class="form-control select2-target" name="perpetratororganization" multiple="multiple">
-                    {% for type in form.instance.perpetratororganization.get_list %}
-                        <option value="{{ type.get_field.id }}" selected=true>{{ type.get_field.value }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.perpetratororganization.errors %}
-                    {% for error in form.perpetratororganization.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="row perpetratorclassification-row field-bg">
-        <div class="col-sm-12">
-            {% if form.perpetratorclassification.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <label class="control-label">{% trans "Perpetrator classification" %}</label>
-                <select id="id_perpetratorclassification" class="form-control select2-target" name="perpetratorclassification">
-                    <option value="{{ form.instance.perpetratorclassification.id }}" selected=true>
-                        {{ form.instance.perpetratorclassification.get_value.value }}
+                <label class="control-label">{{ form.location.label }}</label>
+                <select id="id_location" class="form-control sourced location select2-target" name="location">
+                    {% if form.instance.location.get_value %}
+                    <option value="{{ form.instance.location.get_value.value.id }}">
+                    {{ form.instance.location.get_value.value.name }}
+                    ({{ form.instance.location.get_value.value.feature_type }} - {{ form.instance.location.get_value.value.id }})
                     </option>
+                    {% endif %}
                 </select>
-                {% if form.perpetratorclassification.errors %}
-                    {% for error in form.perpetratorclassification.errors %}
+                {% if form.location.errors %}
+                    {% for error in form.location.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}
             </div>
         </div>
+        <div id="id_location_source">
+            {% for source in form.instance.location.get_sources %}
+                {% source_input 'location' source %}
+            {% endfor %}
+        </div>
     </div>
-    <div class="row division_id-row field-bg">
+    <div class="row adminlevel1-row field-bg">
         <div class="col-sm-12">
-            {% if form.division_id.errors %}
+            {% if form.adminlevel1.errors %}
                 <div class="form-group has-error has-feedback">
             {% else %}
                 <div class="form-group">
             {% endif %}
-                <label class="control-label">{% trans "Country" %}</label>
-                <select id="id_division_id" class="form-control select2-target" name="division_id">
-                    {% if form.instance.division_id %}
-                        <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
-                    {% else %}
-                        <option value="" selected=true>------</option>
+                <label class="control-label">{{ form.adminlevel1.label }}</label>
+                <select id="id_adminlevel1" class="form-control sourced location select2-target" name="adminlevel1">
+                    {% if form.instance.adminlevel1.get_value %}
+                    <option value="{{ form.instance.adminlevel1.get_value.value.id }}">
+                    {{ form.instance.adminlevel1.get_value.value.name }}
+                    ({{ form.instance.adminlevel1.get_value.value.feature_type }} - {{ form.instance.adminlevel1.get_value.value.id }})
+                    </option>
                     {% endif %}
-                    {% for country in countries %}
-                        <option value="ocd-division/country:{{ country.iso|lower }}">{{ country.name }}</option>
-                    {% endfor %}
                 </select>
-                {% if form.division_id.errors %}
-                    {% for error in form.division_id.errors %}
+                {% if form.adminlevel1.errors %}
+                    {% for error in form.adminlevel1.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}
             </div>
         </div>
+        <div id="id_adminlevel1_source">
+            {% for source in form.instance.adminlevel1.get_sources %}
+                {% source_input 'adminlevel1' source %}
+            {% endfor %}
+        </div>
     </div>
-
+    <div class="row adminlevel2-row field-bg bg-info">
+        <div class="col-sm-12">
+            {% if form.adminlevel2.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.adminlevel2.label }}</label>
+                <select id="id_adminlevel2" class="form-control sourced location select2-target" name="adminlevel2">
+                    {% if form.instance.adminlevel2.get_value %}
+                    <option value="{{ form.instance.adminlevel2.get_value.value.id }}">
+                    {{ form.instance.adminlevel2.get_value.value.name }}
+                    ({{ form.instance.adminlevel2.get_value.value.feature_type }} - {{ form.instance.adminlevel2.get_value.value.id }})
+                    </option>
+                    {% endif %}
+                </select>
+                {% if form.adminlevel2.errors %}
+                    {% for error in form.adminlevel2.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_adminlevel2_source">
+            {% for source in form.instance.adminlevel2.get_sources %}
+                {% source_input 'adminlevel2' source %}
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
 {% block extra_extra_js%}
+    <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            loadSources({'target': $('#id_startdate')});
-            $('#id_types').select2({
+            loadSources({'target': $('#id_locationdescription')});
+            $('#id_location').select2({
                 ajax: {
-                    url: "{% url 'violation-type-autocomplete' %}",
+                    url: "{% url 'location-autocomplete' %}?feature_type=node",
                     data: function(params){
                         var query = {
                             q: params.term
@@ -200,11 +163,11 @@
                         return query
                     }
                 },
-                minimumInputLength: 2
+                minimumInputLength: 2,
             });
-            $('#id_perpetrator').select2({
+            $('#id_adminlevel1').select2({
                 ajax: {
-                    url: "{% url 'person-autocomplete' %}",
+                    url: "{% url 'location-autocomplete' %}?feature_type=relation",
                     data: function(params){
                         var query = {
                             q: params.term
@@ -212,11 +175,11 @@
                         return query
                     }
                 },
-                minimumInputLength: 2
+                minimumInputLength: 2,
             });
-            $('#id_perpetratororganization').select2({
+            $('#id_adminlevel2').select2({
                 ajax: {
-                    url: "{% url 'organization-autocomplete' %}",
+                    url: "{% url 'location-autocomplete' %}?feature_type=relation",
                     data: function(params){
                         var query = {
                             q: params.term
@@ -224,21 +187,42 @@
                         return query
                     }
                 },
-                minimumInputLength: 2
+                minimumInputLength: 2,
             });
-            $('#id_perpetratorclassification').select2({
-                ajax: {
-                    url: "{% url 'perpetrator-classification-autocomplete' %}",
-                    data: function(params){
-                        var query = {
-                            q: params.term
-                        }
-                        return query
-                    }
-                },
-                minimumInputLength: 2
-            });
-            $('#id_division_id').select2();
+
+            function onEachFeature(feature, layer){
+                layer.bindPopup(feature.properties.name);
+            }
+            var area_map = L.map('osm_area_map');
+            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        { attribution: attribution, detectRetina: true }).addTo(area_map);
+
+            var areas = L.featureGroup();
+
+            {% if locations %}
+                {% for location in locations %}
+                    var geom = {{ location.geometry.geojson|safe }};
+                    geom['properties'] = {'name': "{{ location.name }}"};
+                    areas.addLayer(
+                        L.geoJson(geom, {onEachFeature: onEachFeature})
+                    );
+                {% endfor %}
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+            {% else %}
+                area_map.setView([40.807056, -73.960322], 17);
+            {% endif %}
+            $('.location').on('select2:select', function(e){
+                var geom = e.params.data.geometry;
+                geom['properties'] = {'name': e.params.data.text};
+                areas.addLayer(
+                    L.geoJson(geom, {onEachFeature: onEachFeature})
+                );
+                areas.addTo(area_map);
+                area_map.fitBounds(areas.getBounds(), {'maxZoom': 14});
+            })
+
         })
     </script>
 {% endblock%}

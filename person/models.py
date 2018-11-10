@@ -77,7 +77,13 @@ class Person(models.Model, BaseModel, VersionsMixin):
         return self.name.get_value()
 
     def __str__(self):
-        return str(self.personname_set.first().value)
+        try:
+            return str(self.personname_set.first().value)
+        except AttributeError:
+            return str(self.uuid)
+
+    def get_absolute_url(self):
+        return reverse('view-person', kwargs={'slug': self.uuid})
 
     @cached_property
     def memberships(self):

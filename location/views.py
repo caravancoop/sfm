@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
-from django.views.generic import ListView, DeleteView
+from django.views.generic import ListView, DeleteView, TemplateView
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
@@ -19,6 +19,10 @@ from django.db.models import Q
 from django.template.defaultfilters import truncatewords
 
 from countries_plus.models import Country
+
+from api.base_views import JSONResponseMixin
+
+from sfm_pc.templatetags.countries import country_name
 
 from .models import Location
 from .forms import LocationForm
@@ -210,4 +214,35 @@ class LocationList(ListView):
 
         context['paginator'] = paginator
         context['hits'] = paginator.count
+        return context
+
+
+class LocationAutoComplete(JSONResponseMixin, TemplateView):
+    def render_to_response(self, context, **response_kwargs):
+        return self.render_to_json_response(context, **response_kwargs)
+
+    def get_context_data(self, **kwargs):
+        query = self.request.GET.get('q')
+
+        results = Location.objects.filter(Q(name__icontains=query) | Q(id__startswith=query))
+
+        if self.request.GET.get('feature_type'):
+            feature_type = self.request.GET['feature_type']
+            results = results.filter(feature_type=feature_type)
+
+        context = {
+            'results': []
+        }
+
+        for result in results[:10]:
+            location = {
+                'id': result.id,
+                'text': '{}, {} ({} - {})'.format(result.name,
+                                                  country_name(result.division_id),
+                                                  result.feature_type,
+                                                  result.id),
+                'geometry': json.loads(result.geometry.simplify(tolerance=0.01).geojson),
+            }
+            context['results'].append(location)
+
         return context

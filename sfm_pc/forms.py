@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
+import uuid
+
 from django import forms
 from django.utils.translation import ugettext as _, get_language
+from django.core.exceptions import ObjectDoesNotExist
 
 from complex_fields.models import ComplexFieldContainer
 
 from django_date_extensions.fields import ApproximateDateFormField
 
-from source.models import Source
+from source.models import AccessPoint
 from organization.models import Organization
 from membershipperson.models import \
     MembershipPerson, MembershipPersonRank, MembershipPersonRole, \
@@ -27,8 +30,8 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                  *args,
                  **kwargs):
 
-        self.object_ref_pk = kwargs.pop('object_ref_pk')
         self.object_ref_model = kwargs.pop('object_ref_model')
+        self.object_ref_pk = kwargs.pop('object_ref_pk')
         self.form = kwargs.pop('form')
         self.field_name = kwargs.pop('field_name')
         self.new_instances = []
@@ -53,10 +56,21 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                 # If sources exist for the field, make the object so the rest of
                 # the processing will work
                 object_ref_fields = [f.column for f in self.object_ref_model._meta.fields]
-                if 'uuid' in object_ref_fields:
-                    object_ref = self.object_ref_model.objects.get(uuid=self.object_ref_pk)
+                pk = self.object_ref_pk
+                object_ref_created = False
+
+                if pk and 'uuid' in object_ref_fields:
+                    object_ref = self.object_ref_model.objects.get(uuid=pk)
+                elif 'uuid' in object_ref_fields:
+                    object_ref = self.object_ref_model.objects.create(uuid=str(uuid.uuid4()))
+                    object_ref_created = True
+                elif pk:
+                    object_ref = self.object_ref_model.objects.get(id=pk)
                 else:
-                    object_ref = self.object_ref_model.objects.get(id=self.object_ref_pk)
+                    object_ref = self.object_ref_model.objects.create()
+                    object_ref_created = True
+
+                self.form.object_ref = object_ref
 
                 # It would seem that if someone tries to save a value in the
                 # form that can be cast as an integer, there is a slim chance
@@ -74,6 +88,9 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                                                               lang=get_language())
                 pks.append(instance.id)
                 self.new_instances.append(instance)
+
+                if object_ref_created:
+                    self.new_instances.append(object_ref)
 
         return self.queryset.model.objects.filter(pk__in=pks)
 
@@ -104,6 +121,8 @@ class BaseEditForm(forms.ModelForm):
     #     ('external_links', PersonExternalLink, True),
     # ]
 
+    clone_sources = {}
+
     def __init__(self, *args, **kwargs):
         self.post_data = dict(kwargs.pop('post_data'))
 
@@ -112,7 +131,6 @@ class BaseEditForm(forms.ModelForm):
         except KeyError:
             pass
 
-        self.object_ref_pk = kwargs.pop('object_ref_pk')
         self.update_fields = set()
 
         super().__init__(*args, **kwargs)
@@ -147,6 +165,9 @@ class BaseEditForm(forms.ModelForm):
             except KeyError:
                 pass
 
+
+class BaseUpdateForm(BaseEditForm):
+
     def clean(self):
 
         self.empty_values = {k for k,v in self.cleaned_data.items() if not v}
@@ -173,6 +194,10 @@ class BaseEditForm(forms.ModelForm):
         for field in self.fields:
             field_instance = getattr(self.instance, field)
 
+            if self.clone_sources.get(field):
+                other_field = self.clone_sources[field]
+                self.post_data['{}_source'.format(field)] = self.post_data['{}_source'.format(other_field)]
+
             posted_sources = self.post_data.get('{}_source'.format(field))
 
             if posted_sources:
@@ -191,7 +216,7 @@ class BaseEditForm(forms.ModelForm):
 
             if not field in (self.empty_values | fields_with_errors):
 
-                if not field_instance.field_model.source_required:
+                if not getattr(field_instance.field_model, 'source_required', False):
                     self.update_fields.add(field)
                     continue
 
@@ -314,10 +339,10 @@ class BaseEditForm(forms.ModelForm):
                     'confidence': field.get_confidence(),
                 }
 
-                if field_model.source_required:
+                if getattr(field_model, 'source_required', False):
                     new_source_ids = self.post_data[source_key]
-                    sources = Source.objects.filter(uuid__in=new_source_ids)
-                    update_info[update_key]['sources'] = new_source_ids
+                    sources = AccessPoint.objects.filter(uuid__in=new_source_ids)
+                    update_info[update_key]['sources'] = sources
 
                 if multiple_values:
                     update_info[update_key]['values'] = update_value
@@ -350,3 +375,110 @@ class BaseEditForm(forms.ModelForm):
             self.instance.update(update_info)
 
         self.instance.object_ref_saved()
+
+
+class BaseCreateForm(BaseEditForm):
+
+    def clean(self):
+
+        self.empty_values = {k for k,v in self.cleaned_data.items() if not v}
+
+        # Need to validate booleans first cuz Django is being difficult
+        self._validate_boolean()
+
+        fields_with_errors = {field for field in self.errors}
+
+        for field_name, field_model, multiple_values in self.edit_fields:
+
+            if self.clone_sources.get(field_name):
+                other_field = self.clone_sources[field_name]
+                self.post_data['{}_source'.format(field_name)] = self.post_data.get('{}_source'.format(other_field), [])
+
+            posted_sources = self.post_data.get('{}_source'.format(field_name))
+
+            if posted_sources:
+                posted_sources = set(posted_sources)
+            else:
+                posted_sources = set()
+
+            if not field_name in (self.empty_values | fields_with_errors):
+
+                if not getattr(field_model, 'source_required', False):
+                    self.update_fields.add(field_name)
+                    continue
+
+                posted_value = self.cleaned_data[field_name]
+
+                if posted_value and not posted_sources:
+                    error = forms.ValidationError(_('"%(field_name)s" requires sources'),
+                                                    code='invalid',
+                                                    params={'field_name': field_name})
+                    self.add_error(field_name, error)
+                    continue
+
+                self.update_fields.add(field_name)
+
+        sources_sent = {k.replace('_source', '') for k in self.post_data.keys() if '_source' in k}
+
+        self.update_fields = self.update_fields | sources_sent
+
+    def save(self, commit=True):
+
+        update_info = {}
+
+        if not hasattr(self, 'object_ref'):
+            object_ref_fields = [f.column for f in self._meta.model._meta.fields]
+
+            if 'uuid' in object_ref_fields:
+                self.object_ref = self._meta.model.objects.create(uuid=str(uuid.uuid4()))
+            else:
+                self.object_ref = self._meta.model.objects.create()
+
+        for field_name, field_model, multiple_values in self.edit_fields:
+
+            # Somehow when the field is a ComplexFieldListContainer
+            # this method is only ever returning the first one which is OK
+            # unless we are deleting in which case we need all of the associated
+            # fields
+            field = ComplexFieldContainer.field_from_str_and_id(
+                self.object_type, self.object_ref.id, field_name
+            )
+
+            source_key = '{}_source'.format(field_name)
+
+            if field_name in self.update_fields or self.post_data.get(source_key):
+
+                update_value = self.cleaned_data[field_name]
+                update_key = '{0}_{1}'.format(self._meta.model._meta.object_name,
+                                              field_model._meta.object_name)
+
+                update_info[update_key] = {
+                    'confidence': field.get_confidence(),
+                }
+
+                if getattr(field_model, 'source_required', False):
+                    new_source_ids = self.post_data[source_key]
+                    sources = AccessPoint.objects.filter(uuid__in=new_source_ids)
+                    update_info[update_key]['sources'] = sources
+
+                if multiple_values:
+                    update_info[update_key]['values'] = update_value
+
+                    new_values = []
+
+                    for value in update_value:
+                        if not isinstance(value, field_model):
+                            value, _ = field_model.objects.get_or_create(value=value,
+                                                                         object_ref=self.object_ref,
+                                                                         lang=get_language())
+                            new_values.append(value)
+
+                    if new_values:
+                        update_info[update_key]['values'] = new_values
+                else:
+                    update_info[update_key]['value'] = update_value
+
+        if update_info:
+            self.object_ref.update(update_info)
+
+        self.object_ref.object_ref_saved()

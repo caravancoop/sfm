@@ -4,9 +4,6 @@ django-jsonview==0.5.0
 django-localeurl==2.0.2
 django-reversion==2.0.4
 django-countries-plus==1.1
-django-cities==0.4.2
-django-languages-plus==0.1.5
-django-allauth==0.25.2
 django-bootstrap-pagination==1.6.2
 django-date-extensions==2.0
 django-leaflet==0.16.0
@@ -16,8 +13,6 @@ django-rosetta==0.7.13
 
 -e git+https://github.com/security-force-monitor/complex_fields.git#egg=django-complex-fields
 
-# @see https://devcenter.heroku.com/articles/getting-started-with-django#requirements-txt
-dj-static==0.0.6
 gunicorn==19.0.0
 
 google-api-python-client==1.5.4
@@ -27,7 +22,5 @@ datefinder==0.6.0
 raven
 django-debug-toolbar
 pysolr==3.6.0
-overpass==0.6.1
-overpy
 pytest-django==3.3.3
 pytest-mock==1.10

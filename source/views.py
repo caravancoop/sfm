@@ -25,7 +25,6 @@ from countries_plus.models import Country
 
 from api.base_views import JSONResponseMixin
 
-from sfm_pc.base_views import NeverCacheMixin
 from sfm_pc.utils import VersionsMixin, get_source_context
 from sfm_pc.templatetags.citations import get_citation_string
 
@@ -63,7 +62,7 @@ class SourceView(DetailView):
         return context
 
 
-class SourceEditView(NeverCacheMixin, RevisionMixin, LoginRequiredMixin):
+class SourceEditView(LoginRequiredMixin, RevisionMixin):
     fields = [
         'title',
         'publication',
@@ -163,10 +162,9 @@ class AccessPointContextMixin(object):
         return context
 
 
-class AccessPointEdit(AccessPointContextMixin,
-                      NeverCacheMixin,
+class AccessPointEdit(LoginRequiredMixin,
+                      AccessPointContextMixin,
                       VersionsMixin,
-                      LoginRequiredMixin,
                       RevisionMixin):
     fields = [
         'page_number',
@@ -192,10 +190,9 @@ class AccessPointEdit(AccessPointContextMixin,
         return super().form_valid(form)
 
 
-class AccessPointDetail(AccessPointContextMixin,
-                        NeverCacheMixin,
+class AccessPointDetail(LoginRequiredMixin,
+                        AccessPointContextMixin,
                         VersionsMixin,
-                        LoginRequiredMixin,
                         ListView):
     model = AccessPoint
     template_name = 'source/access-points.html'
@@ -222,14 +219,14 @@ class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        source_id = self.request.GET['source_id']
+        source_id = self.request.GET['accesspoint_id']
         field_name = self.request.GET['field_name']
 
-        source = Source.objects.get(uuid=source_id)
+        access_point = AccessPoint.objects.get(uuid=source_id)
 
-        context.update(get_source_context(field_name, source))
+        context.update(get_source_context(field_name, access_point))
 
-        template = get_template('partials/source_input.html')
+        template = get_template('partials/access_point_input.html')
         context['source_input'] = template.render(context)
 
         return context
@@ -247,16 +244,23 @@ def source_autocomplete(request):
 
         for source in sources:
 
-            publication_title = ''
-            publication_country = ''
+            for access_point in source.accesspoint_set.all():
 
-            text = '{0} ({1} - {2})'.format(source.title,
-                                            source.publication,
-                                            source.publication_country)
-            response['results'].append({
-                'text': text,
-                'id': str(source.uuid),
-            })
+                result = {
+                    'title': source.title,
+                    'publication': source.publication,
+                    'publication_country': source.publication_country,
+                    'page_number': access_point.page_number,
+                    'archive_url': access_point.archive_url,
+                    'accessed_on': None,
+                    'text': source.title,
+                    'id': str(access_point.uuid),
+                }
+
+                if access_point.accessed_on:
+                    result['accessed_on'] = access_point.accessed_on.isoformat()
+
+                response['results'].append(result)
 
     return HttpResponse(json.dumps(response), content_type='application/json')
 
@@ -277,6 +281,7 @@ def extract_source(source, uncommitted=False):
             'id': str(access_point.uuid),
             'page_number': access_point.page_number,
             'archive_url': access_point.archive_url,
+            'accessed_on': access_point.accessed_on,
         }
 
         source_info['access_points'].append(ap_info)
@@ -319,6 +324,8 @@ def get_citation(request):
                         [classname])
     field_object_class = getattr(module, classname)
     field_object = field_object_class.objects.get(id=object_id)
+    if classname.startswith('Violation'):
+        field_object = field_object.object_ref.description.get_value()
 
     source_html = get_citation_string(field_object)
 
@@ -338,21 +345,3 @@ def publication_autocomplete(request):
         })
 
     return HttpResponse(json.dumps(results), content_type='application/json')
-
-
-def remove_source(request):
-
-    field_name = request.GET['field_name']
-    object_id = request.GET['object_id']
-    object_type = request.GET['object_type']
-    source_id = request.GET['id']
-
-    field = ComplexFieldContainer.field_from_str_and_id(
-        object_type, object_id, field_name
-    )
-
-    source = Source.objects.get(uuid=source_id)
-
-    field.get_field().sources.remove(source)
-
-    return HttpResponse(json.dumps({}), content_type='application/json')
