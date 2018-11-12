@@ -265,7 +265,7 @@
                     <div class="panel-body {% if show_filter.Source %}panel-show{% endif %} collapse" id="source-filters">
                         <!-- Publication name -->
                         {% if facets.Source.facet_fields.publication_s_fct.any %}
-                            {% with facet_name='publication_s_fct' facet_label=_('Publication name') selected_list=selected_facets.publication_t_fct item_list=facets.Source.facet_fields.publication_s_fct.counts %}
+                            {% with facet_name='publication_s_fct' facet_label=_('Publication name') selected_list=selected_facets.publication_s_fct item_list=facets.Source.facet_fields.publication_s_fct.counts %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
