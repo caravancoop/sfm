@@ -107,7 +107,7 @@
                         <td>
                             {% for classification in object.classification.get_list %}
                                 {% if classification.get_value %}
-                                    {{ classification.get_value.value.value }}
+                                    {{ classification.get_value.value }}
                                 {% endif %}
                                 {% if not forloop.last %}<br />{% endif %}
                             {% endfor %}
