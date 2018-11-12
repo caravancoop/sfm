@@ -10,23 +10,29 @@ register = template.Library()
 def get_citation_string(obj):
 
     source_citation = ''
-    sources = obj.sources.select_related('user').all()
+    sources = obj.accesspoints.select_related('user').all()
     source_info = (
         (_('Title'), 'title'),
         (_('Publication'), 'publication'),
         (_('Published on'), 'published_on'),
         (_('Source URL'), 'source_url'),
-        (_('Archive URL'), 'archive_url'),
         (_('Date added'), 'date_added'),
         (_('Date updated'), 'date_updated'),
         (_('Added by'), 'user'),
-        (_('Page number'), 'page_number'),
+    )
+
+    access_point_info = (
+        (_('Archive URL'), 'archive_url'),
         (_('Accessed'), 'accessed_on'),
+        (_('Page number'), 'page_number'),
     )
 
     for idx, src in enumerate(sources):
-        info = tuple((attr_map[0], getattr(src, attr_map[1]))
-                      for attr_map in source_info if getattr(src, attr_map[1], None))
+        info = tuple((attr_map[0], getattr(src.source, attr_map[1]))
+                      for attr_map in source_info if getattr(src.source, attr_map[1], None))
+
+        info += tuple((attr_map[0], getattr(src, attr_map[1]))
+                      for attr_map in access_point_info if getattr(src, attr_map[1], None))
 
         if any(info):
 
