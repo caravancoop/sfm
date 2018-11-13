@@ -122,15 +122,13 @@ class LocationCreate(LoginRequiredMixin, CreateView):
         response = requests.post(overpass_endpoint, data=post_data)
 
         if response.status_code != 200:
-            raise OverpassException(response.status_code)
+            elements = {
+                'elements': [],
+            }
+        else:
+            elements = response.json()
 
-        feature_collection = {
-            'type': 'FeatureCollection',
-            'features': []
-        }
         all_ids = []
-
-        elements = response.json()
 
         if location_type == 'node':
 
@@ -174,7 +172,10 @@ class LocationCreate(LoginRequiredMixin, CreateView):
                 context['feature_count'] = len(context['features']['elements'])
 
                 context['location_type'] = location_type
-                context['location_id'] = int(location_id)
+                try:
+                    context['location_id'] = int(location_id)
+                except ValueError:
+                    context['location_id'] = location_id
 
         return context
 
