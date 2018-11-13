@@ -187,16 +187,29 @@ class LocationList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['results'] = Location.objects.all()
+        context['results'] = Location.objects.order_by('name')
+
+        context['feature_type_facets'] = {
+            'node': 0,
+            'relation': 0,
+            'way': 0
+        }
 
         if self.request.method == 'GET':
             query = self.request.GET.get('q')
             sort = self.request.GET.get('sort')
             page = self.request.GET.get('page', default=1)
+            feature_type = self.request.GET.get('feature_type')
 
             if query:
                 context['results'] = Location.objects.filter(Q(name__icontains=query) | Q(id__startswith=query))
                 context['query'] = query
+                context['feature_type_facets']['node'] = context['results'].filter(feature_type='node').count()
+                context['feature_type_facets']['relation'] = context['results'].filter(feature_type='relation').count()
+                context['feature_type_facets']['way'] = context['results'].filter(feature_type='way').count()
+
+            if feature_type:
+                context['results'] = context['results'].filter(feature_type=feature_type)
 
             if sort:
                 context['results'] = context['results'].order_by(sort)

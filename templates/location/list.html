@@ -3,6 +3,7 @@
 {% load static %}
 {% load humanize %}
 {% load help %}
+{% load tablesort %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static "css/select2.min.css" %}">
   <link rel="stylesheet" href="{% static "css/bootstrap-datepicker3.min.css" %}">
@@ -11,16 +12,36 @@
 <div class="row">
     <form class="form">
         <div class="col-xs-12 col-sm-4">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4 class="panel-title"><i class="fa fa-thumb-tack"></i>&nbsp <b>{% trans 'Locations' %}</b></h4>
+            <div class="panel panel-default">
+                {% if feature_type_facets.node or feature_type_facets.relation or feature_type_facets.way %}
+                <div class="panel-heading">
+                    <a role="button" class="filter-heading">
+                        <strong>Feature type</strong>
+                    </a>
+                </div>
+                <div class="panel-body">
+                    <ul class="search-facet-list">
+                        <li class="small">
+                            <a class="filter-value" href="{% url 'list-location' %}?{% query_transform request feature_type='node' %}">Node</a>
+                            <span class="badge badge-facet pull-right">{{ feature_type_facets.node }}</span>
+                        </li>
+                        <li>
+                            <a class="filter-value" href="{% url 'list-location' %}?{% query_transform request feature_type='relation' %}">Relation</a>
+                            <span class="badge badge-facet pull-right">{{ feature_type_facets.relation }}</span>
+                        </li>
+                        <li>
+                            <a class="filter-value" href="{% url 'list-location' %}?{% query_transform request feature_type='way' %}">Way</a>
+                            <span class="badge badge-facet pull-right">{{ feature_type_facets.way }}</span>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                <div class="panel-heading">
+                    <a href="{% url 'create-location' %}" class="btn btn-success">
+                        <i class="fa fa-plus-circle"> </i>&nbsp Add new location
+                    </a>
+                </div>
             </div>
-            <div class="panel-body">
-              <a href="{% url 'create-location' %}" class="btn btn-success">
-                  <i class="fa fa-plus-circle"> </i>&nbsp Add new location
-              </a>
-            </div>
-          </div>
         </div>
         <div class="col-xs-12 col-sm-8 pull-right">
             <div class="input-group main-search">
