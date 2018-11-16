@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
             return location
 
-        for location in locations:
+        for location in locations.iterator():
 
             hierarchy = '''
                 SELECT parents.*
@@ -60,7 +60,7 @@ class Command(BaseCommand):
             columns = [c[0] for c in cursor.description]
             results_tuple = namedtuple('OSMFeature', columns)
 
-            hierarchy = [results_tuple(*r) for r in cursor]
+            hierarchy = (results_tuple(*r) for r in cursor)
 
             if hierarchy:
                 for member in hierarchy:
