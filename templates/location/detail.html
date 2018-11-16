@@ -31,35 +31,55 @@
         <thead>
         </thead>
         <tbody>
-          <tr>
-              <td><b>Name</b></td>
-              <td>{{ location.name }}</td>
-          </tr>
-          {% if location.tags.int_name %}
-          <tr>
-              <td><b>International Name</b></td>
-              <td>{{ location.tags.int_name }}</td>
-          </tr>
-          {% endif %}
-          <tr>
-              <td><b>OSM ID</b></td>
-              <td>{{ location.id }}</td>
-          </tr>
-          <tr>
-              <td><b>Type</b></td>
-              <td>{{ location.feature_type }}</td>
-          </tr>
-          {% if location.tags.is_in %}
-          <tr>
-              <td><b>In</b></td>
-              <td>{{ location.tags.is_in }}</td>
-          </tr>
-          {% elif location.tags.admin_level %}
-          <tr>
-              <td><b>Admin Level</b></td>
-              <td>{{ location.tags.admin_level }}</td>
-          </tr>
-          {% endif %}
+            <tr>
+                <td><strong>Name</strong></td>
+                <td>{{ location.name }}</td>
+            </tr>
+            {% if location.tags.int_name %}
+                <tr>
+                    <td><strong>International Name</strong></td>
+                    <td>{{ location.tags.int_name }}</td>
+                </tr>
+            {% endif %}
+                <tr>
+                    <td><strong>OSM ID</strong></td>
+                    <td>{{ location.id }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Type</strong></td>
+                    <td>{{ location.feature_type }}</td>
+                </tr>
+            {% if location.tags.is_in %}
+                <tr>
+                    <td><strong>In</strong></td>
+                    <td>{{ location.tags.is_in }}</td>
+                </tr>
+            {% elif location.adminlevel %}
+                <tr>
+                    <td><strong>Admin Level</strong></td>
+                    <td>{{ location.adminlevel }}</td>
+                </tr>
+            {% endif %}
+            {% if location.adminlevel1 %}
+                <tr>
+                    <td><strong>Admin Level 1</strong></td>
+                    <td>
+                        <a href="{% url 'view-location' location.adminlevel1.id %}">
+                            {{ location.adminlevel1.name }}
+                        </a>
+                    </td>
+                </tr>
+            {% endif %}
+            {% if location.adminlevel2 %}
+                <tr>
+                    <td><strong>Admin Level 2</strong></td>
+                    <td>
+                        <a href="{% url 'view-location' location.adminlevel2.id %}">
+                            {{ location.adminlevel2.name }}
+                        </a>
+                    </td>
+                </tr>
+            {% endif %}
           <tr>
               <td></td>
               <td align="right">
