@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
 from django.views.decorators.cache import cache_page
+from django.core.urlresolvers import reverse_lazy
 
 from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
                           Countries, command_chain,
@@ -37,7 +38,7 @@ urlpatterns = i18n_patterns(
     url(r'^download/', cache_page(60 * 60 * 24)(download_zip), name='download'),
 
     # Authentication
-    url(r'^logout/$', logout_then_login, {'login_url': '/accounts/login'}, name="logout"),
+    url(r'^logout/$', logout_then_login, {'login_url': reverse_lazy('login')}, name="logout"),
 
     # API endpoints
     url(r'^api/', include('api.urls')),

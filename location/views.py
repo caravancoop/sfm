@@ -122,15 +122,13 @@ class LocationCreate(LoginRequiredMixin, CreateView):
         response = requests.post(overpass_endpoint, data=post_data)
 
         if response.status_code != 200:
-            raise OverpassException(response.status_code)
+            elements = {
+                'elements': [],
+            }
+        else:
+            elements = response.json()
 
-        feature_collection = {
-            'type': 'FeatureCollection',
-            'features': []
-        }
         all_ids = []
-
-        elements = response.json()
 
         if location_type == 'node':
 
@@ -174,7 +172,10 @@ class LocationCreate(LoginRequiredMixin, CreateView):
                 context['feature_count'] = len(context['features']['elements'])
 
                 context['location_type'] = location_type
-                context['location_id'] = int(location_id)
+                try:
+                    context['location_id'] = int(location_id)
+                except ValueError:
+                    context['location_id'] = location_id
 
         return context
 
@@ -186,16 +187,29 @@ class LocationList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['results'] = Location.objects.all()
+        context['results'] = Location.objects.order_by('name')
+
+        context['feature_type_facets'] = {
+            'node': 0,
+            'relation': 0,
+            'way': 0
+        }
 
         if self.request.method == 'GET':
             query = self.request.GET.get('q')
             sort = self.request.GET.get('sort')
             page = self.request.GET.get('page', default=1)
+            feature_type = self.request.GET.get('feature_type')
 
             if query:
                 context['results'] = Location.objects.filter(Q(name__icontains=query) | Q(id__startswith=query))
                 context['query'] = query
+                context['feature_type_facets']['node'] = context['results'].filter(feature_type='node').count()
+                context['feature_type_facets']['relation'] = context['results'].filter(feature_type='relation').count()
+                context['feature_type_facets']['way'] = context['results'].filter(feature_type='way').count()
+
+            if feature_type:
+                context['results'] = context['results'].filter(feature_type=feature_type)
 
             if sort:
                 context['results'] = context['results'].order_by(sort)

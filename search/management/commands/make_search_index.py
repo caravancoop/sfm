@@ -105,7 +105,10 @@ class Command(BaseCommand):
                 continue
 
             name = organization.name.get_value()
-            content = [name.value]
+            try:
+                content = [name.value]
+            except AttributeError:
+                continue
 
             aliases = organization.aliases.get_list()
             if aliases:
@@ -146,6 +149,10 @@ class Command(BaseCommand):
                 if site:
                     exactloc_name = site.value.name
                     emp_division_id = site.value.division_id
+                    exactloc_names.add(exactloc_name)
+
+                    if site.value.adminlevel1:
+                        admin_l1_names.add(site.value.adminlevel1.name)
 
                     if emp_division_id:
                         division_ids.update([emp_division_id])
@@ -270,6 +277,7 @@ class Command(BaseCommand):
                 'organization_area_ss': areas,
                 'organization_start_date_dt': first_cited,
                 'organization_end_date_dt': first_cited,
+                'organization_adminlevel1_ss': list(admin_l1_names),
                 'text': content
             }
 

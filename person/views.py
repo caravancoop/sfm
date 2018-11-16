@@ -86,6 +86,7 @@ class PersonDetail(DetailView):
                 child_commanders = get_commanders(firstciteddate,
                                                   lastciteddate,
                                                   child_compositions,
+                                                  person_id=context['person'].uuid,
                                                   relationship='child')
                 if child_commanders:
                     context['subordinates'] += child_commanders
@@ -96,6 +97,7 @@ class PersonDetail(DetailView):
                 parent_commanders = get_commanders(firstciteddate,
                                                    lastciteddate,
                                                    parent_compositions,
+                                                   person_id=context['person'].uuid,
                                                    relationship='parent')
 
                 if parent_commanders:
@@ -115,7 +117,7 @@ class PersonDetail(DetailView):
         return context
 
 
-def get_commanders(mem_start, mem_end, compositions, relationship='child'):
+def get_commanders(mem_start, mem_end, compositions, person_id=None, relationship='child'):
 
     assert relationship in ('parent', 'child')
 
@@ -152,6 +154,8 @@ def get_commanders(mem_start, mem_end, compositions, relationship='child'):
             FROM membershipperson_membershipperson AS membership
             JOIN membershipperson_membershippersonmember AS member
               ON membership.id = member.object_ref_id
+            JOIN person_person AS person
+              ON member.value_id = person.id
             JOIN membershipperson_membershippersonorganization AS member_org
               ON membership.id = member_org.object_ref_id
             JOIN organization_organization AS organization
@@ -163,9 +167,11 @@ def get_commanders(mem_start, mem_end, compositions, relationship='child'):
             WHERE organization.uuid='{child_id}'
             AND (first_cited.value < '{mem_end}' or first_cited is NULL)
             AND (last_cited.value > '{mem_start}' or last_cited is NULL)
+            AND person.uuid != '{person_id}'
         '''.format(child_id=child_id,
-                    mem_end=mem_end,
-                    mem_start=mem_start)
+                   mem_end=mem_end,
+                   mem_start=mem_start,
+                   person_id=person_id)
 
         cursor = connection.cursor()
         cursor.execute(child_commanders_query)

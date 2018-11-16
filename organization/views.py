@@ -81,9 +81,8 @@ class OrganizationDetail(DetailView):
         context['associations'] = (ass.object_ref for ass in associations)
         for association in associations:
             geom = association.object_ref.area.get_value().value.geometry
-            area = geom.simplify(tolerance=0.01)
             area_obj = {
-                'geom': area,
+                'geom': geom,
                 'name': association.object_ref.area.get_value().value.name
             }
             context['areas'].append(area_obj)

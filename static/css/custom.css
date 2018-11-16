@@ -413,7 +413,7 @@ a.collapsed .show-less {
 }
 
 .high-confidence .popover-title,
-.high-confidence .source-footnote, {
+.high-confidence .source-footnote {
     background-color: #dcf3dc;
 }
 
