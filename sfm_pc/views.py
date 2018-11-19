@@ -318,5 +318,3 @@ class DownloadData(FormView):
             cursor.copy_expert(copy, response)
 
         return response
-
-

@@ -1,6 +1,4 @@
-import os
 import json
-from io import StringIO
 
 from django.views.generic import DetailView, FormView
 from django.http import HttpResponse, HttpResponseRedirect
@@ -24,12 +22,10 @@ from organization.forms import OrganizationBasicsForm, \
     OrganizationCreateBasicsForm, OrganizationCreateRelationshipsForm, \
     OrganizationCreatePersonnelForm, OrganizationCreateEmplacementForm, \
     OrganizationCreateAssociationForm
-from organization.models import Organization, OrganizationAlias, \
-    OrganizationDivisionId
+from organization.models import Organization, OrganizationAlias
 
 from membershipperson.models import MembershipPerson
 
-from sfm_pc.templatetags.countries import country_name
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView
 
 

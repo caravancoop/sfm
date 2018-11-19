@@ -7,7 +7,6 @@ from django.utils.translation import ugettext as _
 from django_date_extensions.fields import ApproximateDateFormField
 
 from sfm_pc.forms import BaseUpdateForm, BaseCreateForm, GetOrCreateChoiceField
-from sfm_pc.templatetags.countries import country_name
 
 from membershipperson.models import MembershipPersonMember
 from person.models import Person
