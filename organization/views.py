@@ -4,11 +4,6 @@ from django.views.generic import DetailView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.db import connection
-from django.utils import timezone
-from django.conf import settings
-from django.contrib import messages
-from django.utils.translation import ugettext as _
 
 from emplacement.models import Emplacement
 
