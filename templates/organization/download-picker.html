@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+    <h2>{% trans "Download information about organizations" %}</h2>
+    <form action='{% url 'organization-download' %}' method='POST'>
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-sm-12">
+            {% if form.download_type.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                    <label class="control-label">{{ form.fields.download_type.label }}</label>
+                    <select class="form-control" name="download_type">
+                        <option value="" selected>----------</option>
+                        {% for download_type, name in form.fields.download_type.choices %}
+                            <option value="{{ download_type }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.download_type.errors %}
+                        {% for error in form.download_type.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+            {% if form.division_id.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                    <label class="control-label">{{ form.fields.division_id.label }}</label>
+                    <select class="form-control" name="division_id">
+                        <option value="" selected>----------</option>
+                        {% for division_id, country in form.fields.division_id.choices %}
+                            <option value="{{ division_id }}">{{ country }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.division_id.errors %}
+                        {% for error in form.division_id.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <button type="submit" class="btn btn-success">Download</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

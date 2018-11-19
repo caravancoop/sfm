@@ -1,9 +1,16 @@
+import os
 import json
+from io import StringIO
 
-from django.views.generic import DetailView
+from django.views.generic import DetailView, FormView
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
+from django.db import connection
+from django.utils import timezone
+from django.conf import settings
+from django.contrib import messages
+from django.utils.translation import ugettext as _
 
 from emplacement.models import Emplacement
 
@@ -16,8 +23,9 @@ from organization.forms import OrganizationBasicsForm, \
     OrganizationEmplacementForm, OrganizationAssociationForm, \
     OrganizationCreateBasicsForm, OrganizationCreateRelationshipsForm, \
     OrganizationCreatePersonnelForm, OrganizationCreateEmplacementForm, \
-    OrganizationCreateAssociationForm
-from organization.models import Organization, OrganizationAlias
+    OrganizationCreateAssociationForm, DownloadForm
+from organization.models import Organization, OrganizationAlias, \
+    OrganizationDivisionId
 
 from membershipperson.models import MembershipPerson
 
@@ -411,6 +419,45 @@ class OrganizationCreateAssociationView(BaseCreateView):
 
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+
+class OrganizationDownloadPicker(FormView):
+    template_name = 'organization/download-picker.html'
+    form_class = DownloadForm
+    success_url = reverse_lazy('organization-download')
+
+    def form_valid(self, form):
+
+        download_type = form.cleaned_data['download_type']
+        division_id = form.cleaned_data['division_id']
+
+        sql_path = os.path.join(settings.BASE_DIR,
+                                'organization',
+                                'sql',
+                                'organization_{}.sql'.format(download_type))
+
+        with open(sql_path) as f:
+            sql = f.read()
+
+        download_name = 'organization_{}_{}'.format(download_type,
+                                                    timezone.now().isoformat())
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(download_name)
+
+        with connection.cursor() as cursor:
+            copy = '''
+                COPY ({}) TO STDOUT WITH CSV HEADER FORCE QUOTE *
+            '''.format(sql)
+
+            try:
+                copy = copy % division_id
+            except TypeError:
+                pass
+
+            cursor.copy_expert(copy, response)
+
+        return response
 
 
 def organization_autocomplete(request):
