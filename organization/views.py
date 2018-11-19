@@ -23,7 +23,7 @@ from organization.forms import OrganizationBasicsForm, \
     OrganizationEmplacementForm, OrganizationAssociationForm, \
     OrganizationCreateBasicsForm, OrganizationCreateRelationshipsForm, \
     OrganizationCreatePersonnelForm, OrganizationCreateEmplacementForm, \
-    OrganizationCreateAssociationForm, DownloadForm
+    OrganizationCreateAssociationForm
 from organization.models import Organization, OrganizationAlias, \
     OrganizationDivisionId
 
