@@ -1,8 +1,8 @@
 import json
 
-from django.views.generic import DetailView, FormView
+from django.views.generic import DetailView
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.db import connection
 from django.utils import timezone
@@ -26,6 +26,7 @@ from organization.models import Organization, OrganizationAlias
 
 from membershipperson.models import MembershipPerson
 
+from sfm_pc.templatetags.countries import country_name
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView
 
 
