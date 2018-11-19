@@ -421,45 +421,6 @@ class OrganizationCreateAssociationView(BaseCreateView):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
-class OrganizationDownloadPicker(FormView):
-    template_name = 'organization/download-picker.html'
-    form_class = DownloadForm
-    success_url = reverse_lazy('organization-download')
-
-    def form_valid(self, form):
-
-        download_type = form.cleaned_data['download_type']
-        division_id = form.cleaned_data['division_id']
-
-        sql_path = os.path.join(settings.BASE_DIR,
-                                'organization',
-                                'sql',
-                                'organization_{}.sql'.format(download_type))
-
-        with open(sql_path) as f:
-            sql = f.read()
-
-        download_name = 'organization_{}_{}'.format(download_type,
-                                                    timezone.now().isoformat())
-
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(download_name)
-
-        with connection.cursor() as cursor:
-            copy = '''
-                COPY ({}) TO STDOUT WITH CSV HEADER FORCE QUOTE *
-            '''.format(sql)
-
-            try:
-                copy = copy % division_id
-            except TypeError:
-                pass
-
-            cursor.copy_expert(copy, response)
-
-        return response
-
-
 def organization_autocomplete(request):
     term = request.GET.get('q')
 

@@ -255,24 +255,3 @@ class OrganizationAssociationForm(BaseUpdateForm):
 
 class OrganizationCreateAssociationForm(BaseCreateForm, OrganizationAssociationForm):
     pass
-
-
-def division_choices():
-    division_ids = OrganizationDivisionId.objects.distinct('value').order_by('value')
-    return [(r.value, country_name(r.value)) for r in division_ids]
-
-
-def download_types():
-    return [
-        ('basic', _("Basic")),
-        ('parentage', _("Parentage")),
-        ('memberships', _("Memberships")),
-        ('areas', _("Areas of operation")),
-        ('sites', _("Sites")),
-        ('personnel', _("Personnel")),
-        ('sources', _("Sources")),
-    ]
-
-class DownloadForm(forms.Form):
-    download_type = forms.ChoiceField(label=_("Choose a download type"), choices=download_types)
-    division_id = forms.ChoiceField(label=_("Country"), choices=division_choices)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import json
 from uuid import uuid4
 from collections import OrderedDict, namedtuple
@@ -21,6 +22,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.views.generic.edit import CreateView, UpdateView
+from django.utils import timezone
 
 from reversion.models import Version
 from extra_views import FormSetView
@@ -31,10 +33,13 @@ from organization.models import Organization, OrganizationAlias
 from person.models import Person, PersonAlias
 from violation.models import Violation
 from membershipperson.models import MembershipPerson
+
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
 from sfm_pc.utils import (import_class, get_osm_by_id, get_org_hierarchy_by_id,
                           get_child_orgs_by_id, Downloader)
+from sfm_pc.forms import DownloadForm
+
 from search.views import get_search_context
 
 
@@ -274,4 +279,44 @@ def download_zip(request):
     resp['Content-Disposition'] = filename
 
     return resp
+
+
+class DownloadData(FormView):
+    template_name = 'download.html'
+    form_class = DownloadForm
+    success_url = reverse_lazy('download')
+
+    def form_valid(self, form):
+
+        download_type = form.cleaned_data['download_type']
+        division_id = form.cleaned_data['division_id']
+
+        sql_path = os.path.join(settings.BASE_DIR,
+                                'sfm_pc',
+                                'sql',
+                                '{}.sql'.format(download_type))
+
+        with open(sql_path) as f:
+            sql = f.read()
+
+        download_name = '{}_{}'.format(download_type,
+                                       timezone.now().isoformat())
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(download_name)
+
+        with connection.cursor() as cursor:
+            copy = '''
+                COPY ({}) TO STDOUT WITH CSV HEADER FORCE QUOTE *
+            '''.format(sql)
+
+            try:
+                copy = copy % division_id
+            except TypeError:
+                pass
+
+            cursor.copy_expert(copy, response)
+
+        return response
+
 

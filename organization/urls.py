@@ -7,7 +7,7 @@ from organization.views import organization_autocomplete, OrganizationDetail, \
     OrganizationEditAssociationView, OrganizationCreateBasicsView, \
     OrganizationCreateRelationshipsView, OrganizationCreatePersonnelView, \
     OrganizationCreateEmplacementView, \
-    OrganizationCreateAssociationView, OrganizationDownloadPicker
+    OrganizationCreateAssociationView
 
 
 urlpatterns = [
@@ -47,7 +47,4 @@ urlpatterns = [
     url(r'create/association/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         OrganizationCreateAssociationView.as_view(),
         name='create-organization-association'),
-    url(r'download/$',
-        OrganizationDownloadPicker.as_view(),
-        name='organization-download'),
 ]
