@@ -388,6 +388,9 @@ class DumpChangeLog(FormView, VersionsMixin):
                         if key == 'id' or key.endswith('_id'):
                             continue
 
+                        if isinstance(value, list):
+                            value = ';'.join(value)
+
                         row = [
                             revision.id,
                             entity_id,
