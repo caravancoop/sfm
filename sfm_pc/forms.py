@@ -9,8 +9,10 @@ from complex_fields.models import ComplexFieldContainer
 
 from django_date_extensions.fields import ApproximateDateFormField
 
+from sfm_pc.templatetags.countries import country_name
+
 from source.models import AccessPoint
-from organization.models import Organization
+from organization.models import Organization, OrganizationDivisionId
 from membershipperson.models import \
     MembershipPerson, MembershipPersonRank, MembershipPersonRole, \
     MembershipPersonTitle, MembershipPersonFirstCitedDate, \
@@ -482,3 +484,24 @@ class BaseCreateForm(BaseEditForm):
             self.object_ref.update(update_info)
 
         self.object_ref.object_ref_saved()
+
+
+def division_choices():
+    division_ids = OrganizationDivisionId.objects.distinct('value').order_by('value')
+    return [(r.value, country_name(r.value)) for r in division_ids]
+
+
+def download_types():
+    return [
+        ('basic', _("Basic")),
+        ('parentage', _("Parentage")),
+        ('memberships', _("Memberships")),
+        ('areas', _("Areas of operation")),
+        ('sites', _("Sites")),
+        ('personnel', _("Personnel")),
+        ('sources', _("Sources")),
+    ]
+
+class DownloadForm(forms.Form):
+    download_type = forms.ChoiceField(label=_("Choose a download type"), choices=download_types)
+    division_id = forms.ChoiceField(label=_("Country"), choices=division_choices)
