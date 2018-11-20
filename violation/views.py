@@ -33,8 +33,6 @@ class ViolationDetail(DetailView):
             if location.value:
                 context['location'] = location.value
 
-        context['versions'] = context['violation'].getVersions()
-
         return context
 
 

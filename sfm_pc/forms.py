@@ -505,3 +505,8 @@ def download_types():
 class DownloadForm(forms.Form):
     download_type = forms.ChoiceField(label=_("Choose a download type"), choices=download_types)
     division_id = forms.ChoiceField(label=_("Country"), choices=division_choices)
+
+
+class ChangeLogForm(forms.Form):
+    from_date = forms.DateTimeField(label=_("Start date"), required=False)
+    to_date = forms.DateTimeField(label=_("End date"), required=False)

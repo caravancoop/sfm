@@ -359,11 +359,8 @@ class VersionsMixin(object):
 
         return additions, changes, removals
 
-    def getVersions(self):
-
+    def getRevisions(self, versions):
         from source.models import Source, AccessPoint
-
-        versions = Version.objects.get_for_object(self)
 
         revisions = []
 
@@ -409,6 +406,9 @@ class VersionsMixin(object):
 
             revisions.append((complete_revision, version.revision))
 
+        return revisions
+
+    def getDifferences(self, revisions):
         differences = []
 
         for index, (version, revision) in enumerate(revisions):
@@ -439,6 +439,15 @@ class VersionsMixin(object):
             differences.append(diff)
 
         return differences
+
+    def getVersions(self, versions=None):
+
+        if not versions:
+            versions = Version.objects.get_for_object(self)
+
+        revisions = self.getRevisions(versions)
+
+        return self.getDifferences(revisions)
 
 
 def execute_sql(file_path):

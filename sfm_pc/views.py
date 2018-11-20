@@ -5,6 +5,7 @@ import json
 from uuid import uuid4
 from collections import OrderedDict, namedtuple
 from datetime import datetime
+import csv
 
 from django.conf import settings
 from django.views.generic.base import TemplateView
@@ -23,8 +24,9 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.views.generic.edit import CreateView, UpdateView
 from django.utils import timezone
+from django.http import StreamingHttpResponse
 
-from reversion.models import Version
+from reversion.models import Version, Revision
 from extra_views import FormSetView
 
 from countries_plus.models import Country
@@ -33,12 +35,14 @@ from organization.models import Organization, OrganizationAlias
 from person.models import Person, PersonAlias
 from violation.models import Violation
 from membershipperson.models import MembershipPerson
+from source.models import Source, AccessPoint
+
 
 from sfm_pc.templatetags.render_from_source import get_relations, \
     get_relation_attributes
 from sfm_pc.utils import (import_class, get_osm_by_id, get_org_hierarchy_by_id,
-                          get_child_orgs_by_id, Downloader)
-from sfm_pc.forms import DownloadForm
+                          get_child_orgs_by_id, Downloader, VersionsMixin)
+from sfm_pc.forms import DownloadForm, ChangeLogForm
 
 from search.views import get_search_context
 
@@ -316,5 +320,89 @@ class DownloadData(FormView):
                 pass
 
             cursor.copy_expert(copy, response)
+
+        return response
+
+
+class Echo:
+    def write(self, value):
+        return value
+
+
+class DumpChangeLog(FormView, VersionsMixin):
+    form_class = ChangeLogForm
+    template_name = 'changelog.html'
+    success_url = reverse_lazy('changelog')
+
+    def form_valid(self, form):
+        from_date = form.cleaned_data.get('from_date')
+        to_date = form.cleaned_data.get('to_date')
+
+        filters = {}
+
+        if from_date:
+            filters['date_created__gte'] = from_date
+
+        if to_date:
+            filters['date_created__lte'] = to_date
+
+        revisions = Revision.objects.filter(**filters).exclude(user__username='importer')
+
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+
+        def yield_revisions():
+            header = [
+                'revision_id',
+                'entity_id',
+                'entity_type',
+                'user',
+                'modification_date',
+                'entity_attribute_name',
+                'attribute',
+                'value',
+            ]
+
+            yield header
+
+            for revision in revisions:
+                for version in revision.version_set.all():
+                    if hasattr(version.object, 'object_ref'):
+                        reference_object = version.object.object_ref
+                    elif isinstance(version.object, Source) or isinstance(version.object, AccessPoint):
+                        reference_object = version.object
+                    else:
+                        continue
+
+                    try:
+                        entity_id = reference_object.uuid
+                    except AttributeError:
+                        entity_id = reference_object.id
+
+                    entity_type = reference_object._meta.object_name
+
+                    field_name = version.object._meta.object_name.replace(entity_type, '')
+
+                    for key, value in version.field_dict.items():
+
+                        if key == 'id' or key.endswith('_id'):
+                            continue
+
+                        row = [
+                            revision.id,
+                            entity_id,
+                            entity_type,
+                            revision.user.username,
+                            revision.date_created.isoformat(),
+                            field_name,
+                            key,
+                            value,
+                        ]
+
+                        yield row
+
+        response = StreamingHttpResponse((writer.writerow(row) for row in yield_revisions()),
+                                        content_type="text/csv")
+        response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
 
         return response

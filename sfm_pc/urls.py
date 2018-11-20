@@ -8,7 +8,7 @@ from django.views.decorators.cache import cache_page
 from django.core.urlresolvers import reverse_lazy
 
 from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
-                          Countries, command_chain, DownloadData,
+                          Countries, command_chain, DownloadData, DumpChangeLog,
                           download_zip, Help, About, country_background)
 
 urlpatterns = i18n_patterns(
@@ -23,6 +23,7 @@ urlpatterns = i18n_patterns(
     url(r'^about/', About.as_view(), name="about"),
     url(r'^search/', include('search.urls')),
     url(r'^download/', DownloadData.as_view(), name="download"),
+    url(r'^changelog/', DumpChangeLog.as_view(), name="changelog"),
 
     url(r'^osm-autocomplete/$', osm_autocomplete, name="osm-autocomplete"),
     url(r'^division-autocomplete/$', division_autocomplete, name="division-autocomplete"),
