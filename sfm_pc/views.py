@@ -406,6 +406,6 @@ class DumpChangeLog(FormView, VersionsMixin):
 
         response = StreamingHttpResponse((writer.writerow(row) for row in yield_revisions()),
                                         content_type="text/csv")
-        response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+        response['Content-Disposition'] = 'attachment; filename="changelog-{}.csv"'.format(timezone.now().isoformat())
 
         return response
