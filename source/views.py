@@ -145,6 +145,11 @@ class AccessPointEdit(LoginRequiredMixin,
     model = AccessPoint
     template_name = 'source/access-points.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
+        return context
+
     def get_success_url(self):
         return reverse_lazy('add-access-point', kwargs={'source_id': self.object.source.uuid})
 
@@ -166,6 +171,11 @@ class AccessPointDetail(LoginRequiredMixin,
                         ListView):
     model = AccessPoint
     template_name = 'source/access-points.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
+        return context
 
     def get_queryset(self):
         return AccessPoint.objects.filter(source__uuid=self.kwargs['source_id'])
