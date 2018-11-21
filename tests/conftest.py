@@ -63,7 +63,7 @@ def django_db_setup(django_db_setup, django_db_blocker, request):
             call_command('loaddata', fixture)
 
         call_command('update_countries_plus')
-        call_command('make_flattened_views', '--recreate')
+        # call_command('make_flattened_views', '--recreate')
 
     @request.addfinalizer
     def tearDownModule():

@@ -2,7 +2,6 @@
 {% load i18n %}
 {% load static %}
 {% load countries %}
-{% load render_versions %}
 {% load citations %}
 {% load help %}
 
@@ -59,7 +58,6 @@
 {% endblock %}
 
 {% block sidebar %}
-    {% has_versions organization as changelog %}
 
     {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
     {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
@@ -70,14 +68,12 @@
     {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Personnel" %}</a></li>{% endif %}
     {% if events %}<li><a href="#incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
-    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 
 {% endblock %}
 
 {# This is exactly the same as the previous sidebar #}
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
-    {% has_versions organization as changelog %}
 
     {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
     {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
@@ -88,7 +84,6 @@
     {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Personnel" %}</a></li>{% endif %}
     {% if events %}<li><a href="#incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
-    {% if changelog %}<li><a href="#changelog"><i class="fa fa-fw fa-refresh"></i> {% trans "Changelog" %}</a></li>{% endif %}
 
 {% endblock %}
 
@@ -490,12 +485,6 @@
         </div>
     </div>
     {% endif %}
-
-        {% if versions %}
-            {% with object=person %}
-                {% include 'partials/version_list.html' %}
-            {% endwith %}
-        {% endif %}
 
 {% endblock %}
 

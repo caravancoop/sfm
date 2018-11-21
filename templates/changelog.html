@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h2>{% trans "Download edit activity" %}</h2>
+    <form action='{% url 'changelog' %}' method='POST'>
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-sm-12">
+            {% if form.from_date.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                    <label class="control-label">{{ form.fields.from_date.label }}</label>
+                    <input class="form-control datepicker" name="from_date" type="text">
+                    {% if form.from_date.errors %}
+                        {% for error in form.from_date.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+            {% if form.to_date.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                    <label class="control-label">{{ form.fields.to_date.label }}</label>
+                    <input class="form-control datepicker" name="to_date" type="text">
+                    {% if form.to_date.errors %}
+                        {% for error in form.to_date.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <button type="submit" class="btn btn-success">Download</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'js/bootstrap-datepicker.min.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $('.datepicker').datepicker({
+            'autoclose': true,
+        });
+    </script>
+{% endblock %}

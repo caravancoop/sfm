@@ -112,8 +112,6 @@ class PersonDetail(DetailView):
         for event in events:
             context['events'].append(event.object_ref)
 
-        context['versions'] = context['person'].getVersions()
-
         return context
 
 

@@ -58,7 +58,6 @@ class SourceView(DetailView):
             evidenced_table.append([name, record_type, field_name, value, link])
 
         context['evidenced'] = evidenced_table
-        context['versions'] = context['source'].getVersions()
         return context
 
 
@@ -94,17 +93,7 @@ class SourceEditView(LoginRequiredMixin, RevisionMixin):
 
 
 class SourceUpdate(SourceEditView, UpdateView):
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        source = context['object']
-        context['versions'] = source.getVersions()
-
-        for access_point in source.accesspoint_set.all():
-            context['versions'].extend(access_point.getVersions())
-
-        return context
+    pass
 
 
 class SourceCreate(SourceEditView, CreateView):
@@ -145,25 +134,7 @@ class SourceRevertView(LoginRequiredMixin, View):
                                                  kwargs={'pk': kwargs['pk']}))
 
 
-class AccessPointContextMixin(object):
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
-        context['versions'] = context['source'].getVersions()
-
-        for access_point in context['source'].accesspoint_set.all():
-            context['versions'].extend(access_point.getVersions())
-
-        context['versions'] = sorted(context['versions'],
-                                     key=lambda x: x['modification_date'],
-                                     reverse=True)
-
-        return context
-
-
 class AccessPointEdit(LoginRequiredMixin,
-                      AccessPointContextMixin,
                       VersionsMixin,
                       RevisionMixin):
     fields = [
@@ -173,6 +144,11 @@ class AccessPointEdit(LoginRequiredMixin,
     ]
     model = AccessPoint
     template_name = 'source/access-points.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
+        return context
 
     def get_success_url(self):
         return reverse_lazy('add-access-point', kwargs={'source_id': self.object.source.uuid})
@@ -191,11 +167,15 @@ class AccessPointEdit(LoginRequiredMixin,
 
 
 class AccessPointDetail(LoginRequiredMixin,
-                        AccessPointContextMixin,
                         VersionsMixin,
                         ListView):
     model = AccessPoint
     template_name = 'source/access-points.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['source'] = Source.objects.get(uuid=self.kwargs['source_id'])
+        return context
 
     def get_queryset(self):
         return AccessPoint.objects.filter(source__uuid=self.kwargs['source_id'])
