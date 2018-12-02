@@ -1,0 +1,204 @@
+{% extends 'organization/base-organization.html' %}
+{% load i18n %}
+{% load countries %}
+{% load help %}
+{% load citations %}
+
+{% block above_form %}
+<h3 id="relationships">
+    <i class="fa fa-fw fa-users"></i>
+    {% trans "Relationships" %}
+    <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_subsidiaries' %}</small>
+</h3>
+<hr />
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>{% trans "Organization name" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Date first cited" %}</th>
+            <th>{% trans "Date last cited" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for composition in compositions %}
+            {% if composition.parent.get_value.value == organization %}
+                {% with related_organization=composition.child.get_value.value relation_type='child' %}
+                    {% include 'organization/partials/composition-list-table.html' %}
+                {% endwith %}
+            {% elif composition.child.get_value.value == organization %}
+                {% with related_organization=composition.parent.get_value.value relation_type='parent' %}
+                    {% include 'organization/partials/composition-list-table.html' %}
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+        {% for membership in memberships %}
+            {% if membership.member.get_value.value == organization %}
+                {% with related_organization=membership.organization.get_value.value %}
+                    {% include 'organization/partials/membership-list-table.html' %}
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+        <tr>
+            <td colspan="7">
+                <a href="{% url 'create-organization-composition' organization.uuid %}">
+                <i class="fa fa-plus"> </i> Add composition
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+                <a href="{% url 'create-organization-membership' organization.uuid %}">
+                <i class="fa fa-plus"> </i> Add membership
+                </a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+{% endblock %}
+
+{% block form_content %}
+    <h2>{% trans "Edit relationships" %}</h2>
+    <div class="row organization-row field-bg">
+        <div class="col-sm-12">
+            {% if form.organization.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{% trans "Related organization" %}</label>
+                    <select id="id_organization" class="form-control" name="organization" readonly>
+                        <option value="{{ form.instance.organization.get_value.value.id }}">{{ form.instance.organization.get_value.value }}</option>
+                    </select>
+                {% if form.organization.errors %}
+                    {% for error in form.organization.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_organization_source">
+            {% for source in form.instance.organization.get_sources %}
+                {% source_input 'organization' source %}
+            {% endfor %}
+        </div>
+        <input type="hidden" name="member" value="{{ organization.id }}">
+    </div>
+    <div class="row related_organization_aliases-row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label">{% trans "Related organization other names" %}</label>
+                <input type="text" readonly value="{{ form.instance.organization.get_value.value.alias_list }}" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="row related_organization_divisionid-row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label">{% trans "Related organization country" %}</label>
+                <input type="text" readonly value="{{ form.instance.organization.get_value.value.division_id.get_value|country_name }}" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="row firstciteddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.firstciteddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.firstciteddate.label }}</label>
+                <input type="text" name="firstciteddate" id="id_firstciteddate" class="form-control sourced" value="{{ form.instance.firstciteddate }}">
+                {% if form.firstciteddate.errors %}
+                    {% for error in form.firstciteddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_firstciteddate_source">
+            {% for source in form.instance.firstciteddate.get_sources %}
+                {% source_input 'firstciteddate' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row realstart-row field-bg">
+        <div class="col-sm-12">
+            {% if form.realstart.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.instance.realstart.get_value.value %}
+                            <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
+                        {% else %}
+                            <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.realstart.errors %}
+                    {% for error in form.realstart.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row lastciteddate-row field-bg">
+        <div class="col-sm-12">
+            {% if form.lastciteddate.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <label class="control-label">{{ form.lastciteddate.label }}</label>
+                <input type="text" name="lastciteddate" id="id_lastciteddate" class="form-control sourced" value="{{ form.instance.lastciteddate }}">
+                {% if form.lastciteddate.errors %}
+                    {% for error in form.lastciteddate.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="id_lastciteddate_source">
+            {% for source in form.instance.lastciteddate.get_sources %}
+                {% source_input 'lastciteddate' source %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row realend-row field-bg">
+        <div class="col-sm-12">
+            {% if form.realend.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.instance.realend.get_value.value %}
+                            <input type="checkbox" name="realend" id="id_realend" checked="true" /> {{ form.realend.label }}
+                        {% else %}
+                            <input type="checkbox" name="realend" id="id_realend" /> {{ form.realend.label }}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.realend.errors %}
+                    {% for error in form.realend.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block extra_extra_js%}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            loadSources({target: $('#id_organization')});
+        })
+    </script>
+{% endblock%}

@@ -24,11 +24,11 @@
             <a href="{% url 'create-organization' %}" class="btn btn-default">{% trans "Basics" %}</a>
             {% endif %}
             {% if first_composition and current_composition %}
-                <a href="{% url 'edit-organization-relationships' organization.uuid current_composition.id %}" class="btn btn-primary">{% trans "Relationships" %}</a>
+                <a href="{% url 'edit-organization-composition' organization.uuid current_composition.id %}" class="btn btn-primary">{% trans "Relationships" %}</a>
             {% elif first_composition %}
-                <a href="{% url 'edit-organization-relationships' organization.uuid first_composition.id %}" class="btn btn-default">{% trans "Relationships" %}</a>
+                <a href="{% url 'edit-organization-composition' organization.uuid first_composition.id %}" class="btn btn-default">{% trans "Relationships" %}</a>
             {% elif organization %}
-                <a href="{% url 'create-organization-relationships' organization.uuid %}" class="btn btn-default">{% trans "Relationships" %}</a>
+                <a href="{% url 'create-organization-composition' organization.uuid %}" class="btn btn-default">{% trans "Relationships" %}</a>
             {% endif %}
             {% if first_personnel and current_membership %}
                 <a href="{% url 'edit-organization-personnel' organization.uuid first_personnel.id %}" class="btn btn-primary">{% trans "Personnel" %}</a>

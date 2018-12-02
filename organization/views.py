@@ -12,14 +12,17 @@ from association.models import Association
 from composition.models import Composition
 
 from organization.forms import OrganizationBasicsForm, \
-    OrganizationRelationshipsForm, OrganizationPersonnelForm, \
+    OrganizationCompositionForm, OrganizationPersonnelForm, \
     OrganizationEmplacementForm, OrganizationAssociationForm, \
-    OrganizationCreateBasicsForm, OrganizationCreateRelationshipsForm, \
+    OrganizationCreateBasicsForm, OrganizationCreateCompositionForm, \
     OrganizationCreatePersonnelForm, OrganizationCreateEmplacementForm, \
-    OrganizationCreateAssociationForm
+    OrganizationCreateAssociationForm, OrganizationMembershipForm, \
+    OrganizationCreateMembershipForm
 from organization.models import Organization, OrganizationAlias
 
 from membershipperson.models import MembershipPerson
+
+from membershiporganization.models import MembershipOrganization
 
 from sfm_pc.templatetags.countries import country_name
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView
@@ -205,9 +208,9 @@ class OrganizationCreateBasicsView(BaseCreateView):
         return '{}?entity_type=Organization'.format(reverse('search'))
 
 
-class OrganizationEditRelationshipsView(OrganizationEditView):
-    template_name = 'organization/edit-relationships.html'
-    form_class = OrganizationRelationshipsForm
+class OrganizationEditCompositionView(OrganizationEditView):
+    template_name = 'organization/edit-composition.html'
+    form_class = OrganizationCompositionForm
     model = Composition
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'
@@ -222,6 +225,7 @@ class OrganizationEditRelationshipsView(OrganizationEditView):
         children = Q(compositionchild__value=context['organization'])
 
         context['compositions'] = Composition.objects.filter(parents | children)
+        context['memberships'] = MembershipOrganization.objects.filter(membershiporganizationmember__value=context['organization'])
 
         return context
 
@@ -230,16 +234,16 @@ class OrganizationEditRelationshipsView(OrganizationEditView):
         pk = self.kwargs['pk']
 
         if self.request.POST.get('_continue'):
-            return reverse('edit-organization-relationships',
+            return reverse('edit-organization-composition',
                            kwargs={'organization_id': organization_id,
                                    'pk': pk})
         else:
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateRelationshipsView(BaseCreateView):
-    template_name = 'organization/create-relationships.html'
-    form_class = OrganizationCreateRelationshipsForm
+class OrganizationCreateCompositionView(BaseCreateView):
+    template_name = 'organization/create-composition.html'
+    form_class = OrganizationCreateCompositionForm
     model = Composition
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'
@@ -252,8 +256,73 @@ class OrganizationCreateRelationshipsView(BaseCreateView):
         children = Q(compositionchild__value=context['organization'])
 
         context['compositions'] = Composition.objects.filter(parents | children)
+        context['memberships'] = MembershipOrganization.objects.filter(membershiporganizationmember__value=context['organization'])
 
         return context
+
+    def get_success_url(self):
+        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+
+class OrganizationEditMembershipView(BaseUpdateView):
+    template_name = 'organization/edit-membership.html'
+    form_class = OrganizationMembershipForm
+    model = MembershipOrganization
+    context_object_name = 'current_membership'
+    slug_field_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+
+        parents = Q(compositionparent__value=context['organization'])
+        children = Q(compositionchild__value=context['organization'])
+
+        context['compositions'] = Composition.objects.filter(parents | children)
+        context['memberships'] = MembershipOrganization.objects.filter(membershiporganizationmember__value=context['organization'])
+
+        return context
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['organization_id'] = self.kwargs['organization_id']
+        return form_kwargs
+
+    def get_success_url(self):
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+
+        if self.request.POST.get('_continue'):
+            return reverse('edit-organization-membership',
+                           kwargs={'organization_id': organization_id,
+                                   'pk': pk})
+        else:
+            return reverse('view-organization', kwargs={'slug': organization_id})
+
+
+class OrganizationCreateMembershipView(BaseCreateView):
+    template_name = 'organization/create-membership.html'
+    form_class = OrganizationCreateMembershipForm
+    model = MembershipOrganization
+    context_object_name = 'current_membership'
+    slug_field_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+
+        parents = Q(compositionparent__value=context['organization'])
+        children = Q(compositionchild__value=context['organization'])
+
+        context['compositions'] = Composition.objects.filter(parents | children)
+        context['memberships'] = MembershipOrganization.objects.filter(membershiporganizationmember__value=context['organization'])
+
+        return context
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['organization_id'] = self.kwargs['organization_id']
+        return form_kwargs
 
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})

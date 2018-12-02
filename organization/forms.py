@@ -29,6 +29,11 @@ from composition.models import Composition, CompositionParent, \
     CompositionChild, CompositionRealStart, CompositionStartDate, \
     CompositionEndDate, CompositionOpenEnded, CompositionClassification
 
+from membershiporganization.models import MembershipOrganization, \
+    MembershipOrganizationMember, MembershipOrganizationOrganization, \
+    MembershipOrganizationFirstCitedDate, MembershipOrganizationRealStart, \
+    MembershipOrganizationLastCitedDate, MembershipOrganizationRealEnd
+
 from association.models import Association, AssociationStartDate, \
     AssociationRealStart, AssociationEndDate, AssociationOpenEnded, \
     AssociationArea, AssociationOrganization
@@ -94,7 +99,7 @@ class OrganizationCreateBasicsForm(BaseCreateForm, OrganizationBasicsForm):
     pass
 
 
-class OrganizationRelationshipsForm(BaseUpdateForm):
+class OrganizationCompositionForm(BaseUpdateForm):
     class Meta:
         model = Composition
         fields = '__all__'
@@ -132,7 +137,43 @@ class OrganizationRelationshipsForm(BaseUpdateForm):
         super().clean()
 
 
-class OrganizationCreateRelationshipsForm(BaseCreateForm, OrganizationRelationshipsForm):
+class OrganizationCreateCompositionForm(BaseCreateForm, OrganizationCompositionForm):
+    pass
+
+
+class OrganizationMembershipForm(BaseUpdateForm):
+    class Meta:
+        model = MembershipOrganization
+        fields = '__all__'
+
+    edit_fields = [
+        ('member', MembershipOrganizationMember, False),
+        ('organization', MembershipOrganizationOrganization, False),
+        ('realstart', MembershipOrganizationRealStart, False),
+        ('firstciteddate', MembershipOrganizationFirstCitedDate, False),
+        ('realend', MembershipOrganizationRealEnd, False),
+        ('lastciteddate', MembershipOrganizationLastCitedDate, False),
+    ]
+
+    clone_sources = {
+        'member': 'organization',
+    }
+
+    realstart = forms.BooleanField(label=_("Start date?"))
+    firstciteddate = ApproximateDateFormField(label=_("Date first cited"), required=False)
+    lastciteddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
+    organization = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
+    realend = forms.BooleanField(label=_("End date?"))
+
+    def __init__(self, *args, **kwargs):
+        organization_id = kwargs.pop('organization_id')
+
+        super().__init__(*args, **kwargs)
+
+        self.fields['member'] = forms.ModelChoiceField(queryset=Organization.objects.filter(uuid=organization_id))
+
+
+class OrganizationCreateMembershipForm(BaseCreateForm, OrganizationMembershipForm):
     pass
 
 
