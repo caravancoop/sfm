@@ -7,7 +7,10 @@ from organization.views import organization_autocomplete, OrganizationDetail, \
     OrganizationEditAssociationView, OrganizationCreateBasicsView, \
     OrganizationCreateCompositionView, OrganizationCreatePersonnelView, \
     OrganizationCreateEmplacementView, OrganizationCreateAssociationView, \
-    OrganizationEditMembershipView, OrganizationCreateMembershipView
+    OrganizationEditMembershipView, OrganizationCreateMembershipView, \
+    OrganizationDeletePersonnelView, OrganizationDeleteCompositionView, \
+    OrganizationDeleteMembershipView, OrganizationDeleteEmplacementView, \
+    OrganizationDeleteAssociationView
 
 
 urlpatterns = [
@@ -30,6 +33,9 @@ urlpatterns = [
     url(r'create/composition/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         OrganizationCreateCompositionView.as_view(),
         name='create-organization-composition'),
+    url(r'delete/composition/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
+        OrganizationDeleteCompositionView.as_view(),
+        name='delete-organization-composition'),
 
     url(r'edit/membership/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
         OrganizationEditMembershipView.as_view(),
@@ -37,6 +43,9 @@ urlpatterns = [
     url(r'create/membership/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         OrganizationCreateMembershipView.as_view(),
         name='create-organization-membership'),
+    url(r'delete/membership/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
+        OrganizationDeleteMembershipView.as_view(),
+        name='delete-organization-membership'),
 
     url(r'edit/personnel/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
         OrganizationEditPersonnelView.as_view(),
@@ -44,6 +53,9 @@ urlpatterns = [
     url(r'create/personnel/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         OrganizationCreatePersonnelView.as_view(),
         name='create-organization-personnel'),
+    url(r'delete/personnel/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
+        OrganizationDeletePersonnelView.as_view(),
+        name='delete-organization-personnel'),
 
     url(r'edit/emplacement/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
         OrganizationEditEmplacementView.as_view(),
@@ -51,6 +63,9 @@ urlpatterns = [
     url(r'create/emplacement/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         OrganizationCreateEmplacementView.as_view(),
         name='create-organization-emplacement'),
+    url(r'delete/emplacement/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
+        OrganizationDeleteEmplacementView.as_view(),
+        name='delete-organization-emplacement'),
 
     url(r'edit/association/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
         OrganizationEditAssociationView.as_view(),
@@ -58,4 +73,7 @@ urlpatterns = [
     url(r'create/association/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         OrganizationCreateAssociationView.as_view(),
         name='create-organization-association'),
+    url(r'delete/association/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
+        OrganizationDeleteAssociationView.as_view(),
+        name='delete-organization-association'),
 ]

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load countries %}
+{% load citations %}
+{% block content %}
+    <div class="well">
+        <div class="row header">
+            <div class="col-sm-12">
+                <h1>
+                    {% trans "Do you really want to remove this link between " %}
+                    <strong>{{ object.organization.get_value.value }}</strong> {% trans "and" %}
+                    <strong>{{ object.member.get_value.value }}</strong>
+                </h1>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Person" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.member.get_value.value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Rank" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.rank.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Role" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.role.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Title" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.title.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Date first cited" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.firstciteddate.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Start date?" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.realstart.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Context for start date" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.startcontext.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Date last cited" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.lastciteddate.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "End date?" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.realend.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Context for end date" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.endcontext.get_value }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <form action="" method="post" class="form">
+                {% csrf_token %}
+                <input class="btn btn-danger" type="submit" value="Confirm" />
+            </form>
+        </div>
+    </div>
+{% endblock %}

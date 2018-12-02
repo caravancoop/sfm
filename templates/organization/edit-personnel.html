@@ -255,6 +255,9 @@
         </div>
     </div>
 {% endblock %}
+{% block delete_button %}
+    <a href="{% url 'delete-organization-personnel' organization.uuid form.instance.id %}" class="btn btn-danger">Delete</a>
+{% endblock %}
 {% block extra_extra_js %}
     <script type="text/javascript">
         $(document).ready(function(){
