@@ -422,3 +422,11 @@ class PersonDeletePostingView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})
+
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+
+        person = Person.objects.get(uuid=self.kwargs['person_id'])
+        person.object_ref_saved()
+
+        return response
