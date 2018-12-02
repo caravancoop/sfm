@@ -12,9 +12,9 @@ from association.models import Association
 from composition.models import Composition
 
 from organization.forms import OrganizationBasicsForm, \
-    OrganizationRelationshipsForm, OrganizationPersonnelForm, \
+    OrganizationCompositionForm, OrganizationPersonnelForm, \
     OrganizationEmplacementForm, OrganizationAssociationForm, \
-    OrganizationCreateBasicsForm, OrganizationCreateRelationshipsForm, \
+    OrganizationCreateBasicsForm, OrganizationCreateCompositionForm, \
     OrganizationCreatePersonnelForm, OrganizationCreateEmplacementForm, \
     OrganizationCreateAssociationForm
 from organization.models import Organization, OrganizationAlias
@@ -205,9 +205,9 @@ class OrganizationCreateBasicsView(BaseCreateView):
         return '{}?entity_type=Organization'.format(reverse('search'))
 
 
-class OrganizationEditRelationshipsView(OrganizationEditView):
-    template_name = 'organization/edit-relationships.html'
-    form_class = OrganizationRelationshipsForm
+class OrganizationEditCompositionView(OrganizationEditView):
+    template_name = 'organization/edit-composition.html'
+    form_class = OrganizationCompositionForm
     model = Composition
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'
@@ -230,16 +230,16 @@ class OrganizationEditRelationshipsView(OrganizationEditView):
         pk = self.kwargs['pk']
 
         if self.request.POST.get('_continue'):
-            return reverse('edit-organization-relationships',
+            return reverse('edit-organization-composition',
                            kwargs={'organization_id': organization_id,
                                    'pk': pk})
         else:
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateRelationshipsView(BaseCreateView):
-    template_name = 'organization/create-relationships.html'
-    form_class = OrganizationCreateRelationshipsForm
+class OrganizationCreateCompositionView(BaseCreateView):
+    template_name = 'organization/create-composition.html'
+    form_class = OrganizationCreateCompositionForm
     model = Composition
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'

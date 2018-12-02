@@ -111,13 +111,13 @@ def test_create_organization(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_edit_relationship(setUp, fake_signal):
+def test_edit_composition(setUp, fake_signal):
     org1, org2 = Organization.objects.exclude(child_organization__isnull=True)\
                                      .exclude(parent_organization__isnull=True)[:2]
 
     first_comp = org1.parent_organization.first().object_ref
 
-    response = setUp.get(reverse_lazy('edit-organization-relationships',
+    response = setUp.get(reverse_lazy('edit-organization-composition',
                                       args=[org1.uuid, first_comp.id]))
 
     assert response.status_code == 200
@@ -134,7 +134,7 @@ def test_edit_relationship(setUp, fake_signal):
         'classification_source': new_source_ids,
     }
 
-    response = setUp.post(reverse_lazy('edit-organization-relationships',
+    response = setUp.post(reverse_lazy('edit-organization-composition',
                                        args=[org1.uuid, first_comp.id]),
                           post_data)
 
@@ -152,7 +152,7 @@ def test_create_relationship(setUp, fake_signal):
     org1, org2 = Organization.objects.exclude(child_organization__isnull=True)\
                                      .exclude(parent_organization__isnull=True)[:2]
 
-    response = setUp.get(reverse_lazy('create-organization-relationships',
+    response = setUp.get(reverse_lazy('create-organization-composition',
                                       args=[org1.uuid]))
 
     assert response.status_code == 200
@@ -169,7 +169,7 @@ def test_create_relationship(setUp, fake_signal):
         'classification_source': new_source_ids,
     }
 
-    response = setUp.post(reverse_lazy('create-organization-relationships',
+    response = setUp.post(reverse_lazy('create-organization-composition',
                                        args=[org1.uuid]),
                           post_data)
 

@@ -2,10 +2,10 @@ from django.conf.urls import url
 from django.views.decorators.cache import cache_page
 
 from organization.views import organization_autocomplete, OrganizationDetail, \
-    OrganizationEditBasicsView, OrganizationEditRelationshipsView, \
+    OrganizationEditBasicsView, OrganizationEditCompositionView, \
     OrganizationEditPersonnelView, OrganizationEditEmplacementView, \
     OrganizationEditAssociationView, OrganizationCreateBasicsView, \
-    OrganizationCreateRelationshipsView, OrganizationCreatePersonnelView, \
+    OrganizationCreateCompositionView, OrganizationCreatePersonnelView, \
     OrganizationCreateEmplacementView, \
     OrganizationCreateAssociationView
 
@@ -23,12 +23,12 @@ urlpatterns = [
     url(r'create/$',
         OrganizationCreateBasicsView.as_view(),
         name='create-organization'),
-    url(r'edit/relationships/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationEditRelationshipsView.as_view(),
-        name='edit-organization-relationships'),
-    url(r'create/relationships/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        OrganizationCreateRelationshipsView.as_view(),
-        name='create-organization-relationships'),
+    url(r'edit/compositions/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
+        OrganizationEditCompositionView.as_view(),
+        name='edit-organization-composition'),
+    url(r'create/compositions/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+        OrganizationCreateCompositionView.as_view(),
+        name='create-organization-composition'),
     url(r'edit/personnel/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
         OrganizationEditPersonnelView.as_view(),
         name='edit-organization-personnel'),

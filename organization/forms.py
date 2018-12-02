@@ -94,7 +94,7 @@ class OrganizationCreateBasicsForm(BaseCreateForm, OrganizationBasicsForm):
     pass
 
 
-class OrganizationRelationshipsForm(BaseUpdateForm):
+class OrganizationCompositionForm(BaseUpdateForm):
     class Meta:
         model = Composition
         fields = '__all__'
@@ -132,7 +132,7 @@ class OrganizationRelationshipsForm(BaseUpdateForm):
         super().clean()
 
 
-class OrganizationCreateRelationshipsForm(BaseCreateForm, OrganizationRelationshipsForm):
+class OrganizationCreateCompositionForm(BaseCreateForm, OrganizationCompositionForm):
     pass
 
 
