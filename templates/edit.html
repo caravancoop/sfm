@@ -134,7 +134,7 @@
             $.each($(selector), function(e, source){
                 var source_info = $(source).data();
                 source_info['field_name'] = field_name;
-                source_info['id'] = $(selector).val();
+                source_info['id'] = $(source).val();
                 var template = new EJS({'text': $('#source-list-template').html()});
                 source_list.push(template.render(source_info));
             });
