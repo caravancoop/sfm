@@ -465,6 +465,9 @@ def class_for_name(class_name, module_name="person.models"):
     if class_name == "Membershipperson":
         class_name = "MembershipPerson"
 
+    if class_name == "Membershiporganization":
+        class_name = "MembershipOrganization"
+
     if class_name not in settings.ALLOWED_CLASS_FOR_NAME:
         raise Exception("Unallowed class for name")
     module = importlib.import_module(module_name)

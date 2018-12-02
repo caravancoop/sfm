@@ -25,18 +25,32 @@
         {% for composition in compositions %}
             {% if composition.parent.get_value.value == organization %}
                 {% with related_organization=composition.child.get_value.value relation_type='child' %}
-                    {% include 'organization/partials/relationship-list-table.html' %}
+                    {% include 'organization/partials/composition-list-table.html' %}
                 {% endwith %}
             {% elif composition.child.get_value.value == organization %}
                 {% with related_organization=composition.parent.get_value.value relation_type='parent' %}
-                    {% include 'organization/partials/relationship-list-table.html' %}
+                    {% include 'organization/partials/composition-list-table.html' %}
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+        {% for membership in memberships %}
+            {% if membership.member.get_value.value == organization %}
+                {% with related_organization=membership.organization.get_value.value %}
+                    {% include 'organization/partials/membership-list-table.html' %}
                 {% endwith %}
             {% endif %}
         {% endfor %}
         <tr>
             <td colspan="7">
                 <a href="{% url 'create-organization-composition' organization.uuid %}">
-                <i class="fa fa-plus"> </i> Add relationship
+                <i class="fa fa-plus"> </i> Add composition
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+                <a href="{% url 'create-organization-membership' organization.uuid %}">
+                <i class="fa fa-plus"> </i> Add membership
                 </a>
             </td>
         </tr>
@@ -48,7 +62,7 @@
     <h2>{% trans "Edit relationships" %}</h2>
     <div class="row relationship_type-row field-bg bg-info">
         <div class="col-sm-12">
-            {% if form.name.errors %}
+            {% if form.relationship_type.errors %}
                 <div class="form-group has-error has-feedback">
             {% else %}
                 <div class="form-group">
