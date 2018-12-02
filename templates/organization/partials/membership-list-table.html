@@ -10,10 +10,10 @@
         <i class="fa fa-fw fa-users"></i> Membership
     </td>
     <td class="cited">
-        {{ membership.startdate.get_value.value }}
+        {{ membership.firstciteddate.get_value.value }}
     </td>
     <td class="cited">
-        {{ membership.enddate.get_value.value }}
+        {{ membership.lastciteddate.get_value.value }}
     </td>
     <td>
         <a href="{% url 'edit-organization-membership' organization.uuid membership.id %}">
