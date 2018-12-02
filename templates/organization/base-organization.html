@@ -37,14 +37,18 @@
             {% elif organization %}
                 <a href="{% url 'create-organization-personnel' organization.uuid %}" class="btn btn-default">{% trans "Personnel" %}</a>
             {% endif %}
-            {% if first_emplacement and current_emplacement %}
+            {% if first_emplacement and current_emplacement or first_association and current_association %}
+                {% if current_emplacement %}
                 <a href="{% url 'edit-organization-emplacement' organization.uuid first_emplacement.id %}" class="btn btn-primary">{% trans "Locations" %}</a>
-            {% elif first_emplacement %}
-                <a href="{% url 'edit-organization-emplacement' organization.uuid first_emplacement.id %}" class="btn btn-default">{% trans "Locations" %}</a>
-            {% elif first_association and current_association %}
+                {% elif current_association %}
                 <a href="{% url 'edit-organization-association' organization.uuid first_association.id %}" class="btn btn-primary">{% trans "Locations" %}</a>
-            {% elif first_association %}
+                {% endif %}
+            {% elif first_emplacement or first_association %}
+                {% if first_emplacement %}
+                <a href="{% url 'edit-organization-emplacement' organization.uuid first_emplacement.id %}" class="btn btn-default">{% trans "Locations" %}</a>
+                {% else %}
                 <a href="{% url 'edit-organization-association' organization.uuid first_association.id %}" class="btn btn-default">{% trans "Locations" %}</a>
+                {% endif %}
             {% elif organization %}
                 <a href="{% url 'create-organization-emplacement' organization.uuid %}" class="btn btn-default">{% trans "Add site" %}</a>
                 <a href="{% url 'create-organization-association' organization.uuid %}" class="btn btn-default">{% trans "Add area" %}</a>
