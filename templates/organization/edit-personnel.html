@@ -19,7 +19,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.member.label }}</label>
-                <select id="id_member" class="form-control sourced select2-target" name="member" disabled=true>
+                <select id="id_member" class="form-control sourced select2-target" name="member" readonly>
                     <option value="{{ form.instance.member.get_value.value.id }}">{{ form.instance.member.get_value.value }}</option>
                 </select>
                 {% if form.member.errors %}

@@ -55,10 +55,10 @@
             {% endif %}
                 <label class="control-label">{% trans "Relationship type" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
-                    <select id="id_relationship_type" class="form-control sourced" name="parent" disabled=true>
+                    <select id="id_relationship_type" class="form-control sourced" name="parent" readonly>
                         <option value="{{ current_composition.parent.get_value.value.id }}" selected=true>Parent</option>
                 {% elif current_composition.child.get_value.value == organization %}
-                    <select id="id_relationship_type" class="form-control sourced" name="child" disabled=true>
+                    <select id="id_relationship_type" class="form-control sourced" name="child" readonly>
                         <option value="{{ current_composition.child.get_value.value.id }}" selected=true>Child</option>
                 {% endif %}
                 </select>
@@ -69,19 +69,16 @@
                 {% endif %}
             </div>
         </div>
-        {% if current_composition.parent.get_value.value == organization %}
-            <div id="id_parent_source">
-                {% for source in form.instance.parent.get_sources %}
-                    {% source_input 'parent' source %}
-                {% endfor %}
-            </div>
-        {% elif current_composition.child.get_value.value == organization %}
-            <div id="id_child_source">
-                {% for source in form.instance.child.get_sources %}
-                    {% source_input 'child' source %}
-                {% endfor %}
-            </div>
-        {% endif %}
+        <div id="id_parent_source">
+            {% for source in form.instance.parent.get_sources %}
+                {% source_input 'parent' source %}
+            {% endfor %}
+        </div>
+        <div id="id_child_source">
+            {% for source in form.instance.child.get_sources %}
+                {% source_input 'child' source %}
+            {% endfor %}
+        </div>
     </div>
     <div class="row classification-row field-bg">
         <div class="col-sm-12">
@@ -114,10 +111,10 @@
             {% endif %}
                 <label class="control-label">{% trans "Related organization" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
-                    <select id="id_related_organization" class="form-control" name="child" disabled=true>
+                    <select id="id_related_organization" class="form-control" name="child" readonly>
                         <option value="{{ form.instance.child.get_value.value.id }}">{{ form.instance.child.get_value.value }}</option>
                 {% elif current_composition.child.get_value.value == organization %}
-                    <select id="id_related_organization" class="form-control" name="parent" disabled=true>
+                    <select id="id_related_organization" class="form-control" name="parent" readonly>
                         <option value="{{ form.instance.parent.get_value.value.id }}">{{ form.instance.parent.get_value.value }}</option>
                 {% endif %}
                 </select>
@@ -139,9 +136,9 @@
             <div class="form-group">
                 <label class="control-label">{% trans "Related organization other names" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
-                    <input type="text" id="related_organization_aliases" disabled=true value="{{ form.instance.child.get_value.value.alias_list }}" class="form-control" />
+                    <input type="text" id="related_organization_aliases" readonly value="{{ form.instance.child.get_value.value.alias_list }}" class="form-control" />
                 {% elif current_composition.child.get_value.value == organization %}
-                    <input type="text" disabled=true value="{{ form.instance.parent.get_value.value.alias_list }}" class="form-control" />
+                    <input type="text" readonly value="{{ form.instance.parent.get_value.value.alias_list }}" class="form-control" />
                 {% endif %}
             </div>
         </div>
@@ -151,9 +148,9 @@
             <div class="form-group">
                 <label class="control-label">{% trans "Related organization country" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
-                    <input type="text" id="related_organization_country" disabled=true value="{{ form.instance.child.get_value.value.division_id.get_value|country_name }}" class="form-control" />
+                    <input type="text" id="related_organization_country" readonly value="{{ form.instance.child.get_value.value.division_id.get_value|country_name }}" class="form-control" />
                 {% elif current_composition.child.get_value.value == organization %}
-                    <input type="text" disabled=true value="{{ form.instance.parent.get_value.value.division_id.get_value|country_name }}" class="form-control" />
+                    <input type="text" readonly value="{{ form.instance.parent.get_value.value.division_id.get_value|country_name }}" class="form-control" />
                 {% endif %}
             </div>
         </div>
