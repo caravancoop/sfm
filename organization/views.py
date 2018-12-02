@@ -1,9 +1,10 @@
 import json
 
-from django.views.generic import DetailView
+from django.views.generic import DetailView, DeleteView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from emplacement.models import Emplacement
 
@@ -375,6 +376,30 @@ class OrganizationCreatePersonnelView(BaseCreateView):
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
+
+class OrganizationDeletePersonnelView(LoginRequiredMixin, DeleteView):
+    model = MembershipPerson
+    template_name = 'organization/delete-personnel.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        return context
+
+    def get_success_url(self):
+        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+    def delete(self, request, *args, **kwargs):
+        membership = self.get_object()
+        person = membership.member.get_value().value
+        organization = membership.organization.get_value().value
+
+        response = super().delete(request, *args, **kwargs)
+
+        person.object_ref_saved()
+        organization.object_ref_saved()
+
+        return response
 
 class OrganizationEditEmplacementView(OrganizationEditView):
     model = Emplacement
