@@ -8,7 +8,7 @@ from organization.views import organization_autocomplete, OrganizationDetail, \
     OrganizationCreateCompositionView, OrganizationCreatePersonnelView, \
     OrganizationCreateEmplacementView, OrganizationCreateAssociationView, \
     OrganizationEditMembershipView, OrganizationCreateMembershipView, \
-    OrganizationDeletePersonnelView
+    OrganizationDeletePersonnelView, OrganizationDeleteCompositionView
 
 
 urlpatterns = [
@@ -31,6 +31,9 @@ urlpatterns = [
     url(r'create/composition/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         OrganizationCreateCompositionView.as_view(),
         name='create-organization-composition'),
+    url(r'delete/composition/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
+        OrganizationDeleteCompositionView.as_view(),
+        name='delete-organization-composition'),
 
     url(r'edit/membership/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
         OrganizationEditMembershipView.as_view(),

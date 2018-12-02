@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load countries %}
+{% load citations %}
+{% block content %}
+    <div class="well">
+        <div class="row header">
+            <div class="col-sm-12">
+                <h1>
+                    {% trans "Do you really want to remove this link between " %}
+                    <strong>{{ object.parent.get_value.value }}</strong> {% trans "and" %}
+                    <strong>{{ object.child.get_value.value }}</strong>
+                </h1>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Parent" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.parent.get_value.value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Child" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.child.get_value.value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Classification" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.classification.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Date first cited" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.startdate.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Start date?" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.realstart.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Date last cited" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.enddate.get_value }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>
+                                {% trans "Open ended?" %}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ object.open_ended.get_value }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <form action="" method="post" class="form">
+                {% csrf_token %}
+                <input class="btn btn-danger" type="submit" value="Confirm" />
+            </form>
+        </div>
+    </div>
+{% endblock %}

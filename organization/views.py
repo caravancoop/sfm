@@ -265,6 +265,31 @@ class OrganizationCreateCompositionView(BaseCreateView):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
+class OrganizationDeleteCompositionView(LoginRequiredMixin, DeleteView):
+    model = Composition
+    template_name = 'organization/delete-composition.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        return context
+
+    def get_success_url(self):
+        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+    def delete(self, request, *args, **kwargs):
+        composition = self.get_object()
+        parent = composition.parent.get_value().value
+        child = composition.child.get_value().value
+
+        response = super().delete(request, *args, **kwargs)
+
+        parent.object_ref_saved()
+        child.object_ref_saved()
+
+        return response
+
+
 class OrganizationEditMembershipView(BaseUpdateView):
     template_name = 'organization/edit-membership.html'
     form_class = OrganizationMembershipForm
@@ -400,6 +425,7 @@ class OrganizationDeletePersonnelView(LoginRequiredMixin, DeleteView):
         organization.object_ref_saved()
 
         return response
+
 
 class OrganizationEditEmplacementView(OrganizationEditView):
     model = Emplacement
