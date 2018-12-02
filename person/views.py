@@ -4,7 +4,7 @@ from datetime import date
 from collections import namedtuple
 
 from django.views.generic.edit import CreateView, UpdateView
-from django.views.generic import DetailView
+from django.views.generic import DetailView, DeleteView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -408,4 +408,17 @@ class PersonCreatePostingView(BaseCreateView):
 
     def get_success_url(self):
 
+        return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})
+
+
+class PersonDeletePostingView(LoginRequiredMixin, DeleteView):
+    model = MembershipPerson
+    template_name = 'person/delete-posting.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
+        return context
+
+    def get_success_url(self):
         return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})
