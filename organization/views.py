@@ -326,31 +326,6 @@ class OrganizationEditMembershipView(BaseUpdateView):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationDeleteMembershipView(LoginRequiredMixin, DeleteView):
-    model = MembershipOrganization
-    template_name = 'organization/delete-membership.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
-        return context
-
-    def get_success_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def delete(self, request, *args, **kwargs):
-        membership = self.get_object()
-        member = membership.member.get_value().value
-        organization = membership.organization.get_value().value
-
-        response = super().delete(request, *args, **kwargs)
-
-        member.object_ref_saved()
-        organization.object_ref_saved()
-
-        return response
-
-
 class OrganizationCreateMembershipView(BaseCreateView):
     template_name = 'organization/create-membership.html'
     form_class = OrganizationCreateMembershipForm
@@ -377,6 +352,31 @@ class OrganizationCreateMembershipView(BaseCreateView):
 
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+
+class OrganizationDeleteMembershipView(LoginRequiredMixin, DeleteView):
+    model = MembershipOrganization
+    template_name = 'organization/delete-membership.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        return context
+
+    def get_success_url(self):
+        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+    def delete(self, request, *args, **kwargs):
+        membership = self.get_object()
+        member = membership.member.get_value().value
+        organization = membership.organization.get_value().value
+
+        response = super().delete(request, *args, **kwargs)
+
+        member.object_ref_saved()
+        organization.object_ref_saved()
+
+        return response
 
 
 class OrganizationEditPersonnelView(OrganizationEditView):
@@ -507,6 +507,29 @@ class OrganizationCreateEmplacementView(BaseCreateView):
 
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+
+class OrganizationDeleteEmplacementView(LoginRequiredMixin, DeleteView):
+    model = Emplacement
+    template_name = 'organization/delete-emplacement.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        return context
+
+    def get_success_url(self):
+        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+    def delete(self, request, *args, **kwargs):
+        emplacement = self.get_object()
+        organization = emplacement.organization.get_value().value
+
+        response = super().delete(request, *args, **kwargs)
+
+        organization.object_ref_saved()
+
+        return response
 
 
 class OrganizationEditAssociationView(OrganizationEditView):
