@@ -579,6 +579,29 @@ class OrganizationCreateAssociationView(BaseCreateView):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
+class OrganizationDeleteAssociationView(LoginRequiredMixin, DeleteView):
+    model = Association
+    template_name = 'organization/delete-association.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        return context
+
+    def get_success_url(self):
+        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+    def delete(self, request, *args, **kwargs):
+        association = self.get_object()
+        organization = association.organization.get_value().value
+
+        response = super().delete(request, *args, **kwargs)
+
+        organization.object_ref_saved()
+
+        return response
+
+
 def organization_autocomplete(request):
     term = request.GET.get('q')
 
