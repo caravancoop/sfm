@@ -330,6 +330,7 @@ class BaseUpdateForm(BaseEditForm):
                     field_model.delete()
 
             source_key = '{}_source'.format(field_name)
+            confidence_key = '{}_confidence'.format(field_name)
 
             if field_name in self.update_fields or self.post_data.get(source_key):
 
@@ -337,8 +338,12 @@ class BaseUpdateForm(BaseEditForm):
                 update_key = '{0}_{1}'.format(self.instance._meta.object_name,
                                               field_model._meta.object_name)
 
+                confidence = field.get_confidence()
+                if self.post_data.get(confidence_key):
+                    confidence = self.post_data[confidence_key][0]
+
                 update_info[update_key] = {
-                    'confidence': field.get_confidence(),
+                    'confidence': confidence,
                 }
 
                 if getattr(field_model, 'source_required', False):
@@ -447,6 +452,7 @@ class BaseCreateForm(BaseEditForm):
             )
 
             source_key = '{}_source'.format(field_name)
+            confidence_key = '{}_confidence'.format(field_name)
 
             if field_name in self.update_fields or self.post_data.get(source_key):
 
@@ -454,8 +460,12 @@ class BaseCreateForm(BaseEditForm):
                 update_key = '{0}_{1}'.format(self._meta.model._meta.object_name,
                                               field_model._meta.object_name)
 
+                confidence = field.get_confidence()
+                if self.post_data.get(confidence_key):
+                    confidence = self.post_data[confidence_key]
+
                 update_info[update_key] = {
-                    'confidence': field.get_confidence(),
+                    'confidence': confidence,
                 }
 
                 if getattr(field_model, 'source_required', False):

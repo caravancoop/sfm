@@ -73,6 +73,12 @@ class BaseEditView(LoginRequiredMixin,
                 value = self.request.POST.getlist(form_field)
                 context['source_info'][form_field] = AccessPoint.objects.filter(uuid__in=value)
 
+        context['confidence_choices'] = {
+            '1': _('Low'),
+            '2': _('Medium'),
+            '3': _('High'),
+        }
+
         return context
 
 
