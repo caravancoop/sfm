@@ -88,10 +88,16 @@
                 {% source_input 'parent' source %}
             {% endfor %}
         </div>
+        <div id="id_parent_confidence">
+            <input type="hidden" value="{{ form.instance.parent.get_value.confidence }}" name="parent_confidence">
+        </div>
         <div id="id_child_source">
             {% for source in form.instance.child.get_sources %}
                 {% source_input 'child' source %}
             {% endfor %}
+        </div>
+        <div id="id_child_confidence">
+            <input type="hidden" value="{{ form.instance.child.get_value.confidence }}" name="child_confidence">
         </div>
     </div>
     <div class="row classification-row field-bg">
@@ -114,6 +120,9 @@
             {% for source in form.instance.classification.get_sources %}
                 {% source_input 'classification' source %}
             {% endfor %}
+        </div>
+        <div id="id_classification_confidence">
+            <input type="hidden" value="{{ form.instance.classification.get_value.confidence }}" name="classification_confidence">
         </div>
     </div>
     <div class="row related_organization-row field-bg">
@@ -138,11 +147,6 @@
                     {% endfor %}
                 {% endif %}
             </div>
-        </div>
-        <div id="id_parent_source">
-            {% for source in form.instance.parent.get_sources %}
-                {% source_input 'parent' source %}
-            {% endfor %}
         </div>
     </div>
     <div class="row related_organization_aliases-row">
@@ -190,6 +194,9 @@
                 {% source_input 'startdate' source %}
             {% endfor %}
         </div>
+        <div id="id_startdate_confidence">
+            <input type="hidden" value="{{ form.instance.startdate.get_value.confidence }}" name="startdate_confidence">
+        </div>
     </div>
     <div class="row realstart-row field-bg">
         <div class="col-sm-12">
@@ -235,6 +242,9 @@
             {% for source in form.instance.enddate.get_sources %}
                 {% source_input 'enddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_enddate_confidence">
+            <input type="hidden" value="{{ form.instance.enddate.get_value.confidence }}" name="enddate_confidence">
         </div>
     </div>
     <div class="row open_ended-row field-bg">

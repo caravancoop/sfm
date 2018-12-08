@@ -35,6 +35,9 @@
                 {% source_input 'area' source %}
             {% endfor %}
         </div>
+        <div id="id_area_confidence">
+            <input type="hidden" value="{{ form.instance.area.get_value.confidence }}" name="area_confidence">
+        </div>
     </div>
     <div class="row startdate-row field-bg">
         <div class="col-sm-12">
@@ -57,6 +60,9 @@
                 {% source_input 'startdate' source %}
             {% endfor %}
         </div>
+        <div id="id_startdate_confidence">
+            <input type="hidden" value="{{ form.instance.startdate.get_value.confidence }}" name="startdate_confidence">
+        </div>
     </div>
     <div class="row enddate-row field-bg">
         <div class="col-sm-12">
@@ -78,6 +84,9 @@
             {% for source in form.instance.enddate.get_sources %}
                 {% source_input 'enddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_enddate_confidence">
+            <input type="hidden" value="{{ form.instance.enddate.get_value.confidence }}" name="enddate_confidence">
         </div>
     </div>
     <div class="row realstart-row field-bg">
