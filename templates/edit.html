@@ -100,7 +100,6 @@
         <p>
             <label class="control-label">{% trans "Confidence" %}</label>
             <select class="confidence-picker form-control" data-field_name="<%= field_name %>">
-                <option value="">-------</option>
                 <% $.each(confidence_choices, function(value, label){ %>
                     <% if (value == confidence){ %>
                         <option value="<%= value %>" selected><%= label %></option>

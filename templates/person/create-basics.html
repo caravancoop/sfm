@@ -34,6 +34,9 @@
                 {% source_input 'name' source %}
             {% endfor %}
         </div>
+        <div id="id_name_confidence">
+            <input type="hidden" value="1" name="name_confidence">
+        </div>
     </div>
     <div class="row aliases-row field-bg">
         <div class="col-sm-12">
@@ -61,6 +64,9 @@
             {% for source in source_info.aliases_source %}
                 {% source_input 'aliases' source %}
             {% endfor %}
+        </div>
+        <div id="id_aliases_confidence">
+            <input type="hidden" value="1" name="aliases_confidence">
         </div>
     </div>
     <div class="row gender-row field-bg">
@@ -93,6 +99,9 @@
                 {% source_input 'gender' source %}
             {% endfor %}
         </div>
+        <div id="id_gender_confidence">
+            <input type="hidden" value="1" name="gender_confidence">
+        </div>
     </div>
     <div class="row division_id-row field-bg">
         <div class="col-sm-12">
@@ -124,6 +133,9 @@
                 {% source_input 'division_id' source %}
             {% endfor %}
         </div>
+        <div id="id_division_id_confidence">
+            <input type="hidden" value="1" name="division_id_confidence">
+        </div>
     </div>
     <div class="row date_of_birth-row field-bg">
         <div class="col-sm-12">
@@ -146,6 +158,9 @@
                 {% source_input 'date_of_birth' source %}
             {% endfor %}
         </div>
+        <div id="id_date_of_birth_confidence">
+            <input type="hidden" value="1" name="date_of_birth_confidence">
+        </div>
     </div>
     <div class="row date_of_death-row field-bg">
         <div class="col-sm-12">
@@ -167,6 +182,9 @@
             {% for source in source_info.date_of_death %}
                 {% source_input 'date_of_death' source %}
             {% endfor %}
+        </div>
+        <div id="id_date_of_death_confidence">
+            <input type="hidden" value="1" name="date_of_death_confidence">
         </div>
     </div>
     <div class="row deceased-row field-bg">
@@ -197,6 +215,9 @@
                 {% source_input 'deceased' source %}
             {% endfor %}
         </div>
+        <div id="id_deceased_confidence">
+            <input type="hidden" value="1" name="deceased_confidence">
+        </div>
     </div>
     <div class="row biography-row field-bg">
         <div class="col-sm-12">
@@ -219,6 +240,9 @@
                 {% source_input 'biography' source %}
             {% endfor %}
         </div>
+        <div id="id_biography_confidence">
+            <input type="hidden" value="1" name="biography_confidence">
+        </div>
     </div>
     <div class="row notes-row field-bg">
         <div class="col-sm-12">
@@ -240,6 +264,9 @@
             {% for source in source_info.notes %}
                 {% source_input 'notes' source %}
             {% endfor %}
+        </div>
+        <div id="id_notes_confidence">
+            <input type="hidden" value="1" name="notes_confidence">
         </div>
     </div>
     <div class="row external_links-row field-bg">
@@ -266,6 +293,9 @@
             {% for source in source_info.external_links_source %}
                 {% source_input 'external_links' source %}
             {% endfor %}
+        </div>
+        <div id="id_external_links_confidence">
+            <input type="hidden" value="1" name="external_links_confidence">
         </div>
     </div>
 
