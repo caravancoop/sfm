@@ -22,7 +22,14 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_organization_source"></div>
+        <div id="id_organization_source">
+            {% for source in source_info.organization_source %}
+                {% source_input 'organization' source %}
+            {% endfor %}
+        </div>
+        <div id="id_organization_confidence">
+            <input type="hidden" value="1" name="organization_confidence">
+        </div>
         <input type="hidden" name="member" value="{{ organization.id }}">
     </div>
     <div class="row organization_aliases-row">
@@ -57,7 +64,14 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_firstciteddate_source"></div>
+        <div id="id_firstciteddate_source">
+            {% for source in source_info.firstciteddate_source %}
+                {% source_input 'firstciteddate' source %}
+            {% endfor %}
+        </div>
+        <div id="id_firstciteddate_confidence">
+            <input type="hidden" value="1" name="firstciteddate_confidence">
+        </div>
     </div>
     <div class="row realstart-row field-bg">
         <div class="col-sm-12">
@@ -95,7 +109,14 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_lastciteddate_source"></div>
+        <div id="id_lastciteddate_source">
+            {% for source in source_info.lastciteddate_source %}
+                {% source_input 'lastciteddate' source %}
+            {% endfor %}
+        </div>
+        <div id="id_lastciteddate_confidence">
+            <input type="hidden" value="1" name="lastciteddate_confidence">
+        </div>
     </div>
     <div class="row realend-row field-bg">
         <div class="col-sm-12">
