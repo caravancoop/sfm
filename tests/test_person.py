@@ -49,16 +49,22 @@ def test_edit_person(setUp, fake_signal):
     post_data = {
         'name': person.name.get_value(),
         'name_source': [s.uuid for s in person.name.get_sources()],
+        'name_confidence': '2',
         'aliases': [p.get_value().id for p in person.aliases.get_list()] + ['Foo'],
         'aliases_source': new_source_ids + [s.uuid for s in person.aliases.get_list()[0].get_sources()],
+        'aliases_confidence': '2',
         'division_id': 'ocd-division/country:us',
         'division_id_source': new_source_ids + [s.uuid for s in person.division_id.get_sources()],
+        'division_id_confidence': '3',
         'date_of_birth': '1976',
         'date_of_birth_source': new_source_ids,
+        'date_of_birth_confidence': '1',
         'date_of_death': '2012-02-14',
         'date_of_death_source': new_source_ids,
+        'date_of_death_confidence': '3',
         'deceased': True,
         'deceased_source': new_source_ids,
+        'deceased_confidence': '3',
     }
 
     response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
@@ -74,6 +80,13 @@ def test_edit_person(setUp, fake_signal):
     assert str(person.date_of_birth.get_value().value) == '1976'
     assert str(person.date_of_death.get_value().value) == '14th February 2012'
     assert person.deceased.get_value().value == True
+
+    assert person.name.get_value().confidence == '2'
+    assert person.aliases.get_value().confidence == '2'
+    assert person.division_id.get_value().confidence == '3'
+    assert person.date_of_birth.get_value().confidence == '1'
+    assert person.date_of_death.get_value().confidence == '3'
+    assert person.deceased.get_value().confidence == '3'
 
     fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
 
