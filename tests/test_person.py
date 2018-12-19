@@ -82,7 +82,7 @@ def test_edit_person(setUp, fake_signal):
     assert person.deceased.get_value().value == True
 
     assert person.name.get_value().confidence == '2'
-    assert person.aliases.get_value().confidence == '2'
+    assert person.aliases.get_list()[0].get_value().confidence == '2'
     assert person.division_id.get_value().confidence == '3'
     assert person.date_of_birth.get_value().confidence == '1'
     assert person.date_of_death.get_value().confidence == '3'
