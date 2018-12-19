@@ -27,6 +27,9 @@
                 {% source_input 'site' source %}
             {% endfor %}
         </div>
+        <div id="id_site_confidence">
+            <input type="hidden" value="1" name="site_confidence">
+        </div>
     </div>
     <div class="row aliases-row field-bg">
         <div class="col-sm-12">
@@ -53,6 +56,9 @@
                 {% source_input 'aliases' source %}
             {% endfor %}
         </div>
+        <div id="id_aliases_confidence">
+            <input type="hidden" value="1" name="aliases_confidence">
+        </div>
     </div>
     <div class="row startdate-row field-bg">
         <div class="col-sm-12">
@@ -75,6 +81,9 @@
                 {% source_input 'startdate' source %}
             {% endfor %}
         </div>
+        <div id="id_startdate_confidence">
+            <input type="hidden" value="1" name="startdate_confidence">
+        </div>
     </div>
     <div class="row enddate-row field-bg">
         <div class="col-sm-12">
@@ -96,6 +105,9 @@
             {% for source in source_info.enddate_source %}
                 {% source_input 'enddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_enddate_confidence">
+            <input type="hidden" value="1" name="enddate_confidence">
         </div>
     </div>
     <div class="row realstart-row field-bg">

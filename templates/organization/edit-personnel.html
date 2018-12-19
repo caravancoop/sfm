@@ -34,6 +34,9 @@
                 {% source_input 'member' source %}
             {% endfor %}
         </div>
+        <div id="id_member_confidence">
+            <input type="hidden" value="{{ form.instance.member.get_value.confidence }}" name="member_confidence">
+        </div>
     </div>
     <div class="row rank-row field-bg">
         <div class="col-sm-12">
@@ -63,6 +66,9 @@
             {% for source in form.instance.rank.get_sources %}
                 {% source_input 'rank' source %}
             {% endfor %}
+        </div>
+        <div id="id_rank_confidence">
+            <input type="hidden" value="{{ form.instance.rank.get_value.confidence }}" name="rank_confidence">
         </div>
     </div>
     <div class="row role-row field-bg">
@@ -95,6 +101,9 @@
                 {% source_input 'role' source %}
             {% endfor %}
         </div>
+        <div id="id_role_confidence">
+            <input type="hidden" value="{{ form.instance.role.get_value.confidence }}" name="role_confidence">
+        </div>
     </div>
     <div class="row title-row field-bg">
         <div class="col-sm-12">
@@ -117,6 +126,9 @@
                 {% source_input 'title' source %}
             {% endfor %}
         </div>
+        <div id="id_title_confidence">
+            <input type="hidden" value="{{ form.instance.title.get_value.confidence }}" name="title_confidence">
+        </div>
     </div>
     <div class="row firstciteddate-row field-bg">
         <div class="col-sm-12">
@@ -138,6 +150,9 @@
             {% for source in form.instance.firstciteddate.get_sources %}
                 {% source_input 'firstciteddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_firstciteddate_confidence">
+            <input type="hidden" value="{{ form.instance.firstciteddate.get_value.confidence }}" name="firstciteddate_confidence">
         </div>
     </div>
     <div class="row realstart-row field-bg">
@@ -185,6 +200,9 @@
                 {% source_input 'startcontext' source %}
             {% endfor %}
         </div>
+        <div id="id_startcontext_confidence">
+            <input type="hidden" value="{{ form.instance.startcontext.get_value.confidence }}" name="startcontext_confidence">
+        </div>
     </div>
     <div class="row lastciteddate-row field-bg">
         <div class="col-sm-12">
@@ -206,6 +224,9 @@
             {% for source in form.instance.lastciteddate.get_sources %}
                 {% source_input 'lastciteddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_lastciteddate_confidence">
+            <input type="hidden" value="{{ form.instance.lastciteddate.get_value.confidence }}" name="lastciteddate_confidence">
         </div>
     </div>
     <div class="row realend-row field-bg">
@@ -252,6 +273,9 @@
             {% for source in form.instance.endcontext.get_sources %}
                 {% source_input 'endcontext' source %}
             {% endfor %}
+        </div>
+        <div id="id_endcontext_confidence">
+            <input type="hidden" value="{{ form.instance.endcontext.get_value.confidence }}" name="endcontext_confidence">
         </div>
     </div>
 {% endblock %}

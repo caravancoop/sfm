@@ -40,6 +40,9 @@
                 {% source_input 'name' source %}
             {% endfor %}
         </div>
+        <div id="id_name_confidence">
+            <input type="hidden" value="{{ form.instance.name.get_value.confidence }}" name="name_confidence">
+        </div>
     </div>
     <div class="row aliases-row field-bg">
         <div class="col-sm-12">
@@ -65,6 +68,9 @@
             {% for source in form.instance.aliases.get_list.0.get_sources %}
                 {% source_input 'aliases' source %}
             {% endfor %}
+        </div>
+        <div id="id_aliases_confidence">
+            <input type="hidden" value="{{ form.instance.aliases.get_list.0.get_value.confidence }}" aliases="aliases_confidence">
         </div>
     </div>
     <div class="row gender-row field-bg">
@@ -97,6 +103,9 @@
                 {% source_input 'gender' source %}
             {% endfor %}
         </div>
+        <div id="id_gender_confidence">
+            <input type="hidden" value="{{ form.instance.gender.get_value.confidence }}" name="gender_confidence">
+        </div>
     </div>
     <div class="row division_id-row field-bg">
         <div class="col-sm-12">
@@ -128,6 +137,9 @@
                 {% source_input 'division_id' source %}
             {% endfor %}
         </div>
+        <div id="id_division_id_confidence">
+            <input type="hidden" value="{{ form.instance.division_id.get_value.confidence }}" division_id="division_id_confidence">
+        </div>
     </div>
     <div class="row date_of_birth-row field-bg">
         <div class="col-sm-12">
@@ -150,6 +162,9 @@
                 {% source_input 'date_of_birth' source %}
             {% endfor %}
         </div>
+        <div id="id_date_of_birth_confidence">
+            <input type="hidden" value="{{ form.instance.date_of_birth.get_value.confidence }}" date_of_birth="date_of_birth_confidence">
+        </div>
     </div>
     <div class="row date_of_death-row field-bg">
         <div class="col-sm-12">
@@ -171,6 +186,9 @@
             {% for source in form.instance.date_of_death.get_sources %}
                 {% source_input 'date_of_death' source %}
             {% endfor %}
+        </div>
+        <div id="id_date_of_death_confidence">
+            <input type="hidden" value="{{ form.instance.date_of_death.get_value.confidence }}" date_of_death="date_of_death_confidence">
         </div>
     </div>
     <div class="row deceased-row field-bg">
@@ -201,6 +219,9 @@
                 {% source_input 'deceased' source %}
             {% endfor %}
         </div>
+        <div id="id_deceased_confidence">
+            <input type="hidden" value="{{ form.instance.deceased.get_value.confidence }}" deceased="deceased_confidence">
+        </div>
     </div>
     <div class="row biography-row field-bg">
         <div class="col-sm-12">
@@ -223,6 +244,9 @@
                 {% source_input 'biography' source %}
             {% endfor %}
         </div>
+        <div id="id_biography_confidence">
+            <input type="hidden" value="{{ form.instance.biography.get_value.confidence }}" biography="biography_confidence">
+        </div>
     </div>
     <div class="row notes-row field-bg">
         <div class="col-sm-12">
@@ -244,6 +268,9 @@
             {% for source in form.instance.notes.get_sources %}
                 {% source_input 'notes' source %}
             {% endfor %}
+        </div>
+        <div id="id_notes_confidence">
+            <input type="hidden" value="{{ form.instance.notes.get_value.confidence }}" notes="notes_confidence">
         </div>
     </div>
     <div class="row external_links-row field-bg">
@@ -270,6 +297,9 @@
             {% for source in form.instance.external_links.get_list.0.get_sources %}
                 {% source_input 'external_links' source %}
             {% endfor %}
+        </div>
+        <div id="id_external_links_confidence">
+            <input type="hidden" value="{{ form.instance.external_links.get_list.0.get_value.confidence }}" external_links="external_links_confidence">
         </div>
     </div>
 

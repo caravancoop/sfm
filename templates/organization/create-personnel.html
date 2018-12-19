@@ -27,6 +27,9 @@
                 {% source_input 'member' source %}
             {% endfor %}
         </div>
+        <div id="id_member_confidence">
+            <input type="hidden" value="1" name="member_confidence">
+        </div>
     </div>
     <div class="row rank-row field-bg">
         <div class="col-sm-12">
@@ -56,6 +59,9 @@
             {% for source in source_info.rank_source %}
                 {% source_input 'rank' source %}
             {% endfor %}
+        </div>
+        <div id="id_rank_confidence">
+            <input type="hidden" value="1" name="rank_confidence">
         </div>
     </div>
     <div class="row role-row field-bg">
@@ -88,6 +94,9 @@
                 {% source_input 'role' source %}
             {% endfor %}
         </div>
+        <div id="id_role_confidence">
+            <input type="hidden" value="1" name="role_confidence">
+        </div>
     </div>
     <div class="row title-row field-bg">
         <div class="col-sm-12">
@@ -110,6 +119,9 @@
                 {% source_input 'title' source %}
             {% endfor %}
         </div>
+        <div id="id_title_confidence">
+            <input type="hidden" value="1" name="title_confidence">
+        </div>
     </div>
     <div class="row firstciteddate-row field-bg">
         <div class="col-sm-12">
@@ -131,6 +143,9 @@
             {% for source in source_info.firstciteddate_source %}
                 {% source_input 'firstciteddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_firstciteddate_confidence">
+            <input type="hidden" value="1" name="firstciteddate_confidence">
         </div>
     </div>
     <div class="row realstart-row field-bg">
@@ -178,6 +193,9 @@
                 {% source_input 'startcontext' source %}
             {% endfor %}
         </div>
+        <div id="id_startcontext_confidence">
+            <input type="hidden" value="1" name="startcontext_confidence">
+        </div>
     </div>
     <div class="row lastciteddate-row field-bg">
         <div class="col-sm-12">
@@ -199,6 +217,9 @@
             {% for source in source_info.lastciteddate_source %}
                 {% source_input 'lastciteddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_lastciteddate_confidence">
+            <input type="hidden" value="1" name="lastciteddate_confidence">
         </div>
     </div>
     <div class="row realend-row field-bg">
@@ -245,6 +266,9 @@
             {% for source in source_info.endcontext_source %}
                 {% source_input 'endcontext' source %}
             {% endfor %}
+        </div>
+        <div id="id_endcontext_confidence">
+            <input type="hidden" value="1" name="endcontext_confidence">
         </div>
     </div>
 {% endblock %}

@@ -27,6 +27,9 @@
                 {% source_input 'area' source %}
             {% endfor %}
         </div>
+        <div id="id_area_confidence">
+            <input type="hidden" value="1" name="area_confidence">
+        </div>
     </div>
     <div class="row startdate-row field-bg">
         <div class="col-sm-12">
@@ -49,6 +52,9 @@
                 {% source_input 'startdate' source %}
             {% endfor %}
         </div>
+        <div id="id_startdate_confidence">
+            <input type="hidden" value="1" name="startdate_confidence">
+        </div>
     </div>
     <div class="row enddate-row field-bg">
         <div class="col-sm-12">
@@ -70,6 +76,9 @@
             {% for source in source_info.enddate_source %}
                 {% source_input 'enddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_enddate_confidence">
+            <input type="hidden" value="1" name="enddate_confidence">
         </div>
     </div>
     <div class="row realstart-row field-bg">

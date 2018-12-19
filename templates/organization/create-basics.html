@@ -31,6 +31,9 @@
                 {% source_input 'name' source %}
             {% endfor %}
         </div>
+        <div id="id_name_confidence">
+            <input type="hidden" value="1" name="name_confidence">
+        </div>
     </div>
     <div class="row aliases-row field-bg">
         <div class="col-sm-12">
@@ -57,6 +60,9 @@
                 {% source_input 'aliases' source %}
             {% endfor %}
         </div>
+        <div id="id_aliases_confidence">
+            <input type="hidden" value="1" name="aliases_confidence">
+        </div>
     </div>
     <div class="row classification-row field-bg">
         <div class="col-sm-12">
@@ -82,6 +88,9 @@
             {% for source in source_info.classification_source %}
                 {% source_input 'classification' source %}
             {% endfor %}
+        </div>
+        <div id="id_classification_confidence">
+            <input type="hidden" value="1" name="classification_confidence">
         </div>
     </div>
     <div class="row division_id-row field-bg">
@@ -114,6 +123,9 @@
                 {% source_input 'division_id' source %}
             {% endfor %}
         </div>
+        <div id="id_division_id_confidence">
+            <input type="hidden" value="1" name="division_id_confidence">
+        </div>
     </div>
     <div class="row firstciteddate-row field-bg">
         <div class="col-sm-12">
@@ -136,6 +148,9 @@
                 {% source_input 'firstciteddate' source %}
             {% endfor %}
         </div>
+        <div id="id_firstciteddate_confidence">
+            <input type="hidden" value="1" name="firstciteddate_confidence">
+        </div>
     </div>
     <div class="row lastciteddate-row field-bg">
         <div class="col-sm-12">
@@ -157,6 +172,9 @@
             {% for source in source_info.lastciteddate_source %}
                 {% source_input 'lastciteddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_lastciteddate_confidence">
+            <input type="hidden" value="1" name="lastciteddate_confidence">
         </div>
     </div>
     <div class="row realstart-row field-bg">

@@ -96,9 +96,26 @@
             Sources already linked to the <strong><%= field_label %></strong> datapoint ...
         </h3>
     </script>
+    <script type="text/EJS" id="confidence-picker">
+        <p>
+            <label class="control-label">{% trans "Confidence" %}</label>
+            <select class="confidence-picker form-control" data-field_name="<%= field_name %>">
+                <% $.each(confidence_choices, function(value, label){ %>
+                    <% if (value == confidence){ %>
+                        <option value="<%= value %>" selected><%= label %></option>
+                    <% } else { %>
+                        <option value="<%= value %>"><%= label %></option>
+                    <% } %>
+                <% }) %>
+            </select>
+        </p>
+        <br />
+    </script>
     <script type="text/javascript">
         var object_id = "{{ object.id }}"
         var object_type = "{{ form.object_type }}";
+        var confidence_choices = {{ confidence_choices|safe }};
+
 
         function fetchSources(field_name){
             var params = {
@@ -129,6 +146,11 @@
 
             var template = new EJS({'text': $('#source-list-title').html()});
             var source_list = [template.render({'field_name': field_name, 'field_label': field_label.text().trim()})];
+
+            var template = new EJS({'text': $('#confidence-picker').html()});
+            var selector = 'input[name="' + field_name + '_confidence"]';
+            var confidence = $(selector).val();
+            source_list.push(template.render({'field_name': field_name, 'confidence': confidence}));
 
             var selector = 'input[name="' + field_name + '_source"]';
 
@@ -161,6 +183,8 @@
             });
             stickSources();
             $(window).scroll(stickSources);
+
+            $('.confidence-picker').on('change', updateConfidence);
         }
 
         function stickSources(){
@@ -203,6 +227,14 @@
             source_info += '</small></p>';
 
             return $(source_info);
+        }
+
+        function updateConfidence(e){
+            var confidence_value = $(e.target).val();
+            var field_name = $(e.target).data('field_name');
+            var selector = 'input[name="' + field_name + '_confidence"]';
+
+            $(selector).val(confidence_value);
         }
 
         $(document).ready(function(){

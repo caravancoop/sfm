@@ -83,6 +83,9 @@
                 {% source_input 'organization' source %}
             {% endfor %}
         </div>
+        <div id="id_organization_confidence">
+            <input type="hidden" value="{{ form.instance.organization.get_value.confidence }}" name="organization_confidence">
+        </div>
         <input type="hidden" name="member" value="{{ organization.id }}">
     </div>
     <div class="row related_organization_aliases-row">
@@ -121,6 +124,9 @@
             {% for source in form.instance.firstciteddate.get_sources %}
                 {% source_input 'firstciteddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_firstciteddate_confidence">
+            <input type="hidden" value="{{ form.instance.firstciteddate.get_value.confidence }}" name="firstciteddate_confidence">
         </div>
     </div>
     <div class="row realstart-row field-bg">
@@ -167,6 +173,9 @@
             {% for source in form.instance.lastciteddate.get_sources %}
                 {% source_input 'lastciteddate' source %}
             {% endfor %}
+        </div>
+        <div id="id_lastciteddate_confidence">
+            <input type="hidden" value="{{ form.instance.lastciteddate.get_value.confidence }}" name="lastciteddate_confidence">
         </div>
     </div>
     <div class="row realend-row field-bg">

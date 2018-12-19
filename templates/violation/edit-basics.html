@@ -46,6 +46,9 @@
                 {% source_input 'description' source %}
             {% endfor %}
         </div>
+        <div id="id_description_confidence">
+            <input type="hidden" value="{{ form.instance.description.get_value.confidence }}" name="description_confidence">
+        </div>
     </div>
     <div class="row startdate-row field-bg">
         <div class="col-sm-12">

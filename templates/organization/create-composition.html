@@ -25,7 +25,14 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_parent_source"></div>
+        <div id="id_parent_source">
+            {% for source in source_info.parent_source %}
+                {% source_input 'parent' source %}
+            {% endfor %}
+        </div>
+        <div id="id_parent_confidence">
+            <input type="hidden" value="1" name="parent_confidence">
+        </div>
     </div>
     <div class="row classification-row field-bg">
         <div class="col-sm-12">
@@ -43,7 +50,14 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_classification_source"></div>
+        <div id="id_classification_source">
+            {% for source in source_info.classification_source %}
+                {% source_input 'classification' source %}
+            {% endfor %}
+        </div>
+        <div id="id_classification_confidence">
+            <input type="hidden" value="1" name="classification_confidence">
+        </div>
     </div>
     <div class="row related_organization-row field-bg">
         <div class="col-sm-12">
@@ -61,7 +75,14 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_child_source"></div>
+        <div id="id_child_source">
+            {% for source in source_info.child_source %}
+                {% source_input 'child' source %}
+            {% endfor %}
+        </div>
+        <div id="id_child_confidence">
+            <input type="hidden" value="1" name="child_confidence">
+        </div>
     </div>
     <div class="row related_organization_aliases-row">
         <div class="col-sm-12">
@@ -95,7 +116,14 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_startdate_source"></div>
+        <div id="id_startdate_source">
+            {% for source in source_info.startdate_source %}
+                {% source_input 'startdate' source %}
+            {% endfor %}
+        </div>
+        <div id="id_startdate_confidence">
+            <input type="hidden" value="1" name="startdate_confidence">
+        </div>
     </div>
     <div class="row realstart-row field-bg">
         <div class="col-sm-12">
@@ -133,7 +161,14 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_enddate_source"></div>
+        <div id="id_enddate_source">
+            {% for source in source_info.enddate_source %}
+                {% source_input 'enddate' source %}
+            {% endfor %}
+        </div>
+        <div id="id_enddate_confidence">
+            <input type="hidden" value="1" name="enddate_confidence">
+        </div>
     </div>
     <div class="row open_ended-row field-bg">
         <div class="col-sm-12">
