@@ -4,7 +4,7 @@ from datetime import date
 from collections import namedtuple
 
 from django.views.generic.edit import CreateView, UpdateView
-from django.views.generic import DetailView, DeleteView
+from django.views.generic import DeleteView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -18,10 +18,10 @@ from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \
     PersonPostingsForm, PersonCreatePostingForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.utils import Autofill
-from sfm_pc.base_views import BaseUpdateView, BaseCreateView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView
 
 
-class PersonDetail(DetailView):
+class PersonDetail(BaseDetailView):
     model = Person
     template_name = 'person/view.html'
     slug_field = 'uuid'

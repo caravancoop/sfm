@@ -1,6 +1,6 @@
 import json
 
-from django.views.generic import DetailView, DeleteView
+from django.views.generic import DeleteView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -26,10 +26,10 @@ from membershipperson.models import MembershipPerson
 from membershiporganization.models import MembershipOrganization
 
 from sfm_pc.templatetags.countries import country_name
-from sfm_pc.base_views import BaseUpdateView, BaseCreateView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView
 
 
-class OrganizationDetail(DetailView):
+class OrganizationDetail(BaseDetailView):
     model = Organization
     template_name = 'organization/view.html'
     slug_field = 'uuid'

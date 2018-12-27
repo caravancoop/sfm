@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 from django.views.generic.edit import FormView
 from django.views.generic.edit import ModelFormMixin
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.decorators.cache import cache_page, never_cache
 from django.utils.decorators import method_decorator
@@ -45,6 +45,17 @@ class CreateUpdateMixin(object):
                     model.delete()
 
         return super().form_invalid(form)
+
+
+class BaseDetailView(DetailView):
+    def get_queryset(self):
+
+        queryset = super().get_queryset()
+
+        if self.request.user.is_authenticated:
+            return queryset
+        else:
+            return queryset.filter(published=True)
 
 
 @method_decorator([never_cache, transaction.atomic], name='dispatch')

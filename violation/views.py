@@ -1,19 +1,18 @@
 import json
 import csv
 
-from django.views.generic import DetailView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language
 
 from complex_fields.models import ComplexFieldContainer
 
-from sfm_pc.base_views import BaseUpdateView, BaseCreateView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView
 
 from .models import Violation, ViolationType, ViolationPerpetratorClassification
 from .forms import ViolationBasicsForm, ViolationCreateBasicsForm, ViolationLocationsForm
 
-class ViolationDetail(DetailView):
+class ViolationDetail(BaseDetailView):
     model = Violation
     template_name = 'violation/view.html'
     slug_field = 'uuid'
