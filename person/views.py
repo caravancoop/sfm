@@ -29,12 +29,18 @@ class PersonDetail(BaseDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        authenticated = self.request.user.is_authenticated
+
         # Generate link to download a CSV of this record
         params = '?download_etype=Person&entity_id={0}'.format(str(context['person'].uuid))
 
         context['download_url'] = reverse('download') + params
 
-        affiliations = context['person'].memberships
+        if authenticated:
+            affiliations = context['person'].memberships
+        else:
+            affiliations = context['person'].memberships.filter(object_ref__membershippersonorganization__value__published=True)
+
         memberships = tuple(mem.object_ref for mem in affiliations)
 
         context['memberships'] = memberships
@@ -80,7 +86,11 @@ class PersonDetail(BaseDetailView):
 
             # Next, get some info about subordinates
             # Start by getting all child organizations for the member org
-            child_compositions = org.child_organization.all()
+
+            if authenticated:
+                child_compositions = org.child_organization.all()
+            else:
+                child_compositions = org.child_organization.filter(value__published=True)
 
             if child_compositions:
                 child_commanders = get_commanders(firstciteddate,
@@ -91,7 +101,10 @@ class PersonDetail(BaseDetailView):
                 if child_commanders:
                     context['subordinates'] += child_commanders
 
-            parent_compositions = org.parent_organization.all()
+            if authenticated:
+                parent_compositions = org.parent_organization.all()
+            else:
+                parent_compositions = org.parent_organization.filter(value__published=True)
 
             if parent_compositions:
                 parent_commanders = get_commanders(firstciteddate,
@@ -108,7 +121,12 @@ class PersonDetail(BaseDetailView):
 
         context['command_chain'].reverse()
         context['events'] = []
-        events = context['person'].violationperpetrator_set.all()
+
+        if authenticated:
+            events = context['person'].violationperpetrator_set.all()
+        else:
+            events = context['person'].violationperpetrator_set.filter(value__published=True)
+
         for event in events:
             context['events'].append(event.object_ref)
 

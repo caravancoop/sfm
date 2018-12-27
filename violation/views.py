@@ -20,6 +20,8 @@ class ViolationDetail(BaseDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        authenticated = self.request.user.is_authenticated
+
         # Generate link to download a CSV of this record
         params = '?download_etype=Violation&entity_id={0}'.format(str(context['violation'].uuid))
 
@@ -31,6 +33,16 @@ class ViolationDetail(BaseDetailView):
             location = context['violation'].location.get_value()
             if location.value:
                 context['location'] = location.value
+
+        if authenticated:
+            context['perpetrators'] = context['violation'].violationperpetrator_set.all()
+        else:
+            context['perpetrators'] = context['violation'].violationperpetrator_set.filter(value__published=True)
+
+        if authenticated:
+            context['perpetrator_organizations'] = context['violation'].violationperpetratororganization_set.all()
+        else:
+            context['perpetrator_organizations'] = context['violation'].violationperpetratororganization_set.filter(value__published=True)
 
         return context
 
