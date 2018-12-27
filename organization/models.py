@@ -41,6 +41,8 @@ class Organization(models.Model, BaseModel, VersionsMixin):
                             editable=False,
                             db_index=True)
 
+    published = models.BooleanField(default=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, OrganizationName)
