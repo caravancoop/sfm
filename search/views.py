@@ -314,6 +314,10 @@ def get_search_context(request, all_results=False):
         # Make sure to filter on this entity type
         etype_query += ' AND entity_type:{etype}'.format(etype=etype)
 
+        # Filter out unpublished things for guest users
+        if not request.user.is_authenticated:
+            etype_query += ' AND published_b:T'
+
         # Search that bad boy!
         response = solr.search(etype_query, **search_context)
 

@@ -173,11 +173,14 @@ class Command(BaseCommand):
             parents = organization.parent_organization.all()
             parent_count = len(parents)
 
+            published = all([p.value.published for p in parents])
+
             if parent_count == 0:
                 documents.append({
                     'id': 'composition-{}'.format(org_id),
                     'composition_parent_id_s': org_id,
                     'composition_parent_name_s': name,
+                    'published_b': published,
                     'entity_type': 'Composition',
                     'content': 'Composition',
                 })
@@ -229,6 +232,7 @@ class Command(BaseCommand):
                         'composition_child_pk_i': organization.id,
                         'composition_child_name_s': name,
                         'composition_daterange_dr': composition_daterange,
+                        'published_b': published,
                         'entity_type': 'Composition',
                         'content': 'Composition',
                     })
@@ -258,6 +262,7 @@ class Command(BaseCommand):
                 'entity_type': 'Organization',
                 'content': content,
                 'location': '',  # disabled until we implement map search
+                'published_b': organization.published,
                 'country_ss': countries,
                 'division_id_ss': division_ids,
                 'start_date_dt': first_cited,
@@ -387,7 +392,10 @@ class Command(BaseCommand):
                         assignment_range = '[* TO {}]'.format(lcd)
 
                     role = membership.role.get_value()
+
                     if role and role.value.value == 'Commander' and assignment_range:
+
+                        published = all([person.published, org.published])
 
                         commander = {
                             'id': 'commander-{}'.format(membership.id),
@@ -396,6 +404,7 @@ class Command(BaseCommand):
                             'commander_org_id_s': org.uuid,
                             'commander_org_name_s': org.name.get_value().value,
                             'commander_assignment_range_dr': assignment_range,
+                            'published_b': published,
                             'entity_type': 'Commander',
                             'content': 'Commander',
                         }
@@ -440,6 +449,7 @@ class Command(BaseCommand):
                 'entity_type': 'Person',
                 'content': content,
                 'location': '',  # disabled until we implement map search
+                'published_b': person.published,
                 'country_ss': countries,
                 'division_id_ss': division_ids,
                 'person_title_ss': titles,
@@ -592,6 +602,7 @@ class Command(BaseCommand):
                 'entity_type': 'Violation',
                 'content': content,
                 'location': '',
+                'published_b': violation.published,
                 'country_ss': country,
                 'division_id_ss': division_id,
                 'start_date_dt': start_date,
