@@ -13,8 +13,7 @@ from membershipperson.models import MembershipPerson, Rank, Role
 
 
 @pytest.fixture()
-@pytest.mark.django_db(transaction=True)
-def setUp(django_db_setup, client, request):
+def setUp(user, client, request):
     user = User.objects.first()
     client.force_login(user)
 
@@ -26,11 +25,9 @@ def setUp(django_db_setup, client, request):
 
 
 @pytest.mark.django_db
-def test_view_person(setUp):
+def test_view_person(setUp, people):
 
-    them = Person.objects.order_by('?')[:10]
-
-    for person in them:
+    for person in people:
         response = setUp.get(reverse_lazy('view-person', args=[person.uuid]))
         assert response.status_code == 200
 

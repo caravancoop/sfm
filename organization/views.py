@@ -59,7 +59,7 @@ class OrganizationDetail(BaseDetailView):
         # Organizational members of this unit
         context['org_members'] = []
 
-        if authenticatied:
+        if authenticated:
             org_members = context['organization'].membershiporganizationorganization_set.all()
         else:
             org_members = context['organization'].membershiporganizationorganization_set.filter(value__published=True)

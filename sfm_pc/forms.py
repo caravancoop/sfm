@@ -5,7 +5,7 @@ from django import forms
 from django.utils.translation import ugettext as _, get_language
 from django.core.exceptions import ObjectDoesNotExist
 
-from complex_fields.models import ComplexFieldContainer
+from complex_fields.models import ComplexFieldContainer, ComplexFieldListContainer
 
 from django_date_extensions.fields import ApproximateDateFormField
 
@@ -195,6 +195,13 @@ class BaseUpdateForm(BaseEditForm):
 
         for field in self.fields:
             field_instance = getattr(self.instance, field)
+
+            # Sometimes there are fields on the models that are not "complex" so
+            # we don't need to worry about sources and stuff
+
+            if not isinstance(field_instance, ComplexFieldContainer) or \
+                    not isinstance(field_instance, ComplexFieldListContainer):
+                continue
 
             if self.clone_sources.get(field):
                 other_field = self.clone_sources[field]
