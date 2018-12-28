@@ -194,12 +194,13 @@ class BaseUpdateForm(BaseEditForm):
         # 2. For multiple value fields, one or more values was removed.
 
         for field in self.fields:
+
             field_instance = getattr(self.instance, field)
 
             # Sometimes there are fields on the models that are not "complex" so
             # we don't need to worry about sources and stuff
 
-            if not isinstance(field_instance, ComplexFieldContainer) or \
+            if not isinstance(field_instance, ComplexFieldContainer) and \
                     not isinstance(field_instance, ComplexFieldListContainer):
                 continue
 

@@ -33,15 +33,14 @@ def test_view_person(setUp, people):
 
 
 @pytest.mark.django_db
-def test_edit_person(setUp, fake_signal):
-    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
-    new_sources = AccessPoint.objects.order_by('?')[:2]
+def test_edit_person(setUp, people, new_access_points, fake_signal):
+    person = people[0]
 
     response = setUp.get(reverse_lazy('edit-person', kwargs={'slug': person.uuid}))
 
     assert response.status_code == 200
 
-    new_source_ids = [s.uuid for s in new_sources]
+    new_source_ids = [s.uuid for s in new_access_points]
 
     post_data = {
         'name': person.name.get_value(),
@@ -89,8 +88,8 @@ def test_edit_person(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_no_source_one_value(setUp):
-    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+def test_no_source_one_value(setUp, base_people):
+    person = base_people[0]
 
     post_data = {
         'name': person.name.get_value().value,
@@ -105,8 +104,8 @@ def test_no_source_one_value(setUp):
 
 
 @pytest.mark.django_db
-def test_no_source_multiple_value(setUp):
-    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+def test_no_source_multiple_value(setUp, base_people):
+    person = base_people[0]
 
     post_data = {
         'aliases': ['Foo', 'Bar'],
@@ -124,8 +123,8 @@ def test_no_source_multiple_value(setUp):
 
 
 @pytest.mark.django_db
-def test_no_source_one_new_value(setUp):
-    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+def test_no_source_one_new_value(setUp, people):
+    person = people[0]
 
     post_data = {
         'aliases': [p.get_value().id for p in person.aliases.get_list()] + ['Foo'],
@@ -142,8 +141,8 @@ def test_no_source_one_new_value(setUp):
 
 
 @pytest.mark.django_db
-def test_no_source_empty_start(setUp):
-    person = Person.objects.filter(personalias__isnull=True).order_by('?').first()
+def test_no_source_empty_start(setUp, base_people):
+    person = base_people[0]
     sources = [s.uuid for s in person.name.get_sources()]
 
     post_data = {
@@ -162,10 +161,8 @@ def test_no_source_empty_start(setUp):
 
 
 @pytest.mark.django_db
-def test_remove_value(setUp, fake_signal):
-    person = Person.objects\
-                   .annotate(alias_count=Count('personalias'))\
-                   .filter(alias_count__gte=2)[0]
+def test_remove_value(setUp, people, fake_signal):
+    person = people[0]
 
     aliases = [a.get_value().id for a in person.aliases.get_list()]
     removed = aliases.pop()
@@ -187,8 +184,8 @@ def test_remove_value(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_remove_value_same_sources(setUp, fake_signal):
-    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+def test_remove_value_same_sources(setUp, people, fake_signal):
+    person = people[1]
 
     aliases = [a.get_value().id for a in person.aliases.get_list()]
     removed = aliases.pop()
@@ -216,8 +213,8 @@ def test_remove_value_same_sources(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_remove_all_values(setUp, fake_signal):
-    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+def test_remove_all_values(setUp, people, fake_signal):
+    person = people[2]
 
     sources = [s.uuid for s in person.name.get_sources()]
 
@@ -237,8 +234,8 @@ def test_remove_all_values(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_duplicate_source(setUp, fake_signal):
-    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+def test_duplicate_source(setUp, people, fake_signal):
+    person = people[0]
 
     sources = [s.uuid for s in person.name.get_sources()]
 
@@ -256,12 +253,12 @@ def test_duplicate_source(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_just_add_source(setUp, fake_signal):
-    person = Person.objects.order_by('?').first()
+def test_just_add_source(setUp, people, new_access_points, fake_signal):
+    person = people[0]
 
     sources = [s.uuid for s in person.name.get_sources()]
 
-    new_source = AccessPoint.objects.exclude(uuid__in=sources).first()
+    new_source = new_access_points[0]
 
     alias_sources = set()
 
@@ -289,8 +286,8 @@ def test_just_add_source(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_new_sources_required(setUp):
-    person = Person.objects.filter(personalias__isnull=True).order_by('?').first()
+def test_new_sources_required(setUp, base_people):
+    person = base_people[1]
     sources = [s.uuid for s in person.name.get_sources()]
 
     post_data = {
@@ -308,8 +305,8 @@ def test_new_sources_required(setUp):
 
 
 @pytest.mark.django_db
-def test_new_sources_required_multi(setUp):
-    person = Person.objects.exclude(personalias__isnull=True).order_by('?').first()
+def test_new_sources_required_multi(setUp, people):
+    person = people[1]
     sources = [s.uuid for s in person.name.get_sources()]
 
     post_data = {
@@ -330,8 +327,13 @@ def test_new_sources_required_multi(setUp):
 
 
 @pytest.mark.django_db
-def test_edit_posting(setUp, fake_signal):
-    membership = MembershipPerson.objects.order_by('?').first()
+def test_edit_posting(setUp,
+                      membership_person,
+                      new_access_points,
+                      new_organizations,
+                      fake_signal):
+
+    membership = membership_person[0]
     person = membership.member.get_value().value
     response = setUp.get(reverse_lazy('edit-person-postings',
                                       kwargs={'person_id': person.uuid,
@@ -341,11 +343,11 @@ def test_edit_posting(setUp, fake_signal):
 
     sources = [s for s in membership.organization.get_sources()]
 
-    new_source = AccessPoint.objects.exclude(uuid__in=[s.uuid for s in sources]).first()
+    new_source = new_access_points[0]
 
-    new_organization = Organization.objects.exclude(organizationname__isnull=True).order_by('?').first()
-    new_rank = Rank.objects.order_by('?').first()
-    new_role = Role.objects.order_by('?').first()
+    new_organization = new_organizations[0]
+    new_rank = Rank.objects.create(value='New Commander')
+    new_role = Role.objects.create(value='New Honcho')
 
     post_data = {
         'member': person.id,
@@ -384,11 +386,11 @@ def test_edit_posting(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_boolean_none_to_true(setUp, fake_signal):
-    membership = MembershipPerson.objects.filter(membershippersonrealstart__value__isnull=True).first()
+def test_boolean_none_to_true(setUp, membership_person, new_access_points, fake_signal):
+    membership = membership_person[1]
     person = membership.member.get_value().value
 
-    new_source = AccessPoint.objects.order_by('?').first()
+    new_source = new_access_points[2]
 
     post_data = {
         'member': person.id,
@@ -412,11 +414,11 @@ def test_boolean_none_to_true(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_boolean_true_to_false(setUp, fake_signal):
-    membership = MembershipPerson.objects.filter(membershippersonrealstart__value=True).first()
+def test_boolean_true_to_false(setUp, membership_person, new_access_points, fake_signal):
+    membership = membership_person[1]
     person = membership.member.get_value().value
 
-    new_source = AccessPoint.objects.order_by('?').first()
+    new_source = new_access_points[1]
 
     post_data = {
         'member': person.id,
@@ -439,18 +441,15 @@ def test_boolean_true_to_false(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_boolean_false_to_true(setUp, fake_signal):
-    membership = MembershipPerson.objects.filter(membershippersonrealstart__value=False).first()
+def test_boolean_false_to_true(setUp, membership_person, fake_signal):
+    membership = membership_person[0]
     person = membership.member.get_value().value
-
-    new_source = AccessPoint.objects.order_by('?').first()
 
     post_data = {
         'member': person.id,
         'organization': membership.organization.get_value().value.id,
         'organization_source': [str(s.uuid) for s in membership.organization.get_sources()],
-        'realstart': 'on',
-        'realstart_source': [new_source.uuid],
+        'realend': 'on',
     }
 
     response = setUp.post(reverse_lazy('edit-person-postings',
@@ -460,15 +459,15 @@ def test_boolean_false_to_true(setUp, fake_signal):
 
     assert response.status_code == 302
 
-    assert membership.realstart.get_value().value == True
+    assert membership.realend.get_value().value == True
 
     fake_signal.assert_called_with(object_id=membership.id,
                                    sender=MembershipPerson)
 
 
 @pytest.mark.django_db
-def test_boolean_true_no_sources(setUp, fake_signal):
-    membership = MembershipPerson.objects.filter(membershippersonrealstart__value=False).first()
+def test_boolean_true_no_sources(setUp, membership_person, fake_signal):
+    membership = membership_person[1]
     person = membership.member.get_value().value
 
     post_data = {
@@ -491,8 +490,8 @@ def test_boolean_true_no_sources(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_no_existing_sources(setUp):
-    membership = MembershipPerson.objects.filter(membershippersonrealstart__value=False).first()
+def test_no_existing_sources(setUp, membership_person):
+    membership = membership_person[0]
     person = membership.member.get_value().value
 
     membership.rank.get_value().sources.set([])
@@ -515,14 +514,13 @@ def test_no_existing_sources(setUp):
 
 
 @pytest.mark.django_db
-def test_create_person(setUp, fake_signal):
-    new_sources = AccessPoint.objects.order_by('?')[:2]
+def test_create_person(setUp, new_access_points, fake_signal):
 
     response = setUp.get(reverse_lazy('create-person'))
 
     assert response.status_code == 200
 
-    new_source_ids = [s.uuid for s in new_sources]
+    new_source_ids = [s.uuid for s in new_access_points]
 
     post_data = {
         'name': 'Someone Something',
@@ -556,8 +554,13 @@ def test_create_person(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_create_posting(setUp, fake_signal):
-    person = Person.objects.first()
+def test_create_posting(setUp,
+                        people,
+                        new_access_points,
+                        new_organizations,
+                        fake_signal):
+
+    person = people[0]
 
     response = setUp.get(reverse_lazy('create-person-posting',
                                       kwargs={'person_id': person.uuid}))
@@ -566,11 +569,11 @@ def test_create_posting(setUp, fake_signal):
 
     sources = [s for s in person.name.get_sources()]
 
-    new_source = AccessPoint.objects.exclude(uuid__in=[s.uuid for s in sources]).first()
+    new_source = new_access_points[0]
 
-    new_organization = Organization.objects.exclude(organizationname__isnull=True).order_by('?').first()
-    new_rank = Rank.objects.order_by('?').first()
-    new_role = Role.objects.order_by('?').first()
+    new_organization = new_organizations[0]
+    new_rank = Rank.objects.create(value='New Commander')
+    new_role = Role.objects.create(value='New Honcho')
 
     post_data = {
         'member': person.id,

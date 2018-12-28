@@ -14,7 +14,7 @@ from composition.models import Composition
 from emplacement.models import Emplacement
 from association.models import Association
 from membershiporganization.models import MembershipOrganization
-from membershipperson.models import MembershipPerson
+from membershipperson.models import MembershipPerson, Rank, Role
 from source.models import Source, AccessPoint
 from location.models import Location
 
@@ -395,6 +395,33 @@ def full_organizations(organizations,
 
 
 @pytest.fixture
+def new_organizations(access_points):
+
+    organizations = []
+
+    for index in range(3):
+
+        org = {
+            'Organization_OrganizationName': {
+                'sources': access_points,
+                'value': 'New Test organization {}'.format(index),
+                'confidence': '1',
+            },
+            'Organization_OrganizationDivisionId': {
+                'sources': access_points,
+                'value': 'ocd-division/country:us',
+                'confidence': '1',
+            }
+        }
+
+        organization = Organization.create(org)
+
+        organizations.append(organization)
+
+    return organizations
+
+
+@pytest.fixture
 def base_people(access_points):
     people = []
 
@@ -419,16 +446,7 @@ def base_people(access_points):
 
 @pytest.fixture
 def people(base_people, access_points):
-    # self.name = ComplexFieldContainer(self, PersonName)
-    # self.aliases = ComplexFieldListContainer(self, PersonAlias)
-    # self.division_id = ComplexFieldContainer(self, PersonDivisionId)
-    # self.gender = ComplexFieldContainer(self, PersonGender)
-    # self.date_of_birth = ComplexFieldContainer(self, PersonDateOfBirth)
-    # self.date_of_death = ComplexFieldContainer(self, PersonDateOfDeath)
-    # self.deceased = ComplexFieldContainer(self, PersonDeceased)
-    # self.biography = ComplexFieldContainer(self, PersonBiography)
-    # self.notes = ComplexFieldContainer(self, PersonNotes)
-    # self.external_links = ComplexFieldListContainer(self, PersonExternalLink)
+
     for person in base_people:
         for index in range(2):
             alias = PersonAlias.objects.create(value='Alias {}'.format(index),
@@ -491,6 +509,10 @@ def membership_person(access_points, people, organizations):
     memberships = []
 
     for member in people[:2]:
+
+        rank = Rank.objects.create(value='Commander')
+        role = Role.objects.create(value='Honcho')
+
         mem_info = {
             'MembershipPerson_MembershipPersonMember': {
                 'value': member,
@@ -503,12 +525,12 @@ def membership_person(access_points, people, organizations):
                 'confidence': '1',
             },
             'MembershipPerson_MembershipPersonRole': {
-                'value': 'Honcho',
+                'value': role,
                 'sources': access_points,
                 'confidence': '1',
             },
             'MembershipPerson_MembershipPersonRank': {
-                'value': 'Commander',
+                'value': rank,
                 'sources': access_points,
                 'confidence': '1',
             },
@@ -516,9 +538,6 @@ def membership_person(access_points, people, organizations):
                 'value': 'Big Chief',
                 'sources': access_points,
                 'confidence': '1',
-            },
-            'MembershipPerson_MembershipPersonRealStart': {
-                'value': False,
             },
             'MembershipPerson_MembershipPersonRealEnd': {
                 'value': False,
@@ -557,12 +576,6 @@ def violation(access_points,
               location_node,
               location_adminlevel1,
               location_adminlevel2):
-
-    # # Descriptions and other attributes
-    # self.perpetratorclassification = ComplexFieldContainer(
-    #     self, ViolationPerpetratorClassification
-    # )
-    # self.types = ComplexFieldListContainer(self, ViolationType)
 
     violation_info = {
         'Violation_ViolationStartDate': {
