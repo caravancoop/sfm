@@ -76,6 +76,38 @@ def test_edit_person(setUp, people, new_access_points, fake_signal):
 
 
 @pytest.mark.django_db
+def test_publish_unpublish_person(setUp, people, fake_signal):
+    person = people[0]
+
+    post_data = {
+        'name': person.name.get_value(),
+        'name_source': [s.uuid for s in person.name.get_sources()],
+        'published': 'on',
+    }
+
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
+
+    assert response.status_code == 302
+
+    person.refresh_from_db()
+    assert person.published
+
+    fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
+
+    post_data = {
+        'name': person.name.get_value(),
+        'name_source': [s.uuid for s in person.name.get_sources()],
+    }
+
+    response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
+
+    person.refresh_from_db()
+    assert not person.published
+
+    fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
+
+
+@pytest.mark.django_db
 def test_no_source_one_value(setUp, base_people):
     person = base_people[0]
 

@@ -690,6 +690,11 @@ def violation(base_violation,
     right_to_liberty = ViolationType.objects.create(value='Violation against the right to liberty',
                                                     object_ref=base_violation,
                                                     lang='en')
+
+    classification = ViolationPerpetratorClassification.objects.create(value='Bad guys',
+                                                                       object_ref=base_violation,
+                                                                       lang='en')
+
     violation_info = {
         'Violation_ViolationPerpetrator': {
             'values': perpetrators,
@@ -707,7 +712,7 @@ def violation(base_violation,
             'confidence': '1',
         },
         'Violation_ViolationPerpetratorClassification': {
-            'value': 'Bad guys',
+            'value': classification,
             'sources': access_points,
             'confidence': '1',
         }

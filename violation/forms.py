@@ -41,7 +41,7 @@ class ViolationBasicsForm(BaseUpdateForm):
     division_id = forms.CharField(label=_("Country"), required=False)
 
     def __init__(self, *args, **kwargs):
-        violation_id = kwargs.pop('violation_id')
+        violation_id = kwargs.pop('violation_id', None)
 
         super().__init__(*args, **kwargs)
 

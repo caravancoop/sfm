@@ -68,9 +68,9 @@
     {% if violation.perpetratorclassification.get_value %}
         <p class="cited">{% trans "Perpetrator classifications:" %}
             <span class="label label-default">
-                {{ violation.perpetratorclassification.get_value }}
+                {{ violation.perpetratorclassification.get_value.value }}
             </span>
-            {% cite violation.perpetratorclassification.get_value %}
+            {% cite violation.perpetratorclassification.get_value.value %}
         </p>
     {% endif %}
 
