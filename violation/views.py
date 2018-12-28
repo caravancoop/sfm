@@ -57,6 +57,11 @@ class ViolationEditView(BaseUpdateView):
         uuid = self.kwargs[self.slug_field_kwarg]
         return reverse('view-violation', kwargs={'slug': uuid})
 
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['violation_id'] = self.kwargs['slug']
+        return form_kwargs
+
 
 class ViolationEditBasicsView(ViolationEditView):
     template_name = 'violation/edit-basics.html'

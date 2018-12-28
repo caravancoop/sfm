@@ -9,7 +9,8 @@ from django.contrib.auth.models import User
 
 from organization.models import Organization, OrganizationAlias, OrganizationClassification
 from person.models import Person, PersonAlias, PersonExternalLink
-from violation.models import Violation
+from violation.models import Violation, ViolationPerpetrator, \
+    ViolationPerpetratorOrganization, ViolationType, ViolationPerpetratorClassification
 from composition.models import Composition
 from emplacement.models import Emplacement
 from association.models import Association
@@ -457,6 +458,29 @@ def base_people(access_points):
 
 
 @pytest.fixture
+def new_people(access_points):
+    people = []
+
+    for index in range(3):
+        person = {
+            'Person_PersonName': {
+                'value': 'New Test person {}'.format(index),
+                'sources': access_points,
+                'confidence': '1'
+            },
+            'Person_PersonDivisionId':{
+                'value': 'ocd-division/country:us',
+                'sources': access_points,
+                'confidence': '2',
+            }
+        }
+
+        people.append(Person.create(person))
+
+    return people
+
+
+@pytest.fixture
 def people(base_people, access_points):
 
     for person in base_people:
@@ -582,12 +606,10 @@ def membership_person(access_points, people, organizations):
 
 
 @pytest.fixture
-def violation(access_points,
-              people,
-              organizations,
-              location_node,
-              location_adminlevel1,
-              location_adminlevel2):
+def base_violation(access_points,
+                   location_node,
+                   location_adminlevel1,
+                   location_adminlevel2):
 
     violation_info = {
         'Violation_ViolationStartDate': {
@@ -630,24 +652,71 @@ def violation(access_points,
             'sources': access_points,
             'confidence': '2',
         },
+    }
+
+    violation = Violation.create(violation_info)
+
+    violation.published = True
+    violation.save()
+
+    return violation
+
+
+@pytest.fixture
+def violation(base_violation,
+              people,
+              organizations,
+              access_points):
+
+    perpetrators = []
+    perpetrator_organizations = []
+
+    for person in people:
+        perpetrator = ViolationPerpetrator.objects.create(value=person,
+                                                          object_ref=base_violation,
+                                                          lang='en')
+        perpetrators.append(perpetrator)
+
+    for organization in organizations:
+        perpetrator_organization = ViolationPerpetratorOrganization.objects.create(value=organization,
+                                                                                   object_ref=base_violation,
+                                                                                   lang='en')
+        perpetrator_organizations.append(perpetrator_organization)
+
+    right_to_life = ViolationType.objects.create(value='Violation against the right to life',
+                                                 object_ref=base_violation,
+                                                 lang='en')
+
+    right_to_liberty = ViolationType.objects.create(value='Violation against the right to liberty',
+                                                    object_ref=base_violation,
+                                                    lang='en')
+    violation_info = {
         'Violation_ViolationPerpetrator': {
-            'value': people[0],
+            'values': perpetrators,
             'sources': access_points,
             'confidence': '2',
         },
         'Violation_ViolationPerpetratorOrganization': {
-            'value': organizations[0],
+            'values': perpetrator_organizations,
             'sources': access_points,
             'confidence': '2',
         },
         'Violation_ViolationType': {
-            'value': 'Violations against humanity',
+            'values': [right_to_life, right_to_liberty],
             'sources': access_points,
-            'confidence': '2',
+            'confidence': '1',
         },
+        'Violation_ViolationPerpetratorClassification': {
+            'value': 'Bad guys',
+            'sources': access_points,
+            'confidence': '1',
+        }
     }
 
-    return Violation.create(violation_info)
+    base_violation.update(violation_info)
+
+    return base_violation
+
 
 @pytest.fixture
 def fake_signal(mocker):
