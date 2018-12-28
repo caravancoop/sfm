@@ -28,6 +28,18 @@ def user():
                                password='test123')
 
 
+@pytest.fixture()
+def setUp(client, request, user):
+    user = User.objects.first()
+    client.force_login(user)
+
+    @request.addfinalizer
+    def tearDown():
+        client.logout()
+
+    return client
+
+
 @pytest.fixture
 def sources(user):
     sources = []

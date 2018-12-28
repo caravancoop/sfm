@@ -12,18 +12,6 @@ from organization.models import Organization
 from membershipperson.models import MembershipPerson, Rank, Role
 
 
-@pytest.fixture()
-def setUp(user, client, request):
-    user = User.objects.first()
-    client.force_login(user)
-
-    @request.addfinalizer
-    def tearDown():
-        client.logout()
-
-    return client
-
-
 @pytest.mark.django_db
 def test_view_person(setUp, people):
 

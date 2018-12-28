@@ -9,18 +9,6 @@ from source.models import AccessPoint
 from composition.models import Composition
 
 
-@pytest.fixture()
-def setUp(client, request, user):
-    user = User.objects.first()
-    client.force_login(user)
-
-    @request.addfinalizer
-    def tearDown():
-        client.logout()
-
-    return client
-
-
 @pytest.mark.django_db
 def test_view_organization(full_organizations, client):
 
