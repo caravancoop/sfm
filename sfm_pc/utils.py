@@ -599,7 +599,11 @@ def generate_hierarchy(query, q_args, rel_field, sources=False):
 solr = pysolr.Solr(settings.SOLR_URL)
 
 
-def get_org_hierarchy_by_id(org_id, when=None, sources=False, direction='up'):
+def get_org_hierarchy_by_id(org_id,
+                            when=None,
+                            sources=False,
+                            direction='up',
+                            authenticated=False):
     '''
     org_id: uuid for the organization
     when: date for limiting the search
@@ -619,6 +623,9 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False, direction='up'):
     if when:
         filter_query += ' AND {!field f=composition_daterange_dr op=contains}%s' % when
 
+    if not authenticated:
+        filter_query += ' AND published_b:T'
+
     results = solr.search('*:*', fq=filter_query)
 
     if when:
@@ -627,6 +634,9 @@ def get_org_hierarchy_by_id(org_id, when=None, sources=False, direction='up'):
                 org = result['composition_{}_id_s_fct'.format(key)]
                 args =  (org, when)
                 query = 'commander_org_id_s_fct:%s AND {!field f=commander_assignment_range_dr op=contains}%s' % args
+
+                if not authenticated:
+                    query += ' AND published_b:T'
 
                 commanders = solr.search(query)
 

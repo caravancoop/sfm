@@ -38,7 +38,7 @@ class OrganizationDetail(BaseDetailView):
         context = super().get_context_data(**kwargs)
 
         # Determine if the user is logged in
-        authenticated = self.request.user.is_authenticated
+        authenticated = self.request.user.is_authenticated()
 
         # Generate link to download a CSV of this record
         params = '?download_etype=Organization&entity_id={0}'.format(str(context['organization'].uuid))
@@ -51,7 +51,7 @@ class OrganizationDetail(BaseDetailView):
         if authenticated:
             person_members = context['organization'].membershippersonorganization_set.all()
         else:
-            person_members = context['organization'].membershippersonorganization_set.filter(value__published=True)
+            person_members = context['organization'].membershippersonorganization_set.filter(object_ref__membershippersonmember__value__published=True)
 
         for membership in person_members:
             context['person_members'].append(membership.object_ref)
@@ -74,7 +74,7 @@ class OrganizationDetail(BaseDetailView):
         if authenticated:
             memberships = context['organization'].membershiporganizationmember_set.all()
         else:
-            memberships = context['organization'].membershiporganizationmember_set.filter(value__published=True)
+            memberships = context['organization'].membershiporganizationmember_set.filter(object_ref__membershiporganizationorganization__value__published=True)
 
         if memberships:
             memberships = (mem.object_ref for mem in memberships)
@@ -86,7 +86,7 @@ class OrganizationDetail(BaseDetailView):
         if authenticated:
             children = context['organization'].child_organization.all()
         else:
-            children = context['organization'].child_organization.filter(value__published=True)
+            children = context['organization'].child_organization.filter(object_ref__compositionchild__value__published=True)
 
         for child in children:
             context['subsidiaries'].append(child.object_ref)
@@ -97,7 +97,7 @@ class OrganizationDetail(BaseDetailView):
         if authenticated:
             events = context['organization'].violationperpetratororganization_set.all()
         else:
-            events = context['organization'].violationperpetratororganization_set.filter(value__published=True)
+            events = context['organization'].violationperpetratororganization_set.filter(object_ref__published=True)
 
         for event in events:
             context['events'].append(event.object_ref)
@@ -125,7 +125,7 @@ class OrganizationDetail(BaseDetailView):
         if authenticated:
             parents = context['organization'].parent_organization.all()
         else:
-            parents = context['organization'].parent_organization.filter(value__published=True)
+            parents = context['organization'].parent_organization.filter(object_ref__compositionparent__value__published=True)
 
         # "parent" is a CompositionChild
         for parent in parents:

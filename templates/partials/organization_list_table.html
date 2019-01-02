@@ -98,7 +98,9 @@
                         <td>
                             {% for comp in object.parent_organization.all %}
                                 {% with parent=comp.object_ref.parent.get_value %}
-                                    <a href="{% url 'view-organization' parent.value.uuid %}">{{ parent.value.name.get_value }}</a>
+                                    {% if request.user.is_authenticated or parent.value.published %}
+                                        <a href="{% url 'view-organization' parent.value.uuid %}">{{ parent.value.name.get_value }}</a>
+                                    {% endif %}
                                 {% endwith %}
                                 {% if not forloop.last %}<br />{% endif %}
                             {% endfor %}
