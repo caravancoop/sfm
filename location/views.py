@@ -39,7 +39,7 @@ class OverpassException(Exception):
             return 'Overpass returned an error. Try again later.'
 
 
-class LocationView(DetailView):
+class LocationView(LoginRequiredMixin, DetailView):
     model = Location
     template_name = 'location/detail.html'
 
@@ -180,7 +180,7 @@ class LocationCreate(LoginRequiredMixin, CreateView):
         return context
 
 
-class LocationList(ListView):
+class LocationList(LoginRequiredMixin, ListView):
     model = Location
     template_name = 'location/list.html'
     per_page = 10
@@ -231,7 +231,7 @@ class LocationList(ListView):
         return context
 
 
-class LocationAutoComplete(JSONResponseMixin, TemplateView):
+class LocationAutoComplete(LoginRequiredMixin, JSONResponseMixin, TemplateView):
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
 
