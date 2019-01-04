@@ -68,9 +68,9 @@
     {% if violation.perpetratorclassification.get_value %}
         <p class="cited">{% trans "Perpetrator classifications:" %}
             <span class="label label-default">
-                {{ violation.perpetratorclassification.get_value }}
+                {{ violation.perpetratorclassification.get_value.value }}
             </span>
-            {% cite violation.perpetratorclassification.get_value %}
+            {% cite violation.perpetratorclassification.get_value.value %}
         </p>
     {% endif %}
 
@@ -84,8 +84,8 @@
 
     {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
-    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
-    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
+    {% if perpetrators %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
+    {% if perpetrator_organizations %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
 
 {% endblock %}
@@ -96,8 +96,8 @@
 
     {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
-    {% if violation.violationperpetrator_set.all %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
-    {% if violation.violationperpetratororganization_set.all %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
+    {% if perpetrators %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
+    {% if perpetrator_organizations %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
 
 {% endblock %}
@@ -146,7 +146,7 @@
     </div>
     {% endif %}
 
-    {% if violation.perpetrator.get_list %}
+    {% if perpetrators %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</h3>
@@ -158,16 +158,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for person in violation.perpetrator.get_list %}
+                    {% for person in perpetrators %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-person' person.get_value.value.uuid %}">
-                                    {{ person.get_value }}
+                                <a href="{% url 'view-person' person.value.uuid %}">
+                                    {{ person }}
                                 </a>
-                                {% cite person.get_value %}
+                                {% cite person %}
                             </td>
                             <td class="cited">
-                                {% for alias in person.get_value.value.aliases.get_list %}
+                                {% for alias in person.value.aliases.get_list %}
                                     {{ alias.get_value.value }}
                                     {% cite alias.get_value %}
                                     {% if not forloop.last %}
@@ -183,7 +183,7 @@
     </div>
     {% endif %}
 
-    {% if violation.perpetratororganization.get_list %}
+    {% if perpetrator_organizations %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="perpetrator-organizations">
@@ -202,16 +202,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for organization in violation.perpetratororganization.get_list %}
+                    {% for organization in perpetrator_organizations %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-organization' organization.get_value.value.uuid %}">
-                                    {{ organization.get_value }}
+                                <a href="{% url 'view-organization' organization.value.uuid %}">
+                                    {{ organization }}
                                 </a>
-                                {% cite organization.get_value %}
+                                {% cite organization %}
                             </td>
                             <td class="cited">
-                                {% for alias in organization.get_value.value.aliases.get_list %}
+                                {% for alias in organization.value.aliases.get_list %}
                                     {{ alias.get_value.value }}
                                     {% cite alias.get_value.value %}
                                     {% if not forloop.last %}

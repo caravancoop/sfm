@@ -3,11 +3,18 @@
 
 {% block header_title %}
 <div class="col-sm-6">
-    <h1>{{ organization.name.get_value }}</h1>
+    <h1>
+        {{ organization.name.get_value }}
+    </h1>
     <p>
         {% trans "ID:" %} {{ organization.uuid }}<br />
         {% trans "Last update by:" %} username goes here <br />
         <a href="#">{% trans "View versions"%}</a>
+        {% if organization.published %}
+            <span class="label label-success">Published</span>
+        {% else %}
+            <span class="label label-danger">Not Published</span>
+        {% endif %}
     </p>
 </div>
 {% endblock %}

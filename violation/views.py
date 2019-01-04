@@ -1,25 +1,26 @@
 import json
 import csv
 
-from django.views.generic import DetailView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language
 
 from complex_fields.models import ComplexFieldContainer
 
-from sfm_pc.base_views import BaseUpdateView, BaseCreateView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView
 
 from .models import Violation, ViolationType, ViolationPerpetratorClassification
 from .forms import ViolationBasicsForm, ViolationCreateBasicsForm, ViolationLocationsForm
 
-class ViolationDetail(DetailView):
+class ViolationDetail(BaseDetailView):
     model = Violation
     template_name = 'violation/view.html'
     slug_field = 'uuid'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        authenticated = self.request.user.is_authenticated
 
         # Generate link to download a CSV of this record
         params = '?download_etype=Violation&entity_id={0}'.format(str(context['violation'].uuid))
@@ -33,6 +34,16 @@ class ViolationDetail(DetailView):
             if location.value:
                 context['location'] = location.value
 
+        if authenticated:
+            context['perpetrators'] = context['violation'].violationperpetrator_set.all()
+        else:
+            context['perpetrators'] = context['violation'].violationperpetrator_set.filter(value__published=True)
+
+        if authenticated:
+            context['perpetrator_organizations'] = context['violation'].violationperpetratororganization_set.all()
+        else:
+            context['perpetrator_organizations'] = context['violation'].violationperpetratororganization_set.filter(value__published=True)
+
         return context
 
 
@@ -45,6 +56,11 @@ class ViolationEditView(BaseUpdateView):
     def get_success_url(self):
         uuid = self.kwargs[self.slug_field_kwarg]
         return reverse('view-violation', kwargs={'slug': uuid})
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['violation_id'] = self.kwargs['slug']
+        return form_kwargs
 
 
 class ViolationEditBasicsView(ViolationEditView):

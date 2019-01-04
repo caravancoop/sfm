@@ -1,6 +1,6 @@
 import json
 
-from django.views.generic import DetailView, DeleteView
+from django.views.generic import DeleteView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -26,16 +26,19 @@ from membershipperson.models import MembershipPerson
 from membershiporganization.models import MembershipOrganization
 
 from sfm_pc.templatetags.countries import country_name
-from sfm_pc.base_views import BaseUpdateView, BaseCreateView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView
 
 
-class OrganizationDetail(DetailView):
+class OrganizationDetail(BaseDetailView):
     model = Organization
     template_name = 'organization/view.html'
     slug_field = 'uuid'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Determine if the user is logged in
+        authenticated = self.request.user.is_authenticated()
 
         # Generate link to download a CSV of this record
         params = '?download_etype=Organization&entity_id={0}'.format(str(context['organization'].uuid))
@@ -44,33 +47,58 @@ class OrganizationDetail(DetailView):
 
         # Commanders of this unit
         context['person_members'] = []
-        person_members = context['organization'].membershippersonorganization_set.all()
+
+        if authenticated:
+            person_members = context['organization'].membershippersonorganization_set.all()
+        else:
+            person_members = context['organization'].membershippersonorganization_set.filter(object_ref__membershippersonmember__value__published=True)
+
         for membership in person_members:
             context['person_members'].append(membership.object_ref)
 
         # Organizational members of this unit
         context['org_members'] = []
-        org_members = context['organization'].membershiporganizationorganization_set.all()
+
+        if authenticated:
+            org_members = context['organization'].membershiporganizationorganization_set.all()
+        else:
+            org_members = context['organization'].membershiporganizationorganization_set.filter(value__published=True)
+
         if org_members:
             org_members = (mem.object_ref for mem in org_members)
             context['org_members'] = org_members
 
         # Other units that this unit is a member of
         context['memberships'] = []
-        memberships = context['organization'].membershiporganizationmember_set.all()
+
+        if authenticated:
+            memberships = context['organization'].membershiporganizationmember_set.all()
+        else:
+            memberships = context['organization'].membershiporganizationmember_set.filter(object_ref__membershiporganizationorganization__value__published=True)
+
         if memberships:
             memberships = (mem.object_ref for mem in memberships)
             context['memberships'] = memberships
 
         # Child units
         context['subsidiaries'] = []
-        children = context['organization'].child_organization.all()
+
+        if authenticated:
+            children = context['organization'].child_organization.all()
+        else:
+            children = context['organization'].child_organization.filter(object_ref__compositionchild__value__published=True)
+
         for child in children:
             context['subsidiaries'].append(child.object_ref)
 
         # Incidents that this unit perpetrated
         context['events'] = []
-        events = context['organization'].violationperpetratororganization_set.all()
+
+        if authenticated:
+            events = context['organization'].violationperpetratororganization_set.all()
+        else:
+            events = context['organization'].violationperpetratororganization_set.filter(object_ref__published=True)
+
         for event in events:
             context['events'].append(event.object_ref)
 
@@ -93,7 +121,12 @@ class OrganizationDetail(DetailView):
 
         context['parents'] = []
         context['parents_list'] = []
-        parents = context['organization'].parent_organization.all()
+
+        if authenticated:
+            parents = context['organization'].parent_organization.all()
+        else:
+            parents = context['organization'].parent_organization.filter(object_ref__compositionparent__value__published=True)
+
         # "parent" is a CompositionChild
         for parent in parents:
 

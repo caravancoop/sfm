@@ -19,6 +19,21 @@
 
 {% block form_content %}
     <h2>{% trans "Edit basics" %}</h2>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.instance.published %}
+                            <input type="checkbox" name="published" id="id_published" checked="true" /> {% trans "Published?" %}
+                        {% else %}
+                            <input type="checkbox" name="published" id="id_published" /> {% trans "Published?" %}
+                        {% endif %}
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row name-row field-bg bg-info">
         <div class="col-sm-12">
             {% if form.name.errors %}

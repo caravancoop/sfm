@@ -32,7 +32,7 @@ from source.models import Source, AccessPoint
 from source.forms import SourceForm
 
 
-class SourceView(DetailView):
+class SourceView(LoginRequiredMixin, DetailView):
     model = Source
     context_object_name = 'source'
     template_name = 'source/view.html'

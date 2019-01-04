@@ -106,7 +106,9 @@
                         <td>
                             {% with membership=object.memberships.first %}
                                 {% with organization=membership.object_ref.organization.get_value %}
+                                    {% if request.user.is_authenticated or organization.value.published %}
                                     <a href="{% url 'view-organization' organization.value.uuid %}">{{ organization.value.name.get_value }}</a>
+                                    {% endif %}
                                 {% endwith %}
                                 <br />
                             {% endwith %}

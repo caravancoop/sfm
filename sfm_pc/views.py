@@ -215,12 +215,14 @@ def command_chain(request, org_id='', when=None, parents=True):
 
     nodes, edges = [], []
 
+    authenticated = request.user.is_authenticated()
+
     # Add hierarchy to nodelist and edgelist
     if parents:
-        hierarchy_list = get_org_hierarchy_by_id(org_id, when=when)
+        hierarchy_list = get_org_hierarchy_by_id(org_id, when=when, authenticated=authenticated)
         from_key, to_key = 'child', 'parent'
     else:
-        hierarchy_list = get_org_hierarchy_by_id(org_id, when=when, direction='down')
+        hierarchy_list = get_org_hierarchy_by_id(org_id, when=when, direction='down', authenticated=authenticated)
         from_key, to_key = 'parent', 'child'
 
     organizations = []

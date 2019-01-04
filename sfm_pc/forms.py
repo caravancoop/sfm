@@ -5,7 +5,7 @@ from django import forms
 from django.utils.translation import ugettext as _, get_language
 from django.core.exceptions import ObjectDoesNotExist
 
-from complex_fields.models import ComplexFieldContainer
+from complex_fields.models import ComplexFieldContainer, ComplexFieldListContainer
 
 from django_date_extensions.fields import ApproximateDateFormField
 
@@ -61,18 +61,19 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                 pk = self.object_ref_pk
                 object_ref_created = False
 
-                if pk and 'uuid' in object_ref_fields:
-                    object_ref = self.object_ref_model.objects.get(uuid=pk)
-                elif 'uuid' in object_ref_fields:
-                    object_ref = self.object_ref_model.objects.create(uuid=str(uuid.uuid4()))
-                    object_ref_created = True
-                elif pk:
-                    object_ref = self.object_ref_model.objects.get(id=pk)
-                else:
-                    object_ref = self.object_ref_model.objects.create()
-                    object_ref_created = True
+                if not hasattr(self.form, 'object_ref'):
+                    if pk and 'uuid' in object_ref_fields:
+                        object_ref = self.object_ref_model.objects.get(uuid=pk)
+                    elif 'uuid' in object_ref_fields:
+                        object_ref = self.object_ref_model.objects.create(uuid=str(uuid.uuid4()))
+                        object_ref_created = True
+                    elif pk:
+                        object_ref = self.object_ref_model.objects.get(id=pk)
+                    else:
+                        object_ref = self.object_ref_model.objects.create()
+                        object_ref_created = True
 
-                self.form.object_ref = object_ref
+                    self.form.object_ref = object_ref
 
                 # It would seem that if someone tries to save a value in the
                 # form that can be cast as an integer, there is a slim chance
@@ -86,7 +87,7 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                     value = e.params['value']
 
                 instance = self.queryset.model.objects.create(value=value,
-                                                              object_ref=object_ref,
+                                                              object_ref=self.form.object_ref,
                                                               lang=get_language())
                 pks.append(instance.id)
                 self.new_instances.append(instance)
@@ -194,7 +195,15 @@ class BaseUpdateForm(BaseEditForm):
         # 2. For multiple value fields, one or more values was removed.
 
         for field in self.fields:
+
             field_instance = getattr(self.instance, field)
+
+            # Sometimes there are fields on the models that are not "complex" so
+            # we don't need to worry about sources and stuff
+
+            if not isinstance(field_instance, ComplexFieldContainer) and \
+                    not isinstance(field_instance, ComplexFieldListContainer):
+                continue
 
             if self.clone_sources.get(field):
                 other_field = self.clone_sources[field]
@@ -376,10 +385,32 @@ class BaseUpdateForm(BaseEditForm):
                     if new_values:
                         update_info[update_key]['values'] = new_values
                 else:
+                    # When we are allowing for new values to be created for
+                    # a field where we expect only a single value, we need to
+                    # clean up older values so that there is only ever one
+                    # related object. This is partially because it's good to be
+                    # clean and partially because it sometimes ends up looking
+                    # like nothing has changed since Django might always fetch
+                    # older items when it's building the objects that get
+                    # displayed.
+
+                    existing_values = field_model.objects.filter(object_ref=self.instance)
+
+                    for value in existing_values:
+                        if value.value != self.post_data[field_name][0]:
+                            value.delete()
+
                     update_info[update_key]['value'] = update_value
 
         if update_info:
             self.instance.update(update_info)
+
+        if self.post_data.get('published'):
+            self.instance.published = True
+        else:
+            self.instance.published = False
+
+        self.instance.save()
 
         self.instance.object_ref_saved()
 
@@ -462,7 +493,7 @@ class BaseCreateForm(BaseEditForm):
 
                 confidence = field.get_confidence()
                 if self.post_data.get(confidence_key):
-                    confidence = self.post_data[confidence_key]
+                    confidence = self.post_data[confidence_key][0]
 
                 update_info[update_key] = {
                     'confidence': confidence,

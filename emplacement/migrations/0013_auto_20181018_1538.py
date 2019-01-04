@@ -31,6 +31,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL('DROP MATERIALIZED VIEW IF EXISTS emplacement'),
         migrations.RunSQL('DROP MATERIALIZED VIEW IF EXISTS emplacement_sources'),
         migrations.RunSQL('ALTER TABLE emplacement_emplacementsite DROP CONSTRAINT IF EXISTS emplacement_emplacement_value_id_59e5197e_fk_geosite_geosite_id'),
+        migrations.RunSQL('ALTER TABLE emplacement_emplacementsite DROP CONSTRAINT IF EXISTS emplacement_emplacem_value_id_59e5197e_fk_geosite_g'),
         migrations.RunSQL('ALTER TABLE emplacement_emplacementsite ALTER COLUMN value_id TYPE bigint'),
         migrations.RunSQL('''
             UPDATE emplacement_emplacementsite SET

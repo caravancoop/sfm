@@ -16,18 +16,6 @@ from reversion.models import Version
 from source.models import Source, AccessPoint
 from person.models import Person
 
-@pytest.fixture()
-@pytest.mark.django_db
-def setUp(client, request):
-    user = User.objects.first()
-    client.force_login(user)
-
-    @request.addfinalizer
-    def tearDown():
-        client.logout()
-
-    return client
-
 
 @pytest.mark.django_db
 def test_create_source(setUp):
@@ -58,8 +46,8 @@ def test_create_source(setUp):
 
 
 @pytest.mark.django_db
-def test_create_accesspoint(setUp):
-    source = Source.objects.order_by('?').first()
+def test_create_accesspoint(setUp, sources):
+    source = sources[0]
 
     response = setUp.get(reverse_lazy('add-access-point',
                                             kwargs={'source_id': str(source.uuid)}))
@@ -90,8 +78,8 @@ def test_create_accesspoint(setUp):
 
 
 @pytest.mark.django_db
-def test_update_source(setUp):
-    source = Source.objects.all().first()
+def test_update_source(setUp, sources):
+    source = sources[0]
 
     response = setUp.get(reverse_lazy('update-source', kwargs={'pk': source.uuid}))
     assert response.status_code == 200
@@ -119,8 +107,8 @@ def test_update_source(setUp):
 
 
 @pytest.mark.django_db
-def test_update_accesspoint(setUp):
-    accesspoint = AccessPoint.objects.order_by('?').first()
+def test_update_accesspoint(setUp, access_points):
+    accesspoint = access_points[0]
 
     response = setUp.get(reverse_lazy('update-access-point',
                                             kwargs={'source_id': accesspoint.source.uuid,

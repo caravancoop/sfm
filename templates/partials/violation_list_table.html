@@ -104,9 +104,11 @@
                     <!-- Perpetrators -->
                     <td>
                         {% for organization in object.violationperpetratororganization_set.all %}
-                            <a href="{% url 'view-organization' organization.value.uuid %}">
-                                {{ organization.value.name.get_value }}
-                            </a>
+                            {% if request.user.is_authenticated or organization.value.published %}
+                                <a href="{% url 'view-organization' organization.value.uuid %}">
+                                    {{ organization.value.name.get_value }}
+                                </a>
+                            {% endif %}
                             {% if not forloop.last %}<br />{% endif %}
                         {% endfor %}
                     </td>

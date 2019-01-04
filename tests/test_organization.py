@@ -9,21 +9,8 @@ from source.models import AccessPoint
 from composition.models import Composition
 
 
-@pytest.fixture()
-@pytest.mark.django_db(transaction=True)
-def setUp(django_db_setup, client, request):
-    user = User.objects.first()
-    client.force_login(user)
-
-    @request.addfinalizer
-    def tearDown():
-        client.logout()
-
-    return client
-
-
 @pytest.mark.django_db
-def test_view_organization(client):
+def test_view_organization(full_organizations, client):
 
     them = Organization.objects.order_by('?')[:10]
     for it in them:
@@ -33,7 +20,11 @@ def test_view_organization(client):
 
 
 @pytest.mark.django_db
-def test_edit_organization(setUp, fake_signal):
+def test_edit_organization(setUp,
+                           full_organizations,
+                           fake_signal,
+                           new_access_points):
+
     org = Organization.objects.exclude(child_organization__isnull=True,
                                        parent_organization__isnull=True).first()
 
@@ -41,8 +32,7 @@ def test_edit_organization(setUp, fake_signal):
 
     assert response.status_code == 200
 
-    new_sources = AccessPoint.objects.order_by('?')[:2]
-    new_source_ids = [s.uuid for s in new_sources]
+    new_source_ids = [s.uuid for s in new_access_points]
 
     post_data = {
         'name': org.name.get_value().value,
@@ -56,8 +46,8 @@ def test_edit_organization(setUp, fake_signal):
 
     assert response.status_code == 302
 
-    assert set(new_sources) <= set(org.name.get_sources())
-    assert set(new_sources) <= set(org.aliases.get_list()[0].get_sources())
+    assert set(new_access_points) <= set(org.name.get_sources())
+    assert set(new_access_points) <= set(org.aliases.get_list()[0].get_sources())
     assert 'floop' in [a.get_value().value for a in org.aliases.get_list()]
 
     fake_signal.assert_called_with(object_id=org.uuid,
@@ -65,17 +55,18 @@ def test_edit_organization(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_create_organization(setUp, fake_signal):
+def test_create_organization(setUp,
+                             new_access_points,
+                             fake_signal,
+                             organization_classifications):
 
     response = setUp.get(reverse_lazy('create-organization'))
 
     assert response.status_code == 200
 
-    new_sources = AccessPoint.objects.order_by('?')[:2]
-    new_source_ids = [s.uuid for s in new_sources]
+    new_source_ids = [s.uuid for s in new_access_points]
 
-    classifications = OrganizationClassification.objects.order_by('?')[:2]
-    classification_ids = [c.id for c in classifications]
+    classification_ids = [c.id for c in organization_classifications]
 
     post_data = {
         'name': 'Big, big guys',
@@ -102,8 +93,8 @@ def test_create_organization(setUp, fake_signal):
 
     organization = Organization.objects.get(organizationname__value='Big, big guys')
 
-    assert set(new_sources) <= set(organization.name.get_sources())
-    assert set(new_sources) <= set(organization.aliases.get_list()[0].get_sources())
+    assert set(new_access_points) <= set(organization.name.get_sources())
+    assert set(new_access_points) <= set(organization.aliases.get_list()[0].get_sources())
     assert 'floop' in [a.get_value().value for a in organization.aliases.get_list()]
 
     fake_signal.assert_called_with(object_id=str(organization.uuid),
@@ -111,75 +102,79 @@ def test_create_organization(setUp, fake_signal):
 
 
 @pytest.mark.django_db
-def test_edit_composition(setUp, fake_signal):
-    org1, org2 = Organization.objects.exclude(child_organization__isnull=True)\
-                                     .exclude(parent_organization__isnull=True)[:2]
+def test_edit_composition(setUp,
+                          full_organizations,
+                          new_access_points,
+                          fake_signal):
 
-    first_comp = org1.parent_organization.first().object_ref
+    parent, middle, _ = full_organizations
+
+    first_comp = middle.parent_organization.first().object_ref
 
     response = setUp.get(reverse_lazy('edit-organization-composition',
-                                      args=[org1.uuid, first_comp.id]))
+                                      args=[parent.uuid, first_comp.id]))
 
     assert response.status_code == 200
 
-    new_sources = AccessPoint.objects.order_by('?')[:2]
-    new_source_ids = [s.uuid for s in new_sources]
+    new_source_ids = [s.uuid for s in new_access_points]
 
     post_data = {
-        'parent': org1.id,
+        'parent': parent.id,
         'parent_source': new_source_ids,
-        'child': org2.id,
+        'child': middle.id,
         'child_source': new_source_ids,
         'classification': 'Command',
         'classification_source': new_source_ids,
     }
 
     response = setUp.post(reverse_lazy('edit-organization-composition',
-                                       args=[org1.uuid, first_comp.id]),
+                                       args=[parent.uuid, first_comp.id]),
                           post_data)
 
     assert response.status_code == 302
 
-    assert first_comp.parent.get_value().value == org1
-    assert first_comp.child.get_value().value == org2
+    assert first_comp.parent.get_value().value == parent
+    assert first_comp.child.get_value().value == middle
     assert [s for s in first_comp.child.get_sources()] == [s for s in first_comp.parent.get_sources()]
 
     fake_signal.assert_called_with(object_id=first_comp.id,
                                    sender=Composition)
 
 @pytest.mark.django_db
-def test_create_relationship(setUp, fake_signal):
-    org1, org2 = Organization.objects.exclude(child_organization__isnull=True)\
-                                     .exclude(parent_organization__isnull=True)[:2]
+def test_create_relationship(setUp,
+                             organizations,
+                             new_access_points,
+                             fake_signal):
+
+    parent, middle, _ = organizations
 
     response = setUp.get(reverse_lazy('create-organization-composition',
-                                      args=[org1.uuid]))
+                                      args=[parent.uuid]))
 
     assert response.status_code == 200
 
-    new_sources = AccessPoint.objects.order_by('?')[:2]
-    new_source_ids = [s.uuid for s in new_sources]
+    new_source_ids = [s.uuid for s in new_access_points]
 
     post_data = {
-        'parent': org1.id,
+        'parent': parent.id,
         'parent_source': new_source_ids,
-        'child': org2.id,
+        'child': middle.id,
         'child_source': new_source_ids,
         'classification': 'Command',
         'classification_source': new_source_ids,
     }
 
     response = setUp.post(reverse_lazy('create-organization-composition',
-                                       args=[org1.uuid]),
+                                       args=[parent.uuid]),
                           post_data)
 
     assert response.status_code == 302
 
-    composition = Composition.objects.filter(compositionparent__value=org1,
-                                             compositionchild__value=org2).first()
+    composition = Composition.objects.filter(compositionparent__value=parent,
+                                             compositionchild__value=middle).first()
 
-    assert composition.parent.get_value().value == org1
-    assert composition.child.get_value().value == org2
+    assert composition.parent.get_value().value == parent
+    assert composition.child.get_value().value == middle
     assert {s for s in composition.child.get_sources()} == {s for s in composition.parent.get_sources()}
 
     fake_signal.assert_called_with(object_id=composition.id,

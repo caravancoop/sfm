@@ -272,7 +272,6 @@ class OrganizationAssociationForm(BaseUpdateForm):
         fields = '__all__'
 
     edit_fields = [
-        ('realstart', AssociationRealStart, False),
         ('startdate', AssociationStartDate, False),
         ('enddate', AssociationEndDate, False),
         ('realstart', AssociationRealStart, False),
