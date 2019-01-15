@@ -18,7 +18,7 @@ from organization.forms import OrganizationBasicsForm, \
     OrganizationCreatePersonnelForm, OrganizationCreateEmplacementForm, \
     OrganizationCreateAssociationForm, OrganizationMembershipForm, \
     OrganizationCreateMembershipForm
-from organization.models import Organization, OrganizationAlias
+from organization.models import Organization
 
 from membershipperson.models import MembershipPerson
 

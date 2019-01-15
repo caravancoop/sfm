@@ -79,7 +79,8 @@ class GetOrCreateChoiceField(forms.ModelMultipleChoiceField):
                 # form that can be cast as an integer, there is a slim chance
                 # that it will also resolve to a valid choice in which case the
                 # validation error above won't get raised. This might be an
-                # issue at some point.
+                # issue at some point. Perhaps it would be a good idea to use
+                # UUIDs universally as pks? This would be a pretty huge lift.
 
                 if e.code == 'invalid_pk_value':
                     value = e.params['pk']

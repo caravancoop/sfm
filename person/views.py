@@ -3,20 +3,16 @@ import json
 from datetime import date
 from collections import namedtuple
 
-from django.views.generic.edit import CreateView, UpdateView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from countries_plus.models import Country
-
-from person.models import Person, PersonAlias
+from person.models import Person
 from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \
     PersonPostingsForm, PersonCreatePostingForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
-from sfm_pc.utils import Autofill
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView, \
     BaseDeleteRelationshipView
 
@@ -239,9 +235,9 @@ def get_commanders(mem_start, mem_end, compositions, person_id=None, relationshi
 
                 # Account for fuzzy dates
                 all_dates = [start_year, start_month, start_day,
-                                end_year, end_month, end_day]
+                             end_year, end_month, end_day]
 
-                fuzzy_date =  any(dt == 0 for dt in all_dates)
+                fuzzy_date = any(dt == 0 for dt in all_dates)
 
                 if fuzzy_date:
                     # Start the overlap string with a "roughly" symbol
@@ -260,12 +256,12 @@ def get_commanders(mem_start, mem_end, compositions, person_id=None, relationshi
                     overlap_duration = ''
 
                 start = date(start_year,
-                                start_month,
-                                start_day)
+                             start_month,
+                             start_day)
 
                 end = date(end_year,
-                            end_month,
-                            end_day)
+                           end_month,
+                           end_day)
 
                 overlap_duration += (str((end - start).days) + ' ' + _('days'))
             else:
@@ -284,9 +280,9 @@ def sort_commanders(commanders):
 
     if commanders:
         return sorted(commanders,
-                    key=lambda m: (m['overlap_end'].value if m['overlap_end'] != _('Unknown')
-                                    else date(1, 1, 1)),
-                    reverse=True)
+                      key=lambda m: (m['overlap_end'].value if m['overlap_end'] != _('Unknown')
+                                     else date(1, 1, 1)),
+                      reverse=True)
     else:
         return commanders
 
