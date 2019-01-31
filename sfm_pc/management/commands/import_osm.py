@@ -122,22 +122,22 @@ class Command(BaseCommand):
 
         division_id = 'ocd-division/country:{}'.format(country['country_code'])
 
-        for location in Location.objects.filter(division_id=division_id):
+        for location in Location.objects.filter(division_id=division_id).iterator():
 
             hierarchy = '''
                 SELECT parents.*
                 FROM osm_data AS parents
                 JOIN (
                   SELECT
-                  UNNEST(hierarchy) AS h_id,
-                  localname,
-                  tags,
-                  admin_level,
-                  name,
-                  geometry
+                    UNNEST(hierarchy) AS h_id,
+                    localname,
+                    tags,
+                    admin_level,
+                    name,
+                    geometry
                   FROM osm_data
                   WHERE id = :location_id
-                ) AS child
+                )  AS child
                 ON parents.id = child.h_id::integer
                 WHERE parents.admin_level = '4'
                   OR parents.admin_level = '6'
@@ -157,7 +157,7 @@ class Command(BaseCommand):
                         location.adminlevel2 = adminlevel2
 
                     location.save()
-                    print('saved', location)
+                    self.stdout.write(self.style.HTTP_INFO('saved {}'.format(location)))
 
     def get_or_create_location(self, geo):
         location, created = Location.objects.get_or_create(id=geo.id)
