@@ -11,9 +11,10 @@ import sqlalchemy as sa
 import psycopg2
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction, connection
 from django.db.utils import ProgrammingError
 from django.conf import settings
+
+from location.models import Location
 
 DB_CONN = 'postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}'
 
@@ -72,6 +73,8 @@ class Command(BaseCommand):
             download_only = True
             import_only = True
 
+        self.makeDataTable()
+
         for country in settings.OSM_DATA:
             if download_only:
                 self.downloadPBFs(country)
@@ -84,10 +87,96 @@ class Command(BaseCommand):
             self.createCombinedTable(country)
 
     def createCombinedTable(self, country):
-        self.makeDataTable()
         self.makeRawTable(country)
         self.findNewRecords(country)
         self.insertNewRecords(country)
+        self.createLocations(country)
+        self.createHierarchy(country)
+
+    def createLocations(self, country):
+        insert = '''
+            INSERT INTO location_location (
+              id,
+              name,
+              division_id,
+              feature_type,
+              tags,
+              geometry,
+              adminlevel
+            )
+            SELECT
+              id,
+              localname AS name,
+              'ocd-division/country:' || country_code AS division_id,
+              feature_type,
+              tags,
+              geometry,
+              admin_level
+            FROM osm_data
+            WHERE country_code = :country_code
+            ON CONFLICT DO NOTHING
+        '''
+        self.executeTransaction(sa.text(insert), country_code=country['country_code'])
+
+    def createHierarchy(self, country):
+
+        division_id = 'ocd-division/country:{}'.format(country['country_code'])
+
+        for location in Location.objects.filter(division_id=division_id):
+
+            hierarchy = '''
+                SELECT parents.*
+                FROM osm_data AS parents
+                JOIN (
+                  SELECT
+                  UNNEST(hierarchy) AS h_id,
+                  localname,
+                  tags,
+                  admin_level,
+                  name,
+                  geometry
+                  FROM osm_data
+                  WHERE id = :location_id
+                ) AS child
+                ON parents.id = child.h_id::integer
+                WHERE parents.admin_level = '4'
+                  OR parents.admin_level = '6'
+            '''
+
+            hierarchy = self.connection.execute(sa.text(hierarchy),
+                                                location_id=location.id)
+
+            if hierarchy:
+                for member in hierarchy:
+                    if int(member.admin_level) == 6:
+                        adminlevel1 = self.get_or_create_location(member)
+                        location.adminlevel1 = adminlevel1
+
+                    if int(member.admin_level) == 4:
+                        adminlevel2 = self.get_or_create_location(member)
+                        location.adminlevel2 = adminlevel2
+
+                    location.save()
+                    print('saved', location)
+
+    def get_or_create_location(self, geo):
+        location, created = Location.objects.get_or_create(id=geo.id)
+
+        if created:
+            location.name = geo.name
+            location.geometry = geo.geometry
+
+            country_code = geo.country_code.lower()
+            location.division_id = 'ocd-division/country:{}'.format(country_code)
+
+            if location.feature_type == 'point':
+                location.feature_type = 'node'
+            else:
+                location.feature_type = 'relation'
+
+            location.save()
+
+        return location
 
     def makeDataTable(self):
         create = '''

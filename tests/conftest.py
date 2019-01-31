@@ -128,8 +128,7 @@ def location_relation(location_adminlevel1, location_adminlevel2):
 def organization_aliases(access_points):
     for index in range(2):
         return OrganizationAlias.objects.create(value='Alias {}'.format(index),
-                                                accesspoints=access_points,
-                                                )
+                                                accesspoints=access_points)
 
 
 @pytest.fixture

@@ -139,7 +139,6 @@ class Command(BaseCommand):
         post_save.connect(receiver=update_membership_index, sender=MembershipPerson)
         post_save.connect(receiver=update_composition_index, sender=Composition)
 
-    # @transaction.atomic
     def handle(self, *args, **options):
 
         if options['flush']:
