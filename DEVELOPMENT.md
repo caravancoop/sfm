@@ -250,3 +250,22 @@ The places where versions are recorded include:
 
 As stated above, this portion of the app needs some refactoring to make it more
 sane.
+
+**Search index structure**
+
+This application makes heavy use of Solr's [dynamic
+fields](https://lucene.apache.org/solr/guide/6_6/dynamic-fields.html).
+
+**Oppotunities for refactor and/or cleanup**
+
+_Templates_ Over the years as the approach for the front end has evolved, a bit
+of template cruft has accumulated. Therefore, don't be surprised if you run
+across a template or two that do not seem to be used anyplace. This is
+something that definitely needs cleaning up. Additionally, there is quite a lot
+of repeated code within the editing templates that could probably be more
+cleverly refactored into reusable chunks.
+
+_Unused apps_ As mentioned above, when we added the `location` app, the `area`
+and `geosite` app became unneeded and can be factored out. Because of the way
+that Django manages things, it would seem that it takes more than just deleting
+the code, though.
