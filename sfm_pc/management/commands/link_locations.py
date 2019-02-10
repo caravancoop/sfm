@@ -29,8 +29,8 @@ class Command(BaseCommand):
 
         self.connection = engine.connect()
 
-        self.createLocations(country)
-        self.createHierarchy(country)
+        self.createLocations()
+        self.createHierarchy()
 
     def createLocations(self):
         insert = '''
@@ -54,7 +54,7 @@ class Command(BaseCommand):
             FROM osm_data
             ON CONFLICT DO NOTHING
         '''
-        self.executeTransaction(sa.text(insert), country_code=country['country_code'])
+        self.executeTransaction(sa.text(insert))
 
     def createHierarchy(self):
 

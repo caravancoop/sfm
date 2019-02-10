@@ -17,7 +17,7 @@ class Location(models.Model):
                                     related_name='place_locations',
                                     null=True,
                                     blank=True)
-    adminlevel = models.CharField(max_length=5, null=True, blank=True)
+    adminlevel = models.CharField(max_length=50, null=True, blank=True)
     geometry = GeometryField(blank=True, null=True)
 
     def __str__(self):
