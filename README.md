@@ -27,24 +27,18 @@ Create a database:
 
     createdb sfm
     psql sfm -c "CREATE EXTENSION postgis;"
-    ./manage.py migrate --noinput
+    ./manage.py migrate
 
-Load static data:
-
-```
-# Load fixtures for Violation Types, Organization classification types, and countries
-./manage.py loaddata violation_types
-./manage.py loaddata classification_types
-./manage.py update_countries_plus
-```
 
 Create Materialized Views for global search, and looking up a Geoname object based upon a geoname id:
 
     python manage.py import_osm
-    python manage.py import_google_doc
+    python manage.py import_google_doc --source_doc_id 1IL4yJMG7KBpOdGZbFsAcGFjSPpVVSNbKLMsRdKC3-XM --doc_id <hash from URL of sheet>
+    python manage.py link_locations
     python manage.py make_flattened_views
 
-You're almost done! The last step is to get solr and the search index setup. Start by following the instructions in [SOLR-SETUP.md](https://github.com/security-force-monitor/sfm-cms/blob/master/SOLR-SETUP.md) to get solr installed and running on your machine.
+TODO - document the service account setup necessary to import from google doc
+TODO - document the solr docker
 
 Then, create the search index:
 

@@ -1,0 +1,18 @@
+version: '3.3'
+services:
+  solr:
+    build:
+      context: .
+      dockerfile: Dockerfile-solr-jts
+    container_name: sfm-solr
+    volumes:
+      - ./solr_configs:/sfm_configs
+      - data:/opt/solr/server/solr/mycores
+    command: sh -c 'solr-create -c sfm -d /sfm_configs'
+    ports:
+      - '127.0.0.1:8987:8983'
+    environment:
+      SOLR_LOG_LEVEL: ERROR
+      
+volumes:
+  data:

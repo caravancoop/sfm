@@ -31,14 +31,4 @@ class Migration(migrations.Migration):
             ) AS s
             WHERE violation_violationtype.value_id = s.id
         '''),
-        migrations.RunSQL(
-            '''
-            ALTER TABLE violation_violationperpetratorclassification DROP COLUMN value_id
-            '''
-        ),
-        migrations.RunSQL(
-            '''
-            ALTER TABLE violation_violationtype DROP COLUMN value_id
-            '''
-        ),
     ]

@@ -46,10 +46,4 @@ class Migration(migrations.Migration):
             WHERE membershipperson_membershippersonendcontext.value_id = s.id
         '''),
         migrations.RunPython(remake_views),
-        migrations.RunSQL('''
-            ALTER TABLE membershipperson_membershippersonstartcontext DROP COLUMN value_id
-        '''),
-        migrations.RunSQL('''
-            ALTER TABLE membershipperson_membershippersonendcontext DROP COLUMN value_id
-        '''),
     ]

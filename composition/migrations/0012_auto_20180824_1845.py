@@ -31,7 +31,4 @@ class Migration(migrations.Migration):
             WHERE composition_compositionclassification.value_id = s.id
         '''),
         migrations.RunPython(remake_view),
-        migrations.RunSQL('''
-            ALTER TABLE composition_compositionclassification DROP COLUMN value_id
-        ''')
     ]
