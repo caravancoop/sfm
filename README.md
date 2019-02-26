@@ -1,4 +1,4 @@
-# Security Force Monitor: Backend
+# Security Force Monitor: Backend [![Build Status](https://travis-ci.org/security-force-monitor/sfm-cms.svg?branch=master)](https://travis-ci.org/security-force-monitor/sfm-cms)
 
 ## OS Level dependencies
 
