@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 USER=datamade
 DB=sfm
 IMPORT_DB=importer
