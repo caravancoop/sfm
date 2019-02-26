@@ -1,3 +1,19 @@
+auth_models.json :
+	python manage.py dumpdata auth.User > $@
+
+.PHONY : flush_db
+flush_db : auth_models.json
+	python manage.py flush
+
+.PHONY : link_locations
+link_locations: flush_db
+	python manage.py link_locations
+
+.PHONY : update_db
+update_db : auth_models.json flush_db link_locations import_google_docs
+	python manage.py loaddata $<
+
+
 %_import :
 	python manage.py import_google_doc --source_doc_id 1IL4yJMG7KBpOdGZbFsAcGFjSPpVVSNbKLMsRdKC3-XM --doc_id $(GOOGLE_DOC_ID)
 	- mv events-errors.csv $*_events-errors.csv
@@ -25,11 +41,12 @@ import_google_docs : bgd_import mx_import	\
 
 .PHONY : clean
 clean :
+	- rm auth_models.json
 	rm bgd_import eg_import mx_import my_import ng_import	\
            ph_import rwa_import sa_import ug_import
 
-.PHONY : foo
-foo : 
+.PHONY : search
+search : 
 	python manage.py make_flattened_views --recreate
 	python manage.py make_search_index --recreate
 
