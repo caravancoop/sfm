@@ -47,10 +47,4 @@ class Migration(migrations.Migration):
             WHERE organization_organizationclassification.value_id = s.id
         '''),
         migrations.RunPython(remake_views),
-        migrations.RunSQL('''
-            ALTER TABLE organization_organizationalias DROP COLUMN value_id
-        '''),
-        migrations.RunSQL('''
-            ALTER TABLE organization_organizationclassification DROP COLUMN value_id
-        '''),
     ]

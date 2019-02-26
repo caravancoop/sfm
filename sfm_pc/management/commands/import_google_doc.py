@@ -139,7 +139,6 @@ class Command(BaseCommand):
         post_save.connect(receiver=update_membership_index, sender=MembershipPerson)
         post_save.connect(receiver=update_composition_index, sender=Composition)
 
-    # @transaction.atomic
     def handle(self, *args, **options):
 
         if options['flush']:
@@ -217,6 +216,27 @@ class Command(BaseCommand):
         skippers = ['Play Copy of Events']
         start = int(options['start'])
 
+        # These are used for the mapping that we need to make below
+        self.organization_uuid = self.col('DI')
+        self.person_uuid = self.col('BN')
+        self.event_uuid = self.col('AG')
+        name_position = self.col('B')
+
+        for entity_type in ['organization', 'person', 'event']:
+
+            sheets = all_sheets[entity_type]
+
+            for sheet in sheets.values():
+
+                entity_map = {}
+
+                for row in sheet[start:]:
+                    if row:
+                        uuid = getattr(self, '{}_uuid'.format(entity_type))
+                        entity_map[row[name_position]] = row[uuid]
+
+                setattr(self, '{}_entity_map'.format(entity_type), entity_map)
+
         for entity_type in options['entity_types'].split(','):
 
             sheets = all_sheets[entity_type]
@@ -224,7 +244,6 @@ class Command(BaseCommand):
             for title, sheet in sheets.items():
 
                 self.stdout.write(self.style.SUCCESS('Creating {0}s from {1} ... '.format(entity_type, title)))
-
                 self.current_sheet = title
 
                 if not title in skippers:
@@ -483,15 +502,21 @@ class Command(BaseCommand):
                 }
 
                 try:
-                    organization = Organization.objects.get(organizationname__value=name_value,
-                                                            organizationdivisionid__value=division_id)
+                    uuid = self.organization_entity_map[name_value]
+                except KeyError:
+                    self.log_error('Could not find "{}" in list of organization names'.format(name_value))
+                    return None
+
+                try:
+                    organization = Organization.objects.get(uuid=uuid)
                     existing_sources = self.sourcesList(organization, 'name')
                     org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
                     organization.update(org_info)
 
                 except Organization.DoesNotExist:
-                    organization = Organization.create(org_info)
+                    organization = Organization.objects.create(uuid=uuid)
+                    organization.update(org_info)
 
                 org_attributes = ['Alias', 'Classification', 'OpenEnded', 'Headquarters']
 
@@ -580,16 +605,23 @@ class Command(BaseCommand):
                                 'sources': sources,
                             },
                         }
+
                         try:
-                            parent_organization = Organization.objects.get(organizationname__value=parent_org_name,
-                                                                           organizationdivisionid__value=division_id)
+                            uuid = self.organization_entity_map[parent_org_name]
+                        except KeyError:
+                            self.log_error('Could not find "{}" in list of organization names'.format(parent_org_name))
+                            return None
+
+                        try:
+                            parent_organization = Organization.objects.get(uuid=uuid)
                             existing_sources = self.sourcesList(parent_organization, 'name')
                             parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
                             parent_organization.update(parent_org_info)
 
                         except Organization.DoesNotExist:
-                            parent_organization = Organization.create(parent_org_info)
+                            parent_organization = Organization.objects.create(uuid=uuid)
+                            parent_organization.update(parent_org_info)
 
                         comp_info = {
                             'Composition_CompositionParent': {
@@ -678,15 +710,21 @@ class Command(BaseCommand):
                         }
 
                         try:
-                            member_organization = Organization.objects.get(organizationname__value=member_org_name,
-                                                                           organizationdivisionid__value=division_id)
+                            uuid = self.organization_entity_map[member_org_name]
+                        except KeyError:
+                            self.log_error('Could not find "{}" in list of organization names'.format(member_org_name))
+                            return None
+
+                        try:
+                            member_organization = Organization.objects.get(uuid=uuid)
                             existing_sources = self.sourcesList(member_organization, 'name')
                             member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
                             member_organization.update(member_org_info)
 
                         except Organization.DoesNotExist:
-                            member_organization = Organization.create(member_org_info)
+                            member_organization = Organization.objects.create(uuid=uuid)
+                            member_organization.update(member_org_info)
 
                         membership_info = {
                             'MembershipOrganization_MembershipOrganizationMember': {
@@ -1534,13 +1572,20 @@ class Command(BaseCommand):
                 }
 
                 try:
-                    person = Person.objects.get(personname__value=name_value)
+                    uuid = self.person_entity_map[name_value]
+                except KeyError:
+                    self.log_error('Could not find "{}" in list of person names'.format(name_value))
+                    return None
+
+                try:
+                    person = Person.objects.get(uuid=uuid)
                     sources = self.sourcesList(person, 'name')
                     person_info["Person_PersonName"]['sources'] += sources
                     person.update(person_info)
 
                 except Person.DoesNotExist:
-                    person = Person.create(person_info)
+                    person = Person.objects.create(uuid=uuid)
+                    person.update(person_info)
 
                 self.make_relation('Alias',
                                    person_positions['Alias'],
@@ -1580,11 +1625,17 @@ class Command(BaseCommand):
                 }
 
                 try:
-                    organization = Organization.objects.get(organizationname__value=organization_name,
-                                                            organizationdivisionid__value=division_id)
+                    uuid = self.organization_entity_map[organization_name]
+                except KeyError:
+                    self.log_error('Could not find "{}" in list of organization names'.format(organization_name))
+                    return None
+
+                try:
+                    organization = Organization.objects.get(uuid=uuid)
 
                 except Organization.DoesNotExist:
-                    organization = Organization.create(org_info)
+                    organization = Organization.objects.create(uuid=uuid)
+                    organization.update(org_info)
 
                 else:
                     name_sources = self.sourcesList(organization, 'name')
@@ -1829,9 +1880,10 @@ class Command(BaseCommand):
             }
         }
 
+        uuid = event_data[self.col('AG')]
+
         with reversion.create_revision():
-            violation = Violation()
-            violation.save()
+            violation, created = Violation.objects.get_or_create(uuid=uuid)
             reversion.set_user(self.user)
 
         simple_attrs = ('LocationDescription', 'Type', 'Description', 'Status')
@@ -1985,8 +2037,15 @@ class Command(BaseCommand):
             perps = [perp.strip() for perp in perpetrator.split(';') if perp.strip()]
 
             for perp in perps:
+
                 try:
-                    person = Person.objects.get(personname__value=perp)
+                    uuid = self.person_entity_map[perp]
+                except KeyError:
+                    self.log_error('Could not find "{}" in list of person names'.format(perp))
+                    continue
+
+                try:
+                    person = Person.objects.get(uuid=uuid)
                 except Person.DoesNotExist:
                     person_info = {
                         'Person_PersonName': {
@@ -2000,7 +2059,8 @@ class Command(BaseCommand):
                             'sources': sources
                         }
                     }
-                    person = Person.create(person_info)
+                    person = Person.objects.create(uuid=uuid)
+                    person.update(person_info)
 
                 vp, created = ViolationPerpetrator.objects.get_or_create(value=person,
                                                                          object_ref=violation)
@@ -2025,8 +2085,13 @@ class Command(BaseCommand):
             for org in orgs:
 
                 try:
-                    organization = Organization.objects.get(organizationname__value=org,
-                                                            organizationdivisionid__value=division_id)
+                    uuid = self.organization_entity_map[org]
+                except KeyError:
+                    self.log_error('Could not find "{}" in list of organization names'.format(org))
+                    return None
+
+                try:
+                    organization = Organization.objects.get(uuid=uuid)
                 except (Organization.DoesNotExist, ValueError):
 
                     info = {
@@ -2041,7 +2106,8 @@ class Command(BaseCommand):
                             'sources': sources,
                         }
                     }
-                    organization = Organization.create(info)
+                    organization = Organization.objects.create(uuid=uuid)
+                    organization.update(info)
 
                 vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
                                                                                           object_ref=violation)

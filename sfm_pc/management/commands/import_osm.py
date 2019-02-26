@@ -11,9 +11,10 @@ import sqlalchemy as sa
 import psycopg2
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction, connection
 from django.db.utils import ProgrammingError
 from django.conf import settings
+
+from location.models import Location
 
 DB_CONN = 'postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}'
 
@@ -72,6 +73,8 @@ class Command(BaseCommand):
             download_only = True
             import_only = True
 
+        self.makeDataTable()
+
         for country in settings.OSM_DATA:
             if download_only:
                 self.downloadPBFs(country)
@@ -84,7 +87,6 @@ class Command(BaseCommand):
             self.createCombinedTable(country)
 
     def createCombinedTable(self, country):
-        self.makeDataTable()
         self.makeRawTable(country)
         self.findNewRecords(country)
         self.insertNewRecords(country)
