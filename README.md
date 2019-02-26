@@ -96,6 +96,8 @@ within the `sfm_pc` directory of this project predictably called
 `import_google_doc`. Before actually running the script, you'll need to take
 a few steps.
 
+The google sheets need to follow this format: https://docs.google.com/spreadsheets/d/12Kap4YtzWPtCdJy-iknF1aDaoIDMij4GU8E2-HlZkAo/edit#gid=597380077
+
 **Import OpenStreetMap data**
 
 As the Google Sheet importer is importing, it is creating relationships between
