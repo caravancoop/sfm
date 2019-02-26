@@ -174,10 +174,6 @@ python manage.py import_google_doc --source_doc_id <source doc id> --doc_id
 
 ## Importing new data without disrupting servers
 
-_This documentation was written in early 2018 before some major changes to the
-data structure happened that fall. There's a chance this will not work as
-advertized anymore._
-
 This repo has a system for performing fresh data imports without disrupting
 the normal activity of the server.
 
@@ -197,36 +193,11 @@ tmux new -s fresh-import
 sudo su - <user>
 workon sfm
 cd sfm-importer
-```
-
-Although the `importer` database should already be a copy of the production
-database, you can redo the copy to be safe:
-
-```
-dropdb importer
-
-# Add our typical user here instead of <user>
-psql -U postgres -c "CREATE DATABASE importer WITH TEMPLATE sfm OWNER <user>"
-```
-
-If you want to drop existing tables containing data in the database, you can
-use a SQL script that we have for that purpose:
-
-```
-psql importer < sfm_pc/management/commands/flush/flush.sql
-
-# Refresh the country data, which gets dropped in flush.sql
-python manage.py update_countries_plus
-```
-
-Next, perform the import as normal. This can take a long time, so go get some
-fresh air.
-
-```
-python manage.py import_google_doc
+make update_db
 python manage.py make_flattened_views --recreate
 python manage.py update_search_index
 ```
+
 
 Finally, switch the `sfm` and `importer` databases:
 
