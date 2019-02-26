@@ -1,16 +1,28 @@
-auth_models.json :
+USER=datamade
+DB=sfm
+IMPORT_DB=importer
+
+.PHONY : import_directory
+import_directory :
+	[[ "$$PWD" =~ sfm-importer ]]
+
+import_db : import_directory
+	- dropdb $(IMPORT_DB)
+	psql -U postgres -c "CREATE DATABASE $(IMPORT_DB) WITH TEMPLATE $(DB) OWNER $(USER)"
+
+auth_models.json : import_directory
 	python manage.py dumpdata auth.User > $@
 
 .PHONY : flush_db
-flush_db : auth_models.json
+flush_db : import_directory auth_models.json
 	python manage.py flush
 
 .PHONY : link_locations
-link_locations: flush_db
+link_locations: import_directory flush_db
 	python manage.py link_locations
 
 .PHONY : update_db
-update_db : auth_models.json flush_db link_locations import_google_docs
+update_db : import_directory import_db auth_models.json flush_db link_locations import_google_docs
 	python manage.py loaddata $<
 
 
