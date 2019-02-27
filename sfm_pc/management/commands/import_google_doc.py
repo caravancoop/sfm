@@ -1584,7 +1584,7 @@ class Command(BaseCommand):
                     person.update(person_info)
 
                 except Person.DoesNotExist:
-                    person = Person.objects.create(uuid=uuid)
+                    person = Person.objects.create(uuid=uuid, published=True)
                     person.update(person_info)
 
                 self.make_relation('Alias',
@@ -1883,7 +1883,8 @@ class Command(BaseCommand):
         uuid = event_data[self.col('AG')]
 
         with reversion.create_revision():
-            violation, created = Violation.objects.get_or_create(uuid=uuid)
+            violation, created = Violation.objects.get_or_create(uuid=uuid,
+                                                                 published=True)
             reversion.set_user(self.user)
 
         simple_attrs = ('LocationDescription', 'Type', 'Description', 'Status')
@@ -2106,7 +2107,8 @@ class Command(BaseCommand):
                             'sources': sources,
                         }
                     }
-                    organization = Organization.objects.create(uuid=uuid)
+                    organization = Organization.objects.create(uuid=uuid,
+                                                               published=True)
                     organization.update(info)
 
                 vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
