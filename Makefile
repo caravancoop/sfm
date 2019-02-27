@@ -11,6 +11,7 @@ import_db : import_directory
 	- dropdb $(IMPORT_DB)
 	psql -U postgres -c "CREATE DATABASE $(IMPORT_DB) WITH TEMPLATE $(DB) OWNER $(USER)"
 
+
 auth_models.json : import_directory
 	python manage.py dumpdata auth.User > $@
 
@@ -24,8 +25,8 @@ link_locations: import_directory flush_db
 
 .PHONY : update_db
 update_db : import_directory import_db auth_models.json flush_db link_locations import_google_docs
-	python manage.py loaddata $<
-
+	python manage.py loaddata auth_models.json
+	psql importer < sfm_pc/management/commands/flush/rename.sql
 
 %_import :
 	python manage.py import_google_doc --source_doc_id 1IL4yJMG7KBpOdGZbFsAcGFjSPpVVSNbKLMsRdKC3-XM --doc_id $(GOOGLE_DOC_ID)
