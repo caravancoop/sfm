@@ -26,7 +26,9 @@ link_locations: import_directory flush_db
 .PHONY : update_db
 update_db : import_directory import_db auth_models.json flush_db link_locations import_google_docs
 	python manage.py loaddata auth_models.json
-	psql importer < sfm_pc/management/commands/flush/rename.sql
+        python manage.py make_flattened_views --recreate
+	python manage.py make_search_index --recreate
+	# psql importer < sfm_pc/management/commands/flush/rename.sql
 
 %_import :
 	python manage.py import_google_doc --source_doc_id 1IL4yJMG7KBpOdGZbFsAcGFjSPpVVSNbKLMsRdKC3-XM --doc_id $(GOOGLE_DOC_ID)

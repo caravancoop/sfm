@@ -1,0 +1,4 @@
+BEGIN;
+ALTER DATABASE sfm RENAME to importer;
+ALTER DATABASE backup RENAME to sfm;
+COMMIT;
