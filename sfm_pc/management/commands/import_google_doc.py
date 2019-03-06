@@ -515,7 +515,8 @@ class Command(BaseCommand):
                     organization.update(org_info)
 
                 except Organization.DoesNotExist:
-                    organization = Organization.objects.create(uuid=uuid)
+                    organization = Organization.objects.create(uuid=uuid,
+                                                               published=True)
                     organization.update(org_info)
 
                 org_attributes = ['Alias', 'Classification', 'OpenEnded', 'Headquarters']
@@ -620,7 +621,8 @@ class Command(BaseCommand):
                             parent_organization.update(parent_org_info)
 
                         except Organization.DoesNotExist:
-                            parent_organization = Organization.objects.create(uuid=uuid)
+                            parent_organization = Organization.objects.create(uuid=uuid,
+                                                                              published=True)
                             parent_organization.update(parent_org_info)
 
                         comp_info = {
@@ -723,7 +725,8 @@ class Command(BaseCommand):
                             member_organization.update(member_org_info)
 
                         except Organization.DoesNotExist:
-                            member_organization = Organization.objects.create(uuid=uuid)
+                            member_organization = Organization.objects.create(uuid=uuid
+                                                                              published=True)
                             member_organization.update(member_org_info)
 
                         membership_info = {
@@ -1634,7 +1637,8 @@ class Command(BaseCommand):
                     organization = Organization.objects.get(uuid=uuid)
 
                 except Organization.DoesNotExist:
-                    organization = Organization.objects.create(uuid=uuid)
+                    organization = Organization.objects.create(uuid=uuid,
+                                                               published=True)
                     organization.update(org_info)
 
                 else:
@@ -2060,7 +2064,7 @@ class Command(BaseCommand):
                             'sources': sources
                         }
                     }
-                    person = Person.objects.create(uuid=uuid)
+                    person = Person.objects.create(uuid=uuid, published=True)
                     person.update(person_info)
 
                 vp, created = ViolationPerpetrator.objects.get_or_create(value=person,
