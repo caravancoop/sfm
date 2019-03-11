@@ -22,5 +22,5 @@ class Location(models.Model):
 
     def __str__(self):
         if self.name is None:
-            return self.id
+            return str(self.id)
         return self.name
