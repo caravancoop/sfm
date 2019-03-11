@@ -725,7 +725,7 @@ class Command(BaseCommand):
                             member_organization.update(member_org_info)
 
                         except Organization.DoesNotExist:
-                            member_organization = Organization.objects.create(uuid=uuid
+                            member_organization = Organization.objects.create(uuid=uuid,
                                                                               published=True)
                             member_organization.update(member_org_info)
 

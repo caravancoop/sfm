@@ -35,6 +35,7 @@ Create Materialized Views for global search, and looking up a Geoname object bas
     python manage.py import_osm
     python manage.py import_google_doc --source_doc_id 1IL4yJMG7KBpOdGZbFsAcGFjSPpVVSNbKLMsRdKC3-XM --doc_id <hash from URL of sheet>
     python manage.py link_locations
+    python manage.py update_countries_plus
     python manage.py make_flattened_views
 
 TODO - document the service account setup necessary to import from google doc
