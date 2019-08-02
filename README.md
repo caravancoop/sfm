@@ -10,6 +10,8 @@
 
 ## Development
 
+### Basic setup
+
 Create a virtual environment and clone the repo:
 
     mkvirtualenv sfm
@@ -42,6 +44,8 @@ Then, load this dump into your own database:
 
     pg_restore -d sfm sfm.dump
 
+Once the dump has been restored, move on to the step `Set up the search index` below.
+
 ### Option 2: Load data via management commands
 
 The standard way to load data into the app is to use the app's management commands for loading data. Start by running migrations for the app:
@@ -68,11 +72,13 @@ Make materialized views for the app based on the imported data:
 
     python manage.py make_flattened_views --recreate
 
+### Set up the search index
+
 Build and start the Docker image for the Solr server:
 
     docker-compose up --build
 
-Create the search index:
+Open up another shell and create the search index:
 
     python manage.py make_search_index
 
