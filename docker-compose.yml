@@ -10,9 +10,9 @@ services:
       - data:/opt/solr/server/solr/mycores
     command: sh -c 'solr-create -c sfm -d /sfm_configs'
     ports:
-      - '127.0.0.1:8987:8983'
+      - '8983:8983'
     environment:
       SOLR_LOG_LEVEL: ERROR
-      
+
 volumes:
   data:
