@@ -5,6 +5,12 @@
 *.swo
 *.swp
 .DS_Store
+
+# Import artifacts
+*_import
+*-errors.csv
+sfm_pc/management/commands/data/
+
 /staticfiles
 bin/
 db.sqlite3
@@ -17,6 +23,7 @@ settings_local.py
 /configs/auth.json
 /configs/client_secrets.json
 /configs/credentials.json
+credentials.json
 /configs/settings_local_production.py
 /configs/settings_local_staging.py
 /configs/sfm.conf.production.nginx

@@ -6,14 +6,19 @@
 * PostgreSQL 9.4+
 * PostGIS
 * osm2pgsql
+* Docker and Docker Compose
 
 ## Development
+
+### Basic setup
+
+Create a virtual environment and clone the repo:
 
     mkvirtualenv sfm
     git clone git@github.com:security-force-monitor/sfm-cms.git
     cd sfm-cms
 
-Install the requirements:
+Install Python requirements:
 
     pip install -r requirements.txt
 
@@ -21,27 +26,59 @@ Create a local settings file:
 
     cp sfm_pc/settings_local.py.example sfm_pc/settings_local.py
 
-Replace OSM_API_Key in `settings_local.py` with a Wambacher cliKey. Generate a key [here](https://wambachers-osm.website/boundaries/) by enabling OAuth, selecting a boundary, checking CLI, hitting Export, and looking at the generated URL.
+Replace OSM_API_Key in `settings_local.py` with a Wambacher cliKey. Generate a key [here](https://wambachers-osm.website/boundaries/) by enabling OAuth, selecting a boundary, checking CLI, hitting Export, and looking at the generated URL. If you're on the Blackbox keyring for the project, you can also copy the API key from `configs/settings_local_staging.py.gpg`.
 
 Create a database:
 
     createdb sfm
+
+Once you have a database, there are two ways that you can load data into it.
+
+### Option 1: Load a database dump
+
+The standard data loading process for the app can take many hours to complete. If you're working with a developer who already has a database set up, you can save time by having them make a dump of their database for you:
+
+    pg_dump -Fc -O sfm > sfm.dump
+
+Then, load this dump into your own database:
+
+    pg_restore -d sfm sfm.dump
+
+Once the dump has been restored, move on to the step `Set up the search index` below.
+
+### Option 2: Load data via management commands
+
+The standard way to load data into the app is to use the app's management commands for loading data. Start by running migrations for the app:
+
     psql sfm -c "CREATE EXTENSION postgis;"
-    ./manage.py migrate
+    python manage.py migrate
+    python manage.py update_countries_plus
 
-
-Create Materialized Views for global search, and looking up a Geoname object based upon a geoname id:
+Import OSM data:
 
     python manage.py import_osm
-    python manage.py import_google_doc --source_doc_id 1IL4yJMG7KBpOdGZbFsAcGFjSPpVVSNbKLMsRdKC3-XM --doc_id <hash from URL of sheet>
     python manage.py link_locations
-    python manage.py update_countries_plus
-    python manage.py make_flattened_views
 
-TODO - document the service account setup necessary to import from google doc
-TODO - document the solr docker
+Import entity data from Google Drive:
 
-Then, create the search index:
+    # This command will look for valid credential data for a Google Drive Service Account
+    # in sfm_pc/management/commands/credentials.json. The Service Account needs to have
+    # access to all the relevant files. If you're on the keyring for this project, run
+    # the follow Blackbox command before running the Makefile:
+    # blackbox_cat configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
+    make import_google_docs
+
+Make materialized views for the app based on the imported data:
+
+    python manage.py make_flattened_views --recreate
+
+### Set up the search index
+
+Build and start the Docker image for the Solr server:
+
+    docker-compose up --build
+
+Open up another shell and create the search index:
 
     python manage.py make_search_index
 

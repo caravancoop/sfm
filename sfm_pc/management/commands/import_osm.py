@@ -83,8 +83,7 @@ class Command(BaseCommand):
             if import_only:
                 self.importPBF(country)
                 self.importBoundaries(country)
-
-            self.createCombinedTable(country)
+                self.createCombinedTable(country)
 
     def createCombinedTable(self, country):
         self.makeRawTable(country)
