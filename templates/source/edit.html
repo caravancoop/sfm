@@ -122,10 +122,23 @@
             <div class="form-group">
                 <div class="col-sm-12">
                     <br />
-                    <button type="submit" class="btn btn-success pull-right">{% trans "Save" %}  <i class="fa fa-check"></i></button>
+                    <button type="button" class="btn btn-danger" id="cancel-button">{% trans "Cancel" %}  <i class="fas fa-times"></i></button>
+                    <button type="submit" class="btn btn-success">{% trans "Save" %}  <i class="fa fa-check"></i></button>
                 </div>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+
+  {{ block.super }}
+  <script>
+
+    $('#cancel-button').on('click', function() {
+      window.history.back()
+    });
+
+  </script>
+
 {% endblock %}
