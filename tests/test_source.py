@@ -17,8 +17,14 @@ from source.models import Source, AccessPoint
 from person.models import Person
 
 
+@pytest.fixture
+def update_index_mock(mocker):
+    """Mock the update_index method that fires on the Search.post_save signal."""
+    return mocker.patch('sfm_pc.signals.update_index', autospec=True)
+
+
 @pytest.mark.django_db
-def test_create_source(setUp):
+def test_create_source(setUp, update_index_mock):
 
     response = setUp.get(reverse_lazy('create-source'), follow=True)
     assert response.status_code == 200
@@ -35,6 +41,7 @@ def test_create_source(setUp):
 
     response = setUp.post(reverse_lazy('create-source'), post_data, follow=True)
     assert response.status_code == 200
+    update_index_mock.assert_called_once_with('sources', post_data['uuid'])
 
     source = Source.objects.get(publication='Test Publication Title')
 
@@ -78,7 +85,7 @@ def test_create_accesspoint(setUp, sources):
 
 
 @pytest.mark.django_db
-def test_update_source(setUp, sources):
+def test_update_source(setUp, sources, update_index_mock):
     source = sources[0]
 
     response = setUp.get(reverse_lazy('update-source', kwargs={'pk': source.uuid}))
@@ -91,12 +98,13 @@ def test_update_source(setUp, sources):
         'source_url': source.source_url,
         'published_on': source.published_on,
         'comment': 'Test change',
-        'uuid': source.uuid,
+        'uuid': str(source.uuid),
     }
 
     response = setUp.post(reverse_lazy('update-source', kwargs={'pk': source.uuid}), post_data, follow=True)
 
     assert response.status_code == 200
+    update_index_mock.assert_called_once_with('sources', post_data['uuid'])
 
     source = Source.objects.get(uuid=source.uuid)
 

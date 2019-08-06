@@ -54,4 +54,4 @@ def update_source_index(sender, **kwargs):
     # An instance will always be sent by the post_save receiver. See:
     # https://docs.djangoproject.com/en/2.2/ref/signals/#django.db.models.signals.pre_save
     instance = kwargs['instance']
-    update_index('sources', instance.uuid)
+    update_index('sources', str(instance.uuid))
