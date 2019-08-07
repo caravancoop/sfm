@@ -1,5 +1,5 @@
 import json
-from uuid import uuid4
+import uuid
 import itertools
 import sys
 
@@ -40,25 +40,30 @@ class SourceView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        access_point_id = kwargs.get('point')
-        evidenced = context['source'].get_evidenced(access_point_id)
+        access_point_id = self.request.GET.get('point')
+        if access_point_id:
+            evidenced = context['source'].get_evidenced(access_point_id)
 
-        evidenced_table = []
+            evidenced_table = []
 
-        for record in evidenced:
-            name = str(record)
-            record_type = record.object_ref._meta.object_name
-            field_name = record._meta.model_name.replace(record_type.lower(), '').title()
-            value = record.value
+            for record in evidenced:
+                name = str(record)
+                record_type = record.object_ref._meta.object_name
+                field_name = record._meta.model_name.replace(record_type.lower(), '').title()
+                value = record.value
 
-            link = None
+                link = None
 
-            if record_type in ['Organization', 'Person']:
-                link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'slug': record.object_ref.uuid})
+                if record_type in ['Organization', 'Person']:
+                    link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'slug': record.object_ref.uuid})
 
-            evidenced_table.append([name, record_type, field_name, value, link])
+                evidenced_table.append([name, record_type, field_name, value, link])
 
-        context['evidenced'] = evidenced_table
+            context['evidenced'] = evidenced_table
+            # Access point IDs will be parsed from query params as Strings, so we
+            # need to convert them to UUIDs in order to compare to access point IDs
+            # that have been retrieved from the database.
+            context['access_point_id'] = uuid.UUID(access_point_id)
         return context
 
 
@@ -109,7 +114,7 @@ class SourceCreate(SourceEditView, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['source_id'] = str(uuid4())
+        context['source_id'] = str(uuid.uuid4())
 
         return context
 

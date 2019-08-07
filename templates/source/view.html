@@ -36,20 +36,30 @@
         </div>
     </div>
 </div>
-{% if source.accesspoint_set.count > 0 %}
-    <div class="row">
-        <div class="col-sm-12">
-            <p><strong>Select an access point</strong> to view records evidenced by this source:</p>
-            <ul>
-                {% for point in source.accesspoint_set.all %}
-                    <li><a href="?point={{ point.uuid }}">{{ point.archive_url }}</a></li>
-                {% endfor %}
-            </ul>
-            </form>
-        </div>
+<div class="row">
+    <div class="col-sm-12">
+    {% if source.accesspoint_set.count > 0 %}
+        <p><strong>Select an access point</strong> to view records evidenced by this source:</p>
+        <ul>
+        {% for point in source.accesspoint_set.all %}
+            <li>
+                <a href="?point={{ point.uuid }}">
+                {% if point.uuid == access_point_id %}
+                    <strong>{{ point.archive_url }}</strong>
+                {% else %}
+                    {{ point.archive_url }}
+                {% endif %}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No access points found for this source.</p>
+    {% endif %}
     </div>
-{% endif %}
 </div>
+</div>
+{% if evidenced %}
 <div class="row">
     <div class="col-sm-12">
         <h3>This access point evidences the following records:</h3>
@@ -83,4 +93,5 @@
         </table>
     </div>
 </div>
+{% endif %}
 {% endblock %}
