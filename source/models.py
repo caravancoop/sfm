@@ -44,13 +44,16 @@ class Source(models.Model, VersionsMixin):
         from django.core.urlresolvers import reverse
         return reverse('view-source', args=[self.uuid])
 
-    def get_evidenced(self):
+    def get_evidenced(self, access_point_id=None):
         evidenced = []
 
         for prop in dir(self):
 
             if prop.endswith('_related'):
-                related = getattr(self, prop).all()
+                related = getattr(self, prop)
+                if access_point_id:
+                    related = related.filter(accesspoints__uuid=access_point_id)
+                related = related.all()
 
                 if related:
 
@@ -58,10 +61,6 @@ class Source(models.Model, VersionsMixin):
                         evidenced.append(rel)
 
         return evidenced
-
-    @property
-    def archive_urls(self):
-        return ' | '.join(a.archive_url for a in self.accesspoint_set.all())
 
     @property
     def revert_url(self):

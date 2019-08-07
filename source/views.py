@@ -40,7 +40,8 @@ class SourceView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        evidenced = context['source'].get_evidenced()
+        access_point_id = kwargs.get('point')
+        evidenced = context['source'].get_evidenced(access_point_id)
 
         evidenced_table = []
 

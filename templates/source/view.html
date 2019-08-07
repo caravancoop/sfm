@@ -6,17 +6,20 @@
         <div class="jumbotron">
             <div class="row">
                 <div class="col-sm-12">
-                    <h2 class="page-title cited">
-                        <a href="{{ source.source_url }}" target="_blank">
-                            {{ source.title }}
-                        </a>
-                        {% if request.user.is_staff %}
+                    {% if request.user.is_staff %}
+                        <h2>
                             <small class="pull-right">
                                 <a class="btn btn-default" type="button" role="button" href="{% url 'update-source' source.uuid %}">
                                     <i class="fa fa-fw fa-edit"></i>{% trans "Edit" %}
                                 </a>
                             </small>
-                        {% endif %}
+                        </h2>
+                    {% endif %}
+                    <h2 class="page-title cited">
+                        <i class="fa fa-fw fa-paperclip"></i>
+                        <a href="{{ source.source_url }}" target="_blank">
+                            {{ source.title }}
+                        </a>
                     </h2>
                 </div>
             </div>
@@ -25,7 +28,6 @@
                     <p>
                         <strong>Publisher: </strong>{{ source.publication }} ({{ source.publication_country }})<br />
                         <strong>Publication date: </strong>{{ source.published_on }}<br />
-                        <strong>Archive URLs: </strong>{{ source.archive_urls }}<br />
                         <strong>Accessed on: </strong>{{ source.accessed_on }}<br />
                         <strong>Last edited by: </strong>{{ source.user }}
                     </p>
@@ -34,9 +36,23 @@
         </div>
     </div>
 </div>
+{% if source.accesspoint_set.count > 0 %}
+    <div class="row">
+        <div class="col-sm-12">
+            <p><strong>Select an access point</strong> to view records evidenced by this source:</p>
+            <ul>
+                {% for point in source.accesspoint_set.all %}
+                    <li><a href="?point={{ point.uuid }}">{{ point.archive_url }}</a></li>
+                {% endfor %}
+            </ul>
+            </form>
+        </div>
+    </div>
+{% endif %}
+</div>
 <div class="row">
     <div class="col-sm-12">
-        <h2>This source evidences the below data:</h2>
+        <h3>This access point evidences the following records:</h3>
         <table class="table table-striped">
             <thead>
                 <tr>
