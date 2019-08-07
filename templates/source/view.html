@@ -38,35 +38,43 @@
 <div class="row">
     <div class="col-sm-12">
         <h2 id="evidence">Evidence</h2>
+        <br />
     {% if source.accesspoint_set.count > 0 %}
-        <form>
-            <div class="form-group">
-                <label for="access-point">
-                    {% trans "Select an access point to view records evidenced by this source:" %}
-                </label>
-                <select id="access-point">
-                    <option></option>
-                {% for point in source.accesspoint_set.all %}
-                    <option
-                        value="{{ point.uuid }}"
-                        {% if point.uuid == access_point_id %}selected{% endif %}
-                    >
-                        {{ point }}
-                    </option>
-                {% endfor %}
-                </select>
-            </div>
-        </form>
+        <div class="col-sm-12 col-md-6">
+            <form>
+                <div class="form-group">
+                    <label for="access-point">
+                        {% trans "Select an access point to view records evidenced by this source:" %}
+                    </label>
+                    <select id="access-point" class="form-control">
+                        <option></option>
+                    {% for point in source.accesspoint_set.all %}
+                        <option
+                            value="{{ point.uuid }}"
+                            {% if point.uuid == access_point.uuid %}selected{% endif %}
+                        >
+                            {{ point }}
+                        </option>
+                    {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
         {% else %}
             <p>{% trans "No access points found for this source." %}</p>
         {% endif %}
     </div>
 </div>
 </div>
-{% if access_point_id %}
+{% if access_point.uuid %}
 <div class="row">
     <div class="col-sm-12">
-        <h3>{% trans "This access point evidences the following records:" %}</h3>
+        <h3>
+        {% blocktrans with access_point.archive_url as archive_url%}
+            Access point <a href="{{ archive_url }}">{{ access_point }}</a>
+            evidences the following records:
+        {% endblocktrans %}
+        </h3>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -108,12 +116,15 @@
 
 {% block extra_js %}
 <script type="text/javascript">
-    $('select#access-point').select2({allowClear: true, placeholder: 'Select an access point'}).change(function(event) {
+    $('select#access-point').select2({
+        allowClear: true,
+        placeholder: 'Select an access point',
+        width: 'resolve'
+    }).change(function(event) {
         // Simulate clicking on a link when a user selects an access point.
         var accessPointId = event.target.value;
         if (accessPointId === '') {
             // Clear the selection.
-            window.location.hash = '';
             window.location.search = '';
         }
         window.location.hash = 'evidence';
