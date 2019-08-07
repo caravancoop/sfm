@@ -1,5 +1,6 @@
 import threading
 import uuid
+import re
 
 import requests
 
@@ -11,6 +12,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from django_date_extensions.fields import ApproximateDateField
 
 from sfm_pc.utils import VersionsMixin
@@ -80,7 +83,33 @@ class AccessPoint(models.Model, VersionsMixin):
                              on_delete=models.SET(get_deleted_user))
 
     def __str__(self):
-        return '{0} {1}'.format(self.source, self.archive_url)
+        point_name = self.archive_timestamp
+        if self.page_number:
+            # Check if the page number is a range; if so, indicate to ngettext
+            # that the string should be plural. See:
+            # https://docs.djangoproject.com/en/2.2/topics/i18n/translation/#pluralization
+            is_range = 2 if ('-' in self.page_number or ', ' in self.page_number) else 1
+            # Translators: This prefix references to the page numbers in an access point.
+            pages_str = ngettext(
+                '(Page %(pages)s)',
+                '(Pages %(pages)s)',
+                is_range
+            ) % {
+                'pages': self.page_number
+            }
+            point_name += ' ' + pages_str
+        if self.accessed_on:
+            point_name += ' - ' + _('Accessed on %(date)s') % {'date': self.accessed_on}
+        return point_name
+
+    @property
+    def archive_timestamp(self):
+        """Given an access point archive_url, parse the timestamp."""
+        match = re.search(r"web\.archive\.org/web/(\d{14})/", self.archive_url)
+        if match:
+            return match.group(1)
+        else:
+            return _('No timestamp')
 
 
 def archive_source_url(source):
