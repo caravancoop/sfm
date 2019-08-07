@@ -160,7 +160,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-LOGIN_URL = reverse_lazy('account_login')
+LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = '/'
 
 AUTHENTICATION_BACKENDS = (

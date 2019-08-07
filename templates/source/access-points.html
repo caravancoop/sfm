@@ -120,7 +120,11 @@
                 <div class="col-sm-12 text-right">
                     <br />
                     <button type="button" class="btn btn-danger cancel-button">
-                      <a href="{% url 'view-access-point' accesspoint.uuid %}">
+                      {% if accesspoint.uuid %}
+                        <a href="{% url 'view-access-point' accesspoint.uuid %}">
+                      {% else %}
+                        <a href="{% url 'add-access-point' source.uuid %}">
+                      {% endif %}
                         {% trans "Cancel" %}  <i class="fas fa-times"></i>
                       </a>
                     </button>
