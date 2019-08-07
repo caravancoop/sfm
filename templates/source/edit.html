@@ -122,11 +122,21 @@
             <div class="form-group">
                 <div class="col-sm-12 col-sm-offset-9">
                     <br />
-                    <button type="button" class="btn btn-danger" name="cancel-button">{% trans "Cancel" %}  <i class="fas fa-times"></i></button>
+                    <button type="button" class="btn btn-danger" id="cancel-edit-source">{% trans "Cancel" %}  <i class="fas fa-times"></i></button>
                     <button type="submit" class="btn btn-success">{% trans "Save" %}  <i class="fa fa-check"></i></button>
                 </div>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    $('#cancel-edit-source').on('click', function() {
+      var link = "{% url 'view-source' source.uuid %}";
+      window.location.replace(link);
+    });
+
+  </script>
 {% endblock %}

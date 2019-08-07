@@ -39,11 +39,4 @@
 
 {% block extra_js %}
     {% include 'partials/source_edit_js.html' %}
-    <script>
-
-      $('button[name="cancel-button"]').on('click', function() {
-        window.history.back()
-      });
-
-    </script>
 {% endblock %}
