@@ -47,3 +47,11 @@ def update_composition_index(sender, **kwargs):
 
     update_index('organizations', composition.parent.get_value().value.uuid)
     update_index('organizations', composition.child.get_value().value.uuid)
+
+
+@receiver(post_save, sender=Source)
+def update_source_index(sender, **kwargs):
+    # An instance will always be sent by the post_save receiver. See:
+    # https://docs.djangoproject.com/en/2.2/ref/signals/#django.db.models.signals.pre_save
+    instance = kwargs['instance']
+    update_index('sources', str(instance.uuid))

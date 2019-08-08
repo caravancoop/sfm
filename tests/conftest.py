@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+from unittest import mock
 
 import pytest
 
@@ -45,14 +46,19 @@ def setUp(client, request, user):
 def sources(user):
     sources = []
 
-    for index in range(5):
-        source = Source.objects.create(title='Test {}'.format(index),
-                                       publication='Publication {}'.format(index),
-                                       publication_country='United States',
-                                       published_on='2018-01-01',
-                                       source_url='https://test.com/test-{}'.format(index),
-                                       user=user)
-        sources.append(source)
+    # Since we only want this mock to be applied during this specific block,
+    # use the built-in mock.patch() method instead of pytest-mock's fixture.
+    with mock.patch('sfm_pc.signals.update_index', autospec=True):
+        for index in range(5):
+            source = Source.objects.create(
+                title='Test {}'.format(index),
+                publication='Publication {}'.format(index),
+                publication_country='United States',
+                published_on='2018-01-01',
+                source_url='https://test.com/test-{}'.format(index),
+                user=user
+            )
+            sources.append(source)
 
     return sources
 
