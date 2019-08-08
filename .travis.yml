@@ -1,3 +1,8 @@
+branches:
+  only:
+  - master
+  - "/^v[0-9].*$/"
+
 language: python
 python: '3.6'
 
@@ -38,3 +43,7 @@ deploy:
     deployment_group: production
     on:
       tags: true
+
+notifications:
+  slack:
+    secure: B54z9eoFm5DeTi55MeUHtWR+qt536XVooGVFAlvUT0WS+6cniLALrHX5YempOgL+Zg2+fg/T/1GQ0Lap/nKpeG08RkRpl+KX05v5fBW8KQdKkhicajy/7SCKJOTp7L//8C4k2c7lkoKaKvmKeImgsx3cK2DaP7E0cf0MMwUmNunLm659mEtnERCtmMX8HM/bzet8qCvm3OmSUlBdFUjKrJ0g5v85eRYyf0WSy392sKMnXC7d69CEJyft1JmHv5oOdpNhk/aIkC4I4D8qJBV6A2soYr5UGmyUntIfEzUBSwQWAX6b7ri5S3Nq2xJpSCoQdN5wjZ2YL/0qb3X5fO/01exyKw1pFCYODpT3rfjXb9GSvp6AtEhtfPpY+ksfmJy3vpZA/l0GjsqIEBXvCRFkFwqt6+5MVyfwpN+d/dmOOt6xWZbn6tn/FEo2Ycr2bWrMyDBnJfldYlM1Yne7VUsbYOLP/hNE1KOv+1dOiaRqK6THZ+XHW8bXNf/spZ2eaeOeZ5MEzwdr60nREt3OZ93iOr/WGTQdzkR9lYwSokaJI7rjhzGePinMQS7C9+7eyb4zg8AWJhZytPSJBWDSR2q94c4ko8GJVnkWPX6Clpk5gyLyx8HFKZEh9rihlX/OGq9OuhTg9xur+1v/2fgKWVl+vkYF55d8pQzahb2fO9nyttk=
