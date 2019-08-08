@@ -12,7 +12,8 @@
   <link rel="stylesheet" href="{% static 'css/bootstrap.simplex.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/bootstrap-nav-wizard.css' %}">
 
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/all.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/v4-shims.css">
   <link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/vis.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/flickity.min.css' %}">
@@ -46,7 +47,7 @@
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="{{ countries_tab }}"><a href="{% url 'countries' %}"><i class="fa fa-fw fa-globe"></i> {% trans "Countries" %}</a></li>
+                <li class="{{ countries_tab }}"><a href="{% url 'countries' %}"><i class="fa fa-fw fa-globe-americas"></i> {% trans "Countries" %}</a></li>
                 <li class="{{ person_tab }}"><a href="{% url 'search' %}?entity_type=Person"><i class="fa fa-fw fa-user"></i> {% trans "Personnel" %}</a></li>
                 <li class="{{ organization_tab }}"><a href="{% url 'search' %}?entity_type=Organization"><i class="fa fa-fw fa-users"></i> {% trans "Units" %}</a></li>
                 <li class="{{ violation_tab }}"><a href="{% url 'search' %}?entity_type=Violation"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>
