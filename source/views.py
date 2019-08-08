@@ -9,6 +9,7 @@ from reversion.views import RevisionMixin
 import reversion
 
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy, reverse
@@ -37,32 +38,34 @@ class SourceView(LoginRequiredMixin, DetailView):
     context_object_name = 'source'
     template_name = 'source/view.html'
 
+
+class SourceEvidenceView(SourceView):
+    """
+    Detail view for a Source, including a table of records evidenced by a specific
+    access point.
+    """
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        access_point_id = self.request.GET.get('point')
-        if access_point_id:
-            access_point = AccessPoint.objects.get(uuid=access_point_id)
-            if access_point:
-                evidenced = context['source'].get_evidenced(access_point.uuid)
+        access_point = get_object_or_404(AccessPoint, uuid=self.kwargs['access_point_id'])
+        context['access_point'] = access_point
 
-                evidenced_table = []
+        evidenced_table = []
+        evidenced = context['source'].get_evidenced(access_point.uuid)
+        for record in evidenced:
+            name = str(record)
+            record_type = record.object_ref._meta.object_name
+            field_name = record._meta.model_name.replace(record_type.lower(), '').title()
+            value = record.value
 
-                for record in evidenced:
-                    name = str(record)
-                    record_type = record.object_ref._meta.object_name
-                    field_name = record._meta.model_name.replace(record_type.lower(), '').title()
-                    value = record.value
+            link = None
 
-                    link = None
+            if record_type in ['Organization', 'Person']:
+                link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'slug': record.object_ref.uuid})
 
-                    if record_type in ['Organization', 'Person']:
-                        link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'slug': record.object_ref.uuid})
+            evidenced_table.append([name, record_type, field_name, value, link])
 
-                    evidenced_table.append([name, record_type, field_name, value, link])
-
-                context['evidenced'] = evidenced_table
-                context['access_point'] = access_point
+        context['evidenced'] = evidenced_table
         return context
 
 

@@ -50,7 +50,7 @@
                         <option></option>
                     {% for point in source.accesspoint_set.all %}
                         <option
-                            value="{{ point.uuid }}"
+                            value="{% url 'view-source-with-evidence' source.uuid point.uuid %}#evidence"
                             {% if point.uuid == access_point.uuid %}selected{% endif %}
                         >
                             {{ point }}
@@ -119,16 +119,13 @@
     $('select#access-point').select2({
         allowClear: true,
         placeholder: 'Select an access point',
-        width: 'resolve'
     }).change(function(event) {
-        // Simulate clicking on a link when a user selects an access point.
-        var accessPointId = event.target.value;
-        if (accessPointId === '') {
-            // Clear the selection.
-            window.location.search = '';
+        var href = event.target.value;
+        if (href === '') {
+            // Clearing the selection should take the user back to the Source detail view
+            href = "{% url 'view-source' source.uuid %}";
         }
-        window.location.hash = 'evidence';
-        window.location.search = 'point=' + accessPointId;
-    });
+        window.location = href;
+    })
 </script>
 {% endblock %}
