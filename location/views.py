@@ -148,6 +148,7 @@ class LocationCreate(LoginRequiredMixin, CreateView):
         for feature in elements['elements']:
 
             if feature['type'] == location_type:
+                feature['tags'] = feature.get('tags', {})
                 feature['tags']['saved'] = 'no'
 
                 if int(feature['id']) in saved_location_ids:
