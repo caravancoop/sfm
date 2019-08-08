@@ -118,7 +118,7 @@
 <script type="text/javascript">
     $('select#access-point').select2({
         allowClear: true,
-        placeholder: 'Select an access point',
+        placeholder: '{% trans "Select an access point" %}',
     }).change(function(event) {
         var href = event.target.value;
         if (href === '') {
