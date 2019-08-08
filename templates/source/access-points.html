@@ -119,11 +119,10 @@
             <div class="form-group">
                 <div class="col-sm-12 text-right">
                     <br />
-                    <a href="{% url 'add-access-point' source.uuid %}" class="btn btn-danger">
                       {% if accesspoint.uuid %}
-                        <a href="{% url 'view-access-point' accesspoint.uuid %}">
+                        <a href="{% url 'update-source' accesspoint.source.uuid %}" class="btn btn-danger">
                       {% else %}
-                        <a href="{% url 'add-access-point' source.uuid %}">
+                        <a href="{% url 'add-access-point' source.uuid %}" class="btn btn-danger">
                       {% endif %}
                         {% trans "Cancel" %}  <i class="fas fa-times"></i>
                       </a>

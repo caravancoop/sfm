@@ -198,15 +198,6 @@ li {
     margin-bottom: 20px;
 }
 
-.cancel-button a {
-  color: #ffffff;
-}
-
-.cancel-button a:hover {
-  color: #ffffff;
-  text-decoration: none;
-}
-
 .pagination > li > a:hover,
 .pagination > li > span:hover,
 .pagination > li > a:focus,

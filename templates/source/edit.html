@@ -122,11 +122,10 @@
             <div class="form-group">
                 <div class="col-sm-12 text-right">
                     <br />
-                    <button type="button" class="btn btn-danger cancel-button">
                       {% if source.uuid %}
-                          <a href="{% url 'view-source' source.uuid %}">
+                          <a href="{% url 'view-source' source.uuid %}" class="btn btn-danger">
                       {% else %}
-                          <a href="{% url 'search' %}?entity_type=Source">
+                          <a href="{% url 'search' %}?entity_type=Source" class="btn btn-danger">
                       {% endif %}
                       {% trans "Cancel" %}  <i class="fas fa-times"></i>
                       </a>
