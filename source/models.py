@@ -89,7 +89,7 @@ class AccessPoint(models.Model, VersionsMixin):
             # that the string should be plural. See:
             # https://docs.djangoproject.com/en/2.2/topics/i18n/translation/#pluralization
             is_range = 2 if ('-' in self.page_number or ', ' in self.page_number) else 1
-            # Translators: This prefix references to the page numbers in an access point.
+            # Translators: This fragment references to the page numbers in an access point.
             pages_str = ngettext(
                 '(Page %(pages)s)',
                 '(Pages %(pages)s)',

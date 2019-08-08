@@ -1,5 +1,5 @@
 import json
-import uuid
+from uuid import uuid4
 import itertools
 import sys
 
@@ -116,7 +116,7 @@ class SourceCreate(SourceEditView, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['source_id'] = str(uuid.uuid4())
+        context['source_id'] = str(uuid4())
 
         return context
 
