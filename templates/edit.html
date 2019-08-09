@@ -13,7 +13,7 @@
                 <h1>{{ object.name.get_value }}</h1>
                 <p>
                     {% trans "ID:" %} {{ object.uuid }}<br />
-                    {% trans "Last update by:" %} username goes here <br />
+                    {% trans "Last update by:" %} {% trans "username goes here" %} <br />
                     <a href="#">{% trans "View versions"%}</a>
                 </p>
             </div>
@@ -49,9 +49,9 @@
         <div class="col-sm-12">
             <div class="pull-right">
                 {% block delete_button %}{% endblock %}
-                <a href="{{ view.get_success_url }}" class="btn btn-default">Cancel</a>
-                <input class="btn btn-success" type="submit" name="_continue" value="Save & continue editing" />
-                <button class="btn btn-success" type="submit">Save</button>
+                <a href="{{ view.get_success_url }}" class="btn btn-default">{% trans "Cancel" %}</a>
+                <input class="btn btn-success" type="submit" name="_continue" value="{% trans 'Save & continue editing' %}" />
+                <button class="btn btn-success" type="submit">{% trans "Save" %}</button>
             </div>
         </div>
     </div>
@@ -80,9 +80,9 @@
                         <%= publication %>, <%= publication_country %>
                     </a> -
                     <% if (accessed_on !== '' && archive_url){ %>
-                        Access Point <a href="<%= archive_url %>"><%= accessed_on %></a>
+                        {% trans "Access Point" %} <a href="<%= archive_url %>"><%= accessed_on %></a>
                     <% } else if (archive_url) { %>
-                        <a href="<%= archive_url %>">Access Point</a>
+                        <a href="<%= archive_url %>">{% trans "Access Point" %}</a>
                     <% } %>
                     <% if (page_number){ %>
                         page <%= page_number %>
@@ -93,7 +93,9 @@
     </script>
     <script type="text/EJS" id="source-list-title">
         <h3 id="source-field-name" data-field_name="<%= field_name %>">
-            Sources already linked to the <strong><%= field_label %></strong> datapoint ...
+            {% blocktrans context "Leave the HTML tags intact, including field_label" %}
+                Sources already linked to <strong><%= field_label %></strong>
+            {% endblocktrans %}
         </h3>
     </script>
     <script type="text/EJS" id="confidence-picker">
@@ -218,10 +220,10 @@
             source_info += '<br />' + '<small>';
 
             if (source.accessed_on){
-                source_info += 'Accessed on: <strong>' + source.accessed_on + '</strong>';
+                source_info += '{% trans "Accessed on:" %}' + ' <strong>' + source.accessed_on + '</strong>';
             }
             if (source.page_number){
-                source_info += ' Page number: <strong>' + source.page_number + '</strong>';
+                source_info += ' ' + '{% trans "Page number:" %}' + ' <strong>' + source.page_number + '</strong>';
             }
 
             source_info += '</small></p>';

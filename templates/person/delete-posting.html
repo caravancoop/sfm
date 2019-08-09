@@ -7,9 +7,9 @@
         <div class="row header">
             <div class="col-sm-12">
                 <h1>
-                    {% trans "Do you really want to remove this link between " %}
-                    <strong>{{ person.name.get_value }}</strong> {% trans "and" %}
-                    <strong>{{ object.organization.get_value.value }}</strong>
+                    {% blocktrans with person=person.name.get_value org=object.organization.get_value.value %}
+                        Do you really want to remove this link between <strong>{{ person }}</strong> and <strong>{{ org }}</strong>?
+                    {% endblocktrans %}
                 </h1>
             </div>
         </div>
@@ -122,7 +122,7 @@
             </table>
             <form action="" method="post" class="form">
                 {% csrf_token %}
-                <input class="btn btn-danger" type="submit" value="Confirm" />
+                <input class="btn btn-danger" type="submit" value="{% trans 'Confirm' %}" />
             </form>
         </div>
     </div>
