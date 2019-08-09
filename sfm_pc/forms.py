@@ -258,17 +258,15 @@ class BaseUpdateForm(BaseEditForm):
 
                     # test for some new values
                     if posted_value > stored_value and not new_sources:
-                        error = forms.ValidationError(_('"%(field_name)s" has new values so it requires sources'),
-                                                    code='invalid',
-                                                    params={'field_name': field})
+                        error = forms.ValidationError(_('This field has new values so it requires sources'),
+                                                    code='invalid')
                         self.add_error(field, error)
                         continue
 
                     # test for all new values
                     if not posted_value & stored_value and not new_sources:
-                        error = forms.ValidationError(_('"%(field_name)s" has new values so it requires sources'),
-                                                    code='invalid',
-                                                    params={'field_name': field})
+                        error = forms.ValidationError(_('This field has new values so it requires sources'),
+                                                    code='invalid')
                         self.add_error(field, error)
                         continue
 
@@ -278,16 +276,14 @@ class BaseUpdateForm(BaseEditForm):
                         stored_value = stored_value.value
 
                     if posted_value and not stored_value and not new_sources:
-                        error = forms.ValidationError(_('"%(field_name)s" now has a value so it requires sources'),
-                                                    code='invalid',
-                                                    params={'field_name': field})
+                        error = forms.ValidationError(_('This field now has a value so it requires sources'),
+                                                    code='invalid')
                         self.add_error(field, error)
                         continue
 
                     if (posted_value != stored_value) and not new_sources:
-                        error = forms.ValidationError(_('The value of "%(field_name)s" changed so it requires sources'),
-                                                    code='invalid',
-                                                    params={'field_name': field})
+                        error = forms.ValidationError(_('This field changed so it requires sources'),
+                                                    code='invalid')
                         self.add_error(field, error)
                         continue
 
@@ -300,9 +296,8 @@ class BaseUpdateForm(BaseEditForm):
                 # This is an attempt to handle those cases.
 
                 if (stored_value is not None or stored_value != set()) and not (existing_sources | posted_sources):
-                    error = forms.ValidationError(_('Please add some sources to "%(field_name)s"'),
-                                                code='invalid',
-                                                params={'field_name': field})
+                    error = forms.ValidationError(_('Please add some sources to this field'),
+                                                code='invalid')
                     self.add_error(field, error)
 
                 self.update_fields.add(field)
@@ -448,9 +443,8 @@ class BaseCreateForm(BaseEditForm):
                 posted_value = self.cleaned_data[field_name]
 
                 if posted_value and not posted_sources:
-                    error = forms.ValidationError(_('"%(field_name)s" requires sources'),
-                                                    code='invalid',
-                                                    params={'field_name': field_name})
+                    error = forms.ValidationError(_('This field requires sources'),
+                                                    code='invalid')
                     self.add_error(field_name, error)
                     continue
 

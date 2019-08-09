@@ -121,6 +121,28 @@ django-admin.py makemessages -l fr
 
 This command generates a `.po` file for each language. Rosetta facilitates the editing and compiling of these files. Go to `/rosetta/`, and view the snippets of code, requiring translation, organized by language. Then, translate some text, click "Save and translate next block," and Rosetta compiles the code into Django-friendly translations.
 
+## Tests
+
+To run tests, check the database connection settings in `tests/test_settings.py`. The test suite expects you to have a `postgres` user and postgres running on port `5432`. 
+
+Once the settings and database are configured, you should be able to run all tests from the root folder:
+
+```
+pytest
+```
+
+You can also run a collection of tests, like so:
+
+```
+pytest tests/test_person.py
+```
+
+Or run a single test, like so:
+
+```
+pytest tests/test_person.py::test_no_existing_sources
+```
+
 ## Using the Google Sheet import script
 
 If you're reading this and you're asking yourself, "Why on earth would I ever
