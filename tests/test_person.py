@@ -120,7 +120,7 @@ def test_no_source_one_value(setUp, base_people):
 
     assert response.status_code == 200
 
-    assert '"biography" now has a value so it requires sources' in response.context['form'].errors['biography']
+    assert 'This field now has a value so it requires sources' in response.context['form'].errors['biography']
 
 
 @pytest.mark.django_db
@@ -135,7 +135,7 @@ def test_no_source_multiple_value(setUp, base_people):
 
     assert response.status_code == 200
 
-    assert '"aliases" has new values so it requires sources' in response.context['form'].errors['aliases']
+    assert 'This field has new values so it requires sources' in response.context['form'].errors['aliases']
     assert 'This field is required.' in response.context['form'].errors['name']
 
     assert 'Foo' not in [p.get_value().value for p in person.aliases.get_list()]
@@ -154,7 +154,7 @@ def test_no_source_one_new_value(setUp, people):
 
     assert response.status_code == 200
 
-    assert '"aliases" has new values so it requires sources' in response.context['form'].errors['aliases']
+    assert 'This field has new values so it requires sources' in response.context['form'].errors['aliases']
     assert 'This field is required.' in response.context['form'].errors['name']
 
     assert 'Foo' not in [p.get_value().value for p in person.aliases.get_list()]
@@ -177,7 +177,7 @@ def test_no_source_empty_start(setUp, base_people):
 
     assert response.status_code == 200
 
-    assert '"aliases" has new values so it requires sources' in response.context['form'].errors['aliases']
+    assert 'This field has new values so it requires sources' in response.context['form'].errors['aliases']
 
 
 @pytest.mark.django_db
@@ -321,7 +321,7 @@ def test_new_sources_required(setUp, base_people):
 
     assert response.status_code == 200
 
-    assert 'The value of "name" changed so it requires sources' in response.context['form'].errors['name']
+    assert 'This field changed so it requires sources' in response.context['form'].errors['name']
 
 
 @pytest.mark.django_db
@@ -343,7 +343,7 @@ def test_new_sources_required_multi(setUp, people):
 
     assert response.status_code == 200
 
-    assert '"aliases" has new values so it requires sources' in response.context['form'].errors['aliases']
+    assert 'This field has new values so it requires sources' in response.context['form'].errors['aliases']
 
 
 @pytest.mark.django_db
@@ -530,7 +530,7 @@ def test_no_existing_sources(setUp, membership_person):
                           post_data)
 
     assert response.status_code == 200
-    assert 'Please add some sources to "rank"' in response.context['form'].errors['rank']
+    assert 'Please add some sources to this field' in response.context['form'].errors['rank']
 
 
 @pytest.mark.django_db
