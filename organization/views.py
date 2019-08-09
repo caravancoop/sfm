@@ -256,6 +256,7 @@ class OrganizationEditCompositionView(OrganizationEditView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['is_composition_active'] = True
+        context['composition_href'] = "{%\ url 'edit-organization-composition' organization.uuid current_composition.id %}"
 
         parents = Q(compositionparent__value=context['organization'])
         children = Q(compositionchild__value=context['organization'])
