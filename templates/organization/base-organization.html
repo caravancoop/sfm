@@ -23,13 +23,8 @@
     <div class="col-sm-6">
         <h1>
             {% trans "Edit:" %}
-            {% if basics %}
-            <a href="{% url 'edit-organization' organization.uuid %}" class="btn btn-primary">{% trans "Basics" %}</a>
-            {% elif organization %}
-            <a href="{% url 'edit-organization' organization.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
-            {% else %}
-            <a href="{% url 'create-organization' %}" class="btn btn-default">{% trans "Basics" %}</a>
-            {% endif %}
+            <a href="{{ basics_href }}" class="btn btn-{% if is_basics_active %}primary{%else%}default{% endif %}">{% trans "Basics" %}</a>
+
             {% if first_composition and current_composition %}
                 <a href="{% url 'edit-organization-composition' organization.uuid current_composition.id %}" class="btn btn-primary">{% trans "Relationships" %}</a>
             {% elif first_composition %}

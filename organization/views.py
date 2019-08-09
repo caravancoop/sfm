@@ -202,7 +202,8 @@ class OrganizationEditBasicsView(OrganizationEditView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['basics'] = True
+        context['is_basics_active'] = True
+        context['basics_href'] = "{%\ url 'edit-organization' organization.uuid %}"
 
         return context
 
@@ -254,6 +255,7 @@ class OrganizationEditCompositionView(OrganizationEditView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['is_composition_active'] = True
 
         parents = Q(compositionparent__value=context['organization'])
         children = Q(compositionchild__value=context['organization'])
@@ -285,6 +287,8 @@ class OrganizationCreateCompositionView(BaseCreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+
+        context['is_composition_active'] = True
 
         parents = Q(compositionparent__value=context['organization'])
         children = Q(compositionchild__value=context['organization'])
