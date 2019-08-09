@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
@@ -59,6 +60,9 @@
                     </select>
                 </div>
             </form>
+            {% if not access_point.uuid %}
+                <div id="spinner" style="height:100px; padding-left:50%; padding-top:50px"></div>
+            {% endif %}
         </div>
         {% else %}
             <p>{% trans "No access points found for this source." %}</p>
@@ -115,11 +119,17 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/spin.min.js' %}"></script>
 <script type="text/javascript">
     $('select#access-point').select2({
         allowClear: true,
         placeholder: '{% trans "Select an access point" %}',
     }).change(function(event) {
+        // Start the spinner to give a sense of "loading"
+        var spinner = Spinner().spin();
+        $('#spinner').append(spinner.el);
+
+        // Redirect the user
         var href = event.target.value;
         if (href === '') {
             // Clearing the selection should take the user back to the Source detail view
