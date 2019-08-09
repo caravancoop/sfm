@@ -1,105 +1,84 @@
-{% extends 'base.html' %}
+{% extends 'base_delete.html' %}
 {% load i18n %}
-{% load countries %}
-{% load citations %}
-{% block content %}
-    <div class="well">
-        <div class="row header">
-            <div class="col-sm-12">
-                <h1>
-                    {% trans "Do you really want to remove this link between " %}
-                    <strong>{{ object.organization.get_value.value }}</strong> {% trans "and" %}
-                    <strong>{{ object.site.get_value.value }}</strong>
-                </h1>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6 col-sm-offset-3">
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <td>
-                            <strong>
-                                {% trans "Organization" %}
-                            </strong>
-                        </td>
-                        <td>
-                            {{ object.organization.get_value.value }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>
-                                {% trans "Location" %}
-                            </strong>
-                        </td>
-                        <td>
-                            {{ object.site.get_value.value }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>
-                                {% trans "Location other names" %}
-                            </strong>
-                        </td>
-                        <td>
-                            {% for alias in object.aliases.get_list %}
-                                {% if not forloop.last %}
-                                    {{ alias.get_value }},
-                                {% else %}
-                                    {{ alias.get_value }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>
-                                {% trans "Date first cited" %}
-                            </strong>
-                        </td>
-                        <td>
-                            {{ object.startdate.get_value }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>
-                                {% trans "Start date?" %}
-                            </strong>
-                        </td>
-                        <td>
-                            {{ object.realstart.get_value }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>
-                                {% trans "Date last cited" %}
-                            </strong>
-                        </td>
-                        <td>
-                            {{ object.enddate.get_value }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>
-                                {% trans "Open ended?" %}
-                            </strong>
-                        </td>
-                        <td>
-                            {{ object.open_ended.get_value }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <form action="" method="post" class="form">
-                {% csrf_token %}
-                <input class="btn btn-danger" type="submit" value="Confirm" />
-            </form>
-        </div>
-    </div>
+{% block metadata_table %}
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>
+                    <strong>
+                        {% trans "Organization" %}
+                    </strong>
+                </td>
+                <td>
+                    {{ object.organization.get_value.value }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>
+                        {% trans "Location" %}
+                    </strong>
+                </td>
+                <td>
+                    {{ object.site.get_value.value }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>
+                        {% trans "Location other names" %}
+                    </strong>
+                </td>
+                <td>
+                    {% for alias in object.aliases.get_list %}
+                        {% if not forloop.last %}
+                            {{ alias.get_value|default_if_none:"" }},
+                        {% else %}
+                            {{ alias.get_value|default_if_none:"" }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>
+                        {% trans "Date first cited" %}
+                    </strong>
+                </td>
+                <td>
+                    {{ object.startdate.get_value|default_if_none:"" }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>
+                        {% trans "Start date?" %}
+                    </strong>
+                </td>
+                <td>
+                    {{ object.realstart.get_value|default_if_none:"" }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>
+                        {% trans "Date last cited" %}
+                    </strong>
+                </td>
+                <td>
+                    {{ object.enddate.get_value|default_if_none:"" }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>
+                        {% trans "Open ended?" %}
+                    </strong>
+                </td>
+                <td>
+                    {{ object.open_ended.get_value|default_if_none:"" }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
 {% endblock %}

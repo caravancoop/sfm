@@ -137,7 +137,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
             var area_map = L.map('location_map');
-            var attribution = {% blocktrans %}'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'{% endblocktrans %};
+            var attribution = '{% blocktrans %}Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>{% endblocktrans %}';
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                         { attribution: attribution, detectRetina: true }).addTo(area_map);
             var areas = L.featureGroup();

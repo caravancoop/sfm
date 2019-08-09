@@ -1,3 +1,4 @@
+{% load i18n %}
 {% if composition == current_composition %}
 <tr class="bg-info">
 {% else %}
@@ -8,9 +9,9 @@
     </td>
     <td class="cited">
         {% if relation_type == 'child' %}
-        <i class="fa fa-fw fa-sitemap"></i> Child
+        <i class="fa fa-fw fa-sitemap"></i> {% trans "Child" %}
         {% elif relation_type == 'parent' %}
-        <i class="fa fa-fw fa-sitemap fa-rotate-180"></i> Parent
+        <i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent" %}
         {% endif %}
     </td>
     <td class="cited">

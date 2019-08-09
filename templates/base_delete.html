@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+    <div class="well">
+        <div class="row header">
+            <div class="col-sm-12">
+                <h1>
+                    {% block delete_header %}
+                        {% blocktrans %}
+                            Do you really want to remove this link between <strong>{{ delete_obj_1 }}</strong> and <strong>{{ delete_obj_2 }}</strong>?
+                        {% endblocktrans %}
+                    {% endblock %}
+                </h1>
+            </div>
+        </div>
+    </div>
+    {% block extra_context %}{% endblock %}
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            {% block metadata_table %}{% endblock %}
+            <form action="" method="post" class="form text-right">
+                {% csrf_token %}
+                <a href="{{ cancel_link }}" class="btn btn-link" type="submit">{% trans 'Cancel' %}</a>
+                <input class="btn btn-danger" type="submit" value="{% trans 'Confirm' %}" />
+            </form>
+        </div>
+    </div>
+{% endblock %}

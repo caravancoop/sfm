@@ -142,5 +142,5 @@
 
 {% endblock %}
 {% block delete_button %}
-    <a href="{% url 'delete-organization-association' organization.uuid form.instance.id %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'delete-organization-association' organization.uuid form.instance.id %}" class="btn btn-danger">{% trans "Delete" %}</a>
 {% endblock %}

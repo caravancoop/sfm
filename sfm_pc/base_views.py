@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 from django.views.generic.edit import FormView
 from django.views.generic.edit import ModelFormMixin
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, DeleteView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.decorators.cache import cache_page, never_cache
 from django.utils.decorators import method_decorator
@@ -105,3 +105,29 @@ class BaseCreateView(BaseEditView, CreateView):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['post_data'] = self.request.POST
         return form_kwargs
+
+
+class BaseDeleteView(DeleteView):
+    """
+    Base view for deleting objects, providing a little extra context.
+    """
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['cancel_link'] = self.get_cancel_link()
+        return context
+
+    def get_cancel_link(self):
+        raise NotImplementedError('This method must be implemented on children.')
+
+
+class BaseDeleteRelationshipView(BaseDeleteView):
+    """
+    Base view for deleting a relationship between two entities.
+    """
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['delete_obj_1'], context['delete_obj_2'] = self.get_objects_to_delete()
+        return context
+
+    def get_objects_to_delete(self):
+        raise NotImplementedError('This method must be implemented on children.')
