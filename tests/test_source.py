@@ -151,3 +151,35 @@ def test_autocomplete(setUp):
     response = setUp.get(url)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_view_source(setUp, sources, access_points):
+    source = sources[0]
+    url = reverse_lazy('view-source', args=[source.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    assert 'Select an access point' in response.content.decode('utf-8')
+    # Make sure that all of the access points are represented as options on the page
+    assert source.accesspoint_set.count() > 0
+    for access_point in source.accesspoint_set.all():
+        assert str(access_point.uuid) in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_view_source_with_evidence(setUp, sources, access_points):
+    source = Source.objects.annotate(count=Count('accesspoint')).filter(count__gte=1).first()
+    access_point = source.accesspoint_set.first()
+    url = reverse_lazy('view-source-with-evidence', args=[source.uuid, access_point.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    assert 'evidences the following records:' in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_view_source_with_no_evidence(setUp, sources):
+    source = Source.objects.annotate(count=Count('accesspoint')).filter(count=0).first()
+    url = reverse_lazy('view-source', args=[source.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    assert 'No access points found' in response.content.decode('utf-8')

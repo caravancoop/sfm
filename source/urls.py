@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from source.views import get_sources, SourceCreate, source_autocomplete, \
-    SourceView, SourceUpdate, SourceRevertView, StashSourceView, \
+    SourceView, SourceEvidenceView, SourceUpdate, SourceRevertView, StashSourceView, \
     AccessPointUpdate, AccessPointCreate, AccessPointDetail, get_citation, \
     publication_autocomplete
 
@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^add-access-point/(?P<source_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$', AccessPointCreate.as_view(), name="add-access-point"),
     url(r'^view-access-point/(?P<source_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$', AccessPointDetail.as_view(), name="view-access-point"),
     url(r'^view/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$', SourceView.as_view(), name="view-source"),
+    url(r'^view/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<access_point_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$', SourceEvidenceView.as_view(), name="view-source-with-evidence"),
     url(r'^revert/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$', SourceRevertView.as_view(), name="revert-source"),
     url(r'^autocomplete/$', source_autocomplete, name="source-autocomplete"),
     url(r'^stash/$', StashSourceView.as_view(), name="stash-source"),

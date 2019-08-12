@@ -9,6 +9,7 @@ from reversion.views import RevisionMixin
 import reversion
 
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse_lazy, reverse
@@ -37,13 +38,20 @@ class SourceView(LoginRequiredMixin, DetailView):
     context_object_name = 'source'
     template_name = 'source/view.html'
 
+
+class SourceEvidenceView(SourceView):
+    """
+    Detail view for a Source, including a table of records evidenced by a specific
+    access point.
+    """
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        evidenced = context['source'].get_evidenced()
+        access_point = get_object_or_404(AccessPoint, uuid=self.kwargs['access_point_id'])
+        context['access_point'] = access_point
 
         evidenced_table = []
-
+        evidenced = context['source'].get_evidenced(access_point.uuid)
         for record in evidenced:
             name = str(record)
             record_type = record.object_ref._meta.object_name

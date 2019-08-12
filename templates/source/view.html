@@ -1,33 +1,35 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
         <div class="jumbotron">
             <div class="row">
                 <div class="col-sm-12">
-                    <h2 class="page-title cited">
-                        <a href="{{ source.source_url }}" target="_blank">
-                            {{ source.title }}
-                        </a>
-                        {% if request.user.is_staff %}
+                    {% if request.user.is_staff %}
+                        <h2>
                             <small class="pull-right">
                                 <a class="btn btn-default" type="button" role="button" href="{% url 'update-source' source.uuid %}">
                                     <i class="fa fa-fw fa-edit"></i>{% trans "Edit" %}
                                 </a>
                             </small>
-                        {% endif %}
+                        </h2>
+                    {% endif %}
+                    <h2 class="page-title cited">
+                        <i class="fa fa-fw fa-paperclip"></i>
+                        <a href="{{ source.source_url }}" target="_blank">
+                            {{ source.title }}
+                        </a>
                     </h2>
                 </div>
             </div>
             <div class="row">
                 <div class="col-sm-12">
                     <p>
-                        <strong>Publisher: </strong>{{ source.publication }} ({{ source.publication_country }})<br />
-                        <strong>Publication date: </strong>{{ source.published_on }}<br />
-                        <strong>Archive URLs: </strong>{{ source.archive_urls }}<br />
-                        <strong>Accessed on: </strong>{{ source.accessed_on }}<br />
-                        <strong>Last edited by: </strong>{{ source.user }}
+                        <strong>{% trans "Publisher:" %} </strong>{{ source.publication }} ({{ source.publication_country }})<br />
+                        <strong>{% trans "Publication date:" %} </strong>{{ source.published_on }}<br />
+                        <strong>{% trans "Last edited by:" %} </strong>{{ source.user }}
                     </p>
                 </div>
             </div>
@@ -36,17 +38,58 @@
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <h2>This source evidences the below data:</h2>
+        <h2 id="evidence">Evidence</h2>
+        <br />
+    {% if source.accesspoint_set.count > 0 %}
+        <div class="col-sm-12 col-md-6">
+            <form>
+                <div class="form-group">
+                    <label for="access-point">
+                        {% trans "Select an access point to view records evidenced by this source:" %}
+                    </label>
+                    <select id="access-point" class="form-control">
+                        <option></option>
+                    {% for point in source.accesspoint_set.all %}
+                        <option
+                            value="{% url 'view-source-with-evidence' source.uuid point.uuid %}#evidence"
+                            {% if point.uuid == access_point.uuid %}selected{% endif %}
+                        >
+                            {{ point }}
+                        </option>
+                    {% endfor %}
+                    </select>
+                </div>
+            </form>
+            {% if not access_point.uuid %}
+                <div id="spinner" style="height:100px; padding-left:50%; padding-top:50px"></div>
+            {% endif %}
+        </div>
+        {% else %}
+            <p>{% trans "No access points found for this source." %}</p>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% if access_point.uuid %}
+<div class="row">
+    <div class="col-sm-12">
+        <h3>
+        {% blocktrans with access_point.archive_url as archive_url%}
+            Access point <a href="{{ archive_url }}">{{ access_point }}</a>
+            evidences the following records:
+        {% endblocktrans %}
+        </h3>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Record Name</th>
-                    <th>Record Type</th>
-                    <th>Fieldname</th>
-                    <th>Value</th>
+                    <th>{% trans "Record Name" %}</th>
+                    <th>{% trans "Record Type" %}</th>
+                    <th>{% trans "Fieldname" %}</th>
+                    <th>{% trans "Value" context "of a database record" %}</th>
                 </tr>
             </thead>
             <tbody>
+            {% if evidenced %}
                 {% for name, type, fieldname, value, link in evidenced %}
                     <tr>
                         <td>{{ name }}</td>
@@ -63,8 +106,36 @@
                         <td>{{ value }}</td>
                     </tr>
                 {% endfor %}
+            {% else %}
+                <tr>
+                    <td>{% trans "No records found for this access point." %}</td>
+                </tr>
+            {% endif %}
             </tbody>
         </table>
     </div>
 </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/spin.min.js' %}"></script>
+<script type="text/javascript">
+    $('select#access-point').select2({
+        allowClear: true,
+        placeholder: '{% trans "Select an access point" %}',
+    }).change(function(event) {
+        // Start the spinner to give a sense of "loading"
+        var spinner = Spinner().spin();
+        $('#spinner').append(spinner.el);
+
+        // Redirect the user
+        var href = event.target.value;
+        if (href === '') {
+            // Clearing the selection should take the user back to the Source detail view
+            href = "{% url 'view-source' source.uuid %}";
+        }
+        window.location = href;
+    })
+</script>
 {% endblock %}
