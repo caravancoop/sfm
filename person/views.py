@@ -442,7 +442,7 @@ class PersonDeletePostingView(LoginRequiredMixin, BaseDeleteRelationshipView):
             }
         )
 
-    def get_objects_to_delete(self):
+    def get_objects_to_update(self):
         membership = self.get_object()
         person = membership.member.get_value().value
         organization = membership.organization.get_value().value
@@ -452,7 +452,7 @@ class PersonDeletePostingView(LoginRequiredMixin, BaseDeleteRelationshipView):
         return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})
 
     def delete(self, request, *args, **kwargs):
-        person, organization = self.get_objects_to_delete()
+        person, organization = self.get_objects_to_update()
 
         response = super().delete(request, *args, **kwargs)
 

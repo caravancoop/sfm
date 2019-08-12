@@ -311,7 +311,7 @@ class OrganizationDeleteCompositionView(LoginRequiredMixin, BaseDeleteRelationsh
             }
         )
 
-    def get_objects_to_delete(self):
+    def get_objects_to_update(self):
         composition = self.get_object()
         parent = composition.parent.get_value().value
         child = composition.child.get_value().value
@@ -321,7 +321,7 @@ class OrganizationDeleteCompositionView(LoginRequiredMixin, BaseDeleteRelationsh
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def delete(self, request, *args, **kwargs):
-        parent, child = self.get_objects_to_delete()
+        parent, child = self.get_objects_to_update()
 
         response = super().delete(request, *args, **kwargs)
 
@@ -408,7 +408,7 @@ class OrganizationDeleteMembershipView(LoginRequiredMixin, BaseDeleteRelationshi
             }
         )
 
-    def get_objects_to_delete(self):
+    def get_objects_to_update(self):
         membership = self.get_object()
         member = membership.member.get_value().value
         organization = membership.organization.get_value().value
@@ -418,7 +418,7 @@ class OrganizationDeleteMembershipView(LoginRequiredMixin, BaseDeleteRelationshi
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def delete(self, request, *args, **kwargs):
-        member, organization = self.get_objects_to_delete()
+        member, organization = self.get_objects_to_update()
 
         response = super().delete(request, *args, **kwargs)
 
@@ -489,7 +489,7 @@ class OrganizationDeletePersonnelView(LoginRequiredMixin, BaseDeleteRelationship
             }
         )
 
-    def get_objects_to_delete(self):
+    def get_objects_to_update(self):
         membership = self.get_object()
         person = membership.member.get_value().value
         organization = membership.organization.get_value().value
@@ -499,7 +499,7 @@ class OrganizationDeletePersonnelView(LoginRequiredMixin, BaseDeleteRelationship
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def delete(self, request, *args, **kwargs):
-        person, organization = self.get_objects_to_delete()
+        person, organization = self.get_objects_to_update()
 
         response = super().delete(request, *args, **kwargs)
 
@@ -579,7 +579,7 @@ class OrganizationDeleteEmplacementView(LoginRequiredMixin, BaseDeleteRelationsh
             }
         )
 
-    def get_objects_to_delete(self):
+    def get_objects_to_update(self):
         emplacement = self.get_object()
         organization = emplacement.organization.get_value().value
         site = emplacement.site.get_value().value
@@ -589,7 +589,7 @@ class OrganizationDeleteEmplacementView(LoginRequiredMixin, BaseDeleteRelationsh
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def delete(self, request, *args, **kwargs):
-        organization, _ = self.get_objects_to_delete()
+        organization, _ = self.get_objects_to_update()
 
         response = super().delete(request, *args, **kwargs)
 
@@ -658,7 +658,7 @@ class OrganizationDeleteAssociationView(LoginRequiredMixin, BaseDeleteRelationsh
             }
         )
 
-    def get_objects_to_delete(self):
+    def get_objects_to_update(self):
         association = self.get_object()
         organization = association.organization.get_value().value
         area = association.area.get_value().value
@@ -668,7 +668,7 @@ class OrganizationDeleteAssociationView(LoginRequiredMixin, BaseDeleteRelationsh
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def delete(self, request, *args, **kwargs):
-        organization, _ = self.get_objects_to_delete()
+        organization, _ = self.get_objects_to_update()
 
         response = super().delete(request, *args, **kwargs)
 
