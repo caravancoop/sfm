@@ -11,6 +11,7 @@
 
 {% block form_content %}
     <h2>{% trans 'Edit personnel' %}</h2>
+    <input type="hidden" name="organization" value="{{ form.instance.organization.get_value.value.id }}">
     <div class="row member-row field-bg bg-info">
         <div class="col-sm-12">
             {% if form.member.errors %}
