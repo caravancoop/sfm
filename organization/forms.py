@@ -178,6 +178,10 @@ class OrganizationCreateMembershipForm(BaseCreateForm, OrganizationMembershipFor
 
 
 class OrganizationPersonnelForm(BaseUpdateForm):
+    class Meta:
+        model = MembershipPerson
+        fields = '__all__'
+
     edit_fields = [
         ('rank', MembershipPersonRank, False),
         ('role', MembershipPersonRole, False),
@@ -213,10 +217,6 @@ class OrganizationPersonnelForm(BaseUpdateForm):
         super().__init__(*args, **kwargs)
 
         self.fields['organization'] = forms.ModelChoiceField(queryset=Organization.objects.filter(uuid=organization_id))
-
-    class Meta:
-        model = MembershipPerson
-        fields = '__all__'
 
 
 class OrganizationCreatePersonnelForm(BaseCreateForm, OrganizationPersonnelForm):
