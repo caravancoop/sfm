@@ -210,14 +210,14 @@
             $sourceCard.prependTo('#source-list-removed');
 
             // Check if we need to display or hide any section titles.
-            // These checks will be evaluated _before_ the existing source is removed
-            // from the DOM, so checking if the parent container has 1 child element
-            // will effectively check if the parent container is empty.
             var hasNewRemovedSources = $('#source-list-removed').children().length === 1;
             if (hasNewRemovedSources) {
                 // Show the title of the Removed Source list if this is the first source.
                 $('#source-list-removed-title').children().show();
             }
+            // We expect this function to fire _before_ the existing source is removed
+            // from the DOM, so checking if the parent container has 1 child element
+            // will effectively check if the parent container is empty.
             var hasNoExistingSources = $('#source-list-existing').children().length === 1;
             if (hasNoExistingSources) {
                 // Hide the title of the Existing Source list if no sources remain.
