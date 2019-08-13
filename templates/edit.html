@@ -173,19 +173,53 @@
             return $.getJSON("{% url 'get-sources' %}", params)
         }
 
-        function removeSource(e){
-            // Base method for removing sources.
+        function getSourceInput(e){
+            // Get the raw input element for a source.
             var source_id = $(e.target).data('source_id');
             var field_name = $(e.target).data('field_name');
-            var selector = 'input[name="' + field_name + '_source"][value="' + source_id + '"]';
-            $(selector).remove();
+            var selector = 'input[class="' + field_name + '_source"][value="' + source_id + '"]';
+            return $(selector);
+        }
+
+        function removeSource(e){
+            // Remove the input element for a Source from the DOM (hard delete).
+            var $sourceInput = getSourceInput(e);
+            $sourceInput.remove();
+        }
+
+        function disableSource(e){
+            // Disable the input element for a Source, preventing it from submitting
+            // with the form (soft delete).
+            var $sourceInput = getSourceInput(e);
+            $sourceInput.removeAttr('name');  // Unnamed inputs won't be submitted by forms
+        }
+
+        function revertSource(e){
+            // Re-enable the input element for a Source.
+            var $sourceInput = getSourceInput(e);
+            $sourceInput.attr('name', $(e.target).data('field_name') + '_source');
         }
 
         function removeExistingSource(e){
             // Remove a Source that has already been saved during a previous editing session.
-            removeSource(e);
-            var noRemainingSources = $('#source-list-existing').children().length === 1;
-            if (noRemainingSources) {
+            disableSource(e);
+            // Alter the appearance of the alert and move it to the 'Removed' section.
+            $sourceCard = $(e.target).clone();
+            $sourceCard.removeClass('alert-success').addClass('alert-danger');
+            $sourceCard.find('.fa-remove').removeClass('fa-remove').addClass('fa-undo');
+            $sourceCard.prependTo('#source-list-removed');
+
+            // Check if we need to display or hide any section titles.
+            // These checks will be evaluated _before_ the existing source is removed
+            // from the DOM, so checking if the parent container has 1 child element
+            // will effectively check if the parent container is empty.
+            var hasNewRemovedSources = $('#source-list-removed').children().length === 1;
+            if (hasNewRemovedSources) {
+                // Show the title of the Removed Source list if this is the first source.
+                $('#source-list-removed-title').children().show();
+            }
+            var hasNoExistingSources = $('#source-list-existing').children().length === 1;
+            if (hasNoExistingSources) {
                 // Hide the title of the Existing Source list if no sources remain.
                 $('#source-list-existing-title').children().hide();
             }
@@ -194,10 +228,32 @@
         function removeAddedSource(e){
             // Remove a Source that has been added during this editing session.
             removeSource(e);
-            var noRemainingSources = $('#source-list-added').children().length === 1;
-            if (noRemainingSources) {
+            var hasNoAddedSources = $('#source-list-added').children().length === 1;
+            if (hasNoAddedSources) {
                 // Clear the title of the Added Source list if no sources remain.
                 $('#source-list-added-title').children().hide();
+            }
+        }
+
+        function revertRemovedSource(e){
+            // Revert the removal of an existing source from the source list.
+            revertSource(e);
+            // Alter the appearance of the alert and move it to the 'Existing' section.
+            $sourceCard = $(e.target).clone();
+            $sourceCard.removeClass('alert-danger').addClass('alert-success');
+            $sourceCard.find('.fa-undo').removeClass('fa-undo').addClass('fa-remove');
+            $sourceCard.prependTo('#source-list-existing');
+
+            // Check if we need to display or hide any section titles.
+            var hasNoRemainingSources = $('#source-list-removed').children().length === 1;
+            if (hasNoRemainingSources) {
+                // Clear the title of the Removed Source list if no sources remain.
+                $('#source-list-removed-title').children().hide();
+            }
+            var hasNewExistingSources = $('#source-list-existing').children().length > 0;
+            if (hasNewExistingSources) {
+                // Show the title of the Existing Source list if at least source has been reverted.
+                $('#source-list-existing-title').children().show();
             }
         }
 
@@ -362,6 +418,8 @@
             $(document).on('close.bs.alert', '.source-detail.alert-success', removeExistingSource);
             // Register event handler for removing newly-added sources.
             $(document).on('close.bs.alert', '.source-detail.alert-warning', removeAddedSource);
+            // Register event handler for reverting removal of sources.
+            $(document).on('close.bs.alert', '.source-detail.alert-danger', revertRemovedSource);
 
             $('#source-search').on('select2:select', function(e){
 
