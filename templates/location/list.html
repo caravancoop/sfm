@@ -16,21 +16,21 @@
                 {% if feature_type_facets.node or feature_type_facets.relation or feature_type_facets.way %}
                 <div class="panel-heading">
                     <a role="button" class="filter-heading">
-                        <strong>Feature type</strong>
+                        <strong>{% trans "Feature type" %}</strong>
                     </a>
                 </div>
                 <div class="panel-body">
                     <ul class="search-facet-list">
                         <li class="small">
-                            <a class="filter-value" href="{% url 'list-location' %}?{% query_transform request feature_type='node' %}">Node</a>
+                            <a class="filter-value" href="{% url 'list-location' %}?{% query_transform request feature_type='node' %}">{% trans "Node" %}</a>
                             <span class="badge badge-facet pull-right">{{ feature_type_facets.node }}</span>
                         </li>
                         <li>
-                            <a class="filter-value" href="{% url 'list-location' %}?{% query_transform request feature_type='relation' %}">Relation</a>
+                            <a class="filter-value" href="{% url 'list-location' %}?{% query_transform request feature_type='relation' %}">{% trans "Relation" %}</a>
                             <span class="badge badge-facet pull-right">{{ feature_type_facets.relation }}</span>
                         </li>
                         <li>
-                            <a class="filter-value" href="{% url 'list-location' %}?{% query_transform request feature_type='way' %}">Way</a>
+                            <a class="filter-value" href="{% url 'list-location' %}?{% query_transform request feature_type='way' %}">{% trans "Way" %}</a>
                             <span class="badge badge-facet pull-right">{{ feature_type_facets.way }}</span>
                         </li>
                     </ul>
@@ -38,7 +38,7 @@
                 {% endif %}
                 <div class="panel-heading">
                     <a href="{% url 'create-location' %}" class="btn btn-success">
-                        <i class="fa fa-plus-circle"> </i>&nbsp Add new location
+                        <i class="fa fa-plus-circle"> </i>&nbsp {% trans "Add new location" %}
                     </a>
                 </div>
             </div>

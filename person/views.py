@@ -4,7 +4,6 @@ from datetime import date
 from collections import namedtuple
 
 from django.views.generic.edit import CreateView, UpdateView
-from django.views.generic import DeleteView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -18,7 +17,8 @@ from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \
     PersonPostingsForm, PersonCreatePostingForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.utils import Autofill
-from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView, \
+    BaseDeleteRelationshipView
 
 
 class PersonDetail(BaseDetailView):
@@ -429,22 +429,30 @@ class PersonCreatePostingView(BaseCreateView):
         return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})
 
 
-class PersonDeletePostingView(LoginRequiredMixin, DeleteView):
+class PersonDeletePostingView(LoginRequiredMixin, BaseDeleteRelationshipView):
     model = MembershipPerson
     template_name = 'person/delete-posting.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
-        return context
+    def get_cancel_link(self):
+        return reverse_lazy(
+            'edit-person-postings',
+            kwargs={
+                'person_id': self.kwargs['person_id'],
+                'pk': self.kwargs['pk']
+            }
+        )
+
+    def get_objects_to_update(self):
+        membership = self.get_object()
+        person = membership.member.get_value().value
+        organization = membership.organization.get_value().value
+        return person, organization
 
     def get_success_url(self):
         return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})
 
     def delete(self, request, *args, **kwargs):
-        membership = self.get_object()
-        person = membership.member.get_value().value
-        organization = membership.organization.get_value().value
+        person, organization = self.get_objects_to_update()
 
         response = super().delete(request, *args, **kwargs)
 

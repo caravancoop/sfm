@@ -14,7 +14,7 @@
 <div class="row">
   <div class="col-sm-12">
     <div class="well">
-      <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp Add location</h2>
+      <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp {% trans "Add location" %}</h2>
     </div>
   </div>
 </div>
@@ -27,21 +27,9 @@
                     <div class="form-group">
                         <label for="location_type" class="control-label"><b>{% trans "Location Type" %}</b></label>
                         <select name="location_type" class="form-control" id="location_type" required>
-                            {% if location_type == 'node' %}
-                                <option value="node" selected=true>Node</option>
-                            {% else %}
-                                <option value="node">Node</option>
-                            {% endif %}
-                            {% if location_type == 'way' %}
-                                <option value="way" selected=true>Way</option>
-                            {% else %}
-                                <option value="way">Way</option>
-                            {% endif %}
-                            {% if location_type == 'relation' %}
-                                <option value="relation" selected=true>Relation</option>
-                            {% else %}
-                                <option value="relation">Relation</option>
-                            {% endif %}
+                            <option value="node" {% if location_type == 'node' %}selected{% endif %}>{% trans "Node" %}</option>
+                            <option value="way" {% if location_type == 'way' %}selected{% endif %}>{% trans "Way" %}</option>
+                            <option value="relation" {% if location_type == 'relation' %}selected{% endif %}>{% trans "Relation" %}</option>
                         </select>
                     </div>
                 </div>
@@ -49,9 +37,9 @@
                 <div class="col-sm-8">
                     <label for="location_id" class="control-label"><b>{% trans "Location ID" %}</b></label>
                     <div class="input-group location-search">
-                        <input type="text" class="form-control" placeholder="Search by node, way, or relation ID..." name="location_id" id="location_id" autofocus value="{% if location_id %}{{ location_id }}{% endif %}" required>
+                        <input type="text" class="form-control" placeholder="{% trans 'Search by node, way, or relation ID...' %}" name="location_id" id="location_id" autofocus value="{% if location_id %}{{ location_id }}{% endif %}" required>
                     <span class="input-group-btn">
-                        <button class="btn btn-default" id="location-search">Go!</button>
+                        <button class="btn btn-default" id="location-search">{% trans "Search" %}</button>
                     </span>
                     </div>
                 </div>
@@ -66,7 +54,9 @@
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <strong>Overpass API Error</strong> It looks like the Overpass API is currently working too hard. Try back in a few minutes.
+                {% blocktrans %}
+                    <strong>Overpass API Error</strong> It looks like the Overpass API is currently working too hard. Try back in a few minutes.
+                {% endblocktrans %}
             </div>
         </div>
     </div>
@@ -78,7 +68,7 @@
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
-            <strong>No results.</strong>
+            <strong>{% trans "No results" %}</strong>
         </div>
     </div>
 </div>
@@ -107,38 +97,34 @@
                                 {% endif %}
                                 <input type="hidden" name="geometry" value="" />
                                 <tr>
-                                    <td><b>Name</b></td>
+                                    <td><b>{% trans "Name" %}</b></td>
                                     <td>{{ feature.tags.name }}</td>
                                 </tr>
                                 {% if feature.tags.int_name %}
                                 <tr>
-                                    <td><b>International Name</b></td>
+                                    <td><b>{% trans "International Name" %}</b></td>
                                     <td>{{ feature.tags.int_name }}</td>
                                 </tr>
                                 {% endif %}
                                 <tr>
-                                    <td><b>OSM ID</b></td>
+                                    <td><b>{% trans "OSM ID" %}</b></td>
                                     <td>{{ feature.id }}</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Type</b></td>
-                                    <td>{{ location_type }}</td>
                                 </tr>
                                 {% if feature.tags.admin_level %}
                                 <tr>
-                                    <td><b>Admin Level</b></td>
+                                    <td><b>{% trans "Admin Level" %}</b></td>
                                     <td>{{ feature.tags.admin_level }}</td>
                                 </tr>
                                 {% endif %}
                                 <tr>
                                 {% if feature.tags.saved == 'yes' %}
                                     <td></td>
-                                    <td align="right"><a href='{% url 'view-location' feature.id %}'>Go to &nbsp<i class="fa fa-arrow-right"></i></a></td>
+                                    <td align="right"><a href='{% url 'view-location' feature.id %}'>{% trans "Go to location" %}&nbsp<i class="fa fa-arrow-right"></i></a></td>
                                 {% else %}
                                 <td></td>
                                 <td align="right">
                                     <button class="btn btn-success">
-                                        <i class="fa fa-plus-circle"> </i> Add
+                                        <i class="fa fa-plus-circle"> </i> {% trans "Add" %}
                                     </button>
                                 </td>
                                 {% endif %}
@@ -165,7 +151,7 @@
                     layer.bindPopup(feature.properties.name + ' (' + feature.properties.id + ')');
                 }
                 var area_map = L.map('location_map');
-                var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+                var attribution = '{% blocktrans %}Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>{% endblocktrans %}';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             { attribution: attribution, detectRetina: true }).addTo(area_map);
                 var areas = L.featureGroup();

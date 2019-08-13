@@ -43,14 +43,14 @@
         <tr>
             <td colspan="7">
                 <a href="{% url 'create-organization-composition' organization.uuid %}">
-                <i class="fa fa-plus"> </i> Add composition
+                <i class="fa fa-plus"> </i> {% trans "Add composition" %}
                 </a>
             </td>
         </tr>
         <tr>
             <td colspan="7">
                 <a href="{% url 'create-organization-membership' organization.uuid %}">
-                <i class="fa fa-plus"> </i> Add membership
+                <i class="fa fa-plus"> </i> {% trans "Add membership" %}
                 </a>
             </td>
         </tr>
@@ -70,10 +70,10 @@
                 <label class="control-label">{% trans "Relationship type" %}</label>
                 {% if current_composition.parent.get_value.value == organization %}
                     <select id="id_relationship_type" class="form-control sourced" name="parent" readonly>
-                        <option value="{{ current_composition.parent.get_value.value.id }}" selected=true>Parent</option>
+                        <option value="{{ current_composition.parent.get_value.value.id }}" selected=true>{% trans "Parent" %}</option>
                 {% elif current_composition.child.get_value.value == organization %}
                     <select id="id_relationship_type" class="form-control sourced" name="child" readonly>
-                        <option value="{{ current_composition.child.get_value.value.id }}" selected=true>Child</option>
+                        <option value="{{ current_composition.child.get_value.value.id }}" selected=true>{% trans "Child" %}</option>
                 {% endif %}
                 </select>
                 {% if form.relationship_type.errors %}
@@ -127,7 +127,7 @@
     </div>
     <div class="row related_organization-row field-bg">
         <div class="col-sm-12">
-            {% if form.related_organization.errors %}
+            {% if form.parent.errors or form.child.errors %}
                 <div class="form-group has-error has-feedback">
             {% else %}
                 <div class="form-group">
@@ -140,10 +140,15 @@
                     <select id="id_related_organization" class="form-control" name="parent" readonly>
                         <option value="{{ form.instance.parent.get_value.value.id }}">{{ form.instance.parent.get_value.value }}</option>
                 {% endif %}
-                </select>
-                {% if form.related_organization.errors %}
-                    {% for error in form.related_organization.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                </select>}
+                {% if form.parent.errors %}
+                    {% for error in form.parent.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+                {% if form.child.errors %}
+                    {% for error in form.child.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}
             </div>
@@ -276,7 +281,7 @@
 
 {% endblock %}
 {% block delete_button %}
-    <a href="{% url 'delete-organization-composition' organization.uuid form.instance.id %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'delete-organization-composition' organization.uuid form.instance.id %}" class="btn btn-danger">{% trans "Delete" %}</a>
 {% endblock %}
 {% block extra_extra_js%}
     <script type="text/javascript">

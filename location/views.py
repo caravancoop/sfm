@@ -23,6 +23,7 @@ from countries_plus.models import Country
 from api.base_views import JSONResponseMixin
 
 from sfm_pc.templatetags.countries import country_name
+from sfm_pc.base_views import BaseDeleteView
 
 from .models import Location
 from .forms import LocationForm
@@ -95,10 +96,19 @@ class LocationView(LoginRequiredMixin, DetailView):
 
         return context
 
-class LocationDelete(LoginRequiredMixin, DeleteView):
+
+class LocationDelete(LoginRequiredMixin, BaseDeleteView):
     model = Location
     success_url = reverse_lazy('list-location')
     template_name = 'location/delete.html'
+
+    def get_cancel_link(self):
+        return reverse_lazy(
+            'view-location',
+            kwargs={
+                'pk': self.kwargs['pk']
+            }
+        )
 
 
 class LocationCreate(LoginRequiredMixin, CreateView):
@@ -148,6 +158,7 @@ class LocationCreate(LoginRequiredMixin, CreateView):
         for feature in elements['elements']:
 
             if feature['type'] == location_type:
+                feature['tags'] = feature.get('tags', {})
                 feature['tags']['saved'] = 'no'
 
                 if int(feature['id']) in saved_location_ids:

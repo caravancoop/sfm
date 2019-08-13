@@ -73,7 +73,7 @@
                     <label for="id_publication" class="control-label col-sm-2">{% trans "Publication" %}</label>
                     <div class="col-sm-10">
                         <select id="id_publication" class="form-control" name="publication">
-                            <option value="{{ form.instance.publication }}" selected=true>{{ form.instance.publication }}</option>
+                            <option value="{{ form.instance.publication }}" selected=true>{{ form.instance.publication|default_if_none:"" }}</option>
                         </select>
                     {% if form.publication.errors %}
                         {% for error in form.publication.errors %}
@@ -105,7 +105,7 @@
             {% endif %}
                     <label for="id_source_url" class="control-label col-sm-2">{% trans "Source URL" %}</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="id_source_url" name="source_url" value="{{ form.instance.source_url }}">
+                        <input type="text" class="form-control" id="id_source_url" name="source_url" value="{{ form.instance.source_url|default_if_none:'' }}">
                         {% if form.source_url.errors %}
                             {% for error in form.source_url.errors %}
                             <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -116,7 +116,7 @@
             <div class="form-group">
                 <label for="id_comment" class="control-label col-sm-2">{% trans "Comment" %}</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="id_comment" name="comment" placeholder="Describe your changes">
+                    <input type="text" class="form-control" id="id_comment" name="comment" placeholder="{% trans 'Describe your changes' %}">
                 </div>
             </div>
             <div class="form-group">

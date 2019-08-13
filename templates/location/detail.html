@@ -12,12 +12,12 @@
     <div class="detail-header">
         <small class="pull-right">
           <a href="{% url 'create-location' %}" class="btn btn-success">
-              <i class="fa fa-plus-circle"> </i>&nbsp Add new location
+              <i class="fa fa-plus-circle"> </i>&nbsp {% trans "Add new location" %}
           </a>
         </small>
         <h2 class="page-title"><i class="fa fa-thumb-tack"></i>&nbsp <b>{{location.name}}</b></h2>
-        <p><b>ID:</b> {{location.id}}</p>
-        <p><b>Type:</b> {{location.feature_type}}</p>
+        <p>{% blocktrans with location_id=location.id %}<b>OSM ID:</b> {{location_id}}{% endblocktrans %}</p>
+        <p>{% blocktrans with feature_type=location.feature_type %}<b>Type:</b> {{feature_type}}{% endblocktrans %}</p>
     </div>
   </div>
 </div>
@@ -32,37 +32,37 @@
         </thead>
         <tbody>
             <tr>
-                <td><strong>Name</strong></td>
+                <td><strong>{% trans "Name" %}</strong></td>
                 <td>{{ location.name }}</td>
             </tr>
             {% if location.tags.int_name %}
                 <tr>
-                    <td><strong>International Name</strong></td>
+                    <td><strong>{% trans "International Name" %}</strong></td>
                     <td>{{ location.tags.int_name }}</td>
                 </tr>
             {% endif %}
                 <tr>
-                    <td><strong>OSM ID</strong></td>
+                    <td><strong>{% trans "OSM ID" %}</strong></td>
                     <td>{{ location.id }}</td>
                 </tr>
                 <tr>
-                    <td><strong>Type</strong></td>
+                    <td><strong>{% trans "Type" %}</strong></td>
                     <td>{{ location.feature_type }}</td>
                 </tr>
             {% if location.tags.is_in %}
                 <tr>
-                    <td><strong>In</strong></td>
+                    <td><strong>{% trans "In" %}</strong></td>
                     <td>{{ location.tags.is_in }}</td>
                 </tr>
             {% elif location.adminlevel %}
                 <tr>
-                    <td><strong>Admin Level</strong></td>
+                    <td><strong>{% trans "Admin Level" %}</strong></td>
                     <td>{{ location.adminlevel }}</td>
                 </tr>
             {% endif %}
             {% if location.adminlevel1 %}
                 <tr>
-                    <td><strong>Admin Level 1</strong></td>
+                    <td><strong>{% trans "Admin Level 1" %}</strong></td>
                     <td>
                         <a href="{% url 'view-location' location.adminlevel1.id %}">
                             {{ location.adminlevel1.name }}
@@ -72,7 +72,7 @@
             {% endif %}
             {% if location.adminlevel2 %}
                 <tr>
-                    <td><strong>Admin Level 2</strong></td>
+                    <td><strong>{% trans "Admin Level 2" %}</strong></td>
                     <td>
                         <a href="{% url 'view-location' location.adminlevel2.id %}">
                             {{ location.adminlevel2.name }}
@@ -84,7 +84,7 @@
               <td></td>
               <td align="right">
                 <a href="{% url 'delete-location' location.id %}" class="btn btn-danger">
-                    <i class="fa fa-remove"> </i> Delete
+                    <i class="fa fa-remove"> </i> {% trans "Delete" %}
                 </a>
               </td>
           </tr>
@@ -95,15 +95,15 @@
 {% if related_entities %}
 <div class="row">
     <div class="col-sm-12">
-        <h3>Entities related to this location</h3>
+        <h3>{% trans "Entities related to this location" %}</h3>
         <table class="table table-condensed">
             <thead>
                 <tr>
-                    <th>Entity</th>
-                    <th>Entity type</th>
-                    <th>Start date</th>
-                    <th>End date</th>
-                    <th>Open ended</th>
+                    <th>{% trans "Entity" %}</th>
+                    <th>{% trans "Entity type" %}</th>
+                    <th>{% trans "Start date" %}</th>
+                    <th>{% trans "End date" %}</th>
+                    <th>{% trans "Open ended" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -119,7 +119,7 @@
                             {{ entity.start_date }}
                         </td>
                         <td>
-                            {{ entity.end_date }}
+                            {{ entity.end_date|default:"" }}
                         </td>
                         <td>
                             {{ entity.open_ended }}
@@ -137,7 +137,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
             var area_map = L.map('location_map');
-            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+            var attribution = '{% blocktrans %}Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>{% endblocktrans %}';
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                         { attribution: attribution, detectRetina: true }).addTo(area_map);
             var areas = L.featureGroup();

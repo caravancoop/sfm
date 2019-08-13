@@ -1,3 +1,4 @@
+{% load i18n %}
 {% if membership == current_membership %}
 <tr class="bg-info">
 {% else %}
@@ -7,7 +8,7 @@
         {{ related_organization.name.get_value.value }}
     </td>
     <td class="cited">
-        <i class="fa fa-fw fa-users"></i> Membership
+        <i class="fa fa-fw fa-users"></i> {% trans "Membership" %}
     </td>
     <td class="cited">
         {{ membership.firstciteddate.get_value.value }}

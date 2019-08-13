@@ -8,19 +8,25 @@
     <h2>{% trans "Add relationship" %}</h2>
     <div class="row relationship_type-row field-bg bg-info">
         <div class="col-sm-12">
-            {% if form.name.errors %}
+            {% if form.parent.data == organization.id|stringformat:"i" and form.parent.errors %}
+                <div class="form-group has-error has-feedback">
+            {% elif form.child.data == organization.id|stringformat:"i" and form.child.errors %}
                 <div class="form-group has-error has-feedback">
             {% else %}
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{% trans "Relationship type" %}</label>
                 <select id="id_relationship_type" class="form-control sourced" name="parent">
-                    <option value="{{ organization.id }}" selected=true>Parent</option>
-                    <option value="{{ organization.id }}">Child</option>
+                    <option value="{{ organization.id }}" selected=true>{% trans "Parent" %}</option>
+                    <option value="{{ organization.id }}">{% trans "Child" %}</option>
                 </select>
-                {% if form.relationship_type.errors %}
-                    {% for error in form.relationship_type.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% if form.parent.data == organization.id|stringformat:"i" and form.parent.errors %}
+                    {% for error in form.parent.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% elif form.child.data == organization.id|stringformat:"i" and form.child.errors %}
+                    {% for error in form.child.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}
             </div>
@@ -42,7 +48,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.classification.label }}</label>
-                <input type="text" value="" class="form-control sourced" name="classification" />
+                <input type="text" value="{{ form.classification.data|default_if_none:'' }}" class="form-control sourced" name="classification" />
                 {% if form.classification.errors %}
                     {% for error in form.classification.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -61,16 +67,22 @@
     </div>
     <div class="row related_organization-row field-bg">
         <div class="col-sm-12">
-            {% if form.related_organization.errors %}
+            {% if form.parent.data != organization.id|stringformat:"i" and form.parent.errors %}
+                <div class="form-group has-error has-feedback">
+            {% elif form.child.data != organization.id|stringformat:"i" and form.child.errors %}
                 <div class="form-group has-error has-feedback">
             {% else %}
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{% trans "Related organization" %}</label>
                 <select id="id_related_organization" class="form-control sourced select2-target" name="child"></select>
-                {% if form.related_organization.errors %}
-                    {% for error in form.related_organization.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                {% if form.parent.data != organization.id|stringformat:"i" and form.parent.errors %}
+                    {% for error in form.parent.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% elif form.child.data != organization.id|stringformat:"i" and form.child.errors %}
+                    {% for error in form.child.errors %}
+                        <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
                     {% endfor %}
                 {% endif %}
             </div>

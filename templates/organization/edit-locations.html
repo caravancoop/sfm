@@ -63,14 +63,14 @@
                 <tr>
                     <td colspan=5>
                         <a href="{% url 'create-organization-emplacement' organization.uuid %}">
-                            <i class="fa fa-plus"></i> Add site
+                            <i class="fa fa-plus"></i> {% trans "Add site" %}
                         </a>
                     </td>
                 </tr>
                 <tr>
                     <td colspan=5>
                         <a href="{% url 'create-organization-association' organization.uuid %}">
-                            <i class="fa fa-plus"></i> Add area
+                            <i class="fa fa-plus"></i> {% trans "Add area" %}
                         </a>
                     </td>
                 </tr>
@@ -112,7 +112,7 @@
                 layer.bindPopup(feature.properties.name);
             }
             var area_map = L.map('osm_area_map');
-            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+            var attribution = '{% blocktrans %}Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>{% endblocktrans %}';
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                         { attribution: attribution, detectRetina: true }).addTo(area_map);
 

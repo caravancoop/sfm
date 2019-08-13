@@ -7,7 +7,7 @@
     <h1>{% include 'partials/violation_title.html' %}</h1>
     <p>
         {% trans "ID:" %} {{ object.uuid }}<br />
-        {% trans "Last update by:" %} username goes here <br />
+        {% trans "Last update by:" %} {% trans "username goes here" %} <br />
         <a href="#">{% trans "View versions"%}</a>
     </p>
 </div>
