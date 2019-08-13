@@ -79,6 +79,16 @@ def test_edit_violation(setUp,
 
 
 @pytest.mark.django_db
+def test_edit_violation_locations(setUp, violation):
+    # Make sure we can load the locations edit view.
+    response = setUp.get(reverse_lazy(
+        'edit-violation-locations',
+        kwargs={'slug': violation.uuid}
+    ))
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
 def test_change_perpetrator_classification(setUp,
                                            people,
                                            organizations,
