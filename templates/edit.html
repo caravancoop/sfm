@@ -79,11 +79,7 @@
                     <a href="<%= source_url %>" target="_blank">
                         <%= publication %>, <%= publication_country %>
                     </a> -
-                    <% if (accessed_on !== '' && archive_url){ %>
-                        {% trans "Access Point" %} <a href="<%= archive_url %>"><%= access_point %></a>
-                    <% } else if (archive_url) { %>
-                        <a href="<%= archive_url %>">{% trans "Access Point" %}</a>
-                    <% } %>
+                    {% trans "Access Point" %} <a href="<%= archive_url %>"><%= access_point %></a>
                     <% if (page_number){ %>
                         page <%= page_number %>
                     <% } %>
