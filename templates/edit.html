@@ -31,15 +31,40 @@
             {% block form_content %}{% endblock %}
         </div>
         <div class="col-sm-6" id="source-wrapper-anchor">
-            <h2>{% trans "Edit sources" %}</h2>
+            <h2>{% trans "Edit sources and confidence levels" %}</h2>
             <div class="row bg-info" id="source-wrapper">
                 <div class="col-sm-12">
+                    <div id="confidence-picker-wrapper">
+                        <!-- This widget is rendered by EJS below -->
+                    </div>
+                    <hr/>
                     <div class="form-group">
-                        <label class="control-label">{% trans "Add sources to the list" %}</label>
+                        <label class="control-label">
+                            <span id="source-search-title-wrapper">
+                                <!-- This title is rendered by EJS below -->
+                            </span>
+                        </label>
                         <select multiple="multiple" id="source-search" class="form-control"></select>
                     </div>
                     <div id="sources">
-                        <div id="source-list"></div>
+                        <div id="source-list-added-title">
+                            <!-- This title is rendered by EJS below -->
+                        </div>
+                        <div id="source-list-added">
+                            <!-- This widget is rendered by EJS below -->
+                        </div>
+                        <div id="source-list-removed-title">
+                            <!-- This title is rendered by EJS below -->
+                        </div>
+                        <div id="source-list-removed">
+                            <!-- This widget is rendered by EJS below -->
+                        </div>
+                        <div id="source-list-existing-title">
+                            <!-- This title is rendered by EJS below -->
+                        </div>
+                        <div id="source-list-existing">
+                            <!-- This widget is rendered by EJS below -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -63,11 +88,7 @@
 {% block extra_js %}
     <script src="{% static "js/ejs_production.js" %}"></script>
     <script type="text/EJS" id="source-list-template">
-        <% if(uncommitted == 'true' || uncommitted == true){ %>
-            <div data-field_name="<%= field_name %>" data-source_id="<%= id %>" class="source-detail alert alert-danger alert-dismissible">
-        <% } else { %>
-            <div data-field_name="<%= field_name %>" data-source_id="<%= id %>" class="source-detail alert alert-warning alert-dismissible">
-        <% } %>
+        <div data-field_name="<%= field_name %>" data-source_id="<%= id %>" class="source-detail alert <%= alert_class %> alert-dismissible">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span></button>
             <h4>
                 <a href="<%= source_detail_url %>">
@@ -87,16 +108,34 @@
             </h4>
         </div>
     </script>
-    <script type="text/EJS" id="source-list-title">
-        <h3 id="source-field-name" data-field_name="<%= field_name %>">
+    <script type="text/EJS" id="source-list-existing-title-template">
+        <h4 id="source-field-name" data-field_name="<%= field_name %>" style="display:none;">
             {% blocktrans context "Leave the HTML tags intact, including field_label" %}
                 Sources already linked to <strong><%= field_label %></strong>
             {% endblocktrans %}
-        </h3>
+        </h4>
+    </script>
+    <script type="text/EJS" id="source-list-added-title-template">
+        <h4 id="source-field-name" data-field_name="<%= field_name %>" style="display:none;">
+            {% blocktrans context "Leave the HTML tags intact, including field_label" %}
+                Sources added to <strong><%= field_label %></strong> but not saved
+            {% endblocktrans %}
+        </h4>
+    </script>
+    <script type="text/EJS" id="source-list-removed-title-template">
+        <h4 id="source-field-name" data-field_name="<%= field_name %>" style="display:none;">
+            {% blocktrans context "Leave the HTML tags intact, including field_label" %}
+                Sources removed from <strong><%= field_label %></strong> during this edit
+            {% endblocktrans %}
+        </h4>
     </script>
     <script type="text/EJS" id="confidence-picker">
-        <p>
-            <label class="control-label">{% trans "Confidence" %}</label>
+        <h3 class="form-inline">
+            <label class="control-label">
+                {% blocktrans context "Leave the HTML tags intact, including field_label" %}
+                    1. Set <strong><%= field_label %></strong> confidence level:
+                {% endblocktrans %}
+            </label>
             <select class="confidence-picker form-control" data-field_name="<%= field_name %>">
                 <% $.each(confidence_choices, function(value, label){ %>
                     <% if (value == confidence){ %>
@@ -106,8 +145,14 @@
                     <% } %>
                 <% }) %>
             </select>
-        </p>
-        <br />
+        </h3>
+    </script>
+    <script type="text/EJS" id="source-search-title">
+        <h3>
+        {% blocktrans context "Leave the HTML tags intact, including field_label" %}
+            2. Add sources to <strong><%= field_label %></strong>
+        {% endblocktrans %}
+        </h3>
     </script>
     <script type="text/javascript">
         var object_id = "{{ object.id }}"
@@ -124,11 +169,100 @@
             return $.getJSON("{% url 'get-sources' %}", params)
         }
 
-        function removeSource(e){
+        function getSourceInput(e){
+            // Get the raw input element for a source.
             var source_id = $(e.target).data('source_id');
             var field_name = $(e.target).data('field_name');
-            var selector = 'input[name="' + field_name + '_source"][value="' + source_id + '"]';
-            $(selector).remove();
+            var selector = 'input[class="' + field_name + '_source"][value="' + source_id + '"]';
+            return $(selector);
+        }
+
+        function removeSource(e){
+            // Remove the input element for a Source from the DOM (hard delete).
+            var $sourceInput = getSourceInput(e);
+            $sourceInput.remove();
+        }
+
+        function disableSource(e){
+            // Disable the input element for a Source, preventing it from submitting
+            // with the form (soft delete).
+            var $sourceInput = getSourceInput(e);
+            $sourceInput.removeAttr('name');  // Unnamed inputs won't be submitted by forms
+        }
+
+        function revertSource(e){
+            // Re-enable the input element for a Source.
+            var $sourceInput = getSourceInput(e);
+            $sourceInput.attr('name', $(e.target).data('field_name') + '_source');
+        }
+
+        function removeExistingSource(e){
+            // Remove a Source that has already been saved during a previous editing session.
+            disableSource(e);
+            // Alter the appearance of the alert and move it to the 'Removed' section.
+            $sourceCard = $(e.target).clone();
+            $sourceCard.removeClass('alert-success').addClass('alert-danger');
+            $sourceCard.find('.fa-remove').removeClass('fa-remove').addClass('fa-undo');
+            $sourceCard.prependTo('#source-list-removed');
+
+            // Check if we need to display or hide any section titles.
+            var hasNewRemovedSources = $('#source-list-removed').children().length === 1;
+            if (hasNewRemovedSources) {
+                // Show the title of the Removed Source list if this is the first source.
+                $('#source-list-removed-title').children().show();
+            }
+            // We expect this function to fire _before_ the existing source is removed
+            // from the DOM, so checking if the parent container has 1 child element
+            // will effectively check if the parent container is empty.
+            var hasNoExistingSources = $('#source-list-existing').children().length === 1;
+            if (hasNoExistingSources) {
+                // Hide the title of the Existing Source list if no sources remain.
+                $('#source-list-existing-title').children().hide();
+            }
+        }
+
+        function removeAddedSource(e){
+            // Remove a Source that has been added during this editing session.
+            removeSource(e);
+            var hasNoAddedSources = $('#source-list-added').children().length === 1;
+            if (hasNoAddedSources) {
+                // Clear the title of the Added Source list if no sources remain.
+                $('#source-list-added-title').children().hide();
+            }
+        }
+
+        function revertRemovedSource(e){
+            // Revert the removal of an existing source from the source list.
+            revertSource(e);
+            // Alter the appearance of the alert and move it to the 'Existing' section.
+            $sourceCard = $(e.target).clone();
+            $sourceCard.removeClass('alert-danger').addClass('alert-success');
+            $sourceCard.find('.fa-undo').removeClass('fa-undo').addClass('fa-remove');
+            $sourceCard.prependTo('#source-list-existing');
+
+            // Check if we need to display or hide any section titles.
+            var hasNoRemainingSources = $('#source-list-removed').children().length === 1;
+            if (hasNoRemainingSources) {
+                // Clear the title of the Removed Source list if no sources remain.
+                $('#source-list-removed-title').children().hide();
+            }
+            var hasNewExistingSources = $('#source-list-existing').children().length > 0;
+            if (hasNewExistingSources) {
+                // Show the title of the Existing Source list if at least source has been reverted.
+                $('#source-list-existing-title').children().show();
+            }
+        }
+
+        function renderSourceListTitle(sourceType, fieldName, fieldLabel){
+            // Render the title for a list of sources.
+            var titleSelector = '#source-list-' + sourceType + '-title';
+            var sourceListTitleTemplate = new EJS({
+                text: $(titleSelector + '-template').html()
+            });
+            $(titleSelector).html(sourceListTitleTemplate.render({
+                'field_name': fieldName,
+                'field_label': fieldLabel
+            }));
         }
 
         function loadSources(e){
@@ -137,35 +271,55 @@
             if (field_label.length == 0){
                 field_label = $(e.target).parent();
             }
+            field_label = field_label.text().trim();
 
             if (typeof field_name === 'undefined'){
                 return
             }
 
-            var template = new EJS({'text': $('#source-list-title').html()});
-            var source_list = [template.render({'field_name': field_name, 'field_label': field_label.text().trim()})];
+            // Render the confidence picker widget
+            var confidenceTemplate = new EJS({'text': $('#confidence-picker').html()});
+            var confidenceSelector = 'input[name="' + field_name + '_confidence"]';
+            var confidence = $(confidenceSelector).val();
+            $('#confidence-picker-wrapper').html(confidenceTemplate.render({
+                'field_name': field_name,
+                'confidence': confidence,
+                'field_label': field_label
+            }));
+            $('.confidence-picker').on('change', updateConfidence);
 
-            var template = new EJS({'text': $('#confidence-picker').html()});
-            var selector = 'input[name="' + field_name + '_confidence"]';
-            var confidence = $(selector).val();
-            source_list.push(template.render({'field_name': field_name, 'confidence': confidence}));
+            // Render the title for the source search box
+            var sourceSearchTitleTemplate = new EJS({text: $('#source-search-title').html()});
+            $('#source-search-title-wrapper').html(sourceSearchTitleTemplate.render({
+                'field_label': field_label
+            }));
 
-            var selector = 'input[name="' + field_name + '_source"]';
+            // Render the titles for the lists of sources
+            renderSourceListTitle('existing', field_name, field_label);
+            renderSourceListTitle('added', field_name, field_label);
+            renderSourceListTitle('removed', field_name, field_label);
 
-            $.each($(selector), function(e, source){
-                var source_info = $(source).data();
-                source_info['field_name'] = field_name;
-                source_info['id'] = $(source).val();
+            // Render the list of existing sources
+            var sourceList = [];
+            $.each($('input[name="' + field_name + '_source"]'), function(e, source){
+                var sourceInfo = $(source).data();
+                sourceInfo['field_name'] = field_name;
+                sourceInfo['id'] = $(source).val();
+                sourceInfo['alert_class'] = 'alert-success';
                 var template = new EJS({'text': $('#source-list-template').html()});
-                source_list.push(template.render(source_info));
+                sourceList.push(template.render(sourceInfo));
             });
 
-            $('#source-list').html(source_list.join(''));
+            // If sources exist, show the title for Existing Sources.
+            if (sourceList.length > 0) {
+                $('#source-list-existing-title').children().first().show();
+            }
+            $('#source-list-existing').html(sourceList.join(''));
             $('.field-bg').removeClass('bg-info');
 
-            var selector = '.' + field_name + '-row';
-            if ($(selector).length > 0){
-                $(selector).addClass('bg-info');
+            var fieldInput = '.' + field_name + '-row';
+            if ($(fieldInput).length > 0){
+                $(fieldInput).addClass('bg-info');
             } else {
                 $('*[name="' + field_name +'"]').parent().parent().parent().addClass('bg-info');
             }
@@ -181,8 +335,6 @@
             });
             stickSources();
             $(window).scroll(stickSources);
-
-            $('.confidence-picker').on('change', updateConfidence);
         }
 
         function stickSources(){
@@ -258,7 +410,12 @@
             $('.select2-target').on('focus', loadSources);
             $('.select2-target').on('select2:opening', loadSources);
 
-            $(document).on('close.bs.alert', '.source-detail', removeSource);
+            // Register event handler for removing existing sources.
+            $(document).on('close.bs.alert', '.source-detail.alert-success', removeExistingSource);
+            // Register event handler for removing newly-added sources.
+            $(document).on('close.bs.alert', '.source-detail.alert-warning', removeAddedSource);
+            // Register event handler for reverting removal of sources.
+            $(document).on('close.bs.alert', '.source-detail.alert-danger', revertRemovedSource);
 
             $('#source-search').on('select2:select', function(e){
 
@@ -269,12 +426,20 @@
                     'field_name': field_name
                 }
 
-                $.getJSON("{% url 'stash-source' %}", data, function(access_point){
-                    var source_template = new EJS({'text': $('#source-list-template').html()});
-                    $('#source-list').prepend(source_template.render(access_point));
+                $.getJSON("{% url 'stash-source' %}", data, function(accessPoint){
+                    // Update the list of Added Sources with this source.
+                    accessPoint['alert_class'] = 'alert-warning';
+                    var sourceTemplate = new EJS({'text': $('#source-list-template').html()});
+                    $('#source-list-added').prepend(sourceTemplate.render(accessPoint));
                     var selector = '#id_' + field_name + '_source';
-                    $(selector).append(access_point['source_input']);
+                    $(selector).append(accessPoint['source_input']);
 
+                    // If the title for the Added Sources section is hidden, show it.
+                    var $addedSourcesTitle = $('#source-list-added-title').children().first();
+                    var titleIsHidden = $addedSourcesTitle.is(':hidden');
+                    if (titleIsHidden) {
+                        $addedSourcesTitle.show();
+                    }
                 });
 
                 $('#source-search').val(null).trigger('change');
