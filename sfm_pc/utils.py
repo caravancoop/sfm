@@ -855,6 +855,8 @@ def get_source_context(field_name, access_point, uncommitted=True):
         'publication_country': access_point.source.publication_country,
         'title': access_point.source.title,
         'date_added': None,
+        'published_on': str(access_point.source.published_on),
+        'access_point': str(access_point),
         'source_url': access_point.source.source_url,
         'source_detail_url': reverse('view-source', kwargs={'pk': access_point.source.uuid}),
         'archive_url': access_point.archive_url,

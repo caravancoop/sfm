@@ -6,6 +6,8 @@
     data-source_url="{{ source_url }}"
     data-source_detail_url="{% url 'view-source' source_id %}"
     data-source_publication_country="{{ publication_country|default_if_none:"" }}"
+    data-published_on="{{ published_on|default:"Publication date unavailable" }}"
+    data-access_point="{{ access_point|default_if_none:"" }}"
     data-publication="{{ publication|default_if_none:"" }}"
     data-archive_url="{{ archive_url|default_if_none:"" }}"
     data-page_number="{{ page_number|default_if_none:"" }}"
