@@ -30,12 +30,12 @@
                 class="btn btn-{% if is_composition_active %}primary{% else %}default{% endif %}">{% trans "Relationships" %}</a>
 
             <a href="{% url 'create-organization-personnel' organization.uuid %}"
-                class="btn btn-default">{% trans "Personnel" %}</a>
+                class="btn btn-{% if is_personnel_active %}primary{% else %}default{% endif %}">{% trans "Personnel" %}</a>
 
 
 
-                <a href="{% url 'create-organization-emplacement' organization.uuid %}" class="btn btn-default">{% trans "Add site" %}</a>
-                <a href="{% url 'create-organization-association' organization.uuid %}" class="btn btn-default">{% trans "Add area" %}</a>
+            <a href="{% url 'create-organization-emplacement' organization.uuid %}" class="btn btn-default">{% trans "Add site" %}</a>
+            <a href="{% url 'create-organization-association' organization.uuid %}" class="btn btn-default">{% trans "Add area" %}</a>
 
 
             <!-- {% if first_personnel and current_membership %}
