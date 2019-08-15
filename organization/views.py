@@ -505,7 +505,7 @@ class OrganizationEditEmplacementView(OrganizationEditView):
         context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
         context['associations'] = [e.object_ref for e in context['organization'].associations]
 
-        context['is_emplacement_active'] = True
+        context['is_location_active'] = True
 
         return context
 
@@ -583,6 +583,8 @@ class OrganizationEditAssociationView(OrganizationEditView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        context['is_location_active'] = True
 
         context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
         context['associations'] = [e.object_ref for e in context['organization'].associations]
