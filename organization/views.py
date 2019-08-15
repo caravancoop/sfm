@@ -452,6 +452,7 @@ class OrganizationCreatePersonnelView(BaseCreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
+        context['is_personnel_active'] = True
         return context
 
     def get_form_kwargs(self):
@@ -503,6 +504,8 @@ class OrganizationEditEmplacementView(OrganizationEditView):
 
         context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
         context['associations'] = [e.object_ref for e in context['organization'].associations]
+
+        context['is_emplacement_active'] = True
 
         return context
 

@@ -25,16 +25,21 @@
             {% trans "Edit:" %}
             <a href="{% url 'edit-organization' organization.uuid %}"
                 class="btn btn-{% if is_basics_active %}primary{% else %}default{% endif %}">{% trans "Basics" %}</a>
-            <a href="{% url "edit-organization-composition" organization.uuid first_composition.id %}"
+
+            <a href="{% url "create-organization-composition" organization.uuid %}"
                 class="btn btn-{% if is_composition_active %}primary{% else %}default{% endif %}">{% trans "Relationships" %}</a>
+
+            <a href="{% url 'create-organization-personnel' organization.uuid %}"
+                class="btn btn-default">{% trans "Personnel" %}</a>
+
+
+
+                <a href="{% url 'create-organization-emplacement' organization.uuid %}" class="btn btn-default">{% trans "Add site" %}</a>
+                <a href="{% url 'create-organization-association' organization.uuid %}" class="btn btn-default">{% trans "Add area" %}</a>
 
 
             <!-- {% if first_personnel and current_membership %}
-                <a href="{% url 'edit-organization-personnel' organization.uuid first_personnel.id %}" class="btn btn-primary">{% trans "Personnel" %}</a>
-            {% elif first_personnel %}
-                <a href="{% url 'edit-organization-personnel' organization.uuid first_personnel.id %}" class="btn btn-default">{% trans "Personnel" %}</a>
-            {% elif organization %}
-                <a href="{% url 'create-organization-personnel' organization.uuid %}" class="btn btn-default">{% trans "Personnel" %}</a>
+
             {% endif %}
             {% if first_emplacement and current_emplacement or first_association and current_association %}
                 {% if current_emplacement %}
@@ -48,10 +53,7 @@
                 {% else %}
                 <a href="{% url 'edit-organization-association' organization.uuid first_association.id %}" class="btn btn-default">{% trans "Locations" %}</a>
                 {% endif %}
-            {% elif organization %}
-                <a href="{% url 'create-organization-emplacement' organization.uuid %}" class="btn btn-default">{% trans "Add site" %}</a>
-                <a href="{% url 'create-organization-association' organization.uuid %}" class="btn btn-default">{% trans "Add area" %}</a>
-            {% endif %} -->
+
         </h1>
     </div>
 {% endblock %}
