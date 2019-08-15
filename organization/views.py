@@ -170,21 +170,6 @@ class OrganizationEditView(BaseUpdateView):
 
         context['organization'] = self.get_reference_organization()
 
-        first_composition = context['organization'].child_organization.first()
-
-        if not first_composition:
-            first_composition = context['organization'].parent_organization.first()
-
-        first_personnel = context['organization'].membershippersonorganization_set.first()
-
-        first_emplacement = context['organization'].emplacements.first()
-        first_association = context['organization'].associations.first()
-
-        context['first_personnel'] = getattr(first_personnel, 'object_ref', None)
-        context['first_composition'] = getattr(first_composition, 'object_ref', None)
-        context['first_emplacement'] = getattr(first_emplacement, 'object_ref', None)
-        context['first_association'] = getattr(first_association, 'object_ref', None)
-
         return context
 
     def get_success_url(self):
