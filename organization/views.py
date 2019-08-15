@@ -505,8 +505,6 @@ class OrganizationEditEmplacementView(OrganizationEditView):
         context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
         context['associations'] = [e.object_ref for e in context['organization'].associations]
 
-        context['is_location_active'] = True
-
         return context
 
     def get_success_url(self):
@@ -537,6 +535,9 @@ class OrganizationCreateEmplacementView(BaseCreateView):
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
         context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
         context['associations'] = [e.object_ref for e in context['organization'].associations]
+
+        context['is_location_active'] = True
+
         return context
 
     def get_form_kwargs(self):
@@ -614,6 +615,9 @@ class OrganizationCreateAssociationView(BaseCreateView):
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
         context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
         context['associations'] = [e.object_ref for e in context['organization'].associations]
+
+        context['is_location_active'] = True
+
         return context
 
     def get_success_url(self):
