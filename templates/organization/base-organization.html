@@ -36,6 +36,7 @@
 
               <a href="{% url 'create-organization-emplacement' organization.uuid %}"
                   class="btn btn-{% if is_location_active %}primary{% else %}default{% endif %}">{% trans "Locations" %}</a>
+             {% endif %}
           </h1>
       </div>
   {% endblock %}

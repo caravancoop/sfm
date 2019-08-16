@@ -29,6 +29,12 @@ from sfm_pc.templatetags.countries import country_name
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView
 
 
+class EditButtonsMixin:
+    def get_context_data(**kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_%_active' % self.button ] = True
+
+
 class OrganizationDetail(BaseDetailView):
     model = Organization
     template_name = 'organization/view.html'
@@ -159,11 +165,12 @@ class OrganizationDetail(BaseDetailView):
         return context
 
 
-class OrganizationEditView(BaseUpdateView):
+class OrganizationEditView(BaseUpdateView, EditButtonsMixin):
     model = Organization
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
     context_object_name = 'organization'
+    button = 'basics'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -177,18 +184,16 @@ class OrganizationEditView(BaseUpdateView):
         return reverse('view-organization', kwargs={'slug': uuid})
 
 
-class OrganizationEditBasicsView(OrganizationEditView):
+class OrganizationEditBasicsView(OrganizationEditView, EditButtonsMixin):
     template_name = 'organization/edit-basics.html'
     form_class = OrganizationBasicsForm
+    button = 'basics'
 
     def get_reference_organization(self):
         return Organization.objects.get(uuid=self.kwargs['slug'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context['is_basics_active'] = True
-
         return context
 
     def get_success_url(self):
@@ -227,19 +232,19 @@ class OrganizationCreateBasicsView(BaseCreateView):
         return '{}?entity_type=Organization'.format(reverse('search'))
 
 
-class OrganizationEditCompositionView(OrganizationEditView):
+class OrganizationEditCompositionView(OrganizationEditView, EditButtonsMixin):
     template_name = 'organization/edit-composition.html'
     form_class = OrganizationCompositionForm
     model = Composition
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'
+    button = 'relationships'
 
     def get_reference_organization(self):
         return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['is_composition_active'] = True
 
         parents = Q(compositionparent__value=context['organization'])
         children = Q(compositionchild__value=context['organization'])
@@ -261,18 +266,17 @@ class OrganizationEditCompositionView(OrganizationEditView):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateCompositionView(BaseCreateView):
+class OrganizationCreateCompositionView(BaseCreateView, EditButtonsMixin):
     template_name = 'organization/create-composition.html'
     form_class = OrganizationCreateCompositionForm
     model = Composition
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'
+    button = 'relationships'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
-
-        context['is_composition_active'] = True
 
         parents = Q(compositionparent__value=context['organization'])
         children = Q(compositionchild__value=context['organization'])
@@ -311,12 +315,13 @@ class OrganizationDeleteCompositionView(LoginRequiredMixin, DeleteView):
         return response
 
 
-class OrganizationEditMembershipView(BaseUpdateView):
+class OrganizationEditMembershipView(BaseUpdateView, EditButtonsMixin):
     template_name = 'organization/edit-membership.html'
     form_class = OrganizationMembershipForm
     model = MembershipOrganization
     context_object_name = 'current_membership'
     slug_field_kwarg = 'pk'
+    button = 'relationships'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -347,12 +352,13 @@ class OrganizationEditMembershipView(BaseUpdateView):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateMembershipView(BaseCreateView):
+class OrganizationCreateMembershipView(BaseCreateView, EditButtonsMixin):
     template_name = 'organization/create-membership.html'
     form_class = OrganizationCreateMembershipForm
     model = MembershipOrganization
     context_object_name = 'current_membership'
     slug_field_kwarg = 'pk'
+    button = 'relationships'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -400,12 +406,13 @@ class OrganizationDeleteMembershipView(LoginRequiredMixin, DeleteView):
         return response
 
 
-class OrganizationEditPersonnelView(OrganizationEditView):
+class OrganizationEditPersonnelView(OrganizationEditView, EditButtonsMixin):
     model = MembershipPerson
     template_name = 'organization/edit-personnel.html'
     form_class = OrganizationPersonnelForm
     context_object_name = 'current_membership'
     slug_field_kwarg = 'organization_id'
+    button = 'personnel'
 
     def get_reference_organization(self):
         return Organization.objects.get(uuid=self.kwargs['organization_id'])
@@ -427,12 +434,13 @@ class OrganizationEditPersonnelView(OrganizationEditView):
         return form_kwargs
 
 
-class OrganizationCreatePersonnelView(BaseCreateView):
+class OrganizationCreatePersonnelView(BaseCreateView, EditButtonsMixin):
     model = MembershipPerson
     template_name = 'organization/create-personnel.html'
     form_class = OrganizationCreatePersonnelForm
     context_object_name = 'current_membership'
     slug_field_kwarg = 'organization_id'
+    button = 'personnel'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -474,12 +482,13 @@ class OrganizationDeletePersonnelView(LoginRequiredMixin, DeleteView):
         return response
 
 
-class OrganizationEditEmplacementView(OrganizationEditView):
+class OrganizationEditEmplacementView(OrganizationEditView, EditButtonsMixin):
     model = Emplacement
     template_name = 'organization/edit-emplacement.html'
     form_class = OrganizationEmplacementForm
     context_object_name = 'current_emplacement'
     slug_field_kwarg = 'pk'
+    button = 'location'
 
     def get_reference_organization(self):
         return Organization.objects.get(uuid=self.kwargs['organization_id'])
@@ -509,19 +518,18 @@ class OrganizationEditEmplacementView(OrganizationEditView):
         return form_kwargs
 
 
-class OrganizationCreateEmplacementView(BaseCreateView):
+class OrganizationCreateEmplacementView(BaseCreateView, EditButtonsMixin):
     model = Emplacement
     template_name = 'organization/create-emplacement.html'
     form_class = OrganizationCreateEmplacementForm
     slug_field_kwarg = 'pk'
+    button = 'location'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
         context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
         context['associations'] = [e.object_ref for e in context['organization'].associations]
-
-        context['is_location_active'] = True
 
         return context
 
@@ -557,20 +565,19 @@ class OrganizationDeleteEmplacementView(LoginRequiredMixin, DeleteView):
         return response
 
 
-class OrganizationEditAssociationView(OrganizationEditView):
+class OrganizationEditAssociationView(OrganizationEditView, EditButtonsMixin):
     model = Association
     template_name = 'organization/edit-association.html'
     form_class = OrganizationAssociationForm
     context_object_name = 'current_association'
     slug_field_kwarg = 'pk'
+    button = 'location'
 
     def get_reference_organization(self):
         return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context['is_location_active'] = True
 
         context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
         context['associations'] = [e.object_ref for e in context['organization'].associations]
@@ -589,19 +596,18 @@ class OrganizationEditAssociationView(OrganizationEditView):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateAssociationView(BaseCreateView):
+class OrganizationCreateAssociationView(BaseCreateView, EditButtonsMixin):
     model = Association
     template_name = 'organization/create-association.html'
     form_class = OrganizationCreateAssociationForm
     slug_field_kwarg = 'pk'
+    button = 'location'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
         context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
         context['associations'] = [e.object_ref for e in context['organization'].associations]
-
-        context['is_location_active'] = True
 
         return context
 
