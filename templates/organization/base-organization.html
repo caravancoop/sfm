@@ -29,7 +29,7 @@
                   class="btn btn-{% if is_basics_active %}primary{% else %}default{% endif %}">{% trans "Basics" %}</a>
 
               <a href="{% url "create-organization-composition" organization.uuid %}"
-                  class="btn btn-{% if is_composition_active %}primary{% else %}default{% endif %}">{% trans "Relationships" %}</a>
+                  class="btn btn-{% if is_relationships_active %}primary{% else %}default{% endif %}">{% trans "Relationships" %}</a>
 
               <a href="{% url 'create-organization-personnel' organization.uuid %}"
                   class="btn btn-{% if is_personnel_active %}primary{% else %}default{% endif %}">{% trans "Personnel" %}</a>

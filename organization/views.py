@@ -30,9 +30,10 @@ from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView
 
 
 class EditButtonsMixin:
-    def get_context_data(**kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['is_%_active' % self.button ] = True
+        context['is_{}_active'.format(self.button)] = True
+        return context
 
 
 class OrganizationDetail(BaseDetailView):
@@ -165,7 +166,7 @@ class OrganizationDetail(BaseDetailView):
         return context
 
 
-class OrganizationEditView(BaseUpdateView, EditButtonsMixin):
+class OrganizationEditView(EditButtonsMixin, BaseUpdateView):
     model = Organization
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
@@ -184,7 +185,7 @@ class OrganizationEditView(BaseUpdateView, EditButtonsMixin):
         return reverse('view-organization', kwargs={'slug': uuid})
 
 
-class OrganizationEditBasicsView(OrganizationEditView, EditButtonsMixin):
+class OrganizationEditBasicsView(OrganizationEditView):
     template_name = 'organization/edit-basics.html'
     form_class = OrganizationBasicsForm
     button = 'basics'
@@ -232,7 +233,7 @@ class OrganizationCreateBasicsView(BaseCreateView):
         return '{}?entity_type=Organization'.format(reverse('search'))
 
 
-class OrganizationEditCompositionView(OrganizationEditView, EditButtonsMixin):
+class OrganizationEditCompositionView(OrganizationEditView):
     template_name = 'organization/edit-composition.html'
     form_class = OrganizationCompositionForm
     model = Composition
@@ -266,7 +267,7 @@ class OrganizationEditCompositionView(OrganizationEditView, EditButtonsMixin):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateCompositionView(BaseCreateView, EditButtonsMixin):
+class OrganizationCreateCompositionView(EditButtonsMixin, BaseCreateView):
     template_name = 'organization/create-composition.html'
     form_class = OrganizationCreateCompositionForm
     model = Composition
@@ -315,7 +316,7 @@ class OrganizationDeleteCompositionView(LoginRequiredMixin, DeleteView):
         return response
 
 
-class OrganizationEditMembershipView(BaseUpdateView, EditButtonsMixin):
+class OrganizationEditMembershipView(EditButtonsMixin, BaseUpdateView):
     template_name = 'organization/edit-membership.html'
     form_class = OrganizationMembershipForm
     model = MembershipOrganization
@@ -352,7 +353,7 @@ class OrganizationEditMembershipView(BaseUpdateView, EditButtonsMixin):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateMembershipView(BaseCreateView, EditButtonsMixin):
+class OrganizationCreateMembershipView(EditButtonsMixin, BaseCreateView):
     template_name = 'organization/create-membership.html'
     form_class = OrganizationCreateMembershipForm
     model = MembershipOrganization
@@ -406,7 +407,7 @@ class OrganizationDeleteMembershipView(LoginRequiredMixin, DeleteView):
         return response
 
 
-class OrganizationEditPersonnelView(OrganizationEditView, EditButtonsMixin):
+class OrganizationEditPersonnelView(OrganizationEditView):
     model = MembershipPerson
     template_name = 'organization/edit-personnel.html'
     form_class = OrganizationPersonnelForm
@@ -434,7 +435,7 @@ class OrganizationEditPersonnelView(OrganizationEditView, EditButtonsMixin):
         return form_kwargs
 
 
-class OrganizationCreatePersonnelView(BaseCreateView, EditButtonsMixin):
+class OrganizationCreatePersonnelView(EditButtonsMixin, BaseCreateView):
     model = MembershipPerson
     template_name = 'organization/create-personnel.html'
     form_class = OrganizationCreatePersonnelForm
@@ -482,7 +483,7 @@ class OrganizationDeletePersonnelView(LoginRequiredMixin, DeleteView):
         return response
 
 
-class OrganizationEditEmplacementView(OrganizationEditView, EditButtonsMixin):
+class OrganizationEditEmplacementView(OrganizationEditView):
     model = Emplacement
     template_name = 'organization/edit-emplacement.html'
     form_class = OrganizationEmplacementForm
@@ -518,7 +519,7 @@ class OrganizationEditEmplacementView(OrganizationEditView, EditButtonsMixin):
         return form_kwargs
 
 
-class OrganizationCreateEmplacementView(BaseCreateView, EditButtonsMixin):
+class OrganizationCreateEmplacementView(EditButtonsMixin, BaseCreateView):
     model = Emplacement
     template_name = 'organization/create-emplacement.html'
     form_class = OrganizationCreateEmplacementForm
@@ -565,7 +566,7 @@ class OrganizationDeleteEmplacementView(LoginRequiredMixin, DeleteView):
         return response
 
 
-class OrganizationEditAssociationView(OrganizationEditView, EditButtonsMixin):
+class OrganizationEditAssociationView(OrganizationEditView):
     model = Association
     template_name = 'organization/edit-association.html'
     form_class = OrganizationAssociationForm
@@ -596,7 +597,7 @@ class OrganizationEditAssociationView(OrganizationEditView, EditButtonsMixin):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateAssociationView(BaseCreateView, EditButtonsMixin):
+class OrganizationCreateAssociationView(EditButtonsMixin, BaseCreateView):
     model = Association
     template_name = 'organization/create-association.html'
     form_class = OrganizationCreateAssociationForm
