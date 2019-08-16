@@ -20,7 +20,7 @@
             {% block metadata_table %}{% endblock %}
             <form action="" method="post" class="form text-right">
                 {% csrf_token %}
-                <a href="{{ cancel_link }}" class="btn btn-link" type="submit">{% trans 'Cancel' %}</a>
+                <a href="{{ view.get_cancel_url }}" class="btn btn-link" type="submit">{% trans 'Cancel' %}</a>
                 <input class="btn btn-danger" type="submit" value="{% trans 'Confirm' %}" />
             </form>
         </div>
