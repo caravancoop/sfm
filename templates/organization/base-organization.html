@@ -22,10 +22,12 @@
 {% block edit_links %}
     <div class="col-sm-6">
         <h1>
-            {% trans "Edit:" %}
             {% if organization.uuid %}
+              {% trans "Edit:" %}
+
               <a href="{% url 'edit-organization' organization.uuid %}"
                   class="btn btn-{% if is_basics_active %}primary{% else %}default{% endif %}">{% trans "Basics" %}</a>
+
               <a href="{% url "create-organization-composition" organization.uuid %}"
                   class="btn btn-{% if is_composition_active %}primary{% else %}default{% endif %}">{% trans "Relationships" %}</a>
 
@@ -34,12 +36,6 @@
 
               <a href="{% url 'create-organization-emplacement' organization.uuid %}"
                   class="btn btn-{% if is_location_active %}primary{% else %}default{% endif %}">{% trans "Locations" %}</a>
-           {% else %}
-             <a href="{% url 'create-organization' %}"
-                 class="btn btn-{% if is_basics_active %}primary{% else %}default{% endif %}">{% trans "Basics" %}</a>
-            {% endif %}
-
-
           </h1>
       </div>
   {% endblock %}
