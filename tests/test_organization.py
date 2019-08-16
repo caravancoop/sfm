@@ -179,3 +179,33 @@ def test_create_relationship(setUp,
 
     fake_signal.assert_called_with(object_id=composition.id,
                                    sender=Composition)
+
+@pytest.mark.django_db
+def test_organization_edit_buttons(setUp,
+                                   full_organizations):
+     org = full_organizations[0]
+     org2 = full_organizations[1]
+
+     def is_tab_active(page, tab_name):
+         if 'primary">{}'.format(tab_name) in str(page.rendered_content):
+             return True
+         else:
+             return False
+
+     assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
+                          'Basics') == True
+
+     assert is_tab_active(setUp.get(reverse_lazy('create-organization-composition', args=[org.uuid])),
+                          'Relationships') == True
+
+     assert is_tab_active(setUp.get(reverse_lazy('create-organization-personnel', args=[org.uuid])),
+                          'Personnel') == True
+
+     assert is_tab_active(setUp.get(reverse_lazy('create-organization-emplacement', args=[org.uuid])),
+                          'Locations') == True
+
+     assert is_tab_active(setUp.get(reverse_lazy('create-organization-association', args=[org.uuid])),
+                          'Locations') == True
+
+     assert is_tab_active(setUp.get(reverse_lazy('create-organization-membership', args=[org.uuid])),
+                          'Relationships') == True
