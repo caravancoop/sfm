@@ -167,6 +167,30 @@
             <input type="hidden" value="1" name="firstciteddate_confidence">
         </div>
     </div>
+    <div class="row realstart-row field-bg">
+        <div class="col-sm-12">
+            {% if form.realstart.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                <div class="checkbox">
+                    <label class="control-label">
+                        {% if form.realstart.data %}
+                            <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
+                        {% else %}
+                            <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
+                        {% endif %}
+                    </label>
+                </div>
+                {% if form.realstart.errors %}
+                    {% for error in form.realstart.errors %}
+                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
     <div class="row lastciteddate-row field-bg">
         <div class="col-sm-12">
             {% if form.lastciteddate.errors %}
@@ -190,30 +214,6 @@
         </div>
         <div id="id_lastciteddate_confidence">
             <input type="hidden" value="1" name="lastciteddate_confidence">
-        </div>
-    </div>
-    <div class="row realstart-row field-bg">
-        <div class="col-sm-12">
-            {% if form.realstart.errors %}
-                <div class="form-group has-error has-feedback">
-            {% else %}
-                <div class="form-group">
-            {% endif %}
-                <div class="checkbox">
-                    <label class="control-label">
-                        {% if form.realstart.data %}
-                            <input type="checkbox" name="realstart" id="id_realstart" checked="true" /> {{ form.realstart.label }}
-                        {% else %}
-                            <input type="checkbox" name="realstart" id="id_realstart" /> {{ form.realstart.label }}
-                        {% endif %}
-                    </label>
-                </div>
-                {% if form.realstart.errors %}
-                    {% for error in form.realstart.errors %}
-                    <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
         </div>
     </div>
     <div class="row open_ended-row field-bg">
