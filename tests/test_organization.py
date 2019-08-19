@@ -190,6 +190,7 @@ def is_tab_active(page, tab_name):
 @pytest.mark.django_db
 def test_organization_edit_buttons(setUp,
                                    full_organizations,
+                                   membership_person,
                                    membership_organization):
     org = full_organizations[0]
     composition = Composition.objects.first()
