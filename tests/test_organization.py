@@ -197,27 +197,27 @@ def test_organization_edit_buttons(setUp,
      emplacement = org.emplacements[0]
 
      assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
-                          'Basics') == True
+                          'Basics')
 
      assert is_tab_active(setUp.get(reverse_lazy('create-organization-composition', args=[org.uuid])),
-                          'Relationships') == True
+                          'Relationships')
      assert is_tab_active(setUp.get(reverse_lazy('edit-organization-composition', args=[org.uuid, composition.pk])),
-                          'Relationships') == True
+                          'Relationships')
 
      assert is_tab_active(setUp.get(reverse_lazy('create-organization-personnel', args=[org.uuid])),
-                          'Personnel') == True
+                          'Personnel')
      assert is_tab_active(setUp.get(reverse_lazy('edit-organization-personnel', args=[org.uuid, person.pk])),
-                          'Personnel') == True
+                          'Personnel')
 
      assert is_tab_active(setUp.get(reverse_lazy('create-organization-emplacement', args=[org.uuid])),
-                          'Locations') == True
+                          'Locations')
      assert is_tab_active(setUp.get(reverse_lazy('edit-organization-emplacement', args=[org.uuid, emplacement.pk])),
-                          'Locations') == True
+                          'Locations')
 
      assert is_tab_active(setUp.get(reverse_lazy('create-organization-association', args=[org.uuid])),
-                          'Locations') == True
+                          'Locations')
      assert is_tab_active(setUp.get(reverse_lazy('edit-organization-association', args=[org.uuid, association.pk])),
-                          'Locations') == True
+                          'Locations')
 
      assert is_tab_active(setUp.get(reverse_lazy('create-organization-membership', args=[org.uuid])),
-                          'Relationships') == True
+                          'Relationships')
