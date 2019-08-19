@@ -189,35 +189,40 @@ def is_tab_active(page, tab_name):
 
 @pytest.mark.django_db
 def test_organization_edit_buttons(setUp,
-                                   full_organizations):
-     org = full_organizations[0]
-     composition = Composition.objects.first()
-     person = org.personnel[0]
-     association = org.associations[0]
-     emplacement = org.emplacements[0]
+                                   full_organizations,
+                                   membership_person,
+                                   membership_organization):
+    org = full_organizations[0]
+    composition = Composition.objects.first()
+    person = org.personnel[0]
+    association = org.associations[0]
+    emplacement = org.emplacements[0]
+    membership = membership_organization.organization.get_value()
 
-     assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
-                          'Basics')
+    assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
+                        'Basics')
 
-     assert is_tab_active(setUp.get(reverse_lazy('create-organization-composition', args=[org.uuid])),
-                          'Relationships')
-     assert is_tab_active(setUp.get(reverse_lazy('edit-organization-composition', args=[org.uuid, composition.pk])),
-                          'Relationships')
+    assert is_tab_active(setUp.get(reverse_lazy('create-organization-composition', args=[org.uuid])),
+                        'Relationships')
+    assert is_tab_active(setUp.get(reverse_lazy('edit-organization-composition', args=[org.uuid, composition.pk])),
+                        'Relationships')
 
-     assert is_tab_active(setUp.get(reverse_lazy('create-organization-personnel', args=[org.uuid])),
-                          'Personnel')
-     assert is_tab_active(setUp.get(reverse_lazy('edit-organization-personnel', args=[org.uuid, person.pk])),
-                          'Personnel')
+    assert is_tab_active(setUp.get(reverse_lazy('create-organization-personnel', args=[org.uuid])),
+                        'Personnel')
+    assert is_tab_active(setUp.get(reverse_lazy('edit-organization-personnel', args=[org.uuid, person.pk])),
+                        'Personnel')
 
-     assert is_tab_active(setUp.get(reverse_lazy('create-organization-emplacement', args=[org.uuid])),
-                          'Locations')
-     assert is_tab_active(setUp.get(reverse_lazy('edit-organization-emplacement', args=[org.uuid, emplacement.pk])),
-                          'Locations')
+    assert is_tab_active(setUp.get(reverse_lazy('create-organization-emplacement', args=[org.uuid])),
+                        'Locations')
+    assert is_tab_active(setUp.get(reverse_lazy('edit-organization-emplacement', args=[org.uuid, emplacement.pk])),
+                        'Locations')
 
-     assert is_tab_active(setUp.get(reverse_lazy('create-organization-association', args=[org.uuid])),
-                          'Locations')
-     assert is_tab_active(setUp.get(reverse_lazy('edit-organization-association', args=[org.uuid, association.pk])),
-                          'Locations')
+    assert is_tab_active(setUp.get(reverse_lazy('create-organization-association', args=[org.uuid])),
+                        'Locations')
+    assert is_tab_active(setUp.get(reverse_lazy('edit-organization-association', args=[org.uuid, association.pk])),
+                        'Locations')
 
-     assert is_tab_active(setUp.get(reverse_lazy('create-organization-membership', args=[org.uuid])),
-                          'Relationships')
+    assert is_tab_active(setUp.get(reverse_lazy('create-organization-membership', args=[org.uuid])),
+                        'Relationships')
+    assert is_tab_active(setUp.get(reverse_lazy('edit-organization-membership', args=[org.uuid, membership.pk])),
+                        'Relationships')
