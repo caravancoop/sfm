@@ -190,14 +190,13 @@ def is_tab_active(page, tab_name):
 @pytest.mark.django_db
 def test_organization_edit_buttons(setUp,
                                    full_organizations,
-                                   membership_person,
                                    membership_organization):
     org = full_organizations[0]
     composition = Composition.objects.first()
     person = org.personnel[0]
     association = org.associations[0]
     emplacement = org.emplacements[0]
-    membership = membership_organization.organization.get_value()
+    membership_org = membership_organization.organization.get_value()
 
     assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
                         'Basics')
@@ -224,5 +223,5 @@ def test_organization_edit_buttons(setUp,
 
     assert is_tab_active(setUp.get(reverse_lazy('create-organization-membership', args=[org.uuid])),
                         'Relationships')
-    assert is_tab_active(setUp.get(reverse_lazy('edit-organization-membership', args=[org.uuid, membership.pk])),
+    assert is_tab_active(setUp.get(reverse_lazy('edit-organization-membership', args=[org.uuid, membership_org.pk])),
                         'Relationships')
