@@ -7,7 +7,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from person.models import Person
 from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \
@@ -425,7 +424,7 @@ class PersonCreatePostingView(BaseCreateView):
         return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})
 
 
-class PersonDeletePostingView(LoginRequiredMixin, BaseDeleteRelationshipView):
+class PersonDeletePostingView(BaseDeleteRelationshipView):
     model = MembershipPerson
     template_name = 'person/delete-posting.html'
 

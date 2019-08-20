@@ -52,25 +52,16 @@ class LocationView(LoginRequiredMixin, DetailView):
         return context
 
 
-class LocationDelete(LoginRequiredMixin, BaseDeleteView):
+class LocationDelete(BaseDeleteView):
     model = Location
     success_url = reverse_lazy('list-location')
     template_name = 'location/delete.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        context['related_entities'] = self.object.related_entities
-        if len(context['related_entities']) > 0:
-            context['disable_deletion'] = True
-        return context
-
     def get_cancel_url(self):
-        return reverse_lazy(
-            'view-location',
-            kwargs={
-                'pk': self.kwargs['pk']
-            }
-        )
+        return reverse_lazy('view-location', kwargs={'pk': self.kwargs['pk']})
+
+    def get_related_entities(self):
+        return self.object.related_entities
 
 
 class LocationCreate(LoginRequiredMixin, CreateView):

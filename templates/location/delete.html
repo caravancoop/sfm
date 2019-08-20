@@ -56,12 +56,6 @@
 </table>
 {% endblock %}
 
-{% block related_entities_table %}
-    {% if related_entities %}
-        {% include 'location/partials/related_entities.html' %}
-    {% endif %}
-{% endblock %}
-
 {% block extra_js %}
     <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
     <script type="text/javascript">

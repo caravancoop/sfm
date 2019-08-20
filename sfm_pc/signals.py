@@ -12,15 +12,17 @@ from violation.models import Violation
 from membershipperson.models import MembershipPerson
 from composition.models import Composition
 
+
 def update_index(entity_type, object_id):
     call_command('make_search_index',
                  '--id={}'.format(object_id),
                  '--entity-types={}'.format(entity_type))
 
 
+@receiver(post_delete, sender=Organization)
 @receiver(object_ref_saved, sender=Organization)
 def update_organization_index(sender, **kwargs):
-    update_index('organizations', kwargs['object_id'])
+    update_index('organizations', kwargs.get('object_id') or kwargs['instance'].uuid)
 
 
 @receiver(object_ref_saved, sender=Person)

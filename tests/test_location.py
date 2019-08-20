@@ -1,5 +1,5 @@
 import pytest
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy
 from django.template.defaultfilters import truncatewords
 
 from location.models import Location
@@ -25,7 +25,7 @@ def test_location_related_entities(location_node, expected_entity_names):
 
 @pytest.mark.django_db
 def test_location_delete(setUp, location_node):
-    url = reverse('delete-location', args=[location_node.id])
+    url = reverse_lazy('delete-location', args=[location_node.id])
     response = setUp.post(url)
     assert response.status_code == 302
     with pytest.raises(Location.DoesNotExist):
@@ -34,7 +34,7 @@ def test_location_delete(setUp, location_node):
 
 @pytest.mark.django_db
 def test_location_delete_view_with_related_entities(setUp, location_node, expected_entity_names):
-    url = reverse('delete-location', args=[location_node.id])
+    url = reverse_lazy('delete-location', args=[location_node.id])
     response = setUp.get(url)
     assert response.status_code == 200
     # Make sure all the related entities are rendered on the page.
@@ -46,7 +46,7 @@ def test_location_delete_view_with_related_entities(setUp, location_node, expect
 
 @pytest.mark.django_db
 def test_location_delete_view_no_related_entities(setUp, location_node):
-    url = reverse('delete-location', args=[location_node.id])
+    url = reverse_lazy('delete-location', args=[location_node.id])
     response = setUp.get(url)
     assert response.status_code == 200
     # Make sure no related entities are rendered on the page.

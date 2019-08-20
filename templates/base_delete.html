@@ -23,10 +23,14 @@
                 <a href="{{ view.get_cancel_url }}" class="btn btn-link" type="submit">{% trans 'Cancel' %}</a>
                 <input class="btn btn-danger" type="submit" value="{% trans 'Confirm' %}" {% if disable_deletion %}disabled{% endif %} />
             </form>
-            {% if disable_deletion %}
+            {% if related_entities %}
                 <small class="text-muted">Deletion is disabled until all related entities are deleted.</small>
             {% endif %}
         </div>
     </div>
-    {% block related_entities_table %}{% endblock %}
+    {% block related_entities_table %}
+        {% if related_entities %}
+            {% include 'partials/related_entities.html' %}
+        {% endif %}
+    {% endblock %}
 {% endblock %}

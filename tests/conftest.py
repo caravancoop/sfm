@@ -288,7 +288,7 @@ def composition(organizations, access_points):
     comp_info['Composition_CompositionParent']['value'] = middle
     comp_info['Composition_CompositionChild']['value'] = child
 
-    Composition.create(comp_info)
+    return Composition.create(comp_info)
 
 
 @pytest.fixture
@@ -333,7 +333,7 @@ def emplacement(organizations, location_node, access_points):
 
 @pytest.fixture
 def association(organizations, location_relation, access_points):
-
+    associations = []
     for organization in organizations:
         ass_info = {
             'Association_AssociationRealStart': {
@@ -366,7 +366,9 @@ def association(organizations, location_relation, access_points):
             }
         }
 
-        Association.create(ass_info)
+        associations.append(Association.create(ass_info))
+
+    return associations
 
 
 @pytest.fixture
@@ -735,3 +737,9 @@ def violation(base_violation,
 def fake_signal(mocker):
     fake_signal = mocker.patch('complex_fields.base_models.object_ref_saved.send')
     return fake_signal
+
+
+@pytest.fixture
+def update_index_mock(mocker):
+    """Mock the update_index method that fires on the post_save and post_delete signals."""
+    return mocker.patch('sfm_pc.signals.update_index', autospec=True)

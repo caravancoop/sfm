@@ -9,6 +9,28 @@ from source.models import AccessPoint
 from composition.models import Composition
 
 
+@pytest.fixture
+def expected_entity_names(composition,
+                          emplacement,
+                          association,
+                          membership_organization):
+    """
+    Generate a list of related entity names that we expect to see in the
+    Organization DeleteView.
+    """
+    return [
+        emp.organization.get_value().value.name.get_value().value for emp in emplacement
+    ] + [composition] + [association] + [membership_organization]
+
+
+@pytest.mark.django_db
+def test_organization_related_entities(organizations, expected_entity_names):
+    org = organizations[0]
+    related_entities = org.related_entities
+    assert len(related_entities) == len(expected_entity_names)
+    assert set([entity['name'] for entity in related_entities]) == set(expected_entity_names)
+
+
 @pytest.mark.django_db
 def test_view_organization(full_organizations, client):
 
@@ -52,6 +74,45 @@ def test_edit_organization(setUp,
 
     fake_signal.assert_called_with(object_id=org.uuid,
                                    sender=Organization)
+
+
+@pytest.mark.django_db
+def test_delete_organization(setUp, organizations, update_index_mock):
+    org = organizations[0]
+    url = reverse_lazy('delete-organization', args=[org.uuid])
+    response = setUp.post(url)
+
+    assert response.status_code == 302
+
+    with pytest.raises(Organization.DoesNotExist):
+        Organization.objects.get(uuid=org.uuid)
+
+    update_index_mock.assert_called_once_with('organizations', org.uuid)
+
+
+@pytest.mark.django_db
+def test_location_delete_view_with_related_entities(setUp, organizations, expected_entity_names):
+    org = organizations[0]
+    url = reverse_lazy('delete-organization', args=[org.id])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure all the related entities are rendered on the page.
+    for entity_name in expected_entity_names:
+        assert entity_name in response.content.decode('utf-8')
+    # Make sure that the confirm button is disabled.
+    assert 'disabled' in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_delete_organization_view_no_related_entities(setUp, organizations):
+    org = organizations[0]
+    url = reverse_lazy('delete-organization', args=[org.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure no related entities are rendered on the page.
+    assert 'Related entities' not in response.content.decode('utf-8')
+    # Make sure that the confirm button is enabled.
+    assert 'disabled' not in response.content.decode('utf-8')
 
 
 @pytest.mark.django_db
@@ -180,12 +241,6 @@ def test_create_relationship(setUp,
     fake_signal.assert_called_with(object_id=composition.id,
                                    sender=Composition)
 
-def is_tab_active(page, tab_name):
-    if 'primary">{}'.format(tab_name) in page.content.decode('utf-8'):
-        return True
-    else:
-        return False
-
 
 @pytest.mark.django_db
 def test_organization_edit_buttons(setUp,
@@ -197,6 +252,12 @@ def test_organization_edit_buttons(setUp,
     person = org.personnel[0]
     association = org.associations[0]
     emplacement = org.emplacements[0]
+
+    def is_tab_active(page, tab_name):
+        if 'primary">{}'.format(tab_name) in page.content.decode('utf-8'):
+            return True
+        else:
+            return False
 
     assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
                         'Basics')

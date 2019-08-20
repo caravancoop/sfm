@@ -17,12 +17,6 @@ from source.models import Source, AccessPoint
 from person.models import Person
 
 
-@pytest.fixture
-def update_index_mock(mocker):
-    """Mock the update_index method that fires on the Search.post_save signal."""
-    return mocker.patch('sfm_pc.signals.update_index', autospec=True)
-
-
 @pytest.mark.django_db
 def test_create_source(setUp, update_index_mock):
 

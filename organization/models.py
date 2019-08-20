@@ -116,6 +116,32 @@ class Organization(models.Model, BaseModel, VersionsMixin):
     def alias_list(self):
         return ', '.join(a.get_value().value for a in self.aliases.get_list())
 
+    @property
+    def related_entities(self):
+        """
+        Return a list of dicts with metadata for all of the entities linked to
+        this Organization.
+        """
+        related_entities = []
+
+        # TODO: Flesh out these queries to return related entities.
+        for person in self.membershippersonorganization_set.all():
+            pass
+
+        for composition in self.composition_set.all():
+            pass
+
+        for org in self.membershiporganizationorganization_set.all():
+            pass
+
+        for association in self.association_set.all():
+            pass
+
+        for emplacement in self.emplacement_set.all():
+            pass
+
+        return related_entities
+
 
 @translated
 @versioned
