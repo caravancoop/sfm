@@ -374,7 +374,7 @@ class OrganizationEditMembershipView(EditButtonsMixin, BaseUpdateView):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
     def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': organization_id})
+        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationCreateMembershipView(EditButtonsMixin, OrganizationCreateView):
@@ -631,6 +631,9 @@ class OrganizationEditAssociationView(OrganizationEditView):
                                    'pk': pk})
         else:
             return reverse('view-organization', kwargs={'slug': organization_id})
+
+    def get_cancel_url(self):
+        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView):
