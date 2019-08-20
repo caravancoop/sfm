@@ -399,7 +399,7 @@ def membership_organization(organizations, access_points):
         },
     }
 
-    MembershipOrganization.create(mem_info)
+    return MembershipOrganization.create(mem_info)
 
 
 @pytest.fixture

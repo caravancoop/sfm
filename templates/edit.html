@@ -93,7 +93,7 @@
     <script src="{% static "js/ejs_production.js" %}"></script>
     <script type="text/EJS" id="source-list-template">
         <div data-field_name="<%= field_name %>" data-source_id="<%= id %>" class="source-detail alert <%= alert_class %> alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span></button>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa <%= close_button_icon %>"></i></span></button>
             <h4>
                 <a href="<%= source_detail_url %>">
                     <%= title %>
@@ -192,12 +192,14 @@
             // with the form (soft delete).
             var $sourceInput = getSourceInput(e);
             $sourceInput.removeAttr('name');  // Unnamed inputs won't be submitted by forms
+            $sourceInput.data('deleted', true);
         }
 
         function revertSource(e){
             // Re-enable the input element for a Source.
             var $sourceInput = getSourceInput(e);
             $sourceInput.attr('name', $(e.target).data('field_name') + '_source');
+            $sourceInput.removeData('deleted');
         }
 
         function removeExistingSource(e){
@@ -269,7 +271,51 @@
             }));
         }
 
+        function renderSourceList(sourceType, fieldName){
+            // Render cards for each source in the list of sources.
+            var sourceTypes = {
+                existing: {
+                    // Class to use for the source card.
+                    alertClass: 'alert-success',
+                    // Icon to use for the source card.
+                    closeButtonIcon: 'fa-remove',
+                    // Function specifying whether or not a given source matches the type in question.
+                    doesMatch: function(sourceInfo) {return !sourceInfo.uncommitted && !sourceInfo.deleted},
+                },
+                added: {
+                    alertClass: 'alert-warning',
+                    closeButtonIcon: 'fa-remove',
+                    doesMatch: function(sourceInfo) {return sourceInfo.uncommitted && !sourceInfo.deleted},
+                },
+                removed: {
+                    alertClass: 'alert-danger',
+                    closeButtonIcon: 'fa-undo',
+                    doesMatch: function(sourceInfo) {return sourceInfo.deleted}
+                },
+            };
+            var type = sourceTypes[sourceType];
+            var sourceList = [];
+            $.each($('#id_' + fieldName + '_source').children(), function(e, source){
+                var sourceInfo = $(source).data();
+                if (type.doesMatch(sourceInfo)) {
+                    sourceInfo['field_name'] = fieldName;
+                    sourceInfo['id'] = $(source).val();
+                    sourceInfo['alert_class'] = type.alertClass;
+                    sourceInfo['close_button_icon'] = type.closeButtonIcon;
+                    var template = new EJS({'text': $('#source-list-template').html()});
+                    sourceList.push(template.render(sourceInfo));
+                }
+            });
+
+            // If sources exist, show the title for the list.
+            if (sourceList.length > 0) {
+                $('#source-list-' + sourceType + '-title').children().first().show();
+            }
+            $('#source-list-' + sourceType).html(sourceList.join(''));
+        }
+
         function loadSources(e){
+            // Load sources for a data point when the user selects its form input.
             var field_name = $(e.target).prop('name');
             var field_label = $(e.target).prev();
             if (field_label.length == 0){
@@ -298,27 +344,13 @@
                 'field_label': field_label
             }));
 
-            // Render the titles for the lists of sources
-            renderSourceListTitle('existing', field_name, field_label);
-            renderSourceListTitle('added', field_name, field_label);
-            renderSourceListTitle('removed', field_name, field_label);
-
-            // Render the list of existing sources
-            var sourceList = [];
-            $.each($('input[name="' + field_name + '_source"]'), function(e, source){
-                var sourceInfo = $(source).data();
-                sourceInfo['field_name'] = field_name;
-                sourceInfo['id'] = $(source).val();
-                sourceInfo['alert_class'] = 'alert-success';
-                var template = new EJS({'text': $('#source-list-template').html()});
-                sourceList.push(template.render(sourceInfo));
-            });
-
-            // If sources exist, show the title for Existing Sources.
-            if (sourceList.length > 0) {
-                $('#source-list-existing-title').children().first().show();
+            // Render the lists of sources
+            var sourceTypes = ['existing', 'added', 'removed'];
+            for (var i=0; i<sourceTypes.length; i++) {
+                renderSourceListTitle(sourceTypes[i], field_name, field_label);
+                renderSourceList(sourceTypes[i], field_name);
             }
-            $('#source-list-existing').html(sourceList.join(''));
+
             $('.field-bg').removeClass('bg-info');
 
             var fieldInput = '.' + field_name + '-row';
@@ -433,6 +465,7 @@
                 $.getJSON("{% url 'stash-source' %}", data, function(accessPoint){
                     // Update the list of Added Sources with this source.
                     accessPoint['alert_class'] = 'alert-warning';
+                    accessPoint['close_button_icon'] = 'fa-remove';
                     var sourceTemplate = new EJS({'text': $('#source-list-template').html()});
                     $('#source-list-added').prepend(sourceTemplate.render(accessPoint));
                     var selector = '#id_' + field_name + '_source';
