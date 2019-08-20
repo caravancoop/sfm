@@ -158,3 +158,11 @@ class BaseDeleteRelationshipView(BaseDeleteView):
         Composition in question.
         """
         raise NotImplementedError('This method must be implemented on children.')
+
+    def get_cancel_url(self):
+        """
+        Return the route that the Cancel button should link to in the Delete template.
+        For example, if the user is editing an Organization Composition, this method
+        should return the route for View page for the Composition in question.
+        """
+        raise NotImplementedError('This method must be implemented on children.')

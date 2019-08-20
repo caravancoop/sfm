@@ -74,6 +74,7 @@
         <div class="col-sm-12">
             <div class="pull-right">
                 {% block delete_button %}{% endblock %}
+                <!-- add some conditional logic here -->
                 <a href="{{ view.get_cancel_url }}" class="btn btn-default">{% trans "Cancel" %}</a>
                 <input class="btn btn-success" type="submit" name="_continue" value="{% trans 'Save & continue editing' %}" />
                 <button class="btn btn-success" type="submit">{% trans "Save" %}</button>
