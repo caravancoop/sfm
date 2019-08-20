@@ -293,6 +293,7 @@ def composition(organizations, access_points):
 
 @pytest.fixture
 def emplacement(organizations, location_node, access_points):
+    emplacements = []
     for organization in organizations:
         emp_info = {
             'Emplacement_EmplacementOrganization': {
@@ -325,7 +326,9 @@ def emplacement(organizations, location_node, access_points):
             },
         }
 
-        Emplacement.create(emp_info)
+        emplacements.append(Emplacement.create(emp_info))
+
+    return emplacements
 
 
 @pytest.fixture
