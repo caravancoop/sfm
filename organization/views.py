@@ -324,7 +324,11 @@ class OrganizationDeleteCompositionView(LoginRequiredMixin, BaseDeleteRelationsh
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+        return reverse('edit-organization-composition',
+                        kwargs={'organization_id': organization_id,
+                                'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         parent, child = self.get_objects_to_update()
@@ -420,7 +424,11 @@ class OrganizationDeleteMembershipView(LoginRequiredMixin, BaseDeleteRelationshi
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+        return reverse('edit-organization-membership',
+                        kwargs={'organization_id': organization_id,
+                                'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         member, organization = self.get_objects_to_update()
@@ -500,7 +508,11 @@ class OrganizationDeletePersonnelView(LoginRequiredMixin, BaseDeleteRelationship
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+        return reverse('edit-organization-personnel',
+                        kwargs={'organization_id': organization_id,
+                                'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         person, organization = self.get_objects_to_update()
@@ -590,7 +602,11 @@ class OrganizationDeleteEmplacementView(LoginRequiredMixin, BaseDeleteRelationsh
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+        return reverse('edit-organization-emplacement',
+                        kwargs={'organization_id': organization_id,
+                                'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         organization, _ = self.get_objects_to_update()
@@ -669,7 +685,11 @@ class OrganizationDeleteAssociationView(LoginRequiredMixin, BaseDeleteRelationsh
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+        return reverse('edit-organization-association',
+                       kwargs={'organization_id': organization_id,
+                               'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         organization, _ = self.get_objects_to_update()
