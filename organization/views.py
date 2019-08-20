@@ -196,6 +196,12 @@ class OrganizationEditView(BaseUpdateView):
         return reverse('view-organization', kwargs={'slug': uuid})
 
 
+class OrganizationCreateView(BaseCreateView):
+
+    def get_cancel_url(self):
+        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+
 class OrganizationEditBasicsView(OrganizationEditView):
     template_name = 'organization/edit-basics.html'
     form_class = OrganizationBasicsForm
@@ -224,7 +230,7 @@ class OrganizationEditBasicsView(OrganizationEditView):
         return form_kwargs
 
 
-class OrganizationCreateBasicsView(BaseCreateView):
+class OrganizationCreateBasicsView(OrganizationCreateView):
     model = Organization
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
@@ -245,6 +251,8 @@ class OrganizationCreateBasicsView(BaseCreateView):
         # form_valid method above.
         return '{}?entity_type=Organization'.format(reverse('search'))
 
+    # When cancelling the creation of a new organization, take the 
+    # user back to the search page for organizations
     def get_cancel_url(self):
         return '{}?entity_type=Organization'.format(reverse('search'))
 
@@ -285,7 +293,7 @@ class OrganizationEditCompositionView(OrganizationEditView):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
-class OrganizationCreateCompositionView(BaseCreateView):
+class OrganizationCreateCompositionView(OrganizationCreateView):
     template_name = 'organization/create-composition.html'
     form_class = OrganizationCreateCompositionForm
     model = Composition
@@ -306,9 +314,6 @@ class OrganizationCreateCompositionView(BaseCreateView):
 
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteCompositionView(LoginRequiredMixin, BaseDeleteRelationshipView):
@@ -378,7 +383,7 @@ class OrganizationEditMembershipView(BaseUpdateView):
         return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateMembershipView(BaseCreateView):
+class OrganizationCreateMembershipView(OrganizationCreateView):
     template_name = 'organization/create-membership.html'
     form_class = OrganizationCreateMembershipForm
     model = MembershipOrganization
@@ -404,9 +409,6 @@ class OrganizationCreateMembershipView(BaseCreateView):
 
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteMembershipView(LoginRequiredMixin, BaseDeleteRelationshipView):
@@ -466,7 +468,7 @@ class OrganizationEditPersonnelView(OrganizationEditView):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
-class OrganizationCreatePersonnelView(BaseCreateView):
+class OrganizationCreatePersonnelView(OrganizationCreateView):
     model = MembershipPerson
     template_name = 'organization/create-personnel.html'
     form_class = OrganizationCreatePersonnelForm
@@ -485,9 +487,6 @@ class OrganizationCreatePersonnelView(BaseCreateView):
 
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationDeletePersonnelView(LoginRequiredMixin, BaseDeleteRelationshipView):
@@ -555,7 +554,7 @@ class OrganizationEditEmplacementView(OrganizationEditView):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
-class OrganizationCreateEmplacementView(BaseCreateView):
+class OrganizationCreateEmplacementView(OrganizationCreateView):
     model = Emplacement
     template_name = 'organization/create-emplacement.html'
     form_class = OrganizationCreateEmplacementForm
@@ -575,9 +574,6 @@ class OrganizationCreateEmplacementView(BaseCreateView):
 
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteEmplacementView(LoginRequiredMixin, BaseDeleteRelationshipView):
@@ -636,7 +632,7 @@ class OrganizationEditAssociationView(OrganizationEditView):
             return reverse('view-organization', kwargs={'slug': organization_id})
 
 
-class OrganizationCreateAssociationView(BaseCreateView):
+class OrganizationCreateAssociationView(OrganizationCreateView):
     model = Association
     template_name = 'organization/create-association.html'
     form_class = OrganizationCreateAssociationForm
@@ -651,9 +647,6 @@ class OrganizationCreateAssociationView(BaseCreateView):
 
     def get_success_url(self):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteAssociationView(LoginRequiredMixin, BaseDeleteRelationshipView):
