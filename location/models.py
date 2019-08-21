@@ -3,6 +3,7 @@ from django.contrib.gis.db.models.fields import GeometryField
 from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import truncatewords
+from django.utils.translation import ugettext as _
 
 
 class Location(models.Model):
@@ -35,39 +36,39 @@ class Location(models.Model):
         """
         related_entities = []
 
-        for area in self.associationarea_set.all():
-            association = area.object_ref
+        for associationarea in self.associationarea_set.all():
+            association = associationarea.object_ref
             organization = association.organization.get_value().value
             related_entities.append({
                 'name': organization.name.get_value().value,
-                'entity_type': 'Organization',
-                'url': reverse('view-organization', kwargs={'slug': organization.uuid}),
+                'entity_type': _('Organization'),
                 'start_date': association.startdate.get_value(),
                 'end_date': association.enddate.get_value(),
                 'open_ended': association.open_ended.get_value(),
+                'url': reverse('view-organization', kwargs={'slug': organization.uuid}),
             })
 
-        for site in self.emplacementsite_set.all():
-            emplacement = site.object_ref
+        for emplacementsite in self.emplacementsite_set.all():
+            emplacement = emplacementsite.object_ref
             organization = emplacement.organization.get_value().value
             related_entities.append({
                 'name': organization.name.get_value().value,
-                'entity_type': 'Organization',
-                'url': reverse('view-organization', kwargs={'slug': organization.uuid}),
+                'entity_type': _('Organization'),
                 'start_date': emplacement.startdate.get_value(),
                 'end_date': emplacement.enddate.get_value(),
                 'open_ended': emplacement.open_ended.get_value(),
+                'url': reverse('view-organization', kwargs={'slug': organization.uuid}),
             })
 
-        for violation_location in self.violationlocation_set.all():
-            violation = violation_location.object_ref
+        for violationlocation in self.violationlocation_set.all():
+            violation = violationlocation.object_ref
             related_entities.append({
                 'name': truncatewords(violation.description.get_value(), 10),
-                'entity_type': 'Incident',
-                'url': reverse('view-violation', kwargs={'slug': violation.uuid}),
+                'entity_type': _('Violation'),
                 'start_date': violation.startdate.get_value(),
                 'end_date': violation.enddate.get_value(),
                 'open_ended': '',
+                'url': reverse('view-violation', kwargs={'slug': violation.uuid}),
             })
 
         return related_entities

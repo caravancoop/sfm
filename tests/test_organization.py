@@ -2,6 +2,7 @@ import pytest
 
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
+from django.template.defaultfilters import truncatewords
 
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification
@@ -10,17 +11,23 @@ from composition.models import Composition
 
 
 @pytest.fixture
-def expected_entity_names(composition,
-                          emplacement,
+def expected_entity_names(emplacement,
                           association,
-                          membership_organization):
+                          composition,
+                          violation,
+                          membership_organization,
+                          membership_person):
     """
     Generate a list of related entity names that we expect to see in the
     Organization DeleteView.
     """
     return [
-        emp.organization.get_value().value.name.get_value().value for emp in emplacement
-    ] + [composition] + [association] + [membership_organization]
+        emplacement[0].site.get_value().value.name,
+        association[0].area.get_value().value.name,
+        composition[0].child.get_value().value.name.get_value().value,
+        truncatewords(violation.description.get_value(), 10),
+        membership_organization.organization.get_value().value.name.get_value().value,
+    ] + [mem.member.get_value().value.name.get_value().value for mem in membership_person]
 
 
 @pytest.mark.django_db
@@ -77,7 +84,7 @@ def test_edit_organization(setUp,
 
 
 @pytest.mark.django_db
-def test_delete_organization(setUp, organizations, update_index_mock):
+def test_delete_organization(setUp, organizations, searcher_mock, mocker):
     org = organizations[0]
     url = reverse_lazy('delete-organization', args=[org.uuid])
     response = setUp.post(url)
@@ -87,20 +94,21 @@ def test_delete_organization(setUp, organizations, update_index_mock):
     with pytest.raises(Organization.DoesNotExist):
         Organization.objects.get(uuid=org.uuid)
 
-    update_index_mock.assert_called_once_with('organizations', org.uuid)
+    searcher_mock.assert_called_once()
+    searcher_mock.assert_has_calls([mocker.call(mocker.ANY, org.uuid)])
 
 
 @pytest.mark.django_db
-def test_location_delete_view_with_related_entities(setUp, organizations, expected_entity_names):
+def test_delete_organization_view_with_related_entities(setUp, organizations, expected_entity_names):
     org = organizations[0]
-    url = reverse_lazy('delete-organization', args=[org.id])
+    url = reverse_lazy('delete-organization', args=[org.uuid])
     response = setUp.get(url)
     assert response.status_code == 200
     # Make sure all the related entities are rendered on the page.
     for entity_name in expected_entity_names:
         assert entity_name in response.content.decode('utf-8')
     # Make sure that the confirm button is disabled.
-    assert 'disabled' in response.content.decode('utf-8')
+    assert 'value="Confirm" disabled' in response.content.decode('utf-8')
 
 
 @pytest.mark.django_db

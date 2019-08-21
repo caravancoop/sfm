@@ -41,7 +41,7 @@ def test_location_delete_view_with_related_entities(setUp, location_node, expect
     for entity_name in expected_entity_names:
         assert entity_name in response.content.decode('utf-8')
     # Make sure that the confirm button is disabled.
-    assert 'disabled' in response.content.decode('utf-8')
+    assert 'value="Confirm" disabled' in response.content.decode('utf-8')
 
 
 @pytest.mark.django_db

@@ -247,6 +247,7 @@ def organizations(base_organizations,
 def composition(organizations, access_points):
     parent, middle, child = organizations
 
+    compositions = []
     comp_info = {
         'Composition_CompositionParent': {
             'sources': access_points,
@@ -283,12 +284,13 @@ def composition(organizations, access_points):
         }
     }
 
-    Composition.create(comp_info)
+    compositions.append(Composition.create(comp_info))
 
     comp_info['Composition_CompositionParent']['value'] = middle
     comp_info['Composition_CompositionChild']['value'] = child
 
-    return Composition.create(comp_info)
+    compositions.append(Composition.create(comp_info))
+    return compositions
 
 
 @pytest.fixture
@@ -743,3 +745,9 @@ def fake_signal(mocker):
 def update_index_mock(mocker):
     """Mock the update_index method that fires on the post_save and post_delete signals."""
     return mocker.patch('sfm_pc.signals.update_index', autospec=True)
+
+
+@pytest.fixture
+def searcher_mock(mocker):
+    """Mock the pysolr client used to access the search index."""
+    return mocker.patch('search.search.Searcher.delete', autospec=True)

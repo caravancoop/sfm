@@ -5,6 +5,7 @@ from django.core.management import call_command
 
 from complex_fields.base_models import object_ref_saved
 
+from search import search
 from source.models import Source
 from organization.models import Organization
 from person.models import Person
@@ -19,10 +20,15 @@ def update_index(entity_type, object_id):
                  '--entity-types={}'.format(entity_type))
 
 
-@receiver(post_delete, sender=Organization)
 @receiver(object_ref_saved, sender=Organization)
 def update_organization_index(sender, **kwargs):
-    update_index('organizations', kwargs.get('object_id') or kwargs['instance'].uuid)
+    update_index('organizations', kwargs['object_id'])
+
+
+@receiver(post_delete, sender=Organization)
+def remove_organization_index(sender, **kwargs):
+    searcher = search.Searcher()
+    searcher.delete(id=kwargs['instance'].uuid)
 
 
 @receiver(object_ref_saved, sender=Person)
