@@ -296,7 +296,7 @@ class DownloadData(FormView):
 
         download_type = form.cleaned_data['download_type']
         division_id = form.cleaned_data['division_id']
-
+        iso = division_id[-2:]
         sql_path = os.path.join(settings.BASE_DIR,
                                 'sfm_pc',
                                 'sql',
@@ -305,7 +305,7 @@ class DownloadData(FormView):
         with open(sql_path) as f:
             sql = f.read()
 
-        download_name = '{}_{}'.format(download_type,
+        download_name = '{}_{}_{}'.format(download_type, upper(iso),
                                        timezone.now().isoformat())
 
         response = HttpResponse(content_type='text/csv')
