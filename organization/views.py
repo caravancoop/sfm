@@ -184,15 +184,21 @@ class OrganizationEditView(EditButtonsMixin, BaseUpdateView):
         uuid = self.kwargs[self.slug_field_kwarg]
         return reverse('view-organization', kwargs={'slug': uuid})
 
-    def get_cancel_url(self):
-        uuid = self.kwargs[self.slug_field_kwarg]
-        return reverse('view-organization', kwargs={'slug': uuid})
-
 
 class OrganizationCreateView(BaseCreateView):
 
     def get_cancel_url(self):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+
+
+class OrganizationDeleteRelationshipView(BaseDeleteRelationshipView):
+
+    def get_cancel_url(self):
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+        return reverse('edit-organization-composition',
+                        kwargs={'organization_id': organization_id,
+                                'pk': pk})
 
 
 class OrganizationEditBasicsView(OrganizationEditView):
@@ -309,7 +315,7 @@ class OrganizationCreateCompositionView(EditButtonsMixin, OrganizationCreateView
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
-class OrganizationDeleteCompositionView(LoginRequiredMixin, BaseDeleteRelationshipView):
+class OrganizationDeleteCompositionView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
     model = Composition
     template_name = 'organization/delete-composition.html'
 
@@ -322,13 +328,6 @@ class OrganizationDeleteCompositionView(LoginRequiredMixin, BaseDeleteRelationsh
 
     def get_success_url(self):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-        return reverse('edit-organization-composition',
-                        kwargs={'organization_id': organization_id,
-                                'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         parent, child = self.get_objects_to_update()
@@ -410,7 +409,7 @@ class OrganizationCreateMembershipView(EditButtonsMixin, OrganizationCreateView)
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
-class OrganizationDeleteMembershipView(LoginRequiredMixin, BaseDeleteRelationshipView):
+class OrganizationDeleteMembershipView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
     model = MembershipOrganization
     template_name = 'organization/delete-membership.html'
 
@@ -422,13 +421,6 @@ class OrganizationDeleteMembershipView(LoginRequiredMixin, BaseDeleteRelationshi
 
     def get_success_url(self):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-        return reverse('edit-organization-membership',
-                        kwargs={'organization_id': organization_id,
-                                'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         member, organization = self.get_objects_to_update()
@@ -494,7 +486,7 @@ class OrganizationCreatePersonnelView(EditButtonsMixin, OrganizationCreateView):
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
-class OrganizationDeletePersonnelView(LoginRequiredMixin, BaseDeleteRelationshipView):
+class OrganizationDeletePersonnelView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
     model = MembershipPerson
     template_name = 'organization/delete-personnel.html'
 
@@ -506,13 +498,6 @@ class OrganizationDeletePersonnelView(LoginRequiredMixin, BaseDeleteRelationship
 
     def get_success_url(self):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-        return reverse('edit-organization-personnel',
-                        kwargs={'organization_id': organization_id,
-                                'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         person, organization = self.get_objects_to_update()
@@ -588,7 +573,7 @@ class OrganizationCreateEmplacementView(EditButtonsMixin, OrganizationCreateView
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
-class OrganizationDeleteEmplacementView(LoginRequiredMixin, BaseDeleteRelationshipView):
+class OrganizationDeleteEmplacementView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
     model = Emplacement
     template_name = 'organization/delete-emplacement.html'
 
@@ -600,13 +585,6 @@ class OrganizationDeleteEmplacementView(LoginRequiredMixin, BaseDeleteRelationsh
 
     def get_success_url(self):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-        return reverse('edit-organization-emplacement',
-                        kwargs={'organization_id': organization_id,
-                                'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         organization, _ = self.get_objects_to_update()
@@ -671,7 +649,7 @@ class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView
         return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
-class OrganizationDeleteAssociationView(LoginRequiredMixin, BaseDeleteRelationshipView):
+class OrganizationDeleteAssociationView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
     model = Association
     template_name = 'organization/delete-association.html'
 
@@ -683,13 +661,6 @@ class OrganizationDeleteAssociationView(LoginRequiredMixin, BaseDeleteRelationsh
 
     def get_success_url(self):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
-    def get_cancel_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-        return reverse('edit-organization-association',
-                       kwargs={'organization_id': organization_id,
-                               'pk': pk})
 
     def delete(self, request, *args, **kwargs):
         organization, _ = self.get_objects_to_update()
