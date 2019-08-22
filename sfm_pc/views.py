@@ -305,7 +305,7 @@ class DownloadData(FormView):
         with open(sql_path) as f:
             sql = f.read()
 
-        download_name = '{}_{}_{}'.format(download_type, upper(iso),
+        download_name = '{}_{}_{}'.format(download_type, iso.upper(),
                                        timezone.now().isoformat())
 
         response = HttpResponse(content_type='text/csv')
@@ -322,6 +322,7 @@ class DownloadData(FormView):
                 pass
 
             cursor.copy_expert(copy, response)
+        #import ipdb; ipdb.set_trace()
 
         return response
 
