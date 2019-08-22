@@ -5,11 +5,33 @@ import pytest
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
 from django.db.models import Count
+from django.template.defaultfilters import truncatewords
 
 from source.models import AccessPoint
 from person.models import Person
 from organization.models import Organization
 from membershipperson.models import MembershipPerson, Rank, Role
+
+
+@pytest.fixture
+def expected_entity_names(violation,
+                          membership_person):
+    """
+    Generate a list of related entity names that we expect to see in the
+    Person DeleteView.
+    """
+    return [
+        membership_person[0].organization.get_value().value.name.get_value().value,
+        truncatewords(violation.description.get_value(), 10),
+    ]
+
+
+@pytest.mark.django_db
+def test_person_related_entities(people, expected_entity_names):
+    person = people[0]
+    related_entities = person.related_entities
+    assert len(related_entities) == len(expected_entity_names)
+    assert set([entity['name'] for entity in related_entities]) == set(expected_entity_names)
 
 
 @pytest.mark.django_db
@@ -73,6 +95,46 @@ def test_edit_person(setUp, people, new_access_points, fake_signal):
     assert person.deceased.get_value().confidence == '3'
 
     fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
+
+
+@pytest.mark.django_db
+def test_delete_person(setUp, people, searcher_mock, mocker):
+    person = people[0]
+    url = reverse_lazy('delete-person', args=[person.uuid])
+    response = setUp.post(url)
+
+    assert response.status_code == 302
+
+    with pytest.raises(Person.DoesNotExist):
+        Person.objects.get(uuid=person.uuid)
+
+    searcher_mock.assert_called_once()
+    searcher_mock.assert_has_calls([mocker.call(mocker.ANY, person.uuid)])
+
+
+@pytest.mark.django_db
+def test_delete_person_view_with_related_entities(setUp, people, expected_entity_names):
+    person = people[0]
+    url = reverse_lazy('delete-person', args=[person.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure all the related entities are rendered on the page.
+    for entity_name in expected_entity_names:
+        assert entity_name in response.content.decode('utf-8')
+    # Make sure that the confirm button is disabled.
+    assert 'value="Confirm" disabled' in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_delete_organization_view_no_related_entities(setUp, people):
+    person = people[0]
+    url = reverse_lazy('delete-person', args=[person.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure no related entities are rendered on the page.
+    assert 'Related entities' not in response.content.decode('utf-8')
+    # Make sure that the confirm button is enabled.
+    assert 'disabled' not in response.content.decode('utf-8')
 
 
 @pytest.mark.django_db

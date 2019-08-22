@@ -1,0 +1,73 @@
+{% extends "base_delete.html" %}
+{% load i18n %}
+{% load static %}
+{% load countries %}
+
+{% block delete_header %}
+    {% blocktrans with name=object.name %}
+        Do you really want to delete <strong>{{ name }}</strong>?
+    {% endblocktrans %}
+{% endblock %}
+
+{% block metadata_table %}
+<table class="table">
+    <tbody>
+        <tr>
+            <td><b>{% trans "Name" %}</b></td>
+            <td>{{ person.name }}</td>
+        </tr>
+        {% if person.aliases.get_list %}
+        <tr>
+            <td><b>{% trans "Also known as" %}</b></td>
+            <td>
+            {% for alias in person.aliases.get_list %}
+                {{ alias.get_value }}{% if not forloop.last %}|{% endif %}
+            {% endfor %}
+            </td>
+        </tr>
+        {% endif %}
+        {% if person.division_id.get_value %}
+        <tr>
+            <td><b>{% trans "Country" %}</b></td>
+            <td>{{ person.division_id.get_value | country_name }}</td>
+        </tr>
+        {% endif %}
+        {% if person.gender.get_value %}
+        <tr>
+            <td><b>{% trans "Gender" %}</b></td>
+            <td>{{ person.gender.get_value }}</td>
+        </tr>
+        {% endif %}
+        {% if person.date_of_birth.get_value %}
+        <tr>
+            <td><b>{% trans "Date of birth" %}</b></td>
+            <td>{{ person.date_of_birth.get_value }}</td>
+        </tr>
+        {% endif %}
+        {% if person.date_of_death.get_value %}
+        <tr>
+            <td><b>{% trans "Date of death" %}</b></td>
+            <td>{{ person.date_of_death.get_value }}</td>
+        </tr>
+        {% endif %}
+        {% if person.deceased.get_value %}
+        <tr>
+            <td><b>{% trans "Deceased" %}</b></td>
+            <td>{{ person.deceased.get_value }}</td>
+        </tr>
+        {% endif %}
+        {% if person.biography.get_value %}
+        <tr>
+            <td><b>{% trans "Biography" %}</b></td>
+            <td>{{ person.biography.get_value }}</td>
+        </tr>
+        {% endif %}
+        {% if person.notes.get_value %}
+        <tr>
+            <td><b>{% trans "Notes" %}</b></td>
+            <td>{{ person.notes.get_value }}</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

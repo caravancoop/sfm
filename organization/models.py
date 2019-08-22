@@ -123,6 +123,14 @@ class Organization(models.Model, BaseModel, VersionsMixin):
         """
         Return a list of dicts with metadata for all of the entities linked to
         this Organization.
+
+        Metadata dicts must have the following keys:
+            - name
+            - entity_type
+            - start_date
+            - end_date
+            - open_ended
+            - url (a link to edit the entity)
         """
         related_entities = []
 
@@ -259,7 +267,7 @@ class Organization(models.Model, BaseModel, VersionsMixin):
                 ),
             })
 
-        # Violations.
+        # Violations where this org was a perpetrator.
         for violationperpetrator in self.violationperpetratororganization_set.all():
             violation = violationperpetrator.object_ref
             related_entities.append({

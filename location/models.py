@@ -33,6 +33,14 @@ class Location(models.Model):
         """
         Return a list of dicts with metadata for all of the entities (Organizations
         and Violations) linked to this Location via an Emplacement or Association.
+
+        Metadata dicts must have the following keys:
+            - name
+            - entity_type
+            - start_date
+            - end_date
+            - open_ended
+            - url (a link to edit the entity)
         """
         related_entities = []
 

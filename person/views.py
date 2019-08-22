@@ -13,7 +13,7 @@ from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \
     PersonPostingsForm, PersonCreatePostingForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView, \
-    BaseDeleteRelationshipView
+    BaseDeleteView, BaseDeleteRelationshipView
 
 
 class PersonDetail(BaseDetailView):
@@ -312,6 +312,23 @@ class PersonEditView(BaseUpdateView):
     def get_success_url(self):
         person_id = self.kwargs[self.slug_field_kwarg]
         return reverse('view-person', kwargs={'slug': person_id})
+
+
+class PersonDeleteView(BaseDeleteView):
+    model = Person
+    slug_field = 'uuid'
+    slug_field_kwarg = 'slug'
+    template_name = 'person/delete.html'
+    context_object_name = 'person'
+
+    def get_cancel_link(self):
+        return reverse_lazy('view-person', args=[self.kwargs['slug']])
+
+    def get_success_url(self):
+        return reverse('search') + '?entity_type=Person'
+
+    def get_related_entities(self):
+        return self.object.related_entities
 
 
 class PersonEditBasicsView(PersonEditView):

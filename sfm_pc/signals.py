@@ -36,6 +36,12 @@ def update_person_index(sender, **kwargs):
     update_index('people', kwargs['object_id'])
 
 
+@receiver(post_delete, sender=Person)
+def remove_person_index(sender, **kwargs):
+    searcher = search.Searcher()
+    searcher.delete(id=kwargs['instance'].uuid)
+
+
 @receiver(object_ref_saved, sender=Violation)
 def update_violation_index(sender, **kwargs):
     update_index('violations', kwargs['object_id'])
