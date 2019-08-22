@@ -12,6 +12,7 @@ SELECT
     ELSE '' END
   AS start_date_of_organization,
   MAX(open_ended.value) AS open_ended,
+  MAX(name.id) AS country_id
   location.id AS area_osm_id,
   MAX(location.name) AS area_name,
   MAX(location.feature_type) AS area_osm_feature_type,
