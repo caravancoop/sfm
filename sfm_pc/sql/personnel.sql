@@ -1,6 +1,7 @@
 SELECT
   object_ref.uuid AS uuid,
   MAX(name.value) AS name,
+  MAX(name.id) AS country_id,
   MAX(division_id.value) AS division_id,
   array_to_string(array_agg(DISTINCT classifications.value), ';') AS classifications,
   array_to_string(array_agg(DISTINCT aliases.value), ';') AS other_names,
