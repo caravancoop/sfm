@@ -322,7 +322,6 @@ class DownloadData(FormView):
                 pass
 
             cursor.copy_expert(copy, response)
-        #import ipdb; ipdb.set_trace()
 
         return response
 
