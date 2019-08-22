@@ -47,6 +47,12 @@ def update_violation_index(sender, **kwargs):
     update_index('violations', kwargs['object_id'])
 
 
+@receiver(post_delete, sender=Violation)
+def remove_violation_index(sender, **kwargs):
+    searcher = search.Searcher()
+    searcher.delete(id=kwargs['instance'].uuid)
+
+
 @receiver(object_ref_saved, sender=MembershipPerson)
 def update_membership_index(sender, **kwargs):
     membership = MembershipPerson.objects.get(id=kwargs['object_id'])

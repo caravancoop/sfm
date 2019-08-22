@@ -1,0 +1,21 @@
+{% extends "base_delete.html" %}
+{% load i18n %}
+{% load static %}
+{% load countries %}
+
+{% block delete_header %}
+    {% blocktrans with name=object.name %}
+        Do you really want to delete <strong>{{ name }}</strong>?
+    {% endblocktrans %}
+{% endblock %}
+
+{% block metadata_table %}
+<table class="table">
+    <tbody>
+        <tr>
+            <td><b>{% trans "Description" %}</b></td>
+            <td>{{ description.get_value|truncatewords:50|default:"" }}</td>
+        </tr>
+    </tbody>
+</table>
+{% endblock %}

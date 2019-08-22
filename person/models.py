@@ -134,7 +134,7 @@ class Person(models.Model, BaseModel, VersionsMixin):
     def related_entities(self):
         """
         Return a list of dicts with metadata for all of the entities linked to
-        this Organization.
+        this Person.
 
         Metadata dicts must have the following keys:
             - name

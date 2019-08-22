@@ -126,7 +126,7 @@ def test_delete_person_view_with_related_entities(setUp, people, expected_entity
 
 
 @pytest.mark.django_db
-def test_delete_organization_view_no_related_entities(setUp, people):
+def test_delete_person_view_no_related_entities(setUp, people):
     person = people[0]
     url = reverse_lazy('delete-person', args=[person.uuid])
     response = setUp.get(url)

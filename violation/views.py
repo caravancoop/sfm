@@ -2,12 +2,12 @@ import json
 import csv
 
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.translation import get_language
 
 from complex_fields.models import ComplexFieldContainer
 
-from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView
+from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView, BaseDeleteView
 
 from .models import Violation, ViolationType, ViolationPerpetratorClassification
 from .forms import ViolationBasicsForm, ViolationCreateBasicsForm, ViolationLocationsForm
@@ -56,6 +56,23 @@ class ViolationEditView(BaseUpdateView):
     def get_success_url(self):
         uuid = self.kwargs[self.slug_field_kwarg]
         return reverse('view-violation', kwargs={'slug': uuid})
+
+
+class ViolationDeleteView(BaseDeleteView):
+    model = Violation
+    slug_field = 'uuid'
+    slug_field_kwarg = 'slug'
+    template_name = 'violation/delete.html'
+    context_object_name = 'violation'
+
+    def get_cancel_link(self):
+        return reverse_lazy('view-violation', args=[self.kwargs['slug']])
+
+    def get_success_url(self):
+        return reverse('search') + '?entity_type=Violation'
+
+    def get_related_entities(self):
+        return self.object.related_entities
 
 
 class ViolationEditBasicsView(ViolationEditView):

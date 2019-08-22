@@ -6,6 +6,7 @@ from django.contrib.gis.db import models
 from django.utils.translation import ugettext as _
 from django.db.models import Max
 from django.contrib.gis import geos
+from django.core.urlresolvers import reverse
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -83,18 +84,85 @@ class Violation(models.Model, BaseModel, VersionsMixin):
         )
         self.types = ComplexFieldListContainer(self, ViolationType)
 
-        self.complex_fields = [self.startdate, self.first_allegation,
-                               self.enddate, self.last_update, self.status,
-                               self.locationdescription, self.location,
-                               self.description, self.division_id]
+        self.complex_fields = [
+            self.startdate, self.first_allegation, self.enddate, self.last_update,
+            self.status, self.locationdescription, self.adminlevel1, self.adminlevel2,
+            self.location, self.description, self.division_id
+        ]
 
         self.complex_lists = [self.perpetrator, self.perpetratororganization, self.types]
 
         self.required_fields = [self.description, self.startdate, self.enddate]
 
-
     def get_value(self):
         return self.description.get_value()
+
+    @property
+    def related_entities(self):
+        """
+        Return a list of dicts with metadata for all of the entities linked to
+        this Violation.
+
+        Metadata dicts must have the following keys:
+            - name
+            - entity_type
+            - url (a link to edit the entity)
+        """
+        related_entities = []
+
+        # Second-highest administrative level for the location of the violation.
+        if self.adminlevel1.get_value():
+            location = self.adminlevel1.get_value().value
+            related_entities.append({
+                'name': location.name,
+                'entity_type': _('AdminLevel1'),
+                'url': reverse('edit-violation', args=[self.uuid])
+            })
+
+        # Highest administrative level for the location of the violation.
+        if self.adminlevel2.get_value():
+            location = self.adminlevel2.get_value().value
+            related_entities.append({
+                'name': location.name,
+                'entity_type': _('AdminLevel2'),
+                'url': reverse('edit-violation', args=[self.uuid])
+            })
+
+        # The location of the violation.
+        if self.location.get_value():
+            location = self.location.get_value().value
+            related_entities.append({
+                'name': location.name,
+                'entity_type': _('Location'),
+                'url': reverse('edit-violation', args=[self.uuid])
+            })
+
+        # The perpetrators of the violation (personnel).
+        perpetrators = self.perpetrator.get_list()
+        if perpetrators:
+            perpetrators = [perp.get_value() for perp in perpetrators if perp.get_value()]
+            for perpetrator in perpetrators:
+                person = perpetrator.value
+                related_entities.append({
+                    'name': person.name.get_value().value,
+                    'entity_type': _('Perpetrator'),
+                    'url': reverse('edit-violation', args=[self.uuid])
+                })
+
+        # The perpetrators of the violation (organizations).
+        perpetratororganizations = self.perpetratororganization.get_list()
+        if perpetratororganizations:
+            perpetrators = [perp.get_value() for perp in perpetratororganizations
+                            if perp.get_value()]
+            for perpetrator in perpetrators:
+                org = perpetrator.value
+                related_entities.append({
+                    'name': org.name.get_value().value,
+                    'entity_type': _('PerpetratorOrganization'),
+                    'url': reverse('edit-violation', args=[self.uuid])
+                })
+
+        return related_entities
 
 
 @versioned
