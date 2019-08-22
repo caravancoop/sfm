@@ -14,6 +14,7 @@ SELECT
   MAX(open_ended.value) AS open_ended,
   member.uuid AS member_id,
   MAX(member_name.value) AS member_name,
+  MAX(member_name.id) AS member_country_id,
   MAX(member_firstciteddate.value) AS membership_start_date,
   MAX(member_lastciteddate.value) AS membership_end_date,
   CASE
