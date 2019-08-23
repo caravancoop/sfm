@@ -99,12 +99,24 @@ class BaseUpdateView(BaseEditView, UpdateView):
         form_kwargs['post_data'] = self.request.POST
         return form_kwargs
 
+    def get_cancel_link(self):
+        """
+        Return the route that the Cancel button should link to in the template.
+        """
+        raise NotImplementedError('This method must be implemented on children.')
+
 
 class BaseCreateView(BaseEditView, CreateView):
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['post_data'] = self.request.POST
         return form_kwargs
+
+    def get_cancel_link(self):
+        """
+        Return the route that the Cancel button should link to in the template.
+        """
+        raise NotImplementedError('This method must be implemented on children.')
 
 
 class BaseDeleteView(DeleteView):
@@ -114,6 +126,12 @@ class BaseDeleteView(DeleteView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         return context
+
+    def get_cancel_link(self):
+        """
+        Return the route that the Cancel button should link to in the template.
+        """
+        raise NotImplementedError('This method must be implemented on children.')
 
 
 class BaseDeleteRelationshipView(BaseDeleteView):
@@ -132,5 +150,11 @@ class BaseDeleteRelationshipView(BaseDeleteView):
         For example, if the user is deleting an Organization Composition, this
         method should return the two Organizations that are linked by the
         Composition in question.
+        """
+        raise NotImplementedError('This method must be implemented on children.')
+
+    def get_cancel_link(self):
+        """
+        Return the route that the Cancel button should link to in the template.
         """
         raise NotImplementedError('This method must be implemented on children.')
