@@ -184,6 +184,9 @@ class OrganizationEditView(EditButtonsMixin, BaseUpdateView):
         uuid = self.kwargs[self.slug_field_kwarg]
         return reverse('view-organization', kwargs={'slug': uuid})
 
+    def get_cancel_url(self):
+        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
+
 
 class OrganizationCreateView(BaseCreateView):
 
@@ -225,6 +228,9 @@ class OrganizationEditBasicsView(OrganizationEditView):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['organization_id'] = self.kwargs['slug']
         return form_kwargs
+
+    def get_cancel_url(self):
+        return reverse('view-organization', kwargs={'slug': self.kwargs[self.slug_field_kwarg]})
 
 
 class OrganizationCreateBasicsView(OrganizationCreateView):
@@ -286,9 +292,6 @@ class OrganizationEditCompositionView(OrganizationEditView):
                                    'pk': pk})
         else:
             return reverse('view-organization', kwargs={'slug': organization_id})
-
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationCreateCompositionView(EditButtonsMixin, OrganizationCreateView):
@@ -460,9 +463,6 @@ class OrganizationEditPersonnelView(OrganizationEditView):
         form_kwargs['organization_id'] = self.kwargs['organization_id']
         return form_kwargs
 
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
 
 class OrganizationCreatePersonnelView(EditButtonsMixin, OrganizationCreateView):
     model = MembershipPerson
@@ -545,9 +545,6 @@ class OrganizationEditEmplacementView(OrganizationEditView):
         form_kwargs['organization_id'] = self.kwargs['organization_id']
         return form_kwargs
 
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
 
 class OrganizationCreateEmplacementView(EditButtonsMixin, OrganizationCreateView):
     model = Emplacement
@@ -625,9 +622,6 @@ class OrganizationEditAssociationView(OrganizationEditView):
                                    'pk': pk})
         else:
             return reverse('view-organization', kwargs={'slug': organization_id})
-
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView):
