@@ -212,6 +212,7 @@ class OrganizationDeleteView(BaseDeleteView):
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
     template_name = 'organization/delete.html'
+    context_object_name = 'organization'
 
     def get_cancel_link(self):
         return reverse_lazy('view-organization', args=[self.kwargs['slug']])
