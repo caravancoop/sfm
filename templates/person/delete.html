@@ -21,7 +21,7 @@
             <td><b>{% trans "Also known as" %}</b></td>
             <td>
             {% for alias in person.aliases.get_list %}
-                {{ alias.get_value }}{% if not forloop.last %}|{% endif %}
+                {{ alias.get_value }}{% if not forloop.last %} |{% endif %}
             {% endfor %}
             </td>
         </tr>

@@ -21,7 +21,7 @@
             <td><b>{% trans "Also known as" %}</b></td>
             <td>
             {% for alias in organization.aliases.get_list %}
-                {{ alias.get_value }}{% if not forloop.last %}|{% endif %}
+                {{ alias.get_value }}{% if not forloop.last %} |{% endif %}
             {% endfor %}
             </td>
         </tr>
@@ -37,7 +37,7 @@
             <td><b>{% trans "Classified as" %}</b></td>
             <td>
             {% for classification in organization.classification.get_list %}
-                {{ classification.get_value }}{% if not forloop.last %}|{% endif %}
+                {{ classification.get_value }}{% if not forloop.last %} |{% endif %}
             {% endfor %}
         </tr>
         {% endif %}

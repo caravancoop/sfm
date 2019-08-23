@@ -134,14 +134,9 @@ def test_delete_violation_view_with_related_entities(setUp, violation, expected_
 
 
 @pytest.mark.django_db
-def test_delete_violation_view_no_related_entities(setUp, base_violation):
-    # TODO: Remove linked entities from this violation.
-    base_violation.adminlevel1 = None
-    base_violation.adminlevel2 = None
-    base_violation.location = None
-    base_violation.save()
-
-    url = reverse_lazy('delete-violation', args=[base_violation.uuid])
+def test_delete_violation_view_no_related_entities(setUp, violation, mocker):
+    mocker.patch('violation.models.Violation.related_entities', new=[])
+    url = reverse_lazy('delete-violation', args=[violation.uuid])
     response = setUp.get(url)
     assert response.status_code == 200
     # Make sure no related entities are rendered on the page.
