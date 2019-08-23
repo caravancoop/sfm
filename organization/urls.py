@@ -20,7 +20,7 @@ urlpatterns = [
     url(r'name/autocomplete',
         organization_autocomplete,
         name="organization-autocomplete"),
-    url(r'edit/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+    url(r'edit/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         OrganizationEditBasicsView.as_view(),
         name='edit-organization'),
     url(r'create/$',

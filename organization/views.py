@@ -169,7 +169,8 @@ class OrganizationDetail(BaseDetailView):
 class OrganizationEditView(EditButtonsMixin, BaseUpdateView):
     model = Organization
     slug_field = 'uuid'
-    slug_field_kwarg = 'slug'
+    slug_field_kwarg = 'organization_id'
+    slug_url_kwarg = 'organization_id'
     context_object_name = 'organization'
     button = 'basics'
 
@@ -210,7 +211,7 @@ class OrganizationEditBasicsView(OrganizationEditView):
     button = 'basics'
 
     def get_reference_organization(self):
-        return Organization.objects.get(uuid=self.kwargs['slug'])
+        return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -226,11 +227,8 @@ class OrganizationEditBasicsView(OrganizationEditView):
 
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
-        form_kwargs['organization_id'] = self.kwargs['slug']
+        form_kwargs['organization_id'] = self.kwargs['organization_id']
         return form_kwargs
-
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs[self.slug_field_kwarg]})
 
 
 class OrganizationCreateBasicsView(OrganizationCreateView):
