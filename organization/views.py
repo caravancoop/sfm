@@ -200,7 +200,7 @@ class OrganizationDeleteRelationshipView(BaseDeleteRelationshipView):
     def get_cancel_url(self):
         organization_id = self.kwargs['organization_id']
         pk = self.kwargs['pk']
-        return reverse('edit-organization-composition',
+        return reverse('edit-organization-{}'.format(self.model.__name__.lower()),
                         kwargs={'organization_id': organization_id,
                                 'pk': pk})
 
@@ -506,6 +506,14 @@ class OrganizationDeletePersonnelView(LoginRequiredMixin, OrganizationDeleteRela
         organization.object_ref_saved()
 
         return response
+
+    # overriding this cancel url since the model name is MembershipPerson
+    def get_cancel_url(self):
+        organization_id = self.kwargs['organization_id']
+        pk = self.kwargs['pk']
+        return reverse('edit-organization-membership',
+                        kwargs={'organization_id': organization_id,
+                                'pk': pk})
 
 
 class OrganizationEditEmplacementView(OrganizationEditView):
