@@ -2,6 +2,7 @@ SELECT
   object_ref.uuid AS uuid,
   MAX(name.value) AS name,
   MAX(division_id.value) AS division_id,
+  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS country_iso,
   array_to_string(array_agg(DISTINCT classifications.value), ';') AS classifications,
   array_to_string(array_agg(DISTINCT aliases.value), ';') AS other_names,
   MAX(firstciteddate.value) AS first_cited_date,
