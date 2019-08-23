@@ -2,11 +2,16 @@ SELECT
   object_ref.uuid AS uuid,
   MAX(name.value) AS name,
   MAX(division_id.value) AS division_id,
+  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS country_iso,
   array_to_string(array_agg(DISTINCT classifications.value), ';') AS classifications,
   array_to_string(array_agg(DISTINCT aliases.value), ';') AS other_names,
   MAX(firstciteddate.value) AS first_cited_date,
   MAX(lastciteddate.value) AS last_cited_date,
-  bool_and(realstart.value) AS start_date_of_organization,
+  CASE
+    WHEN bool_and(realstart.value) = true THEN 'Y'
+    WHEN bool_and(realstart.value) = false THEN 'N'
+    ELSE '' END
+  AS start_date_of_organization,
   MAX(open_ended.value) AS open_ended,
   location.id AS area_osm_id,
   MAX(location.name) AS area_name,

@@ -2,11 +2,16 @@ SELECT
   object_ref.uuid AS uuid,
   MAX(name.value) AS name,
   MAX(division_id.value) AS division_id,
+  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS country_iso,
   array_to_string(array_agg(DISTINCT classifications.value), ';') AS classifications,
   array_to_string(array_agg(DISTINCT aliases.value), ';') AS other_names,
   MAX(firstciteddate.value) AS first_cited_date,
   MAX(lastciteddate.value) AS last_cited_date,
-  bool_and(realstart.value) AS start_date_of_organization,
+  CASE
+    WHEN bool_and(realstart.value) = true THEN 'Y'
+    WHEN bool_and(realstart.value) = false THEN 'N'
+    ELSE '' END
+  AS start_date_of_organization,
   MAX(open_ended.value) AS open_ended,
   person.uuid AS person_id,
   MAX(person_name.value) AS person_name,
@@ -24,13 +29,21 @@ SELECT
   split_part(MAX(person_first_cited_date.value), '-', 1) As person_first_cited_year,
   split_part(MAX(person_first_cited_date.value), '-', 2) As person_first_cited_month,
   split_part(MAX(person_first_cited_date.value), '-', 3) As person_first_cited_day,
-  bool_and(person_real_start.value) AS person_real_start,
+  CASE
+    WHEN bool_and(person_real_start.value) = true THEN 'Y'
+    WHEN bool_and(person_real_start.value) = false THEN 'N'
+    ELSE '' END
+  AS person_real_start,
   MAX(person_start_context.value) AS person_start_context,
   MAX(person_last_cited_date.value) AS person_last_cited_date,
   split_part(MAX(person_last_cited_date.value), '-', 1) As person_last_cited_year,
   split_part(MAX(person_last_cited_date.value), '-', 2) As person_last_cited_month,
   split_part(MAX(person_last_cited_date.value), '-', 3) As person_last_cited_day,
-  bool_and(person_real_end.value) AS person_real_end,
+  CASE
+    WHEN bool_and(person_real_end.value) = true THEN 'Y'
+    WHEN bool_and(person_real_end.value) = false THEN 'N'
+    ELSE '' END
+  AS person_real_end,
   MAX(person_end_context.value) AS person_end_context
 FROM organization_organization AS object_ref
 JOIN organization_organizationname AS name
