@@ -221,7 +221,7 @@ class OrganizationEditBasicsView(OrganizationEditView):
         organization_id = self.kwargs[self.slug_field_kwarg]
 
         if self.request.POST.get('_continue'):
-            return reverse('edit-organization', kwargs={'slug': organization_id})
+            return reverse('edit-organization', kwargs={'organization_id': organization_id})
         else:
             return super().get_success_url()
 
@@ -313,7 +313,7 @@ class OrganizationCreateCompositionView(EditButtonsMixin, OrganizationCreateView
         return context
 
     def get_success_url(self):
-        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
+        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteCompositionView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
@@ -407,7 +407,7 @@ class OrganizationCreateMembershipView(EditButtonsMixin, OrganizationCreateView)
         return form_kwargs
 
     def get_success_url(self):
-        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
+        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteMembershipView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
@@ -481,7 +481,7 @@ class OrganizationCreatePersonnelView(EditButtonsMixin, OrganizationCreateView):
         return form_kwargs
 
     def get_success_url(self):
-        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
+        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
 class OrganizationDeletePersonnelView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
@@ -565,7 +565,7 @@ class OrganizationCreateEmplacementView(EditButtonsMixin, OrganizationCreateView
         return form_kwargs
 
     def get_success_url(self):
-        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
+        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteEmplacementView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
@@ -638,7 +638,7 @@ class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView
         return context
 
     def get_success_url(self):
-        return reverse('edit-organization', kwargs={'slug': self.kwargs['organization_id']})
+        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteAssociationView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
