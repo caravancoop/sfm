@@ -429,7 +429,7 @@ class PersonDeletePostingView(LoginRequiredMixin, BaseDeleteRelationshipView):
     model = MembershipPerson
     template_name = 'person/delete-posting.html'
 
-    def get_cancel_link(self):
+    def get_cancel_url(self):
         return reverse_lazy(
             'edit-person-postings',
             kwargs={

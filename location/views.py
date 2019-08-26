@@ -102,7 +102,7 @@ class LocationDelete(LoginRequiredMixin, BaseDeleteView):
     success_url = reverse_lazy('list-location')
     template_name = 'location/delete.html'
 
-    def get_cancel_link(self):
+    def get_cancel_url(self):
         return reverse_lazy(
             'view-location',
             kwargs={
