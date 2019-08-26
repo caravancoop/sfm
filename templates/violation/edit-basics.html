@@ -73,7 +73,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.startdate.label }}</label>
-                <input type="text" name="startdate" id="id_startdate" class="form-control" value="{{ form.instance.startdate }}">
+                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}">
                 {% if form.startdate.errors %}
                     {% for error in form.startdate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -95,7 +95,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.enddate.label }}</label>
-                <input type="text" name="enddate" id="id_enddate" class="form-control" value="{{ form.instance.enddate }}">
+                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
                 {% if form.enddate.errors %}
                     {% for error in form.enddate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -117,7 +117,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.types.label }}</label>
-                <select id="id_types" class="form-control" name="types" multiple="multiple">
+                <select id="id_types" class="form-control sourced-dropdown select2-target" name="types" multiple="multiple">
                     {% for type in form.instance.types.get_list %}
                         <option value="{{ type.get_value.id }}" selected=true>{{ type.get_value }}</option>
                     {% endfor %}
@@ -143,7 +143,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetrator.label }}</label>
-                <select id="id_perpetrator" class="form-control" name="perpetrator" multiple="multiple">
+                <select id="id_perpetrator" class="form-control sourced-dropdown select2-target" name="perpetrator" multiple="multiple">
                     {% for type in form.instance.perpetrator.get_list %}
                         <option value="{{ type.get_value.value.id }}" selected=true>{{ type.get_value.value }}</option>
                     {% endfor %}
@@ -169,7 +169,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetratororganization.label }}</label>
-                <select id="id_perpetratororganization" class="form-control" name="perpetratororganization" multiple="multiple">
+                <select id="id_perpetratororganization" class="form-control sourced-dropdown select2-target" name="perpetratororganization" multiple="multiple">
                     {% for type in form.instance.perpetratororganization.get_list %}
                         <option value="{{ type.get_value.value.id }}" selected=true>{{ type.get_value.value }}</option>
                     {% endfor %}
@@ -195,7 +195,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetratorclassification.label }}</label>
-                <select id="id_perpetratorclassification" class="form-control" name="perpetratorclassification">
+                <select id="id_perpetratorclassification" class="form-control sourced-dropdown select2-target" name="perpetratorclassification">
                     <option value="{{ form.instance.perpetratorclassification.id }}" selected=true>
                         {{ form.instance.perpetratorclassification.get_value.value }}
                     </option>
@@ -221,7 +221,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.division_id.label }}</label>
-                <select id="id_division_id" class="form-control" name="division_id">
+                <select id="id_division_id" class="form-control sourced-dropdown select2-target" name="division_id">
                     {% if form.instance.division_id %}
                         <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
                     {% else %}
