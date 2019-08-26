@@ -181,6 +181,9 @@ class OrganizationEditView(EditButtonsMixin, BaseUpdateView):
 
         return context
 
+    def get_reference_organization(self):
+        return Organization.objects.get(uuid=self.kwargs['organization_id'])
+
     def get_success_url(self):
         uuid = self.kwargs[self.slug_field_kwarg]
         return reverse('view-organization', kwargs={'slug': uuid})
@@ -209,9 +212,6 @@ class OrganizationEditBasicsView(OrganizationEditView):
     template_name = 'organization/edit-basics.html'
     form_class = OrganizationBasicsForm
     button = 'basics'
-
-    def get_reference_organization(self):
-        return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -265,9 +265,6 @@ class OrganizationEditCompositionView(OrganizationEditView):
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'
     button = 'relationships'
-
-    def get_reference_organization(self):
-        return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -341,7 +338,7 @@ class OrganizationDeleteCompositionView(LoginRequiredMixin, OrganizationDeleteRe
         return response
 
 
-class OrganizationEditMembershipView(EditButtonsMixin, BaseUpdateView):
+class OrganizationEditMembershipView(OrganizationEditView):
     template_name = 'organization/edit-membership.html'
     form_class = OrganizationMembershipForm
     model = MembershipOrganization
@@ -376,9 +373,6 @@ class OrganizationEditMembershipView(EditButtonsMixin, BaseUpdateView):
                                    'pk': pk})
         else:
             return reverse('view-organization', kwargs={'slug': organization_id})
-
-    def get_cancel_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationCreateMembershipView(EditButtonsMixin, OrganizationCreateView):
@@ -449,9 +443,6 @@ class OrganizationEditPersonnelView(OrganizationEditView):
     context_object_name = 'current_membership'
     slug_field_kwarg = 'organization_id'
     button = 'personnel'
-
-    def get_reference_organization(self):
-        return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
     def get_success_url(self):
         organization_id = self.kwargs['organization_id']
@@ -532,9 +523,6 @@ class OrganizationEditEmplacementView(OrganizationEditView):
     slug_field_kwarg = 'pk'
     button = 'location'
 
-    def get_reference_organization(self):
-        return Organization.objects.get(uuid=self.kwargs['organization_id'])
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -614,9 +602,6 @@ class OrganizationEditAssociationView(OrganizationEditView):
     context_object_name = 'current_association'
     slug_field_kwarg = 'pk'
     button = 'location'
-
-    def get_reference_organization(self):
-        return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
