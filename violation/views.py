@@ -62,11 +62,12 @@ class ViolationDeleteView(BaseDeleteView):
     model = Violation
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
+    slug_url_kwarg = 'slug'
     template_name = 'violation/delete.html'
     context_object_name = 'violation'
 
-    def get_cancel_link(self):
-        return reverse_lazy('view-violation', args=[self.kwargs['slug']])
+    def get_cancel_url(self):
+        return reverse_lazy('edit-violation', args=[self.kwargs['slug']])
 
     def get_success_url(self):
         return reverse('search') + '?entity_type=Violation'

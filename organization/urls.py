@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'create/$',
         views.OrganizationCreateBasicsView.as_view(),
         name='create-organization'),
-    url(r'delete/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+    url(r'delete/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         views.OrganizationDeleteView.as_view(),
         name='delete-organization'),
 

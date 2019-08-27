@@ -210,12 +210,13 @@ class OrganizationDeleteRelationshipView(BaseDeleteRelationshipView):
 class OrganizationDeleteView(BaseDeleteView):
     model = Organization
     slug_field = 'uuid'
-    slug_field_kwarg = 'slug'
+    slug_field_kwarg = 'organization_id'
+    slug_url_kwarg = 'organization_id'
     template_name = 'organization/delete.html'
     context_object_name = 'organization'
 
-    def get_cancel_link(self):
-        return reverse_lazy('view-organization', args=[self.kwargs['slug']])
+    def get_cancel_url(self):
+        return reverse_lazy('edit-organization', args=[self.kwargs['organization_id']])
 
     def get_success_url(self):
         return reverse('search') + '?entity_type=Organization'

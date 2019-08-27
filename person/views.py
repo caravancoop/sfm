@@ -318,11 +318,12 @@ class PersonDeleteView(BaseDeleteView):
     model = Person
     slug_field = 'uuid'
     slug_field_kwarg = 'slug'
+    slug_url_kwarg = 'slug'
     template_name = 'person/delete.html'
     context_object_name = 'person'
 
-    def get_cancel_link(self):
-        return reverse_lazy('view-person', args=[self.kwargs['slug']])
+    def get_cancel_url(self):
+        return reverse_lazy('edit-person', args=[self.kwargs['slug']])
 
     def get_success_url(self):
         return reverse('search') + '?entity_type=Person'
