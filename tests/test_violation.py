@@ -146,13 +146,48 @@ def test_delete_violation_view_no_related_entities(setUp, violation, mocker):
 
 
 @pytest.mark.django_db
-def test_edit_violation_locations(setUp, violation):
+def test_edit_violation_locations(setUp,
+                                  violation,
+                                  new_access_points,
+                                  location_node,
+                                  location_adminlevel1,
+                                  location_adminlevel2,
+                                  fake_signal):
     # Make sure we can load the locations edit view.
-    response = setUp.get(reverse_lazy(
+    get_response = setUp.get(reverse_lazy(
         'edit-violation-locations',
         kwargs={'slug': violation.uuid}
     ))
-    assert response.status_code == 200
+    assert get_response.status_code == 200
+
+    new_source_id = new_access_points[0].uuid
+
+    # Test adding locations.
+    post_data = {
+        'locationdescription': 'Foo bar baz',
+        'locationdescription_source': new_source_id,
+        'location': location_node.id,
+        'location_source': new_source_id,
+        'adminlevel1': location_adminlevel1.id,
+        'adminlevel1_source': new_source_id,
+        'adminlevel2': location_adminlevel2.id,
+        'adminlevel2_source': new_source_id,
+    }
+
+    post_response = setUp.post(
+        reverse_lazy('edit-violation-locations', kwargs={'slug': violation.uuid}),
+        post_data
+    )
+    assert post_response.status_code == 302
+
+    for attr in ['location', 'adminlevel1', 'adminlevel2']:
+        assert new_source_id in [s.uuid for s in getattr(violation, attr).get_sources()]
+
+    assert violation.location.get_value().value == location_node
+    assert violation.adminlevel1.get_value().value == location_adminlevel1
+    assert violation.adminlevel2.get_value().value == location_adminlevel2
+
+    fake_signal.assert_called_with(object_id=violation.uuid, sender=Violation)
 
 
 @pytest.mark.django_db
