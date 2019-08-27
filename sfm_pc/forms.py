@@ -243,12 +243,13 @@ class BaseUpdateForm(BaseEditForm):
                     try:
                         posted_value = {v.value for v in posted_value}
                     except AttributeError:
-                        posted_value = set()
+                        posted_value_set = set()
                         for value in posted_value:
                             if value.get_value():
-                                posted_value.add(value.get_value().value)
+                                posted_value_set.add(value.get_value().value)
                             else:
-                                posted_value.add(None)
+                                posted_value_set.add(None)
+                        posted_value = posted_value_set
 
                     stored_value = {str(v.get_value()) for v in field_instance.get_list()}
 

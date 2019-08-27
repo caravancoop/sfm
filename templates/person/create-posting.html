@@ -21,7 +21,6 @@
     <input type="hidden" name="member" value="{{ person.id }}" />
     <div class="row organization-row field-bg bg-info">
         <div class="col-sm-12">
-            {{ form.cleaned_data }}
             {% if form.organization.errors %}
                 <div class="form-group has-error has-feedback">
             {% else %}

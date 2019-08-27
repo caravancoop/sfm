@@ -38,20 +38,13 @@ class ViolationBasicsForm(BaseUpdateForm):
     description = forms.CharField(label=_("Description"))
     perpetrator = forms.ModelMultipleChoiceField(label=_("Perpetrator"), queryset=Person.objects.all(), required=False)
     perpetratororganization = forms.ModelMultipleChoiceField(label=_("Perpetrator unit"), queryset=Organization.objects.all(), required=False)
+    perpetratorclassification = forms.CharField(label=_("Perpetrator classification"), required=False)
     division_id = forms.CharField(label=_("Country"), required=False)
 
     def __init__(self, *args, **kwargs):
         violation_id = kwargs.pop('violation_id', None)
 
         super().__init__(*args, **kwargs)
-
-        self.fields['perpetratorclassification'] = GetOrCreateChoiceField(label=_("Perpetrator classification"),
-                                                                          queryset=ViolationPerpetratorClassification.objects.all(),
-                                                                          required=False,
-                                                                          object_ref_model=self._meta.model,
-                                                                          form=self,
-                                                                          field_name='perpetratorclassification',
-                                                                          object_ref_pk=violation_id)
 
         self.fields['types'] = GetOrCreateChoiceField(label=_("Violation type"),
                                                               queryset=ViolationType.objects.all(),

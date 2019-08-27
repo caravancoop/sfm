@@ -86,6 +86,9 @@
                 {% source_input 'startdate' source %}
             {% endfor %}
         </div>
+        <div id="id_startdate_confidence">
+            <input type="hidden" value="{{ form.instance.startdate.get_value.confidence|default_if_none:1 }}" name="startdate_confidence">
+        </div>
     </div>
     <div class="row enddate-row field-bg">
         <div class="col-sm-12">
@@ -108,6 +111,9 @@
                 {% source_input 'enddate' source %}
             {% endfor %}
         </div>
+        <div id="id_enddate_confidence">
+            <input type="hidden" value="{{ form.instance.enddate.get_value.confidence|default_if_none:1 }}" name="enddate_confidence">
+        </div>
     </div>
     <div class="row types-row field-bg">
         <div class="col-sm-12">
@@ -129,10 +135,13 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_name_source">
+        <div id="id_types_source">
             {% for source in form.instance.types.get_list.0.get_sources %}
                 {% source_input 'types' source %}
             {% endfor %}
+        </div>
+        <div id="id_types_confidence">
+            <input type="hidden" value="{{ form.instance.types.get_list.0.get_value.confidence|default_if_none:1 }}" name="types_confidence">
         </div>
     </div>
     <div class="row perpetrator-row field-bg">
@@ -156,9 +165,12 @@
             </div>
         </div>
         <div id="id_perpetrator_source">
-            {% for source in form.instance.perpetrator.get_sources %}
+            {% for source in form.instance.perpetrator.get_list.0.get_sources %}
                 {% source_input 'perpetrator' source %}
             {% endfor %}
+        </div>
+        <div id="id_perpetrator_confidence">
+            <input type="hidden" value="{{ form.instance.perpetrator.get_list.0.get_value.confidence|default_if_none:1 }}" name="perpetrator_confidence">
         </div>
     </div>
     <div class="row perpetratororganization-row field-bg">
@@ -182,9 +194,12 @@
             </div>
         </div>
         <div id="id_perpetratororganization_source">
-            {% for source in form.instance.perpetratororganization.get_sources %}
+            {% for source in form.instance.perpetratororganization.get_list.0.get_sources %}
                 {% source_input 'perpetratororganization' source %}
             {% endfor %}
+        </div>
+        <div id="id_perpetratororganization_confidence">
+            <input type="hidden" value="{{ form.instance.perpetratororganization.get_list.0.get_value.confidence|default_if_none:1 }}" name="perpetratororganization_confidence">
         </div>
     </div>
     <div class="row perpetratorclassification-row field-bg">
@@ -196,9 +211,11 @@
             {% endif %}
                 <label class="control-label">{{ form.perpetratorclassification.label }}</label>
                 <select id="id_perpetratorclassification" class="form-control sourced-dropdown select2-target" name="perpetratorclassification">
-                    <option value="{{ form.instance.perpetratorclassification.id }}" selected=true>
-                        {{ form.instance.perpetratorclassification.get_value.value }}
-                    </option>
+                    {% if form.instance.perpetratorclassification.get_value %}
+                        <option value="{{ form.instance.perpetratorclassification.get_value.value }}" selected=true>
+                            {{ form.instance.perpetratorclassification.get_value.value }}
+                        </option>
+                    {% endif %}
                 </select>
                 {% if form.perpetratorclassification.errors %}
                     {% for error in form.perpetratorclassification.errors %}
@@ -211,6 +228,9 @@
             {% for source in form.instance.perpetratorclassification.get_sources %}
                 {% source_input 'perpetratorclassification' source %}
             {% endfor %}
+        </div>
+        <div id="id_perpetratorclassification_confidence">
+            <input type="hidden" value="{{ form.instance.perpetratorclassification.get_value.confidence|default_if_none:1 }}" name="perpetratorclassification_confidence">
         </div>
     </div>
     <div class="row division_id-row field-bg">
@@ -242,6 +262,9 @@
             {% for source in form.instance.division_id.get_sources %}
                 {% source_input 'division_id' source %}
             {% endfor %}
+        </div>
+        <div id="id_division_id_confidence">
+            <input type="hidden" value="{{ form.instance.division_id.get_value.confidence|default_if_none:1 }}" name="division_id_confidence">
         </div>
     </div>
 

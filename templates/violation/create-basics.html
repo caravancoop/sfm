@@ -75,6 +75,14 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_startdate_source">
+            {% for source in source_info.startdate_source %}
+                {% source_input 'startdate' source %}
+            {% endfor %}
+        </div>
+        <div id="id_startdate_confidence">
+            <input type="hidden" value="1" name="startdate_confidence">
+        </div>
     </div>
     <div class="row enddate-row field-bg">
         <div class="col-sm-12">
@@ -91,6 +99,14 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_enddate_source">
+            {% for source in source_info.enddate_source %}
+                {% source_input 'enddate' source %}
+            {% endfor %}
+        </div>
+        <div id="id_enddate_confidence">
+            <input type="hidden" value="1" name="enddate_confidence">
         </div>
     </div>
     <div class="row types-row field-bg">
@@ -113,6 +129,14 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_types_source">
+            {% for source in source_info.types_source %}
+                {% source_input 'types' source %}
+            {% endfor %}
+        </div>
+        <div id="id_types_confidence">
+            <input type="hidden" value="1" name="types_confidence">
+        </div>
     </div>
     <div class="row perpetrator-row field-bg">
         <div class="col-sm-12">
@@ -133,6 +157,14 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_perpetrator_source">
+            {% for source in source_info.perpetrator_source %}
+                {% source_input 'perpetrator' source %}
+            {% endfor %}
+        </div>
+        <div id="id_perpetrator_confidence">
+            <input type="hidden" value="1" name="perpetrator_confidence">
         </div>
     </div>
     <div class="row perpetratororganization-row field-bg">
@@ -155,6 +187,14 @@
                 {% endif %}
             </div>
         </div>
+        <div id="id_perpetratororganization_source">
+            {% for source in source_info.perpetratororganization_source %}
+                {% source_input 'perpetratororganization' source %}
+            {% endfor %}
+        </div>
+        <div id="id_perpetratororganization_confidence">
+            <input type="hidden" value="1" name="perpetratororganization_confidence">
+        </div>
     </div>
     <div class="row perpetratorclassification-row field-bg">
         <div class="col-sm-12">
@@ -165,9 +205,11 @@
             {% endif %}
                 <label class="control-label">{{ form.perpetratorclassification.label }}</label>
                 <select id="id_perpetratorclassification" class="form-control sourced-dropdown select2-target" name="perpetratorclassification">
-                    <option value="{{ form.cleaned_data.perpetratorclassification.id }}" selected=true>
-                        {{ form.cleaned_data.perpetratorclassification.value }}
-                    </option>
+                    {% if form.cleaned_data.perpetratorclassification %}
+                        <option value="{{ form.cleaned_data.perpetratorclassification.id }}" selected=true>
+                            {{ form.cleaned_data.perpetratorclassification.value }}
+                        </option>
+                    {% endif %}
                 </select>
                 {% if form.perpetratorclassification.errors %}
                     {% for error in form.perpetratorclassification.errors %}
@@ -175,6 +217,14 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_perpetratorclassification_source">
+            {% for source in source_info.perpetratorclassification_source %}
+                {% source_input 'perpetratorclassification' source %}
+            {% endfor %}
+        </div>
+        <div id="id_perpetratorclassification_confidence">
+            <input type="hidden" value="1" name="perpetratorclassification_confidence">
         </div>
     </div>
     <div class="row division_id-row field-bg">
@@ -201,6 +251,14 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div id="id_division_id_source">
+            {% for source in source_info.division_id_source %}
+                {% source_input 'division_id' source %}
+            {% endfor %}
+        </div>
+        <div id="id_division_id_confidence">
+            <input type="hidden" value="1" name="division_id_confidence">
         </div>
     </div>
 {% endblock %}

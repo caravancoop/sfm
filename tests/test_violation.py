@@ -166,7 +166,7 @@ def test_change_perpetrator_classification(setUp,
 
     assert response.status_code == 200
 
-    new_source_ids = [s.uuid for s in new_access_points]
+    new_source_ids = [s.uuid for s in new_access_points][:-1]
 
     new_types = ['Violation against freedom from torture']
 
@@ -213,6 +213,7 @@ def test_change_perpetrator_classification(setUp,
 
     post_data = {
         'perpetratorclassification': 'More baddies',
+        'perpetratorclassification_source': new_access_points[-1].uuid,
         'description': 'Some real scary stuff',
         'description_source': new_source_ids,
     }
