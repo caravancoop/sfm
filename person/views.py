@@ -7,14 +7,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from person.models import Person
 from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \
     PersonPostingsForm, PersonCreatePostingForm
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView, \
-    BaseDeleteRelationshipView
+    BaseDeleteView, BaseDeleteRelationshipView
 
 
 class PersonDetail(BaseDetailView):
@@ -315,6 +314,24 @@ class PersonEditView(BaseUpdateView):
         return reverse('view-person', kwargs={'slug': person_id})
 
 
+class PersonDeleteView(BaseDeleteView):
+    model = Person
+    slug_field = 'uuid'
+    slug_field_kwarg = 'slug'
+    slug_url_kwarg = 'slug'
+    template_name = 'person/delete.html'
+    context_object_name = 'person'
+
+    def get_cancel_url(self):
+        return reverse_lazy('edit-person', args=[self.kwargs['slug']])
+
+    def get_success_url(self):
+        return reverse('search') + '?entity_type=Person'
+
+    def get_related_entities(self):
+        return self.object.related_entities
+
+
 class PersonEditBasicsView(PersonEditView):
     template_name = 'person/edit-basics.html'
     form_class = PersonBasicsForm
@@ -329,7 +346,12 @@ class PersonEditBasicsView(PersonEditView):
 
         # If there are no memberships, we shoult make sure to go to the create
         # view when it exists.
-        context['first_membership'] = context['person'].memberships.first()
+        first_membership = context['person'].memberships.first()
+        if first_membership:
+            # Person.memberships() returns a QuerySet of MembershipPersonMember
+            # objects, so we need to access the object ref to get the corresponding
+            # MembershipPerson object
+            context['first_membership'] = first_membership.object_ref
 
         return context
 
@@ -425,7 +447,7 @@ class PersonCreatePostingView(BaseCreateView):
         return reverse_lazy('view-person', kwargs={'slug': self.kwargs['person_id']})
 
 
-class PersonDeletePostingView(LoginRequiredMixin, BaseDeleteRelationshipView):
+class PersonDeletePostingView(BaseDeleteRelationshipView):
     model = MembershipPerson
     template_name = 'person/delete-posting.html'
 

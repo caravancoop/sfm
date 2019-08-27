@@ -246,6 +246,9 @@
     </div>
 
 {% endblock %}
+{% block delete_button %}
+    <a href="{% url 'delete-violation' violation.uuid %}" class="btn btn-danger">{% trans "Delete" %}</a>
+{% endblock %}
 {% block extra_extra_js%}
     <script type="text/javascript">
         $(document).ready(function(){

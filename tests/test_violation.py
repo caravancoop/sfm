@@ -13,6 +13,35 @@ from violation.models import Violation, ViolationType, \
     ViolationPerpetratorClassification
 
 
+@pytest.fixture
+def expected_entity_names(location_adminlevel1,
+                          location_adminlevel2,
+                          violation,
+                          location_node,
+                          people,
+                          organizations):
+    """
+    Generate a list of related entity names that we expect to see in the
+    DeleteView.
+    """
+    return [
+        location_adminlevel1.name,
+        location_adminlevel2.name,
+        location_node.name,
+    ] + [
+        person.name.get_value().value for person in people
+    ] + [
+        org.name.get_value().value for org in organizations
+    ]
+
+
+@pytest.mark.django_db
+def test_violation_related_entities(violation, expected_entity_names):
+    related_entities = violation.related_entities
+    assert len(related_entities) == len(expected_entity_names)
+    assert set([entity['name'] for entity in related_entities]) == set(expected_entity_names)
+
+
 @pytest.mark.django_db
 def test_view_violation(client, violation):
 
@@ -76,6 +105,44 @@ def test_edit_violation(setUp,
         assert person in [p.get_value().value for p in violation.perpetrator.get_list()]
 
     fake_signal.assert_called_with(object_id=violation.uuid, sender=Violation)
+
+
+@pytest.mark.django_db
+def test_delete_violation(setUp, violation, searcher_mock, mocker):
+    url = reverse_lazy('delete-violation', args=[violation.uuid])
+    response = setUp.post(url)
+
+    assert response.status_code == 302
+
+    with pytest.raises(Violation.DoesNotExist):
+        Violation.objects.get(uuid=violation.uuid)
+
+    searcher_mock.assert_called_once()
+    searcher_mock.assert_has_calls([mocker.call(mocker.ANY, violation.uuid)])
+
+
+@pytest.mark.django_db
+def test_delete_violation_view_with_related_entities(setUp, violation, expected_entity_names):
+    url = reverse_lazy('delete-violation', args=[violation.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure all the related entities are rendered on the page.
+    for entity_name in expected_entity_names:
+        assert entity_name in response.content.decode('utf-8')
+    # Make sure that the confirm button is disabled.
+    assert 'value="Confirm" disabled' in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_delete_violation_view_no_related_entities(setUp, violation, mocker):
+    mocker.patch('violation.models.Violation.related_entities', new=[])
+    url = reverse_lazy('delete-violation', args=[violation.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure no related entities are rendered on the page.
+    assert 'Related entities' not in response.content.decode('utf-8')
+    # Make sure that the confirm button is enabled.
+    assert 'disabled' not in response.content.decode('utf-8')
 
 
 @pytest.mark.django_db

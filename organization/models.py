@@ -6,6 +6,8 @@ from django.db import models
 from django.db.models.functions import Coalesce
 from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.template.defaultfilters import truncatewords
 
 from complex_fields.model_decorators import (versioned, translated, sourced,
                                              sourced_optional)
@@ -115,6 +117,169 @@ class Organization(models.Model, BaseModel, VersionsMixin):
     @property
     def alias_list(self):
         return ', '.join(a.get_value().value for a in self.aliases.get_list())
+
+    @property
+    def related_entities(self):
+        """
+        Return a list of dicts with metadata for all of the entities linked to
+        this Organization.
+
+        Metadata dicts must have the following keys:
+            - name
+            - entity_type
+            - start_date
+            - end_date
+            - open_ended
+            - url (a link to edit the entity)
+        """
+        related_entities = []
+
+        # People that are posted to this organization.
+        for membershipperson in self.membershippersonorganization_set.all():
+            membership = membershipperson.object_ref
+            person = membership.member.get_value().value
+            related_entities.append({
+                'name': person.name.get_value().value,
+                'entity_type': _('MembershipPerson'),
+                'start_date': membership.firstciteddate.get_value(),
+                'end_date': membership.lastciteddate.get_value(),
+                'open_ended': membership.realend.get_value(),
+                'url': reverse(
+                    'edit-organization-personnel',
+                    kwargs={
+                        'organization_id': self.uuid,
+                        'pk': membership.pk
+                    }
+                ),
+            })
+
+        # Organizations that are children of this org.
+        for compositionparent in self.child_organization.all():
+            composition = compositionparent.object_ref
+            child = composition.child.get_value().value
+            related_entities.append({
+                'name': child.name.get_value().value,
+                'entity_type': _('Composition'),
+                'start_date': composition.startdate.get_value(),
+                'end_date': composition.enddate.get_value(),
+                'open_ended': composition.open_ended.get_value(),
+                'url': reverse(
+                    'edit-organization-composition',
+                    kwargs={
+                        'organization_id': self.uuid,
+                        'pk': composition.pk
+                    }
+                ),
+            })
+
+        # Organizations that are parents of this org.
+        for compositionchild in self.parent_organization.all():
+            composition = compositionchild.object_ref
+            parent = composition.parent.get_value().value
+            related_entities.append({
+                'name': parent.name.get_value().value,
+                'entity_type': _('Composition'),
+                'start_date': composition.startdate.get_value(),
+                'end_date': composition.enddate.get_value(),
+                'open_ended': composition.open_ended.get_value(),
+                'url': reverse(
+                    'edit-organization-composition',
+                    kwargs={
+                        'organization_id': self.uuid,
+                        'pk': composition.pk
+                    }
+                ),
+            })
+
+        # Organizations that this org is a member of.
+        for membershiporganizationmember in self.membershiporganizationmember_set.all():
+            membership = membershiporganizationmember.object_ref
+            member_org = membership.organization.get_value().value
+            related_entities.append({
+                'name': member_org.name.get_value().value,
+                'entity_type': _('MembershipOrganization'),
+                'start_date': membership.firstciteddate.get_value(),
+                'end_date': membership.lastciteddate.get_value(),
+                'open_ended': membership.realend.get_value(),
+                'url': reverse(
+                    'edit-organization-membership',
+                    kwargs={
+                        'organization_id': self.uuid,
+                        'pk': membership.pk
+                    }
+                ),
+            })
+
+        # Organizations that are members of this org.
+        for membershiporganizationorganization in self.membershiporganizationorganization_set.all():
+            membership = membershiporganizationorganization.object_ref
+            member_org = membership.member.get_value().value
+            related_entities.append({
+                'name': member_org.name.get_value().value,
+                'entity_type': _('MembershipOrganization'),
+                'start_date': membership.firstciteddate.get_value(),
+                'end_date': membership.lastciteddate.get_value(),
+                'open_ended': membership.realend.get_value(),
+                'url': reverse(
+                    'edit-organization-membership',
+                    kwargs={
+                        'organization_id': self.uuid,
+                        'pk': membership.pk
+                    }
+                ),
+            })
+
+        # Areas of operation.
+        for associationorganization in self.associationorganization_set.all():
+            association = associationorganization.object_ref
+            location = association.area.get_value().value
+            related_entities.append({
+                'name': location.name,
+                'entity_type': _('Association'),
+                'start_date': association.startdate.get_value(),
+                'end_date': association.enddate.get_value(),
+                'open_ended': association.open_ended.get_value(),
+                'url': reverse(
+                    'edit-organization-association',
+                    kwargs={
+                        'organization_id': self.uuid,
+                        'pk': association.pk
+                    }
+                ),
+            })
+
+        # Organization sites.
+        for emplacementorganization in self.emplacementorganization_set.all():
+            emplacement = emplacementorganization.object_ref
+            location = emplacement.site.get_value().value
+            related_entities.append({
+                'name': location.name,
+                'entity_type': _('Emplacement'),
+                'start_date': emplacement.startdate.get_value(),
+                'end_date': emplacement.enddate.get_value(),
+                'open_ended': emplacement.open_ended.get_value(),
+                'url': reverse(
+                    'edit-organization-emplacement',
+                    kwargs={
+                        'organization_id': self.uuid,
+                        'pk': emplacement.pk
+                    }
+                ),
+            })
+
+        # Violations where this org was a perpetrator.
+        for violationperpetrator in self.violationperpetratororganization_set.all():
+            violation = violationperpetrator.object_ref
+            related_entities.append({
+                'name': truncatewords(violation.description.get_value(), 10),
+                'entity_type': _('Violation'),
+                'start_date': violation.startdate.get_value(),
+                'end_date': violation.enddate.get_value(),
+                'open_ended': '',
+                'url': reverse('edit-violation', kwargs={'slug': violation.uuid}),
+            })
+
+        return related_entities
 
 
 @translated

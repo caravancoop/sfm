@@ -247,6 +247,7 @@ def organizations(base_organizations,
 def composition(organizations, access_points):
     parent, middle, child = organizations
 
+    compositions = []
     comp_info = {
         'Composition_CompositionParent': {
             'sources': access_points,
@@ -283,16 +284,18 @@ def composition(organizations, access_points):
         }
     }
 
-    Composition.create(comp_info)
+    compositions.append(Composition.create(comp_info))
 
     comp_info['Composition_CompositionParent']['value'] = middle
     comp_info['Composition_CompositionChild']['value'] = child
 
-    Composition.create(comp_info)
+    compositions.append(Composition.create(comp_info))
+    return compositions
 
 
 @pytest.fixture
 def emplacement(organizations, location_node, access_points):
+    emplacements = []
     for organization in organizations:
         emp_info = {
             'Emplacement_EmplacementOrganization': {
@@ -325,12 +328,14 @@ def emplacement(organizations, location_node, access_points):
             },
         }
 
-        Emplacement.create(emp_info)
+        emplacements.append(Emplacement.create(emp_info))
+
+    return emplacements
 
 
 @pytest.fixture
 def association(organizations, location_relation, access_points):
-
+    associations = []
     for organization in organizations:
         ass_info = {
             'Association_AssociationRealStart': {
@@ -363,7 +368,9 @@ def association(organizations, location_relation, access_points):
             }
         }
 
-        Association.create(ass_info)
+        associations.append(Association.create(ass_info))
+
+    return associations
 
 
 @pytest.fixture
@@ -732,3 +739,15 @@ def violation(base_violation,
 def fake_signal(mocker):
     fake_signal = mocker.patch('complex_fields.base_models.object_ref_saved.send')
     return fake_signal
+
+
+@pytest.fixture
+def update_index_mock(mocker):
+    """Mock the update_index method that fires on the post_save and post_delete signals."""
+    return mocker.patch('sfm_pc.signals.update_index', autospec=True)
+
+
+@pytest.fixture
+def searcher_mock(mocker):
+    """Mock the pysolr client used to access the search index."""
+    return mocker.patch('search.search.Searcher.delete', autospec=True)

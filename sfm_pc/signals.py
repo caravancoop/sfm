@@ -5,12 +5,14 @@ from django.core.management import call_command
 
 from complex_fields.base_models import object_ref_saved
 
+from search import search
 from source.models import Source
 from organization.models import Organization
 from person.models import Person
 from violation.models import Violation
 from membershipperson.models import MembershipPerson
 from composition.models import Composition
+
 
 def update_index(entity_type, object_id):
     call_command('make_search_index',
@@ -23,14 +25,32 @@ def update_organization_index(sender, **kwargs):
     update_index('organizations', kwargs['object_id'])
 
 
+@receiver(post_delete, sender=Organization)
+def remove_organization_index(sender, **kwargs):
+    searcher = search.Searcher()
+    searcher.delete(id=kwargs['instance'].uuid)
+
+
 @receiver(object_ref_saved, sender=Person)
 def update_person_index(sender, **kwargs):
     update_index('people', kwargs['object_id'])
 
 
+@receiver(post_delete, sender=Person)
+def remove_person_index(sender, **kwargs):
+    searcher = search.Searcher()
+    searcher.delete(id=kwargs['instance'].uuid)
+
+
 @receiver(object_ref_saved, sender=Violation)
 def update_violation_index(sender, **kwargs):
     update_index('violations', kwargs['object_id'])
+
+
+@receiver(post_delete, sender=Violation)
+def remove_violation_index(sender, **kwargs):
+    searcher = search.Searcher()
+    searcher.delete(id=kwargs['instance'].uuid)
 
 
 @receiver(object_ref_saved, sender=MembershipPerson)

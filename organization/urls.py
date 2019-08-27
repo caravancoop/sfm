@@ -1,79 +1,71 @@
 from django.conf.urls import url
-from django.views.decorators.cache import cache_page
 
-from organization.views import organization_autocomplete, OrganizationDetail, \
-    OrganizationEditBasicsView, OrganizationEditCompositionView, \
-    OrganizationEditPersonnelView, OrganizationEditEmplacementView, \
-    OrganizationEditAssociationView, OrganizationCreateBasicsView, \
-    OrganizationCreateCompositionView, OrganizationCreatePersonnelView, \
-    OrganizationCreateEmplacementView, OrganizationCreateAssociationView, \
-    OrganizationEditMembershipView, OrganizationCreateMembershipView, \
-    OrganizationDeletePersonnelView, OrganizationDeleteCompositionView, \
-    OrganizationDeleteMembershipView, OrganizationDeleteEmplacementView, \
-    OrganizationDeleteAssociationView
-
+from organization import views
 
 urlpatterns = [
     url(r'^view/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        OrganizationDetail.as_view(),
+        views.OrganizationDetail.as_view(),
         name="view-organization"),
     url(r'name/autocomplete',
-        organization_autocomplete,
+        views.organization_autocomplete,
         name="organization-autocomplete"),
     url(r'edit/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        OrganizationEditBasicsView.as_view(),
+        views.OrganizationEditBasicsView.as_view(),
         name='edit-organization'),
     url(r'create/$',
-        OrganizationCreateBasicsView.as_view(),
+        views.OrganizationCreateBasicsView.as_view(),
         name='create-organization'),
+    url(r'delete/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+        views.OrganizationDeleteView.as_view(),
+        name='delete-organization'),
 
     url(r'edit/composition/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationEditCompositionView.as_view(),
+        views.OrganizationEditCompositionView.as_view(),
         name='edit-organization-composition'),
     url(r'create/composition/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        OrganizationCreateCompositionView.as_view(),
+        views.OrganizationCreateCompositionView.as_view(),
         name='create-organization-composition'),
     url(r'delete/composition/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationDeleteCompositionView.as_view(),
+        views.OrganizationDeleteCompositionView.as_view(),
         name='delete-organization-composition'),
 
     url(r'edit/membership/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationEditMembershipView.as_view(),
+        views.OrganizationEditMembershipView.as_view(),
         name='edit-organization-membership'),
     url(r'create/membership/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        OrganizationCreateMembershipView.as_view(),
+        views.OrganizationCreateMembershipView.as_view(),
         name='create-organization-membership'),
     url(r'delete/membership/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationDeleteMembershipView.as_view(),
+        views.OrganizationDeleteMembershipView.as_view(),
         name='delete-organization-membership'),
 
     url(r'edit/personnel/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationEditPersonnelView.as_view(),
+        views.OrganizationEditPersonnelView.as_view(),
         name='edit-organization-personnel'),
     url(r'create/personnel/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        OrganizationCreatePersonnelView.as_view(),
+        views.OrganizationCreatePersonnelView.as_view(),
         name='create-organization-personnel'),
     url(r'delete/personnel/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationDeletePersonnelView.as_view(),
+        views.OrganizationDeletePersonnelView.as_view(),
         name='delete-organization-personnel'),
 
     url(r'edit/emplacement/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationEditEmplacementView.as_view(),
+        views.OrganizationEditEmplacementView.as_view(),
         name='edit-organization-emplacement'),
     url(r'create/emplacement/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        OrganizationCreateEmplacementView.as_view(),
+        views.OrganizationCreateEmplacementView.as_view(),
         name='create-organization-emplacement'),
     url(r'delete/emplacement/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationDeleteEmplacementView.as_view(),
+        views.OrganizationDeleteEmplacementView.as_view(),
         name='delete-organization-emplacement'),
 
     url(r'edit/association/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationEditAssociationView.as_view(),
+        views.OrganizationEditAssociationView.as_view(),
         name='edit-organization-association'),
     url(r'create/association/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        OrganizationCreateAssociationView.as_view(),
+        views.OrganizationCreateAssociationView.as_view(),
         name='create-organization-association'),
     url(r'delete/association/(?P<organization_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<pk>\d+)/$',
-        OrganizationDeleteAssociationView.as_view(),
+        views.OrganizationDeleteAssociationView.as_view(),
         name='delete-organization-association'),
 ]

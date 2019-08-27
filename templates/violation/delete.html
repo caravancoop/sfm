@@ -1,0 +1,49 @@
+{% extends "base_delete.html" %}
+{% load i18n %}
+{% load static %}
+{% load countries %}
+
+{% block delete_header %}
+    {% blocktrans %}
+        Do you really want to delete this incident?
+    {% endblocktrans %}
+{% endblock %}
+
+{% block metadata_table %}
+<table class="table">
+    <tbody>
+        <tr>
+            <td><b>{% trans "Description" %}</b></td>
+            <td>{{ violation.description.get_value|truncatewords:50|default:"" }}</td>
+        </tr>
+        {% if violation.startdate.get_value %}
+        <tr>
+            <td><b>{% trans "Start date" %}</b></td>
+            <td>{{ violation.startdate.get_value }}</td>
+        </tr>
+        {% endif %}
+        {% if violation.enddate.get_value %}
+        <tr>
+            <td><b>{% trans "End date" %}</b></td>
+            <td>{{ violation.enddate.get_value }}</td>
+        </tr>
+        {% endif %}
+        {% if violation.types.get_list %}
+        <tr>
+            <td><b>{% trans "Violation type" %}</b></td>
+            <td>
+            {% for type in violation.types.get_list %}
+                {{ type.get_value }}{% if not forloop.last %} |{% endif %}
+            {% endfor %}
+            </td>
+        </tr>
+        {% endif %}
+        {% if violation.division_id.get_value %}
+        <tr>
+            <td><b>{% trans "Country" %}</b></td>
+            <td>{{ violation.division_id.get_value | country_name }}</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

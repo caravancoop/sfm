@@ -3,7 +3,6 @@ import json
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from emplacement.models import Emplacement
 
@@ -26,7 +25,7 @@ from membershiporganization.models import MembershipOrganization
 
 from sfm_pc.templatetags.countries import country_name
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView, \
-    BaseDeleteRelationshipView
+    BaseDeleteView, BaseDeleteRelationshipView
 
 
 class EditButtonsMixin:
@@ -208,6 +207,24 @@ class OrganizationDeleteRelationshipView(BaseDeleteRelationshipView):
                                 'pk': pk})
 
 
+class OrganizationDeleteView(BaseDeleteView):
+    model = Organization
+    slug_field = 'uuid'
+    slug_field_kwarg = 'organization_id'
+    slug_url_kwarg = 'organization_id'
+    template_name = 'organization/delete.html'
+    context_object_name = 'organization'
+
+    def get_cancel_url(self):
+        return reverse_lazy('edit-organization', args=[self.kwargs['organization_id']])
+
+    def get_success_url(self):
+        return reverse('search') + '?entity_type=Organization'
+
+    def get_related_entities(self):
+        return self.object.related_entities
+
+
 class OrganizationEditBasicsView(OrganizationEditView):
     template_name = 'organization/edit-basics.html'
     form_class = OrganizationBasicsForm
@@ -313,7 +330,7 @@ class OrganizationCreateCompositionView(EditButtonsMixin, OrganizationCreateView
         return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
-class OrganizationDeleteCompositionView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
+class OrganizationDeleteCompositionView(OrganizationDeleteRelationshipView):
     model = Composition
     template_name = 'organization/delete-composition.html'
 
@@ -404,7 +421,7 @@ class OrganizationCreateMembershipView(EditButtonsMixin, OrganizationCreateView)
         return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
-class OrganizationDeleteMembershipView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
+class OrganizationDeleteMembershipView(OrganizationDeleteRelationshipView):
     model = MembershipOrganization
     template_name = 'organization/delete-membership.html'
 
@@ -483,7 +500,7 @@ class OrganizationCreatePersonnelView(EditButtonsMixin, OrganizationCreateView):
         return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
-class OrganizationDeletePersonnelView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
+class OrganizationDeletePersonnelView(OrganizationDeleteRelationshipView):
     model = MembershipPerson
     template_name = 'organization/delete-personnel.html'
 
@@ -572,7 +589,7 @@ class OrganizationCreateEmplacementView(EditButtonsMixin, OrganizationCreateView
         return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
-class OrganizationDeleteEmplacementView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
+class OrganizationDeleteEmplacementView(OrganizationDeleteRelationshipView):
     model = Emplacement
     template_name = 'organization/delete-emplacement.html'
 
@@ -642,7 +659,7 @@ class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView
         return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
-class OrganizationDeleteAssociationView(LoginRequiredMixin, OrganizationDeleteRelationshipView):
+class OrganizationDeleteAssociationView(OrganizationDeleteRelationshipView):
     model = Association
     template_name = 'organization/delete-association.html'
 

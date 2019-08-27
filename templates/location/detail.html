@@ -93,43 +93,7 @@
     </div>
 </div>
 {% if related_entities %}
-<div class="row">
-    <div class="col-sm-12">
-        <h3>{% trans "Entities related to this location" %}</h3>
-        <table class="table table-condensed">
-            <thead>
-                <tr>
-                    <th>{% trans "Entity" %}</th>
-                    <th>{% trans "Entity type" %}</th>
-                    <th>{% trans "Start date" %}</th>
-                    <th>{% trans "End date" %}</th>
-                    <th>{% trans "Open ended" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entity in related_entities %}
-                    <tr>
-                        <td>
-                            <a href="{{ entity.url }}">{{ entity.name }}</a>
-                        </td>
-                        <td>
-                            {{ entity.entity_type }}
-                        </td>
-                        <td>
-                            {{ entity.start_date }}
-                        </td>
-                        <td>
-                            {{ entity.end_date|default:"" }}
-                        </td>
-                        <td>
-                            {{ entity.open_ended }}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+    {% include 'partials/related_entities.html' %}
 {% endif %}
 {% endblock %}
 {% block extra_js %}

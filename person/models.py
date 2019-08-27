@@ -10,6 +10,7 @@ from django.db.models import Max
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils.functional import cached_property
+from django.template.defaultfilters import truncatewords
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -128,6 +129,55 @@ class Person(models.Model, BaseModel, VersionsMixin):
             fcd = membership.object_ref.firstciteddate.get_value()
             if fcd:
                 return fcd
+
+    @property
+    def related_entities(self):
+        """
+        Return a list of dicts with metadata for all of the entities linked to
+        this Person.
+
+        Metadata dicts must have the following keys:
+            - name
+            - entity_type
+            - start_date
+            - end_date
+            - open_ended
+            - url (a link to edit the entity)
+        """
+        related_entities = []
+
+        # This person's postings.
+        for membershippersonmember in self.membershippersonmember_set.all():
+            membership = membershippersonmember.object_ref
+            organization = membership.organization.get_value().value
+            related_entities.append({
+                'name': organization.name.get_value().value,
+                'entity_type': _('MembershipPerson'),
+                'start_date': membership.firstciteddate.get_value(),
+                'end_date': membership.lastciteddate.get_value(),
+                'open_ended': membership.realend.get_value(),
+                'url': reverse(
+                    'edit-person-postings',
+                    kwargs={
+                        'person_id': self.uuid,
+                        'pk': membership.pk
+                    }
+                ),
+            })
+
+        # Incidents where this person was a perpetrator.
+        for violationperpetrator in self.violationperpetrator_set.all():
+            violation = violationperpetrator.object_ref
+            related_entities.append({
+                'name': truncatewords(violation.description.get_value(), 10),
+                'entity_type': _('Violation'),
+                'start_date': violation.startdate.get_value(),
+                'end_date': violation.enddate.get_value(),
+                'open_ended': '',
+                'url': reverse('edit-violation', kwargs={'slug': violation.uuid}),
+            })
+
+        return related_entities
 
 
 @translated

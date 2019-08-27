@@ -2,11 +2,40 @@ import pytest
 
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
+from django.template.defaultfilters import truncatewords
 
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification
 from source.models import AccessPoint
 from composition.models import Composition
+
+
+@pytest.fixture
+def expected_entity_names(emplacement,
+                          association,
+                          composition,
+                          violation,
+                          membership_organization,
+                          membership_person):
+    """
+    Generate a list of related entity names that we expect to see in the
+    Organization DeleteView.
+    """
+    return [
+        emplacement[0].site.get_value().value.name,
+        association[0].area.get_value().value.name,
+        composition[0].child.get_value().value.name.get_value().value,
+        truncatewords(violation.description.get_value(), 10),
+        membership_organization.organization.get_value().value.name.get_value().value,
+    ] + [mem.member.get_value().value.name.get_value().value for mem in membership_person]
+
+
+@pytest.mark.django_db
+def test_organization_related_entities(organizations, expected_entity_names):
+    org = organizations[0]
+    related_entities = org.related_entities
+    assert len(related_entities) == len(expected_entity_names)
+    assert set([entity['name'] for entity in related_entities]) == set(expected_entity_names)
 
 
 @pytest.mark.django_db
@@ -52,6 +81,46 @@ def test_edit_organization(setUp,
 
     fake_signal.assert_called_with(object_id=org.uuid,
                                    sender=Organization)
+
+
+@pytest.mark.django_db
+def test_delete_organization(setUp, organizations, searcher_mock, mocker):
+    org = organizations[0]
+    url = reverse_lazy('delete-organization', args=[org.uuid])
+    response = setUp.post(url)
+
+    assert response.status_code == 302
+
+    with pytest.raises(Organization.DoesNotExist):
+        Organization.objects.get(uuid=org.uuid)
+
+    searcher_mock.assert_called_once()
+    searcher_mock.assert_has_calls([mocker.call(mocker.ANY, org.uuid)])
+
+
+@pytest.mark.django_db
+def test_delete_organization_view_with_related_entities(setUp, organizations, expected_entity_names):
+    org = organizations[0]
+    url = reverse_lazy('delete-organization', args=[org.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure all the related entities are rendered on the page.
+    for entity_name in expected_entity_names:
+        assert entity_name in response.content.decode('utf-8')
+    # Make sure that the confirm button is disabled.
+    assert 'value="Confirm" disabled' in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_delete_organization_view_no_related_entities(setUp, organizations):
+    org = organizations[0]
+    url = reverse_lazy('delete-organization', args=[org.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure no related entities are rendered on the page.
+    assert 'Related entities' not in response.content.decode('utf-8')
+    # Make sure that the confirm button is enabled.
+    assert 'disabled' not in response.content.decode('utf-8')
 
 
 @pytest.mark.django_db
@@ -180,12 +249,6 @@ def test_create_relationship(setUp,
     fake_signal.assert_called_with(object_id=composition.id,
                                    sender=Composition)
 
-def is_tab_active(page, tab_name):
-    if 'primary">{}'.format(tab_name) in page.content.decode('utf-8'):
-        return True
-    else:
-        return False
-
 
 @pytest.mark.django_db
 def test_organization_edit_buttons(setUp,
@@ -197,6 +260,12 @@ def test_organization_edit_buttons(setUp,
     person = org.personnel[0]
     association = org.associations[0]
     emplacement = org.emplacements[0]
+
+    def is_tab_active(page, tab_name):
+        if 'primary">{}'.format(tab_name) in page.content.decode('utf-8'):
+            return True
+        else:
+            return False
 
     assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
                         'Basics')

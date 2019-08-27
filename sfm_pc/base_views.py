@@ -107,12 +107,13 @@ class BaseCreateView(BaseEditView, CreateView):
         return form_kwargs
 
 
-class BaseDeleteView(DeleteView):
+class BaseDeleteView(LoginRequiredMixin, DeleteView):
     """
     Base view for deleting objects, providing a little extra context.
     """
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+        context['related_entities'] = self.get_related_entities()
         return context
 
     def get_cancel_url(self):
@@ -120,6 +121,16 @@ class BaseDeleteView(DeleteView):
         Return the route that the Cancel button should link to in the template.
         """
         raise NotImplementedError('This method must be implemented on children.')
+
+    def get_related_entities(self):
+        """
+        Return all of the entities that have been linked to this entity. These
+        related entities must be deleted before the entity can be deleted.
+        """
+        # Return nothing by default so that related entities won't block deletion.
+        # Leave it up to the child classes to decide whether and how to retrieve
+        # related entities.
+        return []
 
 
 class BaseDeleteRelationshipView(BaseDeleteView):
