@@ -66,6 +66,16 @@ class Source(models.Model, VersionsMixin):
         return evidenced
 
     @property
+    def related_entities(self):
+        """
+        Return a list of dicts of entities that are evidenced by this source.
+        """
+        related_entities = []
+        for access_point in self.accesspoint_set.all():
+            related_entities += access_point.related_entities
+        return related_entities
+
+    @property
     def revert_url(self):
         from django.core.urlresolvers import reverse
         return reverse('revert-source', args=[self.uuid])
@@ -110,6 +120,20 @@ class AccessPoint(models.Model, VersionsMixin):
             return match.group(1)
         else:
             return _('No timestamp')
+
+    @property
+    def related_entities(self):
+        """
+        Return a list of dicts of all entities that are evidenced by this
+        access point.
+
+        Dicts must have the following keys:
+            - name
+            - entity_type
+            - field_name
+            - url (a link to edit the entity)
+        """
+        return []
 
 
 def archive_source_url(source):

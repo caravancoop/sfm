@@ -13,6 +13,7 @@ from django.db.models import Count
 
 from reversion.models import Version
 
+from sfm_pc.templatetags.countries import country_name
 from source.models import Source, AccessPoint
 from person.models import Person
 
@@ -177,3 +178,67 @@ def test_view_source_with_no_evidence(setUp, sources):
     response = setUp.get(url)
     assert response.status_code == 200
     assert 'No access points found' in response.content.decode('utf-8')
+
+
+@pytest.fixture
+def expected_entity_values(organizations):
+    expected_entity_names = []
+    for org in organizations:
+        expected_entity_names += [
+            org.name.get_value().value,
+            country_name(org.division_id),
+            str(org.firstciteddate.get_value()),
+            str(org.lastciteddate.get_value()),
+            org.open_ended.get_value().value,
+        ] + [
+            alias.get_value().value for alias in org.aliases.get_list()
+        ] + [
+            classification.get_value().value for classification in org.classification.get_list()
+        ]
+    return expected_entity_names
+
+
+@pytest.mark.django_db
+def test_source_related_entities(setUp, sources, expected_entity_values):
+    source = sources[0]
+    related_entities = source.related_entities
+    assert len(related_entities) == len(expected_entity_values)
+    assert set([entity['value'] for entity in related_entities]) == set(expected_entity_values)
+
+
+@pytest.mark.django_db
+def test_delete_source(setUp, sources):
+    pytest.fail()
+
+
+@pytest.mark.django_db
+def test_delete_source_view_no_related_entities(setUp, sources):
+    pytest.fail()
+
+
+@pytest.mark.django_db
+def test_delete_source_view_with_related_entities(setUp, sources):
+    pytest.fail()
+
+
+@pytest.mark.django_db
+def test_access_point_related_entities(setUp, access_points, expected_entity_values):
+    access_point = access_points[0]
+    related_entities = access_point.related_entities
+    assert len(related_entities) == len(expected_entity_values)
+    assert set([entity['value'] for entity in related_entities]) == set(expected_entity_values)
+
+
+@pytest.mark.django_db
+def test_delete_access_point(setUp, sources):
+    pytest.fail()
+
+
+@pytest.mark.django_db
+def test_delete_access_point_view_no_related_entities(setUp, sources):
+    pytest.fail()
+
+
+@pytest.mark.django_db
+def test_delete_access_point_view_with_related_entities(setUp, sources):
+    pytest.fail()
