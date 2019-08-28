@@ -148,10 +148,45 @@ class AccessPoint(models.Model, VersionsMixin):
                             'value': entity.value,
                             'url': None
                         }
-                        if record_type in ['Organization', 'Person']:
+                        # Links for top-level entities
+                        if record_type in ['Organization', 'Person', 'Violation']:
                             entity_metadata['url'] = reverse_lazy(
                                 'edit-{}'.format(record_type.lower()),
                                 args=[entity.object_ref.uuid]
+                            )
+                        # Standardized relationship links
+                        elif record_type in ['Emplacement', 'Association']:
+                            entity_metadata['url'] = reverse_lazy(
+                                'edit-organization-{}'.format(record_type.lower()),
+                                kwargs={
+                                    'organization_id': entity.object_ref.organization.get_value().value.uuid,
+                                    'pk': entity.object_ref.pk
+                                }
+                            )
+                        # Irregular relationship links
+                        elif record_type == 'Composition':
+                            entity_metadata['url'] = reverse_lazy(
+                                'edit-organization-composition',
+                                kwargs={
+                                    'organization_id': entity.object_ref.parent.get_value().value.uuid,
+                                    'pk': entity.object_ref.pk
+                                }
+                            )
+                        elif record_type == 'MembershipPerson':
+                            entity_metadata['url'] = reverse_lazy(
+                                'edit-organization-personnel',
+                                kwargs={
+                                    'organization_id': entity.object_ref.organization.get_value().value.uuid,
+                                    'pk': entity.pk
+                                }
+                            )
+                        elif record_type == 'MembershipOrganization':
+                            entity_metadata['url'] = reverse_lazy(
+                                'edit-organization-membership',
+                                kwargs={
+                                    'organization_id': entity.object_ref.organization.get_value().value.uuid,
+                                    'pk': entity.pk
+                                }
                             )
                         related_entities.append(entity_metadata)
         return related_entities

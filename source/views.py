@@ -88,6 +88,7 @@ class SourceEditView(LoginRequiredMixin, RevisionMixin):
 class SourceUpdate(SourceEditView, UpdateView):
     pass
 
+
 class SourceCreate(SourceEditView, CreateView):
     fields = [
         'title',
@@ -203,11 +204,13 @@ class AccessPointDelete(BaseDeleteView):
 
     def get_cancel_url(self):
         return reverse_lazy('view-access-point', kwargs={
-            'source_id': self.object.source.uuid,
+            'source_id': self.kwargs['source_id'],
         })
 
     def get_success_url(self):
-        return reverse('search') + '?entity_type=Source'
+        return reverse_lazy('view-access-point', kwargs={
+            'source_id': self.kwargs['source_id'],
+        })
 
     def get_related_entities(self):
         return self.object.related_entities
