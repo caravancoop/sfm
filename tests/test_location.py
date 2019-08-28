@@ -53,3 +53,22 @@ def test_location_delete_view_no_related_entities(setUp, location_node):
     assert 'Related entities' not in response.content.decode('utf-8')
     # Make sure that the confirm button is enabled.
     assert 'disabled' not in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_location_views_with_negative_ids(setUp):
+    # Make sure we can view locations with negative IDs.
+    location = Location.objects.create(
+        id=-1,
+        name="Test location",
+        division_id='ocd-division/country:mx',
+        feature_type='relation'
+    )
+    list_url = reverse_lazy('list-location') + '?q=-1'
+    list_response = setUp.get(list_url)
+    assert list_response.status_code == 200
+    assert location in list_response.context['object_list']
+
+    detail_url = reverse_lazy('view-location', args=[location.id])
+    detail_response = setUp.get(detail_url)
+    assert detail_response.status_code == 200
