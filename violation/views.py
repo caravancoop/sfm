@@ -182,7 +182,7 @@ def violation_perpetrator_classification_autocomplete(request):
         if classification.value:
             results['results'].append({
                 'text': classification.value,
-                'id': classification.id,
+                'id': classification.value,
             })
 
     return HttpResponse(json.dumps(results), content_type='application/json')

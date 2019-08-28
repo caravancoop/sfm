@@ -154,6 +154,8 @@
         $(document).ready(function(){
             loadSources({'target': $('#id_locationdescription')});
             $('#id_location').select2({
+                allowClear: true,
+                placeholder: "{% trans 'Search for a location' %}",
                 ajax: {
                     url: "{% url 'location-autocomplete' %}?feature_type=node",
                     data: function(params){
@@ -166,6 +168,8 @@
                 minimumInputLength: 2,
             });
             $('#id_adminlevel1').select2({
+                allowClear: true,
+                placeholder: "{% trans 'Search for a location' %}",
                 ajax: {
                     url: "{% url 'location-autocomplete' %}?feature_type=relation",
                     data: function(params){
@@ -178,6 +182,8 @@
                 minimumInputLength: 2,
             });
             $('#id_adminlevel2').select2({
+                allowClear: true,
+                placeholder: "{% trans 'Search for a location' %}",
                 ajax: {
                     url: "{% url 'location-autocomplete' %}?feature_type=relation",
                     data: function(params){

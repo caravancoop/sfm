@@ -38,20 +38,13 @@ class ViolationBasicsForm(BaseUpdateForm):
     description = forms.CharField(label=_("Description"))
     perpetrator = forms.ModelMultipleChoiceField(label=_("Perpetrator"), queryset=Person.objects.all(), required=False)
     perpetratororganization = forms.ModelMultipleChoiceField(label=_("Perpetrator unit"), queryset=Organization.objects.all(), required=False)
+    perpetratorclassification = forms.CharField(label=_("Perpetrator classification"), required=False)
     division_id = forms.CharField(label=_("Country"), required=False)
 
     def __init__(self, *args, **kwargs):
         violation_id = kwargs.pop('violation_id', None)
 
         super().__init__(*args, **kwargs)
-
-        self.fields['perpetratorclassification'] = GetOrCreateChoiceField(label=_("Perpetrator classification"),
-                                                                          queryset=ViolationPerpetratorClassification.objects.all(),
-                                                                          required=False,
-                                                                          object_ref_model=self._meta.model,
-                                                                          form=self,
-                                                                          field_name='perpetratorclassification',
-                                                                          object_ref_pk=violation_id)
 
         self.fields['types'] = GetOrCreateChoiceField(label=_("Violation type"),
                                                               queryset=ViolationType.objects.all(),
@@ -74,10 +67,10 @@ class ViolationLocationsForm(BaseUpdateForm):
         ('locationdescription', ViolationLocationDescription, False),
         ('adminlevel1', ViolationAdminLevel1, False),
         ('adminlevel2', ViolationAdminLevel2, False),
-        ('location', ViolationDescription, False),
+        ('location', ViolationLocation, False),
     ]
 
     locationdescription = forms.CharField(label=_("Location Description"))
-    adminlevel1 = forms.ModelMultipleChoiceField(label=_("Settlement"), queryset=Location.objects.all(), required=False)
-    adminlevel2 = forms.ModelMultipleChoiceField(label=_("Top administrative area"), queryset=Location.objects.all(), required=False)
-    location = forms.ModelMultipleChoiceField(label=_("Exact Location"), queryset=Location.objects.all(), required=False)
+    adminlevel1 = forms.ModelChoiceField(label=_("Settlement"), queryset=Location.objects.all(), required=False)
+    adminlevel2 = forms.ModelChoiceField(label=_("Top administrative area"), queryset=Location.objects.all(), required=False)
+    location = forms.ModelChoiceField(label=_("Exact Location"), queryset=Location.objects.all(), required=False)

@@ -73,7 +73,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.startdate.label }}</label>
-                <input type="text" name="startdate" id="id_startdate" class="form-control" value="{{ form.instance.startdate }}">
+                <input type="text" name="startdate" id="id_startdate" class="form-control sourced" value="{{ form.instance.startdate }}">
                 {% if form.startdate.errors %}
                     {% for error in form.startdate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -86,6 +86,9 @@
                 {% source_input 'startdate' source %}
             {% endfor %}
         </div>
+        <div id="id_startdate_confidence">
+            <input type="hidden" value="{{ form.instance.startdate.get_value.confidence|default_if_none:1 }}" name="startdate_confidence">
+        </div>
     </div>
     <div class="row enddate-row field-bg">
         <div class="col-sm-12">
@@ -95,7 +98,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.enddate.label }}</label>
-                <input type="text" name="enddate" id="id_enddate" class="form-control" value="{{ form.instance.enddate }}">
+                <input type="text" name="enddate" id="id_enddate" class="form-control sourced" value="{{ form.instance.enddate }}">
                 {% if form.enddate.errors %}
                     {% for error in form.enddate.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -108,6 +111,9 @@
                 {% source_input 'enddate' source %}
             {% endfor %}
         </div>
+        <div id="id_enddate_confidence">
+            <input type="hidden" value="{{ form.instance.enddate.get_value.confidence|default_if_none:1 }}" name="enddate_confidence">
+        </div>
     </div>
     <div class="row types-row field-bg">
         <div class="col-sm-12">
@@ -117,7 +123,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.types.label }}</label>
-                <select id="id_types" class="form-control" name="types" multiple="multiple">
+                <select id="id_types" class="form-control sourced-dropdown select2-target" name="types" multiple="multiple">
                     {% for type in form.instance.types.get_list %}
                         <option value="{{ type.get_value.id }}" selected=true>{{ type.get_value }}</option>
                     {% endfor %}
@@ -129,10 +135,13 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_name_source">
+        <div id="id_types_source">
             {% for source in form.instance.types.get_list.0.get_sources %}
                 {% source_input 'types' source %}
             {% endfor %}
+        </div>
+        <div id="id_types_confidence">
+            <input type="hidden" value="{{ form.instance.types.get_list.0.get_value.confidence|default_if_none:1 }}" name="types_confidence">
         </div>
     </div>
     <div class="row perpetrator-row field-bg">
@@ -143,7 +152,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetrator.label }}</label>
-                <select id="id_perpetrator" class="form-control" name="perpetrator" multiple="multiple">
+                <select id="id_perpetrator" class="form-control sourced-dropdown select2-target" name="perpetrator" multiple="multiple">
                     {% for type in form.instance.perpetrator.get_list %}
                         <option value="{{ type.get_value.value.id }}" selected=true>{{ type.get_value.value }}</option>
                     {% endfor %}
@@ -156,9 +165,12 @@
             </div>
         </div>
         <div id="id_perpetrator_source">
-            {% for source in form.instance.perpetrator.get_sources %}
+            {% for source in form.instance.perpetrator.get_list.0.get_sources %}
                 {% source_input 'perpetrator' source %}
             {% endfor %}
+        </div>
+        <div id="id_perpetrator_confidence">
+            <input type="hidden" value="{{ form.instance.perpetrator.get_list.0.get_value.confidence|default_if_none:1 }}" name="perpetrator_confidence">
         </div>
     </div>
     <div class="row perpetratororganization-row field-bg">
@@ -169,7 +181,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetratororganization.label }}</label>
-                <select id="id_perpetratororganization" class="form-control" name="perpetratororganization" multiple="multiple">
+                <select id="id_perpetratororganization" class="form-control sourced-dropdown select2-target" name="perpetratororganization" multiple="multiple">
                     {% for type in form.instance.perpetratororganization.get_list %}
                         <option value="{{ type.get_value.value.id }}" selected=true>{{ type.get_value.value }}</option>
                     {% endfor %}
@@ -182,9 +194,12 @@
             </div>
         </div>
         <div id="id_perpetratororganization_source">
-            {% for source in form.instance.perpetratororganization.get_sources %}
+            {% for source in form.instance.perpetratororganization.get_list.0.get_sources %}
                 {% source_input 'perpetratororganization' source %}
             {% endfor %}
+        </div>
+        <div id="id_perpetratororganization_confidence">
+            <input type="hidden" value="{{ form.instance.perpetratororganization.get_list.0.get_value.confidence|default_if_none:1 }}" name="perpetratororganization_confidence">
         </div>
     </div>
     <div class="row perpetratorclassification-row field-bg">
@@ -195,10 +210,12 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetratorclassification.label }}</label>
-                <select id="id_perpetratorclassification" class="form-control" name="perpetratorclassification">
-                    <option value="{{ form.instance.perpetratorclassification.id }}" selected=true>
-                        {{ form.instance.perpetratorclassification.get_value.value }}
-                    </option>
+                <select id="id_perpetratorclassification" class="form-control sourced-dropdown select2-target" name="perpetratorclassification">
+                    {% if form.instance.perpetratorclassification.get_value %}
+                        <option value="{{ form.instance.perpetratorclassification.get_value.value }}" selected=true>
+                            {{ form.instance.perpetratorclassification.get_value.value }}
+                        </option>
+                    {% endif %}
                 </select>
                 {% if form.perpetratorclassification.errors %}
                     {% for error in form.perpetratorclassification.errors %}
@@ -212,6 +229,9 @@
                 {% source_input 'perpetratorclassification' source %}
             {% endfor %}
         </div>
+        <div id="id_perpetratorclassification_confidence">
+            <input type="hidden" value="{{ form.instance.perpetratorclassification.get_value.confidence|default_if_none:1 }}" name="perpetratorclassification_confidence">
+        </div>
     </div>
     <div class="row division_id-row field-bg">
         <div class="col-sm-12">
@@ -221,7 +241,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.division_id.label }}</label>
-                <select id="id_division_id" class="form-control" name="division_id">
+                <select id="id_division_id" class="form-control sourced-dropdown select2-target" name="division_id">
                     {% if form.instance.division_id %}
                         <option value="{{ form.instance.division_id }}">{{ form.instance.division_id|country_name }}</option>
                     {% else %}
@@ -242,6 +262,9 @@
             {% for source in form.instance.division_id.get_sources %}
                 {% source_input 'division_id' source %}
             {% endfor %}
+        </div>
+        <div id="id_division_id_confidence">
+            <input type="hidden" value="{{ form.instance.division_id.get_value.confidence|default_if_none:1 }}" name="division_id_confidence">
         </div>
     </div>
 

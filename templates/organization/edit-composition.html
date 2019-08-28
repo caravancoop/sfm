@@ -140,7 +140,7 @@
                     <select id="id_related_organization" class="form-control" name="parent" readonly>
                         <option value="{{ form.instance.parent.get_value.value.id }}">{{ form.instance.parent.get_value.value }}</option>
                 {% endif %}
-                </select>}
+                </select>
                 {% if form.parent.errors %}
                     {% for error in form.parent.errors %}
                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
