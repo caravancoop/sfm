@@ -25,32 +25,14 @@ def update_organization_index(sender, **kwargs):
     update_index('organizations', kwargs['object_id'])
 
 
-@receiver(post_delete, sender=Organization)
-def remove_organization_index(sender, **kwargs):
-    searcher = search.Searcher()
-    searcher.delete(id=kwargs['instance'].uuid)
-
-
 @receiver(object_ref_saved, sender=Person)
 def update_person_index(sender, **kwargs):
     update_index('people', kwargs['object_id'])
 
 
-@receiver(post_delete, sender=Person)
-def remove_person_index(sender, **kwargs):
-    searcher = search.Searcher()
-    searcher.delete(id=kwargs['instance'].uuid)
-
-
 @receiver(object_ref_saved, sender=Violation)
 def update_violation_index(sender, **kwargs):
     update_index('violations', kwargs['object_id'])
-
-
-@receiver(post_delete, sender=Violation)
-def remove_violation_index(sender, **kwargs):
-    searcher = search.Searcher()
-    searcher.delete(id=kwargs['instance'].uuid)
 
 
 @receiver(object_ref_saved, sender=MembershipPerson)
@@ -75,3 +57,12 @@ def update_source_index(sender, **kwargs):
     # https://docs.djangoproject.com/en/2.2/ref/signals/#django.db.models.signals.pre_save
     instance = kwargs['instance']
     update_index('sources', str(instance.uuid))
+
+
+@receiver(post_delete, sender=Organization)
+@receiver(post_delete, sender=Person)
+@receiver(post_delete, sender=Violation)
+@receiver(post_delete, sender=Source)
+def remove_index(sender, **kwargs):
+    searcher = search.Searcher()
+    searcher.delete(id=kwargs['instance'].uuid)

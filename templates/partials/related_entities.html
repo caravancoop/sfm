@@ -1,9 +1,10 @@
 {% load i18n %}
 <div class="row">
     <div class="col-sm-12">
-        <h3>{% trans "Related entities" %}</h3>
+        {% block tabletitle %}<h3>{% trans "Related entities" %}</h3>{% endblock %}
         <table class="table table-condensed">
             <thead>
+            {% block tableheader %}
                 <tr>
                     <th>{% trans "Entity" %}</th>
                     <th>{% trans "Entity type" %}</th>
@@ -11,8 +12,10 @@
                     <th>{% trans "End date" %}</th>
                     <th>{% trans "Open ended" %}</th>
                 </tr>
+            {% endblock %}
             </thead>
             <tbody>
+            {% block tablebody %}
                 {% for entity in related_entities %}
                     <tr>
                         <td>
@@ -32,6 +35,7 @@
                         </td>
                     </tr>
                 {% endfor %}
+            {% endblock %}
             </tbody>
         </table>
     </div>

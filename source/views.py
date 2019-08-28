@@ -25,7 +25,7 @@ from complex_fields.models import ComplexFieldContainer
 from countries_plus.models import Country
 
 from api.base_views import JSONResponseMixin
-
+from sfm_pc.base_views import BaseDeleteView
 from sfm_pc.utils import VersionsMixin, get_source_context
 from sfm_pc.templatetags.citations import get_citation_string
 
@@ -49,23 +49,8 @@ class SourceEvidenceView(SourceView):
 
         access_point = get_object_or_404(AccessPoint, uuid=self.kwargs['access_point_id'])
         context['access_point'] = access_point
+        context['related_entities'] = access_point.related_entities
 
-        evidenced_table = []
-        evidenced = context['source'].get_evidenced(access_point.uuid)
-        for record in evidenced:
-            name = str(record)
-            record_type = record.object_ref._meta.object_name
-            field_name = record._meta.model_name.replace(record_type.lower(), '').title()
-            value = record.value
-
-            link = None
-
-            if record_type in ['Organization', 'Person']:
-                link = reverse_lazy('view-{}'.format(record_type.lower()), kwargs={'slug': record.object_ref.uuid})
-
-            evidenced_table.append([name, record_type, field_name, value, link])
-
-        context['evidenced'] = evidenced_table
         return context
 
 
@@ -103,7 +88,6 @@ class SourceEditView(LoginRequiredMixin, RevisionMixin):
 class SourceUpdate(SourceEditView, UpdateView):
     pass
 
-
 class SourceCreate(SourceEditView, CreateView):
     fields = [
         'title',
@@ -140,6 +124,22 @@ class SourceRevertView(LoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse_lazy('update-source',
                                                  kwargs={'pk': kwargs['pk']}))
+
+
+class SourceDeleteView(BaseDeleteView):
+    model = Source
+    template_name = 'source/delete.html'
+
+    def get_cancel_url(self):
+        return reverse_lazy('update-source', kwargs={
+            'pk': self.object.uuid,
+        })
+
+    def get_success_url(self):
+        return reverse('search') + '?entity_type=Source'
+
+    def get_related_entities(self):
+        return self.object.related_entities
 
 
 class AccessPointEdit(LoginRequiredMixin,
@@ -195,6 +195,22 @@ class AccessPointUpdate(AccessPointEdit, UpdateView):
 
 class AccessPointCreate(AccessPointEdit, CreateView):
     pass
+
+
+class AccessPointDelete(BaseDeleteView):
+    model = AccessPoint
+    template_name = 'source/delete-access-point.html'
+
+    def get_cancel_url(self):
+        return reverse_lazy('view-access-point', kwargs={
+            'source_id': self.object.source.uuid,
+        })
+
+    def get_success_url(self):
+        return reverse('search') + '?entity_type=Source'
+
+    def get_related_entities(self):
+        return self.object.related_entities
 
 
 class StashSourceView(TemplateView, JSONResponseMixin, LoginRequiredMixin):

@@ -228,8 +228,6 @@ def organizations(base_organizations,
             },
             'Organization_OrganizationOpenEnded': {
                 'value': 'Y',
-                'sources': access_points,
-                'confidence': '2',
             }
         }
 

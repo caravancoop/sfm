@@ -13,7 +13,6 @@ from django.db.models import Count
 
 from reversion.models import Version
 
-from sfm_pc.templatetags.countries import country_name
 from source.models import Source, AccessPoint
 from person.models import Person
 
@@ -168,7 +167,7 @@ def test_view_source_with_evidence(setUp, sources, access_points):
     url = reverse_lazy('view-source-with-evidence', args=[source.uuid, access_point.uuid])
     response = setUp.get(url)
     assert response.status_code == 200
-    assert 'evidences the following records:' in response.content.decode('utf-8')
+    assert 'evidences the following entities:' in response.content.decode('utf-8')
 
 
 @pytest.mark.django_db
@@ -181,44 +180,66 @@ def test_view_source_with_no_evidence(setUp, sources):
 
 
 @pytest.fixture
+def expected_access_points(setUp, sources):
+    source = sources[0]
+    return source.accesspoint_set.all()
+
+
+@pytest.mark.django_db
+def test_delete_source(setUp, sources, searcher_mock, mocker):
+    source = sources[0]
+    url = reverse_lazy('delete-source', args=[source.uuid])
+    response = setUp.post(url)
+
+    assert response.status_code == 302
+
+    with pytest.raises(Source.DoesNotExist):
+        Source.objects.get(uuid=source.uuid)
+
+    searcher_mock.assert_called_once()
+    searcher_mock.assert_has_calls([mocker.call(mocker.ANY, source.uuid)])
+
+
+@pytest.mark.django_db
+def test_delete_source_view_no_related_entities(setUp, sources):
+    source = sources[0]
+    url = reverse_lazy('delete-source', args=[source.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure no related entities are rendered on the page.
+    assert 'Related entities' not in response.content.decode('utf-8')
+    # Make sure that the confirm button is enabled.
+    assert 'disabled' not in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_delete_source_view_with_related_entities(setUp, sources, access_points, expected_access_points):
+    source = sources[0]
+    url = reverse_lazy('delete-source', args=[source.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure all the related entities are rendered on the page.
+    for entity in expected_access_points:
+        assert str(entity) in response.content.decode('utf-8')
+    # Make sure that the confirm button is disabled.
+    assert 'value="Confirm" disabled' in response.content.decode('utf-8')
+
+
+@pytest.fixture
 def expected_entity_values(organizations):
-    expected_entity_names = []
+    expected_entity_values = []
     for org in organizations:
-        expected_entity_names += [
+        expected_entity_values += [
             org.name.get_value().value,
-            country_name(org.division_id),
-            str(org.firstciteddate.get_value()),
-            str(org.lastciteddate.get_value()),
-            org.open_ended.get_value().value,
+            org.division_id.get_value().value,
+            org.firstciteddate.get_value().value,
+            org.lastciteddate.get_value().value,
         ] + [
             alias.get_value().value for alias in org.aliases.get_list()
         ] + [
             classification.get_value().value for classification in org.classification.get_list()
         ]
-    return expected_entity_names
-
-
-@pytest.mark.django_db
-def test_source_related_entities(setUp, sources, expected_entity_values):
-    source = sources[0]
-    related_entities = source.related_entities
-    assert len(related_entities) == len(expected_entity_values)
-    assert set([entity['value'] for entity in related_entities]) == set(expected_entity_values)
-
-
-@pytest.mark.django_db
-def test_delete_source(setUp, sources):
-    pytest.fail()
-
-
-@pytest.mark.django_db
-def test_delete_source_view_no_related_entities(setUp, sources):
-    pytest.fail()
-
-
-@pytest.mark.django_db
-def test_delete_source_view_with_related_entities(setUp, sources):
-    pytest.fail()
+    return expected_entity_values
 
 
 @pytest.mark.django_db
@@ -226,19 +247,46 @@ def test_access_point_related_entities(setUp, access_points, expected_entity_val
     access_point = access_points[0]
     related_entities = access_point.related_entities
     assert len(related_entities) == len(expected_entity_values)
-    assert set([entity['value'] for entity in related_entities]) == set(expected_entity_values)
+    # Some related entity values are not hashable, so compare lists instead of sets
+    related_entity_values = [entity['value'] for entity in related_entities]
+    for entity in related_entity_values:
+        assert entity in expected_entity_values
 
 
 @pytest.mark.django_db
-def test_delete_access_point(setUp, sources):
-    pytest.fail()
+def test_delete_access_point(setUp, access_points, searcher_mock, mocker):
+    access_point = access_points[0]
+    url = reverse_lazy('delete-access-point', args=[access_point.source.uuid, access_point.uuid])
+    response = setUp.post(url)
+
+    assert response.status_code == 302
+
+    with pytest.raises(AccessPoint.DoesNotExist):
+        AccessPoint.objects.get(uuid=access_point.uuid)
+
+    searcher_mock.assert_not_called()
 
 
 @pytest.mark.django_db
-def test_delete_access_point_view_no_related_entities(setUp, sources):
-    pytest.fail()
+def test_delete_access_point_view_no_related_entities(setUp, access_points):
+    access_point = access_points[0]
+    url = reverse_lazy('delete-access-point', args=[access_point.source.uuid, access_point.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure no related entities are rendered on the page.
+    assert 'Related entities' not in response.content.decode('utf-8')
+    # Make sure that the confirm button is enabled.
+    assert 'disabled' not in response.content.decode('utf-8')
 
 
 @pytest.mark.django_db
-def test_delete_access_point_view_with_related_entities(setUp, sources):
-    pytest.fail()
+def test_delete_access_point_view_with_related_entities(setUp, access_points, expected_entity_values):
+    access_point = access_points[0]
+    url = reverse_lazy('delete-access-point', args=[access_point.source.uuid, access_point.uuid])
+    response = setUp.get(url)
+    assert response.status_code == 200
+    # Make sure all the related entities are rendered on the page.
+    for entity_value in expected_entity_values:
+        assert str(entity_value) in response.content.decode('utf-8')
+    # Make sure that the confirm button is disabled.
+    assert 'value="Confirm" disabled' in response.content.decode('utf-8')

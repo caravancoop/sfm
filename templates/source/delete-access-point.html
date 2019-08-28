@@ -1,0 +1,45 @@
+{% extends "base_delete.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block delete_header %}
+    {% blocktrans %}
+        Do you really want to remove the access point <strong>{{ object }}</strong>?
+    {% endblocktrans %}
+{% endblock %}
+
+{% block metadata_table %}
+<table class="table">
+    <tbody>
+        <tr>
+            <td><b>{% trans "Source" %}</b></td>
+            <td>{{ object.source }}</td>
+        </tr>
+        {% if object.archive_url %}
+        <tr>
+            <td><b>{% trans "Archive URL" %}</b></td>
+            <td><a href="{{ object.archive_url }}">{{ object.archive_url }}</a></td>
+        </tr>
+        {% endif %}
+        {% if object.page_number %}
+        <tr>
+            <td><b>{% trans "Page number" %}</b></td>
+            <td>{{ object.page_number }}</td>
+        </tr>
+        {% endif %}
+        {% if object.accessed_on %}
+        <tr>
+            <td><b>{% trans "Accessed on" %}</b></td>
+            <td>{{ object.accessed_on }}</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block related_entities_table %}
+    {% if related_entities %}
+        <h3>{% trans "Related entities" %}</h3>
+        {% include 'source/partials/access_point_related_entities.html' %}
+    {% endif %}
+{% endblock %}

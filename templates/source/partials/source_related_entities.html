@@ -1,0 +1,28 @@
+{% extends "partials/related_entities.html" %}
+{% load i18n %}
+
+{% block tabletitle %}{% endblock %}
+
+{% block tableheader %}
+<tr>
+    <th>{% trans "Access point" %}</th>
+    <th>{% trans "Archive URL" %}</th>
+    <th>{% trans "Page number" %}</th>
+    <th>{% trans "Accessed on" %}</th>
+</tr>
+{% endblock %}
+
+{% block tablebody %}
+{% for entity in related_entities %}
+    <tr>
+        <td><a href="{{ entity.url }}">{{ entity.name }}</a></td>
+        <td>
+            {% if entity.archive_url %}
+                <a href="{{ entity.archive_url }}">{{ entity.archive_url }}</a>
+            {% endif %}
+        </td>
+        <td>{{ entity.page_number|default_if_none:"" }}</td>
+        <td>{{ entity.accessed_on|default_if_none:"" }}</td>
+    </tr>
+{% endfor %}
+{% endblock %}
