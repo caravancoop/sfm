@@ -7,15 +7,6 @@
     <h1>{% trans "Add a posting" %}</h1>
 </div>
 {% endblock %}
-{% block edit_links %}
-    <div class="col-sm-6">
-        <h1>
-            {% trans "Edit:" %}
-            <a href="{% url 'edit-person' person.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
-            <a href="{% url 'create-person-posting' person.uuid %}" class="btn btn-primary">{% trans "Postings" %}</a>
-        </h1>
-    </div>
-{% endblock %}
 {% block form_content %}
     <h2>{% trans 'Edit postings' %}</h2>
     <input type="hidden" name="member" value="{{ person.id }}" />

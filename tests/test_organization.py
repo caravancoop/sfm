@@ -8,6 +8,7 @@ from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification
 from source.models import AccessPoint
 from composition.models import Composition
+from tests.conftest import is_tab_active
 
 
 @pytest.fixture
@@ -260,12 +261,6 @@ def test_organization_edit_buttons(setUp,
     person = org.personnel[0]
     association = org.associations[0]
     emplacement = org.emplacements[0]
-
-    def is_tab_active(page, tab_name):
-        if 'primary">{}'.format(tab_name) in page.content.decode('utf-8'):
-            return True
-        else:
-            return False
 
     assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
                         'Basics')

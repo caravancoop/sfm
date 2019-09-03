@@ -21,6 +21,17 @@ from source.models import Source, AccessPoint
 from location.models import Location
 
 
+def is_tab_active(page, tab_name):
+    """
+    Determine if a nav tab with a given tab_name is active on a given page.
+    Active tabs should have the "primary" class name.
+    """
+    if 'primary">{}'.format(tab_name) in page.content.decode('utf-8'):
+        return True
+    else:
+        return False
+
+
 @pytest.fixture
 def user():
     return User.objects.create(username='testuser',

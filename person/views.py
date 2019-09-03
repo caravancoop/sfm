@@ -341,20 +341,6 @@ class PersonEditBasicsView(PersonEditView):
         form_kwargs['person_id'] = self.kwargs['slug']
         return form_kwargs
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # If there are no memberships, we shoult make sure to go to the create
-        # view when it exists.
-        first_membership = context['person'].memberships.first()
-        if first_membership:
-            # Person.memberships() returns a QuerySet of MembershipPersonMember
-            # objects, so we need to access the object ref to get the corresponding
-            # MembershipPerson object
-            context['first_membership'] = first_membership.object_ref
-
-        return context
-
     def get_success_url(self):
         person_id = self.kwargs[self.slug_field_kwarg]
 
@@ -379,7 +365,6 @@ class PersonEditPostingsView(PersonEditView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['person'] = Person.objects.get(uuid=self.kwargs['person_id'])
-        context['first_membership'] = {'id': self.kwargs['pk']}
 
         affiliations = context['person'].memberships
         memberships = tuple(mem.object_ref for mem in affiliations)

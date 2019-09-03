@@ -18,7 +18,7 @@
         <h1>
             {% trans "Edit:" %}
             <a href="{% url 'edit-person' person.uuid %}" class="btn btn-default">{% trans "Basics" %}</a>
-            <a href="{% url 'edit-person-postings' person.uuid first_membership.id %}" class="btn btn-primary">{% trans "Postings" %}</a>
+            <a href="{% url 'create-person-posting' person.uuid %}" class="btn btn-primary">{% trans "Postings" %}</a>
         </h1>
     </div>
 {% endblock %}

@@ -11,6 +11,7 @@ from source.models import AccessPoint
 from person.models import Person
 from organization.models import Organization
 from membershipperson.models import MembershipPerson, Rank, Role
+from tests.conftest import is_tab_active
 
 
 @pytest.fixture
@@ -692,3 +693,19 @@ def test_create_posting(setUp,
 
     fake_signal.assert_called_with(object_id=membership.id,
                                    sender=MembershipPerson)
+
+
+@pytest.mark.django_db
+def test_person_edit_buttons(setUp, people, membership_person):
+    assert is_tab_active(setUp.get(reverse_lazy('edit-person', args=[people[0].uuid])),
+                         'Basics')
+    assert is_tab_active(setUp.get(reverse_lazy('create-person-posting', args=[people[0].uuid])),
+                         'Postings')
+    assert is_tab_active(
+        setUp.get(
+            reverse_lazy(
+                'edit-person-postings',
+                args=[people[0].uuid, membership_person[0].pk]
+            )
+        ),
+        'Postings')
