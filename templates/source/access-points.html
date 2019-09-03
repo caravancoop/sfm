@@ -40,8 +40,8 @@
                                 {{ access_point.archive_url }}
                             </a>
                         </td>
-                        <td>{{ access_point.page_number }}</td>
-                        <td>{{ access_point.accessed_on }}</td>
+                        <td>{{ access_point.page_number|default_if_none:"" }}</td>
+                        <td>{{ access_point.accessed_on|default_if_none:"" }}</td>
                         <td>
                             <a href="{% url 'update-access-point' source.uuid access_point.uuid %}">
                                 <i class="fa fa-pencil"> </i> {% trans "Edit" %}
@@ -102,7 +102,7 @@
             {% endif %}
             <label for="id_accessed_on" class="control-label col-sm-2">{% trans "Access Date" %}</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control datepicker" id="id_accessed_on" name="accessed_on" value="{{ form.instance.accessed_on|default_if_none:"" }}">
+                    <input type="text" class="form-control datepicker" id="id_accessed_on" name="accessed_on" value="{{ form.instance.accessed_on|date:'Y-m-d'|default_if_none:'' }}">
                 {% if form.accessed_on.errors %}
                     {% for error in form.accessed_on.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
