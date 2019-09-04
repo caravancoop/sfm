@@ -1,0 +1,32 @@
+{% extends "partials/related_entities.html" %}
+{% load i18n %}
+
+{% block tabletitle %}{% endblock %}
+
+{% block tableheader %}
+<tr>
+    <th>{% trans "Record Name" %}</th>
+    <th>{% trans "Record Type" %}</th>
+    <th>{% trans "Fieldname" %}</th>
+    <th>{% trans "Value" context "of a database record" %}</th>
+</tr>
+{% endblock %}
+
+{% block tablebody %}
+{% for entity in related_entities %}
+    <tr>
+        <td>{{ entity.name }}</td>
+        <td>
+            {% if entity.url %}
+                <a href="{{ entity.url }}">
+            {% endif %}
+                {{ entity.record_type }}
+            {% if entity.url %}
+                </a>
+            {% endif %}
+        </td>
+        <td>{{ entity.field_name }}</td>
+        <td>{{ entity.value }}</td>
+    </tr>
+{% endfor %}
+{% endblock %}

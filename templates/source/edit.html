@@ -122,15 +122,17 @@
             <div class="form-group">
                 <div class="col-sm-12 text-right">
                     <br />
-                      {% if source.uuid %}
-                          <a href="{% url 'view-source' source.uuid %}" class="btn btn-danger">
-                      {% else %}
-                          <a href="{% url 'search' %}?entity_type=Source" class="btn btn-danger">
-                      {% endif %}
-                      {% trans "Cancel" %}  <i class="fas fa-times"></i>
-                      </a>
-                    </button>
-                    <button type="submit" class="btn btn-success">{% trans "Save" %}  <i class="fa fa-check"></i></button>
+                    {% if source.uuid %}
+                        <a href="{% url 'delete-source' source.uuid %}" class="btn btn-danger">
+                            {% trans "Delete" %}
+                        </a>
+                        <a href="{% url 'view-source' source.uuid %}" class="btn btn-default">
+                    {% else %}
+                        <a href="{% url 'search' %}?entity_type=Source" class="btn btn-default">
+                    {% endif %}
+                        {% trans "Cancel" %}
+                    </a>
+                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
                 </div>
             </div>
         </form>

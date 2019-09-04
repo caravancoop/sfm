@@ -1,0 +1,51 @@
+{% extends "base_delete.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block delete_header %}
+    {% blocktrans %}
+        Do you really want to remove this source?
+    {% endblocktrans %}
+{% endblock %}
+
+{% block metadata_table %}
+<table class="table">
+    <tbody>
+        <tr>
+            <td><b>{% trans "Title" %}</b></td>
+            <td>{{ object.title }}</td>
+        </tr>
+        {% if object.publication %}
+        <tr>
+            <td><b>{% trans "Publication" %}</b></td>
+            <td>{{ object.publication }}</td>
+        </tr>
+        {% endif %}
+        {% if object.publication_country %}
+        <tr>
+            <td><b>{% trans "Publication country" %}</b></td>
+            <td>{{ object.publication_country }}</td>
+        </tr>
+        {% endif %}
+        {% if object.published_on %}
+        <tr>
+            <td><b>{% trans "Published on" %}</b></td>
+            <td>{{ object.published_on }}</td>
+        </tr>
+        {% endif %}
+        {% if object.source_url %}
+        <tr>
+            <td><b>{% trans "Source URL" %}</b></td>
+            <td><a href="{{ object.source_url}}">{{ object.source_url }}</a></td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block related_entities_table %}
+    {% if related_entities %}
+        <h3>Related entities</h3>
+        {% include "source/partials/source_related_entities.html" %}
+    {% endif %}
+{% endblock %}

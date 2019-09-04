@@ -8,6 +8,7 @@ import reversion
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse_lazy
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -47,23 +48,32 @@ class Source(models.Model, VersionsMixin):
         from django.core.urlresolvers import reverse
         return reverse('view-source', args=[self.uuid])
 
-    def get_evidenced(self, access_point_id=None):
-        evidenced = []
+    @property
+    def related_entities(self):
+        """
+        Return a list of dicts representing the access points that are linked
+        to this source.
 
-        for prop in dir(self):
-
-            if prop.endswith('_related'):
-                related = getattr(self, prop)
-                if access_point_id:
-                    related = related.filter(accesspoints__uuid=access_point_id)
-                related = related.all()
-
-                if related:
-
-                    for rel in related:
-                        evidenced.append(rel)
-
-        return evidenced
+        Dicts must include the following metadata:
+            - name
+            - archive_url
+            - page_number
+            - access_date
+            - url (of the Edit view for the access point)
+        """
+        related_entities = []
+        for point in self.accesspoint_set.all():
+            related_entities.append({
+                'name': str(point),
+                'archive_url': point.archive_url,
+                'page_number': point.page_number,
+                'accessed_on': point.accessed_on,
+                'url': reverse_lazy(
+                    'update-access-point',
+                    kwargs={'source_id': self.uuid, 'pk': point.uuid}
+                )
+            })
+        return related_entities
 
     @property
     def revert_url(self):
@@ -110,6 +120,76 @@ class AccessPoint(models.Model, VersionsMixin):
             return match.group(1)
         else:
             return _('No timestamp')
+
+    @property
+    def related_entities(self):
+        """
+        Return a list of dicts of all entities that are evidenced by this
+        access point.
+
+        Dicts must have the following keys:
+            - name
+            - entity_type
+            - field_name
+            - url (a link to edit the entity)
+        """
+        related_entities = []
+
+        for prop in dir(self):
+            if prop.endswith('_related'):
+                related = getattr(self, prop).all()
+                if related:
+                    for entity in related:
+                        record_type = entity.object_ref._meta.object_name
+                        entity_metadata = {
+                            'name': str(entity),
+                            'record_type': record_type,
+                            'field_name': entity._meta.model_name.replace(record_type.lower(), '').title(),
+                            'value': entity.value,
+                            'url': None
+                        }
+                        # Links for top-level entities
+                        if record_type in ['Organization', 'Person', 'Violation']:
+                            entity_metadata['url'] = reverse_lazy(
+                                'edit-{}'.format(record_type.lower()),
+                                args=[entity.object_ref.uuid]
+                            )
+                        # Standardized relationship links
+                        elif record_type in ['Emplacement', 'Association']:
+                            entity_metadata['url'] = reverse_lazy(
+                                'edit-organization-{}'.format(record_type.lower()),
+                                kwargs={
+                                    'organization_id': entity.object_ref.organization.get_value().value.uuid,
+                                    'pk': entity.object_ref.pk
+                                }
+                            )
+                        # Irregular relationship links
+                        elif record_type == 'Composition':
+                            entity_metadata['url'] = reverse_lazy(
+                                'edit-organization-composition',
+                                kwargs={
+                                    'organization_id': entity.object_ref.parent.get_value().value.uuid,
+                                    'pk': entity.object_ref.pk
+                                }
+                            )
+                        elif record_type == 'MembershipPerson':
+                            entity_metadata['url'] = reverse_lazy(
+                                'edit-organization-personnel',
+                                kwargs={
+                                    'organization_id': entity.object_ref.organization.get_value().value.uuid,
+                                    'pk': entity.pk
+                                }
+                            )
+                        elif record_type == 'MembershipOrganization':
+                            entity_metadata['url'] = reverse_lazy(
+                                'edit-organization-membership',
+                                kwargs={
+                                    'organization_id': entity.object_ref.organization.get_value().value.uuid,
+                                    'pk': entity.pk
+                                }
+                            )
+                        related_entities.append(entity_metadata)
+        return related_entities
 
 
 def archive_source_url(source):

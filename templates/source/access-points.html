@@ -26,6 +26,7 @@
                     <th>{% trans "Page(s)" %}</th>
                     <th>{% trans "Access Date" %}</th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -47,10 +48,15 @@
                                 <i class="fa fa-pencil"> </i> {% trans "Edit" %}
                             </a>
                         </td>
+                        <td>
+                            <a href="{% url 'delete-access-point' source.uuid access_point.uuid %}">
+                                <i class="fa fa-times"> </i> {% trans "Delete" %}
+                            </a>
+                        </td>
                     </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan="4">
+                    <td colspan="5">
                         <a href="{% url 'add-access-point' source.uuid %}">
                             <i class="fa fa-plus"></i> {% trans "Add Access Point" %}
                         </a>
@@ -119,11 +125,15 @@
             <div class="form-group">
                 <div class="col-sm-12 text-right">
                     <br />
-                    <a href="{% url 'view-access-point' source.uuid %}" class="btn btn-danger">
-                        {% trans "Cancel" %}  <i class="fas fa-times"></i>
+                    {% if object.uuid %}
+                        <a href="{% url 'delete-access-point' source.uuid object.uuid %}" class="btn btn-danger">
+                            {% trans "Delete" %}
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'view-access-point' source.uuid %}" class="btn btn-default">
+                        {% trans "Cancel" %}
                       </a>
-                    </button>
-                    <button type="submit" class="btn btn-success">{% trans "Save" %}  <i class="fa fa-check"></i></button>
+                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
                 </div>
             </div>
         </form>
