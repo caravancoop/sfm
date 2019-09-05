@@ -9,7 +9,7 @@ import csv
 
 from django.conf import settings
 from django.views.generic.base import TemplateView
-from django.http import HttpResponse, HttpResponseNotFound, Http404
+from django.http import HttpResponse, Http404, HttpResponseServerError
 from django.views.generic.edit import FormView
 from django.views.decorators.cache import never_cache
 from django.forms import formset_factory
@@ -25,6 +25,7 @@ from django.contrib.auth.models import User
 from django.views.generic.edit import CreateView, UpdateView
 from django.utils import timezone
 from django.http import StreamingHttpResponse
+from django.template import loader
 
 from reversion.models import Version, Revision
 from extra_views import FormSetView
@@ -411,3 +412,11 @@ class DumpChangeLog(FormView, VersionsMixin):
         response['Content-Disposition'] = 'attachment; filename="changelog-{}.csv"'.format(timezone.now().isoformat())
 
         return response
+
+
+def server_error(request):
+    """
+    Customize the Django 500 view to pass in user context.
+    """
+    template = loader.get_template('500.html')
+    return HttpResponseServerError(template.render(request=request))

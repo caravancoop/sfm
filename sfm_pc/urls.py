@@ -66,3 +66,6 @@ if settings.DEBUG:
         ) + urlpatterns
     except ImportError:
         pass
+
+# Custom 500 error handler
+handler500 = 'sfm_pc.views.server_error'
