@@ -143,7 +143,8 @@ var CommandChart = {
                     $('#' + cellID).hide();
                 }
                 if(!display_charts){
-                    $('#command-chain').hide();
+                    // Hide the sidebar links and the command chain section
+                    $('a[href="#chain-of-command"],#command-chain').hide();
                 }
             });
 
