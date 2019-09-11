@@ -6,6 +6,7 @@ from django.template.defaultfilters import truncatewords
 
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification
+from membershipperson.models import MembershipPerson, Rank, Role
 from source.models import AccessPoint
 from composition.models import Composition
 from tests.conftest import is_tab_active
@@ -249,6 +250,81 @@ def test_create_relationship(setUp,
 
     fake_signal.assert_called_with(object_id=composition.id,
                                    sender=Composition)
+
+
+@pytest.mark.django_db
+def test_create_personnel(setUp,
+                          organizations,
+                          people,
+                          membership_person,
+                          new_access_points,
+                          fake_signal):
+    organization = organizations[0]
+    person = people[0]
+    rank = Rank.objects.first()
+    role = Role.objects.first()
+
+    url = reverse_lazy('create-organization-personnel', args=[organization.uuid])
+    get_response = setUp.get(url)
+    assert get_response.status_code == 200
+    assert "<h2>Add personnel</h2>" in get_response.content.decode('utf-8')
+
+    new_source_ids = [s.uuid for s in new_access_points]
+    post_data = {
+        'organization': organization.id,
+        'member': person.id,
+        'member_source': new_source_ids,
+        'rank': rank.id,
+        'rank_source': new_source_ids,
+        'role': role.id,
+        'role_source': new_source_ids,
+        'title': 'Test title',
+        'title_source': new_source_ids,
+        'firstciteddate': '1999',
+        'firstciteddate_source': new_source_ids,
+        'lastciteddate': '2001',
+        'lastciteddate_source': new_source_ids,
+        'endcontext': 'Test end context',
+        'endcontext_source': new_source_ids,
+    }
+
+    post_response = setUp.post(url, post_data)
+
+    assert post_response.status_code == 302
+
+    # Since this person has probably already had a membership created by a fixture,
+    # retrieve the last membership, which should correspond to the one we just made
+    membership = MembershipPerson.objects.filter(
+        membershippersonmember__value=person,
+        membershippersonorganization__value=organization
+    ).last()
+
+    assert membership.member.get_value().value == person
+    assert set(membership.member.get_sources()) == set(new_access_points)
+
+    assert membership.organization.get_value().value == organization
+    assert set(membership.organization.get_sources()) == set(new_access_points)
+
+    assert membership.rank.get_value().value == rank
+    assert set(membership.rank.get_sources()) == set(new_access_points)
+
+    assert membership.role.get_value().value == role
+    assert set(membership.role.get_sources()) == set(new_access_points)
+
+    assert membership.title.get_value().value == 'Test title'
+    assert set(membership.title.get_sources()) == set(new_access_points)
+
+    assert str(membership.firstciteddate.get_value().value) == '1999'
+    assert set(membership.firstciteddate.get_sources()) == set(new_access_points)
+
+    assert str(membership.lastciteddate.get_value().value) == '2001'
+    assert set(membership.lastciteddate.get_sources()) == set(new_access_points)
+
+    assert membership.endcontext.get_value().value == 'Test end context'
+    assert set(membership.endcontext.get_sources()) == set(new_access_points)
+
+    fake_signal.assert_called_with(object_id=membership.id,
+                                   sender=MembershipPerson)
 
 
 @pytest.mark.django_db

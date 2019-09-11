@@ -2,13 +2,8 @@
 {% load i18n %}
 {% load countries %}
 {% load citations %}
-{% block header_title %}
-<div class="col-sm-6">
-    <h1>{% trans "Add a posting" %}</h1>
-</div>
-{% endblock %}
 {% block form_content %}
-    <h2>{% trans 'Edit postings' %}</h2>
+    <h2>{% trans 'Add posting' %}</h2>
     <input type="hidden" name="member" value="{{ person.id }}" />
     <div class="row organization-row field-bg bg-info">
         <div class="col-sm-12">

@@ -24,7 +24,8 @@
                 <input class="btn btn-danger" type="submit" value="{% trans 'Confirm' %}" {% if related_entities %}disabled{% endif %} />
             </form>
             {% if related_entities %}
-                <small class="text-muted">Deletion is disabled until all related entities are deleted.</small>
+                <br />
+                <small class="text-muted">You can't delete this entity until you have removed its connections to the related entities below.</small>
             {% endif %}
         </div>
     </div>

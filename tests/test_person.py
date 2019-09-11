@@ -649,6 +649,7 @@ def test_create_posting(setUp,
                                       kwargs={'person_id': person.uuid}))
 
     assert response.status_code == 200
+    assert "<h2>Add posting</h2>" in response.content.decode('utf-8')
 
     sources = [s for s in person.name.get_sources()]
 
