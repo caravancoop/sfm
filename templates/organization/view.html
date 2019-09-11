@@ -370,7 +370,7 @@
                                     <a href="{% url 'view-organization' child.uuid %}">
                                         {{ child.name.get_value }}
                                     </a>
-                                    {% cite child.name.get_value %}
+                                    {% cite subsidiary.child.get_value %}
                                 </td>
                                 <td class="cited">
                                     {% for alias in child.aliases.get_list %}
