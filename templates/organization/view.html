@@ -286,7 +286,7 @@
                                 <a href="{% url 'view-organization' membership.member.get_value.value.uuid %}">
                                     {{ membership.member.get_value.value.name.get_value }}
                                 </a>
-                                {% cite membership.member.get_value.value.name.get_value %}
+                                {% cite membership.member.get_value %}
                             </td>
                             <td class="cited">
                                 {% for alias in membership.member.get_value.value.aliases.get_list %}
