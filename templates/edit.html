@@ -401,16 +401,7 @@
             }
 
             var source_info = '<p>' + source.title + ' ' + '(' + source.publication + ')';
-            source_info += '<br />' + '<small>';
-
-            if (source.accessed_on){
-                source_info += '{% trans "Accessed on:" %}' + ' <strong>' + source.accessed_on + '</strong>';
-            }
-            if (source.page_number){
-                source_info += ' ' + '{% trans "Page number:" %}' + ' <strong>' + source.page_number + '</strong>';
-            }
-
-            source_info += '</small></p>';
+            source_info += '<br />' + '<small>' + source.access_point + '</small></p>';
 
             return $(source_info);
         }

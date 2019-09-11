@@ -259,6 +259,7 @@ def source_autocomplete(request):
                     'publication_country': source.publication_country,
                     'page_number': access_point.page_number,
                     'archive_url': access_point.archive_url,
+                    'access_point': str(access_point),
                     'accessed_on': None,
                     'text': source.title,
                     'id': str(access_point.uuid),
