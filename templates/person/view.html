@@ -111,7 +111,7 @@
                                     <a href="{% url 'view-organization' organization.uuid %}">
                                         {{ organization.name.get_value }}
                                     </a>
-                                    {% cite organization.name.get_value %}
+                                    {% cite member.organization.get_value %}
                                 </td>
                                 <td class="cited">
                                     {{ member.rank.get_value.value.value|default:"" }}
