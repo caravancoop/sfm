@@ -102,11 +102,7 @@
                     {% for member in memberships %}
                         {% with organization=member.organization.get_value.value %}
 
-                            {% if member.id == object.id %}
-                            <tr class="bg-info">
-                            {% else %}
                             <tr>
-                            {% endif %}
                                 <td class="cited">
                                     <a href="{% url 'view-organization' organization.uuid %}">
                                         {{ organization.name.get_value }}
