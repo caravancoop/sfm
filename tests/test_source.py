@@ -290,3 +290,19 @@ def test_delete_access_point_view_with_related_entities(setUp, access_points, ex
         assert str(entity_value) in response.content.decode('utf-8')
     # Make sure that the confirm button is disabled.
     assert 'value="Confirm" disabled' in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_source_with_no_value_raises_error(setUp, new_access_points, fake_signal):
+    """Make sure the user can't assign a source to an empty field."""
+    new_source_ids = [s.uuid for s in new_access_points]
+    post_data = {
+        'name': 'foo',
+        'name_source': new_source_ids,
+        'aliases_source': new_source_ids  # Add source field without a corresponding value
+    }
+    response = setUp.post(reverse_lazy('create-person'), post_data)
+    assert response.status_code == 200
+
+    form = response.context['form']
+    assert 'aliases' in form.errors.keys()
