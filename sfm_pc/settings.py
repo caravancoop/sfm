@@ -175,7 +175,9 @@ LANGUAGES = (
     ('fr', _('French')),
     ('en', _('English')),
     ('es', _('Spanish')),
+    ('ar', _('Arabic'))
 )
+
 LOCALE_PATHS = (
     BASE_DIR + '/locale',
 )
