@@ -1,8 +1,7 @@
 SELECT
   object_ref.uuid AS uuid,
   MAX(name.value) AS name,
-  MAX(division_id.value) AS division_id,
-  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS country_iso,
+  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS division_id,
   array_to_string(array_agg(DISTINCT classifications.value), ';') AS classifications,
   array_to_string(array_agg(DISTINCT aliases.value), ';') AS other_names,
   MAX(firstciteddate.value) AS first_cited_date,
@@ -15,6 +14,7 @@ SELECT
   MAX(open_ended.value) AS open_ended,
   member.uuid AS member_id,
   MAX(member_name.value) AS member_name,
+  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS member_country_iso,
   MAX(member_firstciteddate.value) AS membership_start_date,
   MAX(member_lastciteddate.value) AS membership_end_date,
   CASE
