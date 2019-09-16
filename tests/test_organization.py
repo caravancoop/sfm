@@ -10,6 +10,7 @@ from membershipperson.models import MembershipPerson, Rank, Role
 from source.models import AccessPoint
 from composition.models import Composition
 from emplacement.models import Emplacement
+from association.models import Association
 from tests.conftest import is_tab_active
 
 
@@ -562,6 +563,108 @@ def test_delete_emplacement(setUp, emplacement, fake_signal):
 
     assert response.status_code == 302
     assert response.url == reverse_lazy('create-organization-emplacement', args=[org.uuid])
+
+    fake_signal.assert_called_with(object_id=org.uuid, sender=Organization)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('save_and_continue', [True, False])
+def test_create_association(save_and_continue,
+                            setUp,
+                            organizations,
+                            location_relation,
+                            new_access_points,
+                            fake_signal):
+    organization = organizations[0]
+
+    url = reverse_lazy('create-organization-association', args=[organization.uuid])
+    get_response = setUp.get(url)
+    assert get_response.status_code == 200
+    assert "<h2>Create area</h2>" in get_response.content.decode('utf-8')
+
+    new_source_ids = [s.uuid for s in new_access_points]
+    post_data = {
+        'area': location_relation.id,
+        'area_source': new_source_ids,
+        'organization': organization.id
+    }
+
+    if save_and_continue:
+        post_data['_continue'] = True
+
+    post_response = setUp.post(url, post_data)
+
+    assert post_response.status_code == 302
+
+    assoc = organization.associations.first().object_ref
+
+    if save_and_continue:
+        assert post_response.url == reverse_lazy(
+            'edit-organization-association',
+            args=[organization.uuid, assoc.id]
+        )
+    else:
+        assert post_response.url == reverse_lazy('view-organization', args=[organization.uuid])
+
+    assert assoc.area.get_value().value == location_relation
+    assert set(assoc.area.get_sources()) == set(new_access_points)
+
+    fake_signal.assert_called_with(object_id=assoc.id, sender=Association)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('save_and_continue', [True, False])
+def test_edit_association(save_and_continue,
+                          setUp,
+                          association,
+                          location_relation,
+                          new_access_points,
+                          fake_signal):
+    assoc = association[0]
+    org = assoc.organization.get_value().value
+
+    url = reverse_lazy('edit-organization-association', args=[org.uuid, assoc.id])
+    get_response = setUp.get(url)
+    assert get_response.status_code == 200
+    assert "<h2>Edit area</h2>" in get_response.content.decode('utf-8')
+
+    new_source_ids = [s.uuid for s in new_access_points]
+    post_data = {
+        'area': location_relation.id,
+        'area_source': new_source_ids,
+        'organization': org.id
+    }
+
+    if save_and_continue:
+        post_data['_continue'] = True
+
+    post_response = setUp.post(url, post_data)
+
+    assert post_response.status_code == 302
+
+    if save_and_continue:
+        assert post_response.url == url
+    else:
+        assert post_response.url == reverse_lazy('view-organization', args=[org.uuid])
+
+    assert assoc.area.get_value().value == location_relation
+    assert set(assoc.area.get_sources()) == set(new_access_points)
+
+    fake_signal.assert_called_with(object_id=assoc.id, sender=Association)
+
+
+@pytest.mark.django_db
+def test_delete_association(setUp, association, fake_signal):
+    assoc = association[0]
+    org = assoc.organization.get_value().value
+
+    response = setUp.post(reverse_lazy(
+        'delete-organization-association',
+        args=[org.uuid, assoc.id]
+    ))
+
+    assert response.status_code == 302
+    assert response.url == reverse_lazy('create-organization-association', args=[org.uuid])
 
     fake_signal.assert_called_with(object_id=org.uuid, sender=Organization)
 
