@@ -531,6 +531,7 @@ def test_edit_emplacement(save_and_continue,
     post_data = {
         'site': location_node.id,
         'site_source': new_source_ids,
+        'organization': org.id
     }
 
     if save_and_continue:
@@ -548,7 +549,7 @@ def test_edit_emplacement(save_and_continue,
     assert emp.site.get_value().value == location_node
     assert set(emp.site.get_sources()) == set(new_access_points)
 
-    fake_signal.assert_called_with(object_id=emplacement.id, sender=Emplacement)
+    fake_signal.assert_called_with(object_id=emp.id, sender=Emplacement)
 
 
 @pytest.mark.django_db
@@ -677,8 +678,8 @@ def test_organization_edit_buttons(setUp,
     org = full_organizations[0]
     composition = Composition.objects.first()
     person = org.personnel[0]
-    association = org.associations[0]
-    emplacement = org.emplacements[0]
+    association = org.associations[0].object_ref
+    emplacement = org.emplacements[0].object_ref
 
     assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
                         'Basics')

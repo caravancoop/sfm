@@ -411,6 +411,8 @@ class BaseUpdateForm(BaseEditForm):
 
         self.instance.object_ref_saved()
 
+        return self.instance
+
 
 class BaseCreateForm(BaseEditForm):
 
@@ -521,6 +523,8 @@ class BaseCreateForm(BaseEditForm):
             self.object_ref.update(update_info)
 
         self.object_ref.object_ref_saved()
+
+        return self.object_ref
 
 
 def division_choices():

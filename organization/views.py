@@ -201,11 +201,17 @@ class OrganizationCreateView(BaseCreateView):
     def get_success_url(self):
         organization_id = self.kwargs['organization_id']
 
-        # when saving and continuing, always return to the page we were on
+        # when saving and continuing, redirect to the edit view for the new object
         if self.request.POST.get('_continue'):
-            return self.request.path
+            if not hasattr(self, 'edit_url_name'):
+                return reverse('view-organization', args=[organization_id])
+            else:
+                return reverse(self.edit_url_name, kwargs={
+                    'organization_id': organization_id,
+                    'pk': self.object.pk
+                })
         else:
-            return reverse('view-organization', kwargs={'slug': organization_id})
+            return reverse('view-organization', args=[organization_id])
 
     def get_cancel_url(self):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
@@ -266,10 +272,16 @@ class OrganizationCreateBasicsView(OrganizationCreateView):
     template_name = 'organization/create-basics.html'
     form_class = OrganizationCreateBasicsForm
 
-    def form_valid(self, form):
-        form.save(commit=True)
-        return HttpResponseRedirect(reverse('view-organization',
-                                    kwargs={'slug': form.object_ref.uuid}))
+    def get_success_url(self):
+        """
+        OrganizationCreateBasicsView follows a different success_url pattern than
+        the rest of the views that inherit from OrganizationCreateView, so
+        override get_success_url().
+        """
+        if self.request.POST.get('_continue'):
+            return reverse('edit-organization', args=[self.object.uuid])
+        else:
+            return reverse('view-organization', args=[self.object.uuid])
 
     # When cancelling the creation of a new organization, take the 
     # user back to the search page for organizations
@@ -304,6 +316,7 @@ class OrganizationCreateCompositionView(EditButtonsMixin, OrganizationCreateView
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'
     button = 'relationships'
+    edit_url_name = 'edit-organization-composition'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -373,6 +386,7 @@ class OrganizationCreateMembershipView(EditButtonsMixin, OrganizationCreateView)
     context_object_name = 'current_membership'
     slug_field_kwarg = 'pk'
     button = 'relationships'
+    edit_url_name = 'edit-organization-membership'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -447,6 +461,7 @@ class OrganizationCreatePersonnelView(EditButtonsMixin, OrganizationCreateView):
     context_object_name = 'current_membership'
     slug_field_kwarg = 'organization_id'
     button = 'personnel'
+    edit_url_name = 'edit-organization-personnel'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -521,6 +536,7 @@ class OrganizationCreateEmplacementView(EditButtonsMixin, OrganizationCreateView
     form_class = OrganizationCreateEmplacementForm
     slug_field_kwarg = 'pk'
     button = 'location'
+    edit_url_name = 'edit-organization-emplacement'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -579,6 +595,7 @@ class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView
     form_class = OrganizationCreateAssociationForm
     slug_field_kwarg = 'pk'
     button = 'location'
+    edit_url_name = 'edit-organization-association'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
