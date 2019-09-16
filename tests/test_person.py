@@ -304,7 +304,6 @@ def test_remove_all_values(setUp, people, fake_signal):
     post_data = {
         'name': person.name.get_value().value,
         'name_source': sources,
-        'aliases_source': [s.uuid for s in person.aliases.get_list()[0].get_sources()]
     }
 
     response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
