@@ -293,16 +293,26 @@ def test_delete_access_point_view_with_related_entities(setUp, access_points, ex
 
 
 @pytest.mark.django_db
-def test_source_with_no_value_raises_error(setUp, new_access_points, fake_signal):
+def test_source_with_no_value_raises_error(setUp, people, new_access_points, fake_signal):
     """Make sure the user can't assign a source to an empty field."""
+    # Test the CreateView.
     new_source_ids = [s.uuid for s in new_access_points]
     post_data = {
         'name': 'foo',
         'name_source': new_source_ids,
         'aliases_source': new_source_ids  # Add source field without a corresponding value
     }
-    response = setUp.post(reverse_lazy('create-person'), post_data)
-    assert response.status_code == 200
+    create_response = setUp.post(reverse_lazy('create-person'), post_data)
+    assert create_response.status_code == 200
 
-    form = response.context['form']
-    assert 'aliases' in form.errors.keys()
+    create_form = create_response.context['form']
+    assert 'aliases' in create_form.errors.keys()
+    assert 'Empty fields should not have sources' in create_form.errors['aliases']
+
+    # Test the EditView.
+    edit_response = setUp.post(reverse_lazy('edit-person', args=[people[0].uuid]), post_data)
+    assert edit_response.status_code == 200
+
+    edit_form = edit_response.context['form']
+    assert 'aliases' in edit_form.errors.keys()
+    assert 'Empty fields should not have sources' in edit_form.errors['aliases']
