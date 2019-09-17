@@ -215,3 +215,12 @@ OPEN_ENDED_CHOICES = (
 )
 
 RESEARCH_HANDBOOK_URL = "https://help.securityforcemonitor.org/v"
+
+IMPORTER_USER = {
+    'username': 'importer',
+    'password': 'test user',
+    'email': 'importer@importer.com',
+    'first_name': 'Imp',
+    'last_name': 'Orter',
+    'is_staff': False,
+}

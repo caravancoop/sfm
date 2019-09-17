@@ -100,6 +100,11 @@ class Command(BaseCommand):
             default=1,
             help='First row to begin parsing (for debugging)'
         )
+        parser.add_argument(
+            '--folder',
+            dest='folder',
+            help='Path to a folder containing data (for testing)'
+        )
 
     def sourcesList(self, obj, attribute):
         sources = [s for s in getattr(obj, attribute).get_sources()]
@@ -167,51 +172,14 @@ class Command(BaseCommand):
         # Set the country code for the work
         self.country_code = options['country_code']
 
-        credentials = self.get_credentials()
+        if options.get('folder'):
+            self.stdout.write('Loading data from folder {}...'.format(options['folder']))
+            all_sheets = self.get_sheets_from_folder(options['folder'])
+        else:
+            self.stdout.write('Loading data from Google Sheets...')
+            all_sheets = self.get_sheets_from_doc(options['doc_id'], options['source_doc_id'])
 
-        http = credentials.authorize(httplib2.Http())
-
-        service = build('sheets', 'v4', http=http)
-
-        result = service.spreadsheets().get(
-            spreadsheetId=options['doc_id'], includeGridData=False).execute()
-
-        sheets = result['sheets']
-
-        sheet_mapping = {}
-
-        #exclude 3 internal columns at start of org, person, and event sheets
-        sheet_range = "!D:DM"
-
-        for sheet in sheets:
-            title = sheet['properties']['title']
-
-            sheet_data = service.spreadsheets().values().get(
-                spreadsheetId=options['doc_id'], range=title + sheet_range).execute()
-
-            sheet_mapping[title] = sheet_data['values']
-
-        org_sheets = {title: data for title, data in sheet_mapping.items() \
-                          if 'orgs' in title.lower() or 'mopol' in title.lower()}
-
-        person_sheets = {title: data for title, data in sheet_mapping.items() \
-                            if 'persons' in title.lower()}
-
-        event_sheets = {title: data for title, data in sheet_mapping.items() \
-                            if 'events' in title.lower()}
-
-        all_sheets = {
-            'organization': org_sheets,
-            'person': person_sheets,
-            'event': event_sheets,
-        }
-
-        #get source data
-        source_range = "sources!A2:N"
-        source_sheet = service.spreadsheets().values().get(
-            spreadsheetId=options['source_doc_id'], range=source_range).execute()
-
-        self.create_sources(source_sheet)
+        self.create_sources(all_sheets['source'])
 
         skippers = ['Play Copy of Events']
         start = int(options['start'])
@@ -254,9 +222,94 @@ class Command(BaseCommand):
                             self.current_row = index + start + 1
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
-        self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(options['doc_id'])))
+        data_src = options['folder'] if options.get('folder') else options['doc_id']
+        self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(data_src)))
         # connect post save signals
         self.connectSignals()
+
+    def get_sheets_from_doc(self, doc_id, source_doc_id):
+        """
+        Load data from Google Sheets. Required params include a Google Doc ID
+        for top-level entities and a Doc ID for sources.
+        """
+        credentials = self.get_credentials()
+        http = credentials.authorize(httplib2.Http())
+        service = build('sheets', 'v4', http=http)
+
+        result = service.spreadsheets().get(
+            spreadsheetId=doc_id,
+            includeGridData=False
+        ).execute()
+        sheets = result['sheets']
+        sheet_mapping = {}
+
+        # Exclude 3 internal columns at start of org, person, and event sheets
+        sheet_range = "!D:DM"
+
+        for sheet in sheets:
+            title = sheet['properties']['title']
+            sheet_data = service.spreadsheets().values().get(
+                spreadsheetId=doc_id,
+                range=title + sheet_range
+            ).execute()
+            sheet_mapping[title] = sheet_data['values']
+
+        org_sheets = {title: data for title, data in sheet_mapping.items()
+                      if 'orgs' in title.lower() or 'mopol' in title.lower()}
+        person_sheets = {title: data for title, data in sheet_mapping.items()
+                         if 'persons' in title.lower()}
+        event_sheets = {title: data for title, data in sheet_mapping.items()
+                        if 'events' in title.lower()}
+
+        # Get data about sources
+        source_range = "sources!A2:N"
+        source_sheet = service.spreadsheets().values().get(
+            spreadsheetId=source_doc_id,
+            range=source_range
+        ).execute()
+
+        return {
+            'organization': org_sheets,
+            'person': person_sheets,
+            'event': event_sheets,
+            'source': source_sheet,
+        }
+
+    def get_sheets_from_folder(self, folder):
+        """
+        Load data from a folder on disk. Data must be stored as CSV files with the
+        name of the entities represented therein (e.g. 'person.csv') and must be
+        stored under the directory represented by the path string 'folder'.
+        """
+        all_sheets = {}
+        entities = (
+            ('organization', 'orgs'),
+            ('person', 'persons'),
+            ('event', 'events'),
+            ('source', 'values')
+        )
+        for entity_type, title in entities:
+            path = os.path.join(folder, entity_type + '.csv')
+            if not os.path.isfile(path):
+                raise OSError('Required file {path} not found.'.format(path=path))
+
+            with open(path) as fobj:
+                reader = csv.reader(fobj)
+                records = list(reader)
+
+            if entity_type == 'source':
+                # Source spreadsheets are pulled from the Google API in a
+                # different manner and should not have header rows.
+                records = records[1:]
+            else:
+                # Top-level entity spreadsheets contain initial metadata columns
+                # that are not used in the app.
+                records = [row[3:] for row in records]
+
+            # Match the Google Sheets API response format
+            all_sheets[entity_type] = {title: records}
+
+        return all_sheets
 
     def log_error(self, message):
         log_message = message + ' (context: Sheet {0}, Row {1})'.format(self.current_sheet, self.current_row)
@@ -274,11 +327,14 @@ class Command(BaseCommand):
                              message])
 
     def get_confidence(self, confidence_key):
-        key = confidence_key.strip().lower()
-        if key:
-            return CONFIDENCE_MAP[key]
+        if confidence_key in ['1', '2', '3']:
+            return int(confidence_key)
         else:
-            return 1
+            key = confidence_key.strip().lower()
+            if key:
+                return CONFIDENCE_MAP[key]
+            else:
+                return 1
 
     def parse_date(self, value):
         parsed = None
