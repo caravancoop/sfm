@@ -51,6 +51,54 @@ def test_view_violation(client, violation):
 
 
 @pytest.mark.django_db
+def test_create_violation(setUp,
+                          new_access_points,
+                          new_people,
+                          new_organizations,
+                          fake_signal):
+
+    types = ['Violation against freedom from torture']
+    perpetrators = [p.id for p in new_people]
+    perpetratororganizations = [o.id for o in new_organizations]
+    perpetratorclassification = 'Real bad guys'
+
+    create_url = reverse_lazy('create-violation')
+    get_response = setUp.get(create_url)
+    assert get_response.status_code == 200
+
+    new_source_ids = [s.uuid for s in new_access_points]
+    post_data = {
+        'division_id': 'ocd-division/country:us',
+        'startdate': '1976',
+        'enddate': '2012-02-14',
+        'types': types,
+        'perpetrator': perpetrators,
+        'perpetratororganization': perpetratororganizations,
+        'perpetratorclassification': perpetratorclassification,
+        'description': 'Test violation description',
+        'description_source': new_source_ids,
+    }
+
+    post_response = setUp.post(create_url, post_data)
+    assert post_response.status_code == 302
+
+    violation = Violation.objects.last()
+    assert set(new_source_ids) <= {s.uuid for s in violation.description.get_sources()}
+
+    assert violation.division_id.get_value().value == 'ocd-division/country:us'
+    assert str(violation.startdate.get_value().value) == '1976'
+    assert str(violation.enddate.get_value().value) == '14th February 2012'
+    assert types[0] in [v.get_value().value for v in violation.types.get_list()]
+    assert violation.perpetratorclassification.get_value().value == perpetratorclassification
+
+    saved_perp_list = [p.get_value().value for p in violation.perpetrator.get_list()]
+    for person in new_people:
+        assert person in saved_perp_list
+
+    fake_signal.assert_called_with(object_id=str(violation.uuid), sender=Violation)
+
+
+@pytest.mark.django_db
 def test_edit_violation(setUp,
                         violation,
                         new_access_points,
@@ -72,19 +120,12 @@ def test_edit_violation(setUp,
 
     post_data = {
         'division_id': 'ocd-division/country:us',
-        'division_id_source': new_source_ids,
         'startdate': '1976',
-        'startdate_source': new_source_ids,
         'enddate': '2012-02-14',
-        'enddate_source': new_source_ids,
         'types': new_types,
-        'types_source': new_source_ids,
         'perpetrator': perpetrators,
-        'perpetrator_source': new_source_ids,
         'perpetratororganization': perpetratororganizations,
-        'perpetratororganization_source': new_source_ids,
         'perpetratorclassification': perpetratorclassification,
-        'perpetratorclassification_source': new_source_ids,
         'description': violation.description.get_value().value,
         'description_source': new_source_ids,
     }
@@ -148,7 +189,6 @@ def test_delete_violation_view_no_related_entities(setUp, violation, mocker):
 @pytest.mark.django_db
 def test_edit_violation_locations(setUp,
                                   violation,
-                                  new_access_points,
                                   location_node,
                                   location_adminlevel1,
                                   location_adminlevel2,
@@ -160,18 +200,12 @@ def test_edit_violation_locations(setUp,
     ))
     assert get_response.status_code == 200
 
-    new_source_id = new_access_points[0].uuid
-
     # Test adding locations.
     post_data = {
         'locationdescription': 'Foo bar baz',
-        'locationdescription_source': new_source_id,
         'location': location_node.id,
-        'location_source': new_source_id,
         'adminlevel1': location_adminlevel1.id,
-        'adminlevel1_source': new_source_id,
         'adminlevel2': location_adminlevel2.id,
-        'adminlevel2_source': new_source_id,
     }
 
     post_response = setUp.post(
@@ -179,9 +213,6 @@ def test_edit_violation_locations(setUp,
         post_data
     )
     assert post_response.status_code == 302
-
-    for attr in ['location', 'adminlevel1', 'adminlevel2']:
-        assert new_source_id in [s.uuid for s in getattr(violation, attr).get_sources()]
 
     assert violation.location.get_value().value == location_node
     assert violation.adminlevel1.get_value().value == location_adminlevel1

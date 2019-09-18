@@ -36,6 +36,9 @@
 </div>
 {% endblock %}
 
+<!-- Violation Location data don't require any sources -->
+{% block source_picker %}{% endblock %}
+
 {% block form_content %}
     <h2>{% trans "Edit locations" %}</h2>
     <div class="row locationdescription-row field-bg">
@@ -46,7 +49,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.locationdescription.label }}</label>
-                <textarea rows=5 name="locationdescription" id="id_locationdescription" class="form-control sourced">{{ form.instance.locationdescription.get_value.value }}</textarea>
+                <textarea rows=5 name="locationdescription" id="id_locationdescription" class="form-control">{{ form.instance.locationdescription.get_value.value }}</textarea>
                 {% if form.locationdescription.errors %}
                     {% for error in form.locationdescription.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
@@ -54,13 +57,8 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_locationdescription_source">
-            {% for source in form.instance.locationdescription.get_sources %}
-                {% source_input 'locationdescription' source %}
-            {% endfor %}
-        </div>
     </div>
-    <div class="row location-row field-bg bg-info">
+    <div class="row location-row field-bg">
         <div class="col-sm-12">
             {% if form.location.errors %}
                 <div class="form-group has-error has-feedback">
@@ -68,7 +66,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.location.label }}</label>
-                <select id="id_location" class="form-control sourced location select2-target" name="location">
+                <select id="id_location" class="form-control" name="location">
                     {% if form.instance.location.get_value %}
                     <option value="{{ form.instance.location.get_value.value.id }}">
                     {{ form.instance.location.get_value.value.name }}
@@ -83,11 +81,6 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_location_source">
-            {% for source in form.instance.location.get_sources %}
-                {% source_input 'location' source %}
-            {% endfor %}
-        </div>
     </div>
     <div class="row adminlevel1-row field-bg">
         <div class="col-sm-12">
@@ -97,7 +90,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.adminlevel1.label }}</label>
-                <select id="id_adminlevel1" class="form-control sourced location select2-target" name="adminlevel1">
+                <select id="id_adminlevel1" class="form-control" name="adminlevel1">
                     {% if form.instance.adminlevel1.get_value %}
                     <option value="{{ form.instance.adminlevel1.get_value.value.id }}">
                     {{ form.instance.adminlevel1.get_value.value.name }}
@@ -112,13 +105,8 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_adminlevel1_source">
-            {% for source in form.instance.adminlevel1.get_sources %}
-                {% source_input 'adminlevel1' source %}
-            {% endfor %}
-        </div>
     </div>
-    <div class="row adminlevel2-row field-bg bg-info">
+    <div class="row adminlevel2-row field-bg">
         <div class="col-sm-12">
             {% if form.adminlevel2.errors %}
                 <div class="form-group has-error has-feedback">
@@ -126,7 +114,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.adminlevel2.label }}</label>
-                <select id="id_adminlevel2" class="form-control sourced location select2-target" name="adminlevel2">
+                <select id="id_adminlevel2" class="form-control" name="adminlevel2">
                     {% if form.instance.adminlevel2.get_value %}
                     <option value="{{ form.instance.adminlevel2.get_value.value.id }}">
                     {{ form.instance.adminlevel2.get_value.value.name }}
@@ -141,18 +129,12 @@
                 {% endif %}
             </div>
         </div>
-        <div id="id_adminlevel2_source">
-            {% for source in form.instance.adminlevel2.get_sources %}
-                {% source_input 'adminlevel2' source %}
-            {% endfor %}
-        </div>
     </div>
 {% endblock %}
 {% block extra_extra_js%}
     <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            loadSources({'target': $('#id_locationdescription')});
             $('#id_location').select2({
                 allowClear: true,
                 placeholder: "{% trans 'Search for a location' %}",
