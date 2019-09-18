@@ -8,6 +8,7 @@ from django.core.management import call_command
 from organization.models import Organization
 from person.models import Person
 from violation.models import Violation
+from source.models import AccessPoint
 
 
 @pytest.fixture(scope='module')
@@ -32,7 +33,10 @@ def test_no_sources_missing(data_import):
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'entity_name,Model',
-    [('organization', Organization), ('person', Person), ('event', Violation)]
+    [
+        ('organization', Organization), ('person', Person),
+        ('event', Violation), ('source', AccessPoint)
+    ]
 )
 def test_number_of_imported_entities(entity_name, Model, data_import, data_folder):
     with open(os.path.join(data_folder, entity_name + '.csv')) as fobj:
@@ -43,29 +47,32 @@ def test_number_of_imported_entities(entity_name, Model, data_import, data_folde
 
 
 @pytest.mark.django_db
-def test_sources(data_import):
+def test_sources(data_import, data_folder):
     """
     All records in the source data should have their own sources. Check all
     attributes of all entities and confirm that each has its own source.
     """
-    shared_source_attrs = ['division_id']  # Attributes that share sources
-    seen_sources = set()
-    for Model in [Person, Organization]:
-        for entity in Model.objects.all():
-            seen_attrs = []  # Keep track of attributes we've seen, for debugging
-            for attr in dir(entity):
-                if attr not in shared_source_attrs:
-                    try:
-                        entity_attr = getattr(entity, attr)
-                    except AttributeError:
-                        # Some built-in attributes are not accessible from model
-                        # instances, so skip them
-                        continue
-                    if hasattr(entity_attr, 'get_sources') and entity_attr.get_value():
-                        sources = set(entity_attr.get_sources())
-                        assert not sources & seen_sources
-                        seen_sources = seen_sources | sources
-                        seen_attrs.append(attr)
+    src_related_attrs = [attr for attr in dir(AccessPoint.objects.first())
+                         if attr.endswith('_related')]
+    for access_point in AccessPoint.objects.all():
+        related_objects = []
+        for attr in src_related_attrs:
+            related_objects += [obj for obj in getattr(access_point, attr).all()
+                                if obj]
+        related_obj_types = set(obj._meta.object_name for obj in related_objects)
+        if len(related_obj_types) > 1:
+            # Object types that we expect may share sources
+            permitted_org_set = set([
+                'CompositionChild', 'OrganizationName',
+                'MembershipOrganizationMember', 'MembershipOrganizationOrganization',
+                'MembershipPersonOrganization', 'MembershipPersonMember',
+                'OrganizationDivisionId', 'CompositionParent',
+            ])
+            permitted_person_set = set([
+                'PersonName', 'PersonDivisionId',
+            ])
+            assert (related_obj_types.issubset(permitted_org_set) or
+                    related_obj_types.issubset(permitted_person_set))
 
 
 @pytest.mark.django_db
