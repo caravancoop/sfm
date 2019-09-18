@@ -184,8 +184,13 @@ class OrganizationEditView(EditButtonsMixin, BaseUpdateView):
         return Organization.objects.get(uuid=self.kwargs['organization_id'])
 
     def get_success_url(self):
-        uuid = self.kwargs[self.slug_field_kwarg]
-        return reverse('view-organization', kwargs={'slug': uuid})
+        organization_id = self.kwargs['organization_id']
+
+        # when saving and continuing, always return to the page we were on
+        if self.request.POST.get('_continue'):
+            return self.request.path
+        else:
+            return reverse('view-organization', kwargs={'slug': organization_id})
 
     def get_cancel_url(self):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
@@ -193,11 +198,30 @@ class OrganizationEditView(EditButtonsMixin, BaseUpdateView):
 
 class OrganizationCreateView(BaseCreateView):
 
+    def get_success_url(self):
+        organization_id = self.kwargs['organization_id']
+
+        # when saving and continuing, redirect to the edit view for the new object
+        if self.request.POST.get('_continue'):
+            if not hasattr(self, 'edit_url_name'):
+                return reverse('view-organization', args=[organization_id])
+            else:
+                return reverse(self.edit_url_name, kwargs={
+                    'organization_id': organization_id,
+                    'pk': self.object.pk
+                })
+        else:
+            return reverse('view-organization', args=[organization_id])
+
     def get_cancel_url(self):
         return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteRelationshipView(BaseDeleteRelationshipView):
+
+    def get_success_url(self):
+        return reverse('create-organization-{}'.format(self.model.__name__.lower()),
+                        kwargs={'organization_id': self.kwargs['organization_id']})
 
     def get_cancel_url(self):
         organization_id = self.kwargs['organization_id']
@@ -234,14 +258,6 @@ class OrganizationEditBasicsView(OrganizationEditView):
         context = super().get_context_data(**kwargs)
         return context
 
-    def get_success_url(self):
-        organization_id = self.kwargs[self.slug_field_kwarg]
-
-        if self.request.POST.get('_continue'):
-            return reverse('edit-organization', kwargs={'organization_id': organization_id})
-        else:
-            return super().get_success_url()
-
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['organization_id'] = self.kwargs['organization_id']
@@ -256,18 +272,16 @@ class OrganizationCreateBasicsView(OrganizationCreateView):
     template_name = 'organization/create-basics.html'
     form_class = OrganizationCreateBasicsForm
 
-    def form_valid(self, form):
-        form.save(commit=True)
-        return HttpResponseRedirect(reverse('view-organization',
-                                    kwargs={'slug': form.object_ref.uuid}))
-
     def get_success_url(self):
-        # This method doesn't ever really get called but since Django does not
-        # seem to recognize when we place a get_absolute_url method on the model
-        # and some way of determining where to redirect after the form is saved
-        # is required, here ya go. The redirect actually gets handled in the
-        # form_valid method above.
-        return '{}?entity_type=Organization'.format(reverse('search'))
+        """
+        OrganizationCreateBasicsView follows a different success_url pattern than
+        the rest of the views that inherit from OrganizationCreateView, so
+        override get_success_url().
+        """
+        if self.request.POST.get('_continue'):
+            return reverse('edit-organization', args=[self.object.uuid])
+        else:
+            return reverse('view-organization', args=[self.object.uuid])
 
     # When cancelling the creation of a new organization, take the 
     # user back to the search page for organizations
@@ -294,17 +308,6 @@ class OrganizationEditCompositionView(OrganizationEditView):
 
         return context
 
-    def get_success_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-
-        if self.request.POST.get('_continue'):
-            return reverse('edit-organization-composition',
-                           kwargs={'organization_id': organization_id,
-                                   'pk': pk})
-        else:
-            return reverse('view-organization', kwargs={'slug': organization_id})
-
 
 class OrganizationCreateCompositionView(EditButtonsMixin, OrganizationCreateView):
     template_name = 'organization/create-composition.html'
@@ -313,6 +316,7 @@ class OrganizationCreateCompositionView(EditButtonsMixin, OrganizationCreateView
     context_object_name = 'current_composition'
     slug_field_kwarg = 'pk'
     button = 'relationships'
+    edit_url_name = 'edit-organization-composition'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -326,9 +330,6 @@ class OrganizationCreateCompositionView(EditButtonsMixin, OrganizationCreateView
 
         return context
 
-    def get_success_url(self):
-        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
-
 
 class OrganizationDeleteCompositionView(OrganizationDeleteRelationshipView):
     model = Composition
@@ -340,9 +341,6 @@ class OrganizationDeleteCompositionView(OrganizationDeleteRelationshipView):
         parent = composition.parent.get_value().value
         child = composition.child.get_value().value
         return parent, child
-
-    def get_success_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def delete(self, request, *args, **kwargs):
         parent, child = self.get_objects_to_update()
@@ -380,17 +378,6 @@ class OrganizationEditMembershipView(OrganizationEditView):
         form_kwargs['organization_id'] = self.kwargs['organization_id']
         return form_kwargs
 
-    def get_success_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-
-        if self.request.POST.get('_continue'):
-            return reverse('edit-organization-membership',
-                           kwargs={'organization_id': organization_id,
-                                   'pk': pk})
-        else:
-            return reverse('view-organization', kwargs={'slug': organization_id})
-
 
 class OrganizationCreateMembershipView(EditButtonsMixin, OrganizationCreateView):
     template_name = 'organization/create-membership.html'
@@ -399,6 +386,7 @@ class OrganizationCreateMembershipView(EditButtonsMixin, OrganizationCreateView)
     context_object_name = 'current_membership'
     slug_field_kwarg = 'pk'
     button = 'relationships'
+    edit_url_name = 'edit-organization-membership'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -417,9 +405,6 @@ class OrganizationCreateMembershipView(EditButtonsMixin, OrganizationCreateView)
         form_kwargs['organization_id'] = self.kwargs['organization_id']
         return form_kwargs
 
-    def get_success_url(self):
-        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
-
 
 class OrganizationDeleteMembershipView(OrganizationDeleteRelationshipView):
     model = MembershipOrganization
@@ -431,9 +416,6 @@ class OrganizationDeleteMembershipView(OrganizationDeleteRelationshipView):
         organization = membership.organization.get_value().value
         return member, organization
 
-    def get_success_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
     def delete(self, request, *args, **kwargs):
         member, organization = self.get_objects_to_update()
 
@@ -444,7 +426,12 @@ class OrganizationDeleteMembershipView(OrganizationDeleteRelationshipView):
 
         return response
 
-    # overriding this cancel url since the model name is MembershipOrganization
+    # overriding the success and cancel urls since the model name is MembershipOrganization
+    def get_success_url(self):
+        organization_id = self.kwargs['organization_id']
+        return reverse('create-organization-membership',
+                        kwargs={'organization_id': organization_id})
+
     def get_cancel_url(self):
         organization_id = self.kwargs['organization_id']
         pk = self.kwargs['pk']
@@ -461,17 +448,6 @@ class OrganizationEditPersonnelView(OrganizationEditView):
     slug_field_kwarg = 'organization_id'
     button = 'personnel'
 
-    def get_success_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-
-        if self.request.POST.get('_continue'):
-            return reverse('edit-organization-personnel',
-                           kwargs={'organization_id': organization_id,
-                                   'pk': pk})
-        else:
-            return reverse('view-organization', kwargs={'slug': organization_id})
-
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['organization_id'] = self.kwargs['organization_id']
@@ -485,6 +461,7 @@ class OrganizationCreatePersonnelView(EditButtonsMixin, OrganizationCreateView):
     context_object_name = 'current_membership'
     slug_field_kwarg = 'organization_id'
     button = 'personnel'
+    edit_url_name = 'edit-organization-personnel'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -495,9 +472,6 @@ class OrganizationCreatePersonnelView(EditButtonsMixin, OrganizationCreateView):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['organization_id'] = self.kwargs['organization_id']
         return form_kwargs
-
-    def get_success_url(self):
-        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
 class OrganizationDeletePersonnelView(OrganizationDeleteRelationshipView):
@@ -510,9 +484,6 @@ class OrganizationDeletePersonnelView(OrganizationDeleteRelationshipView):
         organization = membership.organization.get_value().value
         return person, organization
 
-    def get_success_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
-
     def delete(self, request, *args, **kwargs):
         person, organization = self.get_objects_to_update()
 
@@ -523,7 +494,12 @@ class OrganizationDeletePersonnelView(OrganizationDeleteRelationshipView):
 
         return response
 
-    # overriding this cancel url since the model name is MembershipPerson
+    # overriding the success and cancel urls since the model name is MembershipPerson
+    def get_success_url(self):
+        organization_id = self.kwargs['organization_id']
+        return reverse('create-organization-personnel',
+                        kwargs={'organization_id': organization_id})
+
     def get_cancel_url(self):
         organization_id = self.kwargs['organization_id']
         pk = self.kwargs['pk']
@@ -548,17 +524,6 @@ class OrganizationEditEmplacementView(OrganizationEditView):
 
         return context
 
-    def get_success_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-
-        if self.request.POST.get('_continue'):
-            return reverse('edit-organization-emplacement',
-                           kwargs={'organization_id': organization_id,
-                                   'pk': pk})
-        else:
-            return reverse('view-organization', kwargs={'slug': organization_id})
-
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         form_kwargs['organization_id'] = self.kwargs['organization_id']
@@ -571,6 +536,7 @@ class OrganizationCreateEmplacementView(EditButtonsMixin, OrganizationCreateView
     form_class = OrganizationCreateEmplacementForm
     slug_field_kwarg = 'pk'
     button = 'location'
+    edit_url_name = 'edit-organization-emplacement'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -585,9 +551,6 @@ class OrganizationCreateEmplacementView(EditButtonsMixin, OrganizationCreateView
         form_kwargs['organization_id'] = self.kwargs['organization_id']
         return form_kwargs
 
-    def get_success_url(self):
-        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
-
 
 class OrganizationDeleteEmplacementView(OrganizationDeleteRelationshipView):
     model = Emplacement
@@ -598,9 +561,6 @@ class OrganizationDeleteEmplacementView(OrganizationDeleteRelationshipView):
         organization = emplacement.organization.get_value().value
         site = emplacement.site.get_value().value
         return organization, site
-
-    def get_success_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def delete(self, request, *args, **kwargs):
         organization, _ = self.get_objects_to_update()
@@ -628,17 +588,6 @@ class OrganizationEditAssociationView(OrganizationEditView):
 
         return context
 
-    def get_success_url(self):
-        organization_id = self.kwargs['organization_id']
-        pk = self.kwargs['pk']
-
-        if self.request.POST.get('_continue'):
-            return reverse('edit-organization-association',
-                           kwargs={'organization_id': organization_id,
-                                   'pk': pk})
-        else:
-            return reverse('view-organization', kwargs={'slug': organization_id})
-
 
 class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView):
     model = Association
@@ -646,6 +595,7 @@ class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView
     form_class = OrganizationCreateAssociationForm
     slug_field_kwarg = 'pk'
     button = 'location'
+    edit_url_name = 'edit-organization-association'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -654,9 +604,6 @@ class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView
         context['associations'] = [e.object_ref for e in context['organization'].associations]
 
         return context
-
-    def get_success_url(self):
-        return reverse('edit-organization', kwargs={'organization_id': self.kwargs['organization_id']})
 
 
 class OrganizationDeleteAssociationView(OrganizationDeleteRelationshipView):
@@ -668,9 +615,6 @@ class OrganizationDeleteAssociationView(OrganizationDeleteRelationshipView):
         organization = association.organization.get_value().value
         area = association.area.get_value().value
         return organization, area
-
-    def get_success_url(self):
-        return reverse('view-organization', kwargs={'slug': self.kwargs['organization_id']})
 
     def delete(self, request, *args, **kwargs):
         organization, _ = self.get_objects_to_update()
