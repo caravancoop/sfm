@@ -18,7 +18,7 @@ def data_folder():
 
 
 @pytest.fixture
-def data_import(data_folder, update_index_mock, fake_signal):
+def data_import(data_folder):
     """Perform a test data import."""
     output = io.StringIO()
     call_command('import_google_doc', folder=data_folder, stdout=output)

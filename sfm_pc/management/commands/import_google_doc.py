@@ -122,27 +122,33 @@ class Command(BaseCommand):
 
     def disconnectSignals(self):
         from django.db.models.signals import post_save
-        from sfm_pc.signals import update_organization_index, \
-            update_person_index, update_violation_index, \
-            update_membership_index, update_composition_index
+        from complex_fields.base_models import object_ref_saved
+        from sfm_pc.signals import (
+            update_organization_index, update_person_index, update_violation_index,
+            update_membership_index, update_composition_index, update_source_index
+        )
 
-        post_save.disconnect(receiver=update_organization_index, sender=Organization)
-        post_save.disconnect(receiver=update_person_index, sender=Person)
-        post_save.disconnect(receiver=update_violation_index, sender=Violation)
-        post_save.disconnect(receiver=update_membership_index, sender=MembershipPerson)
-        post_save.disconnect(receiver=update_composition_index, sender=Composition)
+        object_ref_saved.disconnect(receiver=update_organization_index, sender=Organization)
+        object_ref_saved.disconnect(receiver=update_person_index, sender=Person)
+        object_ref_saved.disconnect(receiver=update_violation_index, sender=Violation)
+        object_ref_saved.disconnect(receiver=update_membership_index, sender=MembershipPerson)
+        object_ref_saved.disconnect(receiver=update_composition_index, sender=Composition)
+        post_save.disconnect(receiver=update_source_index, sender=Source)
 
     def connectSignals(self):
         from django.db.models.signals import post_save
-        from sfm_pc.signals import update_organization_index, \
-            update_person_index, update_violation_index, \
-            update_membership_index, update_composition_index
+        from complex_fields.base_models import object_ref_saved
+        from sfm_pc.signals import (
+            update_organization_index, update_person_index, update_violation_index,
+            update_membership_index, update_composition_index, update_source_index
+        )
 
-        post_save.connect(receiver=update_organization_index, sender=Organization)
-        post_save.connect(receiver=update_person_index, sender=Person)
-        post_save.connect(receiver=update_violation_index, sender=Violation)
-        post_save.connect(receiver=update_membership_index, sender=MembershipPerson)
-        post_save.connect(receiver=update_composition_index, sender=Composition)
+        object_ref_saved.connect(receiver=update_organization_index, sender=Organization)
+        object_ref_saved.connect(receiver=update_person_index, sender=Person)
+        object_ref_saved.connect(receiver=update_violation_index, sender=Violation)
+        object_ref_saved.connect(receiver=update_membership_index, sender=MembershipPerson)
+        object_ref_saved.connect(receiver=update_composition_index, sender=Composition)
+        post_save.connect(receiver=update_source_index, sender=Source)
 
     def handle(self, *args, **options):
 
