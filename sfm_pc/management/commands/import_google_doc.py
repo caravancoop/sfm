@@ -548,12 +548,12 @@ class Command(BaseCommand):
                     'Organization_OrganizationName': {
                         'value': name_value,
                         'confidence': confidence,
-                        'sources': sources
+                        'sources': sources.copy()
                     },
                     'Organization_OrganizationDivisionId': {
                         'value': division_id,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     }
                 }
 
@@ -659,7 +659,7 @@ class Command(BaseCommand):
                             'Organization_OrganizationDivisionId': {
                                 'value': division_id,
                                 'confidence': confidence,
-                                'sources': sources,
+                                'sources': sources.copy(),
                             },
                         }
 
@@ -758,12 +758,12 @@ class Command(BaseCommand):
                             'Organization_OrganizationName': {
                                 'value': member_org_name,
                                 'confidence': confidence,
-                                'sources': sources,
+                                'sources': sources.copy(),
                             },
                             'Organization_OrganizationDivisionId': {
                                 'value': division_id,
                                 'confidence': confidence,
-                                'sources': sources,
+                                'sources': sources.copy(),
                             },
                         }
 
@@ -789,12 +789,12 @@ class Command(BaseCommand):
                             'MembershipOrganization_MembershipOrganizationMember': {
                                 'value': organization,
                                 'confidence': confidence,
-                                'sources': sources
+                                'sources': sources.copy()
                             },
                             'MembershipOrganization_MembershipOrganizationOrganization': {
                                 'value': member_organization,
                                 'confidence': confidence,
-                                'sources': sources
+                                'sources': sources.copy()
                             },
                         }
 
@@ -1250,12 +1250,12 @@ class Command(BaseCommand):
                     'Emplacement_EmplacementOrganization': {
                         'value': organization,
                         'confidence': confidence,
-                        'sources': sources
+                        'sources': sources.copy()
                     },
                     'Emplacement_EmplacementSite': {
                         'value': site,
                         'confidence': confidence,
-                        'sources': sources
+                        'sources': sources.copy()
                     }
                 }
 
@@ -1621,12 +1621,12 @@ class Command(BaseCommand):
                     'Person_PersonName': {
                         'value': name_value,
                         'confidence': confidence,
-                        'sources': sources
+                        'sources': sources.copy()
                     },
                     'Person_PersonDivisionId': {
                         'value': division_id,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     }
                 }
 
@@ -1674,12 +1674,12 @@ class Command(BaseCommand):
                     'Organization_OrganizationName': {
                         'value': organization_name,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     },
                     'Organization_OrganizationDivisionId': {
                         'value': division_id,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     }
                 }
 
@@ -1724,12 +1724,12 @@ class Command(BaseCommand):
                     'MembershipPerson_MembershipPersonMember': {
                         'value': person,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     },
                     'MembershipPerson_MembershipPersonOrganization': {
                         'value': organization,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     },
                 }
 
@@ -1992,12 +1992,12 @@ class Command(BaseCommand):
             event_info.update({
                 'Violation_ViolationLocationName': {
                     'value': exactloc_name,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
                 'Violation_ViolationLocationId': {
                     'value': exactloc_id,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
             })
@@ -2036,22 +2036,22 @@ class Command(BaseCommand):
             event_info.update({
                 'Violation_ViolationAdminLevel2': {
                     'value': admin2,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
                 'Violation_ViolationAdminLevel1': {
                     'value': admin1,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
                 'Violation_ViolationOSMName': {
                     'value': geo.name,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
                 'Violation_ViolationOSMId': {
                     'value': geo.id,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
             })
@@ -2063,7 +2063,7 @@ class Command(BaseCommand):
             event_info.update({
                 'Violation_ViolationLocation': {
                     'value': self.get_or_create_location(geo),
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
             })
@@ -2079,7 +2079,7 @@ class Command(BaseCommand):
         event_info.update({
             'Violation_ViolationDivisionId': {
                 'value': division_id,
-                'sources': sources,
+                'sources': sources.copy(),
                 'confidence': 1,
             }
         })
@@ -2112,12 +2112,12 @@ class Command(BaseCommand):
                         'Person_PersonName': {
                             'value': perp,
                             'confidence': 1,
-                            'sources': sources,
+                            'sources': sources.copy(),
                         },
                         'Person_PersonDivisionId' : {
                             'value': division_id,
                             'confidence': 1,
-                            'sources': sources
+                            'sources': sources.copy()
                         }
                     }
                     person = Person.objects.create(uuid=uuid, published=True)
@@ -2159,12 +2159,12 @@ class Command(BaseCommand):
                         'Organization_OrganizationName': {
                             'value': org,
                             'confidence': 1,
-                            'sources': sources,
+                            'sources': sources.copy(),
                         },
                         'Organization_OrganizationDivisionId': {
                             'value': division_id,
                             'confidence': 1,
-                            'sources': sources,
+                            'sources': sources.copy(),
                         }
                     }
                     organization = Organization.objects.create(uuid=uuid,
