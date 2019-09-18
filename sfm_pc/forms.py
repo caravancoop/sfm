@@ -217,6 +217,14 @@ class BaseUpdateForm(BaseEditForm):
             else:
                 posted_sources = set()
 
+            source_required = getattr(field_instance.field_model, 'source_required', False)
+            if source_required and field in self.empty_values and posted_sources:
+                error = forms.ValidationError(
+                    _('Empty fields should not have sources'),
+                    code='invalid')
+                self.add_error(field, error)
+                continue
+
             try:
                 existing_sources = {str(s.uuid) for s in field_instance.get_sources()}
             except AttributeError:
@@ -228,7 +236,7 @@ class BaseUpdateForm(BaseEditForm):
 
             if not field in (self.empty_values | fields_with_errors):
 
-                if not getattr(field_instance.field_model, 'source_required', False):
+                if not source_required:
                     self.update_fields.add(field)
                     continue
 
@@ -438,9 +446,17 @@ class BaseCreateForm(BaseEditForm):
             else:
                 posted_sources = set()
 
+            source_required = getattr(field_model, 'source_required', False)
+            if source_required and field_name in self.empty_values and posted_sources:
+                error = forms.ValidationError(
+                    _('Empty fields should not have sources'),
+                    code='invalid')
+                self.add_error(field_name, error)
+                continue
+
             if not field_name in (self.empty_values | fields_with_errors):
 
-                if not getattr(field_model, 'source_required', False):
+                if not source_required:
                     self.update_fields.add(field_name)
                     continue
 
