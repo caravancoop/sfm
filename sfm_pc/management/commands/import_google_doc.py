@@ -333,14 +333,11 @@ class Command(BaseCommand):
                              message])
 
     def get_confidence(self, confidence_key):
-        if confidence_key in ['1', '2', '3']:
-            return int(confidence_key)
+        key = confidence_key.strip().lower()
+        if key:
+            return CONFIDENCE_MAP[key]
         else:
-            key = confidence_key.strip().lower()
-            if key:
-                return CONFIDENCE_MAP[key]
-            else:
-                return 1
+            return 1
 
     def parse_date(self, value):
         parsed = None

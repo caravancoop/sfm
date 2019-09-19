@@ -28,6 +28,7 @@ def data_import(data_folder):
 @pytest.mark.django_db
 def test_no_sources_missing(data_import):
     assert 'does not have sources' not in data_import.getvalue()
+    assert 'has no confidence' not in data_import.getvalue()
 
 
 @pytest.mark.django_db
