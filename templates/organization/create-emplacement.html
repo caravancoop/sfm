@@ -165,7 +165,7 @@
 {% block location_select2 %}
 $('.location').select2({
     ajax: {
-        url: "{% url 'location-autocomplete' %}?feature_type=node",
+        url: "{% url 'location-autocomplete' %}",
         data: function(params){
             var query = {
                 q: params.term
