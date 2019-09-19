@@ -100,6 +100,11 @@ class Command(BaseCommand):
             default=1,
             help='First row to begin parsing (for debugging)'
         )
+        parser.add_argument(
+            '--folder',
+            dest='folder',
+            help='Path to a folder containing data (for testing)'
+        )
 
     def sourcesList(self, obj, attribute):
         sources = [s for s in getattr(obj, attribute).get_sources()]
@@ -117,27 +122,33 @@ class Command(BaseCommand):
 
     def disconnectSignals(self):
         from django.db.models.signals import post_save
-        from sfm_pc.signals import update_organization_index, \
-            update_person_index, update_violation_index, \
-            update_membership_index, update_composition_index
+        from complex_fields.base_models import object_ref_saved
+        from sfm_pc.signals import (
+            update_organization_index, update_person_index, update_violation_index,
+            update_membership_index, update_composition_index, update_source_index
+        )
 
-        post_save.disconnect(receiver=update_organization_index, sender=Organization)
-        post_save.disconnect(receiver=update_person_index, sender=Person)
-        post_save.disconnect(receiver=update_violation_index, sender=Violation)
-        post_save.disconnect(receiver=update_membership_index, sender=MembershipPerson)
-        post_save.disconnect(receiver=update_composition_index, sender=Composition)
+        object_ref_saved.disconnect(receiver=update_organization_index, sender=Organization)
+        object_ref_saved.disconnect(receiver=update_person_index, sender=Person)
+        object_ref_saved.disconnect(receiver=update_violation_index, sender=Violation)
+        object_ref_saved.disconnect(receiver=update_membership_index, sender=MembershipPerson)
+        object_ref_saved.disconnect(receiver=update_composition_index, sender=Composition)
+        post_save.disconnect(receiver=update_source_index, sender=Source)
 
     def connectSignals(self):
         from django.db.models.signals import post_save
-        from sfm_pc.signals import update_organization_index, \
-            update_person_index, update_violation_index, \
-            update_membership_index, update_composition_index
+        from complex_fields.base_models import object_ref_saved
+        from sfm_pc.signals import (
+            update_organization_index, update_person_index, update_violation_index,
+            update_membership_index, update_composition_index, update_source_index
+        )
 
-        post_save.connect(receiver=update_organization_index, sender=Organization)
-        post_save.connect(receiver=update_person_index, sender=Person)
-        post_save.connect(receiver=update_violation_index, sender=Violation)
-        post_save.connect(receiver=update_membership_index, sender=MembershipPerson)
-        post_save.connect(receiver=update_composition_index, sender=Composition)
+        object_ref_saved.connect(receiver=update_organization_index, sender=Organization)
+        object_ref_saved.connect(receiver=update_person_index, sender=Person)
+        object_ref_saved.connect(receiver=update_violation_index, sender=Violation)
+        object_ref_saved.connect(receiver=update_membership_index, sender=MembershipPerson)
+        object_ref_saved.connect(receiver=update_composition_index, sender=Composition)
+        post_save.connect(receiver=update_source_index, sender=Source)
 
     def handle(self, *args, **options):
 
@@ -167,51 +178,14 @@ class Command(BaseCommand):
         # Set the country code for the work
         self.country_code = options['country_code']
 
-        credentials = self.get_credentials()
+        if options.get('folder'):
+            self.stdout.write('Loading data from folder {}...'.format(options['folder']))
+            all_sheets = self.get_sheets_from_folder(options['folder'])
+        else:
+            self.stdout.write('Loading data from Google Sheets...')
+            all_sheets = self.get_sheets_from_doc(options['doc_id'], options['source_doc_id'])
 
-        http = credentials.authorize(httplib2.Http())
-
-        service = build('sheets', 'v4', http=http)
-
-        result = service.spreadsheets().get(
-            spreadsheetId=options['doc_id'], includeGridData=False).execute()
-
-        sheets = result['sheets']
-
-        sheet_mapping = {}
-
-        #exclude 3 internal columns at start of org, person, and event sheets
-        sheet_range = "!D:DM"
-
-        for sheet in sheets:
-            title = sheet['properties']['title']
-
-            sheet_data = service.spreadsheets().values().get(
-                spreadsheetId=options['doc_id'], range=title + sheet_range).execute()
-
-            sheet_mapping[title] = sheet_data['values']
-
-        org_sheets = {title: data for title, data in sheet_mapping.items() \
-                          if 'orgs' in title.lower() or 'mopol' in title.lower()}
-
-        person_sheets = {title: data for title, data in sheet_mapping.items() \
-                            if 'persons' in title.lower()}
-
-        event_sheets = {title: data for title, data in sheet_mapping.items() \
-                            if 'events' in title.lower()}
-
-        all_sheets = {
-            'organization': org_sheets,
-            'person': person_sheets,
-            'event': event_sheets,
-        }
-
-        #get source data
-        source_range = "sources!A2:N"
-        source_sheet = service.spreadsheets().values().get(
-            spreadsheetId=options['source_doc_id'], range=source_range).execute()
-
-        self.create_sources(source_sheet)
+        self.create_sources(all_sheets['source'])
 
         skippers = ['Play Copy of Events']
         start = int(options['start'])
@@ -254,9 +228,94 @@ class Command(BaseCommand):
                             self.current_row = index + start + 1
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
-        self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(options['doc_id'])))
+        data_src = options['folder'] if options.get('folder') else options['doc_id']
+        self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(data_src)))
         # connect post save signals
         self.connectSignals()
+
+    def get_sheets_from_doc(self, doc_id, source_doc_id):
+        """
+        Load data from Google Sheets. Required params include a Google Doc ID
+        for top-level entities and a Doc ID for sources.
+        """
+        credentials = self.get_credentials()
+        http = credentials.authorize(httplib2.Http())
+        service = build('sheets', 'v4', http=http)
+
+        result = service.spreadsheets().get(
+            spreadsheetId=doc_id,
+            includeGridData=False
+        ).execute()
+        sheets = result['sheets']
+        sheet_mapping = {}
+
+        # Exclude 3 internal columns at start of org, person, and event sheets
+        sheet_range = "!D:DM"
+
+        for sheet in sheets:
+            title = sheet['properties']['title']
+            sheet_data = service.spreadsheets().values().get(
+                spreadsheetId=doc_id,
+                range=title + sheet_range
+            ).execute()
+            sheet_mapping[title] = sheet_data['values']
+
+        org_sheets = {title: data for title, data in sheet_mapping.items()
+                      if 'orgs' in title.lower() or 'mopol' in title.lower()}
+        person_sheets = {title: data for title, data in sheet_mapping.items()
+                         if 'persons' in title.lower()}
+        event_sheets = {title: data for title, data in sheet_mapping.items()
+                        if 'events' in title.lower()}
+
+        # Get data about sources
+        source_range = "sources!A2:N"
+        source_sheet = service.spreadsheets().values().get(
+            spreadsheetId=source_doc_id,
+            range=source_range
+        ).execute()
+
+        return {
+            'organization': org_sheets,
+            'person': person_sheets,
+            'event': event_sheets,
+            'source': source_sheet,
+        }
+
+    def get_sheets_from_folder(self, folder):
+        """
+        Load data from a folder on disk. Data must be stored as CSV files with the
+        name of the entities represented therein (e.g. 'person.csv') and must be
+        stored under the directory represented by the path string 'folder'.
+        """
+        all_sheets = {}
+        entities = (
+            ('organization', 'orgs'),
+            ('person', 'persons'),
+            ('event', 'events'),
+            ('source', 'values')
+        )
+        for entity_type, title in entities:
+            path = os.path.join(folder, entity_type + '.csv')
+            if not os.path.isfile(path):
+                raise OSError('Required file {path} not found.'.format(path=path))
+
+            with open(path) as fobj:
+                reader = csv.reader(fobj)
+                records = list(reader)
+
+            if entity_type == 'source':
+                # Source spreadsheets are pulled from the Google API in a
+                # different manner and should not have header rows.
+                records = records[1:]
+            else:
+                # Top-level entity spreadsheets contain initial metadata columns
+                # that are not used in the app.
+                records = [row[3:] for row in records]
+
+            # Match the Google Sheets API response format
+            all_sheets[entity_type] = {title: records}
+
+        return all_sheets
 
     def log_error(self, message):
         log_message = message + ' (context: Sheet {0}, Row {1})'.format(self.current_sheet, self.current_row)
@@ -492,12 +551,12 @@ class Command(BaseCommand):
                     'Organization_OrganizationName': {
                         'value': name_value,
                         'confidence': confidence,
-                        'sources': sources
+                        'sources': sources.copy()
                     },
                     'Organization_OrganizationDivisionId': {
                         'value': division_id,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     }
                 }
 
@@ -603,7 +662,7 @@ class Command(BaseCommand):
                             'Organization_OrganizationDivisionId': {
                                 'value': division_id,
                                 'confidence': confidence,
-                                'sources': sources,
+                                'sources': sources.copy(),
                             },
                         }
 
@@ -702,12 +761,12 @@ class Command(BaseCommand):
                             'Organization_OrganizationName': {
                                 'value': member_org_name,
                                 'confidence': confidence,
-                                'sources': sources,
+                                'sources': sources.copy(),
                             },
                             'Organization_OrganizationDivisionId': {
                                 'value': division_id,
                                 'confidence': confidence,
-                                'sources': sources,
+                                'sources': sources.copy(),
                             },
                         }
 
@@ -733,12 +792,12 @@ class Command(BaseCommand):
                             'MembershipOrganization_MembershipOrganizationMember': {
                                 'value': organization,
                                 'confidence': confidence,
-                                'sources': sources
+                                'sources': sources.copy()
                             },
                             'MembershipOrganization_MembershipOrganizationOrganization': {
                                 'value': member_organization,
                                 'confidence': confidence,
-                                'sources': sources
+                                'sources': sources.copy()
                             },
                         }
 
@@ -1194,12 +1253,12 @@ class Command(BaseCommand):
                     'Emplacement_EmplacementOrganization': {
                         'value': organization,
                         'confidence': confidence,
-                        'sources': sources
+                        'sources': sources.copy()
                     },
                     'Emplacement_EmplacementSite': {
                         'value': site,
                         'confidence': confidence,
-                        'sources': sources
+                        'sources': sources.copy()
                     }
                 }
 
@@ -1565,12 +1624,12 @@ class Command(BaseCommand):
                     'Person_PersonName': {
                         'value': name_value,
                         'confidence': confidence,
-                        'sources': sources
+                        'sources': sources.copy()
                     },
                     'Person_PersonDivisionId': {
                         'value': division_id,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     }
                 }
 
@@ -1618,12 +1677,12 @@ class Command(BaseCommand):
                     'Organization_OrganizationName': {
                         'value': organization_name,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     },
                     'Organization_OrganizationDivisionId': {
                         'value': division_id,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     }
                 }
 
@@ -1668,12 +1727,12 @@ class Command(BaseCommand):
                     'MembershipPerson_MembershipPersonMember': {
                         'value': person,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     },
                     'MembershipPerson_MembershipPersonOrganization': {
                         'value': organization,
                         'confidence': confidence,
-                        'sources': sources,
+                        'sources': sources.copy(),
                     },
                 }
 
@@ -1936,12 +1995,12 @@ class Command(BaseCommand):
             event_info.update({
                 'Violation_ViolationLocationName': {
                     'value': exactloc_name,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
                 'Violation_ViolationLocationId': {
                     'value': exactloc_id,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
             })
@@ -1980,22 +2039,22 @@ class Command(BaseCommand):
             event_info.update({
                 'Violation_ViolationAdminLevel2': {
                     'value': admin2,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
                 'Violation_ViolationAdminLevel1': {
                     'value': admin1,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
                 'Violation_ViolationOSMName': {
                     'value': geo.name,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
                 'Violation_ViolationOSMId': {
                     'value': geo.id,
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
             })
@@ -2007,7 +2066,7 @@ class Command(BaseCommand):
             event_info.update({
                 'Violation_ViolationLocation': {
                     'value': self.get_or_create_location(geo),
-                    'sources': sources,
+                    'sources': sources.copy(),
                     'confidence': 1
                 },
             })
@@ -2023,7 +2082,7 @@ class Command(BaseCommand):
         event_info.update({
             'Violation_ViolationDivisionId': {
                 'value': division_id,
-                'sources': sources,
+                'sources': sources.copy(),
                 'confidence': 1,
             }
         })
@@ -2056,12 +2115,12 @@ class Command(BaseCommand):
                         'Person_PersonName': {
                             'value': perp,
                             'confidence': 1,
-                            'sources': sources,
+                            'sources': sources.copy(),
                         },
                         'Person_PersonDivisionId' : {
                             'value': division_id,
                             'confidence': 1,
-                            'sources': sources
+                            'sources': sources.copy()
                         }
                     }
                     person = Person.objects.create(uuid=uuid, published=True)
@@ -2103,12 +2162,12 @@ class Command(BaseCommand):
                         'Organization_OrganizationName': {
                             'value': org,
                             'confidence': 1,
-                            'sources': sources,
+                            'sources': sources.copy(),
                         },
                         'Organization_OrganizationDivisionId': {
                             'value': division_id,
                             'confidence': 1,
-                            'sources': sources,
+                            'sources': sources.copy(),
                         }
                     }
                     organization = Organization.objects.create(uuid=uuid,
