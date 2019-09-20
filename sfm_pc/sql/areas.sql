@@ -14,7 +14,7 @@ SELECT
   MAX(open_ended.value) AS open_ended,
   location.id AS area_osm_id,
   MAX(location.name) AS area_name,
-  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS area_country_iso,
+  substring(MAX(location.division_id), position(':' IN MAX(location.division_id)) + 1, 2) AS area_country_iso,
   MAX(location.feature_type) AS area_osm_feature_type,
   MAX(location.adminlevel) AS area_admin_level,
   MAX(adminlevel1.id) AS admin_level_1_id,
