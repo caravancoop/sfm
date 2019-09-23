@@ -68,6 +68,10 @@ Import entity data from Google Drive:
     # blackbox_cat configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
     make import_google_docs
 
+Clean up unused Locations:
+
+    python manage.py clean_locations
+
 Make materialized views for the app based on the imported data:
 
     python manage.py make_flattened_views --recreate

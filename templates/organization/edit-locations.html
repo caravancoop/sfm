@@ -91,11 +91,7 @@
             {% block location_select2 %}
             $('.location').select2({
                 ajax: {
-                    {% if current_emplacement %}
-                        url: "{% url 'location-autocomplete' %}?feature_type=node",
-                    {% else %}
-                        url: "{% url 'location-autocomplete' %}?feature_type=relation",
-                    {% endif %}
+                    url: "{% url 'location-autocomplete' %}{% if current_association %}?feature_type=relation{% endif %}",
                     data: function(params){
                         var query = {
                             q: params.term
