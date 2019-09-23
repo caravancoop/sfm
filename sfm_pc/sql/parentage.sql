@@ -51,7 +51,7 @@ LEFT JOIN organization_organization AS parent
   ON comp_parent.value_id = parent.id
 LEFT JOIN organization_organizationname AS parent_name
   ON parent.id = parent_name.object_ref_id
-JOIN organization_organizationdivisionid AS parent_country
+LEFT JOIN organization_organizationdivisionid AS parent_country
   ON parent.id = parent_country.object_ref_id
 LEFT JOIN composition_compositionclassification AS comp_classification
   ON comp_object_ref.id = comp_classification.object_ref_id
