@@ -54,7 +54,7 @@ LEFT JOIN organization_organization AS member
   ON member_organization.value_id = member.id
 LEFT JOIN organization_organizationname AS member_name
   ON member.id = member_name.object_ref_id
-JOIN organization_organizationdivisionid as member_country
+LEFT JOIN organization_organizationdivisionid as member_country
   on member.id = member_country.object_ref_id
 LEFT JOIN membershiporganization_fcd AS member_firstciteddate
   ON member_object_ref.id = member_firstciteddate.object_ref_id
