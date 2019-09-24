@@ -70,7 +70,7 @@ Import entity data from Google Drive:
 
 Clean up unused Locations:
 
-    python manage.py clean_locations
+    python manage.py clean_locations --batch
 
 Make materialized views for the app based on the imported data:
 
