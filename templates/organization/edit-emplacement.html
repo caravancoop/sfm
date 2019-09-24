@@ -17,7 +17,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.site.label }}</label>
-                <select id="id_site" class="form-control sourced location" name="site">
+                <select id="id_site" class="form-control sourced location select2-target" name="site">
                     {% if form.instance.site.get_value %}
                     <option value="{{ form.instance.site.get_value.value.id }}">
                     {{ form.instance.site.get_value.value.name }}

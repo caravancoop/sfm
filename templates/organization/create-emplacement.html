@@ -14,7 +14,7 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.site.label }}</label>
-                <select id="id_site" class="form-control sourced location" name="site"></select>
+                <select id="id_site" class="form-control sourced location select2-target" name="site"></select>
                 {% if form.site.errors %}
                     {% for error in form.site.errors %}
                     <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
