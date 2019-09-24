@@ -51,5 +51,5 @@ LEFT JOIN organization_organizationrealstart AS realstart
 LEFT JOIN organization_organizationopenended AS open_ended
   ON object_ref.id = open_ended.object_ref_id
 WHERE division_id.value = '%s'
-  AND location.feature_type = 'node'
+  AND (location.feature_type = 'node' OR location.feature_type = 'point') 
 GROUP BY object_ref.uuid, location.id
