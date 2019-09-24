@@ -1,8 +1,7 @@
 SELECT
   object_ref.uuid AS uuid,
   MAX(name.value) AS name,
-  MAX(division_id.value) AS division_id,
-  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS country_iso,
+  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS organization_country_iso,
   array_to_string(array_agg(DISTINCT classifications.value), ';') AS classifications,
   array_to_string(array_agg(DISTINCT aliases.value), ';') AS other_names,
   MAX(firstciteddate.value) AS first_cited_date,
@@ -16,6 +15,7 @@ SELECT
   person.uuid AS person_id,
   MAX(person_name.value) AS person_name,
   array_to_string(array_agg(DISTINCT person_alias.value), ';') AS person_other_names,
+  substring(MAX(person_country.value), position(':' IN MAX(person_country.value)) + 1, 2) AS person_country_iso,
   MAX(person_date_of_birth.value) AS person_date_of_birth,
   MAX(person_date_of_death.value) AS person_date_of_death,
   bool_and(person_deceased.value) AS person_deceased,
@@ -72,6 +72,8 @@ JOIN person_person AS person
   ON member.value_id = person.id
 JOIN person_personname AS person_name
   ON person.id = person_name.object_ref_id
+LEFT JOIN person_persondivisionid as person_country
+  ON person.id = person_country.id
 LEFT JOIN person_personalias AS person_alias
   ON person.id = person_alias.object_ref_id
 LEFT JOIN person_persondateofbirth AS person_date_of_birth

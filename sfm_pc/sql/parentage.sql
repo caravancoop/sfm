@@ -1,8 +1,7 @@
 SELECT
   object_ref.uuid AS uuid,
   MAX(name.value) AS name,
-  MAX(division_id.value) AS division_id,
-  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS country_iso,
+  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS child_country_iso,
   array_to_string(array_agg(DISTINCT classifications.value), ';') AS classifications,
   array_to_string(array_agg(DISTINCT aliases.value), ';') AS other_names,
   MAX(firstciteddate.value) AS first_cited_date,
@@ -14,6 +13,7 @@ SELECT
   AS start_date_of_organization,
   MAX(open_ended.value) AS open_ended,
   parent.uuid AS parent_id,
+  substring(MAX(parent_country.value), position(':' IN MAX(parent_country.value)) + 1, 2) AS parent_country_iso,
   MAX(parent_name.value) AS parent_name,
   array_to_string(array_agg(DISTINCT comp_classification.value), ';') AS relationship_classifications,
   MAX(comp_firstciteddate.value) AS relationship_first_cited_date,
@@ -51,6 +51,8 @@ LEFT JOIN organization_organization AS parent
   ON comp_parent.value_id = parent.id
 LEFT JOIN organization_organizationname AS parent_name
   ON parent.id = parent_name.object_ref_id
+LEFT JOIN organization_organizationdivisionid AS parent_country
+  ON parent.id = parent_country.object_ref_id
 LEFT JOIN composition_compositionclassification AS comp_classification
   ON comp_object_ref.id = comp_classification.object_ref_id
 LEFT JOIN composition_compositionstartdate AS comp_firstciteddate

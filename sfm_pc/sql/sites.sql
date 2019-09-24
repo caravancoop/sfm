@@ -1,8 +1,7 @@
 SELECT
   object_ref.uuid AS uuid,
   MAX(name.value) AS name,
-  MAX(division_id.value) AS division_id,
-  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS country_iso,
+  substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS organization_country_iso,
   array_to_string(array_agg(DISTINCT classifications.value), ';') AS classifications,
   array_to_string(array_agg(DISTINCT aliases.value), ';') AS other_names,
   MAX(firstciteddate.value) AS first_cited_date,
@@ -15,6 +14,7 @@ SELECT
   MAX(open_ended.value) AS open_ended,
   location.id AS site_osm_id,
   MAX(location.name) AS site_name,
+  substring(MAX(location.division_id), position(':' IN MAX(location.division_id)) + 1, 2) AS site_country_iso,
   MAX(location.feature_type) AS site_osm_feature_type,
   MAX(location.adminlevel) AS site_admin_level,
   MAX(adminlevel1.id) AS admin_level_1_id,
