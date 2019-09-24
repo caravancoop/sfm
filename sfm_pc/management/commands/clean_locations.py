@@ -1,5 +1,6 @@
 from tqdm import tqdm
 from django.core.management.base import BaseCommand, CommandError
+from django.core.paginator import Paginator
 from django.db.models import Q
 
 from location.models import Location
@@ -33,12 +34,14 @@ class Command(BaseCommand):
             ).delete()
         else:
             num_deleted = 0
+            paginator = Paginator(Location.objects.all().order_by('id'), 50)
             with tqdm(total=location_count) as progress_bar:
-                for location in Location.objects.all():
-                    if not location.related_entities:
-                        location.delete()
-                        num_deleted += 1
-                    progress_bar.update(1)
+                for page in paginator.page_range:
+                    for location in paginator.page(page).object_list:
+                        if not location.related_entities:
+                            location.delete()
+                            num_deleted += 1
+                        progress_bar.update(1)
 
         self.stdout.write(
             self.style.SUCCESS('Deleted {} extraneous locations'.format(num_deleted))
