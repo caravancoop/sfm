@@ -879,7 +879,8 @@ class Command(BaseCommand):
                       instance,
                       required=False,
                       require_confidence=True,
-                      date=False):
+                      date=False,
+                      multiple=True):
 
         value_position = positions['value']
 
@@ -921,8 +922,8 @@ class Command(BaseCommand):
             import_path = '{app_name}.models.{model_name}{field_name}'
 
             relation_path = import_path.format(app_name=app_name,
-                                                model_name=model_name,
-                                                field_name=field_name)
+                                               model_name=model_name,
+                                               field_name=field_name)
 
             relation_model = import_class(relation_path)
 
@@ -968,8 +969,9 @@ class Command(BaseCommand):
                                                                    field_name='Context')
                         value_model = import_class(value_rel_path)
 
-                    value_objects = []
-                    for value_text in [val.strip() for val in value.split(';') if val.strip()]:
+                    # Split on semicolons if multiple values are supported
+                    values = [value] if not multiple else [val.strip() for val in value.split(';') if val.strip()]
+                    for value_text in values:
 
                         value_obj, created = value_model.objects.get_or_create(value=value_text)
 
@@ -1013,7 +1015,9 @@ class Command(BaseCommand):
 
                 else:
 
-                    for val in value.split(';'):
+                    # Split on semicolons if multiple values are supported.
+                    values = [value] if not multiple else [val.strip() for val in value.split(';') if val.strip()]
+                    for val in values:
                         relation_instance, created = relation_model.objects.get_or_create(value=val.strip(),
                                                                                           object_ref=instance,
                                                                                           lang='en')
@@ -1950,15 +1954,26 @@ class Command(BaseCommand):
                                                                  published=True)
             reversion.set_user(self.user)
 
-        simple_attrs = ('LocationDescription', 'Type', 'Description', 'Status')
+        # Simple attributes that support multiple values
+        simple_multi_attrs = ('LocationDescription', 'Type', 'Status')
 
-        for attr in simple_attrs:
-
+        for attr in simple_multi_attrs:
             self.make_relation(attr,
                                positions[attr],
                                event_data,
                                violation,
                                require_confidence=False)
+
+        # Simple attributes that only support single values
+        simple_single_attrs = ('Description',)
+
+        for attr in simple_single_attrs:
+            self.make_relation(attr,
+                               positions[attr],
+                               event_data,
+                               violation,
+                               require_confidence=False,
+                               multiple=False)
 
         date_attrs = ('StartDate', 'EndDate', 'FirstAllegation', 'LastUpdate')
 

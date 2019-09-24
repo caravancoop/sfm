@@ -72,8 +72,23 @@ def test_sources(data_import, data_folder):
             permitted_person_set = set([
                 'PersonName', 'PersonDivisionId',
             ])
+            permitted_incident_set = set([
+                'ViolationStartDate', 'ViolationStatus', 'ViolationType',
+                'ViolationFirstAllegation', 'ViolationDescription',
+                'ViolationEndDate', 'ViolationLastUpdate',
+            ])
             assert (related_obj_types.issubset(permitted_org_set) or
-                    related_obj_types.issubset(permitted_person_set))
+                    related_obj_types.issubset(permitted_person_set) or
+                    related_obj_types.issubset(permitted_incident_set))
+
+
+@pytest.mark.django_db
+def test_incidents(data_import):
+    """Test some properties of imported Incidents."""
+    # Make sure the full description gets rendered
+    semicolon_incident = Violation.objects.first()
+    semicolon_description = semicolon_incident.description.get_value().value
+    assert len(semicolon_description.split(';')) == 2
 
 
 @pytest.mark.django_db
