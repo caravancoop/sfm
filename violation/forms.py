@@ -71,6 +71,6 @@ class ViolationLocationsForm(BaseUpdateForm):
     ]
 
     locationdescription = forms.CharField(label=_("Location Description"))
-    adminlevel1 = forms.ModelChoiceField(label=_("Settlement"), queryset=Location.objects.all(), required=False)
+    adminlevel1 = forms.ModelChoiceField(label=_("Settlement administrative area"), queryset=Location.objects.all(), required=False)
     adminlevel2 = forms.ModelChoiceField(label=_("Top administrative area"), queryset=Location.objects.all(), required=False)
-    location = forms.ModelChoiceField(label=_("Exact Location"), queryset=Location.objects.all(), required=False)
+    location = forms.ModelChoiceField(label=_("Settlement"), queryset=Location.objects.all(), required=False)
