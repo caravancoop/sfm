@@ -117,6 +117,8 @@ def test_incidents(data_import, mock_utils_geo_functions):
     assert semicolon_incident.adminlevel1.get_value() is None
     assert semicolon_incident.adminlevel2.get_value().value.id == expected_geo.id
 
+    assert semicolon_incident.perpetratorclassification.get_value() is None
+
 
 @pytest.mark.django_db
 def test_relationships(data_import):
