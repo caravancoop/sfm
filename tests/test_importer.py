@@ -1,6 +1,7 @@
 import os
 import csv
 import io
+import collections
 
 import pytest
 from django.core.management import call_command
@@ -18,7 +19,28 @@ def data_folder():
 
 
 @pytest.fixture
-def data_import(data_folder):
+def mock_utils_geo_functions(mocker):
+    """
+    Mock out the geography functions in sfm_pc.utils so that we don't need
+    OSM data in order to test the data import.
+    """
+    feature = collections.namedtuple(
+        'OSMFeature',
+        ('id', 'name', 'geometry', 'country_code', 'feature_type', 'st_x', 'st_y', 'tags')
+    )(12345, 'Test Location', 'POINT(1 1)', 'mx', 'point', 1, 1, 'Test Location tags')
+
+    mock_get_osm_by_id = mocker.patch('sfm_pc.utils.get_osm_by_id')
+    mock_get_osm_by_id.return_value = feature
+
+    mock_get_hierarchy_by_id = mocker.patch('sfm_pc.utils.get_hierarchy_by_id')
+    mock_get_hierarchy_by_id.return_value = []
+
+    geofunc = collections.namedtuple('GeoFunctions', ('get_osm_by_id', 'get_hierarchy_by_id'))
+    return geofunc(mock_get_osm_by_id, mock_get_hierarchy_by_id)
+
+
+@pytest.fixture
+def data_import(data_folder, mock_utils_geo_functions):
     """Perform a test data import."""
     output = io.StringIO()
     call_command('import_google_doc', folder=data_folder, stdout=output)
@@ -83,12 +105,17 @@ def test_sources(data_import, data_folder):
 
 
 @pytest.mark.django_db
-def test_incidents(data_import):
+def test_incidents(data_import, mock_utils_geo_functions):
     """Test some properties of imported Incidents."""
     # Make sure the full description gets rendered
     semicolon_incident = Violation.objects.first()
     semicolon_description = semicolon_incident.description.get_value().value
     assert len(semicolon_description.split(';')) == 2
+
+    # Check geometry fields
+    expected_geo = mock_utils_geo_functions.get_osm_by_id.return_value
+    assert semicolon_incident.adminlevel1.get_value() is None
+    assert semicolon_incident.adminlevel2.get_value().value.id == expected_geo.id
 
 
 @pytest.mark.django_db

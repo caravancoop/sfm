@@ -1924,11 +1924,11 @@ class Command(BaseCommand):
                 'value': self.col('W'),
                 'source': self.col('AF'),
             },
-            'AdminLevel1Name': {
+            'AdminLevel2Name': {
                 'value': self.col('X'),
                 'source': self.col('AF'),
             },
-            'AdminLevel1': {
+            'AdminLevel2': {
                 'osmid': self.col('Y'),
                 'value': self.col('X'),
                 'source': self.col('AF'),
@@ -1997,6 +1997,9 @@ class Command(BaseCommand):
         admin_id = event_data[positions['AdminId']['value']]
         admin_name = event_data[positions['AdminName']['value']]
 
+        adminlevel2_id = event_data[positions['AdminLevel2']['value']]
+        adminlevel2_name = event_data[positions['AdminLevel2Name']['value']]
+
         exact_location = self.get_exact_location(positions, event_data)
 
         coords = exact_location.get('coords')
@@ -2023,6 +2026,20 @@ class Command(BaseCommand):
             osm_id = exactloc_id
 
         geo, admin1, admin2 = None, None, None
+
+        # Get adminlevel2
+        if adminlevel2_id:
+            try:
+                admin2 = get_osm_by_id(adminlevel2_id)
+            except DataError:
+                self.log_error(
+                    'AdminLevel2 ID for ViolationLocation {} does not seem valid: {}'.format(
+                        adminlevel2_name, adminlevel2_id
+                    ))
+        else:
+            self.log_error('Missing OSM ID for AdminLevel2')
+
+        # Infer locations
         if admin_id:
             try:
                 geo = get_osm_by_id(admin_id)
@@ -2048,31 +2065,36 @@ class Command(BaseCommand):
                 for member in hierarchy:
                     if int(member.admin_level) == 6 and not admin1:
                         admin1 = self.get_or_create_location(member)
-                    elif int(member.admin_level) == 4:
-                        admin2 = self.get_or_create_location(member)
 
-            event_info.update({
-                'Violation_ViolationAdminLevel2': {
-                    'value': admin2,
-                    'sources': sources.copy(),
-                    'confidence': 1
-                },
-                'Violation_ViolationAdminLevel1': {
-                    'value': admin1,
-                    'sources': sources.copy(),
-                    'confidence': 1
-                },
-                'Violation_ViolationOSMName': {
-                    'value': geo.name,
-                    'sources': sources.copy(),
-                    'confidence': 1
-                },
-                'Violation_ViolationOSMId': {
-                    'value': geo.id,
-                    'sources': sources.copy(),
-                    'confidence': 1
-                },
-            })
+            if admin1:
+                event_info.update({
+                    'Violation_ViolationAdminLevel1': {
+                        'value': admin1,
+                        'sources': sources.copy(),
+                        'confidence': 1
+                    },
+                })
+            if admin2:
+                event_info.update({
+                    'Violation_ViolationAdminLevel2': {
+                        'value': self.get_or_create_location(admin2),
+                        'sources': sources.copy(),
+                        'confidence': 1
+                    },
+                })
+            if geo:
+                event_info.update({
+                    'Violation_ViolationOSMName': {
+                        'value': geo.name,
+                        'sources': sources.copy(),
+                        'confidence': 1
+                    },
+                    'Violation_ViolationOSMId': {
+                        'value': geo.id,
+                        'sources': sources.copy(),
+                        'confidence': 1
+                    },
+                })
 
             osm_id = geo.id
 
