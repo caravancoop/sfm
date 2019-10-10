@@ -1924,10 +1924,6 @@ class Command(BaseCommand):
                 'value': self.col('W'),
                 'source': self.col('AF'),
             },
-            'AdminLevel2Name': {
-                'value': self.col('X'),
-                'source': self.col('AF'),
-            },
             'AdminLevel2': {
                 'osmid': self.col('Y'),
                 'value': self.col('X'),
@@ -1997,8 +1993,8 @@ class Command(BaseCommand):
         admin_id = event_data[positions['AdminId']['value']]
         admin_name = event_data[positions['AdminName']['value']]
 
-        adminlevel2_id = event_data[positions['AdminLevel2']['value']]
-        adminlevel2_name = event_data[positions['AdminLevel2Name']['value']]
+        adminlevel2_id = event_data[positions['AdminLevel2']['osmid']]
+        adminlevel2_name = event_data[positions['AdminLevel2']['value']]
 
         exact_location = self.get_exact_location(positions, event_data)
 
