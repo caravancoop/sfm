@@ -34,10 +34,11 @@ class Command(BaseCommand):
             ).delete()
         else:
             num_deleted = 0
-            paginator = Paginator(Location.objects.all().order_by('id'), 50)
+            batch_size = 100
+            page_range = (location_count//batch_size)+1
             with tqdm(total=location_count) as progress_bar:
-                for page in paginator.page_range:
-                    for location in paginator.page(page).object_list:
+                for page in range(page_range):
+                    for location in Location.objects.all()[:batch_size]:
                         if not location.related_entities:
                             location.delete()
                             num_deleted += 1
