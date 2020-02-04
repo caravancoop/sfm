@@ -289,6 +289,7 @@ class OrganizationName(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
+    shortcode = 'u_n'
 
 
 @translated
@@ -297,8 +298,8 @@ class OrganizationName(ComplexField):
 class OrganizationAlias(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.TextField(blank=True, null=True)
-
-    field_name = _("Alias")
+    field_name = _("Other Names")
+    shortcode = 'u_on'
 
 
 @versioned
@@ -307,6 +308,7 @@ class OrganizationClassification(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.TextField(blank=True, null=True)
     field_name = _("Classification")
+    shortcode = 'u_cl'
 
 
 @versioned
@@ -314,8 +316,8 @@ class OrganizationClassification(ComplexField):
 class OrganizationDivisionId(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.TextField(default=None, blank=True, null=True)
-
-    field_name = _("Division ID")
+    field_name = _("Country")
+    shortcode = 'u_c'
 
     def __str__(self):
         return self.value
@@ -326,7 +328,8 @@ class OrganizationDivisionId(ComplexField):
 class OrganizationHeadquarters(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Headquarters")
+    field_name = _("Base Name")
+    shortcode = 'u_bn'
 
 
 @versioned
@@ -334,7 +337,8 @@ class OrganizationHeadquarters(ComplexField):
 class OrganizationFirstCitedDate(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = ApproximateDateField()
-    field_name = _("First cited date")
+    field_name = _("First Cited Date")
+    shortcode = 'u_fcd'
 
 
 @versioned
@@ -342,7 +346,8 @@ class OrganizationFirstCitedDate(ComplexField):
 class OrganizationLastCitedDate(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = ApproximateDateField()
-    field_name = _("Last cited date")
+    field_name = _("Last Cited Date")
+    shortcode = 'u_lcd'
 
 
 @versioned
@@ -350,7 +355,8 @@ class OrganizationLastCitedDate(ComplexField):
 class OrganizationRealStart(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.NullBooleanField(default=None)
-    field_name = _("Real start date")
+    field_name = _("Start Date?")
+    shortcode = 'u_fcds'
 
 
 @versioned
@@ -358,4 +364,5 @@ class OrganizationRealStart(ComplexField):
 class OrganizationOpenEnded(ComplexField):
     object_ref = models.ForeignKey('Organization')
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
-    field_name = _("Open ended")
+    field_name = _("Is Open Ended?")
+    shortcode = 'u_lcdo'

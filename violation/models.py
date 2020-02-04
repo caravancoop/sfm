@@ -171,28 +171,32 @@ class Violation(models.Model, BaseModel, VersionsMixin):
 class ViolationStartDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Start date")
+    field_name = _("Start Date")
+    shortcode = 'i_sd'
 
 
 @versioned
 class ViolationFirstAllegation(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("First allegation")
+    field_name = _("Date of Publication")
+    shortcode = 'i_pd'
 
 
 @versioned
 class ViolationEndDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("End date")
+    field_name = _("End Date")
+    shortcode = 'i_ed'
 
 
 @versioned
 class ViolationLastUpdate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Last update")
+    field_name = _("Date of Last Update")
+    shortcode = 'i_ud'
 
 
 @translated
@@ -200,7 +204,8 @@ class ViolationLastUpdate(ComplexField):
 class ViolationStatus(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Current status")
+    field_name = _("Status of Last Update")
+    shortcode = 'i_us'
 
 
 @translated
@@ -208,21 +213,24 @@ class ViolationStatus(ComplexField):
 class ViolationLocationDescription(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Location description")
+    field_name = _("Location Description")
+    shortcode = 'i_ld'
 
 
 @versioned
 class ViolationAdminLevel1(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Location, null=True)
-    field_name = _("Admin level 1")
+    field_name = _("Settlement")
+    shortcode = 'i_ssn'
 
 
 @versioned
 class ViolationAdminLevel2(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Location, null=True)
-    field_name = _("Admin level 2")
+    field_name = _("First-Level Administrative Area")
+    shortcode = 'i_sfaan'
 
 
 @versioned
@@ -243,28 +251,29 @@ class ViolationOSMId(ComplexField):
 class ViolationDivisionId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Division ID")
+    field_name = _("Country")
+    shortcode = 'i_c'
 
 
 @versioned
 class ViolationLocation(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Location, null=True)
-    field_name = _("Location")
+    field_name = _("Exact Location")
 
 
 @versioned
 class ViolationLocationName(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Exact location name")
+    field_name = _("Exact Location Name")
 
 
 @versioned
 class ViolationLocationId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Exact location ID")
+    field_name = _("Exact Location ID")
 
 
 @versioned
@@ -273,6 +282,7 @@ class ViolationDescription(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Description")
+    shortcode = 'i_vd'
 
 
 @versioned
@@ -280,13 +290,15 @@ class ViolationPerpetrator(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Person, default=None, blank=True, null=True)
     field_name = _("Perpetrator")
+    shortcode = 'i_pn'
 
 
 @versioned
 class ViolationPerpetratorOrganization(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Organization, default=None, blank=True, null=True)
-    field_name = _("Perpetrating unit")
+    field_name = _("Perpetrator Unit")
+    shortcode = 'i_pu'
 
 
 @versioned
@@ -294,7 +306,8 @@ class ViolationPerpetratorOrganization(ComplexField):
 class ViolationType(ComplexField):
     object_ref = models.ForeignKey('Violation', null=True)
     value = models.TextField(blank=True, null=True)
-    field_name = _("Violation type")
+    field_name = _("Violation Types")
+    shortcode = 'i_vt'
 
 
 @versioned
@@ -302,4 +315,5 @@ class ViolationType(ComplexField):
 class ViolationPerpetratorClassification(ComplexField):
     object_ref = models.ForeignKey('Violation', null=True)
     value = models.TextField(blank=True, null=True)
-    field_name = _("Perpetrating unit classification")
+    field_name = _("Perpetrator Classification")
+    shortcode = 'i_pcl'

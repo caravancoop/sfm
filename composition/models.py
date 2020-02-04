@@ -41,7 +41,8 @@ class Composition(models.Model, BaseModel):
 class CompositionParent(ComplexField):
     object_ref = models.ForeignKey(Composition)
     value = models.ForeignKey(Organization, related_name='child_organization')
-    field_name = _("Parent organization")
+    field_name = _("Related Unit")
+    shortcode = 'u_ru'
 
 
 @versioned
@@ -49,7 +50,7 @@ class CompositionParent(ComplexField):
 class CompositionChild(ComplexField):
     object_ref = models.ForeignKey(Composition)
     value = models.ForeignKey(Organization, related_name='parent_organization')
-    field_name = _("Child organization")
+    field_name = _("Unit")
 
 
 @versioned
@@ -57,7 +58,8 @@ class CompositionChild(ComplexField):
 class CompositionStartDate(ComplexField):
     object_ref = models.ForeignKey(Composition)
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Start date")
+    field_name = _("First Cited Date")
+    shortcode = 'u_rufcd'
 
 
 @versioned
@@ -65,7 +67,8 @@ class CompositionStartDate(ComplexField):
 class CompositionRealStart(ComplexField):
     object_ref = models.ForeignKey('Composition')
     value = models.NullBooleanField(default=None, blank=True, null=True)
-    field_name = _("Real start date")
+    field_name = _("Start Date")
+    shortcode = 'u_rufcds'
 
 
 @versioned
@@ -73,7 +76,8 @@ class CompositionRealStart(ComplexField):
 class CompositionEndDate(ComplexField):
     object_ref = models.ForeignKey(Composition)
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("End date")
+    field_name = _("Last Cited Date")
+    shortcode = 'u_rulcd'
 
 
 @versioned
@@ -82,6 +86,7 @@ class CompositionClassification(ComplexField):
     object_ref = models.ForeignKey(Composition)
     value = models.TextField(blank=True, null=True)
     field_name = _("Classification")
+    shortcode = 'u_ruc'
 
 
 @versioned
@@ -89,4 +94,5 @@ class CompositionClassification(ComplexField):
 class CompositionOpenEnded(ComplexField):
     object_ref = models.ForeignKey(Composition)
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
-    field_name = _("Open ended")
+    field_name = _("Is Open Ended?")
+    shortcode = 'u_ruo'

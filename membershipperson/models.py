@@ -143,7 +143,8 @@ class MembershipPersonMember(ComplexField):
 class MembershipPersonOrganization(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.ForeignKey(Organization)
-    field_name = _("Organization")
+    field_name = _("Unit")
+    shortcode = 'p_p'
 
 
 @versioned
@@ -152,6 +153,7 @@ class MembershipPersonRole(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.ForeignKey('Role', default=None, blank=True, null=True)
     field_name = _("Role")
+    shortcode = 'p_pro'
 
 
 @translated
@@ -161,6 +163,7 @@ class MembershipPersonTitle(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Title")
+    shortcode = 'p_pt'
 
 
 @versioned
@@ -169,6 +172,7 @@ class MembershipPersonRank(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.ForeignKey('Rank', default=None, blank=True, null=True)
     field_name = _("Rank")
+    shortcode = 'p_pra'
 
 
 @versioned
@@ -176,7 +180,8 @@ class MembershipPersonRank(ComplexField):
 class MembershipPersonFirstCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = ApproximateDateField()
-    field_name = _("First cited date")
+    field_name = _("First Cited Date")
+    shortcode = 'p_pfcd'
 
 
 @versioned
@@ -184,7 +189,8 @@ class MembershipPersonFirstCitedDate(ComplexField):
 class MembershipPersonLastCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = ApproximateDateField()
-    field_name = _("Last cited date")
+    field_name = _("Last Cited Date")
+    shortcode = 'p_plcd'
 
 
 @versioned
@@ -192,7 +198,8 @@ class MembershipPersonLastCitedDate(ComplexField):
 class MembershipPersonRealStart(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.BooleanField(default=None)
-    field_name = _("Real start date")
+    field_name = _("Start Date?")
+    shortcode = 'p_pfcds'
 
 
 @versioned
@@ -200,7 +207,8 @@ class MembershipPersonRealStart(ComplexField):
 class MembershipPersonRealEnd(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.BooleanField(default=None)
-    field_name = _("Real end date")
+    field_name = _("End Date?")
+    shortcode = 'p_plcde'
 
 
 @versioned
@@ -208,7 +216,8 @@ class MembershipPersonRealEnd(ComplexField):
 class MembershipPersonStartContext(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.TextField()
-    field_name = _("Start context")
+    field_name = _("Start Date Context")
+    shortcode = 'p_pfcdsc'
 
 
 @versioned
@@ -216,7 +225,8 @@ class MembershipPersonStartContext(ComplexField):
 class MembershipPersonEndContext(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.TextField()
-    field_name = _("End context")
+    field_name = _("End Date Context")
+    shortcode = 'p_plcdec'
 
 
 class Role(models.Model):

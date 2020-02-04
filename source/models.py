@@ -28,9 +28,13 @@ def get_deleted_user():
 class Source(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.TextField()
+    type = models.CharField(max_length=1000, null=True, blank=True)
+    author = models.CharField(max_length=1000, null=True, blank=True)
     publication = models.TextField(null=True)
     publication_country = models.CharField(max_length=1000, null=True)
-    published_on = ApproximateDateField()
+    published_on = ApproximateDateField(verbose_name="publication date")
+    created_on = ApproximateDateField(verbose_name="creation date", null=True)
+    uploaded_on = ApproximateDateField(verbose_name="upload date", null=True)
     source_url = models.URLField(max_length=1000, null=True, blank=True)
 
     date_updated = models.DateTimeField(auto_now=True)
@@ -84,8 +88,9 @@ class Source(models.Model, VersionsMixin):
 @reversion.register()
 class AccessPoint(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    type = models.CharField(max_length=1000, null=True, blank=True)
     page_number = models.CharField(max_length=255, null=True, blank=True)
-    accessed_on = models.DateField(null=True)
+    accessed_on = models.DateField(null=True, verbose_name='access date')
     archive_url = models.URLField(max_length=1000, null=True,)
     source = models.ForeignKey(Source, null=True, to_field='uuid')
 
