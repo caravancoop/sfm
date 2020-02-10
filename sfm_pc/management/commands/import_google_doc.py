@@ -42,7 +42,7 @@ from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
 from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
 from association.models import Association, AssociationOpenEnded, AssociationRealStart
 from composition.models import Composition, CompositionOpenEnded, CompositionRealStart
-from person.models import Person, PersonName, PersonAlias
+from person.models import Person, PersonExtra, PersonName, PersonAlias
 from membershipperson.models import (MembershipPerson, Role, Rank,
                                      MembershipPersonRealStart,
                                      MembershipPersonRealEnd)
@@ -55,8 +55,6 @@ from violation.models import Violation, ViolationPerpetrator, \
 from location.models import Location
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-
-
 
 
 class Command(BaseCommand):
@@ -191,12 +189,13 @@ class Command(BaseCommand):
         start = int(options['start'])
 
         # These are used for the mapping that we need to make below
-        self.organization_uuid = self.col('DI')
-        self.person_uuid = self.col('BN')
-        self.event_uuid = self.col('AG')
-        name_position = self.col('B')
+        entity_mapping_entities = [
+            ('organization', 'unit:id:admin', 'unit:name'),
+            ('person', 'person:id:admin', 'person:name'),
+        ]
 
-        for entity_type in ['organization', 'person', 'event']:
+        # Create entity maps for persons and units
+        for entity_type, id_key, name_key in entity_mapping_entities:
 
             sheets = all_sheets[entity_type]
 
@@ -206,8 +205,9 @@ class Command(BaseCommand):
 
                 for row in sheet[start:]:
                     if row:
-                        uuid = getattr(self, '{}_uuid'.format(entity_type))
-                        entity_map[row[name_position]] = row[uuid]
+                        entity_name = row[name_key]
+                        entity_uuid = row[id_key]
+                        entity_map[entity_name] = entity_uuid
 
                 setattr(self, '{}_entity_map'.format(entity_type), entity_map)
 
@@ -225,7 +225,7 @@ class Command(BaseCommand):
                     # Skip header row
                     for index, row in enumerate(sheet[start:]):
                         if row:
-                            self.current_row = index + start + 1
+                            self.current_row = index + start
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
         data_src = options['folder'] if options.get('folder') else options['doc_id']
@@ -249,9 +249,6 @@ class Command(BaseCommand):
         sheets = result['sheets']
         sheet_mapping = {}
 
-        # Exclude 3 internal columns at start of org, person, and event sheets
-        sheet_range = "!D:DM"
-
         for sheet in sheets:
             title = sheet['properties']['title']
             sheet_data = service.spreadsheets().values().get(
@@ -260,23 +257,28 @@ class Command(BaseCommand):
             ).execute()
             sheet_mapping[title] = sheet_data['values']
 
-        org_sheets = {title: data for title, data in sheet_mapping.items()
-                      if 'orgs' in title.lower() or 'mopol' in title.lower()}
-        person_sheets = {title: data for title, data in sheet_mapping.items()
-                         if 'persons' in title.lower()}
-        event_sheets = {title: data for title, data in sheet_mapping.items()
+        org_sheets = {title: self.format_dict_reader(data)
+                      for title, data in sheet_mapping.items()
+                      if 'units' in title.lower()}
+        person_sheets = {title: self.format_dict_reader(data)
+                         for title, data in sheet_mapping.items()
+                         if 'persons' in title.lower() and 'persons_extra' not in title.lower()}
+        person_extra_sheets = {title: self.format_dict_reader(data)
+                               for title, data in sheet_mapping.items()
+                               if 'persons_extra' in title.lower()}
+        event_sheets = {title: self.format_dict_reader(data)
+                        for title, data in sheet_mapping.items()
                         if 'events' in title.lower()}
 
         # Get data about sources
-        source_range = "sources!A2:N"
         source_sheet = service.spreadsheets().values().get(
-            spreadsheetId=source_doc_id,
-            range=source_range
+            spreadsheetId=source_doc_id
         ).execute()
 
         return {
             'organization': org_sheets,
             'person': person_sheets,
+            'person_extra': person_extra_sheets,
             'event': event_sheets,
             'source': source_sheet,
         }
@@ -289,33 +291,35 @@ class Command(BaseCommand):
         """
         all_sheets = {}
         entities = (
-            ('organization', 'orgs'),
-            ('person', 'persons'),
-            ('event', 'events'),
-            ('source', 'values')
+            ('organization', 'units', 'orgs'),
+            ('person', 'persons', 'persons'),
+            ('person_extra', 'persons_extra', 'persons_extra'),
+            ('event', 'incidents', 'events'),
+            ('source', 'sources', 'values')
         )
-        for entity_type, title in entities:
-            path = os.path.join(folder, entity_type + '.csv')
+        for entity_type, filename, title in entities:
+            path = os.path.join(folder, filename + '.csv')
             if not os.path.isfile(path):
                 raise OSError('Required file {path} not found.'.format(path=path))
 
             with open(path) as fobj:
                 reader = csv.reader(fobj)
-                records = list(reader)
-
-            if entity_type == 'source':
-                # Source spreadsheets are pulled from the Google API in a
-                # different manner and should not have header rows.
-                records = records[1:]
-            else:
-                # Top-level entity spreadsheets contain initial metadata columns
-                # that are not used in the app.
-                records = [row[3:] for row in records]
+                # We could use csv.DictReader directly here, but instead use
+                # the format_dict_reader convenience method to test it
+                records = self.format_dict_reader(list(reader))
 
             # Match the Google Sheets API response format
             all_sheets[entity_type] = {title: records}
 
         return all_sheets
+
+    def format_dict_reader(self, lst):
+        """
+        Format a nested list, 'lst', as a list of dictionaries (like a
+        csv.DictReader object).
+        """
+        header = lst[0]
+        return [dict(zip(header, row)) for row in lst[1:]]
 
     def log_error(self, message):
         log_message = message + ' (context: Sheet {0}, Row {1})'.format(self.current_sheet, self.current_row)
@@ -368,151 +372,130 @@ class Command(BaseCommand):
 
         return parsed
 
-    def col(self, alph):
-        '''
-        Return a numeric index for an alphabetic column name, like:
-
-            `'BA' -> 53`
-        '''
-        assert isinstance(alph, str)
-
-        # Reverse the string and enforce lowercase
-        alph = alph[::-1].lower()
-
-        # Treat alphabetic column names like base-26 numerics.
-        # Start at -1, since we want the result to be 0-indexed.
-        total = -1
-        for idx, letter in enumerate(alph):
-            place = (26 ** idx)
-            val = string.ascii_lowercase.index(letter) + 1
-            total += (place * val)
-
-        return total
-
     def create_organization(self, org_data):
         organization = None
 
         org_positions = {
             'Name': {
-                'value': self.col('B'),
-                'confidence': self.col('D'),
-                'source': self.col('C'),
+                'value': 'unit:name',
+                'confidence': 'unit:name:confidence',
+                'source': 'unit:name:source',
             },
             'Alias': {
-                'value': self.col('E'),
-                'confidence': self.col('G'),
-                'source': self.col('F'),
+                'value': 'unit:other_names',
+                'confidence': 'unit:other_names:confidence',
+                'source': 'unit:other_names:source',
             },
             'Classification': {
-                'value': self.col('H'),
-                'confidence': self.col('J'),
-                'source': self.col('I'),
+                'value': 'unit:classification',
+                'confidence': 'unit:classification:confidence',
+                'source': 'unit:classification:source',
             },
             'DivisionId': {
-                'value': self.col('K'),
-                'confidence': self.col('B'),
-                'source': None,
+                'value': 'unit:country',
+                'confidence': 'unit:country:confidence',
+                'source': 'unit:country:source',
             },
             'FirstCitedDate': {
-                'value': self.col('L'),
-                'confidence': self.col('Q'),
-                'source': self.col('P'),
+                'value': 'unit:first_cited_date',
+                'confidence': 'unit:first_cited_date:confidence',
+                'source': 'unit:first_cited_date:source',
             },
             'RealStart': {
-                'value': self.col('R'),
-                'confidence': self.col('Q'),
+                'value': 'unit:first_cited_date_start',
+                'confidence': 'unit:first_cited_date:confidence',
                 'source': None,
             },
             'LastCitedDate': {
-                'value': self.col('S'),
-                'confidence': self.col('X'),
-                'source': self.col('W'),
+                'value': 'unit:last_cited_date',
+                'confidence': 'unit:last_cited_date:confidence',
+                'source': 'unit:last_cited_date:source',
             },
             'OpenEnded': {
-                'value': self.col('Y'),
-                'confidence': self.col('X'),
+                'value': 'unit:last_cited_date_open',
+                'confidence': 'unit:last_cited_date:confidence',
                 'source': None,
             },
             'Headquarters': {
-                'value': self.col('AT'),
-                'confidence': self.col('AV'),
-                'source': self.col('AU')
+                'value': 'unit:base_name',
+                'confidence': 'unit:base_name:confidence',
+                'source': 'unit:base_name:source',
             }
         }
 
         composition_positions = {
             'Parent': {
-                'value': self.col('Z'),
-                'confidence': self.col('AB'),
-                'source': self.col('AA'),
+                'value': 'unit:related_unit',
+                'confidence': 'unit:related_unit:confidence',
+                'source': 'unit:related_unit:source',
             },
             'Classification': {
-                'value': self.col('AC'),
-                'confidence': self.col('AE'),
-                'source': self.col('AD'),
+                'value': 'unit:related_unit_class',
+                'confidence': 'unit:related_unit_class:confidence',
+                'source': 'unit:related_unit_class:source',
             },
             'StartDate': {
-                'value': self.col('AF'),
-                'confidence': self.col('AK'),
-                'source': self.col('AJ'),
+                'value': 'unit:related_unit_first_cited_date',
+                'confidence': 'unit:related_unit_first_cited_date:confidence',
+                'source': 'unit:related_unit_first_cited_date:source',
             },
             'RealStart': {
-                'value': self.col('AL'),
-                'confidence': self.col('AK'),
+                'value': 'unit:related_unit_first_cited_date_start',
+                'confidence': 'unit:related_unit_first_cited_date:confidence',
                 'source': None,
             },
             'EndDate': {
-                'value': self.col('AM'),
-                'confidence': self.col('AR'),
-                'source': self.col('AQ'),
+                'value': 'unit:related_unit_last_cited_date',
+                'confidence': 'unit:related_unit_last_cited_date:confidence',
+                'source': 'unit:related_unit_last_cited_date:source',
             },
             'OpenEnded': {
-                'value': self.col('AS'),
-                'confidence': self.col('AR'),
+                'value': 'unit:related_unit_open',
+                'confidence': 'unit:related_unit_last_cited_date:confidence',
                 'source': None,
             },
         }
 
         area_positions = {
             'OSMId': {
-                'value': self.col('BY'),
-                'confidence': self.col('CB'),
-                'source': self.col('CA'),
+                'value': 'unit:area_ops_id',
+                'confidence': 'unit:area_ops_name:confidence',
+                'source': 'unit:area_ops_name:source',
             },
         }
 
         site_positions = {
             'OSMId': {
-                'value': self.col('BB'),
-                'confidence': self.col('BD'),
-                'source': self.col('BC'),
+                'value': 'unit:site_nearest_settlement_id',
+                'confidence': 'unit:site_nearest_settlement_name:confidence',
+                'source': 'unit:site_nearest_settlement_name:source',
             },
         }
 
         membership_positions = {
             'OrganizationOrganization': {
-                'value': self.col('CQ'),
-                'confidence': self.col('CS'),
-                'source': self.col('CR'),
+                'value': 'unit:membership_name',
+                'confidence': 'unit:membership_name:confidence',
+                'source': 'unit:membership_name:source',
             },
             'FirstCitedDate': {
-                'value': self.col('CT'),
-                'confidence': self.col('CY'),
-                'source': self.col('CX'),
+                'value': 'unit:membership_first_cited_date',
+                'confidence': 'unit:membership_first_cited_date:confidence',
+                'source': 'unit:membership_first_cited_date:source',
             },
             'RealStart': {
-                'value': self.col('CZ'),
-                'confidence': self.col('CY'),
+                'value': 'unit:membership_first_cited_date_start',
+                'confidence': 'unit:membership_first_cited_date:confidence',
                 'source': None,
             },
             'LastCitedDate': {
-                'value': self.col('DA'),
-                'confidence': self.col('DF'),
-                'source': self.col('DE'),
+                'value': 'unit:membership_last_cited_date',
+                'confidence': 'unit:membership_last_cited_date:confidence',
+                'source': 'unit:membership_last_cited_date:source',
             },
             'RealEnd': {
-                'value': self.col('DG'),
-                'confidence': self.col('DF'),
+                'value': 'unit:membership_last_cited_date_end',
+                'confidence': 'unit:membership_last_cited_date:confidence',
                 'source': None,
             },
         }
@@ -765,6 +748,7 @@ class Command(BaseCommand):
                             },
                             'Organization_OrganizationDivisionId': {
                                 'value': division_id,
+                                # TODO: Use the correct source/confidence for division IDs
                                 'confidence': confidence,
                                 'sources': sources.copy(),
                             },
@@ -1051,31 +1035,31 @@ class Command(BaseCommand):
 
         positions = {
             'OSMName': {
-                'value': self.col('BX'),
-                'confidence': self.col('CB'),
-                'source': self.col('CA'),
+                'value': 'unit:area_ops_name',
+                'confidence': 'unit:area_ops_name:confidence',
+                'source': 'unit:area_ops_name:source',
             },
         }
 
         relation_positions = {
             'StartDate': {
-                'value': self.col('CC'),
-                'confidence': self.col('CH'),
-                'source': self.col('CG'),
+                'value': 'unit:area_ops_first_cited_date',
+                'confidence': 'unit:area_ops_first_cited_date:confidence',
+                'source': 'unit:area_ops_first_cited_date:source',
             },
             'RealStart': {
-                'value': self.col('CI'),
-                'confidence': self.col('CH'),
+                'value': 'unit:area_ops_first_cited_date_start',
+                'confidence': 'unit:area_ops_first_cited_date:confidence',
                 'source': None,
             },
             'EndDate': {
-                'value': self.col('CJ'),
-                'confidence': self.col('CO'),
-                'source': self.col('CN'),
+                'value': 'unit:area_ops_last_cited_date',
+                'confidence': 'unit:area_ops_last_cited_date:confidence',
+                'source': 'unit:area_ops_last_cited_date:source',
             },
             'OpenEnded': {
-                'value': self.col('CP'),
-                'confidence': self.col('CO'),
+                'value': 'unit:area_ops_open',
+                'confidence': 'unit:area_ops_last_cited_date:confidence',
                 'source': None,
             },
         }
@@ -1174,58 +1158,56 @@ class Command(BaseCommand):
 
         positions = {
             'AdminLevel1': {
-                'value': self.col('BE'),
-                'osmid': self.col('BF'),
-                'confidence': self.col('BH'),
-                'source': self.col('BG'),
+                'value': 'unit:site_first_admin_area_name',
+                'osmid': 'unit:site_first_admin_area_id',
+                'confidence': 'unit:site_first_admin_area_name:confidence',
+                'source': 'unit:site_first_admin_area_name:source',
             },
             # This doesn't correspond directly to a model attribute
             # but we'll use it to unpack data about the highest
             # level of resolution available to us
             'ExactLocation': {
-                'lng_or_name': self.col('AW'),
-                'lat_or_id': self.col('AX'),
-                'confidence': self.col('AZ'),
-                'source': self.col('AY')
+                'lng_or_name': 'unit:site_exact_location_name_longitude',
+                'lat_or_id': 'unit:site_exact_location_id_latitude',
+                'confidence': 'unit:site_exact_location:confidence',
+                'source': 'unit:site_exact_location:source',
             },
             'Headquarters': {
-                'value': self.col('AT'),
-                'confidence': self.col('AV'),
-                'source': self.col('AU')
+                'value': 'unit:base_name',
+                'confidence': 'unit:base_name:confidence',
+                'source': 'unit:base_name:source',
             },
             'AdminName': {
-                'value': self.col('BA'),
-                'osmid': self.col('BB'),
-                'confidence': self.col('BD'),
-                'source': self.col('BC')
+                'value': 'unit:site_nearest_settlement_name',
+                'confidence': 'unit:site_nearest_settlement_name:confidence',
+                'source': 'unit:site_nearest_settlement_name:source',
             },
             'AdminId': {
-                'value': self.col('BB'),
-                'osmid': self.col('BB'),
-                'confidence': self.col('BD'),
-                'source': self.col('BC')
+                'value': 'unit:site_nearest_settlement_id',
+                'confidence': 'unit:site_nearest_settlement_name:confidence',
+                'source': 'unit:site_nearest_settlement_name:source',
             }
         }
 
         relation_positions = {
             'StartDate': {
-                'value': self.col('BJ'),
-                'confidence': self.col('BO'),
-                'source': self.col('BN'),
+                'value': 'unit:site_first_cited_date',
+                'confidence': 'unit:site_first_cited_date:confidence',
+                'source': 'unit:site_first_cited_date:source',
             },
             'RealStart': {
-                'value': self.col('BP'),
-                'confidence': self.col('BO'),
+                'value': 'unit:site_first_cited_date_founding',
+                'confidence': 'unit:site_first_cited_date:confidence',
                 'source': None
             },
             'EndDate': {
-                'value': self.col('BQ'),
-                'confidence': self.col('BV'),
-                'source': self.col('BU'),
+                'value': 'unit:site_last_cited_date',
+                'confidence': 'unit:site_last_cited_date:confidence',
+                'source': 'unit:site_last_cited_date:source',
             },
             'OpenEnded': {
-                'value': self.col('BW'),
-                'confidence': self.col('BV'),
+                'value': 'unit:site_open',
+                'confidence': 'unit:site_last_cited_date:confidence',
                 'source': None
             }
         }
@@ -1476,16 +1458,17 @@ class Command(BaseCommand):
         self.current_sheet = 'sources'
 
         for source in source_sheet['values']:
-            uuid = source[self.col('I')]
-            title = source[self.col('B')]
-            publication = source[self.col('M')]
-            publication_country = source[self.col('K')]
-            published_on = self.parse_date(source[self.col('D')])
-            source_url = source[5]
+            # TODO: Import new attributes
+            uuid = source['source:access_point_id:admin']
+            title = source['source:title']
+            publication = source['source:publication_name']
+            publication_country = source['source:publication_country']
+            published_on = self.parse_date(source['source:published_timestamp'])
+            source_url = source['source:url']
 
-            page_number = source[self.col('C')]
-            accessed_on = self.parse_date(source[self.col('E')])
-            archive_url = source[self.col('G')]
+            page_number = source['source:access_point_trigger']
+            accessed_on = self.parse_date(source['source:accessed_timestamp'])
+            archive_url = source['source:archive_url']
 
             try:
                 access_point = AccessPoint.objects.get(uuid=uuid)
@@ -1840,6 +1823,137 @@ class Command(BaseCommand):
 
             else:
                 self.log_error('{} did not have a confidence or source'.format(name_value))
+
+    def create_person_extra(self, data):
+        """
+        Create a PersonExtra objects from a row in the persons_extra sheet.
+        """
+        positions = {
+            'Name': {
+                'value': 'person_extra:name',
+            },
+            'Id': {
+                'value': 'person_extra:id:admin',
+            },
+            'Gender': {
+                'key': 'Person_PersonExtraGender',
+                'value': 'person_extra:gender',
+                'confidence': 'person_extra:gender:confidence',
+                'source': 'person_extra:gender:source',
+            },
+            'DateOfBirth': {
+                'key': 'Person_PersonExtraDateOfBirth',
+                'value': 'person_extra:date_of_birth',
+                'confidence': 'person_extra:date_of_birth:confidence',
+                'source': 'person_extra:date_of_birth:source',
+            },
+            'Deceased': {
+                'key': 'Person_PersonExtraDeceased',
+                'value': 'person_extra:deceased',
+                'confidence': 'person_extra:deceased:confidence',
+                'source': 'person_extra:deceased:source',
+            },
+            'DateOfDeath': {
+                'key': 'Person_PersonExtraDateOfDeath',
+                'value': 'person_extra:deceased_date',
+                'confidence': 'person_extra:deceased_date:confidence',
+                'source': 'person_extra:deceased_date:source',
+            },
+            'AccountType': {
+                'key': 'Person_PersonExtraAccountType',
+                'value': 'person_extra:account_type',
+                'confidence': 'person_extra:account:confidence',
+                'source': 'person_extra:account:source',
+            },
+            'AccountId': {
+                'key': 'Person_PersonExtraAccount',
+                'value': 'person_extra:account_id',
+                'confidence': 'person_extra:account:confidence',
+                'source': 'person_extra:account:source',
+            },
+            'ExternalLinkDescription': {
+                'key': 'Person_PersonExtraExternalLinkDescription',
+                'value': 'person_extra:external_link_description',
+                'confidence': 'person_extra:external_link:confidence',
+                'source': 'person_extra:external_link:source',
+            },
+            'MediaDescription': {
+                'key': 'Person_PersonExtraMediaDescription',
+                'value': 'person_extra:media_desc',
+                'confidence': 'person_extra:media:confidence',
+                'source': 'person_extra:media:source',
+            },
+            'Notes': {
+                'key': 'Person_PersonExtraNotes',
+                'value': 'person_extra:notes:admin',
+            },
+        }
+
+        try:
+            person_name_value = data[positions['Name']['value']]
+        except IndexError:
+            self.log_error('Row appears to be missing a Person name')
+            return None
+
+        try:
+            person_id_value = data[positions['Id']['value']]
+        except IndexError:
+            self.log_error('Row appears to be missing a Person ID')
+            return None
+
+        try:
+            person = Person.objects.get(uuid=person_id_value)
+        except Person.DoesNotExist:
+            self.log_error('No person with the ID {} was found')
+            return None
+
+        try:
+            assert person.name.get_value() == person_name_value
+        except AssertionError:
+            self.log_error(
+                'Stored person name "{}" does not match spreadsheet value "{}"'.format(
+                    person.name.get_value(), person_name_value
+                ))
+            return None
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                'Working on {}'.format(person_name_value)
+            )
+        )
+
+        person_extra_info = {
+            'Person_PersonExtraPerson': {
+                'value': person,
+            },
+        }
+
+        for metadata in positions.values():
+            if metadata.get('key'):
+                person_extra_info[metadata['key']] = {
+                    'value': metadata['value']
+                }
+                if metadata.get('confidence'):
+                    person_extra_info[metadata['key']]['confidence'] = self.get_confidence(
+                        metadata['confidence']
+                    )
+                if metadata.get('sources'):
+                    person_extra_info[metadata['key']]['sources'] = self.get_sources(
+                        metadata['sources']
+                    )
+
+        try:
+            person_extra = PersonExtra.objects.get(person=person)
+        except PersonExtra.DoesNotExist:
+            person_extra = PersonExtra.objects.create(person=person)
+
+        person_extra.update(person_extra_info)
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                'Created extra information for {}'.format(person_name_value)
+            )
+        )
 
     def get_or_create_location(self, geo):
         location, created = Location.objects.get_or_create(id=geo.id)

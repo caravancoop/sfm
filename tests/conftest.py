@@ -9,7 +9,7 @@ import pytest
 from django.contrib.auth.models import User
 
 from organization.models import Organization, OrganizationAlias, OrganizationClassification
-from person.models import Person, PersonAlias, PersonExternalLink
+from person.models import Person, PersonAlias
 from violation.models import Violation, ViolationPerpetrator, \
     ViolationPerpetratorOrganization, ViolationType, ViolationPerpetratorClassification
 from composition.models import Composition
@@ -511,11 +511,6 @@ def people(base_people, access_points):
                                                object_ref=person)
 
             alias.accesspoints.set(access_points)
-
-            link = PersonExternalLink.objects.create(value='http://personblog.com/test-{}'.format(index),
-                                                     lang='en',
-                                                     object_ref=person)
-            link.accesspoints.set(access_points)
 
         person_info = {
             'Person_PersonDivisionId': {
