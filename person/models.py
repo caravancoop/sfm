@@ -20,6 +20,7 @@ from complex_fields.models import ComplexField, ComplexFieldContainer, \
 from complex_fields.base_models import BaseModel
 
 from sfm_pc.utils import VersionsMixin
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 
 
 VERSION_RELATED_FIELDS = [
@@ -34,7 +35,7 @@ VERSION_RELATED_FIELDS = [
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-class Person(models.Model, BaseModel, VersionsMixin):
+class Person(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsheetFieldNameMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,
@@ -166,7 +167,7 @@ class Person(models.Model, BaseModel, VersionsMixin):
 
 
 @reversion.register()
-class PersonExtra(models.Model, VersionsMixin):
+class PersonExtra(models.Model, VersionsMixin, GetComplexSpreadsheetFieldNameMixin):
     """
     Extra metadata for Persons, including biographical information and
     links to external resources representing the Person.
@@ -200,6 +201,7 @@ class PersonName(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
     shortcode = 'p_n'
+    spreadsheet_field_name = 'person:name'
 
 
 @translated
@@ -210,6 +212,7 @@ class PersonAlias(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Other Names")
     shortcode = 'p_on'
+    spreadsheet_field_name = 'person:other_names'
 
 
 @translated
@@ -220,6 +223,7 @@ class PersonNotes(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Notes")
     shortcode = 'p_n_a'
+    spreadsheet_field_name = 'person:notes:admin'
 
 
 @sourced
@@ -229,6 +233,7 @@ class PersonDivisionId(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _('Country')
     shortcode = 'p_c'
+    spreadsheet_field_name = 'person:country'
 
 
 @versioned
@@ -237,6 +242,7 @@ class PersonExtraPerson(ComplexField):
     value = models.ForeignKey('Person')
     field_name = _('Person')
     shortcode = 'pe_n'
+    spreadsheet_field_name = 'person_extra:name'
 
 
 @translated
@@ -247,6 +253,7 @@ class PersonExtraGender(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Gender")
     shortcode = 'pe_g'
+    spreadsheet_field_name = 'person_extra:gender'
 
 
 @versioned
@@ -256,6 +263,7 @@ class PersonExtraDateOfBirth(ComplexField):
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Date of Birth")
     shortcode = 'pe_dob'
+    spreadsheet_field_name = 'person_extra:date_of_birth'
 
 
 @versioned
@@ -265,6 +273,7 @@ class PersonExtraDateOfDeath(ComplexField):
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Date Deceased")
     shortcode = 'pe_dd'
+    spreadsheet_field_name = 'person_extra:deceased_date'
 
 
 @versioned
@@ -274,6 +283,7 @@ class PersonExtraDeceased(ComplexField):
     value = models.BooleanField(default=False)
     field_name = _("Deceased")
     shortcode = 'pe_d'
+    spreadsheet_field_name = 'person_extra:deceased'
 
 
 @translated
@@ -284,6 +294,7 @@ class PersonExtraAccountType(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Online Account Type")
     shortcode = 'pe_at'
+    spreadsheet_field_name = 'person_extra:account_type'
 
 
 @versioned
@@ -293,6 +304,7 @@ class PersonExtraAccount(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Online Account Identifier")
     shortcode = 'pe_aid'
+    spreadsheet_field_name = 'person_extra:account_id'
 
 
 @translated
@@ -303,6 +315,7 @@ class PersonExtraExternalLinkDescription(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("External Link Description")
     shortcode = 'pe_eld'
+    spreadsheet_field_name = 'person_extra:external_link_description'
 
 
 @translated
@@ -313,6 +326,7 @@ class PersonExtraMediaDescription(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Media Description")
     shortcode = 'pe_md'
+    spreadsheet_field_name = 'person_extra:media_desc'
 
 
 @translated
@@ -323,3 +337,4 @@ class PersonExtraNotes(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Notes")
     shortcode = 'pe_n_a'
+    spreadsheet_field_name = 'person_extra:notes:admin'

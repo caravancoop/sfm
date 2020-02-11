@@ -11,9 +11,10 @@ from complex_fields.base_models import BaseModel
 
 from person.models import Person
 from organization.models import Organization
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 
 
-class MembershipPerson(models.Model, BaseModel):
+class MembershipPerson(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.member = ComplexFieldContainer(self, MembershipPersonMember)
@@ -145,6 +146,7 @@ class MembershipPersonOrganization(ComplexField):
     value = models.ForeignKey(Organization)
     field_name = _("Unit")
     shortcode = 'p_p'
+    spreadsheet_field_name = 'person:posting'
 
 
 @versioned
@@ -154,6 +156,7 @@ class MembershipPersonRole(ComplexField):
     value = models.ForeignKey('Role', default=None, blank=True, null=True)
     field_name = _("Role")
     shortcode = 'p_pro'
+    spreadsheet_field_name = 'person:posting_role'
 
 
 @translated
@@ -164,6 +167,7 @@ class MembershipPersonTitle(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Title")
     shortcode = 'p_pt'
+    spreadsheet_field_name = 'person:posting_title'
 
 
 @versioned
@@ -173,6 +177,7 @@ class MembershipPersonRank(ComplexField):
     value = models.ForeignKey('Rank', default=None, blank=True, null=True)
     field_name = _("Rank")
     shortcode = 'p_pra'
+    spreadsheet_field_name = 'person:posting_rank'
 
 
 @versioned
@@ -182,6 +187,7 @@ class MembershipPersonFirstCitedDate(ComplexField):
     value = ApproximateDateField()
     field_name = _("First Cited Date")
     shortcode = 'p_pfcd'
+    spreadsheet_field_name = 'person:posting_first_cited_date'
 
 
 @versioned
@@ -191,6 +197,7 @@ class MembershipPersonLastCitedDate(ComplexField):
     value = ApproximateDateField()
     field_name = _("Last Cited Date")
     shortcode = 'p_plcd'
+    spreadsheet_field_name = 'person:posting_last_cited_date'
 
 
 @versioned
@@ -200,6 +207,7 @@ class MembershipPersonRealStart(ComplexField):
     value = models.BooleanField(default=None)
     field_name = _("Start Date?")
     shortcode = 'p_pfcds'
+    spreadsheet_field_name = 'person:posting_first_cited_date_start'
 
 
 @versioned
@@ -209,6 +217,7 @@ class MembershipPersonRealEnd(ComplexField):
     value = models.BooleanField(default=None)
     field_name = _("End Date?")
     shortcode = 'p_plcde'
+    spreadsheet_field_name = 'person:posting_last_cited_date_end'
 
 
 @versioned
@@ -218,6 +227,7 @@ class MembershipPersonStartContext(ComplexField):
     value = models.TextField()
     field_name = _("Start Date Context")
     shortcode = 'p_pfcdsc'
+    spreadsheet_field_name = 'person:posting_first_cited_date_start_context'
 
 
 @versioned
@@ -227,6 +237,7 @@ class MembershipPersonEndContext(ComplexField):
     value = models.TextField()
     field_name = _("End Date Context")
     shortcode = 'p_plcdec'
+    spreadsheet_field_name = 'person:posting_last_cited_date_end_context'
 
 
 class Role(models.Model):

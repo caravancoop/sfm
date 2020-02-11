@@ -8,9 +8,10 @@ from organization.models import Organization
 from complex_fields.model_decorators import versioned, sourced, sourced_optional
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 
 
-class Composition(models.Model, BaseModel):
+class Composition(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parent = ComplexFieldContainer(self, CompositionParent)
@@ -43,6 +44,7 @@ class CompositionParent(ComplexField):
     value = models.ForeignKey(Organization, related_name='child_organization')
     field_name = _("Related Unit")
     shortcode = 'u_ru'
+    spreadsheet_field_name = 'unit:related_unit'
 
 
 @versioned
@@ -60,6 +62,7 @@ class CompositionStartDate(ComplexField):
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("First Cited Date")
     shortcode = 'u_rufcd'
+    spreadsheet_field_name = 'unit:related_unit_first_cited_date'
 
 
 @versioned
@@ -69,6 +72,7 @@ class CompositionRealStart(ComplexField):
     value = models.NullBooleanField(default=None, blank=True, null=True)
     field_name = _("Start Date")
     shortcode = 'u_rufcds'
+    spreadsheet_field_name = 'unit:related_unit_first_cited_date_start'
 
 
 @versioned
@@ -78,6 +82,7 @@ class CompositionEndDate(ComplexField):
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last Cited Date")
     shortcode = 'u_rulcd'
+    spreadsheet_field_name = 'unit:related_unit_last_cited_date'
 
 
 @versioned
@@ -87,6 +92,7 @@ class CompositionClassification(ComplexField):
     value = models.TextField(blank=True, null=True)
     field_name = _("Classification")
     shortcode = 'u_ruc'
+    spreadsheet_field_name = 'unit:related_unit_class'
 
 
 @versioned
@@ -96,3 +102,4 @@ class CompositionOpenEnded(ComplexField):
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Is Open Ended?")
     shortcode = 'u_ruo'
+    spreadsheet_field_name = 'unit:related_unit_open'

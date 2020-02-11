@@ -16,6 +16,7 @@ from complex_fields.base_models import BaseModel
 from django_date_extensions.fields import ApproximateDateField
 
 from sfm_pc.utils import VersionsMixin
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 
 VERSION_RELATED_FIELDS = [
     'associationorganization_set',
@@ -37,7 +38,7 @@ VERSION_RELATED_FIELDS = [
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-class Organization(models.Model, BaseModel, VersionsMixin):
+class Organization(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsheetFieldNameMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,
@@ -290,6 +291,7 @@ class OrganizationName(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
     shortcode = 'u_n'
+    spreadsheet_field_name = 'unit:name'
 
 
 @translated
@@ -300,6 +302,7 @@ class OrganizationAlias(ComplexField):
     value = models.TextField(blank=True, null=True)
     field_name = _("Other Names")
     shortcode = 'u_on'
+    spreadsheet_field_name = 'unit:other_names'
 
 
 @versioned
@@ -309,6 +312,7 @@ class OrganizationClassification(ComplexField):
     value = models.TextField(blank=True, null=True)
     field_name = _("Classification")
     shortcode = 'u_cl'
+    spreadsheet_field_name = 'unit:classification'
 
 
 @versioned
@@ -318,6 +322,7 @@ class OrganizationDivisionId(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Country")
     shortcode = 'u_c'
+    spreadsheet_field_name = 'unit:country'
 
     def __str__(self):
         return self.value
@@ -330,6 +335,7 @@ class OrganizationHeadquarters(ComplexField):
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Base Name")
     shortcode = 'u_bn'
+    spreadsheet_field_name = 'unit:base_name'
 
 
 @versioned
@@ -339,6 +345,7 @@ class OrganizationFirstCitedDate(ComplexField):
     value = ApproximateDateField()
     field_name = _("First Cited Date")
     shortcode = 'u_fcd'
+    spreadsheet_field_name = 'unit:first_cited_date'
 
 
 @versioned
@@ -348,6 +355,7 @@ class OrganizationLastCitedDate(ComplexField):
     value = ApproximateDateField()
     field_name = _("Last Cited Date")
     shortcode = 'u_lcd'
+    spreadsheet_field_name = 'unit:last_cited_date'
 
 
 @versioned
@@ -357,6 +365,7 @@ class OrganizationRealStart(ComplexField):
     value = models.NullBooleanField(default=None)
     field_name = _("Start Date?")
     shortcode = 'u_fcds'
+    spreadsheet_field_name = 'unit:first_cited_date_start'
 
 
 @versioned
@@ -366,3 +375,4 @@ class OrganizationOpenEnded(ComplexField):
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Is Open Ended?")
     shortcode = 'u_lcdo'
+    spreadsheet_field_name = 'unit:last_cited_date_open'

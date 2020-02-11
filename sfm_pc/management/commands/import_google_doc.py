@@ -39,6 +39,7 @@ from organization.models import Organization, OrganizationAlias, \
 from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
                           CONFIDENCE_MAP, execute_sql)
 
+from area.models import Area
 from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
 from association.models import Association, AssociationOpenEnded, AssociationRealStart
 from composition.models import Composition, CompositionOpenEnded, CompositionRealStart
@@ -377,93 +378,93 @@ class Command(BaseCommand):
 
         org_positions = {
             'Name': {
-                'value': 'unit:name',
-                'confidence': 'unit:name:confidence',
-                'source': 'unit:name:source',
+                'value': Organization.get_spreadsheet_field_name('name'),
+                'confidence': Organization.get_spreadsheet_confidence_field_name('name'),
+                'source': Organization.get_spreadsheet_source_field_name('source'),
             },
             'Alias': {
-                'value': 'unit:other_names',
-                'confidence': 'unit:other_names:confidence',
-                'source': 'unit:other_names:source',
+                'value': Organization.get_spreadsheet_field_name('alias'),
+                'confidence': Organization.get_spreadsheet_confidence_field_name('alias'),
+                'source': Organization.get_spreadsheet_source_field_name('alias'),
             },
             'Classification': {
-                'value': 'unit:classification',
-                'confidence': 'unit:classification:confidence',
-                'source': 'unit:classification:source',
+                'value': Organization.get_spreadsheet_field_name('classification'),
+                'confidence': Organization.get_spreadsheet_confidence_field_name('classification'),
+                'source': Organization.get_spreadsheet_source_field_name('classification'),
             },
             'DivisionId': {
-                'value': 'unit:country',
-                'confidence': 'unit:country:confidence',
-                'source': 'unit:country:source',
+                'value': Organization.get_spreadsheet_field_name('division_id'),
+                'confidence': Organization.get_spreadsheet_confidence_field_name('division_id'),
+                'source': Organization.get_spreadsheet_source_field_name('division_id'),
             },
             'FirstCitedDate': {
-                'value': 'unit:first_cited_date',
-                'day': 'unit:first_cited_date_day',
-                'month': 'unit:first_cited_date_month',
-                'year': 'unit:first_cited_date_year',
-                'confidence': 'unit:first_cited_date:confidence',
-                'source': 'unit:first_cited_date:source',
+                'value': Organization.get_spreadsheet_field_name('firstciteddate'),
+                'day': Organization.get_spreadsheet_field_name('firstciteddate') + '_day',
+                'month': Organization.get_spreadsheet_field_name('firstciteddate') + '_month',
+                'year': Organization.get_spreadsheet_field_name('firstciteddate') + '_year',
+                'confidence': Organization.get_spreadsheet_confidence_field_name('firstciteddate'),
+                'source': Organization.get_spreadsheet_source_field_name('firstciteddate'),
             },
             'RealStart': {
-                'value': 'unit:first_cited_date_start',
-                'confidence': 'unit:first_cited_date:confidence',
+                'value': Organization.get_spreadsheet_field_name('realstart'),
+                'confidence': Organization.get_spreadsheet_confidence_field_name('firstciteddate'),
                 'source': None,
             },
             'LastCitedDate': {
-                'value': 'unit:last_cited_date',
-                'day': 'unit:last_cited_date_day',
-                'month': 'unit:last_cited_date_month',
-                'year': 'unit:last_cited_date_year',
-                'confidence': 'unit:last_cited_date:confidence',
-                'source': 'unit:last_cited_date:source',
+                'value': Organization.get_spreadsheet_field_name('lastciteddate'),
+                'day': Organization.get_spreadsheet_field_name('lastciteddate') + '_day',
+                'month': Organization.get_spreadsheet_field_name('lastciteddate') + '_month',
+                'year': Organization.get_spreadsheet_field_name('lastciteddate') + '_year',
+                'confidence': Organization.get_spreadsheet_confidence_field_name('lastciteddate'),
+                'source': Organization.get_spreadsheet_source_field_name('lastciteddate'),
             },
             'OpenEnded': {
-                'value': 'unit:last_cited_date_open',
-                'confidence': 'unit:last_cited_date:confidence',
+                'value': Organization.get_spreadsheet_field_name('open_ended'),
+                'confidence': Organization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'source': None,
             },
             'Headquarters': {
-                'value': 'unit:base_name',
-                'confidence': 'unit:base_name:confidence',
-                'source': 'unit:base_name:source',
+                'value': Organization.get_spreadsheet_field_name('headquarters'),
+                'confidence': Organization.get_spreadsheet_confidence_field_name('headquarters'),
+                'source': Organization.get_spreadsheet_source_field_name('headquarters'),
             }
         }
 
         composition_positions = {
             'Parent': {
-                'value': 'unit:related_unit',
-                'confidence': 'unit:related_unit:confidence',
-                'source': 'unit:related_unit:source',
+                'value': Composition.get_spreadsheet_field_name('parent'),
+                'confidence': Composition.get_spreadsheet_confidence_field_name('parent'),
+                'source': Composition.get_spreadsheet_source_field_name('parent'),
             },
             'Classification': {
-                'value': 'unit:related_unit_class',
-                'confidence': 'unit:related_unit_class:confidence',
-                'source': 'unit:related_unit_class:source',
+                'value': Composition.get_spreadsheet_field_name('classification'),
+                'confidence': Composition.get_spreadsheet_confidence_field_name('classification'),
+                'source': Composition.get_spreadsheet_source_field_name('classification'),
             },
             'StartDate': {
-                'value': 'unit:related_unit_first_cited_date',
-                'day': 'unit:related_unit_first_cited_date_day',
-                'month': 'unit:related_unit_first_cited_date_month',
-                'year': 'unit:related_unit_first_cited_date_year',
-                'confidence': 'unit:related_unit_first_cited_date:confidence',
-                'source': 'unit:related_unit_first_cited_date:source',
+                'value': Composition.get_spreadsheet_field_name('startdate'),
+                'day': Composition.get_spreadsheet_field_name('startdate') + '_day',
+                'month': Composition.get_spreadsheet_field_name('startdate') + '_month',
+                'year': Composition.get_spreadsheet_field_name('startdate') + '_year',
+                'confidence': Composition.get_spreadsheet_confidence_field_name('startdate'),
+                'source': Composition.get_spreadsheet_source_field_name('startdate'),
             },
             'RealStart': {
-                'value': 'unit:related_unit_first_cited_date_start',
-                'confidence': 'unit:related_unit_first_cited_date:confidence',
+                'value': Composition.get_spreadsheet_field_name('realstart'),
+                'confidence': Composition.get_spreadsheet_confidence_field_name('startdate'),
                 'source': None,
             },
             'EndDate': {
-                'value': 'unit:related_unit_last_cited_date',
-                'day': 'unit:related_unit_last_cited_date_day',
-                'month': 'unit:related_unit_last_cited_date_month',
-                'year': 'unit:related_unit_last_cited_date_year',
-                'confidence': 'unit:related_unit_last_cited_date:confidence',
-                'source': 'unit:related_unit_last_cited_date:source',
+                'value': Composition.get_spreadsheet_field_name('enddate'),
+                'day': Composition.get_spreadsheet_field_name('enddate') + '_day',
+                'month': Composition.get_spreadsheet_field_name('enddate') + '_month',
+                'year': Composition.get_spreadsheet_field_name('enddate') + '_year',
+                'confidence': Composition.get_spreadsheet_confidence_field_name('enddate'),
+                'source': Composition.get_spreadsheet_source_field_name('enddate'),
             },
             'OpenEnded': {
-                'value': 'unit:related_unit_open',
-                'confidence': 'unit:related_unit_last_cited_date:confidence',
+                'value': Composition.get_spreadsheet_field_name('open_ended'),
+                'confidence': Composition.get_spreadsheet_confidence_field_name('enddate'),
                 'source': None,
             },
         }
@@ -471,8 +472,8 @@ class Command(BaseCommand):
         area_positions = {
             'OSMId': {
                 'value': 'unit:area_ops_id',
-                'confidence': 'unit:area_ops_name:confidence',
-                'source': 'unit:area_ops_name:source',
+                'confidence': Area.get_spreadsheet_confidence_field_name('name'),
+                'source': Area.get_spreadsheet_source_field_name('name'),
             },
         }
 
@@ -486,34 +487,34 @@ class Command(BaseCommand):
 
         membership_positions = {
             'OrganizationOrganization': {
-                'value': 'unit:membership_name',
-                'confidence': 'unit:membership_name:confidence',
-                'source': 'unit:membership_name:source',
+                'value': MembershipOrganization.get_spreadsheet_field_name('organization'),
+                'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('organization'),
+                'source': MembershipOrganization.get_spreadsheet_source_field_name('organization'),
             },
             'FirstCitedDate': {
-                'value': 'unit:membership_first_cited_date',
-                'day': 'unit:membership_first_cited_date_day',
-                'month': 'unit:membership_first_cited_date_month',
-                'year': 'unit:membership_first_cited_date_year',
-                'confidence': 'unit:membership_first_cited_date:confidence',
-                'source': 'unit:membership_first_cited_date:source',
+                'value': MembershipOrganization.get_spreadsheet_field_name('firstciteddate'),
+                'day': MembershipOrganization.get_spreadsheet_field_name('firstciteddate') + '_day',
+                'month': MembershipOrganization.get_spreadsheet_field_name('firstciteddate') + '_month',
+                'year': MembershipOrganization.get_spreadsheet_field_name('firstciteddate') + '_year',
+                'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('firstciteddate'),
+                'source': MembershipOrganization.get_spreadsheet_source_field_name('firstciteddate'),
             },
             'RealStart': {
-                'value': 'unit:membership_first_cited_date_start',
-                'confidence': 'unit:membership_first_cited_date:confidence',
+                'value': MembershipOrganization.get_spreadsheet_field_name('realstart'),
+                'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('firstciteddate'),
                 'source': None,
             },
             'LastCitedDate': {
-                'value': 'unit:membership_last_cited_date',
-                'day': 'unit:membership_last_cited_date_day',
-                'month': 'unit:membership_last_cited_date_month',
-                'year': 'unit:membership_last_cited_date_year',
-                'confidence': 'unit:membership_last_cited_date:confidence',
-                'source': 'unit:membership_last_cited_date:source',
+                'value': MembershipOrganization.get_spreadsheet_field_name('lastciteddate'),
+                'day': MembershipOrganization.get_spreadsheet_field_name('lastciteddate') + '_day',
+                'month': MembershipOrganization.get_spreadsheet_field_name('lastciteddate') + '_month',
+                'year': MembershipOrganization.get_spreadsheet_field_name('lastciteddate') + '_year',
+                'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('lastciteddate'),
+                'source': MembershipOrganization.get_spreadsheet_source_field_name('lastciteddate'),
             },
             'RealEnd': {
-                'value': 'unit:membership_last_cited_date_end',
-                'confidence': 'unit:membership_last_cited_date:confidence',
+                'value': MembershipOrganization.get_spreadsheet_field_name('realend'),
+                'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'source': None,
             },
         }
@@ -1070,37 +1071,37 @@ class Command(BaseCommand):
 
         positions = {
             'OSMName': {
-                'value': 'unit:area_ops_name',
-                'confidence': 'unit:area_ops_name:confidence',
-                'source': 'unit:area_ops_name:source',
+                'value': Area.get_spreadsheet_field_name('name'),
+                'confidence': Area.get_spreadsheet_confidence_field_name('name'),
+                'source': Area.get_spreadsheet_source_field_name('name'),
             },
         }
 
         relation_positions = {
             'StartDate': {
-                'value': 'unit:area_ops_first_cited_date',
-                'day': 'unit:area_ops_first_cited_date_day',
-                'month': 'unit:area_ops_first_cited_date_month',
-                'year': 'unit:area_ops_first_cited_date_year',
-                'confidence': 'unit:area_ops_first_cited_date:confidence',
-                'source': 'unit:area_ops_first_cited_date:source',
+                'value': Association.get_spreadsheet_field_name('startdate'),
+                'day': Association.get_spreadsheet_field_name('startdate') + '_day',
+                'month': Association.get_spreadsheet_field_name('startdate') + '_month',
+                'year': Association.get_spreadsheet_field_name('startdate') + '_year',
+                'confidence': Association.get_spreadsheet_confidence_field_name('startdate'),
+                'source': Association.get_spreadsheet_source_field_name('startdate'),
             },
             'RealStart': {
-                'value': 'unit:area_ops_first_cited_date_start',
-                'confidence': 'unit:area_ops_first_cited_date:confidence',
+                'value': Association.get_spreadsheet_field_name('realstart'),
+                'confidence': Association.get_spreadsheet_confidence_field_name('startdate'),
                 'source': None,
             },
             'EndDate': {
-                'value': 'unit:area_ops_last_cited_date',
-                'day': 'unit:area_ops_last_cited_date_day',
-                'month': 'unit:area_ops_last_cited_date_month',
-                'year': 'unit:area_ops_last_cited_date_year',
-                'confidence': 'unit:area_ops_last_cited_date:confidence',
-                'source': 'unit:area_ops_last_cited_date:source',
+                'value': Association.get_spreadsheet_field_name('enddate'),
+                'day': Association.get_spreadsheet_field_name('enddate') + '_day',
+                'month': Association.get_spreadsheet_field_name('enddate') + '_month',
+                'year': Association.get_spreadsheet_field_name('enddate') + '_year',
+                'confidence': Association.get_spreadsheet_confidence_field_name('enddate'),
+                'source': Association.get_spreadsheet_source_field_name('enddate'),
             },
             'OpenEnded': {
-                'value': 'unit:area_ops_open',
-                'confidence': 'unit:area_ops_last_cited_date:confidence',
+                'value': Association.get_spreadsheet_field_name('realstart'),
+                'confidence': Association.get_spreadsheet_confidence_field_name('enddate'),
                 'source': None,
             },
         }
@@ -1214,9 +1215,9 @@ class Command(BaseCommand):
                 'source': 'unit:site_exact_location:source',
             },
             'Headquarters': {
-                'value': 'unit:base_name',
-                'confidence': 'unit:base_name:confidence',
-                'source': 'unit:base_name:source',
+                'value': Organization.get_spreadsheet_field_name('headquarters'),
+                'confidence': Organization.get_spreadsheet_confidence_field_name('headquarters'),
+                'source': Organization.get_spreadsheet_source_field_name('headquarters'),
             },
             'AdminName': {
                 'value': 'unit:site_nearest_settlement_name',
@@ -1232,29 +1233,29 @@ class Command(BaseCommand):
 
         relation_positions = {
             'StartDate': {
-                'value': 'unit:site_first_cited_date',
-                'day': 'unit:site_first_cited_date_day',
-                'month': 'unit:site_first_cited_date_month',
-                'year': 'unit:site_first_cited_date_year',
-                'confidence': 'unit:site_first_cited_date:confidence',
-                'source': 'unit:site_first_cited_date:source',
+                'value': Emplacement.get_spreadsheet_field_name('startdate'),
+                'day': Emplacement.get_spreadsheet_field_name('startdate') + '_day',
+                'month': Emplacement.get_spreadsheet_field_name('startdate') + '_month',
+                'year': Emplacement.get_spreadsheet_field_name('startdate') + '_year',
+                'confidence': Emplacement.get_spreadsheet_confidence_field_name('startdate'),
+                'source': Emplacement.get_spreadsheet_source_field_name('startdate'),
             },
             'RealStart': {
-                'value': 'unit:site_first_cited_date_founding',
-                'confidence': 'unit:site_first_cited_date:confidence',
+                'value': Emplacement.get_spreadsheet_field_name('realstart'),
+                'confidence': Emplacement.get_spreadsheet_confidence_field_name('startdate'),
                 'source': None
             },
             'EndDate': {
-                'value': 'unit:site_last_cited_date',
-                'day': 'unit:site_last_cited_date_day',
-                'month': 'unit:site_last_cited_date_month',
-                'year': 'unit:site_last_cited_date_year',
-                'confidence': 'unit:site_last_cited_date:confidence',
-                'source': 'unit:site_last_cited_date:source',
+                'value': Emplacement.get_spreadsheet_field_name('enddate'),
+                'day': Emplacement.get_spreadsheet_field_name('enddate') + '_day',
+                'month': Emplacement.get_spreadsheet_field_name('enddate') + '_month',
+                'year': Emplacement.get_spreadsheet_field_name('enddate') + '_year',
+                'confidence': Emplacement.get_spreadsheet_confidence_field_name('enddate'),
+                'source': Emplacement.get_spreadsheet_source_field_name('enddate'),
             },
             'OpenEnded': {
-                'value': 'unit:site_open',
-                'confidence': 'unit:site_last_cited_date:confidence',
+                'value': Emplacement.get_spreadsheet_field_name('open_ended'),
+                'confidence': Emplacement.get_spreadsheet_confidence_field_name('enddate'),
                 'source': None
             }
         }
@@ -1516,24 +1517,24 @@ class Command(BaseCommand):
 
             except AccessPoint.DoesNotExist:
                 new_source, created = Source.objects.get_or_create(
-                    title=source['source:title'],
-                    type=source['source:type'],
-                    author=source['source:author'],
-                    publication=source['source:publication_name'],
-                    publication_country=source['source:publication_country'],
-                    published_on=self.parse_date(source['source:published_timestamp']),
-                    created_on=self.parse_date(source['source:created_timestamp']),
-                    uploaded_on=self.parse_date(source['source:uploaded_timestamp']),
-                    source_url=source['source:url'],
+                    title=source[Source.get_spreadsheet_field_name('title')],
+                    type=source[Source.get_spreadsheet_field_name('type')],
+                    author=source[Source.get_spreadsheet_field_name('author')],
+                    publication=source[Source.get_spreadsheet_field_name('publication')],
+                    publication_country=source[Source.get_spreadsheet_field_name('publication_country')],
+                    published_on=self.parse_date(source[Source.get_spreadsheet_field_name('published_on')]),
+                    created_on=self.parse_date(source[Source.get_spreadsheet_field_name('created_on')]),
+                    uploaded_on=self.parse_date(source[Source.get_spreadsheet_field_name('uploaded_on')]),
+                    source_url=source[Source.get_spreadsheet_field_name('source_url')],
                     user=self.user
                 )
 
                 AccessPoint.objects.create(
                     uuid=access_point_uuid,
-                    type=source['source:access_point_type'],
-                    trigger=source['source:access_point_trigger'],
-                    accessed_on=self.parse_date(source['source:accessed_timestamp']),
-                    archive_url=source['source:archive_url'],
+                    type=source[AccessPoint.get_spreadsheet_field_name('type')],
+                    trigger=source[AccessPoint.get_spreadsheet_field_name('trigger')],
+                    accessed_on=self.parse_date(source[AccessPoint.get_spreadsheet_field_name('accessed_on')]),
+                    archive_url=source[AccessPoint.get_spreadsheet_field_name('archive_url')],
                     source=new_source,
                     user=self.user
                 )
@@ -1562,77 +1563,77 @@ class Command(BaseCommand):
 
         person_positions = {
             'Name': {
-                'value': 'person:name',
-                'confidence': 'person:name:confidence',
-                'source': 'person:name:source',
+                'value': Person.get_spreadsheet_field_name('name'),
+                'confidence': Person.get_spreadsheet_confidence_field_name('name'),
+                'source': Person.get_spreadsheet_source_field_name('name'),
             },
             'Alias': {
-                'value': 'person:other_names',
-                'confidence': 'person:other_names:confidence',
-                'source': 'person:other_names:source',
+                'value': Person.get_spreadsheet_field_aliases('aliases'),
+                'confidence': Person.get_spreadsheet_confidence_field_aliases('aliases'),
+                'source': Person.get_spreadsheet_source_field_aliases('aliases'),
             },
             'DivisionId': {
-                'value': 'person:country',
-                'confidence': 'person:country:confidence',
-                'source': 'person:country:source',
+                'value': Person.get_spreadsheet_field_division_id('division_id'),
+                'confidence': Person.get_spreadsheet_confidence_field_division_id('division_id'),
+                'source': Person.get_spreadsheet_source_field_division_id('division_id'),
             },
         }
         membership_positions = {
             'Organization': {
-                'value': 'person:posting',
-                'confidence': 'person:posting:confidence',
-                'source': 'person:posting:source',
+                'value': MembershipPerson.get_spreadsheet_field_name('organization'),
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('organization'),
+                'source': MembershipPerson.get_spreadsheet_source_field_name('organization'),
             },
             'Role': {
-                'value': 'person:posting_role',
-                'confidence': 'person:posting_role:confidence',
-                'source': 'person:posting_role:source',
+                'value': MembershipPerson.get_spreadsheet_field_name('role'),
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('role'),
+                'source': MembershipPerson.get_spreadsheet_source_field_name('role'),
             },
             'Title': {
-                'value': 'person:posting_title',
-                'confidence': 'person:posting_title:confidence',
-                'source': 'person:posting_title:source',
+                'value': MembershipPerson.get_spreadsheet_field_name('title'),
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('title'),
+                'source': MembershipPerson.get_spreadsheet_source_field_name('title'),
             },
             'Rank': {
-                'value': 'person:posting_rank',
-                'confidence': 'person:posting_rank:confidence',
-                'source': 'person:posting_rank:source',
+                'value': MembershipPerson.get_spreadsheet_field_name('rank'),
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('rank'),
+                'source': MembershipPerson.get_spreadsheet_source_field_name('rank'),
             },
             'FirstCitedDate': {
-                'value': 'person:posting_first_cited_date',
-                'day': 'person:posting_first_cited_date_day',
-                'month': 'person:posting_first_cited_date_month',
-                'year': 'person:posting_first_cited_date_year',
-                'confidence': 'person:posting_first_cited_date:confidence',
-                'source': 'person:posting_first_cited_date:source',
+                'value': MembershipPerson.get_spreadsheet_field_name('firstciteddate'),
+                'day': MembershipPerson.get_spreadsheet_field_name('firstciteddate') + '_day',
+                'month': MembershipPerson.get_spreadsheet_field_name('firstciteddate') + '_month',
+                'year': MembershipPerson.get_spreadsheet_field_name('firstciteddate') + '_year',
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('firstciteddate'),
+                'source': MembershipPerson.get_spreadsheet_source_field_name('firstciteddate'),
             },
             'RealStart': {
-                'value': 'person:posting_first_cited_date_start',
-                'confidence': 'person:posting_first_cited_date:confidence',
+                'value': MembershipPerson.get_spreadsheet_field_name('realstart'),
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('firstciteddate'),
                 'source': None,
             },
             'StartContext': {
-                'value': 'person:posting_first_cited_date_start_context',
-                'confidence': 'person:posting_first_cited_date_start_context:confidence',
-                'source': 'person:posting_first_cited_date_start_context:source',
+                'value': MembershipPerson.get_spreadsheet_field_name('startcontext'),
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('startcontext'),
+                'source': MembershipPerson.get_spreadsheet_source_field_name('startcontext'),
             },
             'LastCitedDate': {
-                'value': 'person:posting_last_cited_date',
-                'day': 'person:posting_last_cited_date_day',
-                'month': 'person:posting_last_cited_date_month',
-                'year': 'person:posting_last_cited_date_year',
-                'confidence': 'person:posting_last_cited_date:confidence',
-                'source': 'person:posting_last_cited_date:source',
+                'value': MembershipPerson.get_spreadsheet_field_name('lastciteddate'),
+                'day': MembershipPerson.get_spreadsheet_field_name('lastciteddate') + '_day',
+                'month': MembershipPerson.get_spreadsheet_field_name('lastciteddate') + '_month',
+                'year': MembershipPerson.get_spreadsheet_field_name('lastciteddate') + '_year',
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('lastciteddate'),
+                'source': MembershipPerson.get_spreadsheet_source_field_name('lastciteddate'),
             },
             'RealEnd': {
-                'value': 'person:posting_last_cited_date_end',
-                'confidence': 'person:posting_last_cited_date:confidence',
+                'value': MembershipPerson.get_spreadsheet_field_name('realend'),
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'source': None,
             },
             'EndContext': {
-                'value': 'person:posting_last_cited_date_end_context',
-                'confidence': 'person:posting_last_cited_date_end_context:confidence',
-                'source': 'person:posting_last_cited_date_end_context:source',
+                'value': MembershipPerson.get_spreadsheet_field_name('endcontext'),
+                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('endcontext'),
+                'source': MembershipPerson.get_spreadsheet_source_field_name('endcontext'),
             },
         }
 
@@ -1901,62 +1902,62 @@ class Command(BaseCommand):
         """
         positions = {
             'Name': {
-                'value': 'person_extra:name',
+                'value': PersonExtra.get_spreadsheet_field_name('person'),
             },
             'Id': {
                 'value': 'person_extra:id:admin',
             },
             'Gender': {
                 'key': 'Person_PersonExtraGender',
-                'value': 'person_extra:gender',
-                'confidence': 'person_extra:gender:confidence',
-                'source': 'person_extra:gender:source',
+                'value': PersonExtra.get_spreadsheet_field_name('gender'),
+                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('gender'),
+                'source': PersonExtra.get_spreadsheet_source_field_name('gender'),
             },
             'DateOfBirth': {
                 'key': 'Person_PersonExtraDateOfBirth',
-                'value': 'person_extra:date_of_birth',
-                'confidence': 'person_extra:date_of_birth:confidence',
-                'source': 'person_extra:date_of_birth:source',
+                'value': PersonExtra.get_spreadsheet_field_name('date_of_birth'),
+                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('date_of_birth'),
+                'source': PersonExtra.get_spreadsheet_source_field_name('date_of_birth'),
             },
             'Deceased': {
                 'key': 'Person_PersonExtraDeceased',
-                'value': 'person_extra:deceased',
-                'confidence': 'person_extra:deceased:confidence',
-                'source': 'person_extra:deceased:source',
+                'value': PersonExtra.get_spreadsheet_field_name('deceased'),
+                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('deceased'),
+                'source': PersonExtra.get_spreadsheet_source_field_name('deceased'),
             },
             'DateOfDeath': {
                 'key': 'Person_PersonExtraDateOfDeath',
-                'value': 'person_extra:deceased_date',
-                'confidence': 'person_extra:deceased_date:confidence',
-                'source': 'person_extra:deceased_date:source',
+                'value': PersonExtra.get_spreadsheet_field_name('deceased_date'),
+                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('deceased_date'),
+                'source': PersonExtra.get_spreadsheet_source_field_name('deceased_date'),
             },
             'AccountType': {
                 'key': 'Person_PersonExtraAccountType',
-                'value': 'person_extra:account_type',
-                'confidence': 'person_extra:account:confidence',
-                'source': 'person_extra:account:source',
+                'value': PersonExtra.get_spreadsheet_field_name('account_type'),
+                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('account_type'),
+                'source': PersonExtra.get_spreadsheet_source_field_name('account_type'),
             },
             'AccountId': {
                 'key': 'Person_PersonExtraAccount',
-                'value': 'person_extra:account_id',
-                'confidence': 'person_extra:account:confidence',
-                'source': 'person_extra:account:source',
+                'value': PersonExtra.get_spreadsheet_field_name('account'),
+                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('account'),
+                'source': PersonExtra.get_spreadsheet_source_field_name('account'),
             },
             'ExternalLinkDescription': {
                 'key': 'Person_PersonExtraExternalLinkDescription',
-                'value': 'person_extra:external_link_description',
-                'confidence': 'person_extra:external_link:confidence',
-                'source': 'person_extra:external_link:source',
+                'value': PersonExtra.get_spreadsheet_field_name('external_link_description'),
+                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('external_link_description'),
+                'source': PersonExtra.get_spreadsheet_source_field_name('external_link_description'),
             },
             'MediaDescription': {
                 'key': 'Person_PersonExtraMediaDescription',
-                'value': 'person_extra:media_desc',
-                'confidence': 'person_extra:media:confidence',
-                'source': 'person_extra:media:source',
+                'value': PersonExtra.get_spreadsheet_field_name('media_desc'),
+                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('media_desc'),
+                'source': PersonExtra.get_spreadsheet_source_field_name('media_desc'),
             },
             'Notes': {
                 'key': 'Person_PersonExtraNotes',
-                'value': 'person_extra:notes:admin',
+                'value': PersonExtra.get_spreadsheet_field_name('notes'),
             },
         }
 
@@ -2049,58 +2050,58 @@ class Command(BaseCommand):
 
         positions = {
             'StartDate': {
-                'value': 'incident:start_date',
+                'value': Violation.get_spreadsheet_field_name('startdate'),
                 'source': 'incident:all:source',
                 'model_field': 'violationstartdate',
             },
             'EndDate': {
-                'value': 'incident:end_date',
+                'value': Violation.get_spreadsheet_field_name('enddate'),
                 'source': 'incident:all:source',
                 'model_field': 'violationenddate',
             },
             # AKA "date of publication"
             'FirstAllegation': {
-                'value': 'incident:pub_date',
+                'value': Violation.get_spreadsheet_field_name('first_allegation'),
                 'source': 'incident:all:source',
                 'model_field': 'violationfirstallegation',
             },
             'LastUpdate': {
-                'value': 'incident:update_date',
+                'value': Violation.get_spreadsheet_field_name('last_update'),
                 'source': 'incident:all:source',
                 'model_field': 'violationlastupdate',
             },
             'Status': {
-                'value': 'incident:update_status',
+                'value': Violation.get_spreadsheet_field_name('status'),
                 'source': 'incident:all:source',
                 'model_field': 'violationstatus',
             },
             'LocationDescription': {
-                'value': 'incident:location_description',
+                'value': Violation.get_spreadsheet_field_name('locationdescription'),
                 'source': 'incident:all:source',
                 'model_field': 'violationlocationdescription',
             },
             'ExactLocation': {
-                'lng_or_name': 'incident:site_exact_location_name_longitude',
-                'lat_or_id': 'incident:site_exact_location_id_latitude',
+                'lng_or_name': Violation.get_spreadsheet_field_name('location_name'),
+                'lat_or_id': Violation.get_spreadsheet_field_name('location_id'),
                 'source': 'incident:all:source',
                 'model_field': 'violationexactlocation',
             },
             'DivisionId': {
-                'value': 'incident:site_country',
+                'value': Violation.get_spreadsheet_field_name('division_id'),
                 'source': 'incident:all:source',
             },
             'Type': {
-                'value': 'incident:violation_type',
+                'value': Violation.get_spreadsheet_field_name('types'),
                 'source': 'incident:all:source',
                 'model_field': 'violationtype',
             },
             'Description': {
-                'value': 'incident:violation_description',
+                'value': Violation.get_spreadsheet_field_name('description'),
                 'source': 'incident:all:source',
                 'model_field': 'violationdescription',
             },
             'AdminName': {
-                'value': 'incident:site_settlement_name',
+                'value': Violation.get_spreadsheet_field_name('adminlevel1'),
                 'source': 'incident:all:source',
             },
             'AdminId': {
@@ -2109,19 +2110,19 @@ class Command(BaseCommand):
             },
             'AdminLevel2': {
                 'osmid': 'incident:site_first_admin_area_id',
-                'value': 'incident:site_first_admin_area_name',
+                'value': Violation.get_spreadsheet_field_name('adminlevel2'),
                 'source': 'incident:all:source',
             },
             'Perpetrator': {
-                'value': 'incident:perpetrator_name',
+                'value': Violation.get_spreadsheet_field_name('perpetrator'),
                 'source': 'incident:all:source'
             },
             'PerpetratorOrganization': {
-                'value': 'incident:perpetrator_unit',
+                'value': Violation.get_spreadsheet_field_name('perpetratororganization'),
                 'source': 'incident:all:source'
             },
             'PerpetratorClassification': {
-                'value': 'incident:perpetrator_classification',
+                'value': Violation.get_spreadsheet_field_name('perpetratorclassification'),
                 'source': 'incident:all:source'
             }
         }
