@@ -89,7 +89,7 @@ class Source(models.Model, VersionsMixin):
 class AccessPoint(models.Model, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     type = models.CharField(max_length=1000, null=True, blank=True)
-    page_number = models.CharField(max_length=255, null=True, blank=True)
+    trigger = models.CharField(max_length=255, null=True, blank=True)
     accessed_on = models.DateField(null=True, verbose_name='access date')
     archive_url = models.URLField(max_length=1000, null=True,)
     source = models.ForeignKey(Source, null=True, to_field='uuid')

@@ -398,6 +398,9 @@ class Command(BaseCommand):
             },
             'FirstCitedDate': {
                 'value': 'unit:first_cited_date',
+                'day': 'unit:first_cited_date_day',
+                'month': 'unit:first_cited_date_month',
+                'year': 'unit:first_cited_date_year',
                 'confidence': 'unit:first_cited_date:confidence',
                 'source': 'unit:first_cited_date:source',
             },
@@ -408,6 +411,9 @@ class Command(BaseCommand):
             },
             'LastCitedDate': {
                 'value': 'unit:last_cited_date',
+                'day': 'unit:last_cited_date_day',
+                'month': 'unit:last_cited_date_month',
+                'year': 'unit:last_cited_date_year',
                 'confidence': 'unit:last_cited_date:confidence',
                 'source': 'unit:last_cited_date:source',
             },
@@ -436,6 +442,9 @@ class Command(BaseCommand):
             },
             'StartDate': {
                 'value': 'unit:related_unit_first_cited_date',
+                'day': 'unit:related_unit_first_cited_date_day',
+                'month': 'unit:related_unit_first_cited_date_month',
+                'year': 'unit:related_unit_first_cited_date_year',
                 'confidence': 'unit:related_unit_first_cited_date:confidence',
                 'source': 'unit:related_unit_first_cited_date:source',
             },
@@ -446,6 +455,9 @@ class Command(BaseCommand):
             },
             'EndDate': {
                 'value': 'unit:related_unit_last_cited_date',
+                'day': 'unit:related_unit_last_cited_date_day',
+                'month': 'unit:related_unit_last_cited_date_month',
+                'year': 'unit:related_unit_last_cited_date_year',
                 'confidence': 'unit:related_unit_last_cited_date:confidence',
                 'source': 'unit:related_unit_last_cited_date:source',
             },
@@ -480,6 +492,9 @@ class Command(BaseCommand):
             },
             'FirstCitedDate': {
                 'value': 'unit:membership_first_cited_date',
+                'day': 'unit:membership_first_cited_date_day',
+                'month': 'unit:membership_first_cited_date_month',
+                'year': 'unit:membership_first_cited_date_year',
                 'confidence': 'unit:membership_first_cited_date:confidence',
                 'source': 'unit:membership_first_cited_date:source',
             },
@@ -490,6 +505,9 @@ class Command(BaseCommand):
             },
             'LastCitedDate': {
                 'value': 'unit:membership_last_cited_date',
+                'day': 'unit:membership_last_cited_date_day',
+                'month': 'unit:membership_last_cited_date_month',
+                'year': 'unit:membership_last_cited_date_year',
                 'confidence': 'unit:membership_last_cited_date:confidence',
                 'source': 'unit:membership_last_cited_date:source',
             },
@@ -529,6 +547,12 @@ class Command(BaseCommand):
             if confidence and sources:
 
                 division_id = 'ocd-division/country:{}'.format(country_code)
+                division_confidence = self.get_confidence(
+                    org_data[org_positions['DivisionId']['confidence']]
+                )
+                division_sources = self.get_sources(
+                    org_data[org_positions['DivisionId']['source']]
+                )
 
                 org_info = {
                     'Organization_OrganizationName': {
@@ -538,8 +562,8 @@ class Command(BaseCommand):
                     },
                     'Organization_OrganizationDivisionId': {
                         'value': division_id,
-                        'confidence': confidence,
-                        'sources': sources.copy(),
+                        'confidence': division_confidence,
+                        'sources': division_sources,
                     }
                 }
 
@@ -644,8 +668,8 @@ class Command(BaseCommand):
                             },
                             'Organization_OrganizationDivisionId': {
                                 'value': division_id,
-                                'confidence': confidence,
-                                'sources': sources.copy(),
+                                'confidence': division_confidence,
+                                'sources': division_sources,
                             },
                         }
 
@@ -748,9 +772,8 @@ class Command(BaseCommand):
                             },
                             'Organization_OrganizationDivisionId': {
                                 'value': division_id,
-                                # TODO: Use the correct source/confidence for division IDs
-                                'confidence': confidence,
-                                'sources': sources.copy(),
+                                'confidence': division_confidence,
+                                'sources': division_sources,
                             },
                         }
 
@@ -786,13 +809,21 @@ class Command(BaseCommand):
                         }
 
                         try:
-                            date_parts = [org_data[membership_positions['FirstCitedDate']['value'] + 3], org_data[membership_positions['FirstCitedDate']['value'] + 1], org_data[membership_positions['FirstCitedDate']['value'] + 2]]
+                            date_parts = [
+                                org_data[membership_positions['FirstCitedDateYear']['value']],
+                                org_data[membership_positions['FirstCitedDateMonth']['value']],
+                                org_data[membership_positions['FirstCitedDateDay']['value']]
+                            ]
                             fcd = self.parse_date('-'.join(filter(None, date_parts)))
                         except IndexError:
                             fcd = None
 
                         try:
-                            date_parts = org_data[membership_positions['LastCitedDate']['value'] + 3], org_data[membership_positions['LastCitedDate']['value'] + 1], org_data[membership_positions['LastCitedDate']['value'] + 2]
+                            date_parts = [
+                                org_data[membership_positions['LastCitedDateYear']['value']],
+                                org_data[membership_positions['LastCitedDateMonth']['value']],
+                                org_data[membership_positions['LastCitedDateDay']['value']]
+                            ]
                             lcd = self.parse_date('-'.join(filter(None, date_parts)))
                         except IndexError:
                             lcd = None
@@ -888,7 +919,11 @@ class Command(BaseCommand):
             if not date:
                 value = data[value_position]
             else:
-                date_parts = [data[value_position + 3], data[value_position + 1], data[value_position + 2]]
+                date_parts = [
+                    data[value_position + '_year'],
+                    data[value_position + '_month'],
+                    data[value_position + '_day']
+                ]
                 value = '-'.join(filter(None, date_parts))
             value = value.strip()
         except IndexError:
@@ -1044,6 +1079,9 @@ class Command(BaseCommand):
         relation_positions = {
             'StartDate': {
                 'value': 'unit:area_ops_first_cited_date',
+                'day': 'unit:area_ops_first_cited_date_day',
+                'month': 'unit:area_ops_first_cited_date_month',
+                'year': 'unit:area_ops_first_cited_date_year',
                 'confidence': 'unit:area_ops_first_cited_date:confidence',
                 'source': 'unit:area_ops_first_cited_date:source',
             },
@@ -1054,6 +1092,9 @@ class Command(BaseCommand):
             },
             'EndDate': {
                 'value': 'unit:area_ops_last_cited_date',
+                'day': 'unit:area_ops_last_cited_date_day',
+                'month': 'unit:area_ops_last_cited_date_month',
+                'year': 'unit:area_ops_last_cited_date_year',
                 'confidence': 'unit:area_ops_last_cited_date:confidence',
                 'source': 'unit:area_ops_last_cited_date:source',
             },
@@ -1192,6 +1233,9 @@ class Command(BaseCommand):
         relation_positions = {
             'StartDate': {
                 'value': 'unit:site_first_cited_date',
+                'day': 'unit:site_first_cited_date_day',
+                'month': 'unit:site_first_cited_date_month',
+                'year': 'unit:site_first_cited_date_year',
                 'confidence': 'unit:site_first_cited_date:confidence',
                 'source': 'unit:site_first_cited_date:source',
             },
@@ -1202,6 +1246,9 @@ class Command(BaseCommand):
             },
             'EndDate': {
                 'value': 'unit:site_last_cited_date',
+                'day': 'unit:site_last_cited_date_day',
+                'month': 'unit:site_last_cited_date_month',
+                'year': 'unit:site_last_cited_date_year',
                 'confidence': 'unit:site_last_cited_date:confidence',
                 'source': 'unit:site_last_cited_date:source',
             },
@@ -1458,39 +1505,41 @@ class Command(BaseCommand):
         self.current_sheet = 'sources'
 
         for source in source_sheet['values']:
-            # TODO: Import new attributes
-            uuid = source['source:access_point_id:admin']
-            title = source['source:title']
-            publication = source['source:publication_name']
-            publication_country = source['source:publication_country']
-            published_on = self.parse_date(source['source:published_timestamp'])
-            source_url = source['source:url']
+            if source['source:restricted:admin'] == '1':
+                # Skip restricted sources
+                continue
 
-            page_number = source['source:access_point_trigger']
-            accessed_on = self.parse_date(source['source:accessed_timestamp'])
-            archive_url = source['source:archive_url']
+            access_point_uuid = source['source:access_point_id:admin']
 
             try:
-                access_point = AccessPoint.objects.get(uuid=uuid)
+                AccessPoint.objects.get(uuid=access_point_uuid)
 
             except AccessPoint.DoesNotExist:
-                new_source, created = Source.objects.get_or_create(title=title,
-                                                                   publication=publication,
-                                                                   publication_country=publication_country,
-                                                                   published_on=published_on,
-                                                                   source_url=source_url,
-                                                                   user=self.user)
+                new_source, created = Source.objects.get_or_create(
+                    title=source['source:title'],
+                    type=source['source:type'],
+                    author=source['source:author'],
+                    publication=source['source:publication_name'],
+                    publication_country=source['source:publication_country'],
+                    published_on=self.parse_date(source['source:published_timestamp']),
+                    created_on=self.parse_date(source['source:created_timestamp']),
+                    uploaded_on=self.parse_date(source['source:uploaded_timestamp']),
+                    source_url=source['source:url'],
+                    user=self.user
+                )
 
-                access_point = AccessPoint.objects.create(uuid=uuid,
-                                                          page_number=page_number,
-                                                          accessed_on=accessed_on,
-                                                          archive_url=archive_url,
-                                                          source=new_source,
-                                                          user=self.user)
-
+                AccessPoint.objects.create(
+                    uuid=access_point_uuid,
+                    type=source['source:access_point_type'],
+                    trigger=source['source:access_point_trigger'],
+                    accessed_on=self.parse_date(source['source:accessed_timestamp']),
+                    archive_url=source['source:archive_url'],
+                    source=new_source,
+                    user=self.user
+                )
 
             except ValueError:
-                self.log_error("Invalid access point at: " + uuid)
+                self.log_error("Invalid access point at: " + access_point_uuid)
 
     def get_sources(self, source_id_string):
 
@@ -1513,69 +1562,77 @@ class Command(BaseCommand):
 
         person_positions = {
             'Name': {
-                'value': self.col('B'),
-                'confidence': self.col('D'),
-                'source': self.col('C'),
+                'value': 'person:name',
+                'confidence': 'person:name:confidence',
+                'source': 'person:name:source',
             },
             'Alias': {
-                'value': self.col('E'),
-                'confidence': self.col('G'),
-                'source': self.col('F'),
+                'value': 'person:other_names',
+                'confidence': 'person:other_names:confidence',
+                'source': 'person:other_names:source',
             },
             'DivisionId': {
-                'value': self.col('H'),
+                'value': 'person:country',
+                'confidence': 'person:country:confidence',
+                'source': 'person:country:source',
             },
         }
         membership_positions = {
             'Organization': {
-                'value': self.col('I'),
-                'confidence': self.col('K'),
-                'source': self.col('J'),
+                'value': 'person:posting',
+                'confidence': 'person:posting:confidence',
+                'source': 'person:posting:source',
             },
             'Role': {
-                'value': self.col('L'),
-                'confidence': self.col('N'),
-                'source': self.col('M'),
+                'value': 'person:posting_role',
+                'confidence': 'person:posting_role:confidence',
+                'source': 'person:posting_role:source',
             },
             'Title': {
-                'value': self.col('O'),
-                'confidence': self.col('Q'),
-                'source': self.col('P'),
+                'value': 'person:posting_title',
+                'confidence': 'person:posting_title:confidence',
+                'source': 'person:posting_title:source',
             },
             'Rank': {
-                'value': self.col('R'),
-                'confidence': self.col('T'),
-                'source': self.col('S'),
+                'value': 'person:posting_rank',
+                'confidence': 'person:posting_rank:confidence',
+                'source': 'person:posting_rank:source',
             },
             'FirstCitedDate': {
-                'value': self.col('U'),
-                'confidence': self.col('Z'),
-                'source': self.col('Y'),
+                'value': 'person:posting_first_cited_date',
+                'day': 'person:posting_first_cited_date_day',
+                'month': 'person:posting_first_cited_date_month',
+                'year': 'person:posting_first_cited_date_year',
+                'confidence': 'person:posting_first_cited_date:confidence',
+                'source': 'person:posting_first_cited_date:source',
             },
             'RealStart': {
-                'value': self.col('AA'),
-                'confidence': self.col('Z'),
+                'value': 'person:posting_first_cited_date_start',
+                'confidence': 'person:posting_first_cited_date:confidence',
                 'source': None,
             },
             'StartContext': {
-                'value': self.col('AB'),
-                'confidence': self.col('AD'),
-                'source': self.col('AC'),
+                'value': 'person:posting_first_cited_date_start_context',
+                'confidence': 'person:posting_first_cited_date_start_context:confidence',
+                'source': 'person:posting_first_cited_date_start_context:source',
             },
             'LastCitedDate': {
-                'value': self.col('AE'),
-                'confidence': self.col('AJ'),
-                'source': self.col('AI'),
+                'value': 'person:posting_last_cited_date',
+                'day': 'person:posting_last_cited_date_day',
+                'month': 'person:posting_last_cited_date_month',
+                'year': 'person:posting_last_cited_date_year',
+                'confidence': 'person:posting_last_cited_date:confidence',
+                'source': 'person:posting_last_cited_date:source',
             },
             'RealEnd': {
-                'value': self.col('AK'),
-                'confidence': self.col('AJ'),
+                'value': 'person:posting_last_cited_date_end',
+                'confidence': 'person:posting_last_cited_date:confidence',
                 'source': None,
             },
             'EndContext': {
-                'value': self.col('AL'),
-                'confidence': self.col('AN'),
-                'source': self.col('AM'),
+                'value': 'person:posting_last_cited_date_end_context',
+                'confidence': 'person:posting_last_cited_date_end_context:confidence',
+                'source': 'person:posting_last_cited_date_end_context:source',
             },
         }
 
@@ -1606,6 +1663,12 @@ class Command(BaseCommand):
             if confidence and sources:
 
                 division_id = 'ocd-division/country:{}'.format(country_code)
+                division_confidence = self.get_confidence(
+                    person_data[person_positions['DivisionId']['confidence']]
+                )
+                division_sources = self.get_sources(
+                    person_data[person_positions['DivisionId']['source']]
+                )
 
                 person_info = {
                     'Person_PersonName': {
@@ -1615,8 +1678,8 @@ class Command(BaseCommand):
                     },
                     'Person_PersonDivisionId': {
                         'value': division_id,
-                        'confidence': confidence,
-                        'sources': sources.copy(),
+                        'confidence': division_confidence,
+                        'sources': division_sources,
                     }
                 }
 
@@ -1668,8 +1731,8 @@ class Command(BaseCommand):
                     },
                     'Organization_OrganizationDivisionId': {
                         'value': division_id,
-                        'confidence': confidence,
-                        'sources': sources.copy(),
+                        'confidence': division_confidence,
+                        'sources': division_sources,
                     }
                 }
 
@@ -1724,13 +1787,21 @@ class Command(BaseCommand):
                 }
 
                 try:
-                    date_parts = [person_data[membership_positions['FirstCitedDate']['value'] + 3], person_data[membership_positions['FirstCitedDate']['value'] + 1], person_data[membership_positions['FirstCitedDate']['value'] + 2]]
+                    date_parts = [
+                        person_data[membership_positions['FirstCitedDate']['year']],
+                        person_data[membership_positions['FirstCitedDate']['month']],
+                        person_data[membership_positions['FirstCitedDate']['day']]
+                    ]
                     fcd = self.parse_date('-'.join(filter(None, date_parts)))
                 except IndexError:
                     fcd = None
 
                 try:
-                    date_parts = person_data[membership_positions['LastCitedDate']['value'] + 3], person_data[membership_positions['LastCitedDate']['value'] + 1], person_data[membership_positions['LastCitedDate']['value'] + 2]
+                    date_parts = [
+                        person_data[membership_positions['LastCitedDate']['year']],
+                        person_data[membership_positions['LastCitedDate']['month']],
+                        person_data[membership_positions['LastCitedDate']['day']]
+                    ]
                     lcd = self.parse_date('-'.join(filter(None, date_parts)))
                 except IndexError:
                     lcd = None
@@ -1978,82 +2049,80 @@ class Command(BaseCommand):
 
         positions = {
             'StartDate': {
-                'value': self.col('B'),
-                'source': self.col('AF'),
+                'value': 'incident:start_date',
+                'source': 'incident:all:source',
                 'model_field': 'violationstartdate',
             },
             'EndDate': {
-                'value': self.col('F'),
-                'source': self.col('AF'),
+                'value': 'incident:end_date',
+                'source': 'incident:all:source',
                 'model_field': 'violationenddate',
             },
             # AKA "date of publication"
             'FirstAllegation': {
-                'value': self.col('J'),
-                'source': self.col('AF'),
+                'value': 'incident:pub_date',
+                'source': 'incident:all:source',
                 'model_field': 'violationfirstallegation',
             },
             'LastUpdate': {
-                'value': self.col('N'),
-                'source': self.col('AF'),
+                'value': 'incident:update_date',
+                'source': 'incident:all:source',
                 'model_field': 'violationlastupdate',
             },
             'Status': {
-                'value': self.col('R'),
-                'source': self.col('AF'),
+                'value': 'incident:update_status',
+                'source': 'incident:all:source',
                 'model_field': 'violationstatus',
             },
             'LocationDescription': {
-                'value': self.col('S'),
-                'source': self.col('AF'),
+                'value': 'incident:location_description',
+                'source': 'incident:all:source',
                 'model_field': 'violationlocationdescription',
             },
             'ExactLocation': {
-                'lng_or_name': self.col('T'),
-                'lat_or_id': self.col('U'),
-                'source': self.col('AF'),
+                'lng_or_name': 'incident:site_exact_location_name_longitude',
+                'lat_or_id': 'incident:site_exact_location_id_latitude',
+                'source': 'incident:all:source',
                 'model_field': 'violationexactlocation',
             },
             'DivisionId': {
-                'value': self.col('Z'),
-                'source': self.col('AF'),
+                'value': 'incident:site_country',
+                'source': 'incident:all:source',
             },
             'Type': {
-                'value': self.col('AA'),
-                'source': self.col('AF'),
+                'value': 'incident:violation_type',
+                'source': 'incident:all:source',
                 'model_field': 'violationtype',
             },
             'Description': {
-                'value': self.col('AB'),
-                'source': self.col('AF'),
+                'value': 'incident:violation_description',
+                'source': 'incident:all:source',
                 'model_field': 'violationdescription',
             },
             'AdminName': {
-                'osmid': self.col('W'),
-                'value': self.col('V'),
-                'source': self.col('AF'),
+                'value': 'incident:site_settlement_name',
+                'source': 'incident:all:source',
             },
             'AdminId': {
-                'osmid': self.col('W'),
-                'value': self.col('W'),
-                'source': self.col('AF'),
+                'value': 'incident:site_settlement_id',
+                'source': 'incident:all:source',
             },
             'AdminLevel2': {
-                'osmid': self.col('Y'),
-                'value': self.col('X'),
-                'source': self.col('AF'),
+                'osmid': 'incident:site_first_admin_area_id',
+                'value': 'incident:site_first_admin_area_name',
+                'source': 'incident:all:source',
             },
             'Perpetrator': {
-                'value': self.col('AC'),
-                'source': self.col('AF')
+                'value': 'incident:perpetrator_name',
+                'source': 'incident:all:source'
             },
             'PerpetratorOrganization': {
-                'value': self.col('AD'),
-                'source': self.col('AF')
+                'value': 'incident:perpetrator_unit',
+                'source': 'incident:all:source'
             },
             'PerpetratorClassification': {
-                'value': self.col('AE'),
-                'source': self.col('AF')
+                'value': 'incident:perpetrator_classification',
+                'source': 'incident:all:source'
             }
         }
 

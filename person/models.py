@@ -231,7 +231,6 @@ class PersonDivisionId(ComplexField):
     shortcode = 'p_c'
 
 
-@sourced
 @versioned
 class PersonExtraPerson(ComplexField):
     object_ref = models.ForeignKey('PersonExtra')

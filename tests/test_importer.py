@@ -7,7 +7,7 @@ import pytest
 from django.core.management import call_command
 
 from organization.models import Organization
-from person.models import Person
+from person.models import Person, PersonExtra
 from violation.models import Violation
 from source.models import AccessPoint
 
@@ -57,8 +57,8 @@ def test_no_sources_missing(data_import):
 @pytest.mark.parametrize(
     'entity_name,Model',
     [
-        ('organization', Organization), ('person', Person),
-        ('event', Violation), ('source', AccessPoint)
+        ('units', Organization), ('persons', Person), ('persons_extra', PersonExtra),
+        ('incidents', Violation), ('sources', AccessPoint)
     ]
 )
 def test_number_of_imported_entities(entity_name, Model, data_import, data_folder):
@@ -89,11 +89,9 @@ def test_sources(data_import, data_folder):
                 'CompositionChild', 'OrganizationName',
                 'MembershipOrganizationMember', 'MembershipOrganizationOrganization',
                 'MembershipPersonOrganization', 'MembershipPersonMember',
-                'OrganizationDivisionId', 'CompositionParent',
+                'CompositionParent',
             ])
-            permitted_person_set = set([
-                'PersonName', 'PersonDivisionId',
-            ])
+            permitted_person_set = set(['PersonName'])
             permitted_incident_set = set([
                 'ViolationStartDate', 'ViolationStatus', 'ViolationType',
                 'ViolationFirstAllegation', 'ViolationDescription',
