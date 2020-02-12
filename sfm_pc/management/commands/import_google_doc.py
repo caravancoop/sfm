@@ -77,7 +77,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--entity-types',
             dest='entity_types',
-            default='organization,person,event',
+            default='organization,person,person_extra,event',
             help='Comma separated list of entity types to import'
         )
         parser.add_argument(
@@ -187,7 +187,8 @@ class Command(BaseCommand):
         self.create_sources(all_sheets['source'])
 
         skippers = ['Play Copy of Events']
-        start = int(options['start'])
+        one_index_start = int(options['start'])
+        zero_index_start = one_index_start - 1
 
         # These are used for the mapping that we need to make below
         entity_mapping_entities = [
@@ -204,7 +205,7 @@ class Command(BaseCommand):
 
                 entity_map = {}
 
-                for row in sheet[start:]:
+                for row in sheet[zero_index_start:]:
                     if row:
                         entity_name = row[name_key]
                         entity_uuid = row[id_key]
@@ -221,12 +222,10 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS('Creating {0}s from {1} ... '.format(entity_type, title)))
                 self.current_sheet = title
 
-                if not title in skippers:
-
-                    # Skip header row
-                    for index, row in enumerate(sheet[start:]):
+                if title not in skippers:
+                    for index, row in enumerate(sheet[zero_index_start:]):
                         if row:
-                            self.current_row = index + start
+                            self.current_row = index + one_index_start
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
         data_src = options['folder'] if options.get('folder') else options['doc_id']
@@ -380,12 +379,12 @@ class Command(BaseCommand):
             'Name': {
                 'value': Organization.get_spreadsheet_field_name('name'),
                 'confidence': Organization.get_spreadsheet_confidence_field_name('name'),
-                'source': Organization.get_spreadsheet_source_field_name('source'),
+                'source': Organization.get_spreadsheet_source_field_name('name'),
             },
             'Alias': {
-                'value': Organization.get_spreadsheet_field_name('alias'),
-                'confidence': Organization.get_spreadsheet_confidence_field_name('alias'),
-                'source': Organization.get_spreadsheet_source_field_name('alias'),
+                'value': Organization.get_spreadsheet_field_name('aliases'),
+                'confidence': Organization.get_spreadsheet_confidence_field_name('aliases'),
+                'source': Organization.get_spreadsheet_source_field_name('aliases'),
             },
             'Classification': {
                 'value': Organization.get_spreadsheet_field_name('classification'),
@@ -811,9 +810,9 @@ class Command(BaseCommand):
 
                         try:
                             date_parts = [
-                                org_data[membership_positions['FirstCitedDateYear']['value']],
-                                org_data[membership_positions['FirstCitedDateMonth']['value']],
-                                org_data[membership_positions['FirstCitedDateDay']['value']]
+                                org_data[membership_positions['FirstCitedDate']['year']],
+                                org_data[membership_positions['FirstCitedDate']['month']],
+                                org_data[membership_positions['FirstCitedDate']['day']]
                             ]
                             fcd = self.parse_date('-'.join(filter(None, date_parts)))
                         except IndexError:
@@ -821,9 +820,9 @@ class Command(BaseCommand):
 
                         try:
                             date_parts = [
-                                org_data[membership_positions['LastCitedDateYear']['value']],
-                                org_data[membership_positions['LastCitedDateMonth']['value']],
-                                org_data[membership_positions['LastCitedDateDay']['value']]
+                                org_data[membership_positions['LastCitedDate']['year']],
+                                org_data[membership_positions['LastCitedDate']['month']],
+                                org_data[membership_positions['LastCitedDate']['day']]
                             ]
                             lcd = self.parse_date('-'.join(filter(None, date_parts)))
                         except IndexError:
@@ -1568,14 +1567,14 @@ class Command(BaseCommand):
                 'source': Person.get_spreadsheet_source_field_name('name'),
             },
             'Alias': {
-                'value': Person.get_spreadsheet_field_aliases('aliases'),
-                'confidence': Person.get_spreadsheet_confidence_field_aliases('aliases'),
-                'source': Person.get_spreadsheet_source_field_aliases('aliases'),
+                'value': Person.get_spreadsheet_field_name('aliases'),
+                'confidence': Person.get_spreadsheet_confidence_field_name('aliases'),
+                'source': Person.get_spreadsheet_source_field_name('aliases'),
             },
             'DivisionId': {
-                'value': Person.get_spreadsheet_field_division_id('division_id'),
-                'confidence': Person.get_spreadsheet_confidence_field_division_id('division_id'),
-                'source': Person.get_spreadsheet_source_field_division_id('division_id'),
+                'value': Person.get_spreadsheet_field_name('division_id'),
+                'confidence': Person.get_spreadsheet_confidence_field_name('division_id'),
+                'source': Person.get_spreadsheet_source_field_name('division_id'),
             },
         }
         membership_positions = {
@@ -2014,11 +2013,7 @@ class Command(BaseCommand):
                         metadata['sources']
                     )
 
-        try:
-            person_extra = PersonExtra.objects.get(person=person)
-        except PersonExtra.DoesNotExist:
-            person_extra = PersonExtra.objects.create(person=person)
-
+        person_extra = PersonExtra.objects.get_or_create(person=person)
         person_extra.update(person_extra_info)
 
         self.stdout.write(
@@ -2127,7 +2122,7 @@ class Command(BaseCommand):
             }
         }
 
-        uuid = event_data[self.col('AG')]
+        uuid = event_data['incident:id:admin']
 
         with reversion.create_revision():
             violation, created = Violation.objects.get_or_create(uuid=uuid,
