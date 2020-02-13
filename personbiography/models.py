@@ -37,6 +37,7 @@ class PersonBiography(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsh
             self.person, self.gender, self.date_of_birth, self.date_of_death,
             self.deceased,
         ]
+        self.complex_lists = []
 
         super().__init__(*args, **kwargs)
 

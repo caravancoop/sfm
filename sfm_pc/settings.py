@@ -230,7 +230,8 @@ SITE_ID = 1
 
 ALLOWED_CLASS_FOR_NAME = [
     'Person', 'Organization', 'MembershipPerson', 'Composition', 'Association', 'Area',
-    'Emplacement', 'Geosite', 'Violation', 'MembershipOrganization', 'PersonExtra',
+    'Emplacement', 'Geosite', 'Violation', 'MembershipOrganization',
+    'PersonExtra', 'PersonBiography'
 ]
 
 OSM_BASE_URL = 'https://wambachers-osm.website/boundaries/exportBoundaries'

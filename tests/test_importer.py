@@ -103,9 +103,15 @@ def test_sources(data_import, data_folder):
                 'ViolationFirstAllegation', 'ViolationDescription',
                 'ViolationEndDate', 'ViolationLastUpdate',
             ])
-            assert (related_obj_types.issubset(permitted_org_set) or
-                    related_obj_types.issubset(permitted_person_set) or
-                    related_obj_types.issubset(permitted_incident_set))
+            permitted_country_set = set([
+                'OrganizationDivisionId', 'PersonDivisionId'
+            ])
+            assert any([
+                related_obj_types.issubset(permitted_org_set),
+                related_obj_types.issubset(permitted_person_set),
+                related_obj_types.issubset(permitted_incident_set),
+                related_obj_types.issubset(permitted_country_set)
+            ])
 
 
 @pytest.mark.django_db

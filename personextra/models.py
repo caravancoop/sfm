@@ -34,6 +34,7 @@ class PersonExtra(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsheetF
             self.person, self.account_type, self.account,
             self.external_link_description, self.media_description, self.notes
         ]
+        self.complex_lists = []
 
         super().__init__(*args, **kwargs)
 
@@ -56,6 +57,8 @@ class PersonExtraAccountType(ComplexField):
     field_name = _("Online Account Type")
     shortcode = 'pe_at'
     spreadsheet_field_name = 'person_extra:account_type'
+    spreadsheet_confidence_field_name = 'person_extra:account:confidence'
+    spreadsheet_source_field_name = 'person_extra:account:source'
 
 
 @versioned
@@ -66,6 +69,8 @@ class PersonExtraAccount(ComplexField):
     field_name = _("Online Account Identifier")
     shortcode = 'pe_aid'
     spreadsheet_field_name = 'person_extra:account_id'
+    spreadsheet_confidence_field_name = 'person_extra:account:confidence'
+    spreadsheet_source_field_name = 'person_extra:account:source'
 
 
 @translated
@@ -77,6 +82,8 @@ class PersonExtraExternalLinkDescription(ComplexField):
     field_name = _("External Link Description")
     shortcode = 'pe_eld'
     spreadsheet_field_name = 'person_extra:external_link_description'
+    spreadsheet_confidence_field_name = 'person_extra:external_link:confidence'
+    spreadsheet_source_field_name = 'person_extra:external_link:source'
 
 
 @translated
@@ -88,6 +95,8 @@ class PersonExtraMediaDescription(ComplexField):
     field_name = _("Media Description")
     shortcode = 'pe_md'
     spreadsheet_field_name = 'person_extra:media_desc'
+    spreadsheet_confidence_field_name = 'person_extra:media:confidence'
+    spreadsheet_source_field_name = 'person_extra:media:source'
 
 
 @translated

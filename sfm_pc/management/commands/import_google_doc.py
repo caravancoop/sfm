@@ -1507,15 +1507,9 @@ class Command(BaseCommand):
         self.current_sheet = 'sources'
 
         for source in source_sheet['values']:
-            if source['source:restricted:admin'] == '1':
-                # Skip restricted sources
-                continue
-
             access_point_uuid = source['source:access_point_id:admin']
-
             try:
                 AccessPoint.objects.get(uuid=access_point_uuid)
-
             except AccessPoint.DoesNotExist:
                 new_source, created = Source.objects.get_or_create(
                     title=source[Source.get_spreadsheet_field_name('title')],
@@ -1529,7 +1523,6 @@ class Command(BaseCommand):
                     source_url=source[Source.get_spreadsheet_field_name('source_url')],
                     user=self.user
                 )
-
                 AccessPoint.objects.create(
                     uuid=access_point_uuid,
                     type=source[AccessPoint.get_spreadsheet_field_name('type')],
@@ -1539,7 +1532,6 @@ class Command(BaseCommand):
                     source=new_source,
                     user=self.user
                 )
-
             except ValueError:
                 self.log_error("Invalid access point at: " + access_point_uuid)
 
@@ -1931,9 +1923,9 @@ class Command(BaseCommand):
             },
             'DateOfDeath': {
                 'key': 'Person_PersonBiographyDateOfDeath',
-                'value': PersonBiography.get_spreadsheet_field_name('deceased_date'),
-                'confidence': PersonBiography.get_spreadsheet_confidence_field_name('deceased_date'),
-                'source': PersonBiography.get_spreadsheet_source_field_name('deceased_date'),
+                'value': PersonBiography.get_spreadsheet_field_name('date_of_death'),
+                'confidence': PersonBiography.get_spreadsheet_confidence_field_name('date_of_death'),
+                'source': PersonBiography.get_spreadsheet_source_field_name('date_of_death'),
             },
         }
 
@@ -1958,9 +1950,9 @@ class Command(BaseCommand):
             },
             'MediaDescription': {
                 'key': 'Person_PersonExtraMediaDescription',
-                'value': PersonExtra.get_spreadsheet_field_name('media_desc'),
-                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('media_desc'),
-                'source': PersonExtra.get_spreadsheet_source_field_name('media_desc'),
+                'value': PersonExtra.get_spreadsheet_field_name('media_description'),
+                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('media_description'),
+                'source': PersonExtra.get_spreadsheet_source_field_name('media_description'),
             },
             'Notes': {
                 'key': 'Person_PersonExtraNotes',
@@ -1987,7 +1979,7 @@ class Command(BaseCommand):
             return None
 
         try:
-            assert person.name.get_value() == person_name_value
+            assert person.name.get_value().value == person_name_value
         except AssertionError:
             self.log_error(
                 'Stored person name "{}" does not match spreadsheet value "{}"'.format(
@@ -2019,18 +2011,18 @@ class Command(BaseCommand):
             # Define a convenience function for parsing info from positions
             def get_info_from_positions(positions):
                 info = {}
-                for metadata in positions.values():
-                    if metadata.get('key'):
-                        info[metadata['key']] = {
-                            'value': metadata['value']
+                for positions in positions.values():
+                    if positions.get('key'):
+                        info[positions['key']] = {
+                            'value': data[positions['value']]
                         }
-                        if metadata.get('confidence'):
-                            info[metadata['key']]['confidence'] = self.get_confidence(
-                                metadata['confidence']
+                        if positions.get('confidence'):
+                            info[positions['key']]['confidence'] = self.get_confidence(
+                                data[positions['confidence']]
                             )
-                        if metadata.get('sources'):
-                            info[metadata['key']]['sources'] = self.get_sources(
-                                metadata['sources']
+                        if positions.get('sources'):
+                            info[positions['key']]['sources'] = self.get_sources(
+                                data[positions['sources']]
                             )
                 return info
 
@@ -2038,14 +2030,18 @@ class Command(BaseCommand):
                 # This is a PersonBiography instance
                 person_bio_info = get_info_from_positions(biography_positions)
                 # PersonBiographies should have a 1:1 relationship with Persons
-                person_bio, _ = PersonBiography.objects.get_or_create(person=person)
+                person_bio = PersonBiography.create({
+                    'PersonBiography_PersonBiographyPerson': {'value': person}
+                })
                 person_bio.update(person_bio_info)
             else:
                 # This is a PersonExtra instance
                 person_extra_info = get_info_from_positions(extra_positions)
                 # A Person can have many PersonExtras, so we can just create
                 # a new one here.
-                person_extra = PersonExtra.objects.create(person=person)
+                person_extra = PersonExtra.create({
+                    'PersonExtra_PersonExtraPerson': {'value': person}
+                })
                 person_extra.update(person_extra_info)
 
         elif not is_biography and not is_extra:

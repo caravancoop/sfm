@@ -7,10 +7,9 @@ class GetComplexSpreadsheetFieldNameMixin:
     spreadsheet field names for a given ComplexField.
     """
     @classmethod
-    def get_spreadsheet_field_name(cls, field_name):
+    def get_field_model(cls, field_name):
         """
-        Get the spreadsheet field name for a given field_name. For instance,
-        the spreadsheet field name for Person.name would be 'person:name'.
+        Return the model corresponding to a field on this model.
         """
         # Get the 0th ID instance, to indicate that we don't want a specific instance
         # (for more information on these methods, see the source code in the
@@ -18,7 +17,15 @@ class GetComplexSpreadsheetFieldNameMixin:
         container = ComplexFieldContainer.field_from_str_and_id(
             cls.__name__.lower(), '0', field_name
         )
-        field_model = container.field_model()
+        return container.field_model()
+
+    @classmethod
+    def get_spreadsheet_field_name(cls, field_name):
+        """
+        Get the spreadsheet field name for a given field_name. For instance,
+        the spreadsheet field name for Person.name would be 'person:name'.
+        """
+        field_model = cls.get_field_model(field_name)
         return field_model.spreadsheet_field_name
 
     @classmethod
@@ -28,7 +35,13 @@ class GetComplexSpreadsheetFieldNameMixin:
         instance, the spreadsheet confidence field name for Person.name would
         be 'person:name:confidence'.
         """
-        return cls.get_spreadsheet_field_name(field_name) + ':confidence'
+        field_model = cls.get_field_model(field_name)
+        if hasattr(field_model, 'spreadsheet_confidence_field_name'):
+            return getattr(field_model, 'spreadsheet_confidence_field_name')
+        else:
+            # If no confidence field name is specified, the default is usually
+            # the spreadsheet field name with ":confidence" appended on
+            return cls.get_spreadsheet_field_name(field_name) + ':confidence'
 
     @classmethod
     def get_spreadsheet_source_field_name(cls, field_name):
@@ -37,4 +50,10 @@ class GetComplexSpreadsheetFieldNameMixin:
         instance, the spreadsheet source field name for Person.name would
         be 'person:name:source'.
         """
-        return cls.get_spreadsheet_field_name(field_name) + ':source'
+        field_model = cls.get_field_model(field_name)
+        if hasattr(field_model, 'spreadsheet_source_field_name'):
+            return getattr(field_model, 'spreadsheet_source_field_name')
+        else:
+            # If no source field name is specified, the default is usually
+            # the spreadsheet field name with ":source" appended on
+            return cls.get_spreadsheet_field_name(field_name) + ':source'

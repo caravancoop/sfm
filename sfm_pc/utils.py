@@ -462,11 +462,18 @@ def execute_sql(file_path):
                 c.execute(statement.strip())
 
 def class_for_name(class_name, module_name="person.models"):
-    if class_name == "Membershipperson":
-        class_name = "MembershipPerson"
-
-    if class_name == "Membershiporganization":
-        class_name = "MembershipOrganization"
+    # Check for irregular class names (names where we cannot infer the class
+    # name by capitalizing the first letter of class_name)
+    irregular_names = (
+        ('Membershipperson', 'MembershipPerson'),
+        ('Membershiporganization', 'MembershipOrganization'),
+        ('Personextra', 'PersonExtra'),
+        ('Personbiography', 'PersonBiography')
+    )
+    for name, formatted_name in irregular_names:
+        if class_name == name:
+            class_name = formatted_name
+            break
 
     if class_name not in settings.ALLOWED_CLASS_FOR_NAME:
         raise Exception("Unallowed class for name")
