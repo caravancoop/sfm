@@ -43,7 +43,9 @@ from area.models import Area
 from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
 from association.models import Association, AssociationOpenEnded, AssociationRealStart
 from composition.models import Composition, CompositionOpenEnded, CompositionRealStart
-from person.models import Person, PersonExtra, PersonName, PersonAlias
+from person.models import Person, PersonName, PersonAlias
+from personextra.models import PersonExtra
+from personbiography.models import PersonBiography
 from membershipperson.models import (MembershipPerson, Role, Rank,
                                      MembershipPersonRealStart,
                                      MembershipPersonRealEnd)
@@ -1899,37 +1901,43 @@ class Command(BaseCommand):
         """
         Create a PersonExtra objects from a row in the persons_extra sheet.
         """
-        positions = {
+        person_positions = {
             'Name': {
                 'value': PersonExtra.get_spreadsheet_field_name('person'),
             },
             'Id': {
                 'value': 'person_extra:id:admin',
             },
+        }
+
+        biography_positions = {
             'Gender': {
-                'key': 'Person_PersonExtraGender',
-                'value': PersonExtra.get_spreadsheet_field_name('gender'),
-                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('gender'),
-                'source': PersonExtra.get_spreadsheet_source_field_name('gender'),
+                'key': 'Person_PersonBiographyGender',
+                'value': PersonBiography.get_spreadsheet_field_name('gender'),
+                'confidence': PersonBiography.get_spreadsheet_confidence_field_name('gender'),
+                'source': PersonBiography.get_spreadsheet_source_field_name('gender'),
             },
             'DateOfBirth': {
-                'key': 'Person_PersonExtraDateOfBirth',
-                'value': PersonExtra.get_spreadsheet_field_name('date_of_birth'),
-                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('date_of_birth'),
-                'source': PersonExtra.get_spreadsheet_source_field_name('date_of_birth'),
+                'key': 'Person_PersonBiographyDateOfBirth',
+                'value': PersonBiography.get_spreadsheet_field_name('date_of_birth'),
+                'confidence': PersonBiography.get_spreadsheet_confidence_field_name('date_of_birth'),
+                'source': PersonBiography.get_spreadsheet_source_field_name('date_of_birth'),
             },
             'Deceased': {
-                'key': 'Person_PersonExtraDeceased',
-                'value': PersonExtra.get_spreadsheet_field_name('deceased'),
-                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('deceased'),
-                'source': PersonExtra.get_spreadsheet_source_field_name('deceased'),
+                'key': 'Person_PersonBiographyDeceased',
+                'value': PersonBiography.get_spreadsheet_field_name('deceased'),
+                'confidence': PersonBiography.get_spreadsheet_confidence_field_name('deceased'),
+                'source': PersonBiography.get_spreadsheet_source_field_name('deceased'),
             },
             'DateOfDeath': {
-                'key': 'Person_PersonExtraDateOfDeath',
-                'value': PersonExtra.get_spreadsheet_field_name('deceased_date'),
-                'confidence': PersonExtra.get_spreadsheet_confidence_field_name('deceased_date'),
-                'source': PersonExtra.get_spreadsheet_source_field_name('deceased_date'),
+                'key': 'Person_PersonBiographyDateOfDeath',
+                'value': PersonBiography.get_spreadsheet_field_name('deceased_date'),
+                'confidence': PersonBiography.get_spreadsheet_confidence_field_name('deceased_date'),
+                'source': PersonBiography.get_spreadsheet_source_field_name('deceased_date'),
             },
+        }
+
+        extra_positions = {
             'AccountType': {
                 'key': 'Person_PersonExtraAccountType',
                 'value': PersonExtra.get_spreadsheet_field_name('account_type'),
@@ -1961,13 +1969,13 @@ class Command(BaseCommand):
         }
 
         try:
-            person_name_value = data[positions['Name']['value']]
+            person_name_value = data[person_positions['Name']['value']]
         except IndexError:
             self.log_error('Row appears to be missing a Person name')
             return None
 
         try:
-            person_id_value = data[positions['Id']['value']]
+            person_id_value = data[person_positions['Id']['value']]
         except IndexError:
             self.log_error('Row appears to be missing a Person ID')
             return None
@@ -1975,7 +1983,7 @@ class Command(BaseCommand):
         try:
             person = Person.objects.get(uuid=person_id_value)
         except Person.DoesNotExist:
-            self.log_error('No person with the ID {} was found')
+            self.log_error('No person with the ID {} was found'.format(person_id_value))
             return None
 
         try:
@@ -1993,28 +2001,65 @@ class Command(BaseCommand):
             )
         )
 
-        person_extra_info = {
-            'Person_PersonExtraPerson': {
-                'value': person,
-            },
-        }
+        # Check if the row corresponds to a PersonBiography or PersonExtra
+        # object instance
+        is_biography = False
+        for bio_field in biography_positions.values():
+            if data[bio_field['value']]:
+                is_biography = True
+                break
 
-        for metadata in positions.values():
-            if metadata.get('key'):
-                person_extra_info[metadata['key']] = {
-                    'value': metadata['value']
-                }
-                if metadata.get('confidence'):
-                    person_extra_info[metadata['key']]['confidence'] = self.get_confidence(
-                        metadata['confidence']
-                    )
-                if metadata.get('sources'):
-                    person_extra_info[metadata['key']]['sources'] = self.get_sources(
-                        metadata['sources']
-                    )
+        is_extra = False
+        for extra_field in extra_positions.values():
+            if data[extra_field['value']]:
+                is_extra = True
+                break
 
-        person_extra = PersonExtra.objects.get_or_create(person=person)
-        person_extra.update(person_extra_info)
+        if (is_biography and not is_extra) or (not is_biography and is_extra):
+            # Define a convenience function for parsing info from positions
+            def get_info_from_positions(positions):
+                info = {}
+                for metadata in positions.values():
+                    if metadata.get('key'):
+                        info[metadata['key']] = {
+                            'value': metadata['value']
+                        }
+                        if metadata.get('confidence'):
+                            info[metadata['key']]['confidence'] = self.get_confidence(
+                                metadata['confidence']
+                            )
+                        if metadata.get('sources'):
+                            info[metadata['key']]['sources'] = self.get_sources(
+                                metadata['sources']
+                            )
+                return info
+
+            if is_biography:
+                # This is a PersonBiography instance
+                person_bio_info = get_info_from_positions(biography_positions)
+                # PersonBiographies should have a 1:1 relationship with Persons
+                person_bio, _ = PersonBiography.objects.get_or_create(person=person)
+                person_bio.update(person_bio_info)
+            else:
+                # This is a PersonExtra instance
+                person_extra_info = get_info_from_positions(extra_positions)
+                # A Person can have many PersonExtras, so we can just create
+                # a new one here.
+                person_extra = PersonExtra.objects.create(person=person)
+                person_extra.update(person_extra_info)
+
+        elif not is_biography and not is_extra:
+            self.log_error('Row appears to have no data')
+            return None
+
+        else:
+            self.log_error((
+                'Row has both biographical and extra data in it. Since '
+                'biographical data requires a 1:1 relationship with a Person, '
+                'but extra data can have a many-to-one relationship, this '
+                'row is invalid.'
+            ))
+            return None
 
         self.stdout.write(
             self.style.SUCCESS(

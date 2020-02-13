@@ -2,17 +2,12 @@ import uuid
 
 import reversion
 
-from django.db import models, connection
+from django.db import models
 from django.db.models.functions import Coalesce
-from django.contrib.gis.geos import Point
 from django.utils.translation import ugettext as _
-from django.db.models import Max
-from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils.functional import cached_property
 from django.template.defaultfilters import truncatewords
-
-from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer, \
@@ -31,6 +26,7 @@ VERSION_RELATED_FIELDS = [
     'membershippersonmember_set',
     'violationperpetrator_set',
     'personextra_set',
+    'personbiography_set'
 ]
 
 
@@ -166,33 +162,6 @@ class Person(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsheetFieldN
         return related_entities
 
 
-@reversion.register()
-class PersonExtra(models.Model, VersionsMixin, GetComplexSpreadsheetFieldNameMixin):
-    """
-    Extra metadata for Persons, including biographical information and
-    links to external resources representing the Person.
-    """
-    def __init__(self, *args, **kwargs):
-        self.person = ComplexFieldContainer(self, PersonExtraPerson)
-        self.gender = ComplexFieldContainer(self, PersonExtraGender)
-        self.date_of_birth = ComplexFieldContainer(self, PersonExtraDateOfBirth)
-        self.date_of_death = ComplexFieldContainer(self, PersonExtraDateOfDeath)
-        self.deceased = ComplexFieldContainer(self, PersonExtraDeceased)
-        self.account_type = ComplexFieldContainer(self, PersonExtraAccountType)
-        self.account = ComplexFieldContainer(self, PersonExtraAccount)
-        self.external_link_description = ComplexFieldContainer(self, PersonExtraExternalLinkDescription)
-        self.media_description = ComplexFieldContainer(self, PersonExtraMediaDescription)
-        self.notes = ComplexFieldContainer(self, PersonExtraNotes)
-
-        self.complex_fields = [
-            self.person, self.gender, self.date_of_birth, self.date_of_death,
-            self.deceased, self.account_type, self.account,
-            self.external_link_description, self.media_description, self.notes
-        ]
-
-        super().__init__(*args, **kwargs)
-
-
 @translated
 @versioned
 @sourced
@@ -234,107 +203,3 @@ class PersonDivisionId(ComplexField):
     field_name = _('Country')
     shortcode = 'p_c'
     spreadsheet_field_name = 'person:country'
-
-
-@versioned
-class PersonExtraPerson(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = models.ForeignKey('Person')
-    field_name = _('Person')
-    shortcode = 'pe_n'
-    spreadsheet_field_name = 'person_extra:name'
-
-
-@translated
-@versioned
-@sourced
-class PersonExtraGender(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Gender")
-    shortcode = 'pe_g'
-    spreadsheet_field_name = 'person_extra:gender'
-
-
-@versioned
-@sourced
-class PersonExtraDateOfBirth(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Date of Birth")
-    shortcode = 'pe_dob'
-    spreadsheet_field_name = 'person_extra:date_of_birth'
-
-
-@versioned
-@sourced
-class PersonExtraDateOfDeath(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Date Deceased")
-    shortcode = 'pe_dd'
-    spreadsheet_field_name = 'person_extra:deceased_date'
-
-
-@versioned
-@sourced
-class PersonExtraDeceased(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = models.BooleanField(default=False)
-    field_name = _("Deceased")
-    shortcode = 'pe_d'
-    spreadsheet_field_name = 'person_extra:deceased'
-
-
-@translated
-@versioned
-@sourced
-class PersonExtraAccountType(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Online Account Type")
-    shortcode = 'pe_at'
-    spreadsheet_field_name = 'person_extra:account_type'
-
-
-@versioned
-@sourced
-class PersonExtraAccount(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Online Account Identifier")
-    shortcode = 'pe_aid'
-    spreadsheet_field_name = 'person_extra:account_id'
-
-
-@translated
-@versioned
-@sourced
-class PersonExtraExternalLinkDescription(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("External Link Description")
-    shortcode = 'pe_eld'
-    spreadsheet_field_name = 'person_extra:external_link_description'
-
-
-@translated
-@versioned
-@sourced
-class PersonExtraMediaDescription(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Media Description")
-    shortcode = 'pe_md'
-    spreadsheet_field_name = 'person_extra:media_desc'
-
-
-@translated
-@versioned
-@sourced
-class PersonExtraNotes(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Notes")
-    shortcode = 'pe_n_a'
-    spreadsheet_field_name = 'person_extra:notes:admin'

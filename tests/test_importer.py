@@ -7,7 +7,9 @@ import pytest
 from django.core.management import call_command
 
 from organization.models import Organization
-from person.models import Person, PersonExtra
+from person.models import Person
+from personextra.models import PersonExtra
+from personbiography.models import PersonBiography
 from violation.models import Violation
 from source.models import AccessPoint
 
@@ -57,7 +59,8 @@ def test_no_sources_missing(data_import):
 @pytest.mark.parametrize(
     'entity_name,Model',
     [
-        ('units', Organization), ('persons', Person), ('persons_extra', PersonExtra),
+        ('units', Organization), ('persons', Person),
+        ('persons_extra', (PersonExtra, PersonBiography)),
         ('incidents', Violation), ('sources', AccessPoint)
     ]
 )
@@ -65,8 +68,11 @@ def test_number_of_imported_entities(entity_name, Model, data_import, data_folde
     with open(os.path.join(data_folder, entity_name + '.csv')) as fobj:
         reader = csv.reader(fobj)
         raw_records = list(reader)
-    records = Model.objects.all()
-    assert len(records) == len(raw_records[1:])
+    if type(Model) == tuple:
+        num_records = sum(Mod.objects.count() for Mod in Model)
+    else:
+        num_records = Model.objects.count()
+    assert num_records == len(raw_records[1:])
 
 
 @pytest.mark.django_db

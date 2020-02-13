@@ -83,6 +83,8 @@ INSTALLED_APPS = (
     'sfm_pc',
     'organization',
     'person',
+    'personbiography',
+    'personextra',
     'membershiporganization',
     'membershipperson',
     'composition',
