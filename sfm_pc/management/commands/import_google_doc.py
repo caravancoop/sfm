@@ -1524,8 +1524,9 @@ class Command(BaseCommand):
                 for prefix in ('published', 'created', 'uploaded'):
                     date_val = source[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
                     try:
-                        # Try to parse the value as a timestamp
-                        parsed_date = datetime.strptime(date_val, '%Y-%m-%dT%H:%M:%S%z')
+                        # Try to parse the value as a timestamp (remove timezone
+                        # marker for Pyton <3.7)
+                        parsed_date = datetime.strptime(date_val.replace('Z', ''), '%Y-%m-%dT%H:%M:%S')
                     except ValueError:
                         # Value is a date, or empty
                         print('Timestamp parsing failed: {}'.format(date_val))
