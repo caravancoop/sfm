@@ -171,14 +171,14 @@ def test_no_source_one_value(setUp, base_people):
 
     post_data = {
         'name': person.name.get_value().value,
-        'biography': person.name.get_value().value + ' Foo',
+        'notes': person.name.get_value().value + ' Foo',
     }
 
     response = setUp.post(reverse_lazy('edit-person', kwargs={'slug': person.uuid}), post_data)
 
     assert response.status_code == 200
 
-    assert 'This field now has a value so it requires sources' in response.context['form'].errors['biography']
+    assert 'This field now has a value so it requires sources' in response.context['form'].errors['notes']
 
 
 @pytest.mark.django_db
@@ -332,22 +332,7 @@ def test_duplicate_source(setUp, people, fake_signal):
 @pytest.mark.django_db
 def test_just_add_source(setUp, people, new_access_points, fake_signal):
     person = people[0]
-
-    sources = [s.uuid for s in person.name.get_sources()]
-
     new_source = new_access_points[0]
-
-    alias_sources = set()
-
-    for alias in person.aliases.get_list():
-        for source in alias.get_sources():
-            alias_sources.add(source.uuid)
-
-    external_link_sources = set()
-
-    for external_link in person.external_links.get_list():
-        for source in external_link.get_sources():
-            external_link_sources.add(source.uuid)
 
     post_data = {
         'name': person.name.get_value().value,
@@ -623,9 +608,8 @@ def test_create_person(setUp, new_access_points, fake_signal):
     assert 'Foo' in [p.get_value().value for p in person.aliases.get_list()]
 
     assert person.division_id.get_value().value == 'ocd-division/country:us'
-    assert str(person.date_of_birth.get_value().value) == '1976'
-    assert str(person.date_of_death.get_value().value) == '14th February 2012'
-    assert person.deceased.get_value().value == True
+
+    # TODO: Test PersonExtra/PersonBiography models
 
     fake_signal.assert_called_with(object_id=str(person.uuid), sender=Person)
 

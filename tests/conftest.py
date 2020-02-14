@@ -516,6 +516,7 @@ def people(base_people, access_points):
 
             alias.accesspoints.set(access_points)
 
+        # TODO: Update this dict to match the new PersonExtra/Biography models
         person_info = {
             'Person_PersonDivisionId': {
                 'value': 'ocd-division/country:us',

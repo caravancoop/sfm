@@ -52,7 +52,7 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     published_date = source_fields.ApproximateDateField(
         verbose_name="publication date",
         blank=True,
-        null=True,
+        default='',
         spreadsheet_field_name='source:published_timestamp'
     )
     published_timestamp = source_fields.DateTimeField(
@@ -64,7 +64,7 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     created_date = source_fields.ApproximateDateField(
         verbose_name="creation date",
         blank=True,
-        null=True,
+        default='',
         spreadsheet_field_name='source:created_timestamp'
     )
     created_timestamp = source_fields.DateTimeField(
@@ -76,7 +76,7 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     uploaded_date = source_fields.ApproximateDateField(
         verbose_name="upload date",
         blank=True,
-        null=True,
+        default='',
         spreadsheet_field_name='source:uploaded_timestamp'
     )
     uploaded_timestamp = source_fields.DateTimeField(
