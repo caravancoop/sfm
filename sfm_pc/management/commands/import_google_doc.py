@@ -1528,6 +1528,7 @@ class Command(BaseCommand):
                         parsed_date = datetime.strptime(date_val, '%Y-%m-%dT%H:%M:%S%z')
                     except ValueError:
                         # Value is a date, or empty
+                        print('Timestamp parsing failed: {}'.format(date_val))
                         parsed_date = self.parse_date(date_val)
                         source_info['{}_date'.format(prefix)] = parsed_date
                     else:

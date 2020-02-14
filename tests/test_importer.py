@@ -125,7 +125,7 @@ def test_source_dates_and_timestamps(data_import):
         timestamp_field = '{}_timestamp'.format(prefix)
         assert getattr(date_src, date_field)
         assert not getattr(date_src, timestamp_field)
-        assert not getattr(timestamp_src, date_field) is None
+        assert not getattr(timestamp_src, date_field)
         assert getattr(timestamp_src, timestamp_field)
 
 

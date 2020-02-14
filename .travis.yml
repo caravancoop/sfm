@@ -20,7 +20,8 @@ install:
 - pip install -r requirements.txt
 
 script:
-- pytest tests
+# - pytest tests
+- pytest -sxv tests/test_importer.py::test_source_dates_and_timestamps --disable-warnings
 
 deploy:
   - provider: codedeploy
