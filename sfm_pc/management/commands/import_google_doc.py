@@ -1511,18 +1511,30 @@ class Command(BaseCommand):
             try:
                 AccessPoint.objects.get(uuid=access_point_uuid)
             except AccessPoint.DoesNotExist:
-                new_source, created = Source.objects.get_or_create(
-                    title=source[Source.get_spreadsheet_field_name('title')],
-                    type=source[Source.get_spreadsheet_field_name('type')],
-                    author=source[Source.get_spreadsheet_field_name('author')],
-                    publication=source[Source.get_spreadsheet_field_name('publication')],
-                    publication_country=source[Source.get_spreadsheet_field_name('publication_country')],
-                    published_on=self.parse_date(source[Source.get_spreadsheet_field_name('published_on')]),
-                    created_on=self.parse_date(source[Source.get_spreadsheet_field_name('created_on')]),
-                    uploaded_on=self.parse_date(source[Source.get_spreadsheet_field_name('uploaded_on')]),
-                    source_url=source[Source.get_spreadsheet_field_name('source_url')],
-                    user=self.user
-                )
+                source_info = {
+                    'title': source[Source.get_spreadsheet_field_name('title')],
+                    'type': source[Source.get_spreadsheet_field_name('type')],
+                    'author': source[Source.get_spreadsheet_field_name('author')],
+                    'publication': source[Source.get_spreadsheet_field_name('publication')],
+                    'publication_country': source[Source.get_spreadsheet_field_name('publication_country')],
+                    'source_url': source[Source.get_spreadsheet_field_name('source_url')],
+                    'user': self.user
+                }
+                # Figure out if created/uploaded/published dates are timestamps
+                for prefix in ('published', 'created', 'uploaded'):
+                    date_val = source[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
+                    try:
+                        # Try to parse the value as a timestamp
+                        parsed_date = datetime.strptime(date_val, '%Y-%m-%dT%H:%M:%S%z')
+                    except ValueError:
+                        # Value is a date, or empty
+                        parsed_date = self.parse_date(date_val)
+                        source_info['{}_date'.format(prefix)] = parsed_date
+                    else:
+                        source_info['{}_timestamp'.format(prefix)] = parsed_date
+
+                new_source, created = Source.objects.get_or_create(**source_info)
+
                 AccessPoint.objects.create(
                     uuid=access_point_uuid,
                     type=source[AccessPoint.get_spreadsheet_field_name('type')],

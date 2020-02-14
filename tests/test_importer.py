@@ -11,7 +11,7 @@ from person.models import Person
 from personextra.models import PersonExtra
 from personbiography.models import PersonBiography
 from violation.models import Violation
-from source.models import AccessPoint
+from source.models import Source, AccessPoint
 
 
 @pytest.fixture(scope='module')
@@ -112,6 +112,21 @@ def test_sources(data_import, data_folder):
                 related_obj_types.issubset(permitted_incident_set),
                 related_obj_types.issubset(permitted_country_set)
             ])
+
+
+@pytest.mark.django_db
+def test_source_dates_and_timestamps(data_import):
+    """Make sure Source date fields properly parse dates and timestamps."""
+    timestamp_src = Source.objects.get(title='Source Timestamps')
+    date_src = Source.objects.get(title='Source Dates')
+    date_and_timestamp_prefixes = ('created', 'published', 'uploaded')
+    for prefix in date_and_timestamp_prefixes:
+        date_field = '{}_date'.format(prefix)
+        timestamp_field = '{}_timestamp'.format(prefix)
+        assert getattr(date_src, date_field)
+        assert not getattr(date_src, timestamp_field)
+        assert not getattr(timestamp_src, date_field) is None
+        assert getattr(timestamp_src, timestamp_field)
 
 
 @pytest.mark.django_db

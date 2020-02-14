@@ -44,9 +44,47 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     author = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:author')
     publication = source_fields.TextField(null=True, spreadsheet_field_name='source:publication_name')
     publication_country = source_fields.CharField(max_length=1000, null=True, spreadsheet_field_name='source:publication_country')
-    published_on = source_fields.ApproximateDateField(verbose_name="publication date", spreadsheet_field_name='source:published_timestamp')
-    created_on = source_fields.ApproximateDateField(verbose_name="creation date", null=True, spreadsheet_field_name='source:created_timestamp')
-    uploaded_on = source_fields.ApproximateDateField(verbose_name="upload date", null=True, spreadsheet_field_name='source:uploaded_timestamp')
+    # We store both date and timestamp fields for the following values because
+    # sometimes sources have partial dates and sometimes they have full
+    # timestamps. In practice, these fields should be treated as mutually
+    # exclusive, and the get_published_date() method should be used to retrieve
+    # the canonical value.
+    published_date = source_fields.ApproximateDateField(
+        verbose_name="publication date",
+        blank=True,
+        null=True,
+        spreadsheet_field_name='source:published_timestamp'
+    )
+    published_timestamp = source_fields.DateTimeField(
+        verbose_name="publication timestamp",
+        blank=True,
+        null=True,
+        spreadsheet_field_name='source:published_timestamp'
+    )
+    created_date = source_fields.ApproximateDateField(
+        verbose_name="creation date",
+        blank=True,
+        null=True,
+        spreadsheet_field_name='source:created_timestamp'
+    )
+    created_timestamp = source_fields.DateTimeField(
+        verbose_name="publication timestamp",
+        blank=True,
+        null=True,
+        spreadsheet_field_name='source:created_timestamp'
+    )
+    uploaded_date = source_fields.ApproximateDateField(
+        verbose_name="upload date",
+        blank=True,
+        null=True,
+        spreadsheet_field_name='source:uploaded_timestamp'
+    )
+    uploaded_timestamp = source_fields.DateTimeField(
+        verbose_name="publication timestamp",
+        blank=True,
+        null=True,
+        spreadsheet_field_name='source:uploaded_timestamp'
+    )
     source_url = source_fields.URLField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:url')
 
     date_updated = models.DateTimeField(auto_now=True)
@@ -63,6 +101,26 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('view-source', args=[self.uuid])
+
+    def _get_date_or_timestamp(self, date_type):
+        timestamp = getattr(self, '{}_timetsamp'.format(date_type))
+        date = getattr(self, '{}_date'.format(date_type))
+        return timestamp if timestamp else date
+
+    def get_published_date(self):
+        """
+        Get the canonical value for the date this Source was published. This
+        method is useful because in practice published_date and
+        published_timestamp should be mutually exclusive, and at runtime we don't
+        necessarily know which one will be set for a given Source.
+        """
+        return self._get_date_or_timestamp('published')
+
+    def get_created_date(self):
+        return self._get_date_or_timestamp('created')
+
+    def get_uploaded_date(self):
+        return self._get_date_or_timestamp('uploaded')
 
     @property
     def related_entities(self):

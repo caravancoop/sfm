@@ -25,6 +25,10 @@ class DateField(SpreadsheetFieldNameMixin, models.DateField):
     pass
 
 
+class DateTimeField(SpreadsheetFieldNameMixin, models.DateTimeField):
+    pass
+
+
 class ApproximateDateField(SpreadsheetFieldNameMixin, django_date_extensions.fields.ApproximateDateField):
     pass
 
