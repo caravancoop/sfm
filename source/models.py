@@ -47,7 +47,7 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     # We store both date and timestamp fields for the following values because
     # sometimes sources have partial dates and sometimes they have full
     # timestamps. In practice, these fields should be treated as mutually
-    # exclusive, and the get_published_date() method should be used to retrieve
+    # exclusive, and the get_date() methods should be used to retrieve
     # the canonical value.
     published_date = source_fields.ApproximateDateField(
         verbose_name="publication date",

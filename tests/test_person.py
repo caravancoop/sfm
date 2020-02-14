@@ -84,16 +84,11 @@ def test_edit_person(setUp, people, new_access_points, fake_signal):
         assert set(new_source_ids) <= {a.uuid for a in alias.get_sources()}
 
     assert person.division_id.get_value().value == 'ocd-division/country:us'
-    assert str(person.date_of_birth.get_value().value) == '1976'
-    assert str(person.date_of_death.get_value().value) == '14th February 2012'
-    assert person.deceased.get_value().value == True
-
     assert person.name.get_value().confidence == '2'
     assert person.aliases.get_list()[0].get_value().confidence == '2'
     assert person.division_id.get_value().confidence == '3'
-    assert person.date_of_birth.get_value().confidence == '1'
-    assert person.date_of_death.get_value().confidence == '3'
-    assert person.deceased.get_value().confidence == '3'
+
+    # TODO: Test PersonExtra and PersonBiography fields
 
     fake_signal.assert_called_with(object_id=person.uuid, sender=Person)
 

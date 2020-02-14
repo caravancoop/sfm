@@ -25,8 +25,8 @@ VERSION_RELATED_FIELDS = [
     'personnotes_set',
     'membershippersonmember_set',
     'violationperpetrator_set',
-    'personextra_set',
-    'personbiography_set'
+    'personextraperson_set',
+    'personbiographyperson_set'
 ]
 
 

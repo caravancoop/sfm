@@ -862,14 +862,13 @@ def get_source_context(field_name, access_point, uncommitted=True):
         'publication_country': access_point.source.publication_country,
         'title': access_point.source.title,
         'date_added': None,
-        'published_on': str(access_point.source.published_on),
+        'published_on': str(access_point.source.published_date),
         'access_point': str(access_point),
         'source_url': access_point.source.source_url,
         'source_detail_url': reverse('view-source', kwargs={'pk': access_point.source.uuid}),
         'archive_url': access_point.archive_url,
-        'id': access_point.uuid,
         'source_id': access_point.source.uuid,
-        'page_number': access_point.page_number,
+        'page_number': access_point.trigger,
         'accessed_on': None,
     }
 

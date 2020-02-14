@@ -65,7 +65,7 @@ def sources(user):
                 title='Test {}'.format(index),
                 publication='Publication {}'.format(index),
                 publication_country='United States',
-                published_on='2018-01-01',
+                published_date='2018-01-01',
                 source_url='https://test.com/test-{}'.format(index),
                 user=user
             )
@@ -80,11 +80,13 @@ def access_points(user, sources):
 
     for source in sources:
         for index in range(5):
-            access_point = AccessPoint.objects.create(page_number='p10{}'.format(index),
-                                                      accessed_on='2018-12-12',
-                                                      archive_url='https://web.archive.org/https://test.com/test-{}'.format(index),
-                                                      source=source,
-                                                      user=user)
+            access_point = AccessPoint.objects.create(
+                trigger='p10{}'.format(index),
+                accessed_on='2018-12-12',
+                archive_url='https://web.archive.org/https://test.com/test-{}'.format(index),
+                source=source,
+                user=user
+            )
             access_points.append(access_point)
 
     return access_points
@@ -96,11 +98,13 @@ def new_access_points(user, sources):
 
     for source in sources:
         for index in range(5):
-            access_point = AccessPoint.objects.create(page_number='p20{}'.format(index),
-                                                      accessed_on='2017-12-12',
-                                                      archive_url='https://web.archive.org/https://test.com/test-{}'.format(index),
-                                                      source=source,
-                                                      user=user)
+            access_point = AccessPoint.objects.create(
+                trigger='p20{}'.format(index),
+                accessed_on='2017-12-12',
+                archive_url='https://web.archive.org/https://test.com/test-{}'.format(index),
+                source=source,
+                user=user
+            )
             access_points.append(access_point)
 
     return access_points
