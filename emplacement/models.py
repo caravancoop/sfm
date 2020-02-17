@@ -78,7 +78,7 @@ class EmplacementOpenEnded(ComplexField):
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Is Open Ended?")
     shortcode = 'u_slcdo'
-    spreadsheet_field_name = 'unit:site_last_cited_date_open'
+    spreadsheet_field_name = 'unit:site_open'
 
 
 @versioned

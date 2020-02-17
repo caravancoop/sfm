@@ -1,4 +1,5 @@
 import os
+import itertools
 import json
 from collections import OrderedDict
 import re
@@ -207,10 +208,19 @@ class Command(BaseCommand):
 
                 entity_map = {}
 
-                for row in sheet[zero_index_start:]:
+                for idx, row in enumerate(sheet[zero_index_start:]):
                     if row:
-                        entity_name = row[name_key]
                         entity_uuid = row[id_key]
+                        try:
+                            entity_name = row[name_key]
+                        except KeyError:
+                            self.log_error(
+                                'Entity with ID "{}" is missing a name'.format(
+                                    entity_uuid
+                                ),
+                                sheet=entity_type,
+                                current_row=one_index_start + (idx + 1)
+                            )
                         entity_map[entity_name] = entity_uuid
 
                 setattr(self, '{}_entity_map'.format(entity_type), entity_map)
@@ -227,7 +237,7 @@ class Command(BaseCommand):
                 if title not in skippers:
                     for index, row in enumerate(sheet[zero_index_start:]):
                         if row:
-                            self.current_row = index + one_index_start
+                            self.current_row = one_index_start + (index + 1)
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
         data_src = options['folder'] if options.get('folder') else options['doc_id']
@@ -255,7 +265,7 @@ class Command(BaseCommand):
             title = sheet['properties']['title']
             sheet_data = service.spreadsheets().values().get(
                 spreadsheetId=doc_id,
-                range=title + sheet_range
+                range=title
             ).execute()
             sheet_mapping[title] = sheet_data['values']
 
@@ -270,12 +280,15 @@ class Command(BaseCommand):
                                if 'persons_extra' in title.lower()}
         event_sheets = {title: self.format_dict_reader(data)
                         for title, data in sheet_mapping.items()
-                        if 'events' in title.lower()}
+                        if 'incidents' in title.lower()}
 
         # Get data about sources
-        source_sheet = service.spreadsheets().values().get(
-            spreadsheetId=source_doc_id
+        source_data = service.spreadsheets().values().get(
+            spreadsheetId=source_doc_id,
+            range='sources'
         ).execute()
+        # Convert the raw response to a DictReader
+        source_sheet = {'values': self.format_dict_reader(source_data['values'])}
 
         return {
             'organization': org_sheets,
@@ -321,12 +334,19 @@ class Command(BaseCommand):
         csv.DictReader object).
         """
         header = lst[0]
-        return [dict(zip(header, row)) for row in lst[1:]]
+        # Use itertools.zip_longest to preserve all of the header fields. This
+        # is important because if every cell after the ith column in a row is
+        # empty, the API will truncate the row at the ith cell when it returns
+        # a response, leading the built-in zip() function to leave out those
+        # elements (zip() will default to the length of the shortest iterable).
+        return [dict(itertools.zip_longest(header, row, fillvalue='')) for row in lst[1:]]
 
-    def log_error(self, message):
-        log_message = message + ' (context: Sheet {0}, Row {1})'.format(self.current_sheet, self.current_row)
+    def log_error(self, message, sheet=None, current_row=None):
+        current_sheet = sheet if sheet is not None else self.current_sheet
+        current_row = current_row if current_row is not None else self.current_row
+        log_message = message + ' (context: Sheet {0}, Row {1})'.format(current_sheet, current_row)
         self.stdout.write(self.style.ERROR(log_message))
-        file_name = '{}-errors.csv'.format(slugify(self.current_sheet))
+        file_name = '{}-errors.csv'.format(slugify(current_sheet))
         if not os.path.isfile(file_name):
             with open(file_name, 'w') as f:
                 header = ['row', 'message']
@@ -335,7 +355,7 @@ class Command(BaseCommand):
 
         with open(file_name, 'a') as f:
             writer = csv.writer(f)
-            writer.writerow([self.current_row,
+            writer.writerow([current_row,
                              message])
 
     def get_confidence(self, confidence_key):
@@ -577,15 +597,17 @@ class Command(BaseCommand):
 
                 try:
                     organization = Organization.objects.get(uuid=uuid)
-                    existing_sources = self.sourcesList(organization, 'name')
-                    org_info["Organization_OrganizationName"]['sources'] += existing_sources
-
-                    organization.update(org_info)
-
                 except Organization.DoesNotExist:
                     organization = Organization.objects.create(uuid=uuid,
                                                                published=True)
-                    organization.update(org_info)
+                except ValidationError:
+                    self.log_error('Invalid unit UUID: "{}"'.format(uuid))
+                    return None
+                else:
+                    existing_sources = self.sourcesList(organization, 'name')
+                    org_info["Organization_OrganizationName"]['sources'] += existing_sources
+
+                organization.update(org_info)
 
                 org_attributes = ['Alias', 'Classification', 'OpenEnded', 'Headquarters']
 
@@ -683,15 +705,17 @@ class Command(BaseCommand):
 
                         try:
                             parent_organization = Organization.objects.get(uuid=uuid)
-                            existing_sources = self.sourcesList(parent_organization, 'name')
-                            parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
-
-                            parent_organization.update(parent_org_info)
-
                         except Organization.DoesNotExist:
                             parent_organization = Organization.objects.create(uuid=uuid,
                                                                               published=True)
-                            parent_organization.update(parent_org_info)
+                        except ValidationError:
+                            self.log_error('Invalid parent unit UUID: "{}"'.format(uuid))
+                            return None
+                        else:
+                            existing_sources = self.sourcesList(parent_organization, 'name')
+                            parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
+
+                        parent_organization.update(parent_org_info)
 
                         comp_info = {
                             'Composition_CompositionParent': {
@@ -787,15 +811,17 @@ class Command(BaseCommand):
 
                         try:
                             member_organization = Organization.objects.get(uuid=uuid)
-                            existing_sources = self.sourcesList(member_organization, 'name')
-                            member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
-
-                            member_organization.update(member_org_info)
-
                         except Organization.DoesNotExist:
                             member_organization = Organization.objects.create(uuid=uuid,
                                                                               published=True)
-                            member_organization.update(member_org_info)
+                        except ValidationError:
+                            self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
+                            return None
+                        else:
+                            existing_sources = self.sourcesList(member_organization, 'name')
+                            member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
+
+                        member_organization.update(member_org_info)
 
                         membership_info = {
                             'MembershipOrganization_MembershipOrganizationMember': {
@@ -1506,23 +1532,23 @@ class Command(BaseCommand):
 
         self.current_sheet = 'sources'
 
-        for source in source_sheet['values']:
-            access_point_uuid = source['source:access_point_id:admin']
+        for source_data in source_sheet['values']:
+            access_point_uuid = source_data['source:access_point_id:admin'].strip()
             try:
                 AccessPoint.objects.get(uuid=access_point_uuid)
             except AccessPoint.DoesNotExist:
                 source_info = {
-                    'title': source[Source.get_spreadsheet_field_name('title')],
-                    'type': source[Source.get_spreadsheet_field_name('type')],
-                    'author': source[Source.get_spreadsheet_field_name('author')],
-                    'publication': source[Source.get_spreadsheet_field_name('publication')],
-                    'publication_country': source[Source.get_spreadsheet_field_name('publication_country')],
-                    'source_url': source[Source.get_spreadsheet_field_name('source_url')],
+                    'title': source_data[Source.get_spreadsheet_field_name('title')],
+                    'type': source_data[Source.get_spreadsheet_field_name('type')],
+                    'author': source_data[Source.get_spreadsheet_field_name('author')],
+                    'publication': source_data[Source.get_spreadsheet_field_name('publication')],
+                    'publication_country': source_data[Source.get_spreadsheet_field_name('publication_country')],
+                    'source_url': source_data[Source.get_spreadsheet_field_name('source_url')],
                     'user': self.user
                 }
                 # Figure out if created/uploaded/published dates are timestamps
                 for prefix in ('published', 'created', 'uploaded'):
-                    date_val = source[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
+                    date_val = source_data[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
                     try:
                         # Try to parse the value as a timestamp (remove timezone
                         # marker for Pyton <3.7)
@@ -1538,10 +1564,10 @@ class Command(BaseCommand):
 
                 AccessPoint.objects.create(
                     uuid=access_point_uuid,
-                    type=source[AccessPoint.get_spreadsheet_field_name('type')],
-                    trigger=source[AccessPoint.get_spreadsheet_field_name('trigger')],
-                    accessed_on=self.parse_date(source[AccessPoint.get_spreadsheet_field_name('accessed_on')]),
-                    archive_url=source[AccessPoint.get_spreadsheet_field_name('archive_url')],
+                    type=source_data[AccessPoint.get_spreadsheet_field_name('type')],
+                    trigger=source_data[AccessPoint.get_spreadsheet_field_name('trigger')],
+                    accessed_on=self.parse_date(source_data[AccessPoint.get_spreadsheet_field_name('accessed_on')]),
+                    archive_url=source_data[AccessPoint.get_spreadsheet_field_name('archive_url')],
                     source=new_source,
                     user=self.user
                 )
@@ -1556,11 +1582,12 @@ class Command(BaseCommand):
         for source_id in source_ids:
             try:
                 source = AccessPoint.objects.get(uuid=source_id)
-                sources.append(source)
-
             except (ValueError, ValidationError):
                 self.log_error("Invalid source: " + source_id)
-
+            except AccessPoint.DoesNotExist:
+                self.log_error("Missing source: " + source_id)
+            else:
+                sources.append(source)
 
         return sources
 
@@ -1698,13 +1725,16 @@ class Command(BaseCommand):
 
                 try:
                     person = Person.objects.get(uuid=uuid)
-                    sources = self.sourcesList(person, 'name')
-                    person_info["Person_PersonName"]['sources'] += sources
-                    person.update(person_info)
-
                 except Person.DoesNotExist:
                     person = Person.objects.create(uuid=uuid, published=True)
-                    person.update(person_info)
+                except ValidationError:
+                    self.log_error('Invalid person UUID: "{}"'.format(uuid))
+                    return None
+                else:
+                    sources = self.sourcesList(person, 'name')
+                    person_info["Person_PersonName"]['sources'] += sources
+
+                person.update(person_info)
 
                 self.make_relation('Alias',
                                    person_positions['Alias'],
@@ -1756,6 +1786,10 @@ class Command(BaseCommand):
                     organization = Organization.objects.create(uuid=uuid,
                                                                published=True)
                     organization.update(org_info)
+
+                except ValidationError:
+                    self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
+                    return None
 
                 else:
                     name_sources = self.sourcesList(organization, 'name')
@@ -1975,13 +2009,13 @@ class Command(BaseCommand):
 
         try:
             person_name_value = data[person_positions['Name']['value']]
-        except IndexError:
+        except KeyError:
             self.log_error('Row appears to be missing a Person name')
             return None
 
         try:
             person_id_value = data[person_positions['Id']['value']]
-        except IndexError:
+        except KeyError:
             self.log_error('Row appears to be missing a Person ID')
             return None
 
@@ -1989,6 +2023,9 @@ class Command(BaseCommand):
             person = Person.objects.get(uuid=person_id_value)
         except Person.DoesNotExist:
             self.log_error('No person with the ID {} was found'.format(person_id_value))
+            return None
+        except ValidationError:
+            self.log_error('Invalid person ID: "{}"'.format(person_id_value))
             return None
 
         try:
@@ -2376,6 +2413,9 @@ class Command(BaseCommand):
 
                 try:
                     person = Person.objects.get(uuid=uuid)
+                except ValidationError:
+                    self.log_error('Invalid perpetrator UUID: "{}"'.format(uuid))
+                    continue
                 except Person.DoesNotExist:
                     person_info = {
                         'Person_PersonName': {
@@ -2422,6 +2462,9 @@ class Command(BaseCommand):
 
                 try:
                     organization = Organization.objects.get(uuid=uuid)
+                except ValidationError:
+                    self.log_error('Invalid perpetrator unit UUID: "{}"'.format(uuid))
+                    continue 
                 except (Organization.DoesNotExist, ValueError):
 
                     info = {

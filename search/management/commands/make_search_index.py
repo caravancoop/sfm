@@ -17,6 +17,7 @@ from membershipperson.models import MembershipPerson
 from organization.models import Organization
 from violation.models import Violation
 from composition.models import Composition
+from source.models import Source
 from sfm_pc.templatetags.countries import country_name
 
 class Command(BaseCommand):
@@ -643,56 +644,35 @@ class Command(BaseCommand):
     def index_sources(self, doc_id=None, update=False):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED('\n Indexing sources ... '))
 
-        source_query= '''
-            SELECT
-              uuid,
-              MAX(title) AS title,
-              MAX(source_url) AS url,
-              MAX(published_on) as date_published,
-              MAX(publication) AS publication,
-              MAX(publication_country) AS publication_country
-            FROM source_source
-        '''
+        sources = Source.objects.all()
 
         if doc_id:
-            source_query += '''
-                WHERE uuid = '{doc_id}'
-            '''.format(doc_id=doc_id)
-
-        source_query += '''
-            GROUP BY uuid
-        '''
-
-        source_cursor = connection.cursor()
-        source_cursor.execute(source_query)
-        source_columns = [c[0] for c in source_cursor.description]
+            sources = sources.filter(uuid=doc_id)
 
         documents = []
 
-        for source in source_cursor:
+        for source in sources:
 
-            source = dict(zip(source_columns, source))
-
-            if update and self.check_index(source['id']):
+            if update and self.check_index(source.uuid):
                 continue
 
-            content = source['title']
+            content = source.title
 
             if len(content) == 0:
                 # The import data script is missing one title - skip it for now
                 continue
 
             document = {
-                'id': source['uuid'],
+                'id': source.uuid,
                 'entity_type': 'Source',
                 'content': content,
-                'source_url_t': source['url'],
-                'source_title_t': source['title'],
-                'start_date_t': source['date_published'],
-                'end_date_t': source['date_published'],
-                'publication_s': source['publication'],
-                'country_s': source['publication_country'],
-                'country_ss': source['publication_country'],
+                'source_url_t': source.source_url,
+                'source_title_t': source.title,
+                'start_date_t': source.get_published_date(),
+                'end_date_t': source.get_published_date(),
+                'publication_s': source.publication,
+                'country_s': source.publication_country,
+                'country_ss': source.publication_country,
                 'text': content
             }
 

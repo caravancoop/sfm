@@ -103,7 +103,7 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
         return reverse('view-source', args=[self.uuid])
 
     def _get_date_or_timestamp(self, date_type):
-        timestamp = getattr(self, '{}_timetsamp'.format(date_type))
+        timestamp = getattr(self, '{}_timestamp'.format(date_type))
         date = getattr(self, '{}_date'.format(date_type))
         return timestamp if timestamp else date
 
