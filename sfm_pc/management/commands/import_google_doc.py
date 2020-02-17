@@ -1532,10 +1532,16 @@ class Command(BaseCommand):
 
         self.current_sheet = 'sources'
 
-        for source_data in source_sheet['values']:
+        for idx, source_data in enumerate(source_sheet['values']):
             access_point_uuid = source_data['source:access_point_id:admin'].strip()
             try:
                 AccessPoint.objects.get(uuid=access_point_uuid)
+            except ValidationError:
+                self.log_error(
+                    'Invalid source UUID: "{}"'.format(access_point_uuid),
+                    sheet='sources',
+                    current_row=idx + 2  # Handle 0-index and header row
+                )
             except AccessPoint.DoesNotExist:
                 source_info = {
                     'title': source_data[Source.get_spreadsheet_field_name('title')],
@@ -2464,7 +2470,7 @@ class Command(BaseCommand):
                     organization = Organization.objects.get(uuid=uuid)
                 except ValidationError:
                     self.log_error('Invalid perpetrator unit UUID: "{}"'.format(uuid))
-                    continue 
+                    continue
                 except (Organization.DoesNotExist, ValueError):
 
                     info = {
