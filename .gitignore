@@ -17,6 +17,7 @@ db.sqlite3
 env/
 node_modules/
 settings_local.py
+settings_local.dev.py
 /keyrings/live/pubring.gpg~
 /keyrings/live/pubring.kbx~
 /keyrings/live/secring.gpg
@@ -38,3 +39,4 @@ credentials.json
 /scripts/backup.sh
 /static/js/piwik_tracker_production.js
 /configs/settings_local_importer.py
+/configs/settings_local_dev.py

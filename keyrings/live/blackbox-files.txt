@@ -2,6 +2,7 @@ configs/auth.json
 configs/backup-credentials.txt
 configs/client_secrets.json
 configs/credentials.json
+configs/settings_local_dev.py
 configs/settings_local_importer.py
 configs/settings_local_production.py
 configs/settings_local_staging.py
