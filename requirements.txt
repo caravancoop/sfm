@@ -11,7 +11,7 @@ psycopg2==2.7.3.1
 django-extra-views==0.7.1
 django-rosetta==0.7.13
 
--e git+https://github.com/security-force-monitor/complex_fields.git#egg=django-complex-fields
+git+https://github.com/security-force-monitor/complex_fields.git
 
 gunicorn==19.0.0
 tqdm==4.36.1

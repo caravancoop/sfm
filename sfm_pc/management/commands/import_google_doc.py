@@ -2126,8 +2126,12 @@ class Command(BaseCommand):
             location.name = geo.name
             location.geometry = geo.geometry
 
-            country_code = geo.country_code.lower()
-            location.division_id = 'ocd-division/country:{}'.format(country_code)
+            try:
+                country_code = geo.country_code.lower()
+            except AttributeError:
+                self.log_error('Location with ID "{}" is missing a country code'.format(geo.id))
+            else:
+                location.division_id = 'ocd-division/country:{}'.format(country_code)
 
             if location.feature_type == 'point':
                 location.feature_type = 'node'
