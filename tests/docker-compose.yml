@@ -5,3 +5,5 @@ services:
     # Don't restart the service when the command exits
     restart: "no"
     command: pytest -sxv
+    environment:
+      - DATABASE_URL=postgis://postgres:postgres@postgres:5432/sfm
