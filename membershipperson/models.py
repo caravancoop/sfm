@@ -11,9 +11,10 @@ from complex_fields.base_models import BaseModel
 
 from person.models import Person
 from organization.models import Organization
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 
 
-class MembershipPerson(models.Model, BaseModel):
+class MembershipPerson(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.member = ComplexFieldContainer(self, MembershipPersonMember)
@@ -143,7 +144,9 @@ class MembershipPersonMember(ComplexField):
 class MembershipPersonOrganization(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.ForeignKey(Organization)
-    field_name = _("Organization")
+    field_name = _("Unit")
+    shortcode = 'p_p'
+    spreadsheet_field_name = 'person:posting'
 
 
 @versioned
@@ -152,6 +155,8 @@ class MembershipPersonRole(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.ForeignKey('Role', default=None, blank=True, null=True)
     field_name = _("Role")
+    shortcode = 'p_pro'
+    spreadsheet_field_name = 'person:posting_role'
 
 
 @translated
@@ -161,6 +166,8 @@ class MembershipPersonTitle(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Title")
+    shortcode = 'p_pt'
+    spreadsheet_field_name = 'person:posting_title'
 
 
 @versioned
@@ -169,6 +176,8 @@ class MembershipPersonRank(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.ForeignKey('Rank', default=None, blank=True, null=True)
     field_name = _("Rank")
+    shortcode = 'p_pra'
+    spreadsheet_field_name = 'person:posting_rank'
 
 
 @versioned
@@ -176,7 +185,9 @@ class MembershipPersonRank(ComplexField):
 class MembershipPersonFirstCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = ApproximateDateField()
-    field_name = _("First cited date")
+    field_name = _("First Cited Date")
+    shortcode = 'p_pfcd'
+    spreadsheet_field_name = 'person:posting_first_cited_date'
 
 
 @versioned
@@ -184,7 +195,9 @@ class MembershipPersonFirstCitedDate(ComplexField):
 class MembershipPersonLastCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = ApproximateDateField()
-    field_name = _("Last cited date")
+    field_name = _("Last Cited Date")
+    shortcode = 'p_plcd'
+    spreadsheet_field_name = 'person:posting_last_cited_date'
 
 
 @versioned
@@ -192,7 +205,9 @@ class MembershipPersonLastCitedDate(ComplexField):
 class MembershipPersonRealStart(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.BooleanField(default=None)
-    field_name = _("Real start date")
+    field_name = _("Start Date?")
+    shortcode = 'p_pfcds'
+    spreadsheet_field_name = 'person:posting_first_cited_date_start'
 
 
 @versioned
@@ -200,7 +215,9 @@ class MembershipPersonRealStart(ComplexField):
 class MembershipPersonRealEnd(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.BooleanField(default=None)
-    field_name = _("Real end date")
+    field_name = _("End Date?")
+    shortcode = 'p_plcde'
+    spreadsheet_field_name = 'person:posting_last_cited_date_end'
 
 
 @versioned
@@ -208,7 +225,9 @@ class MembershipPersonRealEnd(ComplexField):
 class MembershipPersonStartContext(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.TextField()
-    field_name = _("Start context")
+    field_name = _("Start Date Context")
+    shortcode = 'p_pfcdsc'
+    spreadsheet_field_name = 'person:posting_first_cited_date_start_context'
 
 
 @versioned
@@ -216,7 +235,9 @@ class MembershipPersonStartContext(ComplexField):
 class MembershipPersonEndContext(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.TextField()
-    field_name = _("End context")
+    field_name = _("End Date Context")
+    shortcode = 'p_plcdec'
+    spreadsheet_field_name = 'person:posting_last_cited_date_end_context'
 
 
 class Role(models.Model):

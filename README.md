@@ -2,62 +2,57 @@
 
 ## OS Level dependencies
 
-* Python 3.5
-* PostgreSQL 9.4+
-* PostGIS
-* osm2pgsql
 * Docker and Docker Compose
 
 ## Development
 
 ### Basic setup
 
-Create a virtual environment and clone the repo:
+Clone the repo:
 
-    mkvirtualenv sfm
     git clone git@github.com:security-force-monitor/sfm-cms.git
     cd sfm-cms
 
-Install Python requirements:
+Next, create a local settings file. If you're on the Blackbox keyring for the repo,
+decrypt the development settings file:
 
-    pip install -r requirements.txt
+    blackbox_cat configs/settings_local_dev.py.gpg > sfm_pc/settings_local.dev.py
 
-Create a local settings file:
+If you're not on the keyring, you can copy the example settings file and set
+your own secret variables:
 
-    cp sfm_pc/settings_local.py.example sfm_pc/settings_local.py
+    cp sfm_pc/settings_local.example.py sfm_pc/settings_local.dev.py
 
-Replace OSM_API_Key in `settings_local.py` with a Wambacher cliKey. Generate a key [here](https://wambachers-osm.website/boundaries/) by enabling OAuth, selecting a boundary, checking CLI, hitting Export, and looking at the generated URL. If you're on the Blackbox keyring for the project, you can also copy the API key from `configs/settings_local_staging.py.gpg`.
+Replace `OSM_API_KEY` in `settings_local.py` with a Wambacher cliKey. Generate a key [here](https://wambachers-osm.website/boundaries/) by enabling OAuth, selecting a boundary, checking CLI, hitting Export, and looking at the generated URL. You'll also need to set the `GOOGLE_MAPS_KEY` in order to load maps.
 
-Create a database:
+Build application container images:
 
-    createdb sfm
+    docker-compose build
 
-Once you have a database, there are two ways that you can load data into it.
+Once you have container images, there are two ways that you can load data into your database.
 
 ### Option 1: Load a database dump
 
 The standard data loading process for the app can take many hours to complete. If you're working with a developer who already has a database set up, you can save time by having them make a dump of their database for you:
 
-    pg_dump -Fc -O sfm > sfm.dump
+    docker-compose run --rm app pg_dump -Fc -h postgres -U postgres -d sfm -O > sfm_empty.dump
 
 Then, load this dump into your own database:
 
-    pg_restore -d sfm sfm.dump
+    docker-compose run --rm app pg_restore -h postgres -U postgres -d sfm -O sfm.dump
 
 Once the dump has been restored, move on to the step `Set up the search index` below.
 
 ### Option 2: Load data via management commands
 
-The standard way to load data into the app is to use the app's management commands for loading data. Start by running migrations for the app:
+The standard way to load data into the app is to use the app's management commands for loading data. Start by updating the `Countries` models: 
 
-    psql sfm -c "CREATE EXTENSION postgis;"
-    python manage.py migrate
-    python manage.py update_countries_plus
+    docker-compose run --rm app ./manage.py update_countries_plus
 
-Import OSM data:
+Next, import OSM data:
 
-    python manage.py import_osm
-    python manage.py link_locations
+    docker-compose run --rm app ./manage.py import_osm
+    docker-compose run --rm app ./manage.py link_locations
 
 Import entity data from Google Drive:
 
@@ -66,33 +61,29 @@ Import entity data from Google Drive:
     # access to all the relevant files. If you're on the keyring for this project, run
     # the follow Blackbox command before running the Makefile:
     # blackbox_cat configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
-    make import_google_docs
+    docker-compose run --rm app make import_google_docs
 
 Clean up unused Locations:
 
-    python manage.py clean_locations --batch
-
-Make materialized views for the app based on the imported data:
-
-    python manage.py make_flattened_views --recreate
+    docker-compose run --rm app ./manage.py clean_locations --batch
 
 ### Set up the search index
 
 Build and start the Docker image for the Solr server:
 
-    docker-compose up --build
+    docker-compose up --build solr
 
 Open up another shell and create the search index:
 
-    python manage.py make_search_index
+    docker-compose run --rm app ./manage.py make_search_index
 
 Create an admin user:
 
-    ./manage.py createsuperuser
+    docker-compose run --rm app ./manage.py createsuperuser
 
 Start the web server:
 
-    ./manage.py runserver
+    docker-compose run --rm app ./manage.py runserver
 
 Open http://127.0.0.1:8000/ and sign in with your email and password.
 
@@ -119,32 +110,30 @@ field_name = _("End date")
 This nomenclature signals that the text can be translated into the user's specified language. But first, someone with language expertise must provide the appropriate translation. Happily, Django can extract all translatable strings into a message file:
 
 ```bash
-django-admin.py makemessages -l es
-django-admin.py makemessages -l fr
+docker-compose run --rm app ./manage.py makemessages -l es
+docker-compose run --rm app ./manage.py makemessages -l fr
 ```
 
 This command generates a `.po` file for each language. Rosetta facilitates the editing and compiling of these files. Go to `/rosetta/`, and view the snippets of code, requiring translation, organized by language. Then, translate some text, click "Save and translate next block," and Rosetta compiles the code into Django-friendly translations.
 
 ## Tests
 
-To run tests, check the database connection settings in `tests/test_settings.py`. The test suite expects you to have a `postgres` user and postgres running on port `5432`. 
-
-Once the settings and database are configured, you should be able to run all tests from the root folder:
+Run all tests from the root folder:
 
 ```
-pytest
+docker-compose -f docker-compose.yml -f tests/docker-compose.yml run --rm app
 ```
 
 You can also run a collection of tests, like so:
 
 ```
-pytest tests/test_person.py
+docker-compose -f docker-compose.yml -f tests/docker-compose.yml run --rm app pytest tests/test_person.py
 ```
 
 Or run a single test, like so:
 
 ```
-pytest tests/test_person.py::test_no_existing_sources
+docker-compose -f docker-compose.yml -f tests/docker-compose.yml run --rm app pytest tests/test_person.py::test_no_existing_sources
 ```
 
 ## Using the Google Sheet import script
@@ -232,7 +221,7 @@ https://docs.google.com/spreadsheets/d/<doc id (very long hash looking thing)>/e
 Once you have those, you should be able to run the importer like so:
 
 ```
-python manage.py import_google_doc --source_doc_id <source doc id> --doc_id
+docker-compose run --rm app ./manage.py import_google_doc --source_doc_id <source doc id> --doc_id
 <doc id for the doc you want to import>
 ```
 
@@ -261,7 +250,6 @@ make update_db
 python manage.py make_flattened_views --recreate
 python manage.py update_search_index
 ```
-
 
 Finally, switch the `sfm` and `importer` databases:
 

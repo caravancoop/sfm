@@ -19,19 +19,73 @@ from django_date_extensions.fields import ApproximateDateField
 
 from sfm_pc.utils import VersionsMixin
 
+from . import fields as source_fields
+
 
 def get_deleted_user():
     return get_user_model().objects.get_or_create(username='deleted user')[0]
 
 
+class GetSpreadsheetFieldNameMixin:
+    """
+    Mixin to allow models with source_fields to retrieve the
+    spreadsheet_field_name for a given source_field.
+    """
+    @classmethod
+    def get_spreadsheet_field_name(cls, field_name):
+        return cls._meta.get_field(field_name).spreadsheet_field_name
+
+
 @reversion.register(follow=['accesspoint_set'])
-class Source(models.Model, VersionsMixin):
+class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    title = models.TextField()
-    publication = models.TextField(null=True)
-    publication_country = models.CharField(max_length=1000, null=True)
-    published_on = ApproximateDateField()
-    source_url = models.URLField(max_length=1000, null=True, blank=True)
+    title = source_fields.TextField(spreadsheet_field_name='source:title')
+    type = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:type')
+    author = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:author')
+    publication = source_fields.TextField(null=True, spreadsheet_field_name='source:publication_name')
+    publication_country = source_fields.CharField(max_length=1000, null=True, spreadsheet_field_name='source:publication_country')
+    # We store both date and timestamp fields for the following values because
+    # sometimes sources have partial dates and sometimes they have full
+    # timestamps. In practice, these fields should be treated as mutually
+    # exclusive, and the get_date() methods should be used to retrieve
+    # the canonical value.
+    published_date = source_fields.ApproximateDateField(
+        verbose_name="publication date",
+        blank=True,
+        default='',
+        spreadsheet_field_name='source:published_timestamp'
+    )
+    published_timestamp = source_fields.DateTimeField(
+        verbose_name="publication timestamp",
+        blank=True,
+        null=True,
+        spreadsheet_field_name='source:published_timestamp'
+    )
+    created_date = source_fields.ApproximateDateField(
+        verbose_name="creation date",
+        blank=True,
+        default='',
+        spreadsheet_field_name='source:created_timestamp'
+    )
+    created_timestamp = source_fields.DateTimeField(
+        verbose_name="publication timestamp",
+        blank=True,
+        null=True,
+        spreadsheet_field_name='source:created_timestamp'
+    )
+    uploaded_date = source_fields.ApproximateDateField(
+        verbose_name="upload date",
+        blank=True,
+        default='',
+        spreadsheet_field_name='source:uploaded_timestamp'
+    )
+    uploaded_timestamp = source_fields.DateTimeField(
+        verbose_name="publication timestamp",
+        blank=True,
+        null=True,
+        spreadsheet_field_name='source:uploaded_timestamp'
+    )
+    source_url = source_fields.URLField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:url')
 
     date_updated = models.DateTimeField(auto_now=True)
     date_added = models.DateTimeField(auto_now_add=True)
@@ -47,6 +101,26 @@ class Source(models.Model, VersionsMixin):
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('view-source', args=[self.uuid])
+
+    def _get_date_or_timestamp(self, date_type):
+        timestamp = getattr(self, '{}_timestamp'.format(date_type))
+        date = getattr(self, '{}_date'.format(date_type))
+        return timestamp if timestamp else date
+
+    def get_published_date(self):
+        """
+        Get the canonical value for the date this Source was published. This
+        method is useful because in practice published_date and
+        published_timestamp should be mutually exclusive, and at runtime we don't
+        necessarily know which one will be set for a given Source.
+        """
+        return self._get_date_or_timestamp('published')
+
+    def get_created_date(self):
+        return self._get_date_or_timestamp('created')
+
+    def get_uploaded_date(self):
+        return self._get_date_or_timestamp('uploaded')
 
     @property
     def related_entities(self):
@@ -66,7 +140,7 @@ class Source(models.Model, VersionsMixin):
             related_entities.append({
                 'name': str(point),
                 'archive_url': point.archive_url,
-                'page_number': point.page_number,
+                'page_number': point.trigger,
                 'accessed_on': point.accessed_on,
                 'url': reverse_lazy(
                     'update-access-point',
@@ -82,11 +156,12 @@ class Source(models.Model, VersionsMixin):
 
 
 @reversion.register()
-class AccessPoint(models.Model, VersionsMixin):
+class AccessPoint(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    page_number = models.CharField(max_length=255, null=True, blank=True)
-    accessed_on = models.DateField(null=True)
-    archive_url = models.URLField(max_length=1000, null=True,)
+    type = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:access_point_type')
+    trigger = source_fields.CharField(max_length=255, null=True, blank=True, spreadsheet_field_name='source:access_point_trigger')
+    accessed_on = source_fields.DateField(null=True, verbose_name='access date', spreadsheet_field_name='source:accessed_timestamp')
+    archive_url = source_fields.URLField(max_length=1000, null=True, spreadsheet_field_name='source:archive_url')
     source = models.ForeignKey(Source, null=True, to_field='uuid')
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -94,18 +169,18 @@ class AccessPoint(models.Model, VersionsMixin):
 
     def __str__(self):
         point_name = self.archive_timestamp
-        if self.page_number:
+        if self.trigger:
             # Check if the page number is a range; if so, indicate to ngettext
             # that the string should be plural. See:
             # https://docs.djangoproject.com/en/2.2/topics/i18n/translation/#pluralization
-            is_range = 2 if ('-' in self.page_number or ', ' in self.page_number) else 1
+            is_range = 2 if ('-' in self.trigger or ', ' in self.trigger) else 1
             # Translators: This fragment references to the page numbers in an access point.
             pages_str = ngettext(
                 '(Page %(pages)s)',
                 '(Pages %(pages)s)',
                 is_range
             ) % {
-                'pages': self.page_number
+                'pages': self.trigger
             }
             point_name += ' ' + pages_str
         if self.accessed_on:

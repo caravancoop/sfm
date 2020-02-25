@@ -13,9 +13,10 @@ from complex_fields.models import (ComplexField, ComplexFieldContainer,
 from complex_fields.base_models import BaseModel
 from organization.models import Organization
 from location.models import Location
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 
 
-class Emplacement(models.Model, BaseModel):
+class Emplacement(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, EmplacementStartDate)
@@ -45,7 +46,9 @@ class Emplacement(models.Model, BaseModel):
 class EmplacementStartDate(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Start date")
+    field_name = _("First Cited Date")
+    shortcode = 'u_sfcd'
+    spreadsheet_field_name = 'unit:site_first_cited_date'
 
 
 @versioned
@@ -53,7 +56,9 @@ class EmplacementStartDate(ComplexField):
 class EmplacementRealStart(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = models.NullBooleanField(default=None, blank=True, null=True)
-    field_name = _("Real start date")
+    field_name = _("Is Foundation Date?")
+    shortcode = 'u_sfcdf'
+    spreadsheet_field_name = 'unit:site_first_cited_date_founding'
 
 
 @versioned
@@ -61,7 +66,9 @@ class EmplacementRealStart(ComplexField):
 class EmplacementEndDate(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("End date")
+    field_name = _("Last Cited Date")
+    shortcode = 'u_slcd'
+    spreadsheet_field_name = 'unit:site_last_cited_date'
 
 
 @versioned
@@ -69,7 +76,9 @@ class EmplacementEndDate(ComplexField):
 class EmplacementOpenEnded(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
-    field_name = _("Open ended")
+    field_name = _("Is Open Ended?")
+    shortcode = 'u_slcdo'
+    spreadsheet_field_name = 'unit:site_open'
 
 
 @versioned
@@ -77,7 +86,7 @@ class EmplacementOpenEnded(ComplexField):
 class EmplacementOrganization(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = models.ForeignKey(Organization)
-    field_name = _("Organization")
+    field_name = _("Unit")
 
 
 @versioned

@@ -8,8 +8,10 @@ from complex_fields.model_decorators import (versioned, translated, sourced,
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 
-class Area(models.Model, BaseModel):
+
+class Area(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, AreaName)
@@ -49,7 +51,9 @@ class Area(models.Model, BaseModel):
 class AreaName(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Name")
+    field_name = _("Area of Operations")
+    shortcode = 'u_an'
+    spreadsheet_field_name = 'unit:area_ops_name'
 
 
 @versioned
@@ -108,4 +112,6 @@ class Code(models.Model):
 class AreaDivisionId(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Division ID")
+    field_name = _("Country")
+    shortcode = 'u_ac'
+    spreadsheet_field_name = 'unit:area_ops_country'

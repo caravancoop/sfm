@@ -9,9 +9,10 @@ from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 from organization.models import Organization
 from location.models import Location
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 
 
-class Association(models.Model, BaseModel):
+class Association(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, AssociationStartDate)
@@ -46,7 +47,9 @@ class Association(models.Model, BaseModel):
 class AssociationStartDate(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = ApproximateDateField()
-    field_name = _("Start date")
+    field_name = _("First Cited Date")
+    shortcode = 'u_aofcd'
+    spreadsheet_field_name = 'unit:area_ops_first_cited_date'
 
 
 @versioned
@@ -54,7 +57,9 @@ class AssociationStartDate(ComplexField):
 class AssociationRealStart(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.NullBooleanField(default=None)
-    field_name = _("Real start date")
+    field_name = _("Start Date?")
+    shortcode = 'u_aofcds'
+    spreadsheet_field_name = 'unit:area_ops_first_cited_date_start'
 
 
 @versioned
@@ -62,7 +67,9 @@ class AssociationRealStart(ComplexField):
 class AssociationEndDate(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("End date")
+    field_name = _("Last Cited Date")
+    shortcode = 'u_aolcd'
+    spreadsheet_field_name = 'unit:area_ops_last_cited_date'
 
 
 @versioned
@@ -70,7 +77,7 @@ class AssociationEndDate(ComplexField):
 class AssociationOrganization(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.ForeignKey(Organization)
-    field_name = _("Organization")
+    field_name = _("Unit")
 
     def __str__(self):
         return str(self.value)
@@ -81,7 +88,7 @@ class AssociationOrganization(ComplexField):
 class AssociationArea(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.ForeignKey(Location)
-    field_name = _("Area")
+    field_name = _("Area of Operation")
 
     def __str__(self):
         return str(self.value)
@@ -92,4 +99,6 @@ class AssociationArea(ComplexField):
 class AssociationOpenEnded(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
-    field_name = _("Open ended")
+    field_name = _("Open-Ended?")
+    shortcode = 'u_aolcdo'
+    spreadsheet_field_name = 'unit:area_ops_last_cited_date_open'

@@ -2,17 +2,12 @@ import uuid
 
 import reversion
 
-from django.db import models, connection
+from django.db import models
 from django.db.models.functions import Coalesce
-from django.contrib.gis.geos import Point
 from django.utils.translation import ugettext as _
-from django.db.models import Max
-from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils.functional import cached_property
 from django.template.defaultfilters import truncatewords
-
-from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer, \
@@ -20,25 +15,23 @@ from complex_fields.models import ComplexField, ComplexFieldContainer, \
 from complex_fields.base_models import BaseModel
 
 from sfm_pc.utils import VersionsMixin
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 
 
 VERSION_RELATED_FIELDS = [
     'personname_set',
     'personalias_set',
-    'persongender_set',
     'persondivisionid_set',
-    'persondateofbirth_set',
-    'persondateofdeath_set',
-    'persondeceased_set',
-    'personbiography_set',
     'personnotes_set',
     'membershippersonmember_set',
     'violationperpetrator_set',
+    'personextraperson_set',
+    'personbiographyperson_set'
 ]
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-class Person(models.Model, BaseModel, VersionsMixin):
+class Person(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsheetFieldNameMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,
@@ -50,25 +43,14 @@ class Person(models.Model, BaseModel, VersionsMixin):
         self.name = ComplexFieldContainer(self, PersonName)
         self.aliases = ComplexFieldListContainer(self, PersonAlias)
         self.division_id = ComplexFieldContainer(self, PersonDivisionId)
-        self.gender = ComplexFieldContainer(self, PersonGender)
-        self.date_of_birth = ComplexFieldContainer(self, PersonDateOfBirth)
-        self.date_of_death = ComplexFieldContainer(self, PersonDateOfDeath)
-        self.deceased = ComplexFieldContainer(self, PersonDeceased)
-        self.biography = ComplexFieldContainer(self, PersonBiography)
         self.notes = ComplexFieldContainer(self, PersonNotes)
-        self.external_links = ComplexFieldListContainer(self, PersonExternalLink)
 
         self.complex_fields = [
             self.name,
             self.division_id,
-            self.gender,
-            self.date_of_birth,
-            self.date_of_death,
-            self.deceased,
-            self.biography,
             self.notes,
         ]
-        self.complex_lists = [self.aliases, self.external_links]
+        self.complex_lists = [self.aliases]
 
         self.required_fields = [
             "Person_PersonName",
@@ -187,6 +169,8 @@ class PersonName(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
+    shortcode = 'p_n'
+    spreadsheet_field_name = 'person:name'
 
 
 @translated
@@ -195,49 +179,9 @@ class PersonName(ComplexField):
 class PersonAlias(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Other names")
-
-
-@translated
-@versioned
-@sourced
-class PersonGender(ComplexField):
-    object_ref = models.ForeignKey('Person')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Gender")
-
-
-@versioned
-@sourced
-class PersonDateOfBirth(ComplexField):
-    object_ref = models.ForeignKey('Person')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Date of birth")
-
-
-@versioned
-@sourced
-class PersonDateOfDeath(ComplexField):
-    object_ref = models.ForeignKey('Person')
-    value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Date of death")
-
-
-@versioned
-@sourced
-class PersonDeceased(ComplexField):
-    object_ref = models.ForeignKey('Person')
-    value = models.BooleanField(default=False)
-    field_name = _("Deceased")
-
-
-@translated
-@versioned
-@sourced
-class PersonBiography(ComplexField):
-    object_ref = models.ForeignKey('Person')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Biography")
+    field_name = _("Other Names")
+    shortcode = 'p_on'
+    spreadsheet_field_name = 'person:other_names'
 
 
 @translated
@@ -247,6 +191,8 @@ class PersonNotes(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Notes")
+    shortcode = 'p_n_a'
+    spreadsheet_field_name = 'person:notes:admin'
 
 
 @sourced
@@ -255,12 +201,5 @@ class PersonDivisionId(ComplexField):
     object_ref = models.ForeignKey('Person')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _('Country')
-
-
-@translated
-@versioned
-@sourced
-class PersonExternalLink(ComplexField):
-    object_ref = models.ForeignKey('Person')
-    value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("External links")
+    shortcode = 'p_c'
+    spreadsheet_field_name = 'person:country'

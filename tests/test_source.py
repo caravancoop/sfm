@@ -90,7 +90,7 @@ def test_update_source(setUp, sources, update_index_mock):
         'publication_country': source.publication_country,
         'title': source.title,
         'source_url': source.source_url,
-        'published_on': source.published_on,
+        'published_date': source.published_date,
         'comment': 'Test change',
         'uuid': str(source.uuid),
     }
@@ -120,7 +120,7 @@ def test_update_accesspoint(setUp, access_points):
     post_data = {
         'archive_url': 'https://web.archive.org/',
         'accessed_on': '2018-04-01',
-        'page_number': accesspoint.page_number,
+        'trigger': accesspoint.trigger,
         'comment': 'This is a big change'
     }
 

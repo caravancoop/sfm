@@ -59,7 +59,7 @@ class SourceEditView(LoginRequiredMixin, RevisionMixin):
         'title',
         'publication',
         'publication_country',
-        'published_on',
+        'published_date',
         'source_url',
     ]
     model = Source
@@ -94,7 +94,7 @@ class SourceCreate(SourceEditView, CreateView):
         'title',
         'publication',
         'publication_country',
-        'published_on',
+        'published_date',
         'source_url',
         'uuid',
     ]
@@ -147,7 +147,7 @@ class AccessPointEdit(LoginRequiredMixin,
                       VersionsMixin,
                       RevisionMixin):
     fields = [
-        'page_number',
+        'trigger',
         'accessed_on',
         'archive_url'
     ]
@@ -257,7 +257,7 @@ def source_autocomplete(request):
                     'title': source.title,
                     'publication': source.publication,
                     'publication_country': source.publication_country,
-                    'page_number': access_point.page_number,
+                    'page_number': access_point.trigger,
                     'archive_url': access_point.archive_url,
                     'access_point': str(access_point),
                     'accessed_on': None,
@@ -287,7 +287,7 @@ def extract_source(source, uncommitted=False):
     for access_point in source.accesspoint_set.all():
         ap_info = {
             'id': str(access_point.uuid),
-            'page_number': access_point.page_number,
+            'page_number': access_point.trigger,
             'archive_url': access_point.archive_url,
             'accessed_on': access_point.accessed_on,
         }

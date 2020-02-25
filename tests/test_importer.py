@@ -8,8 +8,10 @@ from django.core.management import call_command
 
 from organization.models import Organization
 from person.models import Person
+from personextra.models import PersonExtra
+from personbiography.models import PersonBiography
 from violation.models import Violation
-from source.models import AccessPoint
+from source.models import Source, AccessPoint
 
 
 @pytest.fixture(scope='module')
@@ -57,16 +59,20 @@ def test_no_sources_missing(data_import):
 @pytest.mark.parametrize(
     'entity_name,Model',
     [
-        ('organization', Organization), ('person', Person),
-        ('event', Violation), ('source', AccessPoint)
+        ('units', Organization), ('persons', Person),
+        ('persons_extra', (PersonExtra, PersonBiography)),
+        ('incidents', Violation), ('sources', AccessPoint)
     ]
 )
 def test_number_of_imported_entities(entity_name, Model, data_import, data_folder):
     with open(os.path.join(data_folder, entity_name + '.csv')) as fobj:
         reader = csv.reader(fobj)
         raw_records = list(reader)
-    records = Model.objects.all()
-    assert len(records) == len(raw_records[1:])
+    if type(Model) == tuple:
+        num_records = sum(Mod.objects.count() for Mod in Model)
+    else:
+        num_records = Model.objects.count()
+    assert num_records == len(raw_records[1:])
 
 
 @pytest.mark.django_db
@@ -89,19 +95,38 @@ def test_sources(data_import, data_folder):
                 'CompositionChild', 'OrganizationName',
                 'MembershipOrganizationMember', 'MembershipOrganizationOrganization',
                 'MembershipPersonOrganization', 'MembershipPersonMember',
-                'OrganizationDivisionId', 'CompositionParent',
+                'CompositionParent',
             ])
-            permitted_person_set = set([
-                'PersonName', 'PersonDivisionId',
-            ])
+            permitted_person_set = set(['PersonName'])
             permitted_incident_set = set([
                 'ViolationStartDate', 'ViolationStatus', 'ViolationType',
                 'ViolationFirstAllegation', 'ViolationDescription',
                 'ViolationEndDate', 'ViolationLastUpdate',
             ])
-            assert (related_obj_types.issubset(permitted_org_set) or
-                    related_obj_types.issubset(permitted_person_set) or
-                    related_obj_types.issubset(permitted_incident_set))
+            permitted_country_set = set([
+                'OrganizationDivisionId', 'PersonDivisionId'
+            ])
+            assert any([
+                related_obj_types.issubset(permitted_org_set),
+                related_obj_types.issubset(permitted_person_set),
+                related_obj_types.issubset(permitted_incident_set),
+                related_obj_types.issubset(permitted_country_set)
+            ])
+
+
+@pytest.mark.django_db
+def test_source_dates_and_timestamps(data_import):
+    """Make sure Source date fields properly parse dates and timestamps."""
+    timestamp_src = Source.objects.get(title='Source Timestamps')
+    date_src = Source.objects.get(title='Source Dates')
+    date_and_timestamp_prefixes = ('created', 'published', 'uploaded')
+    for prefix in date_and_timestamp_prefixes:
+        date_field = '{}_date'.format(prefix)
+        timestamp_field = '{}_timestamp'.format(prefix)
+        assert getattr(date_src, date_field)
+        assert not getattr(date_src, timestamp_field)
+        assert not getattr(timestamp_src, date_field)
+        assert getattr(timestamp_src, timestamp_field)
 
 
 @pytest.mark.django_db

@@ -17,6 +17,7 @@ from source.models import Source
 from person.models import Person
 from organization.models import Organization
 from sfm_pc.utils import VersionsMixin
+from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
 from location.models import Location
 
 
@@ -44,7 +45,7 @@ VERSION_RELATED_FIELDS = [
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-class Violation(models.Model, BaseModel, VersionsMixin):
+class Violation(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsheetFieldNameMixin):
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,
                             db_index=True)
@@ -171,28 +172,36 @@ class Violation(models.Model, BaseModel, VersionsMixin):
 class ViolationStartDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Start date")
+    field_name = _("Start Date")
+    shortcode = 'i_sd'
+    spreadsheet_field_name = 'incident:start_date'
 
 
 @versioned
 class ViolationFirstAllegation(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("First allegation")
+    field_name = _("Date of Publication")
+    shortcode = 'i_pd'
+    spreadsheet_field_name = 'incident:pub_date'
 
 
 @versioned
 class ViolationEndDate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("End date")
+    field_name = _("End Date")
+    shortcode = 'i_ed'
+    spreadsheet_field_name = 'incident:end_date'
 
 
 @versioned
 class ViolationLastUpdate(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = ApproximateDateField(default=None, blank=True, null=True)
-    field_name = _("Last update")
+    field_name = _("Date of Last Update")
+    shortcode = 'i_ud'
+    spreadsheet_field_name = 'incident:update_date'
 
 
 @translated
@@ -200,7 +209,9 @@ class ViolationLastUpdate(ComplexField):
 class ViolationStatus(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Current status")
+    field_name = _("Status of Last Update")
+    shortcode = 'i_us'
+    spreadsheet_field_name = 'incident:update_status'
 
 
 @translated
@@ -208,21 +219,27 @@ class ViolationStatus(ComplexField):
 class ViolationLocationDescription(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Location description")
+    field_name = _("Location Description")
+    shortcode = 'i_ld'
+    spreadsheet_field_name = 'incident:location_description'
 
 
 @versioned
 class ViolationAdminLevel1(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Location, null=True)
-    field_name = _("Admin level 1")
+    field_name = _("Settlement")
+    shortcode = 'i_ssn'
+    spreadsheet_field_name = 'incident:site_settlement_name'
 
 
 @versioned
 class ViolationAdminLevel2(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Location, null=True)
-    field_name = _("Admin level 2")
+    field_name = _("First-Level Administrative Area")
+    shortcode = 'i_sfaan'
+    spreadsheet_field_name = 'incident:site_first_admin_area_name'
 
 
 @versioned
@@ -243,28 +260,34 @@ class ViolationOSMId(ComplexField):
 class ViolationDivisionId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Division ID")
+    field_name = _("Country")
+    shortcode = 'i_c'
+    spreadsheet_field_name = 'incident:site_country'
 
 
 @versioned
 class ViolationLocation(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Location, null=True)
-    field_name = _("Location")
+    field_name = _("Exact Location")
 
 
 @versioned
 class ViolationLocationName(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Exact location name")
+    field_name = _("Exact Location Name")
+    shortcode = 'i_selnlon'
+    spreadsheet_field_name = 'incident:site_exact_location_name_longitude'
 
 
 @versioned
 class ViolationLocationId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
-    field_name = _("Exact location ID")
+    field_name = _("Exact Location ID")
+    shortcode = 'i_selidlat'
+    spreadsheet_field_name = 'incident:site_exact_location_id_latitude'
 
 
 @versioned
@@ -273,6 +296,8 @@ class ViolationDescription(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Description")
+    shortcode = 'i_vd'
+    spreadsheet_field_name = 'incident:violation_description'
 
 
 @versioned
@@ -280,13 +305,17 @@ class ViolationPerpetrator(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Person, default=None, blank=True, null=True)
     field_name = _("Perpetrator")
+    shortcode = 'i_pn'
+    spreadsheet_field_name = 'incident:perpetrator_name'
 
 
 @versioned
 class ViolationPerpetratorOrganization(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Organization, default=None, blank=True, null=True)
-    field_name = _("Perpetrating unit")
+    field_name = _("Perpetrator Unit")
+    shortcode = 'i_pu'
+    spreadsheet_field_name = 'incident:perpetrator_unit'
 
 
 @versioned
@@ -294,7 +323,9 @@ class ViolationPerpetratorOrganization(ComplexField):
 class ViolationType(ComplexField):
     object_ref = models.ForeignKey('Violation', null=True)
     value = models.TextField(blank=True, null=True)
-    field_name = _("Violation type")
+    field_name = _("Violation Types")
+    shortcode = 'i_vt'
+    spreadsheet_field_name = 'incident:violation_type'
 
 
 @versioned
@@ -302,4 +333,6 @@ class ViolationType(ComplexField):
 class ViolationPerpetratorClassification(ComplexField):
     object_ref = models.ForeignKey('Violation', null=True)
     value = models.TextField(blank=True, null=True)
-    field_name = _("Perpetrating unit classification")
+    field_name = _("Perpetrator Classification")
+    shortcode = 'i_pcl'
+    spreadsheet_field_name = 'incident:perpetrator_classification'

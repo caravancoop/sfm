@@ -18,7 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DATABASE_URL='postgis://postgres:@127.0.0.1:5432/sfm'
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgis://postgres@localhost:5432/sfm')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY='super duper secret'
@@ -49,6 +49,8 @@ INSTALLED_APPS = (
     'sfm_pc',
     'organization',
     'person',
+    'personbiography',
+    'personextra',
     'membershiporganization',
     'membershipperson',
     'composition',
@@ -180,7 +182,8 @@ SITE_ID = 1
 
 ALLOWED_CLASS_FOR_NAME = [
     'Person', 'Organization', 'MembershipPerson', 'Composition', 'Association', 'Area',
-    'Emplacement', 'Geosite', 'Violation'
+    'Emplacement', 'Geosite', 'Violation', 'MembershipOrganization',
+    'PersonExtra', 'PersonBiography'
 ]
 
 OSM_DATA = [
