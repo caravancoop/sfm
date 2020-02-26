@@ -1,15 +1,15 @@
 from complex_fields.models import ComplexFieldContainer
 
 
-class GetComplexSpreadsheetFieldNameMixin:
+class GetComplexFieldNameMixin:
     """
-    Mixin to allow models with ComplexFields to retrieve the
-    spreadsheet field names for a given ComplexField.
+    Mixin to allow models with ComplexFields to retrieve the different types of
+    field names for a given ComplexField.
     """
     @classmethod
     def get_field_model(cls, field_name):
         """
-        Return the model corresponding to a field on this model.
+        Return the ComplexField model corresponding to a field on this model.
         """
         # Get the 0th ID instance, to indicate that we don't want a specific instance
         # (for more information on these methods, see the source code in the
@@ -18,6 +18,24 @@ class GetComplexSpreadsheetFieldNameMixin:
             cls.__name__.lower(), '0', field_name
         )
         return container.field_model()
+
+    @classmethod
+    def get_verbose_field_name(cls, field_name):
+        """
+        Get the canonical verbose name for a given field_name. For instance,
+        the verbose name for Person.aliases would be 'Other names'.
+        """
+        field_model = cls.get_field_model(field_name)
+        return field_model.field_name
+
+    @classmethod
+    def get_shortcode(cls, field_name):
+        """
+        Get the shortcode for a given field_name. For instance, the shortcode
+        for Person.aliases would be 'p_on'.
+        """
+        field_model = cls.get_field_model(field_name)
+        return field_model.shortcode
 
     @classmethod
     def get_spreadsheet_field_name(cls, field_name):

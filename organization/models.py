@@ -16,7 +16,7 @@ from complex_fields.base_models import BaseModel
 from django_date_extensions.fields import ApproximateDateField
 
 from sfm_pc.utils import VersionsMixin
-from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
+from sfm_pc.models import GetComplexFieldNameMixin
 
 VERSION_RELATED_FIELDS = [
     'associationorganization_set',
@@ -38,7 +38,7 @@ VERSION_RELATED_FIELDS = [
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-class Organization(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsheetFieldNameMixin):
+class Organization(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,

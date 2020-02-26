@@ -8,10 +8,10 @@ from organization.models import Organization
 from complex_fields.model_decorators import versioned, sourced, sourced_optional
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
-from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
+from sfm_pc.models import GetComplexFieldNameMixin
 
 
-class Composition(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
+class Composition(models.Model, BaseModel, GetComplexFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parent = ComplexFieldContainer(self, CompositionParent)

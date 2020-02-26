@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name_plural': 'person biographies',
             },
-            bases=(models.Model, complex_fields.base_models.BaseModel, sfm_pc.utils.VersionsMixin, sfm_pc.models.GetComplexSpreadsheetFieldNameMixin),
+            bases=(models.Model, complex_fields.base_models.BaseModel, sfm_pc.utils.VersionsMixin, sfm_pc.models.GetComplexFieldNameMixin),
         ),
         migrations.CreateModel(
             name='PersonBiographyDateOfBirth',
