@@ -4,6 +4,7 @@
 {% load countries %}
 {% load citations %}
 {% load help %}
+{% load model_meta %}
 
 {% if location %}
     {% block extra_head %}
@@ -85,7 +86,7 @@
     {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
     {% if perpetrators %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
-    {% if perpetrator_organizations %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
+    {% if perpetrator_organizations %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator units" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
 
 {% endblock %}
@@ -97,7 +98,7 @@
     {% if location %}<li><a href="#location"><i class="fa fa-fw fa-map-marker"></i> {% trans "Location" %} </a></li>{% endif %}
     {% if violation.description %}<li><a href="#description"><i class="fa fa-fw fa-file-text-o"></i> {% trans "Description" %} </a></li>{% endif %}
     {% if perpetrators %}<li><a href="#perpetrators"><i class="fa fa-fw fa-user"></i> {% trans "Perpetrators" %}</a></li>{% endif %}
-    {% if perpetrator_organizations %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator organizations" %}</a></li>{% endif %}
+    {% if perpetrator_organizations %}<li><a href="#perpetrator-organizations"><i class="fa fa-fw fa-users"></i> {% trans "Perpetrator units" %}</a></li>{% endif %}
     {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
 
 {% endblock %}
@@ -153,8 +154,8 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Aliases" %}</th>
+                        <th>{{ models.Person|verbose_field_name:"name" }}</th>
+                        <th>{{ models.Person|verbose_field_name:"aliases" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -188,7 +189,7 @@
         <div class="col-sm-12">
             <h3 id="perpetrator-organizations">
                 <i class="fa fa-fw fa-users"></i>
-                {% trans "Perpetrator organizations" %}
+                {% trans "Perpetrator units" %}
                 <small class="pull-right">
                     {% help href='whowasincommand/eventrec.html#incident_record_anatomy_perpetrator_organizations' %}
                 </small>
@@ -196,9 +197,9 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Aliases" %}</th>
-                        <th>{% trans "Classification" %}</th>
+                        <th>{{ models.Organization|verbose_field_name:"name" }}</th>
+                        <th>{{ models.Organization|verbose_field_name:"aliases" }}</th>
+                        <th>{{ models.Organization|verbose_field_name:"classification" }}</th>
                     </tr>
                 </thead>
                 <tbody>

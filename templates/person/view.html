@@ -4,6 +4,7 @@
 {% load countries %}
 {% load citations %}
 {% load help %}
+{% load model_meta %}
 
 {% block header %}
     <h2 class="page-title cited">
@@ -90,12 +91,12 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Organization" %}</th>
-                        <th>{% trans "Rank" %}</th>
-                        <th>{% trans "Role" %}</th>
-                        <th>{% trans "Title" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"organization" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"rank" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"role" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"title" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"firstciteddate" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"lastciteddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -168,10 +169,10 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Rank" %}</th>
-                        <th>{% trans "Role" %}</th>
-                        <th>{% trans "Unit" %}</th>
+                        <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"rank" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"role" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"organization" }}</th>
                         <th>{% trans "Start of overlap" %}</th>
                         <th>{% trans "End of overlap" %}</th>
                         <th>{% trans "Duration of overlap" %}</th>
@@ -230,10 +231,10 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Rank" %}</th>
-                        <th>{% trans "Role" %}</th>
-                        <th>{% trans "Unit" %}</th>
+                        <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"rank" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"role" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"organization" }}</th>
                         <th>{% trans "Start of overlap" %}</th>
                         <th>{% trans "End of overlap" %}</th>
                         <th>{% trans "Duration of overlap" %}</th>
@@ -282,7 +283,7 @@
     {% if events %}
     <div class="row">
         <div class="col-sm-12">
-            <h3>{% trans "Events" %}</h3>
+            <h3>{% trans "Incidents" %}</h3>
             <hr />
             {% for event in events %}
                 <div class="row">

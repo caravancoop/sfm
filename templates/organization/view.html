@@ -4,6 +4,7 @@
 {% load countries %}
 {% load citations %}
 {% load help %}
+{% load model_meta %}
 
 {% if sites %}
     {% block extra_head %}
@@ -102,9 +103,9 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Area" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ models.Association|verbose_field_name:"area" }}</th>
+                        <th>{{ models.Association|verbose_field_name:"startdate" }}</th>
+                        <th>{{ models.Association|verbose_field_name:"enddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -156,9 +157,9 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Site" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ models.Emplacement|verbose_field_name:"site" }}</th>
+                        <th>{{ models.Emplacement|verbose_field_name:"startdate" }}</th>
+                        <th>{{ models.Emplacement|verbose_field_name:"enddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -209,11 +210,11 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Aliases" %}</th>
-                        <th>{% trans "Classifications" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"aliases" }}</th>
+                        <th>{{ view.model|verbose_field_name:"classification" }}</th>
+                        <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
+                        <th>{{ view.model|verbose_field_name:"lastciteddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -272,11 +273,11 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Aliases" %}</th>
-                        <th>{% trans "Classifications" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"aliases" }}</th>
+                        <th>{{ view.model|verbose_field_name:"classification" }}</th>
+                        <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
+                        <th>{{ view.model|verbose_field_name:"lastciteddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -355,11 +356,11 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Aliases" %}</th>
-                        <th>{% trans "Classifications" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"aliases" }}</th>
+                        <th>{{ view.model|verbose_field_name:"classification" }}</th>
+                        <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
+                        <th>{{ view.model|verbose_field_name:"lastciteddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -420,12 +421,12 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Rank" %}</th>
-                        <th>{% trans "Role" %}</th>
-                        <th>{% trans "Title" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ models.Person|verbose_field_name:"name" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"rank" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"role" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"title" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"firstciteddate" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"lastciteddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
