@@ -1,6 +1,7 @@
 {% load tablesort %}
 {% load citations %}
 {% load i18n %}
+{% load model_meta %}
 
 <div class="responsive-table">
     <table class="table table-striped table-condensed search-results-table">
@@ -13,7 +14,7 @@
                     <th>{% trans "Select canonical record" %}</th>
                 {% endif %}
                 <th>
-                    {% trans "Name" %}
+                    {{ models.Person|verbose_field_name:"name" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Person_sort' sort_asc='person_name_s_asc' sort_desc='person_name_s_desc' selected_sort=sorts.Person %}
                             {% include 'partials/sortable-list.html' %}
@@ -21,7 +22,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Aliases" %}
+                    {{ models.Person|verbose_field_name:"aliases" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Person_sort' sort_asc='person_alias_count_i_asc' sort_desc='person_alias_count_i_desc' selected_sort=sorts.Person %}
                             {% include 'partials/sortable-list.html' %}
@@ -29,7 +30,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Most recent rank" %}
+                    {% trans "Most Recent Rank" %}
                     {% if sortable == 'True' %}
                         {% with sort_param='Person_sort' sort_asc='person_most_recent_rank_s_asc' sort_desc='person_most_recent_rank_s_desc' selected_sort=sorts.Person %}
                             {% include 'partials/sortable-list.html' %}
@@ -37,7 +38,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Most recent unit" %}
+                    {% trans "Most Recent Unit" %}
                     {% if sortable == 'True' %}
                         {% with sort_param='Person_sort' sort_asc='person_most_recent_unit_s_asc' sort_desc='person_most_recent_unit_s_desc' selected_sort=sorts.Person %}
                             {% include 'partials/sortable-list.html' %}
@@ -45,7 +46,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "First cited" %}
+                    {{ models.MembershipPerson|verbose_field_name:"firstciteddate" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Person_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Person %}
                             {% include 'partials/sortable-list.html' %}
@@ -53,7 +54,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Last cited" %}
+                    {{ models.MembershipPerson|verbose_field_name:"lastciteddate" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Person_sort' sort_asc='end_date_dt_asc' sort_desc='end_date_dt_desc' selected_sort=sorts.Person %}
                             {% include 'partials/sortable-list.html' %}

@@ -2,6 +2,7 @@
 {% load citations %}
 {% load countries %}
 {% load i18n %}
+{% load model_meta %}
 
 <div class="responsive-table">
     <table class="table table-striped table-condensed search-results-table">
@@ -11,7 +12,7 @@
                     <th></th>
                 {% endif %}
                 <th>
-                    {% trans "Name" %}
+                    {{ models.Organization|verbose_field_name:"name" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Organization_sort' sort_asc='organization_name_s_asc' sort_desc='organization_name_s_desc' selected_sort=sorts.Organization %}
                             {% include 'partials/sortable-list.html' %}
@@ -27,7 +28,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Classification" %}
+                    {{ models.Organization|verbose_field_name:"classification" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Organization_sort' sort_asc='organization_classification_count_i_asc' sort_desc='organization_classification_count_i_desc' selected_sort=sorts.Organization %}
                             {% include 'partials/sortable-list.html' %}
@@ -43,7 +44,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Country" %}
+                    {{ models.Organization|verbose_field_name:"division_id" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Organization_sort' sort_asc='organization_country_count_i_asc' sort_desc='organization_country_count_i_desc' selected_sort=sorts.Organization %}
                             {% include 'partials/sortable-list.html' %}
@@ -51,7 +52,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "First cited" %}
+                    {{ models.Organization|verbose_field_name:"firstciteddate" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Organization_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Organization %}
                             {% include 'partials/sortable-list.html' %}
@@ -59,7 +60,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Last cited" %}
+                    {{ models.Organization|verbose_field_name:"lastciteddate" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Organization_sort' sort_asc='end_date_dt_asc' sort_desc='end_date_dt_desc' selected_sort=sorts.Organization %}
                             {% include 'partials/sortable-list.html' %}
