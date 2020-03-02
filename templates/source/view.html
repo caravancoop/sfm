@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load model_meta %}
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
@@ -27,8 +28,8 @@
             <div class="row">
                 <div class="col-sm-12">
                     <p>
-                        <strong>{% trans "Publisher:" %} </strong>{{ source.publication }} ({{ source.publication_country }})<br />
-                        <strong>{% trans "Publication date:" %} </strong>{{ source.published_on }}<br />
+                        <strong>{{ view.model|verbose_field_name:"publication" }}: </strong>{{ source.publication }} ({{ source.publication_country }})<br />
+                        <strong>{{ view.model|verbose_field_name:"published_date" }}: </strong>{{ source.get_published_date }}<br />
                         <strong>{% trans "Last edited by:" %} </strong>{{ source.user }}
                     </p>
                 </div>

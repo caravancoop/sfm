@@ -409,7 +409,8 @@ def search(request):
         'MembershipPerson': MembershipPerson,
         'Organization': Organization,
         'Emplacement': Emplacement,
-        'Violation': Violation
+        'Violation': Violation,
+        'Source': Source
     }
 
     return render(request, 'search/search.html', context)
