@@ -70,7 +70,7 @@ services:
     container_name: sfm-solr
     volumes:
       - ./solr_configs:/sfm_configs
-      - sfm-cms-solr-data:/opt/solr/server/solr/mycores
+      - sfm-cms-solr-data:/opt/solr/server/solr
     command: sh -c 'solr-create -c sfm -d /sfm_configs'
     ports:
       - '8983:8983'
