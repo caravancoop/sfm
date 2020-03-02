@@ -10,7 +10,7 @@
     <h2 class="page-title cited">
         <i class="fa fa-fw fa-user"></i>
         {{ person.name.get_value }}
-        <small>{% help href='whowasincommand/personsrec.html#person_record_anatomy_titlearea' %}</small>
+        <small>{% help href='personsrec.html#person-record-title-area' %}</small>
         {% cite person.name.get_value %}
         <small class="pull-right">
             <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
@@ -41,7 +41,7 @@
 {% endblock %}
 
 {% block contents_help %}
-    <small>{% help href='whowasincommand/personsrec.html#person_record_anatomy_contentsidebar' %}</small>
+    <small>{% help href='personsrec.html#person-record-content-sidebar' %}</small>
 {% endblock %}
 
 {% block sidebar %}
@@ -70,7 +70,7 @@
             <h3 id="last-seen-as">
                 <i class="fa fa-fw fa-clock-o"></i>
                 {% trans "Last seen as" %}
-                <small>{% help href='whowasincommand/personsrec.html#person_record_anatomy_last_seen_as' %}</small>
+                <small>{% help href='personsrec.html#person-record-person-last-seen-as' %}</small>
             </h3>
             {% with membership=memberships|first %}
                 <p class="cited">{{ membership.short_description|safe }}{% cite membership.member.get_value %}</p>
@@ -85,7 +85,7 @@
             <h3 id="memberships">
                 <i class="fa fa-fw fa-users"></i>
                 {% trans "Postings" %}
-                <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_memberships' %}</small>
+                <small class="pull-right">{% help href='personsrec.html#person-record-person-memberships' %}</small>
             </h3>
             <hr />
             <table class="table table-condensed">
@@ -147,7 +147,7 @@
                 {% trans "Chain of command" %}
             </h3>
             <small>{% trans "Command relationships from a person's posting to the highest-level unit (calculated at the end of the posting)" %}</small>
-            <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_chain_of_command' %}</small>
+            <small class="pull-right">{% help href='personsrec.html#person-record-chain-of-command' %}</small>
             <hr />
             <small><em>{% trans "Swipe to zoom, click and drag to pan" %}</em></small>
             <div id="org-chart-container" class="command-charts-carousel"></div>
@@ -164,7 +164,7 @@
                 {% trans "Superiors" %}
             </h3>
             <small>{% trans "Commanders of units that were superior to any units commanded by this person" %}</small>
-            <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_superiors' %}</small>
+            <small class="pull-right">{% help href='personsrec.html#person-record-superiors' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
@@ -226,7 +226,7 @@
                 {% trans "Subordinates" %}
             </h3>
             <small>{% trans "Commanders of units that were subordinate to any units commanded by this person" %}</small>
-            <small class="pull-right">{% help href='whowasincommand/personsrec.html#person_record_anatomy_subordinates' %}</small>
+            <small class="pull-right">{% help href='personsrec.html#person-record-subordinates' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
