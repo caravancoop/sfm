@@ -4,6 +4,7 @@
 {% load countries %}
 {% load citations %}
 {% load help %}
+{% load model_meta %}
 
 {% if sites %}
     {% block extra_head %}
@@ -15,7 +16,7 @@
     <h2 class="page-title cited">
         <i class="fa fa-fw fa-users"></i>
         {{ organization.name.get_value }}
-        <small>{% help href='whowasincommand/unitrec.html#anatomy_unit_record_title' %}</small>
+        <small>{% help href='unitrec.html#unit-record-title-area' %}</small>
         {% cite organization.name.get_value %}
         <small class="pull-right">
             <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
@@ -54,7 +55,7 @@
 {% endblock %}
 
 {% block contents_help %}
-    <small>{% help href='whowasincommand/unitrec.html#anatomy_unit_record_sidebar' %}</small>
+    <small>{% help href='unitrec.html#unit-record-content-sidebar' %}</small>
 {% endblock %}
 
 {% block sidebar %}
@@ -94,7 +95,7 @@
         <div class="col-sm-12">
             <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i>
                 {% trans "Areas of operation" %}
-                <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_area_of_operation' %}</small>
+                <small class="pull-right">{% help href='unitrec.html#unit-record-areas-of-operation' %}</small>
             </h3>
             <hr />
             <div id="osm_area_map" style="height:300px;"></div>
@@ -102,9 +103,9 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Area" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ models.Association|verbose_field_name:"area" }}</th>
+                        <th>{{ models.Association|verbose_field_name:"startdate" }}</th>
+                        <th>{{ models.Association|verbose_field_name:"enddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -148,7 +149,7 @@
             <h3 id="sites">
                 <i class="fa fa-fw fa-map-marker"></i>
                 {% trans "Sites" %}
-                <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_sites' %}</small>
+                <small class="pull-right">{% help href='unitrec.html#unit-record-sites' %}</small>
             </h3>
             <hr />
             <div id="osm_site_map" style="height:300px;"></div>
@@ -156,9 +157,9 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Site" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ models.Emplacement|verbose_field_name:"site" }}</th>
+                        <th>{{ models.Emplacement|verbose_field_name:"startdate" }}</th>
+                        <th>{{ models.Emplacement|verbose_field_name:"enddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -204,16 +205,16 @@
                 {% trans "Memberships" %}
             </h3>
             <small>{% trans "Multi-unit organizations that this unit is part of" %}</small>
-            <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_memberships' %}</small>
+            <small class="pull-right">{% help href='unitrec.html#unit-record-memberships' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Aliases" %}</th>
-                        <th>{% trans "Classifications" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"aliases" }}</th>
+                        <th>{{ view.model|verbose_field_name:"classification" }}</th>
+                        <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
+                        <th>{{ view.model|verbose_field_name:"lastciteddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -267,16 +268,16 @@
                 {% trans "Member units" %}
             </h3>
             <small>{% trans "All units that comprise this unit." %}</small>
-            <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_member_units' %}</small>
+            <small class="pull-right">{% help href='unitrec.html#unit-record-member-units' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Aliases" %}</th>
-                        <th>{% trans "Classifications" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"aliases" }}</th>
+                        <th>{{ view.model|verbose_field_name:"classification" }}</th>
+                        <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
+                        <th>{{ view.model|verbose_field_name:"lastciteddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -332,7 +333,7 @@
                         {% trans "Parent units" %}
                     </h3>
                     <small>{% trans "All units that have held a command position over this unit." %}</small>
-                    <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_parents' %}</small>
+                    <small class="pull-right">{% help href='unitrec.html#unit-record-parent-units' %}</small>
                     <hr />
                     <small><em>{% trans "Swipe to zoom, click and drag to pan" %}</em></small>
                     <div id="org-chart-container" class="command-charts-carousel"></div>
@@ -349,17 +350,17 @@
             <h3 id="subsidiaries">
                 <i class="fa fa-fw fa-sitemap"></i>
                 {% trans "Subsidiaries" %}
-                <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_subsidiaries' %}</small>
+                <small class="pull-right">{% help href='unitrec.html#unit-record-unit-subsidiaries' %}</small>
             </h3>
             <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Aliases" %}</th>
-                        <th>{% trans "Classifications" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"aliases" }}</th>
+                        <th>{{ view.model|verbose_field_name:"classification" }}</th>
+                        <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
+                        <th>{{ view.model|verbose_field_name:"lastciteddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -415,17 +416,17 @@
                 {% trans "Personnel" %}
             </h3>
             <small>{% trans "Table showing personnel linked to this unit in command, administrative and other roles" %}</small>
-            <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_personnel' %}</small>
+            <small class="pull-right">{% help href='unitrec.html#unit-record-unit-personnel' %}</small>
             <hr />
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Rank" %}</th>
-                        <th>{% trans "Role" %}</th>
-                        <th>{% trans "Title" %}</th>
-                        <th>{% trans "First cited" %}</th>
-                        <th>{% trans "Last cited" %}</th>
+                        <th>{{ models.Person|verbose_field_name:"name" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"rank" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"role" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"title" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"firstciteddate" }}</th>
+                        <th>{{ models.MembershipPerson|verbose_field_name:"lastciteddate" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -471,7 +472,7 @@
             <h3 id="incidents">
                 <i class="fa fa-fw fa-exclamation-triangle"></i>
                 {% trans "Incidents" %}
-                <small class="pull-right">{% help href='whowasincommand/unitrec.html#anatomy_unit_record_incidents' %}</small>
+                <small class="pull-right">{% help href='unitrec.html#unit-record-unit-incidents' %}</small>
             </h3>
             <hr />
             {% for event in events %}

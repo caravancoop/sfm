@@ -13,10 +13,10 @@ from complex_fields.models import (ComplexField, ComplexFieldContainer,
 from complex_fields.base_models import BaseModel
 from organization.models import Organization
 from location.models import Location
-from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
+from sfm_pc.models import GetComplexFieldNameMixin
 
 
-class Emplacement(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
+class Emplacement(models.Model, BaseModel, GetComplexFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, EmplacementStartDate)

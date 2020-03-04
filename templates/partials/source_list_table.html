@@ -2,13 +2,14 @@
 {% load countries %}
 {% load facets %}
 {% load i18n %}
+{% load model_meta %}
 
 <div class="responsive-table">
     <table class="table table-striped table-condensed search-results-table">
         <thead>
             <tr>
                 <th>
-                    {% trans "Title" %}
+                    {{ models.Source|verbose_field_name:"title" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Source_sort' sort_asc='source_title_t_asc' sort_desc='source_title_t_desc' selected_sort=sorts.Source %}
                             {% include 'partials/sortable-list.html' %}
@@ -16,7 +17,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Publication Date" %}
+                    {{ models.Source|verbose_field_name:"published_date" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Source_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Source %}
                             {% include 'partials/sortable-list.html' %}
@@ -24,7 +25,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Publication" %}
+                    {{ models.Source|verbose_field_name:"publication" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Source_sort' sort_asc='publication_s_asc' sort_desc='publication_s_desc' selected_sort=sorts.Source %}
                             {% include 'partials/sortable-list.html' %}
@@ -32,7 +33,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Publication Country" %}
+                    {{ models.Source|verbose_field_name:"publication_country" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Source_sort' sort_asc='country_s_asc' sort_desc='country_s_desc' selected_sort=sorts.Source %}
                             {% include 'partials/sortable-list.html' %}

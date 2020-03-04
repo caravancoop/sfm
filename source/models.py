@@ -35,6 +35,10 @@ class GetSpreadsheetFieldNameMixin:
     def get_spreadsheet_field_name(cls, field_name):
         return cls._meta.get_field(field_name).spreadsheet_field_name
 
+    @classmethod
+    def get_verbose_field_name(cls, field_name):
+        return cls._meta.get_field(field_name).verbose_name.title()
+
 
 @reversion.register(follow=['accesspoint_set'])
 class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):

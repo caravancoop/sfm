@@ -2,13 +2,14 @@
 {% load countries %}
 {% load facets %}
 {% load i18n %}
+{% load model_meta %}
 
 <div class="responsive-table">
     <table class="table table-striped table-condensed search-results-table">
         <thead>
             <tr>
                 <th>
-                    {% trans "Start Date" %}
+                    {{ models.Violation|verbose_field_name:"startdate" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Violation_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Violation %}
                             {% include 'partials/sortable-list.html' %}
@@ -16,7 +17,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "End Date" %}
+                    {{ models.Violation|verbose_field_name:"enddate" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Violation_sort' sort_asc='end_date_dt_asc' sort_desc='end_date_dt_desc' selected_sort=sorts.Violation %}
                             {% include 'partials/sortable-list.html' %}
@@ -24,7 +25,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Description" %}
+                    {{ models.Violation|verbose_field_name:"description" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Violation_sort' sort_asc='violation_description_t_asc' sort_desc='violation_description_t_desc' selected_sort=sorts.Violation %}
                             {% include 'partials/sortable-list.html' %}
@@ -32,7 +33,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Violation types" %}
+                    {{ models.Violation|verbose_field_name:"types" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Violation_sort' sort_asc='violation_type_count_i_asc' sort_desc='violation_type_count_i_desc' selected_sort=sorts.Violation %}
                             {% include 'partials/sortable-list.html' %}
@@ -40,7 +41,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Location" %}
+                    {{ models.Violation|verbose_field_name:"location" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Violation_sort' sort_asc='violation_location_name_s_asc' sort_desc='violation_location_name_s_desc' selected_sort=sorts.Violation %}
                             {% include 'partials/sortable-list.html' %}
@@ -48,7 +49,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Perpetrators" %}
+                    {{ models.Violation|verbose_field_name:"perpetratororganization" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Violation_sort' sort_asc='perpetrator_organization_count_i_asc' sort_desc='perpetrator_organization_count_i_desc' selected_sort=sorts.Violation %}
                             {% include 'partials/sortable-list.html' %}
@@ -56,7 +57,7 @@
                     {% endif %}
                 </th>
                 <th>
-                    {% trans "Perpetrator classification" %}
+                    {{ models.Violation|verbose_field_name:"perpetratorclassification" }}
                     {% if sortable == 'True' %}
                         {% with sort_param='Violation_sort' sort_asc='perpetrator_classification_count_i_asc' sort_desc='perpetrator_classification_count_i_desc' selected_sort=sorts.Violation %}
                             {% include 'partials/sortable-list.html' %}

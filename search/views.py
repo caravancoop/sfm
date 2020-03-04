@@ -10,7 +10,9 @@ import pysolr
 
 from source.models import Source
 from organization.models import Organization
+from emplacement.models import Emplacement
 from person.models import Person
+from membershipperson.models import MembershipPerson
 from violation.models import Violation
 from sfm_pc.utils import get_osm_by_id, format_facets
 
@@ -402,6 +404,14 @@ def get_search_context(request, all_results=False):
 def search(request):
 
     context = get_search_context(request)
+    context['models'] = {
+        'Person': Person,
+        'MembershipPerson': MembershipPerson,
+        'Organization': Organization,
+        'Emplacement': Emplacement,
+        'Violation': Violation,
+        'Source': Source
+    }
 
     return render(request, 'search/search.html', context)
 

@@ -8,10 +8,10 @@ from complex_fields.model_decorators import (versioned, translated, sourced,
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 
-from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
+from sfm_pc.models import GetComplexFieldNameMixin
 
 
-class Area(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
+class Area(models.Model, BaseModel, GetComplexFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = ComplexFieldContainer(self, AreaName)

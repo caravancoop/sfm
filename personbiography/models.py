@@ -9,11 +9,11 @@ from complex_fields.base_models import BaseModel
 from complex_fields.models import ComplexField, ComplexFieldContainer
 
 from sfm_pc.utils import VersionsMixin
-from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
+from sfm_pc.models import GetComplexFieldNameMixin
 
 
 @reversion.register()
-class PersonBiography(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsheetFieldNameMixin):
+class PersonBiography(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMixin):
     """
     Extra biographical metadata for Persons.
     """

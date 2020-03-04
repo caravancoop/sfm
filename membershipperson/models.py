@@ -11,10 +11,10 @@ from complex_fields.base_models import BaseModel
 
 from person.models import Person
 from organization.models import Organization
-from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
+from sfm_pc.models import GetComplexFieldNameMixin
 
 
-class MembershipPerson(models.Model, BaseModel, GetComplexSpreadsheetFieldNameMixin):
+class MembershipPerson(models.Model, BaseModel, GetComplexFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.member = ComplexFieldContainer(self, MembershipPersonMember)

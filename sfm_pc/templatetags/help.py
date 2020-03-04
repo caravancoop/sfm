@@ -13,11 +13,11 @@ def help(href=''):
     To make linking easier, we pull in the base URL from the settings file, so
     all you have to do to make a link is add an inclusion tag like so:
 
-    `{% help 'whowasincommand/personsrec.html' %}`
+    `{% help 'personsrec.html' %}`
 
     Which will link out to:
 
-    `https://help.securityforcemonitor.org/{lang}/whowasincommand/personsrec.html`
+    `https://help.securityforcemonitor.org/{lang}/latest/personsrec.html`
     '''
     context = {}
 

@@ -21,6 +21,14 @@ from countries_plus.models import Country
 from extra_views import FormSetView
 
 from source.models import AccessPoint
+from association.models import Association
+from emplacement.models import Emplacement
+from person.models import Person
+from organization.models import Organization
+from membershipperson.models import MembershipPerson
+from membershiporganization.models import MembershipOrganization
+from violation.models import Violation
+
 
 class CacheMixin(object):
     cache_timeout = 60 * 60 * 24
@@ -48,6 +56,21 @@ class CreateUpdateMixin(object):
 
 
 class BaseDetailView(DetailView):
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data()
+        # Pass in a dictionary of models so that child views can reference
+        # model metadata.
+        context['models'] = {
+            'Association': Association,
+            'Emplacement': Emplacement,
+            'MembershipOrganization': MembershipOrganization,
+            'Person': Person,
+            'MembershipPerson': MembershipPerson,
+            'Violation': Violation,
+            'Organization': Organization
+        }
+        return context
+
     def get_queryset(self):
 
         queryset = super().get_queryset()

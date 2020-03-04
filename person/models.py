@@ -15,7 +15,7 @@ from complex_fields.models import ComplexField, ComplexFieldContainer, \
 from complex_fields.base_models import BaseModel
 
 from sfm_pc.utils import VersionsMixin
-from sfm_pc.models import GetComplexSpreadsheetFieldNameMixin
+from sfm_pc.models import GetComplexFieldNameMixin
 
 
 VERSION_RELATED_FIELDS = [
@@ -31,7 +31,7 @@ VERSION_RELATED_FIELDS = [
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-class Person(models.Model, BaseModel, VersionsMixin, GetComplexSpreadsheetFieldNameMixin):
+class Person(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,
