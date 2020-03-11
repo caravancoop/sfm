@@ -260,6 +260,7 @@ class Command(BaseCommand):
                                     DB_HOST,
                                     '-P',
                                     str(DB_PORT),
+                                    '-W',
                                     '--cache-strategy',
                                     'sparse',
                                     '--slim',
