@@ -41,3 +41,4 @@ credentials.json
 /configs/settings_local_importer.py
 /configs/settings_local_dev.py
 /configs/settings_local_sahel.py
+/configs/sfm.conf.sahel.nginx
