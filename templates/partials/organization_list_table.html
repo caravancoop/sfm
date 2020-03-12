@@ -119,10 +119,10 @@
                         <td>
                             {% with emplacement=object.emplacementorganization_set.last %}
                                 {% with site=emplacement.object_ref.emplacementsite_set.last %}
-                                    {% if site.value.location_id.get_value %}
-                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.location_id.get_value }}">{{ site }}</a>
+                                    {% if site.value.id %}
+                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.id }}">{{ site }}</a>
                                     {% else %}
-                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.admin_id.get_value }}">{{ site }}</a>
+                                        <a target="_blank" href="https://www.openstreetmap.org/node/{{ site.value.adminlevel2 }}">{{ site }}</a>
                                     {% endif %}
                                 {% endwith %}
                             {% endwith %}
