@@ -2,7 +2,6 @@ branches:
   only:
   - master
   - "/^v[0-9].*$/"
-  - jfc/sahel-import
 
 language: python
 python: '3.6'
@@ -54,7 +53,7 @@ deploy:
     deployment_group: sahel
     on:
       branch:
-        - jfc/sahel-import
+        - master
 
 notifications:
   slack:
