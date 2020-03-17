@@ -196,7 +196,7 @@ def test_delete_source(setUp, sources, searcher_mock, mocker):
     with pytest.raises(Source.DoesNotExist):
         Source.objects.get(uuid=source.uuid)
 
-    searcher_mock.assert_called_once()
+    assert searcher_mock.call_count == 1
     searcher_mock.assert_has_calls([mocker.call(mocker.ANY, source.uuid)])
 
 

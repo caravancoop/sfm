@@ -238,6 +238,12 @@ OSM_BASE_URL = 'https://wambachers-osm.website/boundaries/exportBoundaries'
 
 OSM_DATA = [
     {
+        'country': 'Burkina Faso',
+        'pbf_url': 'http://download.geofabrik.de/africa/burkina-faso-latest.osm.pbf',
+        'relation_id': '192783',
+        'country_code': 'bf',
+    },
+    {
         'country': 'Nigeria',
         'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
         'relation_id': '192787',

@@ -109,7 +109,7 @@ def test_delete_organization(setUp, organizations, searcher_mock, mocker):
     with pytest.raises(Organization.DoesNotExist):
         Organization.objects.get(uuid=org.uuid)
 
-    searcher_mock.assert_called_once()
+    assert searcher_mock.call_count == 1
     searcher_mock.assert_has_calls([mocker.call(mocker.ANY, org.uuid)])
 
 

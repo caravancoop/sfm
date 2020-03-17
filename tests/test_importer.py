@@ -66,13 +66,19 @@ def test_no_sources_missing(data_import):
 )
 def test_number_of_imported_entities(entity_name, Model, data_import, data_folder):
     with open(os.path.join(data_folder, entity_name + '.csv')) as fobj:
-        reader = csv.reader(fobj)
+        reader = csv.DictReader(fobj)
         raw_records = list(reader)
+        # Exclude entities with a non-final status
+        if entity_name in ('units', 'persons', 'incidents'):
+            status_field = entity_name[:-1] + ':status:admin'
+            num_raw_records = sum(1 for rec in raw_records if rec[status_field] == '3')
+        else:
+            num_raw_records = len(raw_records)
     if type(Model) == tuple:
         num_records = sum(Mod.objects.count() for Mod in Model)
     else:
         num_records = Model.objects.count()
-    assert num_records == len(raw_records[1:])
+    assert num_records == num_raw_records
 
 
 @pytest.mark.django_db

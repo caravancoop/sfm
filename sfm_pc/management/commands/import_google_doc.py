@@ -550,6 +550,15 @@ class Command(BaseCommand):
             self.log_error('Row seems to be empty')
             return None
 
+        # Skip this row if it's not ready for import
+        admin_status = org_data['unit:status:admin']
+        if admin_status != '3':
+            self.stdout.write('Skipping unit "{}" because its status is {}'.format(
+                name_value,
+                admin_status
+            ))
+            return None
+
         try:
             country_code = org_data[org_positions['DivisionId']['value']]
         except IndexError:
@@ -1684,6 +1693,15 @@ class Command(BaseCommand):
             self.log_error('Row seems to be empty')
             return None
 
+        # Skip this row if it's not ready for import
+        admin_status = person_data['person:status:admin']
+        if admin_status != '3':
+            self.stdout.write('Skipping person "{}" because its status is {}'.format(
+                name_value,
+                admin_status
+            ))
+            return None
+
         try:
             country_code = person_data[person_positions['DivisionId']['value']]
         except IndexError:
@@ -2225,9 +2243,25 @@ class Command(BaseCommand):
 
         uuid = event_data['incident:id:admin']
 
+        # Skip this row if it's not ready for import
+        admin_status = event_data['incident:status:admin']
+        if admin_status != '3':
+            self.stdout.write('Skipping event "{}" because its status is {}'.format(
+                uuid,
+                admin_status
+            ))
+            return None
+
         with reversion.create_revision():
-            violation, created = Violation.objects.get_or_create(uuid=uuid,
-                                                                 published=True)
+            try:
+                violation, created = Violation.objects.get_or_create(
+                    uuid=uuid,
+                    published=True
+                )
+            except ValidationError:
+                self.log_error('Invalid Incident UUID: "{}"'.format(uuid))
+                return None
+
             reversion.set_user(self.user)
 
         # Simple attributes that support multiple values
