@@ -158,6 +158,7 @@ $(document).ready(function() {
     transObj = {
         '{% trans "English" %}': 'en',
         '{% trans "Spanish" %}': 'es',
+        '{% trans "French" %}': 'fr',
     }
 
     $('.lang-select-box').on('change', function (evt) {
@@ -165,7 +166,10 @@ $(document).ready(function() {
         selectedLangSym = '/' + transObj[selectedLang] + '/';
         // Create new URL with selected language, and redirect to it.
         currentUrl = window.location.href;
-        newUrl = currentUrl.replace('/es/', selectedLangSym).replace('/en/', selectedLangSym);
+        var newUrl = currentUrl;
+        $.each(transObj, function(verboseName, slug) {
+            newUrl = newUrl.replace('/' + slug + '/', selectedLangSym);
+        });
         window.location = newUrl;
     });
 

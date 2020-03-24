@@ -14,6 +14,7 @@ def create_select2_data(select_lang_abbr):
     trans_obj = {
         "en": _("English"),
         "es": _("Spanish"),
+        "fr": _("French"),
     }
     data_array = list(trans_obj.values())
     full_text = trans_obj.get(select_lang_abbr)
