@@ -1,5 +1,15 @@
 WITH organization AS (
     SELECT
+      organization.id AS id,
+      organization.uuid AS uuid,
+      substring(division_id.value, position(':' IN division_id.value) + 1, 2) AS division_id
+    FROM organization_organization as organization
+    JOIN organization_organizationdivisionid AS division_id
+      ON organization.id = division_id.object_ref_id
+    WHERE organization.published = true
+      AND division_id.value = '{division_id}'
+  ), organization_metadata AS (
+    SELECT
       object_ref.id AS id,
       MAX(object_ref.uuid::text) AS uuid,
       MAX(name.value) AS name,
@@ -63,8 +73,6 @@ WITH organization AS (
       ON object_ref.id = open_ended.object_ref_id
     LEFT JOIN organization_organizationopenended_sources AS open_ended_sources
       ON open_ended.id = open_ended_sources.organizationopenended_id
-    WHERE object_ref.published = true
-      AND division_id.value = '{division_id}'
     GROUP BY object_ref.id
   ), composition AS (
     SELECT
@@ -96,9 +104,13 @@ SELECT
 FROM composition
 LEFT JOIN composition_compositionchild AS composition_child
   ON composition.id = composition_child.object_ref_id
-LEFT JOIN organization AS child
-  ON composition_child.value_id = child.id
+LEFT JOIN organization AS c
+  ON composition_child.value_id = c.id
+LEFT JOIN organization_metadata AS child
+  ON c.id = child.id
 LEFT JOIN composition_compositionparent AS composition_parent
   ON composition.id = composition_parent.object_ref_id
-LEFT JOIN organization AS parent
-  ON composition_parent.value_id = parent.id
+LEFT JOIN organization AS p
+  ON composition_parent.value_id = p.id
+LEFT JOIN organization_metadata AS parent
+  ON p.id = parent.id
