@@ -306,6 +306,9 @@ class DownloadData(FormView):
         with open(sql_path) as f:
             sql = f.read()
 
+        sources = form.cleaned_data['sources']
+        confidences = form.cleaned_data['confidences']
+
         download_name = '{}_{}_{}'.format(download_type, iso.upper(),
                                        timezone.now().isoformat())
 
@@ -314,11 +317,40 @@ class DownloadData(FormView):
 
         with connection.cursor() as cursor:
             copy = '''
-                COPY ({}) TO STDOUT WITH CSV HEADER FORCE QUOTE *
-            '''.format(sql)
+                COPY (%s) TO STDOUT WITH CSV HEADER FORCE QUOTE *
+            ''' % sql
+
+            from composition.models import Composition
+            selected_fields = [
+                ('child.uuid', 'unit:id:admin'),
+                ('child.name', Organization.get_spreadsheet_field_name('name')),
+                ('child.division_id', Organization.get_spreadsheet_field_name('division_id')),
+                ('child.classifications', Organization.get_spreadsheet_field_name('classification')),
+                ('child.other_names', Organization.get_spreadsheet_field_name('aliases')),
+                ('child.first_cited_date', Organization.get_spreadsheet_field_name('firstciteddate')),
+                ('child.real_start', Organization.get_spreadsheet_field_name('realstart')),
+                ('child.last_cited_date', Organization.get_spreadsheet_field_name('lastciteddate')),
+                ('child.open_ended', Organization.get_spreadsheet_field_name('open_ended')),
+                ('parent.uuid', Composition.get_spreadsheet_field_name('parent')),
+                ('parent.name', Composition.get_spreadsheet_field_name('parent') + ':name'),
+                ('parent.division_id', Composition.get_spreadsheet_field_name('parent') + ':country'),
+                ('composition.classifications', Composition.get_spreadsheet_field_name('classification')),
+                ('composition.first_cited_date', Composition.get_spreadsheet_field_name('startdate')),
+                ('composition.real_start', Composition.get_spreadsheet_field_name('realstart')),
+                ('composition.last_cited_date', Composition.get_spreadsheet_field_name('enddate')),
+                ('composition.open_ended', Composition.get_spreadsheet_field_name('open_ended')),
+            ]
+            select = ''
+            for idx, (field, label) in enumerate(selected_fields):
+                select += '%s AS "%s"' % (field, label)
+                if idx < len(selected_fields) - 1:
+                    select += ','
 
             try:
-                copy = copy % division_id
+                copy = copy.format(
+                    division_id=division_id,
+                    select=select
+                )
             except TypeError:
                 pass
 
