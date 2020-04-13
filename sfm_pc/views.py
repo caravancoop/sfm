@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import os
 import json
-from uuid import uuid4
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from datetime import datetime
 import csv
 
@@ -12,38 +10,24 @@ from django.views.generic.base import TemplateView
 from django.http import HttpResponse, Http404, HttpResponseServerError
 from django.views.generic.edit import FormView
 from django.views.decorators.cache import never_cache
-from django.forms import formset_factory
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.datastructures import MultiValueDictKeyError
-from django.shortcuts import redirect, render
-from django.contrib import messages
-from django.utils.translation import get_language
+from django.shortcuts import render
 from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.views.generic.edit import CreateView, UpdateView
 from django.utils import timezone
 from django.http import StreamingHttpResponse
 from django.template import loader
 
-from reversion.models import Version, Revision
-from extra_views import FormSetView
+from reversion.models import Revision
 
 from countries_plus.models import Country
 
-from organization.models import Organization, OrganizationAlias
-from person.models import Person, PersonAlias
-from violation.models import Violation
-from membershipperson.models import MembershipPerson
+from organization.models import Organization
 from source.models import Source, AccessPoint
 
 
-from sfm_pc.templatetags.render_from_source import get_relations, \
-    get_relation_attributes
-from sfm_pc.utils import (import_class, get_osm_by_id, get_org_hierarchy_by_id,
-                          get_child_orgs_by_id, Downloader, VersionsMixin)
+from sfm_pc.utils import get_org_hierarchy_by_id, Downloader, VersionsMixin
 from sfm_pc.forms import DownloadForm, ChangeLogForm
+from sfm_pc.downloads import download_classes
 
 from search.views import get_search_context
 
@@ -297,66 +281,11 @@ class DownloadData(FormView):
 
         download_type = form.cleaned_data['download_type']
         division_id = form.cleaned_data['division_id']
-        iso = division_id[-2:]
-        sql_path = os.path.join(settings.BASE_DIR,
-                                'sfm_pc',
-                                'sql',
-                                '{}.sql'.format(download_type))
-
-        with open(sql_path) as f:
-            sql = f.read()
-
         sources = form.cleaned_data['sources']
         confidences = form.cleaned_data['confidences']
 
-        download_name = '{}_{}_{}'.format(download_type, iso.upper(),
-                                       timezone.now().isoformat())
-
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(download_name)
-
-        with connection.cursor() as cursor:
-            copy = '''
-                COPY (%s) TO STDOUT WITH CSV HEADER FORCE QUOTE *
-            ''' % sql
-
-            from composition.models import Composition
-            selected_fields = [
-                ('child.uuid', 'unit:id:admin'),
-                ('child.name', Organization.get_spreadsheet_field_name('name')),
-                ('child.division_id', Organization.get_spreadsheet_field_name('division_id')),
-                ('child.classifications', Organization.get_spreadsheet_field_name('classification')),
-                ('child.other_names', Organization.get_spreadsheet_field_name('aliases')),
-                ('child.first_cited_date', Organization.get_spreadsheet_field_name('firstciteddate')),
-                ('child.real_start', Organization.get_spreadsheet_field_name('realstart')),
-                ('child.last_cited_date', Organization.get_spreadsheet_field_name('lastciteddate')),
-                ('child.open_ended', Organization.get_spreadsheet_field_name('open_ended')),
-                ('parent.uuid', Composition.get_spreadsheet_field_name('parent')),
-                ('parent.name', Composition.get_spreadsheet_field_name('parent') + ':name'),
-                ('parent.division_id', Composition.get_spreadsheet_field_name('parent') + ':country'),
-                ('composition.classifications', Composition.get_spreadsheet_field_name('classification')),
-                ('composition.first_cited_date', Composition.get_spreadsheet_field_name('startdate')),
-                ('composition.real_start', Composition.get_spreadsheet_field_name('realstart')),
-                ('composition.last_cited_date', Composition.get_spreadsheet_field_name('enddate')),
-                ('composition.open_ended', Composition.get_spreadsheet_field_name('open_ended')),
-            ]
-            select = ''
-            for idx, (field, label) in enumerate(selected_fields):
-                select += '%s AS "%s"' % (field, label)
-                if idx < len(selected_fields) - 1:
-                    select += ','
-
-            try:
-                copy = copy.format(
-                    division_id=division_id,
-                    select=select
-                )
-            except TypeError:
-                pass
-
-            cursor.copy_expert(copy, response)
-
-        return response
+        download_class = download_classes[download_type]
+        return download_class.render_to_csv_response(division_id, sources, confidences)
 
 
 class Echo:
