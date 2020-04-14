@@ -1,9 +1,9 @@
-WITH organization AS (
+WITH filtered_organization AS (
     SELECT
       organization.id AS id
     FROM organization_organization as organization
     WHERE organization.published = true
-  ), organization_metadata AS (
+  ), organization AS (
     SELECT
       object_ref.id AS id,
       MAX(object_ref.uuid::text) AS uuid,
@@ -128,15 +128,15 @@ SELECT
 FROM composition
 LEFT JOIN composition_compositionchild AS composition_child
   ON composition.id = composition_child.object_ref_id
-LEFT JOIN organization AS c
-  ON composition_child.value_id = c.id
-LEFT JOIN organization_metadata AS child
-  ON c.id = child.id
+LEFT JOIN filtered_organization AS filtered_child_organization
+  ON composition_child.value_id = filtered_child_organization.id
+LEFT JOIN organization AS child
+  ON filtered_child_organization.id = child.id
 LEFT JOIN composition_compositionparent AS composition_parent
   ON composition.id = composition_parent.object_ref_id
 LEFT JOIN composition_parent_metadata
   ON composition_parent.id = composition_parent_metadata.id
-LEFT JOIN organization AS p
-  ON composition_parent.value_id = p.id
-LEFT JOIN organization_metadata AS parent
-  ON p.id = parent.id
+LEFT JOIN filtered_organization AS filtered_parent_organization
+  ON composition_parent.value_id = filtered_parent_organization.id
+LEFT JOIN organization AS parent
+  ON filtered_parent_organization.id = parent.id

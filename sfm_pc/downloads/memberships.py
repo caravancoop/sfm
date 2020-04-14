@@ -6,17 +6,17 @@ from django.contrib.postgres import fields as pg_fields
 from django_date_extensions.fields import ApproximateDateField
 
 from .base import BaseDownload
-from composition.models import Composition
 from organization.models import Organization
+from membershiporganization.models import MembershipOrganization
 
 
-class ParentageDownload(BaseDownload):
+class MembershipOrganizationDownload(BaseDownload):
     # Class metadata
-    download_type = 'parentage'
+    download_type = 'memberships'
 
     # Download fields
-    composition_id = models.IntegerField(primary_key=True)
-    child_unit_id = models.UUIDField()
+    membership_id = models.IntegerField(primary_key=True)
+    org_id = models.UUIDField()
     name = models.TextField()
     name_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
     name_confidence = models.CharField(max_length=1)
@@ -41,30 +41,30 @@ class ParentageDownload(BaseDownload):
     open_ended = models.CharField(max_length=1, default='N', choices=settings.OPEN_ENDED_CHOICES)
     open_ended_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
     open_ended_confidence = models.CharField(max_length=1)
-    related_id = models.UUIDField()
-    related_id_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
-    related_id_confidence = models.CharField(max_length=1)
-    related_name = models.TextField()
-    related_name_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
-    related_name_confidence = models.CharField(max_length=1)
-    related_division_id = models.TextField()
-    related_division_id_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
-    related_division_id_confidence = models.CharField(max_length=1)
-    related_classifications = pg_fields.ArrayField(models.TextField(), default=list)
-    related_classifications_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
-    related_classifications_confidence = models.CharField(max_length=1)
-    related_firstciteddate = ApproximateDateField()
-    related_firstciteddate_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
-    related_firstciteddate_confidence = models.CharField(max_length=1)
-    related_lastciteddate = ApproximateDateField()
-    related_lastciteddate_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
-    related_lastciteddate_confidence = models.CharField(max_length=1)
-    related_realstart = models.NullBooleanField(default=None)
-    related_realstart_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
-    related_realstart_confidence = models.CharField(max_length=1)
-    related_open_ended = models.CharField(max_length=1, default='N', choices=settings.OPEN_ENDED_CHOICES)
-    related_open_ended_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
-    related_open_ended_confidence = models.CharField(max_length=1)
+    member_id = models.UUIDField()
+    member_id_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
+    member_id_confidence = models.CharField(max_length=1)
+    member_name = models.TextField()
+    member_name_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
+    member_name_confidence = models.CharField(max_length=1)
+    member_division_id = models.TextField()
+    member_division_id_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
+    member_division_id_confidence = models.CharField(max_length=1)
+    member_classifications = pg_fields.ArrayField(models.TextField(), default=list)
+    member_classifications_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
+    member_classifications_confidence = models.CharField(max_length=1)
+    member_firstciteddate = ApproximateDateField()
+    member_firstciteddate_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
+    member_firstciteddate_confidence = models.CharField(max_length=1)
+    member_lastciteddate = ApproximateDateField()
+    member_lastciteddate_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
+    member_lastciteddate_confidence = models.CharField(max_length=1)
+    member_realstart = models.NullBooleanField(default=None)
+    member_realstart_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
+    member_realstart_confidence = models.CharField(max_length=1)
+    member_realend = models.NullBooleanField(default=None)
+    member_realend_sources = pg_fields.ArrayField(models.UUIDField(), default=list)
+    member_realend_confidence = models.CharField(max_length=1)
 
     @classmethod
     def _get_field_map(cls):
@@ -73,280 +73,280 @@ class ParentageDownload(BaseDownload):
         and exporing data.
         """
         return OrderedDict([
-            ('child_unit_id', {
-                'sql': 'child.uuid',
+            ('org_id', {
+                'sql': 'organization.uuid',
                 'label': 'unit:id:admin',
                 'serializer': cls.serializers['string'],
             }),
             ('name', {
-                'sql': 'child.name',
+                'sql': 'organization.name',
                 'label': Organization.get_spreadsheet_field_name('name'),
                 'serializer': cls.serializers['identity'],
             }),
             ('name_sources', {
-                'sql': 'child.name_sources',
+                'sql': 'organization.name_sources',
                 'label': Organization.get_spreadsheet_source_field_name('name'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
             ('name_confidence', {
-                'sql': 'child.name_confidence',
+                'sql': 'organization.name_confidence',
                 'label': Organization.get_spreadsheet_confidence_field_name('name'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
             ('division_id', {
-                'sql': 'child.division_id',
+                'sql': 'organization.division_id',
                 'label': Organization.get_spreadsheet_field_name('division_id'),
                 'serializer': cls.serializers['division_id'],
             }),
             ('division_id_sources', {
-                'sql': 'child.division_id_sources',
+                'sql': 'organization.division_id_sources',
                 'label': Organization.get_spreadsheet_source_field_name('division_id'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
             ('division_id_confidence', {
-                'sql': 'child.division_id_confidence',
+                'sql': 'organization.division_id_confidence',
                 'label': Organization.get_spreadsheet_confidence_field_name('division_id'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
             ('classifications', {
-                'sql': 'child.classifications',
+                'sql': 'organization.classifications',
                 'label': Organization.get_spreadsheet_field_name('classification'),
                 'serializer': cls.serializers['list'],
             }),
             ('classifications_sources', {
-                'sql': 'child.classifications_sources',
+                'sql': 'organization.classifications_sources',
                 'label': Organization.get_spreadsheet_source_field_name('classification'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
             ('classifications_confidence', {
-                'sql': 'child.classifications_confidence',
+                'sql': 'organization.classifications_confidence',
                 'label': Organization.get_spreadsheet_confidence_field_name('classification'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
             ('aliases', {
-                'sql': 'child.aliases',
+                'sql': 'organization.aliases',
                 'label': Organization.get_spreadsheet_field_name('aliases'),
                 'serializer': cls.serializers['list'],
             }),
             ('aliases_sources', {
-                'sql': 'child.aliases_sources',
+                'sql': 'organization.aliases_sources',
                 'label': Organization.get_spreadsheet_source_field_name('aliases'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
             ('aliases_confidence', {
-                'sql': 'child.aliases_confidence',
+                'sql': 'organization.aliases_confidence',
                 'label': Organization.get_spreadsheet_confidence_field_name('aliases'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
             ('firstciteddate', {
-                'sql': 'child.first_cited_date',
+                'sql': 'organization.first_cited_date',
                 'label': Organization.get_spreadsheet_field_name('firstciteddate'),
                 'serializer': cls.serializers['identity'],
             }),
             ('firstciteddate_sources', {
-                'sql': 'child.first_cited_date_sources',
+                'sql': 'organization.first_cited_date_sources',
                 'label': Organization.get_spreadsheet_source_field_name('firstciteddate'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
             ('firstciteddate_confidence', {
-                'sql': 'child.first_cited_date_confidence',
+                'sql': 'organization.first_cited_date_confidence',
                 'label': Organization.get_spreadsheet_confidence_field_name('firstciteddate'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
             ('lastciteddate', {
-                'sql': 'child.last_cited_date',
+                'sql': 'organization.last_cited_date',
                 'label': Organization.get_spreadsheet_field_name('lastciteddate'),
                 'serializer': cls.serializers['identity'],
             }),
             ('lastciteddate_sources', {
-                'sql': 'child.last_cited_date_sources',
+                'sql': 'organization.last_cited_date_sources',
                 'label': Organization.get_spreadsheet_source_field_name('lastciteddate'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
             ('lastciteddate_confidence', {
-                'sql': 'child.last_cited_date_confidence',
+                'sql': 'organization.last_cited_date_confidence',
                 'label': Organization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
             ('realstart', {
-                'sql': 'child.real_start',
+                'sql': 'organization.real_start',
                 'label': Organization.get_spreadsheet_field_name('realstart'),
                 'serializer': cls.serializers['identity'],
             }),
             ('realstart_sources', {
-                'sql': 'child.real_start_sources',
+                'sql': 'organization.real_start_sources',
                 'label': Organization.get_spreadsheet_source_field_name('realstart'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
             ('realstart_confidence', {
-                'sql': 'child.real_start_confidence',
+                'sql': 'organization.real_start_confidence',
                 'label': Organization.get_spreadsheet_confidence_field_name('realstart'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
             ('open_ended', {
-                'sql': 'child.open_ended',
+                'sql': 'organization.open_ended',
                 'label': Organization.get_spreadsheet_field_name('open_ended'),
                 'serializer': cls.serializers['identity'],
             }),
             ('open_ended_sources', {
-                'sql': 'child.open_ended_sources',
+                'sql': 'organization.open_ended_sources',
                 'label': Organization.get_spreadsheet_source_field_name('open_ended'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
             ('open_ended_confidence', {
-                'sql': 'child.open_ended_confidence',
+                'sql': 'organization.open_ended_confidence',
                 'label': Organization.get_spreadsheet_confidence_field_name('open_ended'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_id', {
-                'sql': 'parent.uuid',
-                'label': Composition.get_spreadsheet_field_name('parent'),
+            ('member_id', {
+                'sql': 'member.uuid',
+                'label': 'unit:membership_id',
                 'serializer': cls.serializers['string'],
             }),
-            ('related_id_sources', {
-                'sql': "composition_parent_metadata.sources",
-                'label': Composition.get_spreadsheet_source_field_name('parent'),
+            ('member_id_sources', {
+                'sql': 'membership.sources',
+                'label': 'unit:membership_id:source',
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
-            ('related_id_confidence', {
-                'sql': "composition_parent_metadata.confidence",
-                'label': Composition.get_spreadsheet_confidence_field_name('parent'),
+            ('member_id_confidence', {
+                'sql': 'membership.confidence',
+                'label': 'unit:membership_id:confidence',
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_name', {
-                'sql': 'parent.name',
-                'label': Composition.get_spreadsheet_field_name('parent') + ':name',
+            ('member_name', {
+                'sql': 'member.name',
+                'label': MembershipOrganization.get_spreadsheet_field_name('organization'),
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_name_sources', {
-                'sql': 'parent.name_sources',
-                'label': Composition.get_spreadsheet_field_name('parent') + ':name:source',
+            ('member_name_sources', {
+                'sql': 'member.name_sources',
+                'label': MembershipOrganization.get_spreadsheet_source_field_name('organization'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
-            ('related_name_confidence', {
-                'sql': 'parent.name_confidence',
-                'label': Composition.get_spreadsheet_field_name('parent') + ':name:confidence',
+            ('member_name_confidence', {
+                'sql': 'member.name_confidence',
+                'label': MembershipOrganization.get_spreadsheet_confidence_field_name('organization'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_division_id', {
-                'sql': 'parent.division_id',
-                'label': Composition.get_spreadsheet_field_name('parent') + ':country',
+            ('member_division_id', {
+                'sql': 'member.division_id',
+                'label': 'unit:member_country',
                 'serializer': cls.serializers['division_id'],
             }),
-            ('related_division_id_sources', {
-                'sql': 'parent.division_id_sources',
-                'label': Composition.get_spreadsheet_field_name('parent') + ':country:source',
+            ('member_division_id_sources', {
+                'sql': 'member.division_id_sources',
+                'label': 'unit:member_country:source',
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
-            ('related_division_id_confidence', {
-                'sql': 'parent.division_id_confidence',
-                'label': Composition.get_spreadsheet_field_name('parent') + ':country:confidence',
+            ('member_division_id_confidence', {
+                'sql': 'member.division_id_confidence',
+                'label': 'unit:member_country:confidence',
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_classifications', {
-                'sql': 'composition.classifications',
-                'label': Composition.get_spreadsheet_field_name('classification'),
+            ('member_classifications', {
+                'sql': 'member.classifications',
+                'label': 'unit:member_classification',
                 'serializer': cls.serializers['list'],
             }),
-            ('related_classifications_sources', {
-                'sql': 'composition.classifications_sources',
-                'label': Composition.get_spreadsheet_source_field_name('classification'),
+            ('member_classifications_sources', {
+                'sql': 'member.classifications_sources',
+                'label': 'unit:member_classification:source',
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
-            ('related_classifications_confidence', {
-                'sql': 'composition.classifications_confidence',
-                'label': Composition.get_spreadsheet_confidence_field_name('classification'),
+            ('member_classifications_confidence', {
+                'sql': 'member.classifications_confidence',
+                'label': 'unit:member_classification:confidence',
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_firstciteddate', {
-                'sql': 'composition.first_cited_date',
-                'label': Composition.get_spreadsheet_field_name('startdate'),
+            ('member_firstciteddate', {
+                'sql': 'membership.first_cited_date',
+                'label': MembershipOrganization.get_spreadsheet_field_name('firstciteddate'),
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_firstciteddate_sources', {
-                'sql': 'composition.first_cited_date_sources',
-                'label': Composition.get_spreadsheet_source_field_name('startdate'),
+            ('member_firstciteddate_sources', {
+                'sql': 'membership.first_cited_date_sources',
+                'label': MembershipOrganization.get_spreadsheet_source_field_name('firstciteddate'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
-            ('related_firstciteddate_confidence', {
-                'sql': 'composition.first_cited_date_confidence',
-                'label': Composition.get_spreadsheet_confidence_field_name('startdate'),
+            ('member_firstciteddate_confidence', {
+                'sql': 'membership.first_cited_date_confidence',
+                'label': MembershipOrganization.get_spreadsheet_confidence_field_name('firstciteddate'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_realstart', {
-                'sql': 'composition.real_start',
-                'label': Composition.get_spreadsheet_field_name('realstart'),
+            ('member_realstart', {
+                'sql': 'membership.real_start',
+                'label': MembershipOrganization.get_spreadsheet_field_name('realstart'),
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_realstart_sources', {
-                'sql': 'composition.real_start_sources',
-                'label': Composition.get_spreadsheet_source_field_name('realstart'),
+            ('member_realstart_sources', {
+                'sql': 'membership.real_start_sources',
+                'label': MembershipOrganization.get_spreadsheet_source_field_name('realstart'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
-            ('related_realstart_confidence', {
-                'sql': 'composition.real_start_confidence',
-                'label': Composition.get_spreadsheet_confidence_field_name('realstart'),
+            ('member_realstart_confidence', {
+                'sql': 'membership.real_start_confidence',
+                'label': MembershipOrganization.get_spreadsheet_confidence_field_name('realstart'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_lastciteddate', {
-                'sql': 'composition.last_cited_date',
-                'label': Composition.get_spreadsheet_field_name('enddate'),
+            ('member_lastciteddate', {
+                'sql': 'membership.last_cited_date',
+                'label': MembershipOrganization.get_spreadsheet_field_name('lastciteddate'),
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_lastciteddate_sources', {
-                'sql': 'composition.last_cited_date_sources',
-                'label': Composition.get_spreadsheet_source_field_name('enddate'),
+            ('member_lastciteddate_sources', {
+                'sql': 'membership.last_cited_date_sources',
+                'label': MembershipOrganization.get_spreadsheet_source_field_name('lastciteddate'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
-            ('related_lastciteddate_confidence', {
-                'sql': 'composition.last_cited_date_confidence',
-                'label': Composition.get_spreadsheet_confidence_field_name('enddate'),
+            ('member_lastciteddate_confidence', {
+                'sql': 'membership.last_cited_date_confidence',
+                'label': MembershipOrganization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_open_ended', {
-                'sql': 'composition.open_ended',
-                'label': Composition.get_spreadsheet_field_name('open_ended'),
+            ('member_realend', {
+                'sql': 'membership.real_end',
+                'label': MembershipOrganization.get_spreadsheet_field_name('realend'),
                 'serializer': cls.serializers['identity'],
             }),
-            ('related_open_ended_sources', {
-                'sql': 'composition.open_ended_sources',
-                'label': Composition.get_spreadsheet_source_field_name('open_ended'),
+            ('member_realend_sources', {
+                'sql': 'membership.real_end_sources',
+                'label': MembershipOrganization.get_spreadsheet_source_field_name('realend'),
                 'source': True,
                 'serializer': cls.serializers['list'],
             }),
-            ('related_open_ended_confidence', {
-                'sql': 'composition.open_ended_confidence',
-                'label': Composition.get_spreadsheet_confidence_field_name('open_ended'),
+            ('member_realend_confidence', {
+                'sql': 'membership.real_end_confidence',
+                'label': MembershipOrganization.get_spreadsheet_confidence_field_name('realend'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
