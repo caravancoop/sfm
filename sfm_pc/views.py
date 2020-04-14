@@ -285,7 +285,13 @@ class DownloadData(FormView):
         confidences = form.cleaned_data['confidences']
 
         download_class = download_classes[download_type]
-        return download_class.render_to_csv_response(division_id, sources, confidences)
+        iso = division_id[-2:]
+        filename = '{}_{}_{}.csv'.format(
+            download_type,
+            iso.upper(),
+            timezone.now().date().isoformat()
+        )
+        return download_class.render_to_csv_response(division_id, filename, sources, confidences)
 
 
 class Echo:

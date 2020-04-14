@@ -1,51 +1,93 @@
 import os
+from collections import OrderedDict
 
+import djqscsv
 from django.conf import settings
-from django.utils import timezone
-from django.http import HttpResponse
-from django.db import connection
+from django.db import models, connection
 
 
-class BaseDownload:
+class BaseDownload(models.Model):
+    """
+    Base class for a non-managed model that controls access to database download
+    tables.
+
+    Download tables are saved as materialized views using the *_materialized_view()
+    methods on this model. These materialized views are primarily constructed using
+    SQL files stored in the sql/ subdirectory of the downloads/ directory.
+    """
+    # The name of the download, corresponding to the SQL filename for the file
+    # that produces the materialized view for this download
     download_type = None
-    selected_fields = []
+
+    # Common serializer functions for exporting tables to CSV
+    serializers = {
+        'string': lambda x: str(x),
+        'identity': lambda x: x,
+        'division_id': lambda x: x.split(':')[-1] if x else x,
+        'list': lambda x: '; '.join(str(elem) for elem in x if elem),
+    }
+
+    class Meta:
+        # Don't manage this model with Django migrations
+        managed = False
+        abstract = True
 
     @classmethod
-    def get_select_statement(cls, sources=False, confidences=False):
+    def render_to_csv_response(cls, division_id, filename, sources=False, confidences=False):
         """
-        Get the SELECT statement for the fields of this download.
+        The primary method for this class. Given a division_id, filename, and
+        optional flags for whether or not to return sources/confidences, render
+        an HttpResponse containing a CSV export of the model data.
         """
-        if cls.selected_fields == []:
-            raise NotImplementedError(
-                'Children of BaseDownload must implement the selected_fields attribute'
-            )
+        # Get the queryset that will be used to write a CSV
+        queryset = cls.objects.filter(division_id=division_id)
 
-        select = ''
-        for field in cls.selected_fields:
-            if field.get('source') is True and sources is False:
-                continue
-            elif field.get('confidence') is True and confidences is False:
-                continue
-            else:
-                select += '%s AS "%s",' % (field['name'], field['label'])
+        # Retrieve the metadata we need for each field
+        field_map = cls.get_field_map(sources, confidences)
+        field_list = list(field_map.keys())
+        qset_values = queryset.values(*field_list)
 
-        # Strip the trailing comma from the SELECT
-        if select:
-            select = select[:-1]
+        # The field header map defines the headers that the CSV will use for
+        # each queryset field
+        field_header_map = {key: data['label'] for key, data in field_map.items()}
 
-        return select
+        # The field serializer map defines the serializers that should be used
+        # to write each queryset field to a CSV field
+        field_serializer_map = {key: data['serializer'] for key, data in field_map.items()}
+
+        return djqscsv.render_to_csv_response(
+            qset_values,
+            field_header_map=field_header_map,
+            field_serializer_map=field_serializer_map,
+            field_order=field_list,
+            filename=filename
+        )
 
     @classmethod
-    def render_to_csv_response(cls, division_id, sources=False, confidences=False):
+    def get_field_map(cls, sources=False, confidences=False):
         """
-        Render a CSV download for a given division_id, optionally including
-        sources and confidences in the download.
+        Retrieve a metadata map of fields in this download, optionally filtering
+        out fields related to sources and confidences.
         """
-        if cls.download_type is None:
+        try:
+            field_map = cls._get_field_map()
+        except AttributeError:
             raise NotImplementedError(
-                'Children of BaseDownload must implement the download_type attribute'
+                'Inheritors of DownloadMixin must implement the _get_field_map method'
             )
+        else:
+            fields = field_map.items()
+            if sources is False:
+                fields = [(key, val) for key, val in fields if not val.get('source')]
+            if confidences is False:
+                fields = [(key, val) for key, val in fields if not val.get('confidence')]
+            return OrderedDict(fields)
 
+    @classmethod
+    def create_materialized_view(cls):
+        """
+        Create the materialized view that backs this download class.
+        """
         sql_path = os.path.join(
             settings.BASE_DIR,
             'sfm_pc',
@@ -57,33 +99,34 @@ class BaseDownload:
         with open(sql_path) as f:
             sql = f.read()
 
-        iso = division_id[-2:]
+        select = ''
+        field_map = cls.get_field_map(sources=True, confidences=True)
+        for key, field in field_map.items():
+            select += '%s AS "%s",' % (field['sql'], key)
 
-        download_name = '{}_{}_{}'.format(
-            cls.download_type,
-            iso.upper(),
-            timezone.now().isoformat()
-        )
+        # Strip the trailing comma from the SELECT
+        if select:
+            select = select[:-1]
 
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(download_name)
+        sql = sql.format(select=select)
+        sql_prefix = 'CREATE MATERIALIZED VIEW {} AS'.format(cls._meta.db_table)
+        query = '{} {}'.format(sql_prefix, sql)
 
         with connection.cursor() as cursor:
-            copy = '''
-                COPY (%s) TO STDOUT WITH CSV HEADER FORCE QUOTE *
-            ''' % sql
+            cursor.execute(query)
 
-            select = cls.get_select_statement(sources, confidences)
+    @classmethod
+    def refresh_materialized_view(cls):
+        """
+        Refresh the materialized view that backs this download class.
+        """
+        with connection.cursor() as cursor:
+            cursor.execute('REFRESH MATERIALIZED VIEW {}'.format(cls._meta.db_table))
 
-            try:
-                copy = copy.format(
-                    division_id=division_id,
-                    select=select
-                )
-            except TypeError:
-                # division_id was not required, so skip it
-                copy - copy.format(select=select)
-
-            cursor.copy_expert(copy, response)
-
-        return response
+    @classmethod
+    def drop_materialized_view(cls):
+        """
+        Drop the materialized view that backs this download class.
+        """
+        with connection.cursor() as cursor:
+            cursor.execute('DROP MATERIALIZED VIEW IF EXISTS {}'.format(cls._meta.db_table))

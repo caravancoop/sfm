@@ -1,45 +1,40 @@
 WITH organization AS (
     SELECT
-      organization.id AS id,
-      organization.uuid AS uuid,
-      substring(division_id.value, position(':' IN division_id.value) + 1, 2) AS division_id
+      organization.id AS id
     FROM organization_organization as organization
-    JOIN organization_organizationdivisionid AS division_id
-      ON organization.id = division_id.object_ref_id
     WHERE organization.published = true
-      AND division_id.value = '{division_id}'
   ), organization_metadata AS (
     SELECT
       object_ref.id AS id,
       MAX(object_ref.uuid::text) AS uuid,
       MAX(name.value) AS name,
       MAX(name.confidence) AS name_confidence,
-      array_to_string(array_agg(DISTINCT name_sources.accesspoint_id), ';') AS name_sources,
-      substring(MAX(division_id.value), position(':' IN MAX(division_id.value)) + 1, 2) AS division_id,
+      array_agg(DISTINCT name_sources.accesspoint_id) AS name_sources,
+      MAX(division_id.value) AS division_id,
       MAX(division_id.confidence) AS division_id_confidence,
-      array_to_string(array_agg(DISTINCT division_id_sources.accesspoint_id), ';') AS division_id_sources,
-      array_to_string(array_agg(DISTINCT classifications.value), ';') AS classifications,
+      array_agg(DISTINCT division_id_sources.accesspoint_id) AS division_id_sources,
+      array_agg(DISTINCT classifications.value) AS classifications,
       MAX(classifications.confidence) AS classifications_confidence,
-      array_to_string(array_agg(DISTINCT classifications_sources.accesspoint_id), ';') AS classifications_sources,
-      array_to_string(array_agg(DISTINCT aliases.value), ';') AS aliases,
+      array_agg(DISTINCT classifications_sources.accesspoint_id) AS classifications_sources,
+      array_agg(DISTINCT aliases.value) AS aliases,
       MAX(aliases.confidence) AS aliases_confidence,
-      array_to_string(array_agg(DISTINCT aliases_sources.accesspoint_id), ';') AS aliases_sources,
+      array_agg(DISTINCT aliases_sources.accesspoint_id) AS aliases_sources,
       MAX(firstciteddate.value) AS first_cited_date,
       MAX(firstciteddate.confidence) AS first_cited_date_confidence,
-      array_to_string(array_agg(DISTINCT firstciteddate_sources.accesspoint_id), ';') AS first_cited_date_sources,
+      array_agg(DISTINCT firstciteddate_sources.accesspoint_id) AS first_cited_date_sources,
       MAX(lastciteddate.value) AS last_cited_date,
       MAX(lastciteddate.confidence) AS last_cited_date_confidence,
-      array_to_string(array_agg(DISTINCT lastciteddate_sources.accesspoint_id), ';') AS last_cited_date_sources,
+      array_agg(DISTINCT lastciteddate_sources.accesspoint_id) AS last_cited_date_sources,
       CASE
         WHEN bool_and(realstart.value) = true THEN 'Y'
         WHEN bool_and(realstart.value) = false THEN 'N'
         ELSE '' END
       AS real_start,
       MAX(realstart.confidence) AS real_start_confidence,
-      array_to_string(array_agg(DISTINCT realstart_sources.accesspoint_id), ';') AS real_start_sources,
+      array_agg(DISTINCT realstart_sources.accesspoint_id) AS real_start_sources,
       MAX(open_ended.value) AS open_ended,
       MAX(open_ended.confidence) AS open_ended_confidence,
-      array_to_string(array_agg(DISTINCT open_ended_sources.accesspoint_id), ';') AS open_ended_sources
+      array_agg(DISTINCT open_ended_sources.accesspoint_id) AS open_ended_sources
     FROM organization_organization AS object_ref
     JOIN organization_organizationname AS name
       ON object_ref.id = name.object_ref_id
@@ -77,25 +72,25 @@ WITH organization AS (
   ), composition AS (
     SELECT
       comp_object_ref.id AS id,
-      array_to_string(array_agg(DISTINCT comp_classification.value), ';') AS classifications,
+      array_agg(DISTINCT comp_classification.value) AS classifications,
       MAX(comp_classification.confidence) AS classifications_confidence,
-      array_to_string(array_agg(DISTINCT comp_classification_sources.accesspoint_id), ';') AS classifications_sources,
+      array_agg(DISTINCT comp_classification_sources.accesspoint_id) AS classifications_sources,
       MAX(comp_firstciteddate.value) AS first_cited_date,
       MAX(comp_firstciteddate.confidence) AS first_cited_date_confidence,
-      array_to_string(array_agg(DISTINCT comp_firstciteddate_sources.accesspoint_id), ';') AS first_cited_date_sources,
+      array_agg(DISTINCT comp_firstciteddate_sources.accesspoint_id) AS first_cited_date_sources,
       CASE
         WHEN bool_and(comp_realstart.value) = true THEN 'Y'
         WHEN bool_and(comp_realstart.value) = false THEN 'N'
         ELSE '' END
       AS real_start,
       MAX(comp_realstart.confidence) AS real_start_confidence,
-      array_to_string(array_agg(DISTINCT comp_realstart_sources.accesspoint_id), ';') AS real_start_sources,
+      array_agg(DISTINCT comp_realstart_sources.accesspoint_id) AS real_start_sources,
       MAX(comp_lastciteddate.value) AS last_cited_date,
       MAX(comp_lastciteddate.confidence) AS last_cited_date_confidence,
-      array_to_string(array_agg(DISTINCT comp_lastciteddate_sources.accesspoint_id), ';') AS last_cited_date_sources,
+      array_agg(DISTINCT comp_lastciteddate_sources.accesspoint_id) AS last_cited_date_sources,
       MAX(comp_openended.value) AS open_ended,
       MAX(comp_openended.confidence) AS open_ended_confidence,
-      array_to_string(array_agg(DISTINCT comp_openended_sources.accesspoint_id), ';') AS open_ended_sources
+      array_agg(DISTINCT comp_openended_sources.accesspoint_id) AS open_ended_sources
     FROM composition_composition AS comp_object_ref
     LEFT JOIN composition_compositionclassification AS comp_classification
       ON comp_object_ref.id = comp_classification.object_ref_id
@@ -118,6 +113,15 @@ WITH organization AS (
     LEFT JOIN composition_compositionopenended_accesspoints AS comp_openended_sources
       ON comp_openended.id = comp_openended_sources.compositionopenended_id
     GROUP BY comp_object_ref.id
+  ), composition_parent_metadata AS (
+    SELECT
+      composition_parent.id AS id,
+      MAX(composition_parent.confidence) AS confidence,
+      array_agg(DISTINCT composition_parent_sources.accesspoint_id) AS sources
+    FROM composition_compositionparent AS composition_parent
+    LEFT JOIN composition_compositionparent_accesspoints AS composition_parent_sources
+      ON composition_parent.id = composition_parent_sources.compositionparent_id
+    GROUP BY composition_parent.id
   )
 SELECT
   {select}
@@ -130,6 +134,8 @@ LEFT JOIN organization_metadata AS child
   ON c.id = child.id
 LEFT JOIN composition_compositionparent AS composition_parent
   ON composition.id = composition_parent.object_ref_id
+LEFT JOIN composition_parent_metadata
+  ON composition_parent.id = composition_parent_metadata.id
 LEFT JOIN organization AS p
   ON composition_parent.value_id = p.id
 LEFT JOIN organization_metadata AS parent
