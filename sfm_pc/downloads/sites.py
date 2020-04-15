@@ -14,7 +14,6 @@ class SiteDownload(BaseDownload):
     download_type = 'sites'
 
     # Download fields
-    emplacement_id = models.IntegerField(primary_key=True)
     org_id = models.UUIDField()
     name = models.TextField()
     name_sources = pg_fields.ArrayField(models.UUIDField(), default=list)

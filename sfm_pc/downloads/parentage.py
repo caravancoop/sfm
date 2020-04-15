@@ -15,7 +15,6 @@ class ParentageDownload(BaseDownload):
     download_type = 'parentage'
 
     # Download fields
-    composition_id = models.IntegerField(primary_key=True)
     child_unit_id = models.UUIDField()
     name = models.TextField()
     name_sources = pg_fields.ArrayField(models.UUIDField(), default=list)

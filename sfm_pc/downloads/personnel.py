@@ -18,7 +18,6 @@ class MembershipPersonDownload(BaseDownload):
     download_type = 'personnel'
 
     # Download fields
-    membership_id = models.IntegerField(primary_key=True)
     org_id = models.UUIDField()
     name = models.TextField()
     name_sources = pg_fields.ArrayField(models.UUIDField(), default=list)

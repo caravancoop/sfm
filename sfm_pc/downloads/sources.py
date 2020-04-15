@@ -12,7 +12,7 @@ class SourceDownload(BaseDownload):
     download_type = 'sources'
 
     # Download fields
-    source_id = models.UUIDField(primary_key=True)
+    source_id = models.UUIDField()
     source_title = models.TextField()
     source_type = models.TextField()
     source_author = models.TextField()
