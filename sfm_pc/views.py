@@ -291,7 +291,21 @@ class DownloadData(FormView):
             iso.upper(),
             timezone.now().date().isoformat()
         )
-        return download_class.render_to_csv_response(division_id, filename, sources, confidences)
+
+        # Don't filter sources by division_id
+        if download_type == 'sources':
+            return download_class.render_to_csv_response(
+                filename,
+                sources=sources,
+                confidences=confidences
+            )
+        else:
+            return download_class.render_to_csv_response(
+                filename,
+                division_id=division_id,
+                sources=sources,
+                confidences=confidences
+            )
 
 
 class Echo:

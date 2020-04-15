@@ -33,14 +33,17 @@ class BaseDownload(models.Model):
         abstract = True
 
     @classmethod
-    def render_to_csv_response(cls, division_id, filename, sources=False, confidences=False):
+    def render_to_csv_response(cls, filename, division_id=None, sources=False, confidences=False):
         """
         The primary method for this class. Given a division_id, filename, and
         optional flags for whether or not to return sources/confidences, render
         an HttpResponse containing a CSV export of the model data.
         """
         # Get the queryset that will be used to write a CSV
-        queryset = cls.objects.filter(division_id=division_id)
+        if division_id is not None:
+            queryset = cls.objects.filter(division_id=division_id)
+        else:
+            queryset = cls.objects.all()
 
         # Retrieve the metadata we need for each field
         field_map = cls.get_field_map(sources, confidences)
