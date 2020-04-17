@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-    <h2>{% trans "Download information about organizations" %}</h2>
+    <h2>{% trans "Download information about units" %}</h2>
     <form action='{% url 'download' %}' method='POST'>
         {% csrf_token %}
         <div class="row">
@@ -43,6 +43,54 @@
                     {% if form.division_id.errors %}
                         {% for error in form.division_id.errors %}
                         <span class="help-block"><i class="fa fa-remove"> </i> {{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+            {% if form.sources.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                    <div class="checkbox">
+                        <label class="control-label">
+                            <input type="checkbox" name="sources" id="id_sources">
+                            {{ form.fields.sources.label }}
+                        </label>
+                    </div>
+                    {% if form.sources.errors %}
+                        {% for error in form.sources.errors %}
+                            <span class="help-block">
+                                <i class="fa fa-remove"></i>
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+            {% if form.confidences.errors %}
+                <div class="form-group has-error has-feedback">
+            {% else %}
+                <div class="form-group">
+            {% endif %}
+                    <div class="checkbox">
+                        <label class="control-label">
+                            <input type="checkbox" name="confidences" id="id_confidences">
+                            {{ form.fields.confidences.label }}
+                        </label>
+                    </div>
+                    {% if form.confidences.errors %}
+                        {% for error in form.confidences.errors %}
+                            <span class="help-block">
+                                <i class="fa fa-remove"></i>
+                                {{ error }}
+                            </span>
                         {% endfor %}
                     {% endif %}
                 </div>
