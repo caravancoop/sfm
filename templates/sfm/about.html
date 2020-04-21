@@ -5,8 +5,42 @@
     <div class="col-xs-12 col-md-10 col-md-offset-1 post">
         <h2>{% trans "About" %}</h2>
         <hr />
+        <h3>{% trans "What is WhoWasInCommand.com?" %}</h3>
         <p>
-            {% trans "WhoWasInCommand answers key questions about the structure, behaviour and people in charge of security forces like the police and army:" %}
+            {# Translators: Please preserve the HTML tags in this text block. #}
+            {% blocktrans %}
+            WhoWasInCommand.com is a free, public database of police, military
+            and other security and defence forces. It was created and is run by
+            <a href="https://securityforcemonitor.org/" target="_blank">Security Force Monitor</a> -
+            we are an investigative research project based at the
+            <a href="https://www.law.columbia.edu/human-rights-institute" target="_blank">Human Rights Institute</a>
+            at Columbia Law School in New York. WhoWasInCommand.com contains detailed data
+            we have created about the organizational structure, command personnel,
+            and geographic footprint of police, military and other security and defence forces.
+            We have created all this data by analyzing public sources. Additionally,
+            we structure and compile allegations made publicly by civil society groups
+            of alleged human rights violations committed by security and defence forces.
+            {% endblocktrans %}
+        </p>
+        <p>
+            {# Translators: Please preserve the HTML tags in this text block. #}
+            {% blocktrans %}
+            We created WhoWasInCommand.com to solve a major problem we had experienced
+            in our own work: there is a huge amount of publicly available data about the
+            security and defence forces of many countries of the world, but it is
+            unstructured and scattered amongst a wide variety of sources. This makes it
+            prohibitively costly for people who do public interest work to understand
+            the security and defence forces of a particular country. You can read more
+            about this problem and why we started Security Force Monitor in
+            <a href="https://securityforcemonitor.org/2017/04/11/why-i-started-the-security-force-monitor/" target="_blank">this blog we posted in 2017</a>.
+            {% endblocktrans %}
+        </p>
+        <p>
+            {% blocktrans %}
+            To address the problem, we search for this information, analyze it,
+            structure it and publish it here on WhoWasInCommand.com where it can
+            help answer questions like:
+            {% endblocktrans %}
         </p>
         <ul>
             <li>{% trans "Who is in charge of the specialized anti-riot police unit?" %}</li>
@@ -15,15 +49,101 @@
             <li>{% trans "When was a particular police unit based in a specific city?" %}</li>
             <li>{% trans "What allegations have civil society groups made against a unit or commander?" %}</li>
         </ul>
-
         <p>
-            {% trans "WhoWasinCommand presents data from thousands of public sources to help human rights researchers, investigative journalists and anyone who wants security forces to be more accountable." %}
+            {% blocktrans %}
+            We have created all the data on WhoWasInCommand.com by scrutinizing
+            thousands of public, online sources including official websites of
+            security forces, reporting from domestic and international media,
+            academic research and civil society reports. You can see the sources
+            we have used for every single piece of data on WhoWasInCommand simply
+            by clicking on it.
+            {% endblocktrans %}
+        </p>
+        <h3>{% trans "Who is behind this and why are you doing it?" %}</h3>
+        <p>
+            {# Translators: Please preserve the HTML tags in this text block. #}
+            {% blocktrans %}
+            We’re <a href="https://securityforcemonitor.org" target="_blank">Security Force Monitor</a>,
+            an investigative research project based at the
+            <a href="https://www.law.columbia.edu/human-rights-institute" target="_blank">Human Rights Institute at Columbia Law School</a>
+            in New York. Our work is financed through grants from funders including
+            the Open Society Foundations and the OAK Foundation. Further information
+            about our <a href="https://securityforcemonitor.org/about/" target="_blank">current and past funders can be found here</a>.
+            {% endblocktrans %}
         </p>
         <p>
-            {% comment %}
-            Translators: Make sure to keep the HTML tags intact in this sentence.
-            {% endcomment %}
-            {% trans "It is a tool from <a href='https://securityforcemonitor.org/'>Security Force Monitor</a>, a project of the Human Rights Institute at Columbia Law School. The WhoWasInCommand platform was developed by <a href='https://datamade.us/'>DataMade</a>. We’d also like to thank <a href='https://twitter.com/mckinneyjames'>James McKinney</a> and the team at <a href='https://ffctn.com/en/index'>FFunction</a> for their essential contributions." %}
+            {% blocktrans %}
+            Our aim is to make police, military and other security forces around
+            the world more transparent and accountable. We do this by analyzing
+            and structuring public information on the security forces to show
+            their organizational structure, geographical footprint and operational
+            jurisdiction, their command personnel and their potential connections
+            to alleged human rights violations documented by organizations like
+            Amnesty International and Human Rights Watch.
+            {% endblocktrans %}
+        </p>
+        <p>
+            {% blocktrans %}
+            The opaque nature of most security forces means that investigators
+            face a common challenge of connecting abuses committed by security
+            forces to a specific perpetrator. Access to detailed information on
+            the security forces helps human rights groups to name specific
+            perpetrators when abuses occur. When civil society can make specific
+            allegations a host of accountability mechanisms can be set in motion,
+            including: seeking restrictions on security assistance from external
+            providers, naming and shaming advocacy, and international criminal cases.
+            {% endblocktrans %}
+        </p>
+        <p>
+            {# Translators: Please preserve the HTML tags in this text block. #}
+            {% blocktrans %}
+            All of the data collected we have created is published here on
+            WhoWasInCommand.com. We also work in partnership with human rights
+            groups providing research and analytical expertise to identify
+            connections between documented abuses and wider command structures
+            and individual commanders. You can find some of our work with
+            partners on <a href="https://securityforcemonitor.org/news" target="_blank">our blog</a>
+            or <a href="https://twitter.com/secforcemonitor" target="_blank">Twitter</a>.
+            {% endblocktrans %}
+        </p>
+        <p>
+            {# Translators: Please preserve the HTML tags in this text block. #}
+            {% blocktrans %}
+            WhoWasInCommand.com was engineered by <a href="https://datamade.us" target="_blank">DataMade</a>,
+            a data and web consultancy for civil society.
+            {% endblocktrans %}
+        </p>
+        <h3>{% trans "Where can I get help or find out more?" %}</h3>
+        <p>
+            {# Translators: Please preserve the HTML tags in this text block. #}
+            {% blocktrans %}
+            Our website <a href="https://securityforcemonitor.org" target="_blank">securityforcemonitor.org</a>
+            contains more information about the work we do, including our other
+            initiatives and investigative data projects, our team and advisors,
+            our sources of funding, and the services we offer.
+            {% endblocktrans %}
+        </p>
+        <p>
+            {# Translators: Please preserve the HTML tags in this text block. #}
+            {% blocktrans %}
+            Our public Research Handbook at <a href="http://help.securityforcemonitor.org" target="_blank">help.securityforcemonitor.org</a>
+            contains information about:
+            {% endblocktrans %}
+        </p>
+        <ul>
+            <li>{% trans "The countries covered on WhoWasInCommand.com." %}</li>
+            <li>{% trans "How we find, select and assess information." %}</li>
+            <li>{% trans "The fields, formats and data model we use to store and analyse our data." %}</li>
+            <li>{% trans "The data you will find on WhoWasInCommand.com, and how to use the platform." %}</li>
+        </ul>
+        <p>
+            {# Translators: Please preserve the HTML tags in this text block. #}
+            {% blocktrans %}
+            We develop the software that powers WhoWasInCommand.com
+            <a href="https://github.com/security-force-monitor/sfm-cms" target="_blank">in the open on Github</a>.
+            You can look at some of our design documents, use the code, and find
+            out what bugs and issues the software has.
+            {% endblocktrans %}
         </p>
     </div>
 </div>

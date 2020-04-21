@@ -10,7 +10,7 @@ from django.views.generic.base import TemplateView
 from django.http import HttpResponse, Http404, HttpResponseServerError
 from django.views.generic.edit import FormView
 from django.views.decorators.cache import never_cache
-from django.shortcuts import render
+from django.shortcuts import redirect
 from django.db import connection
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils import timezone
@@ -56,19 +56,6 @@ class Dashboard(TemplateView):
         return context
 
 
-class Countries(TemplateView):
-    template_name = 'sfm/countries.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['countries_tab'] = 'selected-tab'
-        context['conjunta'] = Organization.objects.filter(organizationname__value="Operación Conjunta Chihuahua").first()
-        context['boyona'] = Organization.objects.filter(organizationname__value="Operation BOYONA").first()
-
-        return context
-
-
 class About(TemplateView):
     template_name = 'sfm/about.html'
 
@@ -80,39 +67,8 @@ class About(TemplateView):
         return context
 
 
-class Help(TemplateView):
-    template_name = 'sfm/help.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['help_tab'] = 'selected-tab'
-
-        return context
-
-
-def country_background(request, country):
-
-    valid_countries = [
-        'nigeria',
-        'mexico',
-        'egypt',
-        'bangladesh',
-        'myanmar',
-        'philippines',
-        'rwnada',
-        'saudiarabia',
-        'uganda',
-    ]
-
-    try:
-        assert country in valid_countries
-    except AssertionError:
-        raise Http404()
-
-    template = 'sfm/country-background/{country}.html'.format(country=country)
-
-    return render(request, template)
+def about_redirect(request):
+    return redirect('about', permanent=True)
 
 
 def osm_autocomplete(request):
