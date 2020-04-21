@@ -3,17 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: templates/sfm/country-background/generic_country_backgrounder.html:42
-#: templates/sfm/country-background/generic_country_backgrounder.html:43
-#: templates/sfm/country-background/generic_country_backgrounder.html:44
-#: templates/sfm/country-background/generic_country_backgrounder.html:45
-#: templates/sfm/country-background/generic_country_backgrounder.html:46
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-13 15:00-0500\n"
+"POT-Creation-Date: 2020-04-21 16:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,146 +19,123 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: area/models.py:52 geosite/models.py:54 organization/forms.py:70
-#: organization/models.py:291 person/forms.py:42 person/models.py:189
-#: templates/area/search.html:24 templates/area/search.html:84
-#: templates/location/create.html:100 templates/location/delete.html:27
-#: templates/location/detail.html:35 templates/organization/delete.html:16
-#: templates/organization/edit-locations.html:20
-#: templates/organization/partials/personnel-list.html:13
-#: templates/organization/search.html:22 templates/organization/search.html:162
-#: templates/organization/view.html:212 templates/organization/view.html:275
-#: templates/organization/view.html:358 templates/organization/view.html:423
-#: templates/partials/location_list_table.html:19
-#: templates/partials/organization_list_table.html:14
-#: templates/partials/person_list_table.html:16 templates/person/delete.html:16
-#: templates/person/search.html:21 templates/person/search.html:128
-#: templates/person/view.html:171 templates/person/view.html:233
-#: templates/site/search.html:23 templates/site/search.html:93
-#: templates/violation/view.html:156 templates/violation/view.html:199
-msgid "Name"
+#: area/models.py:54 templates/area/edit.html:11
+msgid "Area of Operations"
 msgstr ""
 
-#: area/models.py:61
+#: area/models.py:65
 msgid "Location geometry"
 msgstr ""
 
-#: area/models.py:69 composition/models.py:84 organization/forms.py:89
-#: organization/models.py:309 templates/area/search.html:28
+#: area/models.py:73 composition/models.py:93 organization/forms.py:89
+#: organization/models.py:313 templates/area/search.html:28
 #: templates/area/search.html:85 templates/composition/search.html:97
 #: templates/composition/search.html:140 templates/organization/create.html:113
 #: templates/organization/create.html:394
 #: templates/organization/delete-composition.html:29
 #: templates/organization/search.html:30 templates/organization/search.html:164
-#: templates/partials/organization_list_table.html:30
-#: templates/search/search.html:157 templates/violation/view.html:201
 msgid "Classification"
 msgstr ""
 
-#: area/models.py:77 geosite/models.py:65
+#: area/models.py:81 geosite/models.py:65
 msgid "OSM name"
 msgstr ""
 
-#: area/models.py:88 geosite/models.py:73 templates/location/create.html:110
+#: area/models.py:92 geosite/models.py:73 templates/location/create.html:110
 #: templates/location/delete.html:37 templates/location/detail.html:45
-#: templates/partials/location_list_table.html:11 violation/models.py:241
+#: templates/partials/location_list_table.html:11 violation/models.py:256
 msgid "OSM ID"
 msgstr ""
 
-#: area/models.py:111 geosite/models.py:122 organization/models.py:318
-#: violation/models.py:249
-msgid "Division ID"
+#: area/models.py:115 organization/forms.py:71 organization/models.py:323
+#: person/forms.py:36 person/models.py:203 sfm_pc/forms.py:565
+#: templates/organization/delete.html:31 templates/person/delete.html:31
+#: templates/search/search.html:84 templates/violation/delete.html:43
+#: violation/forms.py:42 violation/models.py:263
+msgid "Country"
 msgstr ""
 
-#: association/models.py:49 composition/models.py:60 emplacement/models.py:48
-#: sfm_pc/forms.py:548 templates/association/search.html:23
-#: templates/association/search.html:141 templates/composition/search.html:17
-#: templates/composition/search.html:141 templates/emplacement/search.html:23
-#: templates/emplacement/search.html:138
-#: templates/membershipperson/search.html:139
-#: templates/organization/search.html:166
-#: templates/partials/related_entities.html:11 templates/search/search.html:80
-#: templates/search/search.html:181 templates/search/search.html:234
-#: templates/violation/delete.html:21 violation/forms.py:36
-#: violation/models.py:173
-msgid "Start date"
+#: association/models.py:50 composition/models.py:63 emplacement/models.py:49
+#: membershiporganization/models.py:85 membershipperson/models.py:188
+#: organization/models.py:346
+msgid "First Cited Date"
 msgstr ""
 
-#: association/models.py:57 composition/models.py:68 emplacement/models.py:56
-#: membershiporganization/models.py:104 membershipperson/models.py:195
-#: organization/models.py:353 sfm_pc/templatetags/citations.py:141
-msgid "Real start date"
+#: association/models.py:60 membershiporganization/models.py:111
+#: membershipperson/models.py:208 organization/models.py:366
+msgid "Start Date?"
 msgstr ""
 
-#: association/models.py:65 composition/models.py:76 emplacement/models.py:64
-#: sfm_pc/forms.py:549 templates/association/search.html:62
-#: templates/association/search.html:142 templates/composition/search.html:56
-#: templates/composition/search.html:142 templates/emplacement/search.html:62
-#: templates/emplacement/search.html:139
-#: templates/membershipperson/search.html:140
-#: templates/organization/search.html:167
-#: templates/partials/related_entities.html:12 templates/search/search.html:81
-#: templates/search/search.html:187 templates/search/search.html:240
-#: templates/violation/delete.html:27 violation/forms.py:37
-#: violation/models.py:188
-msgid "End date"
+#: association/models.py:70 composition/models.py:83 emplacement/models.py:69
+#: membershiporganization/models.py:98 membershipperson/models.py:198
+#: organization/models.py:356
+msgid "Last Cited Date"
 msgstr ""
 
-#: association/models.py:73 emplacement/models.py:80 location/models.py:52
-#: location/models.py:64 membershiporganization/models.py:71
-#: membershipperson/models.py:146 organization/forms.py:250
-#: organization/forms.py:291 person/forms.py:101
-#: templates/association/search.html:112 templates/association/search.html:143
-#: templates/base.html:72 templates/emplacement/search.html:109
-#: templates/emplacement/search.html:140
-#: templates/organization/delete-association.html:9
-#: templates/organization/delete-emplacement.html:9
-#: templates/organization/delete-membership.html:19
-#: templates/person/delete-posting.html:9
-#: templates/person/partials/person-posting-list.html:13
-#: templates/person/view.html:93 templates/sidebar.html:10
-msgid "Organization"
+#: association/models.py:80 composition/models.py:55 emplacement/models.py:89
+#: membershipperson/models.py:147
+msgid "Unit"
 msgstr ""
 
-#: association/models.py:84 templates/association/search.html:120
-#: templates/association/search.html:144 templates/organization/view.html:105
-#: templates/sidebar.html:13
-msgid "Area"
+#: association/models.py:91
+msgid "Area of Operation"
 msgstr ""
 
-#: association/models.py:95 composition/models.py:92 emplacement/models.py:72
-#: organization/models.py:361 templates/partials/related_entities.html:13
-msgid "Open ended"
+#: association/models.py:102
+msgid "Open-Ended?"
 msgstr ""
 
-#: composition/models.py:44 templates/composition/search.html:109
-msgid "Parent organization"
+#: composition/models.py:45
+msgid "Related Unit"
 msgstr ""
 
-#: composition/models.py:52 templates/composition/search.html:117
-msgid "Child organization"
+#: composition/models.py:73 violation/models.py:175
+msgid "Start Date"
 msgstr ""
 
-#: emplacement/models.py:88 templates/emplacement/search.html:117
+#: composition/models.py:103 emplacement/models.py:79
+#: organization/models.py:376
+msgid "Is Open Ended?"
+msgstr ""
+
+#: emplacement/models.py:59
+msgid "Is Foundation Date?"
+msgstr ""
+
+#: emplacement/models.py:97 templates/emplacement/search.html:117
 #: templates/emplacement/search.html:141
-#: templates/organization/edit-locations.html:35
-#: templates/organization/view.html:159 templates/sidebar.html:15
+#: templates/organization/edit-locations.html:35 templates/sidebar.html:15
 #: templates/site/edit.html:8
 msgid "Site"
 msgstr ""
 
-#: emplacement/models.py:97 organization/models.py:301
-#: templates/organization/search.html:163 templates/person/search.html:129
+#: emplacement/models.py:106 templates/organization/search.html:163
+#: templates/person/search.html:129
 msgid "Alias"
 msgstr ""
 
+#: geosite/models.py:54 organization/forms.py:70 organization/models.py:292
+#: person/forms.py:35 person/models.py:171 templates/area/search.html:24
+#: templates/area/search.html:84 templates/location/create.html:100
+#: templates/location/delete.html:27 templates/location/detail.html:35
+#: templates/organization/delete.html:16
+#: templates/organization/edit-locations.html:20
+#: templates/organization/partials/personnel-list.html:13
+#: templates/organization/search.html:22 templates/organization/search.html:162
+#: templates/partials/location_list_table.html:19
+#: templates/person/delete.html:16 templates/person/search.html:21
+#: templates/person/search.html:128 templates/site/search.html:23
+#: templates/site/search.html:93
+msgid "Name"
+msgstr ""
+
 #: geosite/models.py:81 templates/site/search.html:27
-#: templates/site/search.html:28 violation/models.py:219
+#: templates/site/search.html:28
 msgid "Admin level 1"
 msgstr ""
 
 #: geosite/models.py:89 templates/site/search.html:31
-#: templates/site/search.html:32 violation/models.py:227
+#: templates/site/search.html:32
 msgid "Admin level 2"
 msgstr ""
 
@@ -179,79 +151,81 @@ msgstr ""
 msgid "Location ID"
 msgstr ""
 
+#: geosite/models.py:122
+msgid "Division ID"
+msgstr ""
+
 #: geosite/models.py:130 templates/organization/partials/personnel-list.html:17
-#: templates/organization/view.html:106 templates/organization/view.html:160
-#: templates/organization/view.html:215 templates/organization/view.html:278
-#: templates/organization/view.html:361 templates/organization/view.html:427
-#: templates/partials/organization_list_table.html:54
-#: templates/partials/person_list_table.html:48
 #: templates/person/partials/person-posting-list.html:17
-#: templates/person/view.html:97 templates/search/search.html:122
 msgid "First cited"
 msgstr ""
 
 #: geosite/models.py:138 templates/organization/partials/personnel-list.html:18
-#: templates/organization/view.html:107 templates/organization/view.html:161
-#: templates/organization/view.html:216 templates/organization/view.html:279
-#: templates/organization/view.html:362 templates/organization/view.html:428
-#: templates/partials/organization_list_table.html:62
-#: templates/partials/person_list_table.html:56
 #: templates/person/partials/person-posting-list.html:18
-#: templates/person/view.html:98 templates/search/search.html:128
 msgid "Last cited"
 msgstr ""
 
-#: location/models.py:75 organization/models.py:275 person/models.py:173
+#: location/models.py:52 location/models.py:64 organization/forms.py:250
+#: organization/forms.py:291 person/forms.py:80
+#: templates/association/search.html:112 templates/association/search.html:143
+#: templates/base.html:71 templates/emplacement/search.html:109
+#: templates/emplacement/search.html:140
+#: templates/organization/delete-association.html:9
+#: templates/organization/delete-emplacement.html:9
+#: templates/organization/delete-membership.html:19
+#: templates/person/delete-posting.html:9
+#: templates/person/partials/person-posting-list.html:13
+#: templates/sidebar.html:10
+msgid "Organization"
+msgstr ""
+
+#: location/models.py:75 organization/models.py:276 person/models.py:155
 #: templates/sidebar.html:16
 msgid "Violation"
 msgstr ""
 
-#: membershiporganization/models.py:60 membershipperson/models.py:73
-#: membershipperson/models.py:138
+#: membershiporganization/models.py:61
+msgid "Member Unit"
+msgstr ""
+
+#: membershiporganization/models.py:72
+#: templates/organization/partials/membership-list-table.html:11
+#: templates/person/search.html:32 templates/search/search.html:164
+msgid "Membership"
+msgstr ""
+
+#: membershiporganization/models.py:121 membershipperson/models.py:218
+msgid "End Date?"
+msgstr ""
+
+#: membershipperson/models.py:74 membershipperson/models.py:139
 #: templates/organization/delete-membership.html:9
 msgid "Member"
 msgstr ""
 
-#: membershiporganization/models.py:82 membershipperson/models.py:179
-#: organization/models.py:337 templates/membershipperson/search.html:42
-msgid "First cited date"
-msgstr ""
-
-#: membershiporganization/models.py:93 membershipperson/models.py:187
-#: organization/models.py:345 templates/membershipperson/search.html:81
-msgid "Last cited date"
-msgstr ""
-
-#: membershiporganization/models.py:112 membershipperson/models.py:203
-#: sfm_pc/templatetags/citations.py:161
-msgid "Real end date"
-msgstr ""
-
 #. Translators: This is part of the string "{Rank} of {unit}"
-#: membershipperson/models.py:83
+#: membershipperson/models.py:84
 msgid "of"
 msgstr ""
 
 #. Translators: This is part of the "Last seen as" string for a person,
 #. as in "last seen as {rank} of {unit} on {date}"
 #. Translators: The word "on" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date]" Words in [brackets] indicate variable text.
-#: membershipperson/models.py:107 templates/partials/violation_title.html:12
+#: membershipperson/models.py:108 templates/partials/violation_title.html:12
 msgid "on"
 msgstr ""
 
-#: membershipperson/models.py:154 organization/forms.py:205 person/forms.py:103
+#: membershipperson/models.py:157 organization/forms.py:205 person/forms.py:82
 #: templates/membershipperson/search.html:17
 #: templates/membershipperson/search.html:136
 #: templates/organization/delete-personnel.html:29
 #: templates/organization/partials/personnel-list.html:15
-#: templates/organization/view.html:425 templates/person/delete-posting.html:29
+#: templates/person/delete-posting.html:29
 #: templates/person/partials/person-posting-list.html:15
-#: templates/person/view.html:95 templates/person/view.html:173
-#: templates/person/view.html:235 templates/search/search.html:110
 msgid "Role"
 msgstr ""
 
-#: membershipperson/models.py:163 organization/forms.py:206 person/forms.py:104
+#: membershipperson/models.py:168 organization/forms.py:206 person/forms.py:83
 #: sfm_pc/templatetags/citations.py:15
 #: templates/membershipperson/create.html:45
 #: templates/membershipperson/edit.html:21
@@ -259,41 +233,35 @@ msgstr ""
 #: templates/membershipperson/search.html:137
 #: templates/organization/delete-personnel.html:39
 #: templates/organization/partials/personnel-list.html:16
-#: templates/organization/view.html:426
-#: templates/partials/source_list_table.html:11
 #: templates/person/delete-posting.html:39
 #: templates/person/partials/person-posting-list.html:16
-#: templates/person/view.html:96 templates/source/delete.html:15
+#: templates/source/delete.html:15
 msgid "Title"
 msgstr ""
 
-#: membershipperson/models.py:171 organization/forms.py:204 person/forms.py:102
+#: membershipperson/models.py:178 organization/forms.py:204 person/forms.py:81
 #: templates/membershipperson/search.html:26
 #: templates/membershipperson/search.html:138
 #: templates/organization/delete-personnel.html:19
 #: templates/organization/partials/personnel-list.html:14
-#: templates/organization/view.html:424 templates/person/delete-posting.html:19
+#: templates/person/delete-posting.html:19
 #: templates/person/partials/person-posting-list.html:14
-#: templates/person/view.html:94 templates/person/view.html:172
-#: templates/person/view.html:234 templates/search/search.html:116
 msgid "Rank"
 msgstr ""
 
-#: membershipperson/models.py:211 templates/membershipperson/create.html:127
-#: templates/membershipperson/edit.html:77
-msgid "Start context"
+#: membershipperson/models.py:228
+msgid "Start Date Context"
 msgstr ""
 
-#: membershipperson/models.py:219 templates/membershipperson/create.html:158
-#: templates/membershipperson/edit.html:107
-msgid "End context"
+#: membershipperson/models.py:238
+msgid "End Date Context"
 msgstr ""
 
-#: organization/forms.py:48 sfm_pc/settings.py:327 tests/test_settings.py:212
+#: organization/forms.py:48 sfm_pc/settings.py:338 tests/test_settings.py:215
 msgid "Yes"
 msgstr ""
 
-#: organization/forms.py:49 sfm_pc/settings.py:328 tests/test_settings.py:213
+#: organization/forms.py:49 sfm_pc/settings.py:339 tests/test_settings.py:216
 msgid "No"
 msgstr ""
 
@@ -301,18 +269,9 @@ msgstr ""
 msgid "Last cited date is termination date"
 msgstr ""
 
-#: organization/forms.py:71 person/forms.py:46 person/models.py:257
-#: sfm_pc/forms.py:544 templates/organization/delete.html:31
-#: templates/partials/organization_list_table.html:46
-#: templates/person/delete.html:31 templates/search/search.html:83
-#: templates/sfm/country-background/generic_country_backgrounder.html:6
-#: templates/violation/delete.html:43 violation/forms.py:42
-msgid "Country"
-msgstr ""
-
 #: organization/forms.py:72 organization/forms.py:118 organization/forms.py:163
 #: organization/forms.py:207 organization/forms.py:247
-#: organization/forms.py:288 person/forms.py:105
+#: organization/forms.py:288 person/forms.py:84
 #: templates/organization/delete-association.html:29
 #: templates/organization/delete-composition.html:39
 #: templates/organization/delete-emplacement.html:45
@@ -327,7 +286,7 @@ msgstr ""
 
 #: organization/forms.py:73 organization/forms.py:119 organization/forms.py:164
 #: organization/forms.py:208 organization/forms.py:248
-#: organization/forms.py:289 person/forms.py:106
+#: organization/forms.py:289 person/forms.py:85
 #: templates/organization/delete-association.html:49
 #: templates/organization/delete-composition.html:59
 #: templates/organization/delete-emplacement.html:65
@@ -342,7 +301,7 @@ msgstr ""
 
 #: organization/forms.py:74 organization/forms.py:117 organization/forms.py:162
 #: organization/forms.py:209 organization/forms.py:246
-#: organization/forms.py:287 person/forms.py:107
+#: organization/forms.py:287 person/forms.py:86
 #: templates/organization/delete-association.html:39
 #: templates/organization/delete-composition.html:49
 #: templates/organization/delete-emplacement.html:55
@@ -359,7 +318,7 @@ msgstr ""
 msgid "Open-ended?"
 msgstr ""
 
-#: organization/forms.py:82 person/forms.py:62 person/models.py:198
+#: organization/forms.py:82 person/forms.py:48
 msgid "Other names"
 msgstr ""
 
@@ -367,7 +326,7 @@ msgstr ""
 msgid "Relationship classification"
 msgstr ""
 
-#: organization/forms.py:166 organization/forms.py:210 person/forms.py:108
+#: organization/forms.py:166 organization/forms.py:210 person/forms.py:87
 #: templates/organization/delete-membership.html:59
 #: templates/organization/delete-personnel.html:89
 #: templates/person/delete-posting.html:89
@@ -378,13 +337,13 @@ msgstr ""
 msgid "Person name"
 msgstr ""
 
-#: organization/forms.py:211 person/forms.py:109
+#: organization/forms.py:211 person/forms.py:88
 #: templates/organization/delete-personnel.html:69
 #: templates/person/delete-posting.html:69
 msgid "Context for start date"
 msgstr ""
 
-#: organization/forms.py:212 person/forms.py:110
+#: organization/forms.py:212 person/forms.py:89
 #: templates/organization/delete-personnel.html:99
 #: templates/person/delete-posting.html:99
 msgid "Context for end date"
@@ -394,68 +353,40 @@ msgstr ""
 msgid "Location other names"
 msgstr ""
 
-#: organization/models.py:143 person/models.py:155
+#: organization/models.py:144 person/models.py:137
 msgid "MembershipPerson"
 msgstr ""
 
-#: organization/models.py:162 organization/models.py:181
+#: organization/models.py:163 organization/models.py:182
 #: templates/composition/edit.html:9 templates/sidebar.html:11
 msgid "Composition"
 msgstr ""
 
-#: organization/models.py:200 organization/models.py:219
+#: organization/models.py:201 organization/models.py:220
 msgid "MembershipOrganization"
 msgstr ""
 
-#: organization/models.py:238 templates/association/edit.html:9
+#: organization/models.py:239 templates/association/edit.html:9
 #: templates/sidebar.html:12
 msgid "Association"
 msgstr ""
 
-#: organization/models.py:257 templates/emplacement/edit.html:9
+#: organization/models.py:258 templates/emplacement/edit.html:9
 #: templates/sidebar.html:14
 msgid "Emplacement"
 msgstr ""
 
-#: organization/models.py:329 templates/organization/create.html:190
-#: templates/organization/create.html:426
-msgid "Headquarters"
+#: organization/models.py:303 person/models.py:182
+msgid "Other Names"
 msgstr ""
 
-#: person/forms.py:43 person/models.py:207 templates/person/delete.html:37
-msgid "Gender"
+#: organization/models.py:336
+msgid "Base Name"
 msgstr ""
 
-#: person/forms.py:44
-msgid "Male"
-msgstr ""
-
-#: person/forms.py:44
-msgid "Female"
-msgstr ""
-
-#: person/forms.py:47 person/models.py:215 templates/person/delete.html:43
-msgid "Date of birth"
-msgstr ""
-
-#: person/forms.py:48 person/models.py:223 templates/person/delete.html:49
-msgid "Date of death"
-msgstr ""
-
-#: person/forms.py:49 person/models.py:231 templates/person/delete.html:55
-msgid "Deceased"
-msgstr ""
-
-#: person/forms.py:50 person/models.py:240 templates/person/delete.html:61
-msgid "Biography"
-msgstr ""
-
-#: person/forms.py:51 person/models.py:249 templates/person/delete.html:67
+#: person/forms.py:37 person/models.py:193 personextra/models.py:108
+#: templates/person/delete.html:67
 msgid "Notes"
-msgstr ""
-
-#: person/forms.py:69 person/models.py:266
-msgid "External links"
 msgstr ""
 
 #: person/views.py:216 person/views.py:222 person/views.py:224
@@ -467,108 +398,183 @@ msgstr ""
 msgid "days"
 msgstr ""
 
-#: sfm_pc/base_views.py:88 sfm_pc/settings.py:321
-#: templates/modals/source.html:13 tests/test_settings.py:206
+#: personbiography/models.py:49 personextra/models.py:46 templates/base.html:68
+#: templates/organization/delete-personnel.html:9
+#: templates/person/search.html:7
+msgid "Person"
+msgstr ""
+
+#: personbiography/models.py:60 templates/person/delete.html:37
+msgid "Gender"
+msgstr ""
+
+#: personbiography/models.py:70
+msgid "Date of Birth"
+msgstr ""
+
+#: personbiography/models.py:80
+msgid "Date Deceased"
+msgstr ""
+
+#: personbiography/models.py:90 templates/person/delete.html:55
+msgid "Deceased"
+msgstr ""
+
+#: personextra/models.py:57
+msgid "Online Account Type"
+msgstr ""
+
+#: personextra/models.py:69
+msgid "Online Account Identifier"
+msgstr ""
+
+#: personextra/models.py:82
+msgid "External Link Description"
+msgstr ""
+
+#: personextra/models.py:95
+msgid "Media Description"
+msgstr ""
+
+#: sfm_pc/base_views.py:111 sfm_pc/settings.py:332
+#: templates/modals/source.html:13 tests/test_settings.py:209
 msgid "Low"
 msgstr ""
 
-#: sfm_pc/base_views.py:89 sfm_pc/settings.py:322
-#: templates/modals/source.html:14 tests/test_settings.py:207
+#: sfm_pc/base_views.py:112 sfm_pc/settings.py:333
+#: templates/modals/source.html:14 tests/test_settings.py:210
 msgid "Medium"
 msgstr ""
 
-#: sfm_pc/base_views.py:90 sfm_pc/settings.py:323
-#: templates/modals/source.html:15 tests/test_settings.py:208
+#: sfm_pc/base_views.py:113 sfm_pc/settings.py:334
+#: templates/modals/source.html:15 tests/test_settings.py:211
 msgid "High"
 msgstr ""
 
-#: sfm_pc/forms.py:263 sfm_pc/forms.py:270
+#: sfm_pc/forms.py:223 sfm_pc/forms.py:452
+msgid "Empty fields should not have sources"
+msgstr ""
+
+#: sfm_pc/forms.py:271 sfm_pc/forms.py:278
 msgid "This field has new values so it requires sources"
 msgstr ""
 
-#: sfm_pc/forms.py:281
+#: sfm_pc/forms.py:289
 msgid "This field now has a value so it requires sources"
 msgstr ""
 
-#: sfm_pc/forms.py:287
+#: sfm_pc/forms.py:295
 msgid "This field changed so it requires sources"
 msgstr ""
 
-#: sfm_pc/forms.py:301
+#: sfm_pc/forms.py:309
 msgid "Please add some sources to this field"
 msgstr ""
 
-#: sfm_pc/forms.py:448
+#: sfm_pc/forms.py:466
 msgid "This field requires sources"
 msgstr ""
 
-#: sfm_pc/forms.py:533
+#: sfm_pc/forms.py:553
 msgid "Basic"
 msgstr ""
 
-#: sfm_pc/forms.py:534
+#: sfm_pc/forms.py:554
 msgid "Parentage"
 msgstr ""
 
-#: sfm_pc/forms.py:535 templates/organization/view.html:64
-#: templates/organization/view.html:80 templates/organization/view.html:204
-#: templates/person/view.html:48 templates/person/view.html:58
+#: sfm_pc/forms.py:555 templates/organization/view.html:65
+#: templates/organization/view.html:81 templates/organization/view.html:205
+#: templates/person/view.html:49 templates/person/view.html:59
 msgid "Memberships"
 msgstr ""
 
-#: sfm_pc/forms.py:536 templates/organization/view.html:62
-#: templates/organization/view.html:78 templates/organization/view.html:96
+#: sfm_pc/forms.py:556 templates/organization/view.html:63
+#: templates/organization/view.html:79 templates/organization/view.html:97
 msgid "Areas of operation"
 msgstr ""
 
-#: sfm_pc/forms.py:537 templates/organization/view.html:63
-#: templates/organization/view.html:79 templates/organization/view.html:150
+#: sfm_pc/forms.py:557 templates/organization/view.html:64
+#: templates/organization/view.html:80 templates/organization/view.html:151
 msgid "Sites"
 msgstr ""
 
-#: sfm_pc/forms.py:538 templates/base.html:51
+#: sfm_pc/forms.py:558 templates/base.html:50
 #: templates/organization/base-organization.html:35
 #: templates/organization/partials/personnel-list.html:6
-#: templates/organization/view.html:68 templates/organization/view.html:84
-#: templates/organization/view.html:415 templates/partials/nav-wizard.html:7
+#: templates/organization/view.html:69 templates/organization/view.html:85
+#: templates/organization/view.html:416 templates/partials/nav-wizard.html:7
 #: templates/partials/person_search_results.html:5
-#: templates/search/search.html:42 templates/sfm/dashboard.html:28
+#: templates/search/search.html:43 templates/sfm/dashboard.html:28
 msgid "Personnel"
 msgstr ""
 
-#: sfm_pc/forms.py:539 templates/base.html:55 templates/modals/source.html:29
-#: templates/modals/version.html:10 templates/organization/view.html:70
-#: templates/organization/view.html:86
+#: sfm_pc/forms.py:559 templates/base.html:54 templates/modals/source.html:29
+#: templates/modals/version.html:10 templates/organization/view.html:71
+#: templates/organization/view.html:87
 #: templates/partials/source_search_results.html:5
-#: templates/search/search.html:46 templates/sfm/dashboard.html:41
-#: templates/violation/view.html:89 templates/violation/view.html:101
+#: templates/search/search.html:47 templates/sfm/dashboard.html:41
+#: templates/violation/view.html:90 templates/violation/view.html:102
 msgid "Sources"
 msgstr ""
 
-#: sfm_pc/forms.py:543
+#: sfm_pc/forms.py:564
 msgid "Choose a download type"
 msgstr ""
 
-#: sfm_pc/settings.py:175 tests/test_settings.py:126
+#: sfm_pc/forms.py:566
+msgid "Include sources"
+msgstr ""
+
+#: sfm_pc/forms.py:567
+msgid "Include confidence scores"
+msgstr ""
+
+#: sfm_pc/forms.py:571 templates/association/search.html:23
+#: templates/association/search.html:141 templates/composition/search.html:17
+#: templates/composition/search.html:141 templates/emplacement/search.html:23
+#: templates/emplacement/search.html:138
+#: templates/membershipperson/search.html:139
+#: templates/organization/search.html:166
+#: templates/partials/related_entities.html:11 templates/search/search.html:81
+#: templates/violation/delete.html:21 violation/forms.py:36
+msgid "Start date"
+msgstr ""
+
+#: sfm_pc/forms.py:572 templates/association/search.html:62
+#: templates/association/search.html:142 templates/composition/search.html:56
+#: templates/composition/search.html:142 templates/emplacement/search.html:62
+#: templates/emplacement/search.html:139
+#: templates/membershipperson/search.html:140
+#: templates/organization/search.html:167
+#: templates/partials/related_entities.html:12 templates/search/search.html:82
+#: templates/violation/delete.html:27 violation/forms.py:37
+msgid "End date"
+msgstr ""
+
+#: sfm_pc/settings.py:177 tests/test_settings.py:128
 msgid "French"
 msgstr ""
 
-#: sfm_pc/settings.py:176 sfm_pc/templatetags/language_url.py:15
-#: templates/base.html:159 tests/test_settings.py:127
+#: sfm_pc/settings.py:178 sfm_pc/templatetags/language_url.py:15
+#: templates/base.html:157 tests/test_settings.py:129
 msgid "English"
 msgstr ""
 
-#: sfm_pc/settings.py:177 sfm_pc/templatetags/language_url.py:16
-#: templates/base.html:160 tests/test_settings.py:128
+#: sfm_pc/settings.py:179 sfm_pc/templatetags/language_url.py:16
+#: templates/base.html:158 tests/test_settings.py:130
 msgid "Spanish"
 msgstr ""
 
-#: sfm_pc/settings.py:329 tests/test_settings.py:214
+#: sfm_pc/settings.py:180
+msgid "Arabic"
+msgstr ""
+
+#: sfm_pc/settings.py:340 tests/test_settings.py:217
 msgid "Exact"
 msgstr ""
 
-#: sfm_pc/templatetags/citations.py:16
-#: templates/partials/source_list_table.html:27 templates/source/delete.html:20
+#: sfm_pc/templatetags/citations.py:16 templates/source/delete.html:20
 #: templates/source/edit.html:73
 msgid "Publication"
 msgstr ""
@@ -629,10 +635,18 @@ msgstr ""
 msgid "Confidence: HIGH"
 msgstr ""
 
+#: sfm_pc/templatetags/citations.py:141
+msgid "Real start date"
+msgstr ""
+
 #: sfm_pc/templatetags/citations.py:142
 msgid ""
 "We believe that this date represents a real start date, as well as being the "
 "first recorded citation date."
+msgstr ""
+
+#: sfm_pc/templatetags/citations.py:161
+msgid "Real end date"
 msgstr ""
 
 #: sfm_pc/templatetags/citations.py:162
@@ -641,7 +655,7 @@ msgid ""
 "last recorded citation date."
 msgstr ""
 
-#: sfm_pc/utils.py:558
+#: sfm_pc/utils.py:565
 msgid "Unknown commander"
 msgstr ""
 
@@ -657,19 +671,19 @@ msgstr ""
 msgid "Date published is required"
 msgstr ""
 
-#: source/models.py:104
+#: source/models.py:183
 #, python-format
 msgid "(Page %(pages)s)"
 msgid_plural "(Pages %(pages)s)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: source/models.py:112
+#: source/models.py:191
 #, python-format
 msgid "Accessed on %(date)s"
 msgstr ""
 
-#: source/models.py:122
+#: source/models.py:201
 msgid "No timestamp"
 msgstr ""
 
@@ -1059,10 +1073,6 @@ msgid ""
 "mail address</a>."
 msgstr ""
 
-#: templates/area/edit.html:11
-msgid "Area of Operations"
-msgstr ""
-
 #: templates/area/edit.html:13 templates/composition/edit.html:11
 #: templates/composition/search.html:9
 msgid "Add new"
@@ -1077,8 +1087,8 @@ msgstr ""
 
 #: templates/area/edit.html:47 templates/association/edit.html:46
 #: templates/base_delete.html:23 templates/composition/create.html:291
-#: templates/composition/edit.html:57 templates/edit.html:78
-#: templates/edit.html:80 templates/emplacement/edit.html:46
+#: templates/composition/edit.html:57 templates/edit.html:80
+#: templates/edit.html:82 templates/emplacement/edit.html:46
 #: templates/membershiporganization/create.html:148
 #: templates/organization/create.html:343 templates/site/edit.html:53
 #: templates/source/access-points.html:134 templates/source/edit.html:133
@@ -1086,7 +1096,7 @@ msgid "Cancel"
 msgstr ""
 
 #: templates/area/edit.html:48 templates/association/edit.html:47
-#: templates/composition/edit.html:58 templates/edit.html:83
+#: templates/composition/edit.html:58 templates/edit.html:85
 #: templates/emplacement/edit.html:47
 #: templates/partials/organization_merge.html:9
 #: templates/partials/person_merge.html:9 templates/site/edit.html:54
@@ -1099,7 +1109,7 @@ msgid "Search Area"
 msgstr ""
 
 #: templates/area/search.html:10 templates/association/edit.html:11
-#: templates/association/search.html:9 templates/base.html:59
+#: templates/association/search.html:9 templates/base.html:58
 #: templates/emplacement/edit.html:11 templates/emplacement/search.html:9
 #: templates/membershipperson/search.html:9
 #: templates/organization/search.html:9 templates/person/search.html:9
@@ -1378,30 +1388,32 @@ msgstr ""
 msgid "Enter organization name"
 msgstr ""
 
+#: templates/association/search.html:120 templates/association/search.html:144
+#: templates/sidebar.html:13
+msgid "Area"
+msgstr ""
+
 #: templates/base.html:33
 msgid "A tool from"
 msgstr ""
 
-#: templates/base.html:50
-msgid "Countries"
-msgstr ""
-
-#: templates/base.html:52 templates/organization/create.html:15
+#: templates/base.html:51 templates/organization/create.html:15
 #: templates/partials/nav-wizard.html:6
 #: templates/partials/organization_search_results.html:5
-#: templates/search/search.html:43 templates/sfm/dashboard.html:32
+#: templates/search/search.html:44 templates/sfm/dashboard.html:32
 msgid "Units"
 msgstr ""
 
-#: templates/base.html:53 templates/organization/view.html:69
-#: templates/organization/view.html:85 templates/organization/view.html:473
+#: templates/base.html:52 templates/organization/view.html:70
+#: templates/organization/view.html:86 templates/organization/view.html:474
 #: templates/partials/nav-wizard.html:10
 #: templates/partials/violation_search_results.html:5
-#: templates/search/search.html:44 templates/sfm/dashboard.html:36
+#: templates/person/view.html:286 templates/search/search.html:45
+#: templates/sfm/dashboard.html:36
 msgid "Incidents"
 msgstr ""
 
-#: templates/base.html:56 templates/organization/base-organization.html:38
+#: templates/base.html:55 templates/organization/base-organization.html:38
 #: templates/partials/location_search_results.html:5
 #: templates/violation/create-locations.html:26
 #: templates/violation/edit-basics.html:21
@@ -1409,43 +1421,32 @@ msgstr ""
 msgid "Locations"
 msgstr ""
 
-#: templates/base.html:63 templates/source/delete-access-point.html:15
+#: templates/base.html:62 templates/source/delete-access-point.html:15
 msgid "Source"
 msgstr ""
 
-#: templates/base.html:66 templates/organization/delete-association.html:19
+#: templates/base.html:65 templates/organization/delete-association.html:19
 #: templates/organization/delete-emplacement.html:19
-#: templates/partials/violation_list_table.html:43
-#: templates/violation/view.html:85 templates/violation/view.html:97
-#: templates/violation/view.html:112 violation/models.py:136
-#: violation/models.py:257
+#: templates/violation/view.html:86 templates/violation/view.html:98
+#: templates/violation/view.html:113 violation/models.py:139
 msgid "Location"
 msgstr ""
 
-#: templates/base.html:69 templates/organization/delete-personnel.html:9
-#: templates/person/search.html:7
-msgid "Person"
-msgstr ""
-
-#: templates/base.html:75 templates/partials/violation_title.html:4
+#: templates/base.html:74 templates/partials/violation_title.html:4
 msgid "Incident"
 msgstr ""
 
-#: templates/base.html:80
-msgid "Help"
-msgstr ""
-
-#: templates/base.html:81 templates/sfm/about.html:6
+#: templates/base.html:79 templates/sfm/about.html:6
 msgid "About"
 msgstr ""
 
-#: templates/base.html:83
+#: templates/base.html:81
 msgid "Logout"
 msgstr ""
 
 #. Translators: Make sure to keep the HTML tags intact in this sentence.
 #.
-#: templates/base.html:113
+#: templates/base.html:111
 msgid ""
 "\n"
 "                    <p><strong>WhoWasInCommand</strong> publishes data on "
@@ -1458,31 +1459,31 @@ msgid ""
 "                    "
 msgstr ""
 
-#: templates/base.html:117
+#: templates/base.html:115
 msgid "The content of WhoWasInCommand is licensed under"
 msgstr ""
 
-#: templates/base.html:117
+#: templates/base.html:115
 msgid "Creative Commons Attribution License 4.0"
 msgstr ""
 
-#: templates/base.html:121
+#: templates/base.html:119
 msgid "Site contents"
 msgstr ""
 
-#: templates/base.html:123 templates/sfm/help.html:28
+#: templates/base.html:121
 msgid "Help - Frequently Asked Questions"
 msgstr ""
 
-#: templates/base.html:124
+#: templates/base.html:122
 msgid "About WhoWasInCommand"
 msgstr ""
 
-#: templates/base.html:125
+#: templates/base.html:123
 msgid "Contact"
 msgstr ""
 
-#: templates/base.html:126
+#: templates/base.html:124
 msgid "Source code"
 msgstr ""
 
@@ -1594,8 +1595,16 @@ msgstr ""
 msgid "Enter classification"
 msgstr ""
 
+#: templates/composition/search.html:109
+msgid "Parent organization"
+msgstr ""
+
 #: templates/composition/search.html:110
 msgid "Enter parent organization"
+msgstr ""
+
+#: templates/composition/search.html:117
+msgid "Child organization"
 msgstr ""
 
 #: templates/composition/search.html:118
@@ -1619,7 +1628,7 @@ msgid "Child"
 msgstr ""
 
 #: templates/download.html:4
-msgid "Download information about organizations"
+msgid "Download information about units"
 msgstr ""
 
 #: templates/edit.html:15 templates/organization/base-organization.html:10
@@ -1652,19 +1661,19 @@ msgstr ""
 msgid "View versions"
 msgstr ""
 
-#: templates/edit.html:34
+#: templates/edit.html:35
 msgid "Edit sources and confidence levels"
 msgstr ""
 
-#: templates/edit.html:82
+#: templates/edit.html:84
 msgid "Save & continue editing"
 msgstr ""
 
-#: templates/edit.html:107
+#: templates/edit.html:109
 msgid "Access Point"
 msgstr ""
 
-#: templates/edit.html:117
+#: templates/edit.html:119
 #, python-format
 msgctxt "Leave the HTML tags intact, including field_label"
 msgid ""
@@ -1674,7 +1683,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/edit.html:124
+#: templates/edit.html:126
 #, python-format
 msgctxt "Leave the HTML tags intact, including field_label"
 msgid ""
@@ -1684,7 +1693,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/edit.html:131
+#: templates/edit.html:133
 #, python-format
 msgctxt "Leave the HTML tags intact, including field_label"
 msgid ""
@@ -1694,7 +1703,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/edit.html:139
+#: templates/edit.html:141
 #, python-format
 msgctxt "Leave the HTML tags intact, including field_label"
 msgid ""
@@ -1704,7 +1713,7 @@ msgid ""
 "                "
 msgstr ""
 
-#: templates/edit.html:156
+#: templates/edit.html:158
 #, python-format
 msgctxt "Leave the HTML tags intact, including field_label"
 msgid ""
@@ -1779,11 +1788,11 @@ msgstr ""
 
 #: templates/location/create.html:154 templates/location/delete.html:64
 #: templates/location/detail.html:104
-#: templates/organization/edit-locations.html:113
-#: templates/organization/view.html:522 templates/organization/view.html:544
+#: templates/organization/edit-locations.html:109
+#: templates/organization/view.html:523 templates/organization/view.html:545
 #: templates/violation/create-locations.html:177
-#: templates/violation/edit-locations.html:203
-#: templates/violation/view.html:251
+#: templates/violation/edit-locations.html:185
+#: templates/violation/view.html:252
 msgid ""
 "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> "
 "contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-"
@@ -1850,7 +1859,7 @@ msgstr ""
 #: templates/person/edit-postings.html:302
 #: templates/source/access-points.html:53
 #: templates/source/access-points.html:130 templates/source/edit.html:127
-#: templates/violation/edit-basics.html:273
+#: templates/violation/edit-basics.html:217
 msgid "Delete"
 msgstr ""
 
@@ -1862,29 +1871,29 @@ msgstr ""
 msgid "Search for a location by name"
 msgstr ""
 
-#: templates/location/list.html:50 templates/search/search.html:24
+#: templates/location/list.html:50 templates/search/search.html:25
 msgid "Go!"
 msgstr ""
 
 #: templates/location/list.html:58 templates/partials/source_edit_js.html:50
-#: templates/partials/source_edit_js.html:60 templates/search/search.html:283
+#: templates/partials/source_edit_js.html:60 templates/search/search.html:284
 msgid "No results found"
 msgstr ""
 
-#: templates/location/list.html:58 templates/search/search.html:281
-#: templates/search/search.html:283
+#: templates/location/list.html:58 templates/search/search.html:282
+#: templates/search/search.html:284
 msgid "for"
 msgstr ""
 
-#: templates/location/list.html:67 templates/search/search.html:322
+#: templates/location/list.html:67 templates/search/search.html:323
 msgid "For better results, try adjusting your search filters."
 msgstr ""
 
-#: templates/location/list.html:70 templates/search/search.html:325
+#: templates/location/list.html:70 templates/search/search.html:326
 msgid "Think we're missing something?"
 msgstr ""
 
-#: templates/location/list.html:70 templates/search/search.html:325
+#: templates/location/list.html:70 templates/search/search.html:326
 msgid "Let us know!"
 msgstr ""
 
@@ -1944,8 +1953,18 @@ msgstr ""
 msgid "Select a Rank"
 msgstr ""
 
+#: templates/membershipperson/create.html:127
+#: templates/membershipperson/edit.html:77
+msgid "Start context"
+msgstr ""
+
 #: templates/membershipperson/create.html:129
 msgid "Describe the circumstances surrounding the start of this membership"
+msgstr ""
+
+#: templates/membershipperson/create.html:158
+#: templates/membershipperson/edit.html:107
+msgid "End context"
 msgstr ""
 
 #: templates/membershipperson/create.html:160
@@ -2004,6 +2023,14 @@ msgstr ""
 
 #: templates/membershipperson/search.html:36
 msgid "Enter title"
+msgstr ""
+
+#: templates/membershipperson/search.html:42
+msgid "First cited date"
+msgstr ""
+
+#: templates/membershipperson/search.html:81
+msgid "Last cited date"
 msgstr ""
 
 #: templates/modals/source.html:4
@@ -2149,16 +2176,17 @@ msgid "Unit name"
 msgstr ""
 
 #: templates/organization/create.html:75 templates/organization/create.html:380
-#: templates/organization/view.html:213 templates/organization/view.html:276
-#: templates/organization/view.html:359
-#: templates/partials/person_list_table.html:24
-#: templates/violation/view.html:157 templates/violation/view.html:200
 msgid "Aliases"
 msgstr ""
 
 #: templates/organization/create.html:154
 #: templates/organization/create.html:411
 msgid "Division identifier"
+msgstr ""
+
+#: templates/organization/create.html:190
+#: templates/organization/create.html:426
+msgid "Headquarters"
 msgstr ""
 
 #: templates/organization/create.html:192
@@ -2206,8 +2234,7 @@ msgid "Classified as"
 msgstr ""
 
 #: templates/organization/edit-association.html:7
-#: templates/organization/edit-emplacement.html:7
-msgid "Edit Location"
+msgid "Edit area"
 msgstr ""
 
 #: templates/organization/edit-composition.html:17
@@ -2230,6 +2257,10 @@ msgstr ""
 msgid "Edit relationships"
 msgstr ""
 
+#: templates/organization/edit-emplacement.html:7
+msgid "Edit site"
+msgstr ""
+
 #: templates/organization/edit-locations.html:52
 msgid "Area of operations"
 msgstr ""
@@ -2244,11 +2275,6 @@ msgstr ""
 
 #: templates/organization/edit-personnel.html:13
 msgid "Edit personnel"
-msgstr ""
-
-#: templates/organization/partials/membership-list-table.html:11
-#: templates/person/search.html:32 templates/search/search.html:163
-msgid "Membership"
 msgstr ""
 
 #: templates/organization/search.html:7
@@ -2275,78 +2301,73 @@ msgstr ""
 msgid "Superior Unit"
 msgstr ""
 
-#: templates/organization/view.html:21 templates/person/view.html:15
-#: templates/violation/view.html:23
+#: templates/organization/view.html:22 templates/person/view.html:16
+#: templates/violation/view.html:24
 msgid "Download as CSV"
 msgstr ""
 
-#: templates/organization/view.html:23 templates/person/view.html:17
-#: templates/violation/view.html:25
+#: templates/organization/view.html:24 templates/person/view.html:18
+#: templates/violation/view.html:26
 msgid "Print this page"
 msgstr ""
 
-#: templates/organization/view.html:27 templates/person/view.html:21
-#: templates/source/access-points.html:48 templates/source/view.html:14
-#: templates/violation/view.html:29
+#: templates/organization/view.html:28 templates/person/view.html:22
+#: templates/source/access-points.html:48 templates/source/view.html:15
+#: templates/violation/view.html:30
 msgid "Edit"
 msgstr ""
 
-#: templates/organization/view.html:33 templates/person/view.html:27
+#: templates/organization/view.html:34 templates/person/view.html:28
 msgid "Also known as:"
 msgstr ""
 
-#: templates/organization/view.html:41 templates/person/view.html:35
-#: templates/violation/view.html:51
+#: templates/organization/view.html:42 templates/person/view.html:36
+#: templates/violation/view.html:52
 msgid "Country:"
 msgstr ""
 
-#: templates/organization/view.html:46
+#: templates/organization/view.html:47
 msgid "Classified as:"
 msgstr ""
 
-#: templates/organization/view.html:65 templates/organization/view.html:81
-#: templates/organization/view.html:267
+#: templates/organization/view.html:66 templates/organization/view.html:82
+#: templates/organization/view.html:268
 msgid "Member units"
 msgstr ""
 
-#: templates/organization/view.html:66 templates/organization/view.html:82
-#: templates/organization/view.html:332
+#: templates/organization/view.html:67 templates/organization/view.html:83
+#: templates/organization/view.html:333
 msgid "Parent units"
 msgstr ""
 
-#: templates/organization/view.html:67 templates/organization/view.html:83
-#: templates/organization/view.html:351
+#: templates/organization/view.html:68 templates/organization/view.html:84
+#: templates/organization/view.html:352
 msgid "Subsidiaries"
 msgstr ""
 
-#: templates/organization/view.html:206
+#: templates/organization/view.html:207
 msgid "Multi-unit organizations that this unit is part of"
 msgstr ""
 
-#: templates/organization/view.html:214 templates/organization/view.html:277
-#: templates/organization/view.html:360
-msgid "Classifications"
-msgstr ""
-
-#: templates/organization/view.html:269
+#: templates/organization/view.html:270
 msgid "All units that comprise this unit."
 msgstr ""
 
-#: templates/organization/view.html:334
+#: templates/organization/view.html:335
 msgid "All units that have held a command position over this unit."
 msgstr ""
 
-#: templates/organization/view.html:337 templates/person/view.html:151
+#: templates/organization/view.html:338 templates/person/view.html:152
 msgid "Swipe to zoom, click and drag to pan"
 msgstr ""
 
-#: templates/organization/view.html:417
+#: templates/organization/view.html:418
 msgid ""
 "Table showing personnel linked to this unit in command, administrative and "
 "other roles"
 msgstr ""
 
-#: templates/organization/view.html:574 templates/person/view.html:321
+#: templates/organization/view.html:575 templates/person/view.html:322
 msgid "No known end date"
 msgstr ""
 
@@ -2410,12 +2431,12 @@ msgstr ""
 msgid "Geographies"
 msgstr ""
 
-#: templates/partials/organization_list_table.html:22
-#: templates/search/search.html:169
+#: templates/partials/organization_list_table.html:23
+#: templates/search/search.html:170
 msgid "Parents"
 msgstr ""
 
-#: templates/partials/organization_list_table.html:38
+#: templates/partials/organization_list_table.html:39
 msgid "Last site"
 msgstr ""
 
@@ -2430,20 +2451,20 @@ msgstr ""
 msgid "Download results"
 msgstr ""
 
-#: templates/partials/person_list_table.html:10
+#: templates/partials/person_list_table.html:11
 msgid "Select"
 msgstr ""
 
-#: templates/partials/person_list_table.html:13
+#: templates/partials/person_list_table.html:14
 msgid "Select canonical record"
 msgstr ""
 
-#: templates/partials/person_list_table.html:32
-msgid "Most recent rank"
+#: templates/partials/person_list_table.html:33
+msgid "Most Recent Rank"
 msgstr ""
 
-#: templates/partials/person_list_table.html:40
-msgid "Most recent unit"
+#: templates/partials/person_list_table.html:41
+msgid "Most Recent Unit"
 msgstr ""
 
 #: templates/partials/person_merge.html:3 templates/sidebar.html:8
@@ -2463,20 +2484,16 @@ msgstr ""
 msgid "Entity type"
 msgstr ""
 
-#: templates/partials/source_and_confidence.html:21
+#: templates/partials/related_entities.html:13
+msgid "Open ended"
+msgstr ""
+
+#: templates/partials/source_and_confidence.html:22
 msgid "Sources and confidence for this information"
 msgstr ""
 
 #: templates/partials/source_edit_js.html:47
 msgid "Please enter two or more characters..."
-msgstr ""
-
-#: templates/partials/source_list_table.html:19
-msgid "Publication Date"
-msgstr ""
-
-#: templates/partials/source_list_table.html:35
-msgid "Publication Country"
 msgstr ""
 
 #: templates/partials/version_list.html:5
@@ -2532,36 +2549,7 @@ msgstr ""
 msgid "Show less"
 msgstr ""
 
-#: templates/partials/violation_list_table.html:11
-msgid "Start Date"
-msgstr ""
-
-#: templates/partials/violation_list_table.html:19
-msgid "End Date"
-msgstr ""
-
-#: templates/partials/violation_list_table.html:27
-#: templates/violation/delete.html:16 templates/violation/view.html:86
-#: templates/violation/view.html:98 templates/violation/view.html:138
-#: violation/forms.py:38 violation/models.py:279
-msgid "Description"
-msgstr ""
-
-#: templates/partials/violation_list_table.html:35
-msgid "Violation types"
-msgstr ""
-
-#: templates/partials/violation_list_table.html:51
-#: templates/violation/view.html:87 templates/violation/view.html:99
-#: templates/violation/view.html:152
-msgid "Perpetrators"
-msgstr ""
-
-#: templates/partials/violation_list_table.html:59 violation/forms.py:41
-msgid "Perpetrator classification"
-msgstr ""
-
-#: templates/partials/violation_list_table.html:89
+#: templates/partials/violation_list_table.html:90
 msgid "View Detail"
 msgstr ""
 
@@ -2597,9 +2585,21 @@ msgstr ""
 msgid "Add posting"
 msgstr ""
 
+#: templates/person/delete.html:43
+msgid "Date of birth"
+msgstr ""
+
+#: templates/person/delete.html:49
+msgid "Date of death"
+msgstr ""
+
+#: templates/person/delete.html:61
+msgid "Biography"
+msgstr ""
+
 #: templates/person/edit-basics.html:11 templates/person/edit-postings.html:21
 #: templates/person/partials/person-posting-list.html:6
-#: templates/person/view.html:86
+#: templates/person/view.html:87
 msgid "Postings"
 msgstr ""
 
@@ -2616,61 +2616,53 @@ msgctxt "Instructions for formatting years"
 msgid "yyyy"
 msgstr ""
 
-#: templates/person/view.html:47 templates/person/view.html:57
-#: templates/person/view.html:71
+#: templates/person/view.html:48 templates/person/view.html:58
+#: templates/person/view.html:72
 msgid "Last seen as"
 msgstr ""
 
-#: templates/person/view.html:49 templates/person/view.html:59
-#: templates/person/view.html:146
+#: templates/person/view.html:50 templates/person/view.html:60
+#: templates/person/view.html:147
 msgid "Chain of command"
 msgstr ""
 
-#: templates/person/view.html:50 templates/person/view.html:60
-#: templates/person/view.html:163
+#: templates/person/view.html:51 templates/person/view.html:61
+#: templates/person/view.html:164
 msgid "Superiors"
 msgstr ""
 
-#: templates/person/view.html:51 templates/person/view.html:61
-#: templates/person/view.html:225
+#: templates/person/view.html:52 templates/person/view.html:62
+#: templates/person/view.html:226
 msgid "Subordinates"
 msgstr ""
 
-#: templates/person/view.html:148
+#: templates/person/view.html:149
 msgid ""
 "Command relationships from a person's posting to the highest-level unit "
 "(calculated at the end of the posting)"
 msgstr ""
 
-#: templates/person/view.html:165
+#: templates/person/view.html:166
 msgid ""
 "Commanders of units that were superior to any units commanded by this person"
 msgstr ""
 
-#: templates/person/view.html:174 templates/person/view.html:236
-msgid "Unit"
-msgstr ""
-
-#: templates/person/view.html:175 templates/person/view.html:237
+#: templates/person/view.html:176 templates/person/view.html:238
 msgid "Start of overlap"
 msgstr ""
 
-#: templates/person/view.html:176 templates/person/view.html:238
+#: templates/person/view.html:177 templates/person/view.html:239
 msgid "End of overlap"
 msgstr ""
 
-#: templates/person/view.html:177 templates/person/view.html:239
+#: templates/person/view.html:178 templates/person/view.html:240
 msgid "Duration of overlap"
 msgstr ""
 
-#: templates/person/view.html:227
+#: templates/person/view.html:228
 msgid ""
 "Commanders of units that were subordinate to any units commanded by this "
 "person"
-msgstr ""
-
-#: templates/person/view.html:285
-msgid "Events"
 msgstr ""
 
 #: templates/registration/login.html:12
@@ -2681,1427 +2673,306 @@ msgstr ""
 msgid "Sign in"
 msgstr ""
 
-#: templates/search/search.html:22
+#: templates/search/search.html:23
 msgid "Search for"
 msgstr ""
 
-#: templates/search/search.html:36 templates/sfm/dashboard.html:22
+#: templates/search/search.html:37 templates/sfm/dashboard.html:22
 msgid "I'm looking for..."
 msgstr ""
 
-#: templates/search/search.html:52
+#: templates/search/search.html:53
 msgid "Clear all filters"
 msgstr ""
 
-#: templates/search/search.html:62
+#: templates/search/search.html:63
 msgid "General filters"
 msgstr ""
 
-#: templates/search/search.html:79
+#: templates/search/search.html:80
 msgid "Date"
 msgstr ""
 
 #. Translators: Please preserve the "strong" and "i" tags, which display an icon. Use the single quote around 'fa fa-w fa-user'.
-#: templates/search/search.html:96
+#: templates/search/search.html:97
 msgid "Filters for <strong><i class='fa fa-fw fa-user'></i>Personnel</strong>"
 msgstr ""
 
-#: templates/search/search.html:142
+#: templates/search/search.html:143
 msgid "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>"
 msgstr ""
 
-#: templates/search/search.html:175
-msgid "Place"
-msgstr ""
-
-#: templates/search/search.html:201
+#: templates/search/search.html:202
 msgid ""
 "Filters for <strong><i class='fa fa-fw fa-exclamation-triangle'></"
 "i>Incidents</strong>"
 msgstr ""
 
-#: templates/search/search.html:216 templates/violation/delete.html:33
-#: violation/forms.py:49 violation/models.py:304
-msgid "Violation type"
-msgstr ""
-
-#: templates/search/search.html:222
-msgid "Perpetrator type"
-msgstr ""
-
-#: templates/search/search.html:228 violation/models.py:211
-msgid "Location description"
-msgstr ""
-
-#: templates/search/search.html:255
+#: templates/search/search.html:256
 msgid ""
 "Filters for <strong><i class='fa fa-fw fa-paperclip'></i>Sources</strong>"
 msgstr ""
 
-#: templates/search/search.html:270
-msgid "Publication name"
-msgstr ""
-
-#: templates/search/search.html:281
+#: templates/search/search.html:282
 msgid "result found"
 msgstr ""
 
-#: templates/search/search.html:281
+#: templates/search/search.html:282
 msgid "results found"
 msgstr ""
 
-#: templates/sfm/about.html:9 templates/sfm/dashboard.html:70
-msgid ""
-"WhoWasInCommand answers key questions about the structure, behaviour and "
-"people in charge of security forces like the police and army:"
+#: templates/sfm/about.html:8
+msgid "What is WhoWasInCommand.com?"
 msgstr ""
 
-#: templates/sfm/about.html:12 templates/sfm/dashboard.html:72
+#. Translators: Please preserve the HTML tags in this text block.
+#: templates/sfm/about.html:11
+msgid ""
+"\n"
+"            WhoWasInCommand.com is a free, public database of police, "
+"military\n"
+"            and other security and defence forces. It was created and is run "
+"by\n"
+"            <a href=\"https://securityforcemonitor.org/\" target=\"_blank"
+"\">Security Force Monitor</a> -\n"
+"            we are an investigative research project based at the\n"
+"            <a href=\"https://www.law.columbia.edu/human-rights-institute\" "
+"target=\"_blank\">Human Rights Institute</a>\n"
+"            at Columbia Law School in New York. WhoWasInCommand.com contains "
+"detailed data\n"
+"            we have created about the organizational structure, command "
+"personnel,\n"
+"            and geographic footprint of police, military and other security "
+"and defence forces.\n"
+"            We have created all this data by analyzing public sources. "
+"Additionally,\n"
+"            we structure and compile allegations made publicly by civil "
+"society groups\n"
+"            of alleged human rights violations committed by security and "
+"defence forces.\n"
+"            "
+msgstr ""
+
+#. Translators: Please preserve the HTML tags in this text block.
+#: templates/sfm/about.html:27
+msgid ""
+"\n"
+"            We created WhoWasInCommand.com to solve a major problem we had "
+"experienced\n"
+"            in our own work: there is a huge amount of publicly available "
+"data about the\n"
+"            security and defence forces of many countries of the world, but "
+"it is\n"
+"            unstructured and scattered amongst a wide variety of sources. "
+"This makes it\n"
+"            prohibitively costly for people who do public interest work to "
+"understand\n"
+"            the security and defence forces of a particular country. You can "
+"read more\n"
+"            about this problem and why we started Security Force Monitor in\n"
+"            <a href=\"https://securityforcemonitor.org/2017/04/11/why-i-"
+"started-the-security-force-monitor/\" target=\"_blank\">this blog we posted "
+"in 2017</a>.\n"
+"            "
+msgstr ""
+
+#: templates/sfm/about.html:39
+msgid ""
+"\n"
+"            To address the problem, we search for this information, analyze "
+"it,\n"
+"            structure it and publish it here on WhoWasInCommand.com where it "
+"can\n"
+"            help answer questions like:\n"
+"            "
+msgstr ""
+
+#: templates/sfm/about.html:46 templates/sfm/dashboard.html:72
 msgid "Who is in charge of the specialized anti-riot police unit?"
 msgstr ""
 
-#: templates/sfm/about.html:13 templates/sfm/dashboard.html:73
+#: templates/sfm/about.html:47 templates/sfm/dashboard.html:73
 msgid "What army unit has jurisdiction over what areas and for how long?"
 msgstr ""
 
-#: templates/sfm/about.html:14 templates/sfm/dashboard.html:74
+#: templates/sfm/about.html:48 templates/sfm/dashboard.html:74
 msgid "Where did this commander previously serve, and where did they go next?"
 msgstr ""
 
-#: templates/sfm/about.html:15 templates/sfm/dashboard.html:75
+#: templates/sfm/about.html:49 templates/sfm/dashboard.html:75
 msgid "When was a particular police unit based in a specific city?"
 msgstr ""
 
-#: templates/sfm/about.html:16 templates/sfm/dashboard.html:76
+#: templates/sfm/about.html:50 templates/sfm/dashboard.html:76
 msgid ""
 "What allegations have civil society groups made against a unit or commander?"
 msgstr ""
 
-#: templates/sfm/about.html:20 templates/sfm/dashboard.html:79
-msgid ""
-"WhoWasinCommand presents data from thousands of public sources to help human "
-"rights researchers, investigative journalists and anyone who wants security "
-"forces to be more accountable."
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/about.html:26
-msgid ""
-"It is a tool from <a href='https://securityforcemonitor.org/'>Security Force "
-"Monitor</a>, a project of the Human Rights Institute at Columbia Law School. "
-"The WhoWasInCommand platform was developed by <a href='https://datamade."
-"us/'>DataMade</a>. We’d also like to thank <a href='https://twitter.com/"
-"mckinneyjames'>James McKinney</a> and the team at <a href='https://ffctn.com/"
-"en/index'>FFunction</a> for their essential contributions."
-msgstr ""
-
-#: templates/sfm/countries.html:10
-#: templates/sfm/country-background/bangladesh.html:6
-msgid "Bangladesh"
-msgstr ""
-
-#: templates/sfm/countries.html:20 templates/sfm/countries.html:60
-#: templates/sfm/countries.html:105 templates/sfm/countries.html:158
-#: templates/sfm/countries.html:204 templates/sfm/countries.html:254
-#: templates/sfm/countries.html:300 templates/sfm/countries.html:341
-#: templates/sfm/countries.html:390
-msgid "Browse data"
-msgstr ""
-
-#: templates/sfm/countries.html:22 templates/sfm/countries.html:62
-#: templates/sfm/countries.html:110 templates/sfm/countries.html:163
-#: templates/sfm/countries.html:209 templates/sfm/countries.html:256
-#: templates/sfm/countries.html:302 templates/sfm/countries.html:343
-#: templates/sfm/countries.html:392
-msgid "Browse units"
-msgstr ""
-
-#: templates/sfm/countries.html:26 templates/sfm/countries.html:66
-#: templates/sfm/countries.html:117 templates/sfm/countries.html:167
-#: templates/sfm/countries.html:216 templates/sfm/countries.html:260
-#: templates/sfm/countries.html:306 templates/sfm/countries.html:347
-#: templates/sfm/countries.html:396
-msgid "Collections"
-msgstr ""
-
-#: templates/sfm/countries.html:27 templates/sfm/countries.html:307
-msgid "No collections yet"
-msgstr ""
-
-#: templates/sfm/countries.html:32 templates/sfm/countries.html:77
-#: templates/sfm/countries.html:128 templates/sfm/countries.html:175
-#: templates/sfm/countries.html:225 templates/sfm/countries.html:271
-#: templates/sfm/countries.html:312 templates/sfm/countries.html:361
-#: templates/sfm/countries.html:402
-msgid "Background"
-msgstr ""
-
-#: templates/sfm/countries.html:34
-msgid ""
-"The Security Force Monitor’s current dataset is focused on the structure of "
-"police in Bangladesh. Additional research will focus on other elements of "
-"the security forces of Bangladesh."
-msgstr ""
-
-#: templates/sfm/countries.html:35 templates/sfm/countries.html:80
-#: templates/sfm/countries.html:134 templates/sfm/countries.html:180
-#: templates/sfm/countries.html:230 templates/sfm/countries.html:276
-#: templates/sfm/countries.html:317 templates/sfm/countries.html:366
-#: templates/sfm/countries.html:407
-msgid "Read full background"
-msgstr ""
-
-#: templates/sfm/countries.html:50
-#: templates/sfm/country-background/egypt.html:6
-msgid "Egypt"
-msgstr ""
-
-#: templates/sfm/countries.html:68
-msgid "Police in Cairo Governorate"
-msgstr ""
-
-#: templates/sfm/countries.html:71
-msgid "Police in Alexandria Governorate"
-msgstr ""
-
-#: templates/sfm/countries.html:79
-msgid ""
-"The Security Force Monitor’s current dataset is a “snapshot” of the "
-"structure of the police in Egypt as of September 2016 and military forces in "
-"2011. Additional research on Egypt is dependent on funding and priorities of "
-"partners concerned about the human rights practices of the security forces "
-"of Egypt."
-msgstr ""
-
-#: templates/sfm/countries.html:95
-#: templates/sfm/country-background/mexico.html:6
-msgid "Mexico"
-msgstr ""
-
-#: templates/sfm/countries.html:107 templates/sfm/countries.html:160
-#: templates/sfm/countries.html:206
-msgid "Browse personnel"
-msgstr ""
-
-#: templates/sfm/countries.html:113 templates/sfm/countries.html:212
-msgid "Browse incidents"
-msgstr ""
-
-#: templates/sfm/countries.html:119
-msgid "Operación Conjunta Chihuahua"
-msgstr ""
-
-#: templates/sfm/countries.html:122
-msgid ""
-"Mexican Army under President Calderón (1 December 2006 to 30 November 2012)"
-msgstr ""
-
-#: templates/sfm/countries.html:130
+#: templates/sfm/about.html:53
 msgid ""
 "\n"
-"                                   The Security Force Monitor’s current "
-"dataset comprehensively covers the command structure, locations and areas of "
-"operation of the Mexican armed forces from roughly 2006 to 2018. The Monitor "
-"has extensive data on commanders, though some smaller units have gaps. "
-"Finally our data includes a “snapshot” of the command structure and "
-"locations of Policía Federal units as of June 2016.\n"
-"                                    "
-msgstr ""
-
-#: templates/sfm/countries.html:148
-#: templates/sfm/country-background/myanmar.html:6
-msgid "Myanmar"
-msgstr ""
-
-#: templates/sfm/countries.html:169
-msgid "Units under Western Region Military Command"
-msgstr ""
-
-#: templates/sfm/countries.html:177
-msgid ""
-"\n"
-"                                    The Security Force Monitor’s current "
-"dataset on Myanmar is focused on the army structure, location and area of "
-"operations from 2000 to 2018.\n"
-"                                    "
-msgstr ""
-
-#: templates/sfm/countries.html:194
-#: templates/sfm/country-background/nigeria.html:6
-msgid "Nigeria"
-msgstr ""
-
-#: templates/sfm/countries.html:217
-msgid "Operation BOYONA"
-msgstr ""
-
-#: templates/sfm/countries.html:219
-msgid "Nigerian Army under President Jonathan (9 February 2010 to 28 May 2015)"
-msgstr ""
-
-#: templates/sfm/countries.html:227
-msgid ""
-"\n"
-"                                    The Security Force Monitor’s current "
-"dataset comprehensively covers the Nigerian armed forces and the Nigeria "
-"Police Force in the states of Abia, Adamawa, Akwa Ibom, Anambra, Enugu, "
-"Kano, Katsina, Lagos, Ogun, Plateau, Rivers and Yobe from roughly 2008 to "
-"2018.\n"
-"                                    "
-msgstr ""
-
-#: templates/sfm/countries.html:244
-#: templates/sfm/country-background/philippines.html:6
-msgid "Philippines"
-msgstr ""
-
-#: templates/sfm/countries.html:262
-msgid "Police under Manila Police District"
-msgstr ""
-
-#: templates/sfm/countries.html:265
-msgid "Police under Cebu City Police Office"
-msgstr ""
-
-#: templates/sfm/countries.html:273
-msgid ""
-"\n"
-"                                    The Security Force Monitor’s current "
-"dataset is a “snapshot” of the structure of the Philippine National Police "
-"as of January 2018.\n"
-"                                    "
-msgstr ""
-
-#: templates/sfm/countries.html:290
-#: templates/sfm/country-background/rwanda.html:6
-msgid "Rwanda"
-msgstr ""
-
-#: templates/sfm/countries.html:314
-msgid ""
-"\n"
-"                                    The Security Force Monitor’s current "
-"dataset is a “snapshot” of the structure of the Rwanda National Police as of "
-"2017.\n"
-"                                    "
-msgstr ""
-
-#: templates/sfm/countries.html:331
-#: templates/sfm/country-background/saudiarabia.html:6
-msgid "Saudi Arabia"
-msgstr ""
-
-#: templates/sfm/countries.html:349
-#: templates/sfm/country-background/saudiarabia.html:36
-msgid "Royal Saudi Air Force"
-msgstr ""
-
-#: templates/sfm/countries.html:352
-msgid "Royal Saudi Land Forces"
-msgstr ""
-
-#: templates/sfm/countries.html:355
-#: templates/sfm/country-background/saudiarabia.html:22
-msgid "Saudi Arabian National Guard"
-msgstr ""
-
-#: templates/sfm/countries.html:363
-msgid ""
-"\n"
-"                                    The Security Force Monitor’s current "
-"dataset is a “snapshot” of the structure of the armed forces of Saudi Arabia "
-"as of 2009.\n"
-"                                    "
-msgstr ""
-
-#: templates/sfm/countries.html:380
-#: templates/sfm/country-background/uganda.html:6
-msgid "Uganda"
-msgstr ""
-
-#: templates/sfm/countries.html:397
-msgid "No collection yet"
-msgstr ""
-
-#: templates/sfm/countries.html:404
-msgid ""
-"\n"
-"                                    The Security Force Monitor’s current "
-"dataset is a “snapshot” of the structure of the armed forces of Uganda as of "
-"September 2016.\n"
-"                                    "
-msgstr ""
-
-#: templates/sfm/country-background/bangladesh.html:9
-#: templates/sfm/country-background/egypt.html:9
-#: templates/sfm/country-background/generic_country_backgrounder.html:10
-#: templates/sfm/country-background/mexico.html:10
-#: templates/sfm/country-background/myanmar.html:10
-#: templates/sfm/country-background/nigeria.html:9
-#: templates/sfm/country-background/philippines.html:9
-#: templates/sfm/country-background/rwanda.html:9
-#: templates/sfm/country-background/saudiarabia.html:10
-#: templates/sfm/country-background/uganda.html:9
-msgid "Overview of Coverage"
-msgstr ""
-
-#: templates/sfm/country-background/bangladesh.html:12
-msgid ""
-" \n"
-"            The Security Force Monitor’s current dataset is focused on the "
-"structure of police in Bangladesh. Additional research (detailed below) will "
-"focus on other elements of the security forces of Bangladesh. If you have "
-"public data that can add to our coverage or need support in your "
-"investigations, please get in touch: info [at] securityforcemonitor.org\n"
+"            We have created all the data on WhoWasInCommand.com by "
+"scrutinizing\n"
+"            thousands of public, online sources including official websites "
+"of\n"
+"            security forces, reporting from domestic and international "
+"media,\n"
+"            academic research and civil society reports. You can see the "
+"sources\n"
+"            we have used for every single piece of data on WhoWasInCommand "
+"simply\n"
+"            by clicking on it.\n"
 "            "
 msgstr ""
 
-#: templates/sfm/country-background/bangladesh.html:17
-msgid "Administrative Division of Bangladesh"
+#: templates/sfm/about.html:62
+msgid "Who is behind this and why are you doing it?"
 msgstr ""
 
-#: templates/sfm/country-background/bangladesh.html:20
+#. Translators: Please preserve the HTML tags in this text block.
+#: templates/sfm/about.html:65
 msgid ""
 "\n"
-"            Bangladesh is divided into 8 Divisions which are further divided "
-"into 64 Districts and then 491 Upazilas.\n"
+"            We’re <a href=\"https://securityforcemonitor.org\" target="
+"\"_blank\">Security Force Monitor</a>,\n"
+"            an investigative research project based at the\n"
+"            <a href=\"https://www.law.columbia.edu/human-rights-institute\" "
+"target=\"_blank\">Human Rights Institute at Columbia Law School</a>\n"
+"            in New York. Our work is financed through grants from funders "
+"including\n"
+"            the Open Society Foundations and the OAK Foundation. Further "
+"information\n"
+"            about our <a href=\"https://securityforcemonitor.org/about/\" "
+"target=\"_blank\">current and past funders can be found here</a>.\n"
 "            "
 msgstr ""
 
-#: templates/sfm/country-background/bangladesh.html:25
-#: templates/sfm/country-background/mexico.html:33
-#: templates/sfm/country-background/nigeria.html:32
-#: templates/sfm/country-background/rwanda.html:21
-#: templates/sfm/country-background/uganda.html:25
-msgid "Police"
-msgstr ""
-
-#: templates/sfm/country-background/bangladesh.html:28
+#: templates/sfm/about.html:75
 msgid ""
 "\n"
-"            The Bangladesh Police is the national police force of "
-"Bangladesh, overseeing all branches of the police. The Bangladesh is divided "
-"into the Special Branch, Criminal Investigation Department, Rapid Action "
-"Battalions, and Ranges (which oversee police forces across large geographic "
-"areas and are further divided into District Police, Circles and Police "
-"Stations) and an Armed Police Battalion. Specialized branches of the "
-"Bangladesh Police include the Highway Police, Industrial Police and Railway "
-"Police. Additionally, the Bangladesh Police has several Metropolitan Police "
-"forces for the major cities of Barisal, Chittagong, Dhaka (the capital), "
-"Khulna, Rajshahi, and Sylhet. Each Metropolitan Police is further divided "
-"into Divisions, Zones and Police Stations.\n"
+"            Our aim is to make police, military and other security forces "
+"around\n"
+"            the world more transparent and accountable. We do this by "
+"analyzing\n"
+"            and structuring public information on the security forces to "
+"show\n"
+"            their organizational structure, geographical footprint and "
+"operational\n"
+"            jurisdiction, their command personnel and their potential "
+"connections\n"
+"            to alleged human rights violations documented by organizations "
+"like\n"
+"            Amnesty International and Human Rights Watch.\n"
 "            "
 msgstr ""
 
-#: templates/sfm/country-background/bangladesh.html:33
-msgid "Outstanding areas for further research"
-msgstr ""
-
-#: templates/sfm/country-background/bangladesh.html:36
-msgid ""
-"Detailing commanders of Bangladesh Police across various units and branches."
-msgstr ""
-
-#: templates/sfm/country-background/bangladesh.html:37
-msgid ""
-"Identifying locations and areas of operations through time of Bangladesh "
-"Police units."
-msgstr ""
-
-#: templates/sfm/country-background/bangladesh.html:38
-msgid ""
-"Building command hierarchy of the armed forces of Bangladesh and identifying "
-"location and area of operations of various units."
-msgstr ""
-
-#: templates/sfm/country-background/bangladesh.html:39
-msgid ""
-"Investigating other priorities as guided by partners concerned about the "
-"human rights practices of the security forces of Bangladesh."
-msgstr ""
-
-#: templates/sfm/country-background/egypt.html:12
+#: templates/sfm/about.html:86
 msgid ""
 "\n"
-"            The Security Force Monitor’s current dataset is a “snapshot” of "
-"the structure of the police in Egypt as of September 2016 and military "
-"forces in 2011. Additional research on Egypt is dependent on funding and "
-"priorities of partners concerned about the human rights practices of the "
-"security forces of Egypt. If you have public data that can add to our "
-"coverage or need support in your investigations, please get in touch: info "
-"[at] securityforcemonitor.org\n"
+"            The opaque nature of most security forces means that "
+"investigators\n"
+"            face a common challenge of connecting abuses committed by "
+"security\n"
+"            forces to a specific perpetrator. Access to detailed information "
+"on\n"
+"            the security forces helps human rights groups to name specific\n"
+"            perpetrators when abuses occur. When civil society can make "
+"specific\n"
+"            allegations a host of accountability mechanisms can be set in "
+"motion,\n"
+"            including: seeking restrictions on security assistance from "
+"external\n"
+"            providers, naming and shaming advocacy, and international "
+"criminal cases.\n"
 "            "
 msgstr ""
 
-#: templates/sfm/country-background/egypt.html:17
-#: templates/sfm/country-background/generic_country_backgrounder.html:16
-#: templates/sfm/country-background/mexico.html:17
-#: templates/sfm/country-background/myanmar.html:17
-#: templates/sfm/country-background/nigeria.html:16
-msgid "General Background on Security Forces"
-msgstr ""
-
-#: templates/sfm/country-background/egypt.html:19
+#. Translators: Please preserve the HTML tags in this text block.
+#: templates/sfm/about.html:99
 msgid ""
 "\n"
-"            Egypt has security forces with different responsibilities for "
-"internal security. Crime fighting is the prime responsibility of the General "
-"Investigations Police. The Central Security Forces (CSF) are tasked with "
-"policing public events and demonstrations, but may also be used in other "
-"internal security operations.\n"
+"            All of the data collected we have created is published here on\n"
+"            WhoWasInCommand.com. We also work in partnership with human "
+"rights\n"
+"            groups providing research and analytical expertise to identify\n"
+"            connections between documented abuses and wider command "
+"structures\n"
+"            and individual commanders. You can find some of our work with\n"
+"            partners on <a href=\"https://securityforcemonitor.org/news\" "
+"target=\"_blank\">our blog</a>\n"
+"            or <a href=\"https://twitter.com/secforcemonitor\" target="
+"\"_blank\">Twitter</a>.\n"
 "            "
 msgstr ""
 
-#: templates/sfm/country-background/egypt.html:24
-msgid "Administrative Division of Egypt"
-msgstr ""
-
-#: templates/sfm/country-background/egypt.html:26
+#. Translators: Please preserve the HTML tags in this text block.
+#: templates/sfm/about.html:111
 msgid ""
 "\n"
-"            Administratively, Egypt is broken up into 27 governorates each "
-"of which is headed by a governor who is appointed by the president. The "
-"number of governorates has varied over time, with several governorates being "
-"created and then disbanded in recent years.\n"
+"            WhoWasInCommand.com was engineered by <a href=\"https://datamade."
+"us\" target=\"_blank\">DataMade</a>,\n"
+"            a data and web consultancy for civil society.\n"
 "            "
 msgstr ""
 
-#: templates/sfm/country-background/egypt.html:31
-msgid "Security Forces of Egypt"
+#: templates/sfm/about.html:116
+msgid "Where can I get help or find out more?"
 msgstr ""
 
-#: templates/sfm/country-background/egypt.html:33
-msgid "Police (General Investigations Police)"
-msgstr ""
-
-#: templates/sfm/country-background/egypt.html:35
+#. Translators: Please preserve the HTML tags in this text block.
+#: templates/sfm/about.html:119
 msgid ""
 "\n"
-"            The General Investigations Police is the national police force "
-"of Egypt. The President of Egypt is the supreme commander of the police, "
-"which are housed inside of the Ministry of Interior. Police in each "
-"governorate are under the command of the Security Directorate of that "
-"governorate (headed by a Security Director)  who in turn reports to the "
-"Governor. Organizationally, most police operate from one of the "
-"approximately 1700 Police Stations.\n"
+"            Our website <a href=\"https://securityforcemonitor.org\" target="
+"\"_blank\">securityforcemonitor.org</a>\n"
+"            contains more information about the work we do, including our "
+"other\n"
+"            initiatives and investigative data projects, our team and "
+"advisors,\n"
+"            our sources of funding, and the services we offer.\n"
 "            "
 msgstr ""
 
-#: templates/sfm/country-background/egypt.html:40
-msgid "Central Security Forces"
-msgstr ""
-
-#: templates/sfm/country-background/egypt.html:42
+#. Translators: Please preserve the HTML tags in this text block.
+#: templates/sfm/about.html:128
 msgid ""
 "\n"
-"            The Central Security Forces (CSF) is a specialized force focused "
-"on “anti-riot” activities, meaning they are generally deployed to police "
-"protests or other public gatherings. The CSF sits inside of the Ministry of "
-"Interior.\n"
+"            Our public Research Handbook at <a href=\"http://help."
+"securityforcemonitor.org\" target=\"_blank\">help.securityforcemonitor.org</"
+"a>\n"
+"            contains information about:\n"
 "            "
 msgstr ""
 
-#: templates/sfm/country-background/egypt.html:46
-msgid "Egyptian Armed Forces"
+#: templates/sfm/about.html:134
+msgid "The countries covered on WhoWasInCommand.com."
 msgstr ""
 
-#: templates/sfm/country-background/egypt.html:48
+#: templates/sfm/about.html:135
+msgid "How we find, select and assess information."
+msgstr ""
+
+#: templates/sfm/about.html:136
+msgid ""
+"The fields, formats and data model we use to store and analyse our data."
+msgstr ""
+
+#: templates/sfm/about.html:137
+msgid ""
+"The data you will find on WhoWasInCommand.com, and how to use the platform."
+msgstr ""
+
+#. Translators: Please preserve the HTML tags in this text block.
+#: templates/sfm/about.html:141
 msgid ""
 "\n"
-"            The Egyptian military, particularly the army, plays a key role "
-"in politics and general security affairs. There are four major branches of "
-"the military, the Army, the Air Force, Air Defense Force and the Navy, all "
-"of which fall under the Ministry of Defense. Operationally, the main "
-"formations of the army are the Field Armies and Military Zones. Smaller "
-"units that report up to the relevant Field Armies or Military Zones are "
-"Divisions, Brigades and Battalions.\n"
+"            We develop the software that powers WhoWasInCommand.com\n"
+"            <a href=\"https://github.com/security-force-monitor/sfm-cms\" "
+"target=\"_blank\">in the open on Github</a>.\n"
+"            You can look at some of our design documents, use the code, and "
+"find\n"
+"            out what bugs and issues the software has.\n"
 "            "
-msgstr ""
-
-#: templates/sfm/country-background/egypt.html:52
-#: templates/sfm/country-background/generic_country_backgrounder.html:40
-#: templates/sfm/country-background/mexico.html:70
-#: templates/sfm/country-background/myanmar.html:57
-#: templates/sfm/country-background/philippines.html:33
-#: templates/sfm/country-background/rwanda.html:28
-#: templates/sfm/country-background/saudiarabia.html:50
-#: templates/sfm/country-background/uganda.html:32
-msgid "Outstanding Areas for Further Research"
-msgstr ""
-
-#: templates/sfm/country-background/egypt.html:54
-msgid ""
-"Expanding the command structure of the General Investigations Police, "
-"Central Security Forces and Egyptian military through time."
-msgstr ""
-
-#: templates/sfm/country-background/egypt.html:55
-msgid ""
-"Detailing commanders of the General Investigations Police, Central Security "
-"Forces and Egyptian military across various units through time."
-msgstr ""
-
-#: templates/sfm/country-background/egypt.html:56
-msgid ""
-"Investigating other priorities as guided by partners concerned about the "
-"human rights practices of the security forces of Egypt."
-msgstr ""
-
-#: templates/sfm/country-background/generic_country_backgrounder.html:12
-#: templates/sfm/country-background/generic_country_backgrounder.html:18
-#: templates/sfm/country-background/generic_country_backgrounder.html:24
-#: templates/sfm/country-background/generic_country_backgrounder.html:32
-#: templates/sfm/country-background/generic_country_backgrounder.html:36
-msgid ""
-"\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/generic_country_backgrounder.html:22
-msgid "Administrative Division of "
-msgstr ""
-
-#: templates/sfm/country-background/generic_country_backgrounder.html:28
-msgid "Security Forces of [Country]"
-msgstr ""
-
-#: templates/sfm/country-background/generic_country_backgrounder.html:30
-msgid "Generic h4"
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:12
-msgid ""
-"\n"
-"           The Security Force Monitor’s current dataset comprehensively "
-"covers the command structure, locations and areas of operation of the "
-"Mexican armed forces from roughly 2006 to 2018. The Monitor has extensive "
-"data on commanders, though some smaller units have gaps. Finally our data "
-"includes a “snapshot” of the command structure and locations of Policía "
-"Federal units as of June 2016. Additional research (detailed below) will "
-"focus on other elements of the security forces of Mexico. If you have public "
-"data that can add to our coverage or need support in your investigations, "
-"please get in touch: info [at] securityforcemonitor.org\n"
-"           "
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:19
-msgid ""
-"\n"
-"            Mexico has several layers of security forces. Crime fighting "
-"generally falls to local, state and federal police forces, each with their "
-"own chain of command. Specialized agencies within or independent to these "
-"police forces are also involved in crime fighting. Additionally, the armed "
-"forces of Mexico have been increasingly involved in internal security "
-"operations.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:24
-msgid "Administrative Division of Mexico"
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:26
-msgid ""
-"\n"
-"            Mexico has a federal structure. There are 31 states as well as a "
-"federal entity of Mexico City. Each state is subdivided into municipios of "
-"which there are 2,456.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:31
-msgid "Security Forces of Mexico"
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:35
-msgid ""
-"\n"
-"            Mexico has federal, state and municipio (municipal) police "
-"forces as well as a separate police for the federal capital. At the federal "
-"and state level police forces are generally divided by role and command "
-"structure into policía preventiva (preventive police) in charge of "
-"maintaining order and usually under the command of the Secretaría de "
-"Seguridad Pública (Ministry of Public Security) and policía judicial "
-"(judicial police) usually under the command of the state  Procuraduría "
-"General de Justicia (Attorney General).  \n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:40
-msgid ""
-"\n"
-"            The size and structure of Policías Municipales (municipal "
-"police) can vary widely. Generally, they are under the command of the "
-"Presidente Municipal (municipal president, also informally referred to as "
-"the Alcalde or mayor) of the municipio which they operate. Not every "
-"municipio has a police force, however. Some states in Mexico are dissolving "
-"their municipal police forces in favor of newly created state-level forces "
-"while other states are establishing new state-level forces which control "
-"existing municipal police forces.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:45
-msgid "Mexican Armed Forces/Military"
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:47
-msgid ""
-"\n"
-"            The President of Mexico is the Commander-in-Chief of the Mexican "
-"Armed Forces, which are divided into the Army and Air Force under the "
-"command of the Secretaría de la Defensa Nacional (SEDENA) and the Navy and "
-"Marines under the command of the Secretaría de Marina (SEMAR). SEDENA also "
-"includes the Special Forces, and Military Police. SEMAR contains its own "
-"infantry and air forces as well. Both SEDENA and SEMAR include an Estado "
-"Mayor (General Staff) that play an active role in the chain of command "
-"between the secretary and operational units.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:52
-msgid "Army"
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:54
-msgid ""
-"\n"
-"            The Mexican Army is broken up into several Regiones Militares "
-"(Military Regions) which usually cover several states and oversee Zonas "
-"Militares (Military Zones) which usually operate within one state or in "
-"portions of two or more states. Below the Zonas Militares are smaller units: "
-"Batallones de Infantería (Infantry Battalions), Regimientos de Caballería "
-"Motorizado (Motorized Cavalry Regiments), Regimientos de Artillería "
-"(Artillery Regiments), Guarniciones Militares (Military Garrisons), and "
-"several other groupings, all of which are generally under the command of a "
-"Zona Militar.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:59
-msgid "Air Force"
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:61
-msgid ""
-"The Mexican Air Force is also divided into geographic Regiones Aéreas which "
-"command Bases Aéreas. Bases Aéreas in turn command Escuadrones Aéreos."
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:64
-msgid "Navy/Marines"
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:66
-msgid ""
-"\n"
-"            Similar to the Army, the SEMAR is broken into several Regiones "
-"Navales (Naval Regions) which command Zonas Navales (Naval Zones). SEMAR "
-"also includes two Fuerzas Navales (Naval Forces). The Navy has been very "
-"active in internal security operations, mainly through the deployment of the "
-"marines, which are generally grouped into Brigadas de Infanteria de Marina "
-"(Marine Brigades) and smaller Batallones de Infantería de Marina (Marine "
-"Battalions). Since 2007 the command structure of the marines has been "
-"restructured several, but currently marine units are generally under the "
-"command of a Zona Naval or Región Naval.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:72
-msgid "Expanding the command structure of the Policía Federal through time."
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:73
-msgid ""
-"Detailing command structures, locations and areas of operations for state "
-"and municipal police forces in various states of Mexico through time."
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:74
-msgid ""
-"Identifying additional details on individual units and personnel as needed "
-"to fill any gaps in the records of units and commanders of the armed forces "
-"of Mexico during the timeframe of 2006 to 2018."
-msgstr ""
-
-#: templates/sfm/country-background/mexico.html:75
-msgid ""
-"Investigating other priorities as guided by partners concerned about the "
-"human rights practices of the security forces of Mexico."
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:12
-msgid ""
-"\n"
-"           The Security Force Monitor’s current dataset is focused on the "
-"army structure, location and area of operations from 2000 to 2018. "
-"Additional research (detailed below) will focus on additional elements of "
-"the security forces of Myanmar. If you have public data that can add to our "
-"coverage or need support in your investigations, please get in touch: info "
-"[at] securityforcemonitor.org\n"
-"           "
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:19
-msgid ""
-"\n"
-"            The Tatmadaw, or armed forces of Myanmar, play a central role in "
-"internal security and politics. The military has directly ruled Myanmar and "
-"remains outside of civilian oversight or command. Within the Tatmadaw the "
-"army is the dominant branch. The Tatmadaw is one of the most opaque "
-"militaries in the world, with little information on its structure or "
-"operations coming directly from the military itself.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:24
-msgid "Administrative Division of Myanmar"
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:26
-msgid ""
-"\n"
-"            Myanmar is divided into Regions and States, a capital “Union "
-"Territory” and also has several Self-Administered Zones. Some of these "
-"administrative boundaries are divided into Districts which are further "
-"divided into Townships.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:31
-msgid "Security Forces of Myanmar"
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:33
-msgid "Tatmadaw/Armed Forces/Military"
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:35
-msgid ""
-"\n"
-"            The Commander-in-Chief of the Tatmadaw is at the apex of the "
-"chain of command with a Deputy Commander-in-Chief of Defence Services "
-"directly below this position, who also concurrently serves as the head of "
-"the army.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:40
-msgid "Tatmadaw-Kyi/Army"
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:42
-msgid ""
-"\n"
-"            As of 2009 the Commander-in-Chief of the Tatmadaw is at the apex "
-"of the chain of command, the military does not come under the command of "
-"civilian political leaders of Myanmar. Underneath the Commander-in-Chief is "
-"the Deputy Commander-in-Chief of Defence Services who concurrently serves as "
-"the head of the army. In the army’s chain of command below the Deputy "
-"Commander-in-Chief of Defence Services is the General Staff Office (also "
-"referenced as the General Staff) which commands the six Bureaus of Special "
-"Operations (BSO). Each BSO commands one or more Regional Military Commands "
-"(RMC) which oversee army operations in one or more state, region or union "
-"territory. Below RMCs in the army hierarchy are Military Operations Commands "
-"(which generally command ten battalions), Regional Operations Commands "
-"(which generally command four battalions), and Tactical Operations Commands "
-"(which generally command three battalions). The main units of the army are "
-"Light Infantry Battalions and Infantry Battalions.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:47
-msgid ""
-"\n"
-"            Light Infantry Divisions are regularly deployed for operations "
-"around the country and from 1990 to at least 2009 followed a separate chain "
-"of command, reporting directly to the Chief of Staff of the army (who heads "
-"the General Staff Office).\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:52
-msgid ""
-"\n"
-"            As of 2009 artillery formations were generally under a separate "
-"chain of command, with Artillery Battalions under the command of Artillery "
-"Divisions. The chain of command from Artillery Divisions to the rest of the "
-"military is currently unclear, however, they eventually fall under the "
-"Deputy Commander-in-Chief of Defence Services, who in turn is under the "
-"command of the Commander-in-Chief, as does the rest of the military of "
-"Myanmar.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:59
-msgid ""
-"Investigating the command structure of other branches of the military as "
-"well as the police, border guards and other internal security forces."
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:60
-msgid ""
-"Expanding and deepening information on the command structure of artillery "
-"units."
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:61
-msgid "Detailing commanders of the various units of the security forces."
-msgstr ""
-
-#: templates/sfm/country-background/myanmar.html:62
-msgid ""
-"Investigating other priorities as guided by partners concerned about the "
-"human rights practices of the security forces of Myanmar."
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:11
-msgid ""
-"\n"
-"            The Security Force Monitor’s current dataset comprehensively "
-"covers the Nigerian armed forces and the Nigeria Police Force in the states "
-"of Abia, Adamawa, Akwa Ibom, Anambra, Enugu, Kano, Katsina, Lagos, Ogun, "
-"Plateau, Rivers and Yobe from roughly 2008 to 2018. Additional research "
-"(detailed below) will focus on other elements of the security forces of "
-"Nigeria. If you have public data that can add to our coverage or need "
-"support in your investigations, please get in touch: info [at] "
-"securityforcemonitor.org\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:18
-msgid ""
-"\n"
-"            Nigeria has security forces with different responsibilities for "
-"internal security. Crime fighting is the prime responsibility of the Nigeria "
-"Police Force. The State Security Service focuses on threats to national "
-"security. The Nigerian Armed Forces, comprising the Nigerian Air Force, "
-"Nigerian Army and Nigerian Navy, are also very active in internal security "
-"operations, particularly against Boko Haram. The Nigerian Army is generally "
-"the branch most closely involved in internal security operations. Security "
-"forces in Nigeria are generally national in character with the President of "
-"Nigeria as the commander-in-chief of the respective forces.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:23
-msgid "Administrative Division of Nigeria"
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:25
-msgid ""
-"\n"
-"            Administratively, Nigeria has a federal structure with 36 states "
-"and a Federal Capital Territory (FCT). Each state and the FCT is broken up "
-"into Local Government Areas (LGA). There are 776 LGAs throughout the "
-"country.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:30
-msgid "Security Forces of Nigeria"
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:34
-msgid ""
-"\n"
-"            The Nigeria Police Force (NPF) is the national police force of "
-"Nigeria. The NPF is under control of the president and headed by the "
-"Inspector General of Police (IGP) who is appointed by the President. The "
-"command structure flows from the IGP at Force Headquarters through Zonal "
-"Police Commands, each of which oversee police operations in at least two "
-"states and/or the Federal Capital Territory (FCT). Each State and the FCT "
-"has a Police Command headed by a Commissioner of Police who commands police "
-"operations in the state or FCT. Each Police Command also has a Criminal "
-"Investigation Department and a Special Anti Robbery Squad (the command "
-"structure for Special Anti Robbery Squad units has changed multiple times). "
-"Police Commands are divided into several Police Area Commands which are "
-"under the command of the Police Command. Police Area Commands are further "
-"divided into Police Divisions, which usually headed by a Chief "
-"Superintendent of Police and often referred to by their title, Divisional "
-"Police Officer. Police Divisions can also be under the direct command of "
-"their respective Police Command. Police Divisions in turn command the "
-"smaller formation of Police Stations which in turn command Police Posts. The "
-"smallest formation of the NPF is the Village Police Post which can be "
-"commanded by either a Police Post or Police Division, depending on the "
-"structure of the police formations in that particular area.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:39
-msgid ""
-"\n"
-"            Additionally, the Police Mobile Force (PMF, MOPOL or Mobile "
-"Police), are the riot police of the Nigerian Police Force, and report "
-"directly to Force Headquarters. The PMF is broken up into squadrons with "
-"each state and the FCT having at least one squadron.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:44
-msgid "Department of State Security or State Security Service"
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:46
-msgid ""
-"\n"
-"            The Department of State Security or State Security Service (DSS "
-"or SSS) is responsible for maintaining internal order and operates "
-"nationwide. The SSS is broken up into state commands headed by a Director of "
-"Security (commonly referred to as Director). The state commands are then "
-"under the command of the Director General of the SSS. The state commands may "
-"be further divided into branches covering each local government area of a "
-"state or the FCT.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:51
-msgid "Nigerian Armed Forces/Military"
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:53
-msgid ""
-"\n"
-"            The President of Nigeria is the Commander-in-Chief of the "
-"Nigerian Armed Forces, and generally commands the forces through the Chief "
-"of Defense Staff who heads Defence Headquarters. The Minister of Defence is "
-"not in the chain of command, but provides administrative support to the "
-"military.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:58
-msgid ""
-"\n"
-"            The Nigerian Armed Forces is broken up into independent branches "
-"- Nigerian Army (NA), Nigerian Navy (NN) and Nigerian Air Force (NAF). The "
-"army is the largest branch in terms of personnel and plays the major role in "
-"internal security. The head of each branch of the Armed Forces reports to "
-"the Chief of Defence Staff/Defence Headquarters.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:63
-msgid "Nigerian Army"
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:65
-msgid ""
-"The Army is under the command of the Chief of Army Staff who reports to the "
-"Chief of Defence Staff."
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:68
-msgid ""
-"\n"
-"            Operationally the Nigerian Army is organized into Divisions (a "
-"division is about 10,000 soldiers), the 1 Mechanised Division, 2 Mechanised "
-"Division, 3 Armoured Division, 81 Division, 82 Division, 7 Division, 8 Task "
-"Force Division and 6 Division. There is also an independent brigade, the "
-"Guards Brigade, charged with protecting the president and the Federal "
-"Capital Territory which reports directly to the President.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:73
-msgid ""
-"\n"
-"            Each Division has several Brigades under its command and also "
-"has support units including and also has support units including an "
-"Engineering Division (or a Division of Engineers), a Signals Division "
-"(despite their name these formations are much smaller than 10,000 soldiers) "
-"and a Garrison unit. Each Brigade generally has three battalions or "
-"artillery regiments under its command as well as a Garrison unit. (The "
-"deployment of forces to the north east to battle Boko Haram has complicated "
-"the picture somewhat).\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:78
-msgid "Nigerian Navy"
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:80
-msgid ""
-".The Navy is under the command of the Chief of Naval Staff who reports to "
-"the Chief of Defence Staff."
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:83
-msgid ""
-"Operationally the Nigerian Navy is divided into the Western, Eastern and "
-"Central Naval Commands, each headed by a Flag Officer Commanding."
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:86
-msgid "Nigerian Air Force"
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:88
-msgid ""
-"The Air Force under the command of the Chief of Air Staff who, in turn, "
-"reports to the Chief of Defence Staff."
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:91
-msgid ""
-"Operationally, the Nigerian Air Force is divided into several operational "
-"commands - Tactical Air Command, Mobility Command, Training Command, "
-"Logistics Command - which report to the Chief of Air Staff."
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:94
-msgid "Joint Task Forces"
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:96
-msgid ""
-"Several Joint Task Forces (JTFs) operate and have operated throughout "
-"Nigeria. The mission profile and makeup of these JTFs have varied, though "
-"they generally include a police and army component. Most JTFs appear to have "
-"been commanded by army officers."
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:99
-msgid "Outstanding Areas for Further Reearch"
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:101
-msgid ""
-"Inclusion of additional details on units and commanders for Nigeria Police "
-"Force units in the Federal Capital Territory and the following states: "
-"Bauchi, Bayelsa, Benue, Borno, Cross River, Delta, Ebonyi, Edo, Ekiti, "
-"Gombe, Imo, Jigawa, Kaduna, Kebbi, Kogi, Kwara, Nasarawa, Niger, Ondo, Osun, "
-"Oyo, Sokoto, Taraba, Zamfara."
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:102
-msgid ""
-"Identifying additional details on individual units and personnel as needed "
-"to fill any gaps in the records of units and commanders of the armed forces "
-"of Nigeria during the timeframe of 2008 to 2018."
-msgstr ""
-
-#: templates/sfm/country-background/nigeria.html:103
-msgid ""
-"Investigating other priorities as guided by partners concerned about the "
-"human rights practices of the security forces of Nigeria."
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:11
-msgid ""
-"\n"
-"           The Security Force Monitor’s current dataset is a “snapshot” of "
-"the structure of the Philippine National Police as of January 2018. "
-"Additional research (detailed below) will focus on other elements of the "
-"security forces of the Philippines. If you have public data that can add to "
-"our coverage or need support in your investigations, please get in touch: "
-"info [at] securityforcemonitor.org\n"
-"           "
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:16
-msgid "Administrative Division of the Philippines"
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:17
-msgid ""
-"The Philippines is divided into regions, provinces, independent cities, "
-"municipalities and barangays."
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:19
-msgid "Security Forces of the Philippines"
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:21
-msgid "Philippine National Police"
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:23
-msgid ""
-"\n"
-"            The Philippine National Police (PNP) is national police force of "
-"the Philippines, established through the merging of precursor organizations "
-"and transfer of personnel and roles from other security agencies in December "
-"1990.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:28
-msgid ""
-"\n"
-"             The PNP is headed by a Chief of Police who is assisted by a "
-"Deputy Chief for Operations and a Deputy Chief for Administration. The basic "
-"hierarchical structure since the establishment of the PNP has been: regional "
-"offices commanded by a regional director, then provincial offices commanded "
-"by a provincial director (which can be subdivided into police districts "
-"commanded by a district director) and finally at the city or municipal level "
-"police stations commanded by a chief of police.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:35
-msgid ""
-"Expanding the command structure of the Philippine National Police through "
-"time."
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:36
-msgid ""
-"Detailing commanders of Philippine National Police across various units and "
-"branches."
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:37
-msgid ""
-"Identifying locations and areas of operations through time for units of the "
-"Philippine National Police."
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:38
-msgid ""
-"Building command hierarchy of the armed forces of the Philippines and "
-"identifying location and area of operations of various units."
-msgstr ""
-
-#: templates/sfm/country-background/philippines.html:39
-msgid ""
-"Investigating other priorities as guided by partners concerned about the "
-"human rights practices of the security forces of the Philippines."
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:11
-msgid ""
-"\n"
-"            The Security Force Monitor’s current dataset is a “snapshot” of "
-"the structure of the Rwanda National Police as of 2017. Additional research "
-"(detailed below) will focus on other elements of the security forces of "
-"Rwanda. If you have public data that can add to our coverage or need support "
-"in your investigations, please get in touch: info [at] securityforcemonitor."
-"org\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:16
-msgid "Administrative Division of Rwanda"
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:17
-msgid ""
-"Rwanda is divided into provinces, which are further subdivided into "
-"districts, sectors and cells."
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:19
-msgid "Security Forces of Rwanda"
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:23
-msgid ""
-"\n"
-"            The Inspector General of Police commands the Rwanda National "
-"Police which is divided operationally into and Police Regions which are "
-"further divided into Police Districts, Police Stations, Police Posts.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:30
-msgid ""
-"Expanding the command structure of the Rwanda National Police through time."
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:31
-msgid ""
-"Detailing commanders of Rwanda National Police across various units and "
-"branches."
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:32
-msgid ""
-"Identifying locations and areas of operations through time for units of the "
-"Rwanda National Police."
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:33
-msgid ""
-"Building command hierarchy of the armed forces of Rwanda and identifying "
-"location and area of operations of various units."
-msgstr ""
-
-#: templates/sfm/country-background/rwanda.html:34
-msgid ""
-"Investigating other priorities as guided by partners concerned about the "
-"human rights practices of the security forces of Rwanda."
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:12
-msgid ""
-"\n"
-"            The Security Force Monitor’s current dataset is a “snapshot” of "
-"the structure of the armed forces of Saudi Arabia as of 2009. Additional "
-"research (detailed below) will focus on other elements of the security "
-"forces of Saudi Arabia. If you have public data that can add to our coverage "
-"or need support in your investigations, please get in touch: info [at] "
-"securityforcemonitor.org\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:17
-msgid "Administrative Division of Saudi Arabia"
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:18
-msgid ""
-"Saudi Arabia is divided into 13 regions with further subdivisions of "
-"governorates and then sub-governorates."
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:20
-msgid "Security Forces of Saudi Arabia"
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:24
-msgid ""
-"\n"
-"            As of 2009 the King of Saudi Arabia exercised direct control "
-"over the Saudi Arabia National Guard (SANG). SANG is divided into two "
-"regional commands which command Brigades, as well as independent Brigades "
-"which report directly to SANG headquarters. Brigades commanded several "
-"Battalions. Additionally there were several independent battalions.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:29
-msgid "Military"
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:31
-msgid ""
-"\n"
-"            As of 2009 the King of Saudi Arabia was the commander in chief "
-"of the armed forces. The chain of command went from the King through the "
-"Ministry of Defense and Aviation to the Chief of General Staff who commanded "
-"the four branches of the military: the Royal Saudi Land Forces (army), Royal "
-"Saudi Air Force, Royal Saudi Navy and Royal Saudi Air Defense Force.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:38
-msgid ""
-"\n"
-"            As of 2009 the air force was divided into Wings which command "
-"Squadrons.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:43
-msgid "Royal Saudi Navy"
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:45
-msgid ""
-"\n"
-"            As of 2009 the navy was divided into two fleets - the Western "
-"Fleet and Eastern Fleet.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:52
-msgid ""
-"Expanding the command structure of the armed forces and SANG through time."
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:53
-msgid ""
-"Detailing commanders of the various units of the armed forces and SANG "
-"through time."
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:54
-msgid ""
-"Identifying locations and areas of operations through time for units of the "
-"armed forces and SANG through time."
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:55
-msgid ""
-"Building command hierarchy of internal security forces of Saudi Arabia and "
-"identifying location and area of operations of various units."
-msgstr ""
-
-#: templates/sfm/country-background/saudiarabia.html:56
-msgid ""
-"Investigating other priorities as guided by partners concerned about the "
-"human rights practices of the security forces of Saudi Arabia."
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:11
-msgid ""
-"\n"
-"            The Security Force Monitor’s current dataset is a “snapshot” of "
-"the structure of the Uganda Police Force as of September 2016. Additional "
-"research (detailed below) will focus on other elements of the security "
-"forces of Uganda. If you have public data that can add to our coverage or "
-"need support in your investigations, please get in touch: info [at] "
-"securityforcemonitor.org\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:16
-msgid "Administrative Division of Uganda"
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:18
-msgid ""
-"\n"
-"            Uganda is divided into four regions which are further subdivided "
-"into 111 districts.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:23
-msgid "Security Forces of Uganda"
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:27
-msgid ""
-"\n"
-"            The Inspector General of Police commands the Uganda Police Force "
-"which is divided into Directorates at the headquarters level and "
-"operationally into and Police Regions which are further divided into Police "
-"Districts, Police Stations, Police Posts and Police Booths.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:34
-msgid ""
-"Expanding the command structure of the Uganda Police Force through time."
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:35
-msgid ""
-"Detailing commanders of the Uganda Police Force across various units and "
-"branches."
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:36
-msgid ""
-"Identifying locations and areas of operations through time of Uganda Police "
-"Force units."
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:37
-msgid ""
-"Building command hierarchy of the armed forces of Uganda and identifying "
-"location and area of operations of various units."
-msgstr ""
-
-#: templates/sfm/country-background/uganda.html:38
-msgid ""
-"Investigating other priorities as guided by partners concerned about the "
-"human rights practices of the security forces of Uganda."
 msgstr ""
 
 #. Translators: Please keep the "strong" tags, which display the numbers in bold
@@ -4132,364 +3003,21 @@ msgstr ""
 msgid "<strong>What is</strong> WhoWasInCommand?"
 msgstr ""
 
+#: templates/sfm/dashboard.html:70
+msgid ""
+"WhoWasInCommand answers key questions about the structure, behaviour and "
+"people in charge of security forces like the police and army:"
+msgstr ""
+
+#: templates/sfm/dashboard.html:79
+msgid ""
+"WhoWasinCommand presents data from thousands of public sources to help human "
+"rights researchers, investigative journalists and anyone who wants security "
+"forces to be more accountable."
+msgstr ""
+
 #: templates/sfm/dashboard.html:80
 msgid "Learn more"
-msgstr ""
-
-#: templates/sfm/help.html:9 templates/sfm/help.html:34
-#: templates/sfm/help.html:53
-msgid "What is WhoWasInCommand for?"
-msgstr ""
-
-#: templates/sfm/help.html:10 templates/sfm/help.html:35
-#: templates/sfm/help.html:60
-msgid "Who makes WhoWasInCommand?"
-msgstr ""
-
-#: templates/sfm/help.html:11 templates/sfm/help.html:36
-#: templates/sfm/help.html:70
-msgid "Is WhoWasInCommand just about who was in command?"
-msgstr ""
-
-#: templates/sfm/help.html:12 templates/sfm/help.html:37
-#: templates/sfm/help.html:79
-msgid "Where does all this data come from?"
-msgstr ""
-
-#: templates/sfm/help.html:13 templates/sfm/help.html:38
-#: templates/sfm/help.html:111
-msgid "Why have you singled out particular countries?"
-msgstr ""
-
-#: templates/sfm/help.html:14 templates/sfm/help.html:39
-#: templates/sfm/help.html:122
-msgid "I don’t understand what I’m seeing - help!"
-msgstr ""
-
-#: templates/sfm/help.html:15 templates/sfm/help.html:40
-#: templates/sfm/help.html:132
-msgid "Can I use the data in my own work?"
-msgstr ""
-
-#: templates/sfm/help.html:16 templates/sfm/help.html:41
-#: templates/sfm/help.html:142
-msgid "Something isn’t working, what do I do?"
-msgstr ""
-
-#: templates/sfm/help.html:17 templates/sfm/help.html:42
-#: templates/sfm/help.html:159
-msgid "Can I look at the site in my own language?"
-msgstr ""
-
-#: templates/sfm/help.html:18 templates/sfm/help.html:43
-#: templates/sfm/help.html:167
-msgid "You’ve made a mistake. Who can I tell about it?"
-msgstr ""
-
-#: templates/sfm/help.html:19 templates/sfm/help.html:44
-#: templates/sfm/help.html:183
-msgid "I have confidential information - can I leak it to you?"
-msgstr ""
-
-#: templates/sfm/help.html:20 templates/sfm/help.html:45
-#: templates/sfm/help.html:188
-msgid "Can you help me make sense of this data I’ve downloaded?"
-msgstr ""
-
-#: templates/sfm/help.html:21 templates/sfm/help.html:46
-#: templates/sfm/help.html:196
-msgid "What does this word or term mean?"
-msgstr ""
-
-#: templates/sfm/help.html:55
-msgid ""
-"\n"
-"            WhoWasInCommand helps make the police, military and other "
-"security forces more transparent and accountable. There is a great deal of "
-"publicly available data on security forces but it is unstructured and "
-"scattered amongst a wide variety of sources, making it prohibitively costly "
-"for those engaged in public interest work to understand the security forces "
-"of a particular country. WhoWasInCommand reduces the impact of this problem "
-"by structuring public data on security forces and presenting it in a clear "
-"and auditable way. In doing this, we aim to empower and inform journalism, "
-"human rights reporting and other public interest work.\n"
-"            "
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/help.html:65
-msgid ""
-"\n"
-"            WhoWasInCommand was created and operated by <a href=\"https://"
-"securityforcemonitor.org\" target=\"_blank\">Security Force Monitor</a>. "
-"We’re a project of the Human Rights Institute at Columbia Law School and you "
-"can <a target=\"_blank\" href=\"https://securityforcemonitor.org/about/"
-"\">read more about us here</a>.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/help.html:71
-msgid "No. WhoWasInCommand can also tell you about:"
-msgstr ""
-
-#: templates/sfm/help.html:73
-msgid ""
-"The composition of security forces: how different units of security forces "
-"relate to each other in the organizational hierarchy or in the context of "
-"missions and operations."
-msgstr ""
-
-#: templates/sfm/help.html:74
-msgid ""
-"People’s non-command roles: we also document the ways persons can be "
-"connected to units in administrative and informal roles."
-msgstr ""
-
-#: templates/sfm/help.html:75
-msgid ""
-"Where units are based: we have data on facilities and installations like "
-"headquarters, camps and bases."
-msgstr ""
-
-#: templates/sfm/help.html:76
-msgid ""
-"Areas of operation: we collect data on where different units are reported to "
-"have operated, and make that available to you."
-msgstr ""
-
-#: templates/sfm/help.html:80
-msgid ""
-"To create the data in WhoWasInCommand, Security Force Monitor’s researchers "
-"use material published online:"
-msgstr ""
-
-#: templates/sfm/help.html:82
-msgid "Official government media;"
-msgstr ""
-
-#: templates/sfm/help.html:83
-msgid "Laws of the country;"
-msgstr ""
-
-#: templates/sfm/help.html:84
-msgid ""
-"Press releases from the relevant ministries of the country (Information, "
-"Defense, Interior, and others);"
-msgstr ""
-
-#: templates/sfm/help.html:85
-msgid "Security force newsletters;"
-msgstr ""
-
-#: templates/sfm/help.html:86
-msgid "Social media pages for security services or government agencies;"
-msgstr ""
-
-#: templates/sfm/help.html:87
-msgid "Statistics and data agencies;"
-msgstr ""
-
-#: templates/sfm/help.html:88
-msgid "Local government websites;"
-msgstr ""
-
-#: templates/sfm/help.html:89
-msgid "Human rights commissions;"
-msgstr ""
-
-#: templates/sfm/help.html:90
-msgid "United States Government reporting;"
-msgstr ""
-
-#: templates/sfm/help.html:91
-msgid "United Nations reporting;"
-msgstr ""
-
-#: templates/sfm/help.html:92
-msgid "Local news reportage;"
-msgstr ""
-
-#: templates/sfm/help.html:93
-msgid "Civil society and human rights reporting;"
-msgstr ""
-
-#: templates/sfm/help.html:94
-msgid "Academic research; and,"
-msgstr ""
-
-#: templates/sfm/help.html:95
-msgid "Other country specific sources."
-msgstr ""
-
-#: templates/sfm/help.html:98
-msgid ""
-"\n"
-"         \"Every piece of data in WhoWasInCommand is linked to one or more "
-"these sources. We have also preserved every source possible using the "
-"Internet Archive, so you can access the sources even if the original version "
-"has disappeared from the Internet.\"\n"
-"         "
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/help.html:106
-msgid ""
-"\n"
-"            Our <a target=\"_blank\" href='https://help.securityforcemonitor."
-"org'>Research Handbook</a> contains a thorough description of the method and "
-"tools used to create the data in WhoWasInCommand.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/help.html:112
-msgid ""
-"Good question. We take into account a number of factors when choosing which "
-"countries to research:"
-msgstr ""
-
-#: templates/sfm/help.html:114
-msgid ""
-"Are there longstanding concerns raised by civil society organizations and "
-"independent bodies regarding the human right records of security forces in a "
-"country?"
-msgstr ""
-
-#: templates/sfm/help.html:115
-msgid ""
-"Do journalists, lawyers and colleagues from human rights groups in that "
-"country agree that there is an information gap that is worth filling?"
-msgstr ""
-
-#: templates/sfm/help.html:116
-msgid "Is there a sufficient amount of publicly-available source material?"
-msgstr ""
-
-#: templates/sfm/help.html:119
-msgid ""
-"Presently, we publish research on Mexico, Nigeria and Egypt. We are actively "
-"researching additional countries informed by feedback from civil society."
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/help.html:127
-msgid ""
-"\n"
-"            In our <a target=\"_blank\" href='http://help."
-"securityforcemonitor.org'>Research Handbook</a>, we’ve created some guides "
-"to the different ways that data are displayed in WhoWasInCommand.\"\n"
-"            "
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/help.html:137
-msgid ""
-"\n"
-"            Yes. You can download any data published on WhoWasInCommand and "
-"use it under the terms of <a target=\"_blank\" href='https://creativecommons."
-"org/licenses/by/4.0/'>Creative Commons Attribution License 4.0</a>. This "
-"means you’re welcome to use, share and adapt any data from WhoWasInCommand "
-"as long as you credit Security Force Monitor and promise not to place any "
-"additional restrictions on others’ ability to use the data.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/help.html:144
-msgid ""
-"Sorry about that. Please write in and tell us about it - it’s incredibly "
-"helpful in making WhoWasInCommand better. When you write in, try to answer "
-"the following questions:"
-msgstr ""
-
-#: templates/sfm/help.html:147
-msgid "What were you trying to do? "
-msgstr ""
-
-#: templates/sfm/help.html:148
-msgid "What didn’t work as you expected?"
-msgstr ""
-
-#: templates/sfm/help.html:149
-msgid "How would you expect it to work?"
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/help.html:155
-msgid ""
-"Please include the web address you were looking at, and if possible a "
-"screenshot of the problem. You can send any error reports to <a href='mailto:"
-"technical@securityforcemonitor.org'>technical@securityforcemonitor.org</a>."
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/help.html:164
-msgid ""
-"At the moment, WhoWasInCommand can be used in English and Spanish. You can "
-"change the language at any time using the selector on every page of "
-"WhoWasInCommand. If you have some time to translate the application for us "
-"(it’s easy to do and we’ll help!) please <a href='mailto:"
-"technical@securityforcemonitor.org'>get in touch</a>."
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/help.html:172
-msgid ""
-"\n"
-"            Write to our research team at <a href='mailto:"
-"technical@securityforcemonitor.org'>technical@securityforcemonitor.org</a> "
-"and tell us about the mistake. We’ll investigate it further and make changes "
-"as required. You can help us speed up our investigation by sending us a link "
-"to publicly available sources that demonstrate the mistake.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/help.html:177
-msgid ""
-"\n"
-"            The data in WhoWasInCommand mirrors information found in "
-"publicly available sources, which may not be correct and can contradict each "
-"other. This is why we grade the quality of every datapoint with a "
-"“confidence rating”. We assign ratings of “medium” and “high” to a datapoint "
-"when numerous sources from different publishers validate a datapoint. Until "
-"that happens, we our data given a rating of “low”.\n"
-"            "
-msgstr ""
-
-#: templates/sfm/help.html:185
-msgid ""
-"No. All data published on WhoWasInCommand is drawn from published sources. "
-"Further, the threats to whistleblowers are increasingly extreme, and we are "
-"not able to offer the sort of technical and legal protection that many "
-"larger media organisations are now able to offer."
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/help.html:193
-msgid ""
-"Yes, the way that your download looks is very logical but not yet "
-"particularly easy to use. We’ve created a brief tutorial here, which should "
-"help. If you’re still stuck, write to us at <a href='mailto:"
-"technical@securityforcemonitor.org'>technical@securityforcemonitor.org</a> "
-"and we’ll do our best to help."
-msgstr ""
-
-#. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
-#: templates/sfm/help.html:201
-msgid ""
-"\n"
-"            Our <a target=\"_blank\" href='https://help.securityforcemonitor."
-"org'>Research Handbook</a> has detailed descriptions of all the fields and "
-"terminology used on WhoWasInCommand. If something isn’t clear, please write "
-"to us and let us know.\n"
-"            "
 msgstr ""
 
 #: templates/sidebar.html:9
@@ -4621,27 +3149,19 @@ msgstr ""
 msgid "Access point"
 msgstr ""
 
-#: templates/source/view.html:30
-msgid "Publisher:"
-msgstr ""
-
-#: templates/source/view.html:31
-msgid "Publication date:"
-msgstr ""
-
-#: templates/source/view.html:32
+#: templates/source/view.html:33
 msgid "Last edited by:"
 msgstr ""
 
-#: templates/source/view.html:48
+#: templates/source/view.html:49
 msgid "Select an access point to view entities evidenced by this source:"
 msgstr ""
 
-#: templates/source/view.html:68
+#: templates/source/view.html:69
 msgid "No access points found for this source."
 msgstr ""
 
-#: templates/source/view.html:77
+#: templates/source/view.html:78
 #, python-format
 msgid ""
 "\n"
@@ -4650,11 +3170,11 @@ msgid ""
 "        "
 msgstr ""
 
-#: templates/source/view.html:85
+#: templates/source/view.html:86
 msgid "No entities found for this access point."
 msgstr ""
 
-#: templates/source/view.html:97
+#: templates/source/view.html:98
 msgid "Select an access point"
 msgstr ""
 
@@ -4663,7 +3183,7 @@ msgid "Add new incident"
 msgstr ""
 
 #: templates/violation/create-locations.html:40
-#: templates/violation/edit-locations.html:40
+#: templates/violation/edit-locations.html:43
 msgid "Edit locations"
 msgstr ""
 
@@ -4674,34 +3194,49 @@ msgid ""
 "    "
 msgstr ""
 
-#: templates/violation/edit-locations.html:158
-#: templates/violation/edit-locations.html:172
-#: templates/violation/edit-locations.html:186
+#: templates/violation/delete.html:16 templates/violation/view.html:87
+#: templates/violation/view.html:99 templates/violation/view.html:139
+#: violation/forms.py:38 violation/models.py:298
+msgid "Description"
+msgstr ""
+
+#: templates/violation/delete.html:33 violation/forms.py:49
+msgid "Violation type"
+msgstr ""
+
+#: templates/violation/edit-locations.html:140
+#: templates/violation/edit-locations.html:154
+#: templates/violation/edit-locations.html:168
 msgid "Search for a location"
 msgstr ""
 
-#: templates/violation/view.html:36
+#: templates/violation/view.html:37
 msgid "Location:"
 msgstr ""
 
-#: templates/violation/view.html:58
+#: templates/violation/view.html:59
 msgid "Violation types:"
 msgstr ""
 
-#: templates/violation/view.html:69
+#: templates/violation/view.html:70
 msgid "Perpetrator classifications:"
 msgstr ""
 
 #: templates/violation/view.html:88 templates/violation/view.html:100
-#: templates/violation/view.html:191
-msgid "Perpetrator organizations"
+#: templates/violation/view.html:153
+msgid "Perpetrators"
 msgstr ""
 
-#: templates/violation/view.html:118
+#: templates/violation/view.html:89 templates/violation/view.html:101
+#: templates/violation/view.html:192
+msgid "Perpetrator units"
+msgstr ""
+
+#: templates/violation/view.html:119
 msgid "This incident took place in"
 msgstr ""
 
-#: violation/forms.py:39 violation/models.py:148 violation/models.py:287
+#: violation/forms.py:39 violation/models.py:151 violation/models.py:307
 msgid "Perpetrator"
 msgstr ""
 
@@ -4709,62 +3244,82 @@ msgstr ""
 msgid "Perpetrator unit"
 msgstr ""
 
-#: violation/forms.py:73
+#: violation/forms.py:41
+msgid "Perpetrator classification"
+msgstr ""
+
+#: violation/forms.py:73 violation/models.py:222
 msgid "Location Description"
 msgstr ""
 
 #: violation/forms.py:74
-msgid "Settlement"
+msgid "Settlement administrative area"
 msgstr ""
 
 #: violation/forms.py:75
 msgid "Top administrative area"
 msgstr ""
 
-#: violation/forms.py:76
-msgid "Exact Location"
+#: violation/forms.py:76 violation/models.py:231
+msgid "Settlement"
 msgstr ""
 
-#: violation/models.py:118
+#: violation/models.py:121
 msgid "AdminLevel1"
 msgstr ""
 
-#: violation/models.py:127
+#: violation/models.py:130
 msgid "AdminLevel2"
 msgstr ""
 
-#: violation/models.py:161
+#: violation/models.py:164
 msgid "PerpetratorOrganization"
 msgstr ""
 
-#: violation/models.py:180
-msgid "First allegation"
+#: violation/models.py:184
+msgid "Date of Publication"
 msgstr ""
 
-#: violation/models.py:195
-msgid "Last update"
+#: violation/models.py:193
+msgid "End Date"
 msgstr ""
 
 #: violation/models.py:202
-msgid "Current status"
+msgid "Date of Last Update"
 msgstr ""
 
-#: violation/models.py:234
+#: violation/models.py:212
+msgid "Status of Last Update"
+msgstr ""
+
+#: violation/models.py:240
+msgid "First-Level Administrative Area"
+msgstr ""
+
+#: violation/models.py:249
 msgid "OSM Name"
 msgstr ""
 
-#: violation/models.py:264
-msgid "Exact location name"
+#: violation/models.py:272
+msgid "Exact Location"
 msgstr ""
 
-#: violation/models.py:271
-msgid "Exact location ID"
+#: violation/models.py:279
+msgid "Exact Location Name"
 msgstr ""
 
-#: violation/models.py:295
-msgid "Perpetrating unit"
+#: violation/models.py:288
+msgid "Exact Location ID"
 msgstr ""
 
-#: violation/models.py:313
-msgid "Perpetrating unit classification"
+#: violation/models.py:316
+msgid "Perpetrator Unit"
+msgstr ""
+
+#: violation/models.py:326
+msgid "Violation Types"
+msgstr ""
+
+#: violation/models.py:336
+msgid "Perpetrator Classification"
 msgstr ""
