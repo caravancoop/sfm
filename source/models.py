@@ -37,54 +37,59 @@ class GetSpreadsheetFieldNameMixin:
 
     @classmethod
     def get_verbose_field_name(cls, field_name):
-        return cls._meta.get_field(field_name).verbose_name.title()
+        return _(cls._meta.get_field(field_name).verbose_name).title()
 
 
 @reversion.register(follow=['accesspoint_set'])
 class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    title = source_fields.TextField(spreadsheet_field_name='source:title')
+    title = source_fields.TextField(verbose_name=_("title"), spreadsheet_field_name='source:title')
     type = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:type')
     author = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:author')
-    publication = source_fields.TextField(null=True, spreadsheet_field_name='source:publication_name')
-    publication_country = source_fields.CharField(max_length=1000, null=True, spreadsheet_field_name='source:publication_country')
+    publication = source_fields.TextField(null=True, verbose_name=_("publication"), spreadsheet_field_name='source:publication_name')
+    publication_country = source_fields.CharField(
+        max_length=1000,
+        verbose_name=_("publication country"),
+        null=True,
+        spreadsheet_field_name='source:publication_country'
+    )
     # We store both date and timestamp fields for the following values because
     # sometimes sources have partial dates and sometimes they have full
     # timestamps. In practice, these fields should be treated as mutually
     # exclusive, and the get_date() methods should be used to retrieve
     # the canonical value.
     published_date = source_fields.ApproximateDateField(
-        verbose_name="publication date",
+        verbose_name=_("publication date"),
         blank=True,
         default='',
         spreadsheet_field_name='source:published_timestamp'
     )
     published_timestamp = source_fields.DateTimeField(
-        verbose_name="publication timestamp",
+        verbose_name=_("publication timestamp"),
         blank=True,
         null=True,
         spreadsheet_field_name='source:published_timestamp'
     )
     created_date = source_fields.ApproximateDateField(
-        verbose_name="creation date",
+        verbose_name=_("creation date"),
         blank=True,
         default='',
         spreadsheet_field_name='source:created_timestamp'
     )
     created_timestamp = source_fields.DateTimeField(
-        verbose_name="publication timestamp",
+        verbose_name=_("publication timestamp"),
         blank=True,
         null=True,
         spreadsheet_field_name='source:created_timestamp'
     )
     uploaded_date = source_fields.ApproximateDateField(
-        verbose_name="upload date",
+        verbose_name=_("upload date"),
         blank=True,
         default='',
         spreadsheet_field_name='source:uploaded_timestamp'
     )
     uploaded_timestamp = source_fields.DateTimeField(
-        verbose_name="publication timestamp",
+        verbose_name=_("publication timestamp"),
         blank=True,
         null=True,
         spreadsheet_field_name='source:uploaded_timestamp'
@@ -164,7 +169,7 @@ class AccessPoint(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     type = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:access_point_type')
     trigger = source_fields.CharField(max_length=255, null=True, blank=True, spreadsheet_field_name='source:access_point_trigger')
-    accessed_on = source_fields.DateField(null=True, verbose_name='access date', spreadsheet_field_name='source:accessed_timestamp')
+    accessed_on = source_fields.DateField(null=True, verbose_name=_("access date"), spreadsheet_field_name='source:accessed_timestamp')
     archive_url = source_fields.URLField(max_length=1000, null=True, spreadsheet_field_name='source:archive_url')
     source = models.ForeignKey(Source, null=True, to_field='uuid')
 

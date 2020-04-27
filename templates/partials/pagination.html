@@ -63,7 +63,7 @@
     <div class="col-sm-12">
         <p>
             <small>
-                <strong>Results per page:</strong>
+                <strong>{% trans "Results per page:" %}</strong>
                 {% for result_count in results_per_page %}
                     {% if hit_count >= result_count %}
                         {% if not forloop.first %}|{% endif %}

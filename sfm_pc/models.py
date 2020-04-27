@@ -1,3 +1,4 @@
+from django.utils.translation import ugettext as _
 from complex_fields.models import ComplexFieldContainer
 
 
@@ -26,7 +27,7 @@ class GetComplexFieldNameMixin:
         the verbose name for Person.aliases would be 'Other names'.
         """
         field_model = cls.get_field_model(field_name)
-        return field_model.field_name
+        return _(field_model.field_name)
 
     @classmethod
     def get_shortcode(cls, field_name):
