@@ -2,7 +2,7 @@
 import uuid
 
 from django import forms
-from django.utils.translation import ugettext as _, get_language
+from django.utils.translation import ugettext as _, get_language, gettext_lazy
 from django.core.exceptions import ObjectDoesNotExist
 
 from complex_fields.models import ComplexFieldContainer, ComplexFieldListContainer
@@ -561,10 +561,10 @@ def download_types():
 
 
 class DownloadForm(forms.Form):
-    download_type = forms.ChoiceField(label=_("Choose a download type"), choices=download_types)
-    division_id = forms.ChoiceField(label=_("Country"), choices=division_choices)
-    sources = forms.BooleanField(label=_("Include sources"), required=False)
-    confidences = forms.BooleanField(label=_("Include confidence scores"), required=False)
+    download_type = forms.ChoiceField(label=gettext_lazy("Choose a download type"), choices=download_types)
+    division_id = forms.ChoiceField(label=gettext_lazy("Country"), choices=division_choices)
+    sources = forms.BooleanField(label=gettext_lazy("Include sources"), required=False)
+    confidences = forms.BooleanField(label=gettext_lazy("Include confidence scores"), required=False)
 
 
 class ChangeLogForm(forms.Form):
