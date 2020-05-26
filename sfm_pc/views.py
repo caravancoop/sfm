@@ -237,7 +237,6 @@ class DownloadData(FormView):
 
         download_type = form.cleaned_data['download_type']
         division_id = form.cleaned_data['division_id']
-        sources = form.cleaned_data['sources']
         confidences = form.cleaned_data['confidences']
 
         download_class = download_classes[download_type]
@@ -252,14 +251,12 @@ class DownloadData(FormView):
         if download_type == 'sources':
             return download_class.render_to_csv_response(
                 filename,
-                sources=sources,
                 confidences=confidences
             )
         else:
             return download_class.render_to_csv_response(
                 filename,
                 division_id=division_id,
-                sources=sources,
                 confidences=confidences
             )
 

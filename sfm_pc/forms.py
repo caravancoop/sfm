@@ -563,7 +563,6 @@ def download_types():
 class DownloadForm(forms.Form):
     download_type = forms.ChoiceField(label=gettext_lazy("Choose a download type"), choices=download_types)
     division_id = forms.ChoiceField(label=gettext_lazy("Country"), choices=division_choices)
-    sources = forms.BooleanField(label=gettext_lazy("Include sources"), required=False)
     confidences = forms.BooleanField(label=gettext_lazy("Include confidence scores"), required=False)
 
 
