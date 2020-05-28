@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-21 16:05+0000\n"
-"PO-Revision-Date: 2017-10-30 14:08+0000\n"
-"Last-Translator: b'  <jean@jeancochrane.com>'\n"
+"POT-Creation-Date: 2020-05-28 16:08+0000\n"
+"PO-Revision-Date: 2020-05-28 15:53+0000\n"
+"Last-Translator: b'Michel  <michel@securityforcemonitor.org>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -58,72 +58,56 @@ msgstr "País"
 #: association/models.py:50 composition/models.py:63 emplacement/models.py:49
 #: membershiporganization/models.py:85 membershipperson/models.py:188
 #: organization/models.py:346
-#, fuzzy
-#| msgid "First cited date"
 msgid "First Cited Date"
 msgstr "Fecha de primera cita"
 
 #: association/models.py:60 membershiporganization/models.py:111
 #: membershipperson/models.py:208 organization/models.py:366
-#, fuzzy
-#| msgid "Start Date"
 msgid "Start Date?"
-msgstr "Fecha inicial"
+msgstr "¿Es la fecha  de inicio?"
 
 #: association/models.py:70 composition/models.py:83 emplacement/models.py:69
 #: membershiporganization/models.py:98 membershipperson/models.py:198
 #: organization/models.py:356
-#, fuzzy
-#| msgid "Last cited date"
 msgid "Last Cited Date"
 msgstr "Fecha de última cita"
 
 #: association/models.py:80 composition/models.py:55 emplacement/models.py:89
 #: membershipperson/models.py:147
 msgid "Unit"
-msgstr "Unidades"
+msgstr "Unidad"
 
 #: association/models.py:91
-#, fuzzy
-#| msgid "Area of Operations"
 msgid "Area of Operation"
 msgstr "Área de Operaciones"
 
 #: association/models.py:102
-#, fuzzy
-#| msgid "Open-ended?"
 msgid "Open-Ended?"
-msgstr "¿Se mantiene así - ha habido algún cambio- tiene fecha de fin?"
+msgstr "¿Se mantiene o tiene fecha de fin?"
 
 #: composition/models.py:45
-#, fuzzy
-#| msgid "Related organization"
 msgid "Related Unit"
-msgstr "Organización relacionada"
+msgstr "Unidad relacionada"
 
 #: composition/models.py:73 violation/models.py:175
 msgid "Start Date"
-msgstr "Fecha inicial"
+msgstr "Fecha de inicio"
 
 #: composition/models.py:103 emplacement/models.py:79
 #: organization/models.py:376
-#, fuzzy
-#| msgid "Open ended"
 msgid "Is Open Ended?"
-msgstr "¿Se mantiene igual? - ¿Sufrió cambios? - ¿Fecha final?"
+msgstr "¿Se mantiene o tiene fecha de fin?"
 
 #: emplacement/models.py:59
-#, fuzzy
-#| msgid "Publication date"
 msgid "Is Foundation Date?"
-msgstr "Fecha de publicación"
+msgstr "¿Es la fecha de creación?"
 
 #: emplacement/models.py:97 templates/emplacement/search.html:117
 #: templates/emplacement/search.html:141
 #: templates/organization/edit-locations.html:35 templates/sidebar.html:15
 #: templates/site/edit.html:8
 msgid "Site"
-msgstr "Sitio"
+msgstr "Ubicación"
 
 #: emplacement/models.py:106 templates/organization/search.html:163
 #: templates/person/search.html:129
@@ -165,7 +149,7 @@ msgstr "Nombre de la ubicación"
 
 #: geosite/models.py:114 templates/location/create.html:38
 msgid "Location ID"
-msgstr "ID de la Ubicación"
+msgstr "ID de Ubicación"
 
 #: geosite/models.py:122
 msgid "Division ID"
@@ -193,7 +177,7 @@ msgstr "Última cita"
 #: templates/person/partials/person-posting-list.html:13
 #: templates/sidebar.html:10
 msgid "Organization"
-msgstr "Organización"
+msgstr "Unidad"
 
 #: location/models.py:75 organization/models.py:276 person/models.py:155
 #: templates/sidebar.html:16
@@ -201,10 +185,8 @@ msgid "Violation"
 msgstr "Violación"
 
 #: membershiporganization/models.py:61
-#, fuzzy
-#| msgid "Member units"
 msgid "Member Unit"
-msgstr "Unidades afiliadas"
+msgstr "Unidad afiliada"
 
 #: membershiporganization/models.py:72
 #: templates/organization/partials/membership-list-table.html:11
@@ -213,10 +195,8 @@ msgid "Membership"
 msgstr "Afiliación"
 
 #: membershiporganization/models.py:121 membershipperson/models.py:218
-#, fuzzy
-#| msgid "End Date"
 msgid "End Date?"
-msgstr "Fecha final"
+msgstr "¿Es la fecha de fin?"
 
 #: membershipperson/models.py:74 membershipperson/models.py:139
 #: templates/organization/delete-membership.html:9
@@ -233,7 +213,7 @@ msgstr "de"
 #. Translators: The word "on" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date]" Words in [brackets] indicate variable text.
 #: membershipperson/models.py:108 templates/partials/violation_title.html:12
 msgid "on"
-msgstr "de"
+msgstr "el"
 
 #: membershipperson/models.py:157 organization/forms.py:205 person/forms.py:82
 #: templates/membershipperson/search.html:17
@@ -270,16 +250,12 @@ msgid "Rank"
 msgstr "Rango"
 
 #: membershipperson/models.py:228
-#, fuzzy
-#| msgid "Start context"
 msgid "Start Date Context"
-msgstr "Contexto inicial"
+msgstr "Contexto de inicio"
 
 #: membershipperson/models.py:238
-#, fuzzy
-#| msgid "End context"
 msgid "End Date Context"
-msgstr "Contexto final"
+msgstr "Contexto de fin"
 
 #: organization/forms.py:48 sfm_pc/settings.py:338 tests/test_settings.py:215
 msgid "Yes"
@@ -290,10 +266,8 @@ msgid "No"
 msgstr "No"
 
 #: organization/forms.py:50
-#, fuzzy
-#| msgid "Last citation date"
 msgid "Last cited date is termination date"
-msgstr "Fecha de la última cita"
+msgstr "La fecha de la última cita es la fecha de fin"
 
 #: organization/forms.py:72 organization/forms.py:118 organization/forms.py:163
 #: organization/forms.py:207 organization/forms.py:247
@@ -307,10 +281,8 @@ msgstr "Fecha de la última cita"
 #: templates/organization/edit-locations.html:22
 #: templates/organization/edit-membership.html:19
 #: templates/person/delete-posting.html:49
-#, fuzzy
-#| msgid "First cited"
 msgid "Date first cited"
-msgstr "Primera cita"
+msgstr "Fecha de primera cita"
 
 #: organization/forms.py:73 organization/forms.py:119 organization/forms.py:164
 #: organization/forms.py:208 organization/forms.py:248
@@ -324,10 +296,8 @@ msgstr "Primera cita"
 #: templates/organization/edit-locations.html:23
 #: templates/organization/edit-membership.html:20
 #: templates/person/delete-posting.html:79
-#, fuzzy
-#| msgid "Last cited"
 msgid "Date last cited"
-msgstr "Última cita"
+msgstr "Fecha de última cita"
 
 #: organization/forms.py:74 organization/forms.py:117 organization/forms.py:162
 #: organization/forms.py:209 organization/forms.py:246
@@ -338,23 +308,19 @@ msgstr "Última cita"
 #: templates/organization/delete-membership.html:39
 #: templates/organization/delete-personnel.html:59
 #: templates/person/delete-posting.html:59
-#, fuzzy
-#| msgid "Start date"
 msgid "Start date?"
-msgstr "Fecha de inicio"
+msgstr "¿Esta es la fecha de inicio?"
 
 #: organization/forms.py:75 organization/forms.py:120 organization/forms.py:249
 #: organization/forms.py:290 templates/composition/create.html:236
 #: templates/organization/create.html:271
 #: templates/organization/create.html:461
 msgid "Open-ended?"
-msgstr "¿Se mantiene así - ha habido algún cambio- tiene fecha de fin?"
+msgstr "¿Se mantiene o tiene fecha de fin?"
 
 #: organization/forms.py:82 person/forms.py:48
-#, fuzzy
-#| msgid "Person name"
 msgid "Other names"
-msgstr "Nombre de la persona"
+msgstr "Otros nombres"
 
 #: organization/forms.py:123
 msgid "Relationship classification"
@@ -364,42 +330,30 @@ msgstr "Clasificación de relación"
 #: templates/organization/delete-membership.html:59
 #: templates/organization/delete-personnel.html:89
 #: templates/person/delete-posting.html:89
-#, fuzzy
-#| msgid "End date"
 msgid "End date?"
-msgstr "Fecha de fin"
+msgstr "¿Esta es la fecha de fin?"
 
 #: organization/forms.py:203
-#, fuzzy
-#| msgid "Personnel"
 msgid "Person name"
-msgstr "Personal"
+msgstr "Nombre de la persona"
 
 #: organization/forms.py:211 person/forms.py:88
 #: templates/organization/delete-personnel.html:69
 #: templates/person/delete-posting.html:69
-#, fuzzy
-#| msgid "Real start date"
 msgid "Context for start date"
-msgstr "Fecha inicial real"
+msgstr "Contexto de fecha de inicio"
 
 #: organization/forms.py:212 person/forms.py:89
 #: templates/organization/delete-personnel.html:99
 #: templates/person/delete-posting.html:99
-#, fuzzy
-#| msgid "No known end date"
 msgid "Context for end date"
-msgstr "Fecha de fin desconocida"
+msgstr "Contexto de fecha de fin"
 
 #: organization/forms.py:256 templates/organization/delete-emplacement.html:29
-#, fuzzy
-#| msgid "Location name"
 msgid "Location other names"
-msgstr "Nombre de la ubicación"
+msgstr "Nombres alternos de la ubicación"
 
 #: organization/models.py:144 person/models.py:137
-#, fuzzy
-#| msgid "Membership Person"
 msgid "MembershipPerson"
 msgstr "Persona afiliada"
 
@@ -409,10 +363,8 @@ msgid "Composition"
 msgstr "Composición"
 
 #: organization/models.py:201 organization/models.py:220
-#, fuzzy
-#| msgid "Organization"
 msgid "MembershipOrganization"
-msgstr "Organización"
+msgstr "Unidad afiliada"
 
 #: organization/models.py:239 templates/association/edit.html:9
 #: templates/sidebar.html:12
@@ -422,26 +374,20 @@ msgstr "Asociación"
 #: organization/models.py:258 templates/emplacement/edit.html:9
 #: templates/sidebar.html:14
 msgid "Emplacement"
-msgstr "Emplazamiento"
+msgstr "Ubicación "
 
 #: organization/models.py:303 person/models.py:182
-#, fuzzy
-#| msgid "Person name"
 msgid "Other Names"
-msgstr "Nombre de la persona"
+msgstr "Otros nombres"
 
 #: organization/models.py:336
-#, fuzzy
-#| msgid "Enter Name"
 msgid "Base Name"
-msgstr "Ingresar Nombre"
+msgstr "Nombre de la base"
 
 #: person/forms.py:37 person/models.py:193 personextra/models.py:108
 #: templates/person/delete.html:67
-#, fuzzy
-#| msgid "Note"
 msgid "Notes"
-msgstr "Nota"
+msgstr "Notas"
 
 #: person/views.py:216 person/views.py:222 person/views.py:224
 #: person/views.py:267 person/views.py:282
@@ -460,47 +406,35 @@ msgstr "Persona   "
 
 #: personbiography/models.py:60 templates/person/delete.html:37
 msgid "Gender"
-msgstr ""
+msgstr "Genero"
 
 #: personbiography/models.py:70
-#, fuzzy
-#| msgid "Date of creation"
 msgid "Date of Birth"
-msgstr "Fecha de creación"
+msgstr "Fecha de nacimiento"
 
 #: personbiography/models.py:80
-#, fuzzy
-#| msgid "Date created"
 msgid "Date Deceased"
-msgstr "Fecha de creación"
+msgstr "Fecha de defunción "
 
 #: personbiography/models.py:90 templates/person/delete.html:55
-#, fuzzy
-#| msgid "December"
 msgid "Deceased"
-msgstr "diciembre"
+msgstr "Fallecido"
 
 #: personextra/models.py:57
 msgid "Online Account Type"
-msgstr ""
+msgstr "Tipo de cuenta en línea"
 
 #: personextra/models.py:69
-#, fuzzy
-#| msgid "Account Inactive"
 msgid "Online Account Identifier"
-msgstr "Cuenta desactivada"
+msgstr "Identificador de cuenta en línea"
 
 #: personextra/models.py:82
-#, fuzzy
-#| msgid "Location description"
 msgid "External Link Description"
-msgstr "Ubicación"
+msgstr "Descripción del enlace externo"
 
 #: personextra/models.py:95
-#, fuzzy
-#| msgid "Description"
 msgid "Media Description"
-msgstr "Descripción"
+msgstr "Descripción del medio"
 
 #: sfm_pc/base_views.py:111 sfm_pc/settings.py:332
 #: templates/modals/source.html:13 tests/test_settings.py:209
@@ -519,39 +453,35 @@ msgstr "Alto"
 
 #: sfm_pc/forms.py:223 sfm_pc/forms.py:452
 msgid "Empty fields should not have sources"
-msgstr ""
+msgstr "Los campos vacíos no deben tener fuentes"
 
 #: sfm_pc/forms.py:271 sfm_pc/forms.py:278
 msgid "This field has new values so it requires sources"
-msgstr ""
+msgstr "Este campo tiene nuevos valores por lo que requiere fuentes"
 
 #: sfm_pc/forms.py:289
 msgid "This field now has a value so it requires sources"
-msgstr ""
+msgstr "Este campo ahora tiene un valor, por lo que requiere fuentes"
 
 #: sfm_pc/forms.py:295
 msgid "This field changed so it requires sources"
-msgstr ""
+msgstr "Este campo cambió, por lo que requiere fuentes"
 
 #: sfm_pc/forms.py:309
-#, fuzzy
-#| msgid "Please add a source for this information"
 msgid "Please add some sources to this field"
-msgstr "Favor de agregar alguna fuente para esta información"
+msgstr "Por favor, añada algunas fuentes a este campo"
 
 #: sfm_pc/forms.py:466
 msgid "This field requires sources"
-msgstr ""
+msgstr "Este campo requiere de fuentes"
 
 #: sfm_pc/forms.py:553
 msgid "Basic"
-msgstr ""
+msgstr "Básico"
 
 #: sfm_pc/forms.py:554
-#, fuzzy
-#| msgid "Parent"
 msgid "Parentage"
-msgstr "Superior"
+msgstr "Relación"
 
 #: sfm_pc/forms.py:555 templates/organization/view.html:65
 #: templates/organization/view.html:81 templates/organization/view.html:205
@@ -567,7 +497,7 @@ msgstr "Áreas de operación"
 #: sfm_pc/forms.py:557 templates/organization/view.html:64
 #: templates/organization/view.html:80 templates/organization/view.html:151
 msgid "Sites"
-msgstr "Sitios"
+msgstr "Ubicaciones"
 
 #: sfm_pc/forms.py:558 templates/base.html:50
 #: templates/organization/base-organization.html:35
@@ -590,19 +520,13 @@ msgstr "Fuentes"
 
 #: sfm_pc/forms.py:564
 msgid "Choose a download type"
-msgstr ""
+msgstr "Elija un tipo de descarga"
 
 #: sfm_pc/forms.py:566
-#, fuzzy
-#| msgid "View/Edit Sources"
-msgid "Include sources"
-msgstr "Ver/Editar Fuentes"
-
-#: sfm_pc/forms.py:567
 msgid "Include confidence scores"
-msgstr ""
+msgstr "Incluya niveles de confiabilidad"
 
-#: sfm_pc/forms.py:571 templates/association/search.html:23
+#: sfm_pc/forms.py:570 templates/association/search.html:23
 #: templates/association/search.html:141 templates/composition/search.html:17
 #: templates/composition/search.html:141 templates/emplacement/search.html:23
 #: templates/emplacement/search.html:138
@@ -613,7 +537,7 @@ msgstr ""
 msgid "Start date"
 msgstr "Fecha de inicio"
 
-#: sfm_pc/forms.py:572 templates/association/search.html:62
+#: sfm_pc/forms.py:571 templates/association/search.html:62
 #: templates/association/search.html:142 templates/composition/search.html:56
 #: templates/composition/search.html:142 templates/emplacement/search.html:62
 #: templates/emplacement/search.html:139
@@ -624,7 +548,8 @@ msgstr "Fecha de inicio"
 msgid "End date"
 msgstr "Fecha de fin"
 
-#: sfm_pc/settings.py:177 tests/test_settings.py:128
+#: sfm_pc/settings.py:177 sfm_pc/templatetags/language_url.py:17
+#: templates/base.html:159 tests/test_settings.py:128
 msgid "French"
 msgstr "Francés"
 
@@ -640,7 +565,7 @@ msgstr "Español"
 
 #: sfm_pc/settings.py:180
 msgid "Arabic"
-msgstr ""
+msgstr "Árabe"
 
 #: sfm_pc/settings.py:340 tests/test_settings.py:217
 msgid "Exact"
@@ -692,10 +617,8 @@ msgstr "Número de página"
 
 #: sfm_pc/templatetags/citations.py:89
 #: templates/partials/source_and_confidence.html:18
-#, fuzzy
-#| msgid " sources for this datapoint"
 msgid "Sources for this datapoint"
-msgstr "fuentes para esta información"
+msgstr "Fuentes para esta información"
 
 #: sfm_pc/templatetags/citations.py:99
 msgid "Confidence: LOW"
@@ -718,8 +641,8 @@ msgid ""
 "We believe that this date represents a real start date, as well as being the "
 "first recorded citation date."
 msgstr ""
-"Creemos que esta es la fecha real de inicio, así como la primera fecha de "
-"cita registrada. "
+"Creemos que esta es la fecha de inicio, así como la primera fecha registrada "
+"de cita. "
 
 #: sfm_pc/templatetags/citations.py:161
 msgid "Real end date"
@@ -730,8 +653,8 @@ msgid ""
 "We believe that this date represents a real end date, as well as being the "
 "last recorded citation date."
 msgstr ""
-"Creemos que esta es la fecha real de fin, así como la última fecha de cita "
-"registrada. "
+"Creemos que esta es la fecha de fin, así como la última fecha registrada de "
+"cita. "
 
 #: sfm_pc/utils.py:565
 msgid "Unknown commander"
@@ -749,22 +672,53 @@ msgstr "Se requiere publicación"
 msgid "Date published is required"
 msgstr "Se requiere fecha de publicación"
 
-#: source/models.py:183
+#: source/models.py:46
+msgid "title"
+msgstr "título"
+
+#: source/models.py:49
+msgid "publication"
+msgstr "publicación"
+
+#: source/models.py:52
+msgid "publication country"
+msgstr "país de la publicación"
+
+#: source/models.py:62
+msgid "publication date"
+msgstr "fecha de publicación"
+
+#: source/models.py:68 source/models.py:80 source/models.py:92
+msgid "publication timestamp"
+msgstr "fecha y hora de publicación"
+
+#: source/models.py:74
+msgid "creation date"
+msgstr "fecha de creación"
+
+#: source/models.py:86
+msgid "upload date"
+msgstr "fecha de carga"
+
+#: source/models.py:172
+msgid "access date"
+msgstr "fecha de acceso"
+
+#: source/models.py:188
 #, python-format
 msgid "(Page %(pages)s)"
 msgid_plural "(Pages %(pages)s)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "(Página %(pages)s)"
+msgstr[1] "(Páginas %(pages)s)"
 
-#: source/models.py:191
-#, fuzzy, python-format
-#| msgid "Accessed date"
+#: source/models.py:196
+#, python-format
 msgid "Accessed on %(date)s"
-msgstr "Fecha de acceso"
+msgstr "Accedido el %(date)s"
 
-#: source/models.py:201
+#: source/models.py:206
 msgid "No timestamp"
-msgstr ""
+msgstr "Sin fecha"
 
 #: templates/404.html:4
 msgid "Page not found"
@@ -772,11 +726,11 @@ msgstr "Página no encontrada"
 
 #: templates/404.html:5
 msgid "We were not able to find the page you were looking for."
-msgstr "No logramos encontrar la página que estaba buscando."
+msgstr "No pudimos encontrar la página que buscabas."
 
 #: templates/404.html:6 templates/500.html:7
 msgid "Go back to the home page"
-msgstr "Regrese a la página de inicio"
+msgstr "Vuelve a la página de inicio"
 
 #: templates/500.html:4
 msgid "Server error"
@@ -784,7 +738,7 @@ msgstr "Error del servidor"
 
 #: templates/500.html:5
 msgid "Something went wrong and we were unable to handle your request."
-msgstr "Algo salió mal y no fuimos capaces de procesar su solicitud. "
+msgstr "Algo salió mal y no pudimos procesar su solicitud. "
 
 #: templates/500.html:6
 msgid "If this issue persists,"
@@ -792,7 +746,7 @@ msgstr "Si este problema persiste,"
 
 #: templates/500.html:6
 msgid "contact our staff."
-msgstr "Favor de ponerse en contacto con nuestro equipo."
+msgstr "favor de ponerse en contacto con nuestro equipo."
 
 #: templates/account/account_inactive.html:5
 #: templates/account/account_inactive.html:8
@@ -813,7 +767,8 @@ msgstr "Dirección de correo electrónico"
 
 #: templates/account/email.html:10
 msgid "The following e-mail addresses are associated with your account:"
-msgstr "El siguiente correo electrónico se encuentra asociado a su cuenta "
+msgstr ""
+"Las siguientes direcciones de correo electrónico están asociadas a su cuenta:"
 
 #: templates/account/email.html:24
 msgid "Verified"
@@ -830,11 +785,11 @@ msgstr "Principal"
 #. Translators: For a user to make an email address their primary one
 #: templates/account/email.html:35
 msgid "Make Primary"
-msgstr "Seleccionar como principal"
+msgstr "Seleccionar como dirección principal"
 
 #: templates/account/email.html:36
 msgid "Re-send Verification"
-msgstr "Reenviar verificación"
+msgstr "Reenviar correo de verificación"
 
 #: templates/account/email.html:37 templates/composition/create.html:293
 #: templates/membershiporganization/create.html:150
@@ -853,7 +808,7 @@ msgid ""
 msgstr ""
 "Actualmente usted no cuenta con una dirección de correo electrónica "
 "registrada. Le recomendamos agregar un correo electrónico para poder recibir "
-"notificaciones, reestablecer su contraseña, etc. "
+"notificaciones, restablecer su contraseña, etc. "
 
 #: templates/account/email.html:49
 msgid "Add E-mail Address"
@@ -861,7 +816,7 @@ msgstr "Agregar dirección de correo electrónico"
 
 #: templates/account/email.html:54
 msgid "Add E-mail"
-msgstr "Correo electrónico"
+msgstr "Agregar correo electrónico"
 
 #: templates/account/email.html:63
 msgid "Do you really want to remove the selected e-mail address?"
@@ -879,17 +834,17 @@ msgid ""
 "\n"
 "To confirm this is correct, go to %(activate_url)s\n"
 msgstr ""
-"Saludos por parte del %(site_name)s! Usted está recibiendo este correo ya "
-"que el usuario %(user_display)s del  %(site_domain)s proporcionó su "
-"dirección de correo electrónico para conectar su cuenta. Para confirmar lo "
-"anterior, favor de seguir el siguiente link: %(activate_url)s\n"
+"Hola de parte de %(site_name)s! Usted está recibiendo este correo ya que el "
+"usuario %(user_display)s del  %(site_domain)s proporcionó su dirección de "
+"correo electrónico para conectar su cuenta. Para confirmar lo anterior, "
+"favor de seguir el siguiente enlace: %(activate_url)s\n"
 
 #: templates/account/email/email_confirmation_message.txt:7
 #, python-format
 msgid ""
 "Thank you from %(site_name)s!\n"
 "%(site_domain)s"
-msgstr "Gracias de parte del %(site_name)s! %(site_domain)s"
+msgstr "Gracias de parte de %(site_name)s! %(site_domain)s"
 
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Please Confirm Your E-mail Address"
@@ -905,16 +860,16 @@ msgid ""
 "It can be safely ignored if you did not request a password reset. Click the "
 "link below to reset your password."
 msgstr ""
-"Saludos por parte del %(site_name)s! Usted está recibiendo este correo ya "
-"que usted o alguien más solicitó una contraseña para su cuenta de usuario "
-"del %(site_domain)s. Si esto no es correcto, puede ignorar el presente "
-"correo de forma segura. Favor de seguir el siguiente link para restablecer "
-"su contraseña"
+"Saludos de parte de %(site_name)s! Usted está recibiendo este correo ya que "
+"usted o alguien más solicitó una contraseña para su cuenta de usuario del "
+"%(site_domain)s. De no haber seleccionado un restablecimiento de contraseña, "
+"puede ignorar el presente correo de forma segura. Favor de seguir el "
+"siguiente enlace para restablecer su contraseña."
 
 #: templates/account/email/password_reset_key_message.txt:8
 #, python-format
 msgid "In case you forgot, your username is %(username)s."
-msgstr "en caso de haberlo olvidado, su nombre de usuario es %(username)s."
+msgstr "En caso de haberlo olvidado, su nombre de usuario es %(username)s."
 
 #: templates/account/email/password_reset_key_message.txt:10
 #, python-format
@@ -925,7 +880,7 @@ msgstr "Gracias por usar  %(site_name)s! %(site_domain)s"
 
 #: templates/account/email/password_reset_key_subject.txt:3
 msgid "Password Reset E-mail"
-msgstr "Correo de reconfiguración de contraseña"
+msgstr "Correo para restablecer la contraseña"
 
 #: templates/account/email_confirm.html:6
 #: templates/account/email_confirm.html:10
@@ -940,8 +895,8 @@ msgid ""
 "Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-mail "
 "address for user %(user_display)s."
 msgstr ""
-"Favor de confirmar que <a href=\"mailto:%(email)s\">%(email)s</a> es una "
-"dirección de correo electrónico válida para el usuario %(user_display)s."
+"Favor de confirmar que <a href=\"mailto:%(email)s\">%(email)s</a> es la "
+"dirección de correo electrónico correcta para el usuario %(user_display)s."
 
 #: templates/account/email_confirm.html:20 templates/base_delete.html:24
 msgid "Confirm"
@@ -953,8 +908,8 @@ msgid ""
 "This e-mail confirmation link expired or is invalid. Please <a href="
 "\"%(email_url)s\">issue a new e-mail confirmation request</a>."
 msgstr ""
-"Esta confirmación de correo electrónico ha expirado o es inválida. Favor de  "
-"<a href=\"%(email_url)s\"> solicitar otra confirmación </a>."
+"Este enlace de confirmación de correo electrónico ha expirado o es inválido. "
+"Favor de  <a href=\"%(email_url)s\"> solicitar otra confirmación </a>."
 
 #: templates/account/email_confirmed.html:15
 #, python-format
@@ -962,8 +917,8 @@ msgid ""
 "You have confirmed that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-"
 "mail address for user %(user_display)s."
 msgstr ""
-"Usted ha confirmado que <a href=\"mailto:%(email)s\">%(email)s</a> es una "
-"dirección de correo válida para el usuario %(user_display)s."
+"Usted ha confirmado que <a href=\"mailto:%(email)s\">%(email)s</a> es la "
+"dirección de correo correcta para el usuario %(user_display)s."
 
 #: templates/account/login.html:6 templates/account/login.html:25
 msgid "Sign In"
@@ -1015,7 +970,7 @@ msgstr "Usted ha confirmado %(email)s."
 #: templates/account/messages/email_deleted.txt:2
 #, python-format
 msgid "Removed e-mail address %(email)s."
-msgstr "Eliminar la dirección de correo electrónico %(email)s."
+msgstr "Eliminar esta dirección de correo electrónico %(email)s."
 
 #: templates/account/messages/logged_in.txt:4
 #, python-format
@@ -1032,11 +987,11 @@ msgstr "Contraseña cambiada exitosamente."
 
 #: templates/account/messages/password_set.txt:2
 msgid "Password successfully set."
-msgstr "Contraseña establecida exitosamente."
+msgstr "Contraseña establecida con éxito."
 
 #: templates/account/messages/primary_email_set.txt:2
 msgid "Primary e-mail address set."
-msgstr "Dirección de correo electrónico principal ha sido establecida"
+msgstr "La dirección de correo electrónico principal ha sido establecida"
 
 #: templates/account/messages/unverified_primary_email.txt:2
 msgid "Your primary e-mail address must be verified."
@@ -1081,8 +1036,8 @@ msgid ""
 "We have sent you an e-mail. Please contact us if you do not receive it "
 "within a few minutes."
 msgstr ""
-"Le hemos enviado un correo electrónico. Favor de contactarnos si no lo "
-"recibe en unos minutos."
+"Le hemos enviado un e-mail. Por favor, póngase en contacto con nosotros si "
+"no lo recibe en unos minutos."
 
 #. Translators: To communicate that the user does not have a valid password reset link
 #: templates/account/password_reset_from_key.html:8
@@ -1097,12 +1052,12 @@ msgid ""
 "a>."
 msgstr ""
 "El enlace para restablecer su contraseña no es valido, posiblemente porque "
-"fue usado anteriormente. Favor de solicitar un nuevo <a href="
+"ya ha sido utilizado. Favor de solicitar un nuevo <a href="
 "\"%(passwd_reset_url)s\">enlace</a>."
 
 #: templates/account/password_reset_from_key.html:18
 msgid "change password"
-msgstr "Cambiar contraseña"
+msgstr "cambiar contraseña"
 
 #: templates/account/password_reset_from_key.html:21
 #: templates/account/password_reset_from_key_done.html:8
@@ -1153,7 +1108,7 @@ msgstr "usted ya inició sesión como %(user_display)s."
 #: templates/account/verified_email_required.html:5
 #: templates/account/verified_email_required.html:8
 msgid "Verify Your E-mail Address"
-msgstr "Verificar su dirección de correo electrónico"
+msgstr "Verifique su dirección de correo electrónico"
 
 #: templates/account/verification_sent.html:10
 msgid ""
@@ -1161,9 +1116,9 @@ msgid ""
 "finalize the signup process. Please contact us if you do not receive it "
 "within a few minutes."
 msgstr ""
-"Le hemos enviado un e-mail para su verificación. Siga el enlace "
-"proporcionado para finalizar el proceso de registro. Póngase en contacto con "
-"nosotros si no lo recibe en pocos minutos."
+"Le hemos enviado un correo electrónico para su verificación. Siga el enlace "
+"proporcionado para finalizar el proceso de registro. Por favor, póngase en "
+"contacto con nosotros si no lo recibe en unos minutos."
 
 #: templates/account/verified_email_required.html:12
 msgid ""
@@ -1227,7 +1182,7 @@ msgstr "Guardar"
 
 #: templates/area/search.html:8
 msgid "Search Area"
-msgstr "Buscar Área"
+msgstr "Buscar Área "
 
 #: templates/area/search.html:10 templates/association/edit.html:11
 #: templates/association/search.html:9 templates/base.html:58
@@ -1507,7 +1462,7 @@ msgstr "Relaciones"
 
 #: templates/association/search.html:113 templates/emplacement/search.html:110
 msgid "Enter organization name"
-msgstr "Ingresar nombre de organización"
+msgstr "Ingresar nombre de la unidad"
 
 #: templates/association/search.html:120 templates/association/search.html:144
 #: templates/sidebar.html:13
@@ -1516,7 +1471,7 @@ msgstr "Área"
 
 #: templates/base.html:33
 msgid "A tool from"
-msgstr "Una herramienta del"
+msgstr "Una herramienta de"
 
 #: templates/base.html:51 templates/organization/create.html:15
 #: templates/partials/nav-wizard.html:6
@@ -1539,10 +1494,8 @@ msgstr "Incidentes"
 #: templates/violation/create-locations.html:26
 #: templates/violation/edit-basics.html:21
 #: templates/violation/edit-locations.html:26
-#, fuzzy
-#| msgid "Location"
 msgid "Locations"
-msgstr "Ubicación"
+msgstr "Ubicaciones"
 
 #: templates/base.html:62 templates/source/delete-access-point.html:15
 msgid "Source"
@@ -1557,7 +1510,7 @@ msgstr "Ubicación"
 
 #: templates/base.html:74 templates/partials/violation_title.html:4
 msgid "Incident"
-msgstr "Incidentes"
+msgstr "Incidente"
 
 #: templates/base.html:79 templates/sfm/about.html:6
 msgid "About"
@@ -1588,7 +1541,7 @@ msgstr ""
 "ayuda a investigadores de derechos humanos, periodistas y cualquier persona "
 "interesada en aumentar la responsabilidad y transparencia de las fuerzas de "
 "seguridad. WhoWasInCommand es una herramienta del <a href=\"https://"
-"securityforcemonitor.org\">Security Force Monitor</a>     del Instituto de "
+"securityforcemonitor.org\">Security Force Monitor</a> del Instituto de "
 "Derechos Humanos de la Escuela de Derecho de la Universidad de Columbia. </"
 "p>            "
 
@@ -1618,7 +1571,7 @@ msgstr "Contacto"
 
 #: templates/base.html:124
 msgid "Source code"
-msgstr "Código de fuente"
+msgstr "Código fuente"
 
 #: templates/base_delete.html:9
 #, python-format
@@ -1628,6 +1581,9 @@ msgid ""
 "<strong>%(delete_obj_1)s</strong> and <strong>%(delete_obj_2)s</strong>?\n"
 "                        "
 msgstr ""
+"\n"
+"En verdad quiere remover este enlace entre <strong>%(delete_obj_1)s</strong> "
+"y <strong>%(delete_obj_2)s</strong>?"
 
 #: templates/base_detail.html:19 templates/base_detail.html:32
 msgid "Contents"
@@ -1640,7 +1596,7 @@ msgstr "Cerrar"
 
 #: templates/changelog.html:9
 msgid "Download edit activity"
-msgstr ""
+msgstr "Descargar actividad de edición"
 
 #: templates/composition/create.html:13
 msgid "Unit relationships"
@@ -1649,7 +1605,7 @@ msgstr "Relaciones de unidades"
 #: templates/composition/create.html:15
 msgid "Describe how units are related to one another in"
 msgstr ""
-"Describir como las unidades se encuentran relacionadas unas con las otras en"
+"Describa como las unidades se encuentran relacionadas unas con las otras en"
 
 #: templates/composition/create.html:36
 msgid "Relationship"
@@ -1717,7 +1673,7 @@ msgstr ""
 
 #: templates/composition/create.html:305
 msgid "Select an organization"
-msgstr "Seleccionar una organización"
+msgstr "Seleccionar una unidad"
 
 #: templates/composition/create.html:310
 msgid "Select a classification"
@@ -1733,19 +1689,19 @@ msgstr "Ingresar clasificación"
 
 #: templates/composition/search.html:109
 msgid "Parent organization"
-msgstr "Organización superior"
+msgstr "Unidad superior"
 
 #: templates/composition/search.html:110
 msgid "Enter parent organization"
-msgstr "Ingresar organización superior"
+msgstr "Ingresar unidad superior"
 
 #: templates/composition/search.html:117
 msgid "Child organization"
-msgstr "Organización subordinada"
+msgstr "Unidad subordinada"
 
 #: templates/composition/search.html:118
 msgid "Enter child organization"
-msgstr "Ingresar organización subordinada"
+msgstr "Ingresar unidad subordinada"
 
 #: templates/composition/search.html:138
 #: templates/organization/create-composition.html:20
@@ -1765,7 +1721,11 @@ msgstr "Subordinada"
 
 #: templates/download.html:4
 msgid "Download information about units"
-msgstr ""
+msgstr "Descargar información sobre unidades"
+
+#: templates/download.html:77
+msgid "Download"
+msgstr "Descargar"
 
 #: templates/edit.html:15 templates/organization/base-organization.html:10
 #: templates/person/edit-postings.html:9
@@ -1773,47 +1733,41 @@ msgstr ""
 #: templates/violation/edit-basics.html:9
 #: templates/violation/edit-locations.html:14
 msgid "ID:"
-msgstr ""
+msgstr "ID:"
 
 #: templates/edit.html:16 templates/organization/base-organization.html:11
 #: templates/person/edit-postings.html:10
 #: templates/violation/create-locations.html:15
 #: templates/violation/edit-basics.html:10
 #: templates/violation/edit-locations.html:15
-#, fuzzy
-#| msgid "Last update"
 msgid "Last update by:"
-msgstr "Última actualización "
+msgstr "Última actualización por"
 
 #: templates/edit.html:16 templates/organization/base-organization.html:11
 #: templates/person/edit-postings.html:10
 #: templates/violation/edit-basics.html:10
 msgid "username goes here"
-msgstr ""
+msgstr "el nombre de usuario va aquí"
 
 #: templates/edit.html:17 templates/organization/base-organization.html:12
 #: templates/person/edit-postings.html:11
 #: templates/violation/create-locations.html:16
 #: templates/violation/edit-basics.html:11
 #: templates/violation/edit-locations.html:16
-#, fuzzy
-#| msgid "Versions"
 msgid "View versions"
-msgstr "Versiones"
+msgstr "ver versiones "
 
 #: templates/edit.html:35
 msgid "Edit sources and confidence levels"
-msgstr ""
+msgstr "Editar fuentes y niveles de confiabilidad "
 
 #: templates/edit.html:84
 msgid "Save & continue editing"
-msgstr ""
+msgstr "Guardar y continuar editando "
 
 #: templates/edit.html:109
-#, fuzzy
-#| msgid "Accessed date"
 msgid "Access Point"
-msgstr "Fecha de acceso"
+msgstr "Punto de Acceso "
 
 #: templates/edit.html:119
 #, python-format
@@ -1824,6 +1778,8 @@ msgid ""
 "strong>\n"
 "            "
 msgstr ""
+"\n"
+"Fuentes ya vinculadas a <strong><%%= field_label %%></strong>"
 
 #: templates/edit.html:126
 #, python-format
@@ -1834,6 +1790,9 @@ msgid ""
 "not saved\n"
 "            "
 msgstr ""
+"\n"
+"Fuentes añadidas a <strong><%%= field_label %%></strong> pero aún no "
+"guardadas"
 
 #: templates/edit.html:133
 #, python-format
@@ -1844,6 +1803,9 @@ msgid ""
 "during this edit\n"
 "            "
 msgstr ""
+"\n"
+"Fuentes removidas de <strong><%%= field_label %%></strong> durante esta "
+"edición"
 
 #: templates/edit.html:141
 #, python-format
@@ -1854,6 +1816,8 @@ msgid ""
 "level:\n"
 "                "
 msgstr ""
+"\n"
+"1. Establecer <strong><%%= field_label %%></strong> nivel de confiabilidad:"
 
 #: templates/edit.html:158
 #, python-format
@@ -1863,42 +1827,36 @@ msgid ""
 "            2. Add sources to <strong><%%= field_label %%></strong>\n"
 "        "
 msgstr ""
+"\n"
+"2. Agregar fuentes a <strong><%%= field_label %%></strong>"
 
 #: templates/emplacement/search.html:7
 msgid "Search Emplacement"
-msgstr "Buscar emplazamiento "
+msgstr "Buscar ubicación"
 
 #: templates/location/create.html:17
-#, fuzzy
-#| msgid "Location"
 msgid "Add location"
-msgstr "Ubicación"
+msgstr "Agregar ubicación"
 
 #: templates/location/create.html:28
-#, fuzzy
-#| msgid "Location name"
 msgid "Location Type"
-msgstr "Nombre de la ubicación"
+msgstr "Tipo de ubicación"
 
 #: templates/location/create.html:30 templates/location/list.html:25
 msgid "Node"
-msgstr ""
+msgstr "Nodo"
 
 #: templates/location/create.html:31 templates/location/list.html:33
-#, fuzzy
-#| msgid "May"
 msgid "Way"
-msgstr "mayo"
+msgstr "Camino"
 
 #: templates/location/create.html:32 templates/location/list.html:29
-#, fuzzy
-#| msgid "Relations"
 msgid "Relation"
-msgstr "Relaciones"
+msgstr "Relación"
 
 #: templates/location/create.html:40
 msgid "Search by node, way, or relation ID..."
-msgstr ""
+msgstr "Buscar por nodo, camino o ID de relación...."
 
 #: templates/location/create.html:42 templates/organization/search.html:15
 #: templates/person/search.html:15 templates/sfm/dashboard.html:15
@@ -1912,32 +1870,27 @@ msgid ""
 "Overpass API is currently working too hard. Try back in a few minutes.\n"
 "                "
 msgstr ""
+"\n"
+"<strong>Error del API de sobrepaso </strong> Parece que el API de Overpass "
+"está trabajando demasiado. Inténtalo de nuevo en unos minutos. "
 
 #: templates/location/create.html:71
-#, fuzzy
-#| msgid "results"
 msgid "No results"
-msgstr "resultados"
+msgstr "Sin resultados"
 
 #: templates/location/create.html:105 templates/location/delete.html:32
 #: templates/location/detail.html:40
-#, fuzzy
-#| msgid "Enter organization name"
 msgid "International Name"
-msgstr "Ingresar nombre de organización"
+msgstr "Nombre Internacional"
 
 #: templates/location/create.html:115 templates/location/delete.html:51
 #: templates/location/detail.html:59
-#, fuzzy
-#| msgid "Admin level 1"
 msgid "Admin Level"
-msgstr "Nivel de Admin 1"
+msgstr "Nivel de Admin"
 
 #: templates/location/create.html:122
-#, fuzzy
-#| msgid "Exact location ID"
 msgid "Go to location"
-msgstr "ID de la ubicación exacta"
+msgstr "Ir a ubicación"
 
 #: templates/location/create.html:127 templates/modals/source.html:22
 #: templates/modals/source.html:25 templates/modals/translate.html:20
@@ -1956,6 +1909,9 @@ msgid ""
 "contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-"
 "BY-SA</a>"
 msgstr ""
+"Datos del mapa &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> "
+"contribuyentes, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/"
+"\">CC-BY-SA</a>"
 
 #: templates/location/delete.html:10
 #, python-format
@@ -1965,6 +1921,8 @@ msgid ""
 "strong>?\n"
 "    "
 msgstr ""
+"\n"
+"¿En verdad desea remover la ubicación <strong>%(object_id)s</strong>?"
 
 #: templates/location/delete.html:41 templates/location/detail.html:49
 #: templates/organization/edit-composition.html:18
@@ -1972,42 +1930,36 @@ msgstr ""
 #: templates/organization/edit-membership.html:18
 #: templates/partials/location_list_table.html:27
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: templates/location/delete.html:46
 msgctxt "Geographically -- as in, a city is _in_ a country"
 msgid "In"
-msgstr ""
+msgstr "en"
 
 #: templates/location/detail.html:15 templates/location/list.html:41
-#, fuzzy
-#| msgid "Add new incident"
 msgid "Add new location"
-msgstr "Agregar nuevo incidente"
+msgstr "Agregar nueva ubicación"
 
 #: templates/location/detail.html:19
 #, python-format
 msgid "<b>OSM ID:</b> %(location_id)s"
-msgstr ""
+msgstr "<b>OSM ID:</b> %(location_id)s"
 
 #: templates/location/detail.html:20
 #, python-format
 msgid "<b>Type:</b> %(feature_type)s"
-msgstr ""
+msgstr "<b>Tipo:</b> %(feature_type)s"
 
 #: templates/location/detail.html:54
 msgid "In"
-msgstr ""
+msgstr "En"
 
 #: templates/location/detail.html:65
-#, fuzzy
-#| msgid "Admin level 1"
 msgid "Admin Level 1"
 msgstr "Nivel de Admin 1"
 
 #: templates/location/detail.html:75
-#, fuzzy
-#| msgid "Admin level 2"
 msgid "Admin Level 2"
 msgstr "Nivel de Admin 2"
 
@@ -2028,16 +1980,12 @@ msgid "Delete"
 msgstr "Eliminar  "
 
 #: templates/location/list.html:19
-#, fuzzy
-#| msgid "Perpetrator type"
 msgid "Feature type"
-msgstr "Tipo de perpetrador"
+msgstr "Tipo de característica"
 
 #: templates/location/list.html:48
-#, fuzzy
-#| msgid "Exact location name"
 msgid "Search for a location by name"
-msgstr "Nombre de la ubicación exacta"
+msgstr "Buscar una ubicación por nombre"
 
 #: templates/location/list.html:50 templates/search/search.html:25
 msgid "Go!"
@@ -2097,8 +2045,8 @@ msgstr "Eliminar afiliación"
 #: templates/membershiporganization/create.html:145
 msgid "Are you sure you want to remove this membership? All data will be lost."
 msgstr ""
-"¿Está seguro que quiere eliminar esta afiliación? Se perderá toda la "
-"información."
+"¿Está seguro de que quiere eliminar esta afiliación? Todos los datos se "
+"perderán."
 
 #: templates/membershipperson/create.html:15
 #: templates/partials/nav-wizard.html:8
@@ -2107,7 +2055,7 @@ msgstr "Puestos"
 
 #: templates/membershipperson/create.html:16
 msgid "Describe positions held by personnel in"
-msgstr "Describa los puestos mantenidos por el personal en"
+msgstr "Describa los puestos que ocupa el personal en"
 
 #: templates/membershipperson/create.html:76
 #: templates/membershipperson/edit.html:36
@@ -2117,12 +2065,12 @@ msgstr "Rol y Rango"
 #: templates/membershipperson/create.html:79
 #: templates/membershipperson/edit.html:39
 msgid "Select a Role"
-msgstr "Seleccionar un rol"
+msgstr "Seleccionar un Rol"
 
 #: templates/membershipperson/create.html:93
 #: templates/membershipperson/edit.html:56
 msgid "Select a Rank"
-msgstr "Seleccionar un rango"
+msgstr "Seleccionar un Rango"
 
 #: templates/membershipperson/create.html:127
 #: templates/membershipperson/edit.html:77
@@ -2131,7 +2079,7 @@ msgstr "Contexto inicial"
 
 #: templates/membershipperson/create.html:129
 msgid "Describe the circumstances surrounding the start of this membership"
-msgstr "Describa las circunstancias en cuanto al inicio de la afiliación"
+msgstr "Describa las circunstancias en cuanto al inicio de esta afiliación"
 
 #: templates/membershipperson/create.html:158
 #: templates/membershipperson/edit.html:107
@@ -2140,7 +2088,7 @@ msgstr "Contexto final"
 
 #: templates/membershipperson/create.html:160
 msgid "Describe the circumstances surrounding the end of this membership"
-msgstr "Describa las circunstancias en cuanto al fin de la afiliación"
+msgstr "Describa las circunstancias en cuanto al fin de esta afiliación"
 
 #: templates/membershipperson/create.html:191
 #: templates/membershipperson/create.html:232
@@ -2222,7 +2170,7 @@ msgstr "Traducción"
 
 #: templates/modals/translate.html:14
 msgid "Add a Language:"
-msgstr "Agregar Idioma"
+msgstr "Agregar un Idioma"
 
 #: templates/modals/version.html:4
 msgid "View/Revert Versions"
@@ -2238,19 +2186,15 @@ msgstr "Revertir"
 
 #: templates/modals/version.html:15
 msgid "Choose Language"
-msgstr "Escoger idioma "
+msgstr "Escoger Idioma "
 
 #: templates/organization/base-organization.html:14
-#, fuzzy
-#| msgid "Published on"
 msgid "Published"
-msgstr "Publicado en "
+msgstr "Publicado "
 
 #: templates/organization/base-organization.html:16
-#, fuzzy
-#| msgid "Date published"
 msgid "Not Published"
-msgstr "Fecha de publicación"
+msgstr "Sin Publicar "
 
 #: templates/organization/base-organization.html:26
 #: templates/person/edit-basics.html:9 templates/person/edit-postings.html:19
@@ -2258,10 +2202,8 @@ msgstr "Fecha de publicación"
 #: templates/violation/create-locations.html:24
 #: templates/violation/edit-basics.html:19
 #: templates/violation/edit-locations.html:24
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit:"
-msgstr "Editar"
+msgstr "Editar:"
 
 #: templates/organization/base-organization.html:29
 #: templates/person/edit-basics.html:10 templates/person/edit-postings.html:20
@@ -2271,27 +2213,21 @@ msgstr "Editar"
 #: templates/violation/edit-basics.html:20
 #: templates/violation/edit-locations.html:25
 msgid "Basics"
-msgstr ""
+msgstr "Detalles básicos del perfil "
 
 #: templates/organization/base-organization.html:32
 #: templates/organization/edit-composition.html:10
 #: templates/organization/edit-membership.html:10
-#, fuzzy
-#| msgid "Relationship"
 msgid "Relationships"
-msgstr "Relación"
+msgstr "Relaciones"
 
 #: templates/organization/create-association.html:7
-#, fuzzy
-#| msgid "Create source"
 msgid "Create area"
-msgstr "Crear fuente"
+msgstr "Crear área"
 
 #: templates/organization/create-basics.html:8
-#, fuzzy
-#| msgid "Parent organization"
 msgid "Add a new organization"
-msgstr "Organización superior"
+msgstr "Agregar unidad nueva"
 
 #: templates/organization/create-basics.html:12
 #: templates/organization/edit-basics.html:7
@@ -2299,7 +2235,7 @@ msgstr "Organización superior"
 #: templates/violation/create-basics.html:21
 #: templates/violation/edit-basics.html:27
 msgid "Edit basics"
-msgstr ""
+msgstr "Editar detalles básicos del perfil"
 
 #: templates/organization/create-basics.html:19
 #: templates/organization/create-basics.html:21
@@ -2312,55 +2248,43 @@ msgstr ""
 #: templates/violation/create-basics.html:30
 #: templates/violation/edit-basics.html:34
 #: templates/violation/edit-basics.html:36
-#, fuzzy
-#| msgid "Published on"
 msgid "Published?"
-msgstr "Publicado en "
+msgstr "¿Está Publicado?"
 
 #: templates/organization/create-composition.html:8
 #: templates/organization/create-membership.html:8
-#, fuzzy
-#| msgid "Relationship"
 msgid "Add relationship"
-msgstr "Relación"
+msgstr "Agregar relación"
 
 #: templates/organization/create-composition.html:77
 #: templates/organization/create-membership.html:16
 #: templates/organization/edit-composition.html:135
 #: templates/organization/edit-membership.html:70
 msgid "Related organization"
-msgstr "Organización relacionada"
+msgstr "Unidad relacionada"
 
 #: templates/organization/create-composition.html:102
 #: templates/organization/create-membership.html:38
 #: templates/organization/edit-composition.html:160
 #: templates/organization/edit-membership.html:94
-#, fuzzy
-#| msgid "Related organization"
 msgid "Related organization other names"
-msgstr "Organización relacionada"
+msgstr "Alias de la unidad relacionada"
 
 #: templates/organization/create-composition.html:110
 #: templates/organization/create-membership.html:46
 #: templates/organization/edit-composition.html:172
 #: templates/organization/edit-membership.html:102
-#, fuzzy
-#| msgid "Related organization"
 msgid "Related organization country"
-msgstr "Organización relacionada"
+msgstr "País de la unidad relacionada"
 
 #: templates/organization/create-emplacement.html:7
-#, fuzzy
-#| msgid "Create source"
 msgid "Create site"
-msgstr "Crear fuente"
+msgstr "Crear sito"
 
 #: templates/organization/create-personnel.html:7
 #: templates/organization/partials/personnel-list.html:60
-#, fuzzy
-#| msgid "Personnel"
 msgid "Add personnel"
-msgstr "Personal"
+msgstr "Agregar personal"
 
 #: templates/organization/create.html:16
 msgid "Describe any units found in"
@@ -2387,7 +2311,7 @@ msgstr "Cuartel General"
 #: templates/organization/create.html:192
 #: templates/organization/create.html:428
 msgid "Name of the unit headquarters"
-msgstr "Nombre de los cuarteles generales de la unidad"
+msgstr "Nombre del cuartel general de la unidad"
 
 #: templates/organization/create.html:309
 #: templates/organization/create.html:481
@@ -2400,20 +2324,18 @@ msgstr "Agregar otra unidad"
 
 #: templates/organization/create.html:337
 msgid "Remove unit"
-msgstr "Eliminar esta unidad"
+msgstr "Eliminar unidad"
 
 #: templates/organization/create.html:340
 msgid "Are you sure you want to remove this unit? All data will be lost."
 msgstr ""
-"¿Está seguro que quiere eliminar esta unidad? Se perderá toda la información."
+"¿Está seguro que quiere eliminar esta unidad? Todos los datos se perderán."
 
 #: templates/organization/delete-association.html:59
 #: templates/organization/delete-composition.html:69
 #: templates/organization/delete-emplacement.html:75
-#, fuzzy
-#| msgid "Open ended"
 msgid "Open ended?"
-msgstr "¿Se mantiene igual? - ¿Sufrió cambios? - ¿Fecha final?"
+msgstr "¿Se mantiene o tiene fecha de fin?"
 
 #: templates/organization/delete.html:7 templates/person/delete.html:7
 #, python-format
@@ -2422,86 +2344,68 @@ msgid ""
 "        Do you really want to delete <strong>%(name)s</strong>?\n"
 "    "
 msgstr ""
+"\n"
+"¿En verdad desea eliminar <strong>%(name)s</strong>?"
 
 #: templates/organization/delete.html:21 templates/person/delete.html:21
 msgid "Also known as"
-msgstr "Alias:"
+msgstr "También conocida/o como"
 
 #: templates/organization/delete.html:37
-#, fuzzy
-#| msgid "Classified as:"
 msgid "Classified as"
 msgstr "Clasificado como:"
 
 #: templates/organization/edit-association.html:7
-#, fuzzy
-#| msgid "View/Edit Sources"
 msgid "Edit area"
-msgstr "Ver/Editar Fuentes"
+msgstr "Editar área"
 
 #: templates/organization/edit-composition.html:17
 #: templates/organization/edit-membership.html:17
 msgid "Organization name"
-msgstr "Nombre de la organización"
+msgstr "Nombre de la unidad"
 
 #: templates/organization/edit-composition.html:46
 #: templates/organization/edit-membership.html:46
-#, fuzzy
-#| msgid "Composition"
 msgid "Add composition"
-msgstr "Composición"
+msgstr "Agregar composición"
 
 #: templates/organization/edit-composition.html:53
 #: templates/organization/edit-membership.html:53
-#, fuzzy
-#| msgid "Membership"
 msgid "Add membership"
-msgstr "Afiliación"
+msgstr "Agregar afiliación"
 
 #: templates/organization/edit-composition.html:62
 #: templates/organization/edit-membership.html:62
-#, fuzzy
-#| msgid "Unit relationships"
 msgid "Edit relationships"
-msgstr "Relaciones de unidades"
+msgstr "Editar afiliaciones"
 
 #: templates/organization/edit-emplacement.html:7
-#, fuzzy
-#| msgid "Last site"
 msgid "Edit site"
-msgstr "Último lugar"
+msgstr "Editar sitio"
 
 #: templates/organization/edit-locations.html:52
-#, fuzzy
-#| msgid "Area of Operations"
 msgid "Area of operations"
 msgstr "Área de Operaciones"
 
 #: templates/organization/edit-locations.html:65
-#, fuzzy
-#| msgid "New source"
 msgid "Add site"
-msgstr "Nueva fuente"
+msgstr "Agregar sitio"
 
 #: templates/organization/edit-locations.html:72
-#, fuzzy
-#| msgid "Add new"
 msgid "Add area"
-msgstr "Agregar nueva"
+msgstr "Agregar área"
 
 #: templates/organization/edit-personnel.html:13
-#, fuzzy
-#| msgid "Personnel"
 msgid "Edit personnel"
-msgstr "Personal"
+msgstr "Editar personal"
 
 #: templates/organization/search.html:7
 msgid "Search an organization"
-msgstr "Buscar una organización"
+msgstr "Buscar una unidad"
 
 #: templates/organization/search.html:26 templates/person/search.html:25
 msgid "Aliases or alternative spellings"
-msgstr "Alias "
+msgstr "Alias o deletreos alternos "
 
 #: templates/organization/search.html:27 templates/person/search.html:26
 msgid "Enter Alias"
@@ -2537,16 +2441,16 @@ msgstr "Editar"
 
 #: templates/organization/view.html:34 templates/person/view.html:28
 msgid "Also known as:"
-msgstr "Alias:"
+msgstr "También conocido como:"
 
 #: templates/organization/view.html:42 templates/person/view.html:36
 #: templates/violation/view.html:52
 msgid "Country:"
-msgstr "País"
+msgstr "País:"
 
 #: templates/organization/view.html:47
 msgid "Classified as:"
-msgstr "Clasificado como:"
+msgstr "Clasificada como:"
 
 #: templates/organization/view.html:66 templates/organization/view.html:82
 #: templates/organization/view.html:268
@@ -2569,8 +2473,7 @@ msgstr "Organizaciones multi-unidad de la que esta unidad es parte."
 
 #: templates/organization/view.html:270
 msgid "All units that comprise this unit."
-msgstr ""
-"Todas las unidades que han mantenido una posición de mando sobre esta unidad"
+msgstr "Todas las unidades que componen esta unidad."
 
 #: templates/organization/view.html:335
 msgid "All units that have held a command position over this unit."
@@ -2589,7 +2492,7 @@ msgid ""
 "other roles"
 msgstr ""
 "Tabla que muestra a personal ligado a esta unidad a través de puestos de "
-"mando, administrativos u otros roles"
+"mando, administrativos y otros"
 
 #: templates/organization/view.html:575 templates/person/view.html:322
 msgid "No known end date"
@@ -2624,14 +2527,12 @@ msgstr "Etiqueta de fecha real"
 #: templates/partials/help_widget.html:5
 msgid "Link to our research guide help text for this information"
 msgstr ""
-"Enlace para el texto de ayuda en nuestro manual de investigación para esta "
+"Enlace al texto de ayuda de nuestra guía de investigación para esta "
 "información"
 
 #: templates/partials/location_search_results.html:7
-#, fuzzy
-#| msgid "results"
 msgid "result"
-msgstr "resultados"
+msgstr "resultado"
 
 #: templates/partials/location_search_results.html:9
 #: templates/partials/organization_search_results.html:6
@@ -2644,7 +2545,7 @@ msgstr "resultados"
 #: templates/partials/location_search_results.html:19
 #: templates/partials/pagination.html:5
 msgid "Search results navigation"
-msgstr "Buscar Asociación de Área"
+msgstr "Navegación de los resultados de búsqueda"
 
 #: templates/partials/location_search_results.html:25
 #: templates/partials/pagination.html:12
@@ -2679,23 +2580,23 @@ msgstr "Organizaciones"
 msgid "Download results"
 msgstr "Descargar resultados"
 
+#: templates/partials/pagination.html:66
+msgid "Results per page:"
+msgstr "Resultados por página:"
+
 #: templates/partials/person_list_table.html:11
 msgid "Select"
 msgstr "Seleccionar"
 
 #: templates/partials/person_list_table.html:14
 msgid "Select canonical record"
-msgstr "Seleccionar la opción más adecuada"
+msgstr "Seleccionar nombre canónico"
 
 #: templates/partials/person_list_table.html:33
-#, fuzzy
-#| msgid "Most recent rank"
 msgid "Most Recent Rank"
 msgstr "Rango más reciente"
 
 #: templates/partials/person_list_table.html:41
-#, fuzzy
-#| msgid "Most recent unit"
 msgid "Most Recent Unit"
 msgstr "Unidad más reciente"
 
@@ -2705,42 +2606,36 @@ msgstr "Personas"
 
 #: templates/partials/related_entities.html:4
 #: templates/source/delete-access-point.html:42
-#, fuzzy
-#| msgid "Related organization"
 msgid "Related entities"
-msgstr "Organización relacionada"
+msgstr "Entidades relacionadas"
 
 #: templates/partials/related_entities.html:9
 msgid "Entity"
-msgstr ""
+msgstr "Entidad"
 
 #: templates/partials/related_entities.html:10
 msgid "Entity type"
-msgstr ""
+msgstr "Tipo de Entidad"
 
 #: templates/partials/related_entities.html:13
 msgid "Open ended"
-msgstr "¿Se mantiene igual? - ¿Sufrió cambios? - ¿Fecha final?"
+msgstr "¿Se mantiene o tiene fecha de fin?"
 
 #: templates/partials/source_and_confidence.html:22
 msgid "Sources and confidence for this information"
-msgstr "Favor de agregar alguna fuente para esta información"
+msgstr "Fuentes y nivel de confiabilidad para esta información"
 
 #: templates/partials/source_edit_js.html:47
 msgid "Please enter two or more characters..."
 msgstr "Favor de ingresar dos o más caracteres... "
 
 #: templates/partials/version_list.html:5
-#, fuzzy
-#| msgid "Versions"
 msgid "Version History"
-msgstr "Versiones"
+msgstr "Historial de versiones"
 
 #: templates/partials/version_list.html:15
-#, fuzzy
-#| msgid "Translation"
 msgid "Transition"
-msgstr "Traducción"
+msgstr "Transición "
 
 #: templates/partials/version_list.html:19
 msgid "User"
@@ -2748,46 +2643,36 @@ msgstr "Usuario"
 
 #: templates/partials/version_list.html:23
 msgid "Timestamp"
-msgstr ""
+msgstr "Marca temporal "
 
 #: templates/partials/version_list.html:28
-#, fuzzy
-#| msgid "Added by"
 msgid "Added"
-msgstr "Agregado por"
+msgstr "Agregado "
 
 #: templates/partials/version_list.html:34
-#, fuzzy
-#| msgid "Changelog"
 msgid "Changed"
-msgstr "Registro de cambios"
+msgstr "Modificado"
 
 #: templates/partials/version_list.html:40
-#, fuzzy
-#| msgid "Remove"
 msgid "Removed"
-msgstr "Remover"
+msgstr "Removido"
 
 #: templates/partials/version_list.html:46
 #: templates/source/access-points.html:120 templates/source/edit.html:117
 msgid "Comment"
-msgstr ""
+msgstr "Comentario"
 
 #: templates/partials/version_list.html:61
-#, fuzzy
-#| msgid "View/Revert Versions"
 msgid "Reverting to version"
-msgstr "Ver/Revertir Versiones"
+msgstr "Volviendo a la versión"
 
 #: templates/partials/version_list.html:61
 msgid "because ..."
-msgstr ""
+msgstr "porque..."
 
 #: templates/partials/version_list.html:63
-#, fuzzy
-#| msgid "Revert"
 msgid "Revert!"
-msgstr "Revertir"
+msgstr "Revertir!"
 
 #: templates/partials/violation_description.html:11
 msgid "Show more"
@@ -2825,57 +2710,41 @@ msgid "ending"
 msgstr "terminando"
 
 #: templates/person/create-basics.html:7
-#, fuzzy
-#| msgid "Add another person"
 msgid "Add a new person"
 msgstr "Agregar otra persona"
 
 #: templates/person/create-posting.html:6
 #: templates/person/partials/person-posting-list.html:63
-#, fuzzy
-#| msgid "Settings"
 msgid "Add posting"
-msgstr "Ajustes"
+msgstr "Agregar puesto"
 
 #: templates/person/delete.html:43
-#, fuzzy
-#| msgid "Date of creation"
 msgid "Date of birth"
-msgstr "Fecha de creación"
+msgstr "Fecha de nacimiento"
 
 #: templates/person/delete.html:49
-#, fuzzy
-#| msgid "Date of creation"
 msgid "Date of death"
-msgstr "Fecha de creación"
+msgstr "Fecha de defunción"
 
 #: templates/person/delete.html:61
-#, fuzzy
-#| msgid "Geography type"
 msgid "Biography"
-msgstr "Tipo de ubicación"
+msgstr "Biografía"
 
 #: templates/person/edit-basics.html:11 templates/person/edit-postings.html:21
 #: templates/person/partials/person-posting-list.html:6
 #: templates/person/view.html:87
-#, fuzzy
-#| msgid "Settings"
 msgid "Postings"
-msgstr "Ajustes"
+msgstr "Puestos"
 
 #: templates/person/edit-postings.html:31
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit postings"
-msgstr "Editar"
+msgstr "Editar puestos"
 
 #: templates/person/search.html:42 templates/person/search.html:130
 msgid "Death date"
-msgstr "Fecha de muerte"
+msgstr "Fecha de defunción "
 
 #: templates/person/search.html:73
-#, fuzzy
-#| msgid "yyyy"
 msgctxt "Instructions for formatting years"
 msgid "yyyy"
 msgstr "aaaa"
@@ -2905,8 +2774,8 @@ msgid ""
 "Command relationships from a person's posting to the highest-level unit "
 "(calculated at the end of the posting)"
 msgstr ""
-"Relación de mando entre el puesto de una persona y la unidad de más alto "
-"nivel"
+"Relaciones de mando desde el puesto de una persona hasta la unidad de mayor "
+"nivel (calculadas al final del puesto)"
 
 #: templates/person/view.html:166
 msgid ""
@@ -2970,7 +2839,8 @@ msgstr "Filtros para <strong><i class='fa fa-fw fa-user'></i>Personal</strong>"
 
 #: templates/search/search.html:143
 msgid "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>"
-msgstr "Filtros para <strong><i class='fa fa-fw fa-users'></i>Undades</strong>"
+msgstr ""
+"Filtros para <strong><i class='fa fa-fw fa-users'></i>Unidades</strong>"
 
 #: templates/search/search.html:202
 msgid ""
@@ -2981,25 +2851,21 @@ msgstr ""
 "i>Incidentes</strong>"
 
 #: templates/search/search.html:256
-#, fuzzy
-#| msgid "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>"
 msgid ""
 "Filters for <strong><i class='fa fa-fw fa-paperclip'></i>Sources</strong>"
-msgstr "Filtros para <strong><i class='fa fa-fw fa-users'></i>Undades</strong>"
+msgstr "Filtros para <strong><i class='fa fa-fw fa-users'></i>Fuentes</strong>"
 
 #: templates/search/search.html:282
 msgid "result found"
-msgstr "resultados encontrados"
+msgstr "resultado encontrado"
 
 #: templates/search/search.html:282
 msgid "results found"
 msgstr "resultados encontrados"
 
 #: templates/sfm/about.html:8
-#, fuzzy
-#| msgid "What is WhoWasInCommand for?"
 msgid "What is WhoWasInCommand.com?"
-msgstr "¿Para qué es WhoWasInCommand?"
+msgstr "¿Qué es WhoWasInCommand.com?"
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:11
@@ -3028,6 +2894,20 @@ msgid ""
 "defence forces.\n"
 "            "
 msgstr ""
+"\n"
+"WhoWasInCommand.com es una base de datos pública y gratuita de la policía, "
+"el ejército y otras fuerzas de seguridad y defensa. Fue creada y está "
+"dirigida por el <a href=\"https://securityforcemonitor.org/\" target=\"_blank"
+"\">Security Force Monitor</a> somos un proyecto de investigación basado en "
+"el <a href=\"https://www.law.columbia.edu/human-rights-institute\" target="
+"\"_blank\">Instituto de Derechos Humanos </a> de la Escuela de Derecho de la "
+"Universidad de Columbia en Nueva York. WhoWasInCommand.com contiene nuestros "
+"datos sobre la estructura organizativa, el personal de mando y el impacto de "
+"la policía, el ejército y otras fuerzas de seguridad y  de defensa. La base "
+"de datos ha sido creada analizando fuentes públicas. Además, se "
+"estructuraron y compilaron  denuncias públicas por parte de la sociedad "
+"civil, acerca de presuntas violaciones de los derechos humanos cometidas por "
+"las fuerzas de seguridad y de defensa."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:27
@@ -3051,6 +2931,17 @@ msgid ""
 "in 2017</a>.\n"
 "            "
 msgstr ""
+"\n"
+"Creamos WhoWasInCommand.com para resolver un problema importante que "
+"habíamos experimentado en nuestro propio trabajo: hay una enorme cantidad de "
+"datos disponibles sobre la fuerzas de seguridad y de defensa a nivel "
+"internacional, pero ésta se encuentra sin estructura y dispersa en diversas "
+"fuentes. Esto hace que entender las fuerzas de seguridad y su estructura sea "
+"complicado, casi prohibitivo, para las personas que trabajan para el interés "
+"público. Puede leer más sobre este problema y por qué iniciamos el Security "
+"Force Monitor en <a href=\"https://securityforcemonitor.org/2017/04/11/why-i-"
+"started-the-security-force-monitor/\" target=\"_blank\">this blog we posted "
+"in 2017</a>."
 
 #: templates/sfm/about.html:39
 msgid ""
@@ -3062,6 +2953,10 @@ msgid ""
 "            help answer questions like:\n"
 "            "
 msgstr ""
+"\n"
+"Para tratar de resolver éste problema, buscamos la información en cuestión, "
+"la analizamos, la estructuramos y la publicamos aquí en WhoWasInCommand.com "
+"en donde puede ayudar a responder preguntas como:"
 
 #: templates/sfm/about.html:46 templates/sfm/dashboard.html:72
 msgid "Who is in charge of the specialized anti-riot police unit?"
@@ -3081,7 +2976,8 @@ msgstr ""
 
 #: templates/sfm/about.html:49 templates/sfm/dashboard.html:75
 msgid "When was a particular police unit based in a specific city?"
-msgstr "¿Cúando se encontraba una unidad en una ciudad en particular?"
+msgstr ""
+"¿Cúando se encontraba desplegada una unidad en una ciudad en particular?"
 
 #: templates/sfm/about.html:50 templates/sfm/dashboard.html:76
 msgid ""
@@ -3105,10 +3001,17 @@ msgid ""
 "            by clicking on it.\n"
 "            "
 msgstr ""
+"\n"
+"Hemos creado todos los datos de WhoWasInCommand.com analizando miles de "
+"fuentes públicas en línea, incluidos sitios web oficiales de las fuerzas de "
+"seguridad, informes de medios de comunicación nacionales e internacionales, "
+"reportes académicos e informes de la sociedad civil. Puedes ver las fuentes "
+"que hemos utilizado para cada uno de los datos de WhoWasInCommand "
+"simplemente haciendo clic en ellos."
 
 #: templates/sfm/about.html:62
 msgid "Who is behind this and why are you doing it?"
-msgstr ""
+msgstr "¿Quién está detrás de esto y porqué lo está haciendo?"
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:65
@@ -3127,6 +3030,15 @@ msgid ""
 "target=\"_blank\">current and past funders can be found here</a>.\n"
 "            "
 msgstr ""
+"\n"
+"Somos el <a href=\"https://securityforcemonitor.org\" target=\"_blank"
+"\">Security Force Monitor</a>, un proyecto de investigación basado en el <a "
+"href=\"https://www.law.columbia.edu/human-rights-institute\" target=\"_blank"
+"\"> Instituto de Derechos Humanos de la Escuela de Derecho de la Universidad "
+"de Columbia </a> en Nueva York. Nuestro trabajo se financia a través de "
+"donadores como Open Society Foundations y la Fundación Oak. Más información "
+"acerca de <a href=\"https://securityforcemonitor.org/about/\" target=\"_blank"
+"\"> nuestros financiadores puede ser encontrada aquí </a>."
 
 #: templates/sfm/about.html:75
 msgid ""
@@ -3146,6 +3058,15 @@ msgid ""
 "            Amnesty International and Human Rights Watch.\n"
 "            "
 msgstr ""
+"\n"
+"Nuestro objetivo es hacer que la policía, el ejército y otras fuerzas de "
+"seguridad sean más transparentes y responsables a nivel internacional. Para "
+"lograr nuestro objetivo, analizamos y estructuramos la información pública "
+"disponible sobre las fuerzas de seguridad, para mostrar su estructura "
+"organizativa, su impacto, su jurisdicción operativa, su personal de mando y "
+"sus posibles conexiones con las presuntas violaciones de los derechos "
+"humanos documentadas por organizaciones como Amnistía Internacional y Human "
+"Rights Watch."
 
 #: templates/sfm/about.html:86
 msgid ""
@@ -3167,6 +3088,18 @@ msgid ""
 "criminal cases.\n"
 "            "
 msgstr ""
+"\n"
+"La naturaleza opaca de la mayoría de las fuerzas de seguridad lleva a los "
+"investigadores a enfrentarse a un reto común: el de poder conectar los "
+"abusos cometidos por las fuerzas de seguridad a un perpetrador específico. "
+"Así, el poder acceder a información detallada sobre las fuerzas de "
+"seguridad, ayuda a los grupos de derechos humanos e investigadores a poder "
+"nombrar a los perpetradores cuando se producen los abusos. \n"
+"\n"
+"Al poder hacerse alegaciones específicas, se pueden poner en marcha una "
+"serie de mecanismos de responsabilidad, incluyendo: restricciones a la "
+"asistencia extranjera, la desacreditación de perpetradores y  el inicio de "
+"procesos en tribunales internacionales."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:99
@@ -3185,6 +3118,17 @@ msgid ""
 "\"_blank\">Twitter</a>.\n"
 "            "
 msgstr ""
+"\n"
+"Todos los datos que hemos creado se publican aquí en WhoWasInCommand.com. "
+"También trabajamos en asociación con grupos de derechos humanos, "
+"proporcionando investigación y experiencia analítica para identificar las "
+"conexiones entre los abusos documentados y las estructuras de mando y "
+"comandantes de las fuerzas de seguridad. Se pueden encontrar algunos de "
+"nuestros trabajos de colaboración con defensores de derechos humanos en <a "
+"href=\"https://securityforcemonitor.org/news\" target=\"_blank\">nuestro "
+"blog</a>\n"
+"o <a href=\"https://twitter.com/secforcemonitor\" target=\"_blank\">en "
+"nuestro Twitter</a>."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:111
@@ -3195,10 +3139,14 @@ msgid ""
 "            a data and web consultancy for civil society.\n"
 "            "
 msgstr ""
+"\n"
+"WhoWasInCommand.com fue diseñado por <a href=\"https://datamade.us\" target="
+"\"_blank\">DataMade</a>, una consultoría de datos e informática para la "
+"sociedad civil."
 
 #: templates/sfm/about.html:116
 msgid "Where can I get help or find out more?"
-msgstr ""
+msgstr "¿En dónde puedo encontrar ayuda o saber más?"
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:119
@@ -3213,6 +3161,12 @@ msgid ""
 "            our sources of funding, and the services we offer.\n"
 "            "
 msgstr ""
+"\n"
+"Nuestro sitio web <a href=\"https://securityforcemonitor.org\" target="
+"\"_blank\">securityforcemonitor.org</a> contiene  más información sobre el "
+"trabajo que hacemos, incluyendo otras iniciativas y proyectos de "
+"investigación,  nuestro equipo y asesores, nuestras fuentes de "
+"financiamiento y los servicios que ofrecemos."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:128
@@ -3224,26 +3178,32 @@ msgid ""
 "            contains information about:\n"
 "            "
 msgstr ""
+"\n"
+"Nuestro Manual Público de Investigación en <a href=\"http://help."
+"securityforcemonitor.org\" target=\"_blank\">help.securityforcemonitor.org</"
+"a> contiene información acerca de:"
 
 #: templates/sfm/about.html:134
-#, fuzzy
-#| msgid "The content of WhoWasInCommand is licensed under"
 msgid "The countries covered on WhoWasInCommand.com."
-msgstr "El contenido de WhoWasInCommand está bajo la licencia de"
+msgstr "Los países cubiertos por WhoWasInCommand.com."
 
 #: templates/sfm/about.html:135
 msgid "How we find, select and assess information."
-msgstr ""
+msgstr "¿Cómo encontramos, seleccionamos y evaluamos la información?"
 
 #: templates/sfm/about.html:136
 msgid ""
 "The fields, formats and data model we use to store and analyse our data."
 msgstr ""
+"Los campos, formatos y modelos de datos que utilizamos para almacenar y "
+"analizar nuestros datos."
 
 #: templates/sfm/about.html:137
 msgid ""
 "The data you will find on WhoWasInCommand.com, and how to use the platform."
 msgstr ""
+"La información que encontrarás en WhoWasInCommand.com y como usar la "
+"plataforma."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:141
@@ -3257,6 +3217,12 @@ msgid ""
 "            out what bugs and issues the software has.\n"
 "            "
 msgstr ""
+"\n"
+"Desarrollamos el software que impulsa WhoWasInCommand.com <a href=\"https://"
+"github.com/security-force-monitor/sfm-cms\" target=\"_blank\">abiertamente "
+"en Github</a>.\n"
+"Puedes mirar algunos de nuestros documentos de diseño, usar el código, y "
+"descubrir qué errores y problemas tiene el software. "
 
 #. Translators: Please keep the "strong" tags, which display the numbers in bold
 #: templates/sfm/dashboard.html:9
@@ -3264,8 +3230,8 @@ msgid ""
 "Investigate <strong>police</strong> and <strong>military commanders</"
 "strong>, <strong>units</strong> and <strong>areas of operation</strong>"
 msgstr ""
-"Investigar <strong>polía</strong> y <strong>comandantes militares</strong>, "
-"<strong>unidades</strong> y <strong>áreas de operación</strong>"
+"Investigar <strong>policía</strong> y <strong>comandantes militares</"
+"strong>, <strong>unidades</strong> y <strong>áreas de operación</strong>"
 
 #: templates/sfm/dashboard.html:13
 msgid "Enter a person or unit name, location or keyword..."
@@ -3279,11 +3245,11 @@ msgstr "Todo"
 #. Translators: 'on' is followed by the countries that we currently track
 #: templates/sfm/dashboard.html:53
 msgid "Learn more about which countries are covered"
-msgstr ""
+msgstr "Conoce más sobre los países que cubrimos"
 
 #: templates/sfm/dashboard.html:54
 msgid "here"
-msgstr ""
+msgstr "aquí"
 
 #: templates/sfm/dashboard.html:67
 msgid "<strong>What is</strong> WhoWasInCommand?"
@@ -3346,59 +3312,48 @@ msgstr "GeoName ID"
 
 #: templates/source/access-points.html:14 templates/source/edit.html:19
 #: templates/source/edit.html:21
-#, fuzzy
-#| msgid "Accessed date"
 msgid "Access Points"
-msgstr "Fecha de acceso"
+msgstr "Puntos de acceso"
 
 #: templates/source/access-points.html:26
 msgid "Page(s)"
-msgstr ""
+msgstr "Página(s)"
 
 #: templates/source/access-points.html:27
 #: templates/source/access-points.html:109
-#, fuzzy
-#| msgid "Accessed date"
 msgid "Access Date"
 msgstr "Fecha de acceso"
 
 #: templates/source/access-points.html:61
-#, fuzzy
-#| msgid "Accessed date"
 msgid "Add Access Point"
-msgstr "Fecha de acceso"
+msgstr "Agregar Puntos de acceso"
 
 #: templates/source/access-points.html:94
-#, fuzzy
-#| msgid "Page number"
 msgid "Page Number(s)"
-msgstr "Número de página"
+msgstr "Número de página(s)"
 
 #: templates/source/access-points.html:122 templates/source/edit.html:119
 msgid "Describe your changes"
-msgstr ""
+msgstr "Describe los cambios"
 
 #: templates/source/base_source.html:18
-#, fuzzy
-#| msgid "Edit"
 msgid "Editing"
-msgstr "Editar"
+msgstr "Editando "
 
 #: templates/source/base_source.html:20
 #, python-format
 msgid "ID: %(uuid)s"
-msgstr ""
+msgstr "ID: %(uuid)s"
 
 #: templates/source/base_source.html:21
 #, python-format
 msgid "Last update <strong>%(date)s</strong> by <strong>%(name)s</strong>"
 msgstr ""
+"Última actualización <strong>%(date)s</strong> por<strong>%(name)s</strong>"
 
 #: templates/source/base_source.html:24
-#, fuzzy
-#| msgid "New source"
 msgid "Add source"
-msgstr "Nueva fuente"
+msgstr "Agregar fuente"
 
 #: templates/source/delete-access-point.html:6
 #, python-format
@@ -3408,23 +3363,22 @@ msgid ""
 "strong>?\n"
 "    "
 msgstr ""
+"\n"
+"¿En verdad desea remover el punto de acceso <strong>%(object)s</strong>?"
 
 #: templates/source/delete-access-point.html:32
 #: templates/source/partials/source_related_entities.html:11
-#, fuzzy
-#| msgid "Accessed"
 msgid "Accessed on"
-msgstr "Fecha de acceso"
+msgstr "Accedido el "
 
 #: templates/source/delete.html:6
-#, fuzzy
-#| msgid "Do you really want to remove the selected e-mail address?"
 msgid ""
 "\n"
 "        Do you really want to remove this source?\n"
 "    "
 msgstr ""
-"¿En verdad desea remover la dirección de correo electrónico seleccionada?"
+"\n"
+"¿En verdad desea remover esta fuente?"
 
 #: templates/source/delete.html:26 templates/source/edit.html:90
 msgid "Publication country"
@@ -3439,45 +3393,39 @@ msgid "Date published"
 msgstr "Fecha de publicación"
 
 #: templates/source/partials/access_point_related_entities.html:8
-#, fuzzy
-#| msgid "Enter Name"
 msgid "Record Name"
-msgstr "Ingresar Nombre"
+msgstr "Nombre del Registro"
 
 #: templates/source/partials/access_point_related_entities.html:9
 msgid "Record Type"
-msgstr ""
+msgstr "Tipo de Registro"
 
 #: templates/source/partials/access_point_related_entities.html:10
 msgid "Fieldname"
-msgstr ""
+msgstr "Nombre de campo"
 
 #: templates/source/partials/access_point_related_entities.html:11
-#, fuzzy
-#| msgid "Value"
 msgctxt "of a database record"
 msgid "Value"
 msgstr "Valor"
 
 #: templates/source/partials/source_related_entities.html:8
-#, fuzzy
-#| msgid "Accessed date"
 msgid "Access point"
-msgstr "Fecha de acceso"
+msgstr "Punto de acceso"
 
 #: templates/source/view.html:33
-#, fuzzy
-#| msgid "Last update"
 msgid "Last edited by:"
-msgstr "Última actualización "
+msgstr "Última edición por:"
 
 #: templates/source/view.html:49
 msgid "Select an access point to view entities evidenced by this source:"
 msgstr ""
+"Seleccione un punto de acceso para ver las entidades evidenciadas por esta "
+"fuente:"
 
 #: templates/source/view.html:69
 msgid "No access points found for this source."
-msgstr ""
+msgstr "No se han encontrado puntos de acceso para esta fuente."
 
 #: templates/source/view.html:78
 #, python-format
@@ -3487,18 +3435,17 @@ msgid ""
 "            evidences the following entities:\n"
 "        "
 msgstr ""
+"\n"
+"El punto de acceso <a href=\"%(archive_url)s\">%(access_point)s</a> "
+"evidencia las siguientes entidades:"
 
 #: templates/source/view.html:86
-#, fuzzy
-#| msgid " source for this datapoint"
 msgid "No entities found for this access point."
-msgstr " fuente para esta información"
+msgstr "No se han encontrado entidades para este punto de acceso."
 
 #: templates/source/view.html:98
-#, fuzzy
-#| msgid "Select a Rank"
 msgid "Select an access point"
-msgstr "Seleccionar un rango"
+msgstr "Seleccionar un punto de acceso"
 
 #: templates/violation/create-basics.html:7
 msgid "Add new incident"
@@ -3506,19 +3453,17 @@ msgstr "Agregar nuevo incidente"
 
 #: templates/violation/create-locations.html:40
 #: templates/violation/edit-locations.html:43
-#, fuzzy
-#| msgid "Exact location ID"
 msgid "Edit locations"
-msgstr "ID de la ubicación exacta"
+msgstr "Editar ubicaciones"
 
 #: templates/violation/delete.html:7
-#, fuzzy
-#| msgid "Are you sure you want to delete those objects?"
 msgid ""
 "\n"
 "        Do you really want to delete this incident?\n"
 "    "
-msgstr "¿Está seguro que quiere eliminar los objetos seleccionados?"
+msgstr ""
+"\n"
+"¿En verdad desea remover este incidente?"
 
 #: templates/violation/delete.html:16 templates/violation/view.html:87
 #: templates/violation/view.html:99 templates/violation/view.html:139
@@ -3533,26 +3478,20 @@ msgstr "Típo de violación "
 #: templates/violation/edit-locations.html:140
 #: templates/violation/edit-locations.html:154
 #: templates/violation/edit-locations.html:168
-#, fuzzy
-#| msgid "Search Area Association"
 msgid "Search for a location"
-msgstr "Buscar Asociación de Área"
+msgstr "Busque una ubicación"
 
 #: templates/violation/view.html:37
 msgid "Location:"
 msgstr "Ubicación"
 
 #: templates/violation/view.html:59
-#, fuzzy
-#| msgid "Violation types"
 msgid "Violation types:"
-msgstr "Típos de violaciones"
+msgstr "Tipos de violaciones:"
 
 #: templates/violation/view.html:70
-#, fuzzy
-#| msgid "Perpetrator classification"
 msgid "Perpetrator classifications:"
-msgstr "Clasificación de perpetradores"
+msgstr "Clasificación de perpetrador:"
 
 #: templates/violation/view.html:88 templates/violation/view.html:100
 #: templates/violation/view.html:153
@@ -3562,7 +3501,7 @@ msgstr "Perpetradores"
 #: templates/violation/view.html:89 templates/violation/view.html:101
 #: templates/violation/view.html:192
 msgid "Perpetrator units"
-msgstr "Unidades Perpetradoras"
+msgstr "Unidades perpetradoras"
 
 #: templates/violation/view.html:119
 msgid "This incident took place in"
@@ -3573,219 +3512,98 @@ msgid "Perpetrator"
 msgstr "Perpetrador"
 
 #: violation/forms.py:40
-#, fuzzy
-#| msgid "Perpetrator units"
 msgid "Perpetrator unit"
-msgstr "Unidades Perpetradoras"
+msgstr "Unidad Perpetradora"
 
 #: violation/forms.py:41
 msgid "Perpetrator classification"
-msgstr "Clasificación de perpetradores"
+msgstr "Clasificación de perpetrador"
 
 #: violation/forms.py:73 violation/models.py:222
-#, fuzzy
-#| msgid "Location description"
 msgid "Location Description"
-msgstr "Ubicación"
+msgstr "Descripción de la Ubicación"
 
 #: violation/forms.py:74
-#, fuzzy
-#| msgid "Caledron administration"
 msgid "Settlement administrative area"
-msgstr "Administración de Calderón"
+msgstr "Área administrativa del asentamiento"
 
 #: violation/forms.py:75
-#, fuzzy
-#| msgid "Caledron administration"
 msgid "Top administrative area"
-msgstr "Administración de Calderón"
+msgstr "Área administrativa principal"
 
 #: violation/forms.py:76 violation/models.py:231
 msgid "Settlement"
-msgstr ""
+msgstr "Asentamiento"
 
 #: violation/models.py:121
-#, fuzzy
-#| msgid "Admin level 1"
 msgid "AdminLevel1"
 msgstr "Nivel de Admin 1"
 
 #: violation/models.py:130
-#, fuzzy
-#| msgid "Admin level 2"
 msgid "AdminLevel2"
 msgstr "Nivel de Admin 2"
 
 #: violation/models.py:164
-#, fuzzy
-#| msgid "Perpetrator Organization"
 msgid "PerpetratorOrganization"
-msgstr "Organización del perpetrador"
+msgstr "UnidadPerpetradora"
 
 #: violation/models.py:184
-#, fuzzy
-#| msgid "Date of creation"
 msgid "Date of Publication"
-msgstr "Fecha de creación"
+msgstr "Fecha de Publicación"
 
 #: violation/models.py:193
 msgid "End Date"
 msgstr "Fecha final"
 
 #: violation/models.py:202
-#, fuzzy
-#| msgid "Date of last update"
 msgid "Date of Last Update"
-msgstr "Fecha de la última actualización"
+msgstr "Fecha de la Última Actualización"
 
 #: violation/models.py:212
-#, fuzzy
-#| msgid "Date of last update"
 msgid "Status of Last Update"
-msgstr "Fecha de la última actualización"
+msgstr "Estatus de la Última Actualización"
 
 #: violation/models.py:240
 msgid "First-Level Administrative Area"
-msgstr ""
+msgstr "Área Administrativa de Primer Nivel"
 
 #: violation/models.py:249
 msgid "OSM Name"
 msgstr "Nombre OSM"
 
 #: violation/models.py:272
-#, fuzzy
-#| msgid "Exact Location ID"
 msgid "Exact Location"
-msgstr "ID de la ubicación exacta"
+msgstr "Ubicación Exacta"
 
 #: violation/models.py:279
-#, fuzzy
-#| msgid "Exact location name"
 msgid "Exact Location Name"
-msgstr "Nombre de la ubicación exacta"
+msgstr "Nombre de la Ubicación Exacta"
 
 #: violation/models.py:288
 msgid "Exact Location ID"
-msgstr "ID de la ubicación exacta"
+msgstr "ID de la Ubicación Exacta"
 
 #: violation/models.py:316
-#, fuzzy
-#| msgid "Perpetrator units"
 msgid "Perpetrator Unit"
-msgstr "Unidades Perpetradoras"
+msgstr "Unidad Perpetradora"
 
 #: violation/models.py:326
-#, fuzzy
-#| msgid "Violation types"
 msgid "Violation Types"
 msgstr "Típos de violaciones"
 
 #: violation/models.py:336
-#, fuzzy
-#| msgid "Perpetrator classification"
 msgid "Perpetrator Classification"
-msgstr "Clasificación de perpetradores"
+msgstr "Clasificación del Perpetrador "
 
-#~ msgid "If the value of open-ended is \"Exact\", an end date is required."
-#~ msgstr ""
-#~ "Si el valor ingresado es exacto, se requiere indicar la fecha final.   "
-
-#~ msgid "Parent and Child fields must refer to different units."
-#~ msgstr ""
-#~ "Los campos de \"superior\" y \"subordinado\" deben de referirse a "
-#~ "distinas unidades."
-
-#~ msgid ""
-#~ "It looks like your command hierarchy is recursive. Double-check to make "
-#~ "sure unit command flows in one direction."
-#~ msgstr ""
-#~ "Al parecer esta cadena jerárquica es recursiva. Favor de volver a revisar "
-#~ "los datos para asegurar que la cadena de mando fluya solamente en una "
-#~ "dirección."
-
-#~ msgid "Unit name is required"
-#~ msgstr "Se requiere nombre de unidad"
-
-#~ msgid "Classification is required"
-#~ msgstr "Se requiere clasificación"
-
-#~ msgid "Division ID is required"
-#~ msgstr "Se requiere ID de división"
-
-#~ msgid ""
-#~ "If the value of open-ended is \"Exact\", a last cited date is required."
-#~ msgstr ""
-#~ "Si el valor ingresado es exacto, se requiere indicar la fecha de la "
-#~ "última cita."
-
-#~ msgid "Geography type is required"
-#~ msgstr "Se requiere típo de geográfía "
-
-#~ msgid "Name is required"
-#~ msgstr "Se requiere nombre"
-
-#~ msgid "OSM ID is required"
-#~ msgstr "Se requiere ID de OSM"
+#~| msgid "Create source"
+#~ msgid "Include sources"
+#~ msgstr "Incluir fuentes"
 
 #~ msgid "Countries"
 #~ msgstr "Países"
 
 #~ msgid "Help"
 #~ msgstr "Ayuda"
-
-#~ msgid "Forgot Password?"
-#~ msgstr "¿Olvidó su contraseña?"
-
-#~ msgid "Describe any geographies related to organizations found in"
-#~ msgstr ""
-#~ "Describa cualquier ubicación relacionada a las organizaciones que se "
-#~ "encuentran en"
-
-#~ msgid "Geography type"
-#~ msgstr "Tipo de ubicación"
-
-#~ msgid "First citation"
-#~ msgstr "Primera cita"
-
-#~ msgid "Add another geography"
-#~ msgstr "Agregar otra ubicación"
-
-#~ msgid "Remove this geography"
-#~ msgstr "Eliminar esta ubicación"
-
-#~ msgid "Search by OSM ID"
-#~ msgstr "Buscar por ID de OSM"
-
-#~ msgid "Changelog"
-#~ msgstr "Registro de cambios"
-
-#~ msgid "Classifications"
-#~ msgstr "Clasificaciones"
-
-#, fuzzy
-#~| msgid "Publication country"
-#~ msgid "Publication Country"
-#~ msgstr "País de la publicación"
-
-#~ msgid "Describe any personnel found in"
-#~ msgstr "Desciba cualquier personal que se encuentra en"
-
-#~ msgid "A person must belong to at least one unit."
-#~ msgstr "La persona debe de pertenecer al menos a una unidad"
-
-#~ msgid "Remove this person"
-#~ msgstr "Remover esta persona"
-
-#, fuzzy
-#~| msgid " sources for this datapoint"
-#~ msgid "Add sources to the list"
-#~ msgstr "fuentes para esta información"
-
-#~ msgid "Events"
-#~ msgstr "Eventos"
-
-#~ msgid "Place"
-#~ msgstr "Lugar"
 
 #~ msgid ""
 #~ "It is a tool from <a href='https://securityforcemonitor.org/'>Security "
@@ -3815,7 +3633,6 @@ msgstr "Clasificación de perpetradores"
 #~ msgstr "Colecciones"
 
 #, fuzzy
-#~| msgid "Collections"
 #~ msgid "No collections yet"
 #~ msgstr "Colecciones"
 
@@ -3828,10 +3645,12 @@ msgstr "Clasificación de perpetradores"
 #~ msgid "Egypt"
 #~ msgstr "Egipto"
 
-#~ msgid "Police in Cairo"
+#, fuzzy
+#~ msgid "Police in Cairo Governorate"
 #~ msgstr "Policía en El Cairo"
 
-#~ msgid "Police in Alexandria"
+#, fuzzy
+#~ msgid "Police in Alexandria Governorate"
 #~ msgstr "Policía en Alejandría "
 
 #~ msgid "Mexico"
@@ -3866,32 +3685,14 @@ msgstr "Clasificación de perpetradores"
 #~ "febrero de 2010 al 28 de mayo de 2015)"
 
 #, fuzzy
-#~| msgid "Police in Alexandria"
-#~ msgid "Police in Metro Manila"
-#~ msgstr "Policía en Alejandría "
-
-#, fuzzy
-#~| msgid "Police in Cairo"
-#~ msgid "Police in Cebu"
-#~ msgstr "Policía en El Cairo"
-
-#, fuzzy
-#~| msgid "Air Force"
 #~ msgid "Royal Saudi Air Force"
 #~ msgstr "Fuerza Aérea"
 
 #, fuzzy
-#~| msgid "Police in Cairo"
-#~ msgid "Police in Kampala"
-#~ msgstr "Policía en El Cairo"
+#~ msgid "No collection yet"
+#~ msgstr "Colecciones"
 
 #, fuzzy
-#~| msgid "Police in Cairo"
-#~ msgid "Police in Wakiso"
-#~ msgstr "Policía en El Cairo"
-
-#, fuzzy
-#~| msgid "Administrative Division of Nigeria"
 #~ msgid "Administrative Division of Bangladesh"
 #~ msgstr "División Administrativa de Nigeria"
 
@@ -3982,17 +3783,14 @@ msgstr "Clasificación de perpetradores"
 #~ "públicas. La CSF se encuentra dentro del Ministerio de Interior.  "
 
 #, fuzzy
-#~| msgid "Nigerian Armed Forces/Military"
 #~ msgid "Egyptian Armed Forces"
 #~ msgstr "Fuerzas Armadas Nigerianas / Ejército Nigeriano"
 
 #, fuzzy
-#~| msgid "Administrative Division of Egypt"
 #~ msgid "Administrative Division of "
 #~ msgstr "División Administrativa de Egipto"
 
 #, fuzzy
-#~| msgid "Security Forces of Egypt"
 #~ msgid "Security Forces of [Country]"
 #~ msgstr "Fuerzas de Seguridad de Egipto"
 
@@ -4019,13 +3817,6 @@ msgstr "Clasificación de perpetradores"
 #~ msgstr "División administrativa de México"
 
 #, fuzzy
-#~| msgid ""
-#~| "\n"
-#~| "            Mexico has a federal structure. There are 31 states and a "
-#~| "federal capital territory, currently in transition to becoming an "
-#~| "autonomous federal entity. Each state is subdivided into municipios of "
-#~| "which there are 2,456.\n"
-#~| "            "
 #~ msgid ""
 #~ "\n"
 #~ "            Mexico has a federal structure. There are 31 states as well "
@@ -4043,17 +3834,6 @@ msgstr "Clasificación de perpetradores"
 #~ msgstr "Fuerzas de Seguridad de México"
 
 #, fuzzy
-#~| msgid ""
-#~| "\n"
-#~| "            Mexico has federal, state and municipio (municipal) police "
-#~| "forces as well as a separate police for the federal capital. At the "
-#~| "federal and state level police forces are generally divided by role and "
-#~| "command structure into policía preventiva (preventive police) in charge "
-#~| "of maintaining order and usually under the command of the Secretaría de "
-#~| "Seguridad Pública (Ministry of Public Security) and policía judicial "
-#~| "(judicial police) usually under the command of the state Procuraduría "
-#~| "General de Justicia (Attorney General).\n"
-#~| "            "
 #~ msgid ""
 #~ "\n"
 #~ "            Mexico has federal, state and municipio (municipal) police "
@@ -4166,19 +3946,6 @@ msgstr "Clasificación de perpetradores"
 #~ msgstr "Armada / Marina"
 
 #, fuzzy
-#~| msgid ""
-#~| "\n"
-#~| "            Similar to the Army, the SEMAR is broken into several "
-#~| "Regiones Navales (Naval Regions) which command Zonas Navales (Naval "
-#~| "Zones). SEMAR also includes two Fuerzas Navales (Naval Forces). The Navy "
-#~| "has been very active in internal security operations, mainly through the "
-#~| "deployment of the marines, which are generally grouped into Brigadas de "
-#~| "Infanteria de Marina (Marine Brigades) and smaller Batallónes de "
-#~| "Infantería de Marina (Marine Battalions). Since 2007 the command "
-#~| "structure of the marines has been restructured several, but currently "
-#~| "marine units are generally under the command of a Zona Naval or Región "
-#~| "Naval.\n"
-#~| "            "
 #~ msgid ""
 #~ "\n"
 #~ "            Similar to the Army, the SEMAR is broken into several "
@@ -4206,34 +3973,18 @@ msgstr "Clasificación de perpetradores"
 #~ "Región Naval.   "
 
 #, fuzzy
-#~| msgid "Administrative Division of Egypt"
 #~ msgid "Administrative Division of Myanmar"
 #~ msgstr "División Administrativa de Egipto"
 
 #, fuzzy
-#~| msgid "Security Forces of Egypt"
 #~ msgid "Security Forces of Myanmar"
 #~ msgstr "Fuerzas de Seguridad de Egipto"
 
 #, fuzzy
-#~| msgid "Mexican Armed Forces/Military"
 #~ msgid "Tatmadaw/Armed Forces/Military"
 #~ msgstr "Fuerzas Armadas Mexicanas / Ejército Mexicano"
 
 #, fuzzy
-#~| msgid ""
-#~| "\n"
-#~| "                Nigeria has security forces with different "
-#~| "responsibilities for internal security. Crime fighting is the prime "
-#~| "responsibility of the Nigeria Police Force. The State Security Service "
-#~| "focuses on threats to national security. The Nigerian Armed Forces, "
-#~| "comprising the Nigerian Air Force, Nigerian Army and Nigerian Navy, are "
-#~| "also very active in internal security operations, particularly against "
-#~| "Boko Haram. The Nigerian Army is generally the branch most closely "
-#~| "involved in internal security operations. Security forces in Nigeria are "
-#~| "generally national in character with the President of Nigeria as the "
-#~| "commander-in-chief of the respective forces.\n"
-#~| "            "
 #~ msgid ""
 #~ "\n"
 #~ "            Nigeria has security forces with different responsibilities "
@@ -4285,27 +4036,6 @@ msgstr "Clasificación de perpetradores"
 #~ msgstr "Fuerzas de Seguridad de Nigeria"
 
 #, fuzzy
-#~| msgid ""
-#~| "\n"
-#~| "            The Nigeria Police Force (NPF) is the national police force "
-#~| "of Nigeria. The NPF is under control of the president and headed by the "
-#~| "Inspector General of Police (IGP) who is appointed by the President. The "
-#~| "command structure flows from the IGP at Force Headquarters through Zonal "
-#~| "Police Commands, each of which oversee police operations in at least two "
-#~| "states and/or the Federal Capital Territory (FCT). Each State and the "
-#~| "FCT has a Police Command headed by a Commissioner of Police who commands "
-#~| "police operations in the state or FCT. Police Commands are divided into "
-#~| "several Police Area Commands which are under the command of the Police "
-#~| "Command. Police Area Commands are further divided into Police Divisions, "
-#~| "which usually headed by a Chief Superintendent of Police and often "
-#~| "referred to by their title, Divisional Police Officer. Police Divisions "
-#~| "can also be under the direct command of their respective Police Command. "
-#~| "Police Divisions in turn command the smaller formation of Police "
-#~| "Stations which in turn command Police Posts. The smallest formation of "
-#~| "the NPF is the Village Police Post which can be commanded by either a "
-#~| "Police Post or Police Division, depending on the structure of the police "
-#~| "formations in that particular area.\n"
-#~| "            "
 #~ msgid ""
 #~ "\n"
 #~ "            The Nigeria Police Force (NPF) is the national police force "
@@ -4490,9 +4220,6 @@ msgstr "Clasificación de perpetradores"
 #~ msgstr "Marina Nigeriana"
 
 #, fuzzy
-#~| msgid ""
-#~| "The Navy is under the command of the Chief of Naval Staff who reports to "
-#~| "the Chief of Defence Staff."
 #~ msgid ""
 #~ ".The Navy is under the command of the Chief of Naval Staff who reports to "
 #~ "the Chief of Defence Staff."
@@ -4548,47 +4275,36 @@ msgstr "Clasificación de perpetradores"
 #~ "comandadas por personal militar.    "
 
 #, fuzzy
-#~| msgid "Administrative Division of Mexico"
 #~ msgid "Administrative Division of the Philippines"
 #~ msgstr "División administrativa de México"
 
 #, fuzzy
-#~| msgid "Security Forces of Mexico"
 #~ msgid "Security Forces of the Philippines"
 #~ msgstr "Fuerzas de Seguridad de México"
 
 #, fuzzy
-#~| msgid "Administrative Division of Nigeria"
 #~ msgid "Administrative Division of Rwanda"
 #~ msgstr "División Administrativa de Nigeria"
 
 #, fuzzy
-#~| msgid "Security Forces of Nigeria"
 #~ msgid "Security Forces of Rwanda"
 #~ msgstr "Fuerzas de Seguridad de Nigeria"
 
 #, fuzzy
-#~| msgid "Administrative Division of Nigeria"
 #~ msgid "Administrative Division of Saudi Arabia"
 #~ msgstr "División Administrativa de Nigeria"
 
 #, fuzzy
-#~| msgid "Security Forces of Nigeria"
 #~ msgid "Security Forces of Saudi Arabia"
 #~ msgstr "Fuerzas de Seguridad de Nigeria"
 
 #, fuzzy
-#~| msgid "Administrative Division of Nigeria"
 #~ msgid "Administrative Division of Uganda"
 #~ msgstr "División Administrativa de Nigeria"
 
 #, fuzzy
-#~| msgid "Security Forces of Nigeria"
 #~ msgid "Security Forces of Uganda"
 #~ msgstr "Fuerzas de Seguridad de Nigeria"
-
-#~ msgid "Currently includes data on"
-#~ msgstr "Actualmente incluye información sobre"
 
 #~ msgid "Who makes WhoWasInCommand?"
 #~ msgstr "¿Quién crea WhoWasInCommand?"
@@ -4654,12 +4370,14 @@ msgstr "Clasificación de perpetradores"
 #~ "periodismo, al reportaje de derechos humanos y a otros trabajos de "
 #~ "interés público."
 
+#, fuzzy
 #~ msgid ""
 #~ "\n"
 #~ "            WhoWasInCommand was created and operated by <a href=\"https://"
-#~ "securityforcemonitor.org\">Security Force Monitor</a>. We’re a project of "
-#~ "the Human Rights Institute at Columbia Law School and you can <a href="
-#~ "\"https://securityforcemonitor.org/about/\">read more about us here</a>.\n"
+#~ "securityforcemonitor.org\" target=\"_blank\">Security Force Monitor</a>. "
+#~ "We’re a project of the Human Rights Institute at Columbia Law School and "
+#~ "you can <a target=\"_blank\" href=\"https://securityforcemonitor.org/"
+#~ "about/\">read more about us here</a>.\n"
 #~ "            "
 #~ msgstr ""
 #~ "\n"
@@ -4758,11 +4476,14 @@ msgstr "Clasificación de perpetradores"
 #~ msgid "Other country specific sources."
 #~ msgstr "Otras fuentes específicas del país."
 
+#, fuzzy
 #~ msgid ""
-#~ "Every piece of data in WhoWasInCommand is linked to one or more these "
-#~ "sources. We have also preserved every source possible using the Internet "
-#~ "Archive, so you can access the sources even if the original version has "
-#~ "disappeared from the Internet."
+#~ "\n"
+#~ "         \"Every piece of data in WhoWasInCommand is linked to one or "
+#~ "more these sources. We have also preserved every source possible using "
+#~ "the Internet Archive, so you can access the sources even if the original "
+#~ "version has disappeared from the Internet.\"\n"
+#~ "         "
 #~ msgstr ""
 #~ "Cada fragmento de información dentro de WhoWasInCommand está ligado a una "
 #~ "o más de estas fuentes. También hemos archivado la mayor cantidad posible "
@@ -4770,10 +4491,14 @@ msgstr "Clasificación de perpetradores"
 #~ "puede acceder a las fuentes aún cuando la versión original haya "
 #~ "desaparecido del Internet. "
 
+#, fuzzy
 #~ msgid ""
-#~ "Our <a href='https://help.securityforcemonitor.org'>Research Handbook</a> "
-#~ "contains a thorough description of the method and tools used to create "
-#~ "the data in WhoWasInCommand."
+#~ "\n"
+#~ "            Our <a target=\"_blank\" href='https://help."
+#~ "securityforcemonitor.org'>Research Handbook</a> contains a thorough "
+#~ "description of the method and tools used to create the data in "
+#~ "WhoWasInCommand.\n"
+#~ "            "
 #~ msgstr ""
 #~ "Nuestro <a href='https://help.securityforcemonitor.org'> Manual de "
 #~ "Investigación </a> contiene una descripción completa de nuestro método y "
@@ -4815,22 +4540,30 @@ msgstr "Clasificación de perpetradores"
 #~ "encontramos en el proceso de investigar países adicionales sugeridos a "
 #~ "través de la retroalimentación de la sociedad civil. "
 
+#, fuzzy
 #~ msgid ""
-#~ "In our <a href='http://help.securityforcemonitor.org'>Research Handbook</"
-#~ "a>, we’ve created some guides to the different ways that data are "
-#~ "displayed in WhoWasInCommand."
+#~ "\n"
+#~ "            In our <a target=\"_blank\" href='http://help."
+#~ "securityforcemonitor.org'>Research Handbook</a>, we’ve created some "
+#~ "guides to the different ways that data are displayed in WhoWasInCommand."
+#~ "\"\n"
+#~ "            "
 #~ msgstr ""
 #~ "En nuestro <a href='http://help.securityforcemonitor.org'>Manual de "
 #~ "Investigación</a>, hemos creado algunas guías en cuanto a cómo está "
 #~ "presentada la información en WhoWasInCommand. "
 
+#, fuzzy
 #~ msgid ""
-#~ "Yes. You can download any data published on WhoWasInCommand and use it "
-#~ "under the terms of <a href='https://creativecommons.org/licenses/"
-#~ "by/4.0/'>Creative Commons Attribution License 4.0</a>. This means you’re "
-#~ "welcome to use, share and adapt any data from WhoWasInCommand as long as "
-#~ "you credit Security Force Monitor and promise not to place any additional "
-#~ "restrictions on others’ ability to use the data."
+#~ "\n"
+#~ "            Yes. You can download any data published on WhoWasInCommand "
+#~ "and use it under the terms of <a target=\"_blank\" href='https://"
+#~ "creativecommons.org/licenses/by/4.0/'>Creative Commons Attribution "
+#~ "License 4.0</a>. This means you’re welcome to use, share and adapt any "
+#~ "data from WhoWasInCommand as long as you credit Security Force Monitor "
+#~ "and promise not to place any additional restrictions on others’ ability "
+#~ "to use the data.\n"
+#~ "            "
 #~ msgstr ""
 #~ "Sí. Puede descargar cualquier información o datos publicados en "
 #~ "WhoWasInCommand y usarlos bajo los términos de <a href='https://"
@@ -4945,11 +4678,14 @@ msgstr "Clasificación de perpetradores"
 #~ "technical@securityforcemonitor.org'>technical@securityforcemonitor.org</"
 #~ "a> y haremos todo lo posible por ayudar.   "
 
+#, fuzzy
 #~ msgid ""
-#~ "Our <a href='https://help.securityforcemonitor.org'>Research Handbook</a> "
-#~ "has detailed descriptions of all the fields and terminology used on "
-#~ "WhoWasInCommand. If something isn’t clear, please write to us and let us "
-#~ "know."
+#~ "\n"
+#~ "            Our <a target=\"_blank\" href='https://help."
+#~ "securityforcemonitor.org'>Research Handbook</a> has detailed descriptions "
+#~ "of all the fields and terminology used on WhoWasInCommand. If something "
+#~ "isn’t clear, please write to us and let us know.\n"
+#~ "            "
 #~ msgstr ""
 #~ "Nuestro <a href='https://help.securityforcemonitor.org'>Manual de "
 #~ "Investigación</a> contiene una descripción detallada de todos los campos "
@@ -4957,32 +4693,38 @@ msgstr "Clasificación de perpetradores"
 #~ "no está claro, favor de ponerse en contacto con nosotros para hacérnoslo "
 #~ "saber. "
 
-#~ msgid "Describe any incidents found in"
-#~ msgstr "Describa cualquier incidente que se encuentre en"
+#~ msgid "Classifications"
+#~ msgstr "Clasificaciones"
 
-#~ msgid "Date of first allegation"
-#~ msgstr "Fecha de la primera alegación "
+#, fuzzy
+#~ msgid "Publication Country"
+#~ msgstr "País de la publicación"
 
-#~ msgid "Most recent status"
-#~ msgstr "Estatus más reciente"
+#~ msgid "Violation types"
+#~ msgstr "Típos de violaciones"
 
-#~ msgid "Perpetrator personnel"
-#~ msgstr "Personal Perpetrador"
+#~ msgid "Events"
+#~ msgstr "Eventos"
 
-#~ msgid "Remove this incident"
-#~ msgstr "Eliminar este incidente"
+#~ msgid "Place"
+#~ msgstr "Lugar"
+
+#~ msgid "Perpetrator type"
+#~ msgstr "Tipo de perpetrador"
+
+#~ msgid "Location description"
+#~ msgstr "Ubicación"
+
+#, fuzzy
+#~ msgid "Publication name"
+#~ msgstr "Fecha de publicación"
+
+#, fuzzy
+#~ msgid "Publisher:"
+#~ msgstr "Publicado en "
 
 #~ msgid "Perpetrator organizations"
 #~ msgstr "Organización del perpetrador"
-
-#~ msgid "Event"
-#~ msgstr "Evento "
-
-#~ msgid "Search Violations"
-#~ msgstr "Buscar violaciones"
-
-#~ msgid "Violation description"
-#~ msgstr "Descripción de violación"
 
 #~ msgid "First allegation"
 #~ msgstr "Primera alegación"
@@ -4999,19 +4741,100 @@ msgstr "Clasificación de perpetradores"
 #~ msgid "Perpetrating unit classification"
 #~ msgstr "Clasificación de unidades perpetradoras"
 
-#~ msgid ""
-#~ "Thanks for adding a new source! The database and search index have been "
-#~ "updated."
+#, fuzzy
+#~ msgid "Edit Location"
+#~ msgstr "Ubicación"
+
+#, fuzzy
+#~ msgid "Accessed on:"
+#~ msgstr "Fecha de acceso"
+
+#, fuzzy
+#~ msgid "Page number:"
+#~ msgstr "Número de página"
+
+#, fuzzy
+#~ msgid "Add a posting"
+#~ msgstr "Editar"
+
+#, fuzzy
+#~ msgid "Add sources to the list"
+#~ msgstr "fuentes para esta información"
+
+#~ msgid "Are you sure you want to delete those objects?"
+#~ msgstr "¿Está seguro que quiere eliminar los objetos seleccionados?"
+
+#, fuzzy
+#~ msgid "Police in Metro Manila"
+#~ msgstr "Policía en Alejandría "
+
+#, fuzzy
+#~ msgid "Police in Cebu"
+#~ msgstr "Policía en El Cairo"
+
+#, fuzzy
+#~ msgid "Police in Kampala"
+#~ msgstr "Policía en El Cairo"
+
+#, fuzzy
+#~ msgid "Police in Wakiso"
+#~ msgstr "Policía en El Cairo"
+
+#~ msgid "Changelog"
+#~ msgstr "Registro de cambios"
+
+#~ msgid "If the value of open-ended is \"Exact\", an end date is required."
 #~ msgstr ""
-#~ "¡Gracias por agregar una nueva fuente! La base de datos y el índice de "
-#~ "busqueda han sido actualizados."
+#~ "Si el valor ingresado es exacto, se requiere indicar la fecha final.   "
+
+#~ msgid "Parent and Child fields must refer to different units."
+#~ msgstr ""
+#~ "Los campos de \"superior\" y \"subordinado\" deben de referirse a "
+#~ "distinas unidades."
 
 #~ msgid ""
-#~ "Select an attribute below to review the changes our staff have made to "
-#~ "this entity."
+#~ "It looks like your command hierarchy is recursive. Double-check to make "
+#~ "sure unit command flows in one direction."
 #~ msgstr ""
-#~ "Seleccione alguno de las siguientes categorías para ver los cambios que "
-#~ "nuestro equipo ha hecho"
+#~ "Al parecer esta cadena jerárquica es recursiva. Favor de volver a revisar "
+#~ "los datos para asegurar que la cadena de mando fluya solamente en una "
+#~ "dirección."
+
+#~ msgid "Forgot Password?"
+#~ msgstr "¿Olvidó su contraseña?"
+
+#~ msgid "Describe any geographies related to organizations found in"
+#~ msgstr ""
+#~ "Describa cualquier ubicación relacionada a las organizaciones que se "
+#~ "encuentran en"
+
+#~ msgid "Geography type"
+#~ msgstr "Tipo de ubicación"
+
+#~ msgid "First citation"
+#~ msgstr "Primera cita"
+
+#~ msgid "Add another geography"
+#~ msgstr "Agregar otra ubicación"
+
+#~ msgid "Remove this geography"
+#~ msgstr "Eliminar esta ubicación"
+
+#~ msgid "Search by OSM ID"
+#~ msgstr "Buscar por ID de OSM"
+
+#~ msgid "Describe any personnel found in"
+#~ msgstr "Desciba cualquier personal que se encuentra en"
+
+#~ msgid "A person must belong to at least one unit."
+#~ msgstr "La persona debe de pertenecer al menos a una unidad"
+
+#~ msgid "Remove this person"
+#~ msgstr "Remover esta persona"
+
+#, fuzzy
+#~ msgid "Perpetrator name"
+#~ msgstr "Perpetrador"
 
 #~ msgid ""
 #~ "Our research on Egypt is in progress. Currently we have partial coverage "
@@ -5094,6 +4917,82 @@ msgstr "Clasificación de perpetradores"
 #~ "cada estado y el FCT. Las unidades SARS de cada estado y el FCT son "
 #~ "coordinadas por el Comisionado de la Policía desde el Cuartel General de "
 #~ "la Fuerza. "
+
+#~ msgid "Currently includes data on"
+#~ msgstr "Actualmente incluye información sobre"
+
+#, fuzzy
+#~ msgid "Real start?"
+#~ msgstr "Fecha inicial real"
+
+#, fuzzy
+#~ msgid "member"
+#~ msgstr "Miembro"
+
+#~ msgid "Unit name is required"
+#~ msgstr "Se requiere nombre de unidad"
+
+#~ msgid "Classification is required"
+#~ msgstr "Se requiere clasificación"
+
+#~ msgid "Division ID is required"
+#~ msgstr "Se requiere ID de división"
+
+#~ msgid ""
+#~ "If the value of open-ended is \"Exact\", a last cited date is required."
+#~ msgstr ""
+#~ "Si el valor ingresado es exacto, se requiere indicar la fecha de la "
+#~ "última cita."
+
+#~ msgid "Geography type is required"
+#~ msgstr "Se requiere típo de geográfía "
+
+#~ msgid "Name is required"
+#~ msgstr "Se requiere nombre"
+
+#~ msgid "OSM ID is required"
+#~ msgstr "Se requiere ID de OSM"
+
+#~ msgid "Describe any incidents found in"
+#~ msgstr "Describa cualquier incidente que se encuentre en"
+
+#~ msgid "Date of first allegation"
+#~ msgstr "Fecha de la primera alegación "
+
+#~ msgid "Most recent status"
+#~ msgstr "Estatus más reciente"
+
+#~ msgid "Perpetrator personnel"
+#~ msgstr "Personal Perpetrador"
+
+#~ msgid "Remove this incident"
+#~ msgstr "Eliminar este incidente"
+
+#~ msgid "Event"
+#~ msgstr "Evento "
+
+#~ msgid "Search Violations"
+#~ msgstr "Buscar violaciones"
+
+#~ msgid "Violation description"
+#~ msgstr "Descripción de violación"
+
+#~ msgid ""
+#~ "Thanks for adding a new source! The database and search index have been "
+#~ "updated."
+#~ msgstr ""
+#~ "¡Gracias por agregar una nueva fuente! La base de datos y el índice de "
+#~ "busqueda han sido actualizados."
+
+#~ msgid ""
+#~ "Select an attribute below to review the changes our staff have made to "
+#~ "this entity."
+#~ msgstr ""
+#~ "Seleccione alguno de las siguientes categorías para ver los cambios que "
+#~ "nuestro equipo ha hecho"
+
+#~ msgid "source for this datapoint"
+#~ msgstr "fuente para esta información"
 
 #~ msgid "Describe where you are getting your information."
 #~ msgstr "Describa de dónde está obteniendo su información."
