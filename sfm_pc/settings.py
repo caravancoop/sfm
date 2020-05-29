@@ -244,6 +244,30 @@ OSM_DATA = [
         'country_code': 'bf',
     },
     {
+        'country': 'Niger',
+        'pbf_url': 'http://download.geofabrik.de/africa/niger-latest.osm.pbf',
+        # No relation_id yet because Wambacher is down
+        'country_code': 'ne',
+    },
+    {
+        'country': 'Mali',
+        'pbf_url': 'http://download.geofabrik.de/africa/mali-latest.osm.pbf',
+        # No relation_id yet because Wambacher is down
+        'country_code': 'ml',
+    },
+    {
+        'country': 'Mauritania',
+        'pbf_url': 'http://download.geofabrik.de/africa/mauritania-latest.osm.pbf',
+        # No relation_id yet because Wambacher is down
+        'country_code': 'mr',
+    },
+    {
+        'country': 'Chad',
+        'pbf_url': 'http://download.geofabrik.de/africa/chad-latest.osm.pbf',
+        # No relation_id yet because Wambacher is down
+        'country_code': 'td',
+    },
+    {
         'country': 'Nigeria',
         'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
         'relation_id': '192787',

@@ -50,6 +50,13 @@ class Command(BaseCommand):
             help='Destroy OSM table before importing'
         )
 
+        parser.add_argument(
+            'countries',
+            nargs='*',
+            default=[country['country_code'] for country in settings.OSM_DATA],
+            help='Country codes to import'
+        )
+
     def handle(self, *args, **options):
 
         self.connection = engine.connect()
@@ -64,6 +71,7 @@ class Command(BaseCommand):
         download_only = options['download']
         import_only = options['import']
         recreate = options['recreate']
+        countries = options['countries']
 
         if recreate:
             self.executeTransaction('DROP TABLE IF EXISTS osm_data')
@@ -75,7 +83,21 @@ class Command(BaseCommand):
 
         self.makeDataTable()
 
-        for country in settings.OSM_DATA:
+        country_dicts = []
+        for country_code in countries:
+            country = None
+            for country_dict in settings.OSM_DATA:
+                if country_dict['country_code'] == country_code:
+                    country = country_dict
+                    country_dicts.append(country)
+            if not country:
+                raise CommandError(
+                    'Country code "{}" not found in settings.OSM_DATA'.format(
+                        country_code
+                    )
+                )
+
+        for country in country_dicts:
             if download_only:
                 self.downloadPBFs(country)
                 self.downloadBoundaries(country)
@@ -316,7 +338,7 @@ class Command(BaseCommand):
                 :admin_level,
                 :name,
                 :localname,
-                ST_SetSRID(ST_GeomFromGeoJSON(:geometry), 4326),
+                ST_SetSRID(ST_Multi(ST_GeomFromGeoJSON(:geometry)), 4326),
                 :country_code
         '''
 
@@ -334,14 +356,23 @@ class Command(BaseCommand):
                         boundary_data = json.loads(geojson_cleaned)
 
                         for feature in boundary_data['features']:
+                            # Support alternate attribute names
+                            localname = feature['properties'].get(
+                                'localname',
+                                feature['properties']['locname']
+                            )
+                            admin_level = feature['properties'].get(
+                                'admin_level',
+                                feature['properties']['adminlevel']
+                            )
 
                             insert = {
                                 'id': feature['properties']['id'],
                                 'geometry': json.dumps(feature['geometry']),
                                 'tags': json.dumps(feature['properties']),
-                                'admin_level': feature['properties']['admin_level'],
+                                'admin_level': admin_level,
                                 'name': feature['properties']['name'],
-                                'localname': feature['properties']['localname'],
+                                'localname': localname,
                                 'country_code': country['country_code'],
                             }
 
@@ -365,34 +396,48 @@ class Command(BaseCommand):
         filename = pbf_url.rsplit('/', 1)[1]
         file_path = os.path.join(self.data_directory, filename)
 
-        with urllib.request.urlopen(pbf_url) as u:
-            with open(file_path, 'wb') as f:
-                while True:
-                    chunk = u.read(1024)
-                    if not chunk:
-                        break
-                    f.write(chunk)
+        if os.path.exists(file_path):
+            self.stdout.write(
+                'PBF file already exists for {} -- skipping'.format(
+                    country['country']
+                )
+            )
+        else:
+            with urllib.request.urlopen(pbf_url) as u:
+                with open(file_path, 'wb') as f:
+                    while True:
+                        chunk = u.read(1024)
+                        if not chunk:
+                            break
+                        f.write(chunk)
 
-        self.stdout.write(self.style.SUCCESS('Downloaded PBF file for {}'.format(country['country'])))
+            self.stdout.write(self.style.SUCCESS('Downloaded PBF file for {}'.format(country['country'])))
 
     def downloadBoundaries(self, country):
 
         file_path = os.path.join(self.data_directory, '{}.zip'.format(country['country']))
 
-        url = "{base_url}?cliVersion=1.0&cliKey={api_key}&exportFormat=json&exportLayout=levels&exportAreas=water&union=false&from_AL=2&to_AL=8&selected={relation_id}".format(
-            base_url=settings.OSM_BASE_URL,
-            api_key=settings.OSM_API_KEY,
-            relation_id=country['relation_id'])
+        if os.path.exists(file_path):
+            self.stdout.write(
+                'Boundary file for {} already exists -- skipping'.format(
+                    country['country']
+                )
+            )
+        else:
+            url = "{base_url}?cliVersion=1.0&cliKey={api_key}&exportFormat=json&exportLayout=levels&exportAreas=water&union=false&from_AL=2&to_AL=8&selected={relation_id}".format(
+                base_url=settings.OSM_BASE_URL,
+                api_key=settings.OSM_API_KEY,
+                relation_id=country['relation_id'])
 
-        with urllib.request.urlopen(url) as u:
-            with open(file_path, 'wb') as f:
-                while True:
-                    chunk = u.read(1024)
-                    if not chunk:
-                        break
-                    f.write(chunk)
+            with urllib.request.urlopen(url) as u:
+                with open(file_path, 'wb') as f:
+                    while True:
+                        chunk = u.read(1024)
+                        if not chunk:
+                            break
+                        f.write(chunk)
 
-        self.stdout.write(self.style.SUCCESS('Downloaded boundary file for {}'.format(country['country'])))
+            self.stdout.write(self.style.SUCCESS('Downloaded boundary file for {}'.format(country['country'])))
 
     def executeTransaction(self, query, *args, **kwargs):
         trans = self.connection.begin()
