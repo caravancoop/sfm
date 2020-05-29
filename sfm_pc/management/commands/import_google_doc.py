@@ -221,7 +221,8 @@ class Command(BaseCommand):
                                 sheet=entity_type,
                                 current_row=one_index_start + (idx + 1)
                             )
-                        entity_map[entity_name] = entity_uuid
+                        if entity_uuid:
+                            entity_map[entity_name] = entity_uuid
 
                 setattr(self, '{}_entity_map'.format(entity_type), entity_map)
 
