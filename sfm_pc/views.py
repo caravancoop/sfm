@@ -53,6 +53,9 @@ class Dashboard(TemplateView):
 
         self.request.session.modified = True
 
+        # Generate list of countries to use in the country select filter
+        context['countries'] = [country['country'] for country in settings.OSM_DATA]
+
         return context
 
 
