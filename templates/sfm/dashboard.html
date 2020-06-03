@@ -18,41 +18,59 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-12">
-                        <p class="small"><strong><i class="fa fa-fw fa-search"></i> {% trans "I'm looking for..." %}</strong></p>
-                    </div>
-                    <div class="col-xs-12 col-sm-6">
-                        <div class="entities btn-group" data-toggle="buttons">
-                            <label class="btn btn-default">
-                                <input type="checkbox" autocomplete="off" name='entity_type' value='Person' />
-                                <i class="fa fa-fw fa-user"></i> {% trans "Personnel" %}
-                            </label>
-                            <label class="btn btn-default">
-                                <input type="checkbox" name="entity_type" value="Organization" />
-                                <i class="fa fa-fw fa-users"></i> {% trans "Units" %}
-                            </label>
-                            <label class="btn btn-default">
-                                <input type="checkbox" name="entity_type" value="Violation" />
-                                <i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}
-                            </label>
-                            {% if request.user.is_staff %}
-                            <label class="btn btn-default">
-                                <input type="checkbox" name="entity_type" value="Source" />
-                                <i class="fa fa-fw fa-paperclip"></i> {% trans "Sources" %}
-                            </label>
-                            {% endif %}
-                            <label class="btn btn-default active">
-                                <input type="checkbox" name="" value="" checked>
-                                <i class="fa fa-fw fa-thumbs-up"></i> {% trans "Everything" %}
-                            </label>
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <p class="small"><strong><i class="fa fa-fw fa-search"></i> {% trans "I'm looking for..." %}</strong></p>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="entities btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="checkbox" autocomplete="off" name='entity_type' value='Person' />
+                                        <i class="fa fa-fw fa-user"></i> {% trans "Personnel" %}
+                                    </label>
+                                    <label class="btn btn-default">
+                                        <input type="checkbox" name="entity_type" value="Organization" />
+                                        <i class="fa fa-fw fa-users"></i> {% trans "Units" %}
+                                    </label>
+                                    <label class="btn btn-default">
+                                        <input type="checkbox" name="entity_type" value="Violation" />
+                                        <i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}
+                                    </label>
+                                    {% if request.user.is_staff %}
+                                    <label class="btn btn-default">
+                                        <input type="checkbox" name="entity_type" value="Source" />
+                                        <i class="fa fa-fw fa-paperclip"></i> {% trans "Sources" %}
+                                    </label>
+                                    {% endif %}
+                                    <label class="btn btn-default active">
+                                        <input type="checkbox" name="" value="" checked>
+                                        <i class="fa fa-fw fa-thumbs-up"></i> {% trans "Everything" %}
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-6">
-                        <p class="small">
-                        {% comment %}Translators: 'on' is followed by the countries that we currently track{% endcomment %}
-                        {% trans "Learn more about which countries are covered" %}
-                            <a href="{% url 'countries' %}">{% trans "here" %}</a>
-                        </p>
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <p class="small">
+                                    <strong>
+                                        <i class="fa fa-fw fa-globe-africa"></i>
+                                        {% comment %}Translators: 'from' is followed by a selector displaying available countries in the search index{% endcomment %}
+                                        {% trans "Show me results from..." %}
+                                    </strong>
+                                </p>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <select name="selected_facets">
+                                    <option value="">{% trans "Select a country" %}</option>
+                                    {% for country in countries %}
+                                        <option value="country_ss_fct_exact:{{ country}}">{{ country }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
