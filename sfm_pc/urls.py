@@ -31,7 +31,7 @@ urlpatterns = i18n_patterns(
     url(r'^command-chain/(?P<org_id>[0-9a-f-]+)/(?P<when>[0-9-]+)/$', cache_page(60 * 60 * 24)(command_chain), name="command-chain-bounded"),
 
     # Dashboard
-    url(r'^$', Dashboard.as_view(), name='dashboard'),
+    url(r'^$', cache_page(60 * 60 * 24)(Dashboard.as_view()), name='dashboard'),
 
     # Admin panel
     url(r'^admin/', include(admin.site.urls)),
