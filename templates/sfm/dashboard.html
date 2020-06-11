@@ -62,8 +62,8 @@
                                     </strong>
                                 </p>
                             </div>
-                            <div class="col-xs-12 col-sm-6">
-                                <select name="selected_facets">
+                            <div class="col-xs-12 col-sm-8">
+                                <select name="selected_facets" id="country-select" style="height:36px">
                                     <option value="">{% trans "Select a country" %}</option>
                                     {% for country in countries %}
                                         <option value="country_ss_fct_exact:{{ country}}">{{ country }}</option>
@@ -106,6 +106,10 @@
 <script>
 
     $('document').ready(function() {
+        // Enable select2 for country selector dropdown and set its height equal
+        // to the entity selector buttons
+        $('#country-select').select2({ width: '100%'});
+        $('#select2-country-select-container').parent('span.select2-selection').css('height', '36px');
 
         // Autofocus input on older browsers
         if (!("autofocus" in document.createElement("input"))) {

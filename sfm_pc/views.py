@@ -25,11 +25,11 @@ from organization.models import Organization
 from source.models import Source, AccessPoint
 
 
-from sfm_pc.utils import get_org_hierarchy_by_id, Downloader, VersionsMixin
+from sfm_pc.utils import get_org_hierarchy_by_id, Downloader, VersionsMixin, format_facets
 from sfm_pc.forms import DownloadForm, ChangeLogForm
 from sfm_pc.downloads import download_classes
 
-from search.views import get_search_context
+from search.views import get_search_context, solr
 
 
 class Dashboard(TemplateView):
@@ -54,7 +54,16 @@ class Dashboard(TemplateView):
         self.request.session.modified = True
 
         # Generate list of countries to use in the country select filter
-        context['countries'] = [country['country'] for country in settings.OSM_DATA]
+        facet_search = solr.search('entity_type:Organization', **{
+            'facet': 'on',
+            'facet.field': 'country_ss_fct',
+            'rows': '0'
+        })
+        facets = format_facets(facet_search.facets)
+        country_counts = facets['facet_fields']['country_ss_fct']['counts']
+        context['countries'] = sorted(
+            [country for country, count in country_counts if count > 0]
+        )
 
         return context
 
