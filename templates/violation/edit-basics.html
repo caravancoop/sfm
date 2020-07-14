@@ -170,12 +170,12 @@
                 <div class="form-group">
             {% endif %}
                 <label class="control-label">{{ form.perpetratorclassification.label }}</label>
-                <select id="id_perpetratorclassification" class="form-control" name="perpetratorclassification">
-                    {% if form.instance.perpetratorclassification.get_value %}
-                        <option value="{{ form.instance.perpetratorclassification.get_value.value }}" selected=true>
-                            {{ form.instance.perpetratorclassification.get_value.value }}
+                <select id="id_perpetratorclassification" class="form-control" name="perpetratorclassification" multiple="multiple">
+                    {% for classification in form.instance.perpetratorclassification.get_list %}
+                        <option value="{{ classification.get_value.value }}" selected=true>
+                            {{ classification.get_value.value }}
                         </option>
-                    {% endif %}
+                    {% endfor %}
                 </select>
                 {% if form.perpetratorclassification.errors %}
                     {% for error in form.perpetratorclassification.errors %}

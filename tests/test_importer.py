@@ -108,6 +108,7 @@ def test_sources(data_import, data_folder):
                 'ViolationStartDate', 'ViolationStatus', 'ViolationType',
                 'ViolationFirstAllegation', 'ViolationDescription',
                 'ViolationEndDate', 'ViolationLastUpdate',
+                'ViolationPerpetratorClassification'
             ])
             permitted_country_set = set([
                 'OrganizationDivisionId', 'PersonDivisionId'

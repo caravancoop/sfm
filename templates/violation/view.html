@@ -66,12 +66,14 @@
         </p>
     {% endif %}
 
-    {% if violation.perpetratorclassification.get_value %}
+    {% if violation.perpetratorclassification.get_list %}
         <p class="cited">{% trans "Perpetrator classifications:" %}
-            <span class="label label-default">
-                {{ violation.perpetratorclassification.get_value.value }}
-            </span>
-            {% cite violation.perpetratorclassification.get_value.value %}
+            {% for classification in violation.perpetratorclassification.get_list %}
+                <span class="label label-default">
+                    {{ classification.get_value.value }}
+                </span>
+                {% cite classification.get_value.value %}
+            {% endfor %}
         </p>
     {% endif %}
 

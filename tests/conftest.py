@@ -733,7 +733,7 @@ def violation(base_violation,
             'confidence': '1',
         },
         'Violation_ViolationPerpetratorClassification': {
-            'value': classification.value,
+            'values': [classification],
             'sources': access_points,
             'confidence': '1',
         }
