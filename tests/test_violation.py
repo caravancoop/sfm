@@ -159,7 +159,7 @@ def test_delete_violation(setUp, violation, searcher_mock, mocker):
         Violation.objects.get(uuid=violation.uuid)
 
     assert searcher_mock.call_count == 1
-    searcher_mock.assert_has_calls([mocker.call(mocker.ANY, violation.uuid)])
+    searcher_mock.assert_has_calls([mocker.call(id=violation.uuid)])
 
 
 @pytest.mark.django_db

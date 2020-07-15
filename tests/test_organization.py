@@ -110,7 +110,7 @@ def test_delete_organization(setUp, organizations, searcher_mock, mocker):
         Organization.objects.get(uuid=org.uuid)
 
     assert searcher_mock.call_count == 1
-    searcher_mock.assert_has_calls([mocker.call(mocker.ANY, org.uuid)])
+    searcher_mock.assert_has_calls([mocker.call(id=org.uuid)])
 
 
 @pytest.mark.django_db
