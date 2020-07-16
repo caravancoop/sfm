@@ -80,7 +80,7 @@ class Violation(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMixin
         self.perpetratororganization = ComplexFieldListContainer(
             self, ViolationPerpetratorOrganization
         )
-        self.perpetratorclassification = ComplexFieldContainer(
+        self.perpetratorclassification = ComplexFieldListContainer(
             self, ViolationPerpetratorClassification
         )
         self.types = ComplexFieldListContainer(self, ViolationType)
@@ -88,11 +88,12 @@ class Violation(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMixin
         self.complex_fields = [
             self.startdate, self.first_allegation, self.enddate, self.last_update,
             self.status, self.locationdescription, self.adminlevel1, self.adminlevel2,
-            self.location, self.description, self.division_id, self.perpetratorclassification
+            self.location, self.description, self.division_id
         ]
 
         self.complex_lists = [
-            self.perpetrator, self.perpetratororganization, self.types
+            self.perpetrator, self.perpetratororganization,
+            self.perpetratorclassification, self.types
         ]
 
         self.required_fields = [self.description, self.startdate, self.enddate]

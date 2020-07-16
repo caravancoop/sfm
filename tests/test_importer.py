@@ -108,6 +108,7 @@ def test_sources(data_import, data_folder):
                 'ViolationStartDate', 'ViolationStatus', 'ViolationType',
                 'ViolationFirstAllegation', 'ViolationDescription',
                 'ViolationEndDate', 'ViolationLastUpdate',
+                'ViolationPerpetratorClassification'
             ])
             permitted_country_set = set([
                 'OrganizationDivisionId', 'PersonDivisionId'
@@ -143,12 +144,13 @@ def test_incidents(data_import, mock_utils_geo_functions):
     semicolon_description = semicolon_incident.description.get_value().value
     assert len(semicolon_description.split(';')) == 2
 
+    # Make sure perpetrator classifications get parsed correctly
+    assert len(semicolon_incident.perpetratorclassification.get_list()) == 2
+
     # Check geometry fields
     expected_geo = mock_utils_geo_functions.get_osm_by_id.return_value
     assert semicolon_incident.adminlevel1.get_value() is None
     assert semicolon_incident.adminlevel2.get_value().value.id == expected_geo.id
-
-    assert semicolon_incident.perpetratorclassification.get_value() is None
 
 
 @pytest.mark.django_db

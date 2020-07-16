@@ -733,7 +733,7 @@ def violation(base_violation,
             'confidence': '1',
         },
         'Violation_ViolationPerpetratorClassification': {
-            'value': classification.value,
+            'values': [classification],
             'sources': access_points,
             'confidence': '1',
         }
@@ -759,4 +759,7 @@ def update_index_mock(mocker):
 @pytest.fixture
 def searcher_mock(mocker):
     """Mock the pysolr client used to access the search index."""
-    return mocker.patch('search.search.Searcher.delete', autospec=True)
+    # Don't autospec because autospecced mocks don't have access to
+    # assert_not_called in Python 3.5 -- see:
+    # https://bugs.python.org/issue28380
+    return mocker.patch('search.search.Searcher.delete')

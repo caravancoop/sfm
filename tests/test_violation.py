@@ -89,7 +89,7 @@ def test_create_violation(setUp,
     assert str(violation.startdate.get_value().value) == '1976'
     assert str(violation.enddate.get_value().value) == '14th February 2012'
     assert types[0] in [v.get_value().value for v in violation.types.get_list()]
-    assert violation.perpetratorclassification.get_value().value == perpetratorclassification
+    assert violation.perpetratorclassification.get_list()[0].get_value().value == perpetratorclassification
 
     saved_perp_list = [p.get_value().value for p in violation.perpetrator.get_list()]
     for person in new_people:
@@ -140,7 +140,7 @@ def test_edit_violation(setUp,
     assert str(violation.startdate.get_value().value) == '1976'
     assert str(violation.enddate.get_value().value) == '14th February 2012'
     assert new_types[0] in [v.get_value().value for v in violation.types.get_list()]
-    assert violation.perpetratorclassification.get_value().value == perpetratorclassification
+    assert violation.perpetratorclassification.get_list()[0].get_value().value == perpetratorclassification
 
     for person in new_people:
         assert person in [p.get_value().value for p in violation.perpetrator.get_list()]
@@ -159,7 +159,7 @@ def test_delete_violation(setUp, violation, searcher_mock, mocker):
         Violation.objects.get(uuid=violation.uuid)
 
     assert searcher_mock.call_count == 1
-    searcher_mock.assert_has_calls([mocker.call(mocker.ANY, violation.uuid)])
+    searcher_mock.assert_has_calls([mocker.call(id=violation.uuid)])
 
 
 @pytest.mark.django_db
@@ -239,6 +239,8 @@ def test_change_perpetrator_classification(setUp,
     perpetrators = [p.id for p in people]
     perpetratororganizations = [o.id for o in organizations]
 
+    new_classifications = ['Bad', 'Guys']
+
     post_data = {
         'division_id': 'ocd-division/country:us',
         'division_id_source': new_source_ids,
@@ -252,7 +254,7 @@ def test_change_perpetrator_classification(setUp,
         'perpetrator_source': new_source_ids,
         'perpetratororganization': perpetratororganizations,
         'perpetratororganization_source': new_source_ids,
-        'perpetratorclassification': 'Baddies',
+        'perpetratorclassification': new_classifications,
         'perpetratorclassification_source': new_source_ids,
         'description': 'Some real scary stuff',
         'description_source': new_source_ids,
@@ -270,7 +272,7 @@ def test_change_perpetrator_classification(setUp,
     assert str(violation.startdate.get_value().value) == '1976'
     assert str(violation.enddate.get_value().value) == '14th February 2012'
     assert new_types[0] in [v.get_value().value for v in violation.types.get_list()]
-    assert violation.perpetratorclassification.get_value().value == 'Baddies'
+    assert set([clsif.get_value().value for clsif in violation.perpetratorclassification.get_list()]) == set(new_classifications)
 
     for person in people:
         assert person in [p.get_value().value for p in violation.perpetrator.get_list()]
@@ -288,6 +290,7 @@ def test_change_perpetrator_classification(setUp,
 
     assert response.status_code == 302
 
-    assert violation.perpetratorclassification.get_value().value == 'More baddies'
+    assert len(violation.perpetratorclassification.get_list()) == 1
+    assert violation.perpetratorclassification.get_list()[0].get_value().value == 'More baddies'
 
     fake_signal.assert_called_with(object_id=violation.uuid, sender=Violation)

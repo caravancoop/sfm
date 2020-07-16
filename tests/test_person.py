@@ -105,7 +105,7 @@ def test_delete_person(setUp, people, searcher_mock, mocker):
         Person.objects.get(uuid=person.uuid)
 
     assert searcher_mock.call_count == 1
-    searcher_mock.assert_has_calls([mocker.call(mocker.ANY, person.uuid)])
+    searcher_mock.assert_has_calls([mocker.call(id=person.uuid)])
 
 
 @pytest.mark.django_db

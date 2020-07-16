@@ -115,8 +115,8 @@
                     </td>
                     <!-- Perpetrator classification -->
                     <td>
-                        {% for classification in object.violationperpetratorclassification_set.all %}
-                            {{ classification.value.value }}
+                        {% for classification in object.perpetratorclassification.get_list %}
+                            {{ classification.get_value.value }}
                             {% if not forloop.last %}<br />{% endif %}
                         {% endfor %}
                     </td>

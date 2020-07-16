@@ -2503,7 +2503,7 @@ class Command(BaseCommand):
                     uuid = self.organization_entity_map[org]
                 except KeyError:
                     self.log_error('Could not find "{}" in list of organization names'.format(org))
-                    return None
+                    continue
 
                 try:
                     organization = Organization.objects.get(uuid=uuid)
