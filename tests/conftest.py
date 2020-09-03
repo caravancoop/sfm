@@ -565,7 +565,7 @@ def membership_person(access_points, people, organizations):
 
     memberships = []
 
-    for member in people[:2]:
+    for member, organization in zip(people[:2], organizations[:2]):
 
         rank = Rank.objects.create(value='Commander')
         role = Role.objects.create(value='Honcho')
@@ -577,7 +577,7 @@ def membership_person(access_points, people, organizations):
                 'confidence': '1',
             },
             'MembershipPerson_MembershipPersonOrganization': {
-                'value': organizations[0],
+                'value': organization,
                 'sources': access_points,
                 'confidence': '1',
             },
@@ -622,6 +622,15 @@ def membership_person(access_points, people, organizations):
         }
 
         memberships.append(MembershipPerson.create(mem_info))
+
+    # Create an additional membership that is the same as the last one, just
+    # with a different title, for testing apparent duplicates
+    mem_info['MembershipPerson_MembershipPersonTitle'] = {
+        'value': 'Second Title',
+        'sources': access_points,
+        'confidence': '1',
+    }
+    memberships.append(MembershipPerson.create(mem_info))
 
     return memberships
 
