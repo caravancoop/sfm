@@ -31,7 +31,8 @@ def expected_entity_names(emplacement,
         composition[0].child.get_value().value.name.get_value().value,
         truncatewords(violation.description.get_value(), 10),
         membership_organization.organization.get_value().value.name.get_value().value,
-    ] + [mem.member.get_value().value.name.get_value().value for mem in membership_person]
+        membership_person[0].member.get_value().value.name.get_value().value
+    ]
 
 
 @pytest.mark.django_db

@@ -9,6 +9,7 @@ from django.template.defaultfilters import truncatewords
 
 from source.models import AccessPoint
 from person.models import Person
+from person.views import get_commanders
 from organization.models import Organization
 from membershipperson.models import MembershipPerson, Rank, Role
 from tests.conftest import is_tab_active
@@ -688,3 +689,16 @@ def test_person_edit_buttons(setUp, people, membership_person):
             )
         ),
         'Postings')
+
+
+@pytest.mark.django_db
+def test_get_commanders_ignores_title(setUp, access_points, people, membership_person, organizations, composition):
+    """
+    get_commanders() should ignore memberships that are identical except for
+    title. Use the fact that we set up such a membership in the membership_person
+    fixture to test to make sure get_commanders() only returns one commander.
+    """
+    person_id = people[0].uuid
+    child_compositions = composition[0].parent.get_value().value.child_organization.all()
+    commanders = get_commanders(None, None, child_compositions, person_id)
+    assert len(commanders) == 1

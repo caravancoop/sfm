@@ -161,7 +161,13 @@ def get_commanders(mem_start, mem_end, compositions, person_id=None, relationshi
         child_id = child.value.uuid
 
         child_commanders_query = '''
-            SELECT DISTINCT(membership.id)
+            SELECT
+                -- Consider two memberships identical if only title is different
+                DISTINCT ON (
+                    person.id, organization.id, rank.value_id, role.value_id,
+                    first_cited.value, last_cited.value
+                )
+                membership.id
             FROM membershipperson_membershipperson AS membership
             JOIN membershipperson_membershippersonmember AS member
               ON membership.id = member.object_ref_id
@@ -171,6 +177,10 @@ def get_commanders(mem_start, mem_end, compositions, person_id=None, relationshi
               ON membership.id = member_org.object_ref_id
             JOIN organization_organization AS organization
               ON member_org.value_id = organization.id
+            JOIN membershipperson_membershippersonrank AS rank
+              ON membership.id = rank.object_ref_id
+            JOIN membershipperson_membershippersonrole AS Role
+              ON membership.id = role.object_ref_id
             JOIN membershipperson_membershippersonfirstciteddate AS first_cited
               ON membership.id = first_cited.object_ref_id
             JOIN membershipperson_membershippersonlastciteddate AS last_cited
@@ -179,6 +189,7 @@ def get_commanders(mem_start, mem_end, compositions, person_id=None, relationshi
             AND (first_cited.value < '{mem_end}' or first_cited is NULL)
             AND (last_cited.value > '{mem_start}' or last_cited is NULL)
             AND person.uuid != '{person_id}'
+            ORDER BY person.id, organization.id, rank.value_id, role.value_id, first_cited.value, last_cited.value
         '''.format(child_id=child_id,
                    mem_end=mem_end,
                    mem_start=mem_start,
