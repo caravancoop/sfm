@@ -242,7 +242,8 @@ If the importer raises warnings during the import, it will log them to logfiles
 following the logfile pattern `${country_code}_errors`. Once the import is complete,
 take a look at your repo to check to see if the importer generated any of these
 wwarning logfiles. If it did, send these logfiles to the SFM team so they can make
-necessary adjustments to the data.
+necessary adjustments to the data. We typically delete logfiles between import runs,
+since the importer will append to a logfile if one exists already.
 
 
 Finally, check to confirm that the search index update command works properly:
