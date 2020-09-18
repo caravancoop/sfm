@@ -241,7 +241,7 @@ docker-compose run --rm app ./manage.py import_google_doc --source_doc_id <sourc
 If the importer raises warnings during the import, it will log them to logfiles
 following the logfile pattern `${country_code}_errors`. Once the import is complete,
 take a look at your repo to check to see if the importer generated any of these
-wwarning logfiles. If it did, send these logfiles to the SFM team so they can make
+warning logfiles. If it did, send these logfiles to the SFM team so they can make
 necessary adjustments to the data. We typically delete logfiles between import runs,
 since the importer will append to a logfile if one exists already.
 
@@ -261,6 +261,12 @@ Since all live instances should already have credentials, you should be ready to
 a live import using the management commands:
 
 ```
+tmux new -s fresh-import
+
+# remember to switch to the correct <user> and <doc ids>
+sudo su <user>
+workon sfm
+cd ~/sfm-cms
 python manage.py import_google_doc --source_doc_id <source_doc_id> --doc_id <doc_id>
 python manage.py make_search_index --recreate
 ```
@@ -283,9 +289,9 @@ get interrupted. Then, activate the virtualenv for the project and change to the
 tmux new -s fresh-import
 
 # remember to switch to the correct user instead of <user>
-sudo su - <user>
+sudo su <user>
 workon sfm
-cd sfm-importer
+cd ~/sfm-importer
 make update_db
 python manage.py make_materialized_views --recreate
 python manage.py make_search_index --recreate
