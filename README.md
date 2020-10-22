@@ -151,7 +151,7 @@ a few steps.
 
 The google sheets need to follow this format: https://docs.google.com/spreadsheets/d/12Kap4YtzWPtCdJy-iknF1aDaoIDMij4GU8E2-HlZkAo/edit#gid=597380077
 
-**Import OpenStreetMap data**
+### Import OpenStreetMap data
 
 As the Google Sheet importer is importing, it is creating relationships between
 the various entities within the data and OSM nodes, ways and relations. In
@@ -190,23 +190,37 @@ python manage.py import_osm
 If you're importing more than one country, this process can take a few hours,
 depending on what kind of coverage each country has in OSM.
 
-**Import data from Google Sheet**
+### Import data from Google Sheets
+
+The data that powers WWIC is imported from two key Google Sheets: a "sources"
+spreadsheet, and a "data" spreadsheet. Typically, a new import will involve
+running import commands against a new pair of source and data spreadsheets that
+represent either a new country, or updated data for an existing country.
+
+The following sections explain our process for running these imports locally
+and on live instances of WWIC.
+
+#### Local import
+
+When performing an import of new data, the first step should always be to
+test the import in your development environment using the `import_google_doc`
+management command.
 
 This management command relies upon a [Service
 Account](https://cloud.google.com/iam/docs/understanding-service-accounts)
 having access to the spreadsheet. Luckily, one is already setup, you just need
-to go into the permission settings for the spreadsheet and give it read access.
+to go into the permission settings for the spreadsheets and give the account read access.
 If you decrypt the `credentials.json` file within the `configs` folder of this
 project, you'll see that there is a `client_email` key. This is the email
 address that you'll use to give the service account read access to the
-spreadsheet.
+spreadsheets. Navigate to the `Share` button on both the source spreadsheet
+and the data spreadsheet and give the email address read access to both sheets.
 
 Once that is setup, you should decrypt and copy the `credentials.json` file to
 the same folder where the file for the management command is stored:
 
 ```
-gpg -d configs/credentials.json.gpg
-> sfm_pc/management/commands/credentials.json
+gpg -d configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
 ```
 
 One more thing to do before running the Google Sheet importer. You'll need to
@@ -221,14 +235,46 @@ https://docs.google.com/spreadsheets/d/<doc id (very long hash looking thing)>/e
 Once you have those, you should be able to run the importer like so:
 
 ```
-docker-compose run --rm app ./manage.py import_google_doc --source_doc_id <source doc id> --doc_id
-<doc id for the doc you want to import>
+docker-compose run --rm app ./manage.py import_google_doc --source_doc_id <source doc id> --doc_id <doc id for the doc you want to import>
 ```
 
-## Importing new data without disrupting servers
+If the importer raises warnings during the import, it will log them to logfiles
+following the logfile pattern `${country_code}_errors`. Once the import is complete,
+take a look at your repo to check to see if the importer generated any of these
+warning logfiles. If it did, send these logfiles to the SFM team so they can make
+necessary adjustments to the data. We typically delete logfiles between import runs,
+since the importer will append to a logfile if one exists already.
 
-This repo has a system for performing fresh data imports without disrupting
-the normal activity of the server.
+
+Finally, check to confirm that the search index update command works properly:
+
+```
+docker-compose run --rm app ./manage.py make_search_index --recreate
+```
+
+#### Importing data to a live site
+
+Once you've tested an import of a new dataset locally, you're ready to run the import
+on a live instance.
+
+Since all live instances should already have credentials, you should be ready to run
+a live import using the management commands:
+
+```
+tmux new -s fresh-import
+
+# remember to switch to the correct <user> and <doc ids>
+sudo su <user>
+workon sfm
+cd ~/sfm-cms
+python manage.py import_google_doc --source_doc_id <source_doc_id> --doc_id <doc_id>
+python manage.py make_search_index --recreate
+```
+
+#### Importing all data without disrupting servers
+
+In case you need to fully rerun the entire WWIC import for all countries without
+disrupting a live instance, this repo includes a Makefile for doing just that.
 
 On every deploy, our build scripts create a separate directory, `sfm-importer`. This
 directory is a copy of the app that uses a separate database with the name `importer`.
@@ -243,12 +289,12 @@ get interrupted. Then, activate the virtualenv for the project and change to the
 tmux new -s fresh-import
 
 # remember to switch to the correct user instead of <user>
-sudo su - <user>
+sudo su <user>
 workon sfm
-cd sfm-importer
+cd ~/sfm-importer
 make update_db
 python manage.py make_materialized_views --recreate
-python manage.py update_search_index
+python manage.py make_search_index --recreate
 ```
 
 Finally, switch the `sfm` and `importer` databases:
