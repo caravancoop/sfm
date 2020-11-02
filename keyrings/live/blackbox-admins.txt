@@ -2,9 +2,7 @@ beamalsky@datamade.us
 derek.eder@datamade.us
 fgregg@datamade.us
 hannah.cushman@gmail.com
-jazzmithani@gmail.com
 jean.cochrane@datamade.us
-reginafcompton@gmail.com
 sfm@datamade.us
 sfm-prod@datamade.us
 sfm-staging@datamade.us
