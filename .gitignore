@@ -45,3 +45,4 @@ fixtures/*.geojson
 /configs/settings_local_sahel.py
 /configs/sfm.conf.sahel.nginx
 /configs/sfm.conf.sahel.supervisor
+*.dump
