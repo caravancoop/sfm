@@ -114,7 +114,8 @@ Build and start the Docker image for the Solr server:
 
 Open up another shell and create the search index:
 
-    docker-compose run --rm app ./manage.py make_search_index
+    docker-compose run --rm app ./manage.py update_index
+    docker-compose run --rm app ./manage.py update_composition_index
 
 ### Run the app
 
@@ -269,7 +270,8 @@ confirm that nothing breaks:
 
 ```
 docker-compose run --rm app python manage.py make_materialized_views --recreate
-docker-compose run --rm app python manage.py make_search_index --recreate
+docker-compose run --rm app ./manage.py rebuild_index --noinput
+docker-compose run --rm app ./manage.py update_composition_index --recreate
 ```
 
 #### Importing data to a live site
@@ -293,7 +295,8 @@ make import_docket_import
 make -e ${COUNTRY_CODE}_cc_import [ ${COUNTRY_CODE}_cc_import ... ]
 
 python manage.py make_materialized_views --recreate
-python manage.py make_search_index --recreate
+python manage.py rebuild_index --noinput
+python manage.py update_composition_index --recreate
 ```
 
 #### Importing all data without disrupting servers
