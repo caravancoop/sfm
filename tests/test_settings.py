@@ -18,8 +18,6 @@ from django.utils.translation import ugettext_lazy as _
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgis://postgres@localhost:5432/sfm')
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY='super duper secret'
 
@@ -108,6 +106,7 @@ WSGI_APPLICATION = 'sfm_pc.wsgi.application'
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 # Parse database configuration from $DATABASE_URL
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgis://postgres@localhost:5432/sfm')
 DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 

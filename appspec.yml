@@ -20,3 +20,9 @@ hooks: # these are boilerplate and may be copy/pasted as is
     - location: scripts/after_install.sh
       timeout: 2700
       runas: root
+
+branch_config:
+  master:
+    deploymentGroupName: staging
+  deploy:
+    deploymentGroupName: production
