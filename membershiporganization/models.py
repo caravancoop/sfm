@@ -71,7 +71,7 @@ class MembershipOrganizationOrganization(ComplexField):
     value = models.ForeignKey(Organization)
     field_name = _("Membership")
     shortcode = 'u_m'
-    spreadsheet_field_name = 'unit:membership_name'
+    spreadsheet_field_name = 'unit:related_unit'
 
     class Meta:
         db_table = 'membershiporganization_moo'
@@ -84,7 +84,7 @@ class MembershipOrganizationFirstCitedDate(ComplexField):
     value = ApproximateDateField()
     field_name = _("First Cited Date")
     shortcode = 'u_mfcd'
-    spreadsheet_field_name = 'unit:membership_first_cited_date'
+    spreadsheet_field_name = 'unit:related_unit_first_cited_date'
 
     class Meta:
         db_table = 'membershiporganization_fcd'
@@ -97,7 +97,7 @@ class MembershipOrganizationLastCitedDate(ComplexField):
     value = ApproximateDateField()
     field_name = _("Last Cited Date")
     shortcode = 'u_mlcd'
-    spreadsheet_field_name = 'unit:membership_last_cited_date'
+    spreadsheet_field_name = 'unit:related_unit_last_cited_date'
 
     class Meta:
         db_table = 'membershiporganization_lcd'
@@ -110,7 +110,7 @@ class MembershipOrganizationRealStart(ComplexField):
     value = models.NullBooleanField(default=None)
     field_name = _("Start Date?")
     shortcode = 'u_mfcds'
-    spreadsheet_field_name = 'unit:membership_first_cited_date_start'
+    spreadsheet_field_name = 'unit:related_unit_first_cited_date_start'
 
 
 @versioned
