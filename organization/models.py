@@ -144,7 +144,7 @@ class Organization(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMi
                 'entity_type': _('MembershipPerson'),
                 'start_date': membership.firstciteddate.get_value(),
                 'end_date': membership.lastciteddate.get_value(),
-                'open_ended': membership.realend.get_value(),
+                'realend': membership.realend.get_value(),
                 'url': reverse(
                     'edit-organization-personnel',
                     kwargs={
@@ -201,7 +201,7 @@ class Organization(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMi
                 'entity_type': _('MembershipOrganization'),
                 'start_date': membership.firstciteddate.get_value(),
                 'end_date': membership.lastciteddate.get_value(),
-                'open_ended': membership.realend.get_value(),
+                'open_ended': membership.open_ended.get_value(),
                 'url': reverse(
                     'edit-organization-membership',
                     kwargs={
@@ -220,7 +220,7 @@ class Organization(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMi
                 'entity_type': _('MembershipOrganization'),
                 'start_date': membership.firstciteddate.get_value(),
                 'end_date': membership.lastciteddate.get_value(),
-                'open_ended': membership.realend.get_value(),
+                'open_ended': membership.open_ended.get_value(),
                 'url': reverse(
                     'edit-organization-membership',
                     kwargs={

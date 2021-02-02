@@ -52,7 +52,7 @@ from membershipperson.models import (MembershipPerson, Role, Rank,
                                      MembershipPersonRealEnd)
 from membershiporganization.models import (MembershipOrganization,
                                            MembershipOrganizationRealStart,
-                                           MembershipOrganizationRealEnd)
+                                           MembershipOrganizationOpenEnded)
 from violation.models import Violation, ViolationPerpetrator, \
     ViolationPerpetratorOrganization, ViolationDescription
 
@@ -534,12 +534,12 @@ class Command(BaseCommand):
                 'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'source': MembershipOrganization.get_spreadsheet_source_field_name('lastciteddate'),
             },
-            'RealEnd': {
-                'value': MembershipOrganization.get_spreadsheet_field_name('realend'),
+            'OpenEnded': {
+                'value': MembershipOrganization.get_spreadsheet_field_name('open_ended'),
                 'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'source': None,
             },
-       }
+        }
 
         # Need to get or create name first
 
@@ -881,17 +881,16 @@ class Command(BaseCommand):
                             except MembershipOrganization.DoesNotExist:
                                 membership = MembershipOrganization.create(membership_info)
 
+                            self.make_relation('OpenEnded',
+                                               membership_positions['OpenEnded'],
+                                               org_data,
+                                               membership)
+
                             self.make_relation('LastCitedDate',
                                                membership_positions['LastCitedDate'],
                                                org_data,
                                                membership,
                                                date=True)
-
-                            self.make_real_date(data=org_data,
-                                                position=membership_positions['RealEnd']['value'],
-                                                model=MembershipOrganizationRealEnd,
-                                                attribute='realend',
-                                                object_ref=membership)
 
                             self.make_relation('FirstCitedDate',
                                                membership_positions['FirstCitedDate'],
