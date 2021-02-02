@@ -120,4 +120,4 @@ class MembershipOrganizationRealEnd(ComplexField):
     value = models.NullBooleanField(default=None)
     field_name = _("End Date?")
     shortcode = 'u_mclde'
-    spreadsheet_field_name = 'unit:membership_last_cited_date_end'
+    spreadsheet_field_name = 'unit:related_unit_open'
