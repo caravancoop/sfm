@@ -46,6 +46,9 @@ def insert_access_points(apps, schema_editor):
             if source_table == 'membershiporganization_membershiporganizationrealstart_sources':
                 ap_table = 'membershiporganization_membershiporganizationrealstart_acceac5c'
 
+            if source_table == 'membershiporganization_membershiporganizationopenended_sources':
+                ap_table = 'membershiporganization_membershiporganizationopenended_acceb1da'
+
             insert = '''
                 INSERT INTO {0} (
                     accesspoint_id,
