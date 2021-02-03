@@ -16,11 +16,11 @@ def map_new_type(apps, schema_editor):
 
         if end.value == True:
 
-            end.new_value = 'N'
+            end.new_value = 'E'
 
         elif end.value == False:
 
-            end.new_value = 'Y'
+            end.new_value = 'N'
 
         else:
 
