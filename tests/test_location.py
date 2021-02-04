@@ -6,6 +6,17 @@ from location.models import Location
 
 
 @pytest.fixture
+def location_data_import():
+    """Perform a test location data import."""
+    output = io.StringIO()
+    call_command(
+        'import_locations',
+        location_file='tests/fixtures/locations.geojson',
+        stdout=output
+    )
+    return output
+
+@pytest.fixture
 def expected_entity_names(violation, emplacement):
     """
     Generate a list of related entity names that we expect to see in the
@@ -15,6 +26,10 @@ def expected_entity_names(violation, emplacement):
         emp.organization.get_value().value.name.get_value().value for emp in emplacement
     ] + [truncatewords(violation.description.get_value(), 10)]
 
+@pytest.mark.django_db(transaction=True)
+def test_location_import(location_data_import):
+    import pdb
+    pdb.set_trace()
 
 @pytest.mark.django_db
 def test_location_related_entities(location_node, expected_entity_names):

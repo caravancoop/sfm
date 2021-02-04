@@ -1,0 +1,47 @@
+'''
+WITH country AS (
+    select * from test_locations where sfm->>'location:name' = 'Nigeria'
+), admin_level_4 AS (
+    select tl.* from test_locations tl
+    join (
+      select distinct(sfm->>'location:admin_level_4') as humane_id
+      from test_locations where sfm->>'location:admin_level' != '4'
+    ) x
+    on tl.sfm->>'location:humane_id:admin' = x.humane_id
+    where sfm->>'location:admin_level' = '4'
+    LIMIT 1
+), admin_level_6 AS (
+    select tl.* from test_locations tl
+    join (
+      select distinct(sfm->>'location:admin_level_6') as humane_id
+      from test_locations where sfm->>'location:admin_level' != '6'
+    ) x
+    on tl.sfm->>'location:humane_id:admin' = x.humane_id
+    where sfm->>'location:admin_level' = '6'
+    LIMIT 1
+), child_of_admin_level_4 AS (
+    select tl.* from test_locations tl
+    join admin_level_4 al
+    on tl.sfm->>'location:admin_level_4' = al.sfm->>'location:humane_id:admin'
+    and tl.sfm->>'location:admin_level' != '4'
+    LIMIT 1
+), child_of_admin_level_6 AS (
+    select tl.* from test_locations tl
+    join admin_level_6 al
+    on tl.sfm->>'location:admin_level_6' = al.sfm->>'location:humane_id:admin'
+    and tl.sfm->>'location:admin_level' != '6'
+    LIMIT 1
+)
+SELECT * FROM country
+UNION ALL
+SELECT * FROM admin_level_4
+UNION ALL
+SELECT * FROM admin_level_6
+UNION ALL
+SELECT * FROM child_of_admin_level_4
+UNION ALL
+SELECT * FROM child_of_admin_level_6
+'''
+{"type":"FeatureCollection","features":[{
+  
+}]}
