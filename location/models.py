@@ -12,6 +12,7 @@ class Location(models.Model):
     division_id = models.TextField(blank=True, null=True)
     feature_type = models.TextField(blank=True, null=True)
     tags = JSONField(blank=True, null=True)
+    sfm = JSONField(blank=True, null=True)
     adminlevel1 = models.ForeignKey('self',
                                     related_name='area_locations',
                                     null=True,

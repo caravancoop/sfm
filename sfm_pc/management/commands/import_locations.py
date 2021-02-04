@@ -44,7 +44,7 @@ class Command(BaseCommand):
     def import_raw_locations(self):
         with connection.cursor() as cursor:
             cursor.execute('DROP TABLE IF EXISTS {}'.format(self.TABLE_NAME))
-            self.stdout.write('Dropped {}'.format(self.TABLE_NAME))
+            self.stdout.write('Dropped existing table "{}"'.format(self.TABLE_NAME))
 
         process = subprocess.Popen([
             'ogr2ogr',
@@ -65,8 +65,118 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(error.decode('utf-8')))
             raise CommandError('Could not import raw location file')
 
+        with connection.cursor() as cursor:
+            for column in ('sfm', 'tags'):
+                cursor.execute('''
+                    ALTER TABLE {table_name}
+                    ALTER COLUMN {column_name}
+                    TYPE json USING {column_name}::json
+                '''.format(table_name=self.TABLE_NAME,
+                           column_name=column))
+
+                cursor.execute('SELECT COUNT(*) FROM {}'.format(self.TABLE_NAME))
+
+                row = cursor.fetchone()
+
+                n_inserted, = row
+
         if not error:
-            self.stdout.write(self.style.SUCCESS('Imported raw location file'))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    'Imported {} records from raw location file'.format(n_inserted)
+                )
+            )
 
     def create_location_objects(self):
-        ...
+        '''
+        TODO: The new location file has a top-level type attribute that contains
+        an OSM element type, and a tags->'type' attribute that contains a
+        categorical type. Our existing location table contains a blend of these
+        values. What's the deal?
+
+        sfm=# select distinct(feature_type) from location_location;
+         feature_type
+        --------------
+         relation
+         node
+         point
+         boundary
+         polygon
+        (5 rows)
+
+        sfm=# select distinct(feature_type) from osm_data;
+         feature_type
+        --------------
+         boundary
+         point
+         polygon
+        (3 rows)
+
+
+        sfm=# select distinct(tags->>'type') from test_locations;
+         ?column?
+        ----------
+
+         site
+         boundary
+        (3 rows)
+
+        sfm=# select distinct(type) from test_locations;
+           type
+        ----------
+         node
+         relation
+        (2 rows)
+        '''
+        insert = '''
+            INSERT INTO location_location (
+              id,
+              name,
+              feature_type,
+              division_id,
+              tags,
+              sfm,
+              adminlevel,
+              adminlevel1_id,
+              adminlevel2_id,
+              geometry
+            )
+            SELECT
+              a.id,
+              a.sfm->>'location:name' AS name,
+              a.type AS feature_type,
+              'ocd-division/country:' || LOWER(b.tags->>'ISO3166-1') AS division_id,
+              a.tags,
+              a.sfm,
+              a.tags->>'admin_level' AS adminlevel,
+              c.id AS adminlevel1_id,
+              d.id AS adminlevel2_id,
+              a.wkb_geometry AS geometry
+            FROM {table_name} AS a
+            JOIN {table_name} AS b
+            ON a.sfm->>'location:admin_level_2' = b.sfm->>'location:humane_id:admin'
+            LEFT JOIN {table_name} AS c
+            ON a.sfm->>'location:admin_level_6' = c.sfm->>'location:humane_id:admin'
+              AND a.sfm->>'location:admin_level' != '6'
+            LEFT JOIN {table_name} AS d
+            ON a.sfm->>'location:admin_level_4' = d.sfm->>'location:humane_id:admin'
+              AND a.sfm->>'location:admin_level' != '4'
+            ON CONFLICT (id) DO UPDATE
+              /* TODO: Specify desired updates, if any, to existing locations */
+              SET sfm = EXCLUDED.sfm
+            RETURNING id
+        '''.format(table_name=self.TABLE_NAME)
+
+        with connection.cursor() as cursor:
+            '''
+            TODO: Should we remove locations that were not inserted or updated?
+            '''
+            cursor.execute(insert)
+
+            n_inserted_or_updated = len(cursor.fetchall())
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                'Inserted or updated {} location objects'.format(n_inserted_or_updated)
+            )
+        )
