@@ -105,8 +105,8 @@ class Command(BaseCommand):
               a.id,
               a.sfm->>'location:name' AS name,
               CASE
-                WHEN tags->>'type' = 'boundary' THEN 'boundary'
-                ELSE type
+                WHEN a.tags->>'type' = 'boundary' THEN 'boundary'
+                ELSE a.type
               END AS feature_type,
               'ocd-division/country:' || LOWER(b.tags->>'ISO3166-1') AS division_id,
               a.tags,
@@ -133,6 +133,7 @@ class Command(BaseCommand):
         with connection.cursor() as cursor:
             '''
             TODO: Should we remove locations that were not inserted or updated?
+            NO - Location files will be provided on a per-country basis.
             '''
             cursor.execute(insert)
 
