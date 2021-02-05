@@ -88,46 +88,6 @@ class Command(BaseCommand):
             )
 
     def create_location_objects(self):
-        '''
-        TODO: The new location file has a top-level type attribute that contains
-        an OSM element type, and a tags->'type' attribute that contains a
-        categorical type. Our existing location table contains a blend of these
-        values. What's the deal?
-
-        sfm=# select distinct(feature_type) from location_location;
-         feature_type
-        --------------
-         relation
-         node
-         point
-         boundary
-         polygon
-        (5 rows)
-
-        sfm=# select distinct(feature_type) from osm_data;
-         feature_type
-        --------------
-         boundary
-         point
-         polygon
-        (3 rows)
-
-
-        sfm=# select distinct(tags->>'type') from test_locations;
-         ?column?
-        ----------
-
-         site
-         boundary
-        (3 rows)
-
-        sfm=# select distinct(type) from test_locations;
-           type
-        ----------
-         node
-         relation
-        (2 rows)
-        '''
         insert = '''
             INSERT INTO location_location (
               id,
@@ -144,7 +104,10 @@ class Command(BaseCommand):
             SELECT
               a.id,
               a.sfm->>'location:name' AS name,
-              a.type AS feature_type,
+              CASE
+                WHEN tags->>'type' = 'boundary' THEN 'boundary'
+                ELSE type
+              END AS feature_type,
               'ocd-division/country:' || LOWER(b.tags->>'ISO3166-1') AS division_id,
               a.tags,
               a.sfm,
