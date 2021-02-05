@@ -60,12 +60,8 @@ WITH filtered_organization AS (
       MAX(real_start.confidence) AS real_start_confidence,
       MAX(last_cited_date.value) AS last_cited_date,
       MAX(last_cited_date.confidence) AS last_cited_date_confidence,
-      CASE
-        WHEN bool_and(real_end.value) = true THEN 'Y'
-        WHEN bool_and(real_end.value) = false THEN 'N'
-        ELSE '' END
-      AS real_end,
-      MAX(real_end.confidence) AS real_end_confidence
+      MAX(open_ended.value) AS open_ended,
+      MAX(open_ended.confidence) AS real_end_confidence
     FROM membershiporganization_m AS membership
     JOIN membershiporganization_membershiporganization AS member_object_ref
       ON membership.object_ref_id = member_object_ref.id
@@ -77,8 +73,8 @@ WITH filtered_organization AS (
       ON member_object_ref.id = last_cited_date.object_ref_id
     LEFT JOIN membershiporganization_membershiporganizationrealstart AS real_start
       ON member_object_ref.id = real_start.object_ref_id
-    LEFT JOIN membershiporganization_membershiporganizationrealend AS real_end
-      ON member_object_ref.id = real_end.object_ref_id
+    LEFT JOIN membershiporganization_membershiporganizationopenended AS open_ended
+      ON member_object_ref.id = open_ended.object_ref_id
     GROUP BY membership.value_id, member_organization.value_id
   )
 SELECT

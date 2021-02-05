@@ -6,7 +6,7 @@ CREATE MATERIALIZED VIEW membershiporganization AS
     mofc.value AS first_cited,
     mors.value as real_start,
     molc.value as last_cited,
-    more.value as real_end
+    mooe.value as real_end
   FROM membershiporganization_membershiporganization AS m
   LEFT JOIN membershiporganization_m AS mom
     ON m.id = mom.object_ref_id
@@ -22,7 +22,7 @@ CREATE MATERIALIZED VIEW membershiporganization AS
     ON m.id = mors.object_ref_id
   LEFT JOIN membershiporganization_lcd AS molc
     ON m.id = molc.object_ref_id
-  LEFT JOIN membershiporganization_membershiporganizationrealend AS more
-    ON m.id = more.object_ref_id;
+  LEFT JOIN membershiporganization_membershiporganizationopenended AS mooe
+    ON m.id = mooe.object_ref_id;
 CREATE UNIQUE INDEX membershiporg_id_index
     ON membershiporganization (id, first_cited, real_start, last_cited, real_end)

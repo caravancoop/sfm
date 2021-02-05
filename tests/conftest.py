@@ -414,8 +414,8 @@ def membership_organization(organizations, access_points):
         'MembershipOrganization_MembershipOrganizationRealStart': {
             'value': False,
         },
-        'MembershipOrganization_MembershipOrganizationRealEnd': {
-            'value': True,
+        'MembershipOrganization_MembershipOrganizationOpenEnded': {
+            'value': 'N',
         },
     }
 

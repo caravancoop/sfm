@@ -52,7 +52,7 @@ from membershipperson.models import (MembershipPerson, Role, Rank,
                                      MembershipPersonRealEnd)
 from membershiporganization.models import (MembershipOrganization,
                                            MembershipOrganizationRealStart,
-                                           MembershipOrganizationRealEnd)
+                                           MembershipOrganizationOpenEnded)
 from violation.models import Violation, ViolationPerpetrator, \
     ViolationPerpetratorOrganization, ViolationDescription
 
@@ -534,8 +534,8 @@ class Command(BaseCommand):
                 'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'source': MembershipOrganization.get_spreadsheet_source_field_name('lastciteddate'),
             },
-            'RealEnd': {
-                'value': MembershipOrganization.get_spreadsheet_field_name('realend'),
+            'OpenEnded': {
+                'value': MembershipOrganization.get_spreadsheet_field_name('open_ended'),
                 'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'source': None,
             },
@@ -672,242 +672,242 @@ class Command(BaseCommand):
                                           org_data,
                                           organization)
 
-                # Create Compositions
-
-                try:
-                    parent_org_name = org_data[composition_positions['Parent']['value']]
-                except IndexError:
-                    parent_org_name = None
-
-                if parent_org_name:
+                if org_data['unit:relation_type'] == 'child':
+                    # Create Compositions
 
                     try:
-                        parent_confidence = self.get_confidence(org_data[composition_positions['Parent']['confidence']])
-                    except (IndexError, KeyError):
-                        self.log_error('Parent organization for {} does not have confidence'.format(organization.name))
-                        parent_confidence = None
-
-                    try:
-                        parent_sources = self.get_sources(org_data[composition_positions['Parent']['source']])
+                        parent_org_name = org_data[composition_positions['Parent']['value']]
                     except IndexError:
-                        self.log_error('Parent organization for {} does not have a source'.format(organization.name))
-                        parent_sources = None
+                        parent_org_name = None
 
-                    if parent_confidence and parent_sources:
-                        parent_org_info = {
-                            'Organization_OrganizationName': {
-                                'value': parent_org_name,
-                                'confidence': parent_confidence,
-                                'sources': parent_sources
-                            },
-                            'Organization_OrganizationDivisionId': {
-                                'value': division_id,
-                                'confidence': division_confidence,
-                                'sources': division_sources,
-                            },
-                        }
+                    if parent_org_name:
 
                         try:
-                            uuid = self.organization_entity_map[parent_org_name]
-                        except KeyError:
-                            self.log_error('Could not find "{}" in list of organization names'.format(parent_org_name))
-                            return None
+                            parent_confidence = self.get_confidence(org_data[composition_positions['Parent']['confidence']])
+                        except (IndexError, KeyError):
+                            self.log_error('Parent organization for {} does not have confidence'.format(organization.name))
+                            parent_confidence = None
 
                         try:
-                            parent_organization = Organization.objects.get(uuid=uuid)
-                        except Organization.DoesNotExist:
-                            parent_organization = Organization.objects.create(uuid=uuid,
-                                                                              published=True)
-                        except ValidationError:
-                            self.log_error('Invalid parent unit UUID: "{}"'.format(uuid))
-                            return None
+                            parent_sources = self.get_sources(org_data[composition_positions['Parent']['source']])
+                        except IndexError:
+                            self.log_error('Parent organization for {} does not have a source'.format(organization.name))
+                            parent_sources = None
+
+                        if parent_confidence and parent_sources:
+                            parent_org_info = {
+                                'Organization_OrganizationName': {
+                                    'value': parent_org_name,
+                                    'confidence': parent_confidence,
+                                    'sources': parent_sources
+                                },
+                                'Organization_OrganizationDivisionId': {
+                                    'value': division_id,
+                                    'confidence': division_confidence,
+                                    'sources': division_sources,
+                                },
+                            }
+
+                            try:
+                                uuid = self.organization_entity_map[parent_org_name]
+                            except KeyError:
+                                self.log_error('Could not find "{}" in list of organization names'.format(parent_org_name))
+                                return None
+
+                            try:
+                                parent_organization = Organization.objects.get(uuid=uuid)
+                            except Organization.DoesNotExist:
+                                parent_organization = Organization.objects.create(uuid=uuid,
+                                                                                  published=True)
+                            except ValidationError:
+                                self.log_error('Invalid parent unit UUID: "{}"'.format(uuid))
+                                return None
+                            else:
+                                existing_sources = self.sourcesList(parent_organization, 'name')
+                                parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
+
+                            parent_organization.update(parent_org_info)
+
+                            comp_info = {
+                                'Composition_CompositionParent': {
+                                    'value': parent_organization,
+                                    'confidence': parent_confidence,
+                                    'sources': parent_sources
+                                },
+                                'Composition_CompositionChild': {
+                                    'value': organization,
+                                    'confidence': parent_confidence,
+                                    'sources': parent_sources,
+                                },
+                            }
+
+                            try:
+                                composition = Composition.objects.get(compositionparent__value=parent_organization,
+                                                                      compositionchild__value=organization)
+                            except Composition.DoesNotExist:
+                                composition = Composition.create(comp_info)
+
+                            self.make_relation('StartDate',
+                                               composition_positions['StartDate'],
+                                               org_data,
+                                               composition,
+                                               date=True)
+
+                            self.make_relation('EndDate',
+                                               composition_positions['EndDate'],
+                                               org_data,
+                                               composition,
+                                               date=True)
+
+                            self.make_real_date(data=org_data,
+                                                position=composition_positions['RealStart']['value'],
+                                                model=CompositionRealStart,
+                                                attribute='realstart',
+                                                object_ref=composition)
+
+                            self.make_relation('OpenEnded',
+                                               composition_positions['OpenEnded'],
+                                               org_data,
+                                               composition)
+
+                            self.make_relation('Classification',
+                                               composition_positions['Classification'],
+                                               org_data,
+                                               composition)
+
+
                         else:
-                            existing_sources = self.sourcesList(parent_organization, 'name')
-                            parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
+                            self.log_error('Parent organization for {} does not have source or confidence'.format(organization.name))
 
-                        parent_organization.update(parent_org_info)
-
-                        comp_info = {
-                            'Composition_CompositionParent': {
-                                'value': parent_organization,
-                                'confidence': parent_confidence,
-                                'sources': parent_sources
-                            },
-                            'Composition_CompositionChild': {
-                                'value': organization,
-                                'confidence': parent_confidence,
-                                'sources': parent_sources,
-                            },
-                        }
-
-                        try:
-                            composition = Composition.objects.get(compositionparent__value=parent_organization,
-                                                                  compositionchild__value=organization)
-                        except Composition.DoesNotExist:
-                            composition = Composition.create(comp_info)
-
-                        self.make_relation('StartDate',
-                                           composition_positions['StartDate'],
-                                           org_data,
-                                           composition,
-                                           date=True)
-
-                        self.make_relation('EndDate',
-                                           composition_positions['EndDate'],
-                                           org_data,
-                                           composition,
-                                           date=True)
-
-                        self.make_real_date(data=org_data,
-                                            position=composition_positions['RealStart']['value'],
-                                            model=CompositionRealStart,
-                                            attribute='realstart',
-                                            object_ref=composition)
-
-                        self.make_relation('OpenEnded',
-                                           composition_positions['OpenEnded'],
-                                           org_data,
-                                           composition)
-
-                        self.make_relation('Classification',
-                                           composition_positions['Classification'],
-                                           org_data,
-                                           composition)
-
-
-                    else:
-                        self.log_error('Parent organization for {} does not have source or confidence'.format(organization.name))
-
-                # Make memberships
-
-                try:
-                    member_org_name = org_data[membership_positions['OrganizationOrganization']['value']]
-                except IndexError:
-                    member_org_name = None
-
-                if member_org_name:
-                    try:
-                        confidence = self.get_confidence(org_data[membership_positions['OrganizationOrganization']['confidence']])
-                    except (IndexError, KeyError):
-                        self.log_error('Member organization for {} does not have confidence'.format(member_org_name))
-                        confidence = None
+                elif org_data['unit:relation_type'] == 'member':
+                    # Make memberships
 
                     try:
-                        sources = self.get_sources(org_data[membership_positions['OrganizationOrganization']['source']])
+                        member_org_name = org_data[membership_positions['OrganizationOrganization']['value']]
                     except IndexError:
-                        self.log_error('Member organization for {} does not have a source'.format(member_org_name))
-                        sources = None
+                        member_org_name = None
 
-                    if confidence and sources:
-
-                        member_org_info = {
-                            'Organization_OrganizationName': {
-                                'value': member_org_name,
-                                'confidence': confidence,
-                                'sources': sources.copy(),
-                            },
-                            'Organization_OrganizationDivisionId': {
-                                'value': division_id,
-                                'confidence': division_confidence,
-                                'sources': division_sources,
-                            },
-                        }
+                    if member_org_name:
+                        try:
+                            confidence = self.get_confidence(org_data[membership_positions['OrganizationOrganization']['confidence']])
+                        except (IndexError, KeyError):
+                            self.log_error('Member organization for {} does not have confidence'.format(member_org_name))
+                            confidence = None
 
                         try:
-                            uuid = self.organization_entity_map[member_org_name]
-                        except KeyError:
-                            self.log_error('Could not find "{}" in list of organization names'.format(member_org_name))
-                            return None
+                            sources = self.get_sources(org_data[membership_positions['OrganizationOrganization']['source']])
+                        except IndexError:
+                            self.log_error('Member organization for {} does not have a source'.format(member_org_name))
+                            sources = None
 
-                        try:
-                            member_organization = Organization.objects.get(uuid=uuid)
-                        except Organization.DoesNotExist:
-                            member_organization = Organization.objects.create(uuid=uuid,
-                                                                              published=True)
-                        except ValidationError:
-                            self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
-                            return None
+                        if confidence and sources:
+
+                            member_org_info = {
+                                'Organization_OrganizationName': {
+                                    'value': member_org_name,
+                                    'confidence': confidence,
+                                    'sources': sources.copy(),
+                                },
+                                'Organization_OrganizationDivisionId': {
+                                    'value': division_id,
+                                    'confidence': division_confidence,
+                                    'sources': division_sources,
+                                },
+                            }
+
+                            try:
+                                uuid = self.organization_entity_map[member_org_name]
+                            except KeyError:
+                                self.log_error('Could not find "{}" in list of organization names'.format(member_org_name))
+                                return None
+
+                            try:
+                                member_organization = Organization.objects.get(uuid=uuid)
+                            except Organization.DoesNotExist:
+                                member_organization = Organization.objects.create(uuid=uuid,
+                                                                                  published=True)
+                            except ValidationError:
+                                self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
+                                return None
+                            else:
+                                existing_sources = self.sourcesList(member_organization, 'name')
+                                member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
+
+                            member_organization.update(member_org_info)
+
+                            membership_info = {
+                                'MembershipOrganization_MembershipOrganizationMember': {
+                                    'value': organization,
+                                    'confidence': confidence,
+                                    'sources': sources.copy()
+                                },
+                                'MembershipOrganization_MembershipOrganizationOrganization': {
+                                    'value': member_organization,
+                                    'confidence': confidence,
+                                    'sources': sources.copy()
+                                },
+                            }
+
+                            try:
+                                date_parts = [
+                                    org_data[membership_positions['FirstCitedDate']['year']],
+                                    org_data[membership_positions['FirstCitedDate']['month']],
+                                    org_data[membership_positions['FirstCitedDate']['day']]
+                                ]
+                                fcd = self.parse_date('-'.join(filter(None, date_parts)))
+                            except IndexError:
+                                fcd = None
+
+                            try:
+                                date_parts = [
+                                    org_data[membership_positions['LastCitedDate']['year']],
+                                    org_data[membership_positions['LastCitedDate']['month']],
+                                    org_data[membership_positions['LastCitedDate']['day']]
+                                ]
+                                lcd = self.parse_date('-'.join(filter(None, date_parts)))
+                            except IndexError:
+                                lcd = None
+
+                            try:
+                                membership = MembershipOrganization.objects.get(membershiporganizationmember__value=organization,
+                                                                                membershiporganizationorganization__value=member_organization,
+                                                                                membershiporganizationfirstciteddate__value=fcd,
+                                                                                membershiporganizationlastciteddate__value=lcd)
+                                sources = set(self.sourcesList(membership, 'member') + \
+                                              self.sourcesList(membership, 'organization'))
+                                membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
+                                membership.update(membership_info)
+
+                            except MembershipOrganization.DoesNotExist:
+                                membership = MembershipOrganization.create(membership_info)
+
+                            self.make_relation('OpenEnded',
+                                               membership_positions['OpenEnded'],
+                                               org_data,
+                                               membership)
+
+                            self.make_relation('LastCitedDate',
+                                               membership_positions['LastCitedDate'],
+                                               org_data,
+                                               membership,
+                                               date=True)
+
+                            self.make_relation('FirstCitedDate',
+                                               membership_positions['FirstCitedDate'],
+                                               org_data,
+                                               membership,
+                                               date=True)
+
+                            self.make_real_date(data=org_data,
+                                                position=membership_positions['RealStart']['value'],
+                                                model=MembershipOrganizationRealStart,
+                                                attribute='realend',
+                                                object_ref=membership)
+
+                            membership.save()
+
                         else:
-                            existing_sources = self.sourcesList(member_organization, 'name')
-                            member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
-
-                        member_organization.update(member_org_info)
-
-                        membership_info = {
-                            'MembershipOrganization_MembershipOrganizationMember': {
-                                'value': organization,
-                                'confidence': confidence,
-                                'sources': sources.copy()
-                            },
-                            'MembershipOrganization_MembershipOrganizationOrganization': {
-                                'value': member_organization,
-                                'confidence': confidence,
-                                'sources': sources.copy()
-                            },
-                        }
-
-                        try:
-                            date_parts = [
-                                org_data[membership_positions['FirstCitedDate']['year']],
-                                org_data[membership_positions['FirstCitedDate']['month']],
-                                org_data[membership_positions['FirstCitedDate']['day']]
-                            ]
-                            fcd = self.parse_date('-'.join(filter(None, date_parts)))
-                        except IndexError:
-                            fcd = None
-
-                        try:
-                            date_parts = [
-                                org_data[membership_positions['LastCitedDate']['year']],
-                                org_data[membership_positions['LastCitedDate']['month']],
-                                org_data[membership_positions['LastCitedDate']['day']]
-                            ]
-                            lcd = self.parse_date('-'.join(filter(None, date_parts)))
-                        except IndexError:
-                            lcd = None
-
-                        try:
-                            membership = MembershipOrganization.objects.get(membershiporganizationmember__value=organization,
-                                                                            membershiporganizationorganization__value=member_organization,
-                                                                            membershiporganizationfirstciteddate__value=fcd,
-                                                                            membershiporganizationlastciteddate__value=lcd)
-                            sources = set(self.sourcesList(membership, 'member') + \
-                                          self.sourcesList(membership, 'organization'))
-                            membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
-                            membership.update(membership_info)
-
-                        except MembershipOrganization.DoesNotExist:
-                            membership = MembershipOrganization.create(membership_info)
-
-                        self.make_relation('LastCitedDate',
-                                           membership_positions['LastCitedDate'],
-                                           org_data,
-                                           membership,
-                                           date=True)
-
-                        self.make_real_date(data=org_data,
-                                            position=membership_positions['RealEnd']['value'],
-                                            model=MembershipOrganizationRealEnd,
-                                            attribute='realend',
-                                            object_ref=membership)
-
-                        self.make_relation('FirstCitedDate',
-                                           membership_positions['FirstCitedDate'],
-                                           org_data,
-                                           membership,
-                                           date=True)
-
-                        self.make_real_date(data=org_data,
-                                            position=membership_positions['RealStart']['value'],
-                                            model=MembershipOrganizationRealStart,
-                                            attribute='realend',
-                                            object_ref=membership)
-
-                        membership.save()
-
-                    else:
-                        self.log_error('Member organization for {} does not have source or confidence'.format(member_org_name))
-
+                            self.log_error('Member organization for {} does not have source or confidence'.format(member_org_name))
 
                 self.stdout.write(self.style.SUCCESS('Created {}'.format(organization.get_value())))
 
