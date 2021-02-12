@@ -51,7 +51,7 @@ def data_import(data_folder, mock_utils_geo_functions):
 
 @pytest.mark.django_db
 def test_no_sources_missing(data_import):
-    assert 'does not have sources' not in data_import.getvalue()
+    assert 'did not have sources' not in data_import.getvalue()
     assert 'has no confidence' not in data_import.getvalue()
 
 

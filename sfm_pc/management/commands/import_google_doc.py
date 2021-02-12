@@ -7,6 +7,7 @@ from uuid import uuid4
 from datetime import datetime, date
 import csv
 import string
+import random
 
 import httplib2
 
@@ -654,24 +655,19 @@ class Command(BaseCommand):
                                               org_data,
                                               organization)
 
-                    import pdb
-                    pdb.set_trace()
-#
-#                elif org_data[location_positions['Location']['type']] == 'site':
-#                    # Create Emplacement
-#
-#                    try:
-#                        site_osm_id = org_data[location_positions['Location']['value']]
-#                    except IndexError:
-#                        site_osm_id = None
-#
-#                    if site_osm_id:
-#
-#                        emplacement = self.make_emplacement(site_osm_id,
-#                                                            org_data,
-#                                                            organization)
+                elif org_data[location_positions['Location']['type']] == 'site':
+                    # Create Emplacement
 
+                    try:
+                        site_osm_id = org_data[location_positions['Location']['value']]
+                    except IndexError:
+                        site_osm_id = None
 
+                    if site_osm_id:
+
+                        emplacement = self.make_emplacement(site_osm_id,
+                                                            org_data,
+                                                            organization)
 
                 if org_data['unit:relation_type'] == 'child':
                     # Create Compositions
@@ -1107,20 +1103,11 @@ class Command(BaseCommand):
 
     def make_area(self, humane_id, org_data, organization):
 
-#        positions = {
-#            'Location': {
-#                'value': Area.get_spreadsheet_field_name('name'),
-#                'confidence': Area.get_spreadsheet_confidence_field_name('name'),
-#                'source': Area.get_spreadsheet_source_field_name('name'),
-#            },
-#        }
-
         positions = {
             'Location': {
                 'value': 'unit:location',
                 'confidence': 'unit:location:confidence',
                 'source': 'unit:location:source',
-                'type': 'unit:location_type',
             }
         }
 
@@ -1133,11 +1120,11 @@ class Command(BaseCommand):
                 'confidence': Association.get_spreadsheet_confidence_field_name('startdate'),
                 'source': Association.get_spreadsheet_source_field_name('startdate'),
             },
-#            'RealStart': {
-#                'value': Association.get_spreadsheet_field_name('realstart'),
-#                'confidence': Association.get_spreadsheet_confidence_field_name('startdate'),
-#                'source': None,
-#            },
+            'RealStart': {
+                'value': Association.get_spreadsheet_field_name('realstart'),
+                'confidence': Association.get_spreadsheet_confidence_field_name('startdate'),
+                'source': None,
+            },
             'EndDate': {
                 'value': Association.get_spreadsheet_field_name('enddate'),
                 'day': Association.get_spreadsheet_field_name('enddate') + '_day',
@@ -1155,7 +1142,7 @@ class Command(BaseCommand):
 
         try:
             # TODO: Transition this to get once we have the appropriate location fixture
-            area, created = Location.objects.get_or_create(**{'sfm__location:humane_id:admin': humane_id, 'id': 1})
+            area, created = Location.objects.get_or_create(**{'sfm__location:humane_id:admin': humane_id, 'id': random.randint(0, 9999)})
 
         except Location.DoesNotExist:
             self.log_error('Location "{0}" for Area for {1} does not exist'.format(humane_id, organization.name))
@@ -1209,12 +1196,12 @@ class Command(BaseCommand):
                                    assoc,
                                    date=True)
 
-    #                elif field_name == 'RealStart':
-    #                    self.make_real_date(data=org_data,
-    #                                        position=positions['value'],
-    #                                        model=AssociationRealStart,
-    #                                        attribute='realstart',
-    #                                        object_ref=assoc)
+            elif field_name == 'RealStart':
+                self.make_real_date(data=org_data,
+                                    position=positions['value'],
+                                    model=AssociationRealStart,
+                                    attribute='realstart',
+                                    object_ref=assoc)
 
             else:
                 self.make_relation(field_name,
@@ -1223,40 +1210,15 @@ class Command(BaseCommand):
                                    assoc)
 
     def make_emplacement(self,
-                         osm_id,
+                         humane_id,
                          org_data,
                          organization):
 
         positions = {
-            'AdminLevel1': {
-                'value': 'unit:site_first_admin_area_name',
-                'osmid': 'unit:site_first_admin_area_id',
-                'confidence': 'unit:site_first_admin_area_name:confidence',
-                'source': 'unit:site_first_admin_area_name:source',
-            },
-            # This doesn't correspond directly to a model attribute
-            # but we'll use it to unpack data about the highest
-            # level of resolution available to us
-            'ExactLocation': {
-                'lng_or_name': 'unit:site_exact_location_name_longitude',
-                'lat_or_id': 'unit:site_exact_location_id_latitude',
-                'confidence': 'unit:site_exact_location:confidence',
-                'source': 'unit:site_exact_location:source',
-            },
-            'Headquarters': {
-                'value': Organization.get_spreadsheet_field_name('headquarters'),
-                'confidence': Organization.get_spreadsheet_confidence_field_name('headquarters'),
-                'source': Organization.get_spreadsheet_source_field_name('headquarters'),
-            },
-            'AdminName': {
-                'value': 'unit:site_nearest_settlement_name',
-                'confidence': 'unit:site_nearest_settlement_name:confidence',
-                'source': 'unit:site_nearest_settlement_name:source',
-            },
-            'AdminId': {
-                'value': 'unit:site_nearest_settlement_id',
-                'confidence': 'unit:site_nearest_settlement_name:confidence',
-                'source': 'unit:site_nearest_settlement_name:source',
+            'Location': {
+                'value': 'unit:location',
+                'confidence': 'unit:location:confidence',
+                'source': 'unit:location:source',
             }
         }
 
@@ -1289,209 +1251,79 @@ class Command(BaseCommand):
             }
         }
 
-        exact_location = self.get_exact_location(positions, org_data)
-
-        if exact_location.get('id') and exact_location.get('name'):
-            osm_id = exact_location['id']
-            site_name = exact_location['name']
-        else:
-            osm_id = org_data[positions['AdminId']['value']]
-            site_name = org_data[positions['AdminName']['value']]
-
         try:
-            osm_geo = get_osm_by_id(osm_id)
-        except DataError:
-            osm_geo = None
-            self.log_error('OSM ID for Site {1} does not seem valid: {2}'.format(site_name, osm_id))
+            # TODO: Transition this to get once we have the appropriate location fixture
+            site, created = Location.objects.get_or_create(**{'sfm__location:humane_id:admin': humane_id, 'id': random.randint(0, 9999)})
 
-        if osm_geo:
-
-            site = self.get_or_create_site(osm_geo, exact_location, org_data, positions)
-            confidence = self.get_confidence(org_data[positions['AdminName']['confidence']])
-            sources = self.get_sources(org_data[positions['AdminName']['source']])
-
-            if sources and confidence:
-
-                emp_data = {
-                    'Emplacement_EmplacementOrganization': {
-                        'value': organization,
-                        'confidence': confidence,
-                        'sources': sources.copy()
-                    },
-                    'Emplacement_EmplacementSite': {
-                        'value': site,
-                        'confidence': confidence,
-                        'sources': sources.copy()
-                    }
-                }
-
-                try:
-                    emplacement = Emplacement.objects.get(emplacementorganization__value=organization,
-                                                        emplacementsite__value=site)
-                except Emplacement.DoesNotExist:
-                    emplacement = Emplacement.create(emp_data)
-
-                for field_name, positions in relation_positions.items():
-
-                    if field_name == 'StartDate':
-                        self.make_relation(field_name,
-                                           positions,
-                                           org_data,
-                                           emplacement,
-                                           date=True)
-
-                    elif field_name == 'EndDate':
-                        self.make_relation(field_name,
-                                           positions,
-                                           org_data,
-                                           emplacement,
-                                           date=True)
-
-                    elif field_name == 'RealStart':
-                        self.make_real_date(data=org_data,
-                                            position=positions['value'],
-                                            model=EmplacementRealStart,
-                                            attribute='realstart',
-                                            object_ref=emplacement)
-
-                    else:
-                        self.make_relation(field_name,
-                                           positions,
-                                           org_data,
-                                           emplacement)
-
-                return emplacement
-
-            else:
-                missing = []
-                if not confidence:
-                    missing.append('confidence')
-                if not sources:
-                    missing.append('sources')
-
-                self.log_error('Emplacement for org {0} did not have {1}'.format(organization.name.get_value().value,
-                                                                                 ', '.join(missing)))
-                return None
-
-        else:
-            self.log_error('Could not find OSM ID {}'.format(osm_id))
+        except Location.DoesNotExist:
+            self.log_error('Location "{0}" for Site for {1} does not exist'.format(humane_id, organization.name))
             return None
 
-    def get_or_create_site(self, osm, exact_location, data, positions):
-        '''
-        Helper method to get or create a Location based on spreadsheet data.
+        confidence = self.get_confidence(org_data[positions['Location']['confidence']])
+        sources = self.get_sources(org_data[positions['Location']['source']])
 
-        Params:
-            * osm: OSMFeature
-            * exact_location: dictionary returned from get_exact_location()
-            * data: the spreadsheet data, as an array
-            * positions: nested dictionaries documenting the index, confidence,
-              and source values for each model represented in the sheet.
+        if sources and confidence:
 
-        Returns:
-            * Location object.
-        '''
-
-        names = [
-            exact_location.get('name'),
-            data[positions['AdminName']['value']],
-            data[positions['AdminLevel1']['value']],
-        ]
-
-        name = ', '.join([n for n in names if n])
-
-        if exact_location.get('id'):
-            osm_id = exact_location['id']
-            division_id = None
-            coords = exact_location['coords']
-            tags = exact_location['tags']
-            feature_type = 'node'
-        else:
-            osm_id = data[positions['AdminId']['value']]
-            osm = get_osm_by_id(osm_id)
-            osm_id = osm.id
-
-            division_id = 'ocd-division/country:{}'.format(osm.country_code)
-
-            coords = osm.geometry
-            tags = osm.tags
-
-            if osm.feature_type == 'point':
-                feature_type = 'node'
-            else:
-                feature_type = 'relation'
-
-        site, created = Location.objects.get_or_create(id=osm_id)
-
-        if created:
-
-            site.name = name
-            site.division_id = division_id
-            site.tags = tags
-            site.geometry = coords
-            site.feature_type = feature_type
-
-            site.save()
-
-        return site
-
-    def get_exact_location(self, positions, data):
-        '''
-        Helper method for figuring out the data type of an "Exact Location" and
-        returning relevant info. SFM staff sometimes record Exact Locations as
-        OSM ID/Name pairs, and sometimes as coordinates, so we have to do some
-        parsing to get the right attributes.
-
-        Params:
-            * data: the spreadsheet data, as an array
-            * positions: nested dictionaries documenting the index, confidence,
-              and source values for each model represented in the sheet.
-        Returns:
-            * dictionary with the following values:
-                - id: OSM ID or None
-                - name: OSM Name or None
-                - coords: Coordinate pair
-        '''
-        exact_location = {}
-
-        lng_or_name = data[positions['ExactLocation']['lng_or_name']]
-        lat_or_id = data[positions['ExactLocation']['lat_or_id']]
-
-        try:
-            assert (lng_or_name and lat_or_id)
-        except AssertionError:
-            # The field is empty, so return an empty dict
-            return exact_location
-
-        # Figure out if it's OSM Name/ID pair, or coordinate pair
-        try:
-
-            # If this succeeds, it's a coordinate pair
-            int(lng_or_name)
-            int(lat_or_id)
-
-            lng, lat = lng_or_name, lat_or_id
-
-        except ValueError:
-
-            # This is a name/ID pair
-            exact_location['name'], exact_location['id'] = lng_or_name, lat_or_id
+            emp_data = {
+                'Emplacement_EmplacementOrganization': {
+                    'value': organization,
+                    'confidence': confidence,
+                    'sources': sources.copy()
+                },
+                'Emplacement_EmplacementSite': {
+                    'value': site,
+                    'confidence': confidence,
+                    'sources': sources.copy()
+                }
+            }
 
             try:
+                emplacement = Emplacement.objects.get(emplacementorganization__value=organization,
+                                                      emplacementsite__value=site)
+            except Emplacement.DoesNotExist:
+                emplacement = Emplacement.create(emp_data)
 
-                geo = get_osm_by_id(exact_location['id'])
-                lng, lat = geo.st_x, geo.st_y
+            for field_name, positions in relation_positions.items():
 
-            except (DataError, AttributeError):
-                self.log_error('OSM ID for exact location {0} does not seem valid: {1}'.format(exact_location['name'],
-                                                                                               exact_location['id']))
-                return exact_location
+                if field_name == 'StartDate':
+                    self.make_relation(field_name,
+                                       positions,
+                                       org_data,
+                                       emplacement,
+                                       date=True)
 
-        point_string = 'POINT({lng} {lat})'.format(lng=lng, lat=lat)
-        exact_location['coords'] = GEOSGeometry(point_string, srid=4326)
-        exact_location['tags'] = geo.tags
+                elif field_name == 'EndDate':
+                    self.make_relation(field_name,
+                                       positions,
+                                       org_data,
+                                       emplacement,
+                                       date=True)
 
-        return exact_location
+                elif field_name == 'RealStart':
+                    self.make_real_date(data=org_data,
+                                        position=positions['value'],
+                                        model=EmplacementRealStart,
+                                        attribute='realstart',
+                                        object_ref=emplacement)
+
+                else:
+                    self.make_relation(field_name,
+                                       positions,
+                                       org_data,
+                                       emplacement)
+
+            return emplacement
+
+        else:
+            missing = []
+            if not confidence:
+                missing.append('confidence')
+            if not sources:
+                missing.append('sources')
+
+            self.log_error('Emplacement for org {0} did not have {1}'.format(organization.name.get_value().value,
+                                                                             ', '.join(missing)))
+            return None
 
     def make_real_date(self, *, data, position, model, attribute, object_ref):
         '''
@@ -2195,15 +2027,10 @@ class Command(BaseCommand):
                 'source': 'incident:all:source',
                 'model_field': 'violationlocationdescription',
             },
-            'ExactLocation': {
-                'lng_or_name': Violation.get_spreadsheet_field_name('location_name'),
-                'lat_or_id': Violation.get_spreadsheet_field_name('location_id'),
+            'Location': {
+                'value': Violation.get_spreadsheet_field_name('location_id'),
                 'source': 'incident:all:source',
                 'model_field': 'violationexactlocation',
-            },
-            'DivisionId': {
-                'value': Violation.get_spreadsheet_field_name('division_id'),
-                'source': 'incident:all:source',
             },
             'Type': {
                 'value': Violation.get_spreadsheet_field_name('types'),
@@ -2214,19 +2041,6 @@ class Command(BaseCommand):
                 'value': Violation.get_spreadsheet_field_name('description'),
                 'source': 'incident:all:source',
                 'model_field': 'violationdescription',
-            },
-            'AdminName': {
-                'value': Violation.get_spreadsheet_field_name('adminlevel1'),
-                'source': 'incident:all:source',
-            },
-            'AdminId': {
-                'value': 'incident:site_settlement_id',
-                'source': 'incident:all:source',
-            },
-            'AdminLevel2': {
-                'osmid': 'incident:site_first_admin_area_id',
-                'value': Violation.get_spreadsheet_field_name('adminlevel2'),
-                'source': 'incident:all:source',
             },
             'Perpetrator': {
                 'value': Violation.get_spreadsheet_field_name('perpetrator'),
@@ -2304,78 +2118,48 @@ class Command(BaseCommand):
             self.log_error('Row does not have required source column')
             return None
 
-        # Make OSM stuff
-        admin_id = event_data[positions['AdminId']['value']]
-        admin_name = event_data[positions['AdminName']['value']]
-
-        adminlevel2_id = event_data[positions['AdminLevel2']['osmid']]
-        adminlevel2_name = event_data[positions['AdminLevel2']['value']]
-
-        exact_location = self.get_exact_location(positions, event_data)
-
-        coords = exact_location.get('coords')
-        exactloc_id = exact_location.get('id')
-        exactloc_name = exact_location.get('name')
-
         event_info = {}
-        osm_id = None
 
-        if exactloc_name and exactloc_id:
+        humane_id = event_data[positions['Location']['value']]
+
+        try:
+            exact_location, created = Location.objects.get_or_create(**{'sfm__location:humane_id:admin': humane_id, 'id': random.randint(0, 9999)})
+        except Location.DoesNotExist:
+            self.log_error('Location {} for ViolationLocation does not exist'.format(humane_id))
+            self.log_error('Country code missing')
+            return None
+
+        else:
+            if exact_location.name and exact_location.id:
+                event_info.update({
+                    'Violation_ViolationLocationName': {
+                        'value': exact_location.name,
+                        'sources': sources.copy(),
+                        'confidence': 1
+                    },
+                    'Violation_ViolationLocationId': {
+                        'value': exact_location.id,
+                        'sources': sources.copy(),
+                        'confidence': 1
+                    },
+                })
+
+
+            geo, admin1, admin2 = exact_location, exact_location.adminlevel1, exact_location.adminlevel2
+
             event_info.update({
-                'Violation_ViolationLocationName': {
-                    'value': exactloc_name,
+                'Violation_ViolationOSMName': {
+                    'value': geo.name,
                     'sources': sources.copy(),
                     'confidence': 1
                 },
-                'Violation_ViolationLocationId': {
-                    'value': exactloc_id,
+                'Violation_ViolationOSMId': {
+                    'value': geo.id,
                     'sources': sources.copy(),
                     'confidence': 1
                 },
             })
 
-            osm_id = exactloc_id
-
-        geo, admin1, admin2 = None, None, None
-
-        # Get adminlevel2
-        if adminlevel2_id:
-            try:
-                admin2 = get_osm_by_id(adminlevel2_id)
-            except DataError:
-                self.log_error(
-                    'AdminLevel2 ID for ViolationLocation {} does not seem valid: {}'.format(
-                        adminlevel2_name, adminlevel2_id
-                    ))
-        else:
-            self.log_error('Missing OSM ID for AdminLevel2')
-
-        # Infer locations
-        if admin_id:
-            try:
-                geo = get_osm_by_id(admin_id)
-            except DataError:
-                self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, admin_id))
-        else:
-            self.log_error('Missing OSM ID')
-
-        if geo:
-
-            if not coords:
-
-                point_string = 'POINT({lng} {lat})'
-
-                point = (str(geo.st_x), str(geo.st_y))
-
-                coords = GEOSGeometry(point_string.format(lng=point[0], lat=point[1]),
-                                      srid=4326)
-
-            hierarchy = get_hierarchy_by_id(admin_id)
-
-            if hierarchy:
-                for member in hierarchy:
-                    if int(member.admin_level) == 6 and not admin1:
-                        admin1 = self.get_or_create_location(member)
 
             if admin1:
                 event_info.update({
@@ -2393,49 +2177,24 @@ class Command(BaseCommand):
                         'confidence': 1
                     },
                 })
-            if geo:
-                event_info.update({
-                    'Violation_ViolationOSMName': {
-                        'value': geo.name,
-                        'sources': sources.copy(),
-                        'confidence': 1
-                    },
-                    'Violation_ViolationOSMId': {
-                        'value': geo.id,
-                        'sources': sources.copy(),
-                        'confidence': 1
-                    },
-                })
-
-            osm_id = geo.id
-
-        if osm_id:
 
             event_info.update({
                 'Violation_ViolationLocation': {
-                    'value': self.get_or_create_location(geo),
+                    'value': geo,
                     'sources': sources.copy(),
                     'confidence': 1
                 },
             })
 
-        try:
-            country_code = event_data[positions['DivisionId']['value']]
-        except IndexError:
-            self.log_error('Country code missing')
-            return None
+            event_info.update({
+                'Violation_ViolationDivisionId': {
+                    'value': geo.division_id,
+                    'sources': sources.copy(),
+                    'confidence': 1,
+                }
+            })
 
-        division_id = 'ocd-division/country:{}'.format(country_code)
-
-        event_info.update({
-            'Violation_ViolationDivisionId': {
-                'value': division_id,
-                'sources': sources.copy(),
-                'confidence': 1,
-            }
-        })
-
-        violation.update(event_info)
+            violation.update(event_info)
 
         # Record perpetrators
 

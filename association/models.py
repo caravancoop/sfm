@@ -58,8 +58,8 @@ class AssociationRealStart(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.NullBooleanField(default=None)
     field_name = _("Start Date?")
-    # shortcode = 'u_aofcds'
-    # spreadsheet_field_name = 'unit:area_ops_first_cited_date_start'
+    shortcode = 'u_lfcdf'
+    spreadsheet_field_name = 'unit:location_first_cited_date_founding'
 
 
 @versioned
