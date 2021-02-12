@@ -52,8 +52,8 @@ class AreaName(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Area of Operations")
-    shortcode = 'u_an'
-    spreadsheet_field_name = 'unit:area_ops_name'
+    # shortcode = 'u_ln'
+    # spreadsheet_field_name = 'unit:location_name'
 
 
 @versioned
@@ -113,5 +113,5 @@ class AreaDivisionId(ComplexField):
     object_ref = models.ForeignKey('Area')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Country")
-    shortcode = 'u_ac'
-    spreadsheet_field_name = 'unit:area_ops_country'
+    # shortcode = 'u_ac'
+    # spreadsheet_field_name = 'unit:area_ops_country'

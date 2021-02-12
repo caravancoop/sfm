@@ -491,20 +491,13 @@ class Command(BaseCommand):
             },
         }
 
-        area_positions = {
-            'OSMId': {
-                'value': 'unit:area_ops_id',
-                'confidence': Area.get_spreadsheet_confidence_field_name('name'),
-                'source': Area.get_spreadsheet_source_field_name('name'),
-            },
-        }
-
-        site_positions = {
-            'OSMId': {
-                'value': 'unit:site_nearest_settlement_id',
-                'confidence': 'unit:site_nearest_settlement_name:confidence',
-                'source': 'unit:site_nearest_settlement_name:source',
-            },
+        location_positions = {
+            'Location': {
+                'value': 'unit:location',
+                'confidence': 'unit:location:confidence',
+                'source': 'unit:location:source',
+                'type': 'unit:location_type',
+            }
         }
 
         membership_positions = {
@@ -646,31 +639,39 @@ class Command(BaseCommand):
                                     attribute='realstart',
                                     object_ref=organization)
 
-                # Create Emplacements
-                try:
-                    site_osm_id = org_data[site_positions['OSMId']['value']]
-                except IndexError:
-                    # self.log_error('No Site OSM info for {}'.format(organization.name))
-                    site_osm_id = None
 
-                if site_osm_id:
+                if org_data[location_positions['Location']['type']] == 'aoo':
+                    # Create Area
 
-                    emplacement = self.make_emplacement(site_osm_id,
-                                                        org_data,
-                                                        organization)
+                    try:
+                        humane_id = org_data[location_positions['Location']['value']]
+                    except IndexError:
+                        humane_id = None
 
-                # Create Areas
-                try:
-                    area_osm_id = org_data[area_positions['OSMId']['value']]
-                except IndexError:
-                    # self.log_error('No Area OSM info for {}'.format(organization.name))
-                    area_osm_id = None
+                    if humane_id:
 
-                if area_osm_id:
+                        area = self.make_area(humane_id,
+                                              org_data,
+                                              organization)
 
-                    area = self.make_area(area_osm_id,
-                                          org_data,
-                                          organization)
+                    import pdb
+                    pdb.set_trace()
+#
+#                elif org_data[location_positions['Location']['type']] == 'site':
+#                    # Create Emplacement
+#
+#                    try:
+#                        site_osm_id = org_data[location_positions['Location']['value']]
+#                    except IndexError:
+#                        site_osm_id = None
+#
+#                    if site_osm_id:
+#
+#                        emplacement = self.make_emplacement(site_osm_id,
+#                                                            org_data,
+#                                                            organization)
+
+
 
                 if org_data['unit:relation_type'] == 'child':
                     # Create Compositions
@@ -1104,14 +1105,23 @@ class Command(BaseCommand):
 
             return None
 
-    def make_area(self, osm_id, org_data, organization):
+    def make_area(self, humane_id, org_data, organization):
+
+#        positions = {
+#            'Location': {
+#                'value': Area.get_spreadsheet_field_name('name'),
+#                'confidence': Area.get_spreadsheet_confidence_field_name('name'),
+#                'source': Area.get_spreadsheet_source_field_name('name'),
+#            },
+#        }
 
         positions = {
-            'OSMName': {
-                'value': Area.get_spreadsheet_field_name('name'),
-                'confidence': Area.get_spreadsheet_confidence_field_name('name'),
-                'source': Area.get_spreadsheet_source_field_name('name'),
-            },
+            'Location': {
+                'value': 'unit:location',
+                'confidence': 'unit:location:confidence',
+                'source': 'unit:location:source',
+                'type': 'unit:location_type',
+            }
         }
 
         relation_positions = {
@@ -1123,11 +1133,11 @@ class Command(BaseCommand):
                 'confidence': Association.get_spreadsheet_confidence_field_name('startdate'),
                 'source': Association.get_spreadsheet_source_field_name('startdate'),
             },
-            'RealStart': {
-                'value': Association.get_spreadsheet_field_name('realstart'),
-                'confidence': Association.get_spreadsheet_confidence_field_name('startdate'),
-                'source': None,
-            },
+#            'RealStart': {
+#                'value': Association.get_spreadsheet_field_name('realstart'),
+#                'confidence': Association.get_spreadsheet_confidence_field_name('startdate'),
+#                'source': None,
+#            },
             'EndDate': {
                 'value': Association.get_spreadsheet_field_name('enddate'),
                 'day': Association.get_spreadsheet_field_name('enddate') + '_day',
@@ -1137,98 +1147,80 @@ class Command(BaseCommand):
                 'source': Association.get_spreadsheet_source_field_name('enddate'),
             },
             'OpenEnded': {
-                'value': Association.get_spreadsheet_field_name('realstart'),
+                'value': Association.get_spreadsheet_field_name('open_ended'),
                 'confidence': Association.get_spreadsheet_confidence_field_name('enddate'),
                 'source': None,
             },
         }
 
         try:
-            geo = get_osm_by_id(osm_id)
-        except DataError:
-            self.log_error('OSM ID for Area does not seem valid: {}'.format(osm_id))
-            geo = None
+            # TODO: Transition this to get once we have the appropriate location fixture
+            area, created = Location.objects.get_or_create(**{'sfm__location:humane_id:admin': humane_id, 'id': 1})
 
+        except Location.DoesNotExist:
+            self.log_error('Location "{0}" for Area for {1} does not exist'.format(humane_id, organization.name))
+            return None
 
-        if geo:
-            country_code = geo.country_code.lower()
+        try:
+            area_confidence = self.get_confidence(org_data[positions['Location']['confidence']])
+        except (IndexError, KeyError):
+            self.log_error('Location for Area for {} does not have confidence'.format(organization.name))
+            return None
 
-            division_id = 'ocd-division/country:{}'.format(country_code)
+        try:
+            area_sources = self.get_sources(org_data[positions['Location']['source']])
+        except IndexError:
+            self.log_error('Location for Area for {} does not have source'.format(organization.name))
+            return None
 
-            area, created = Location.objects.get_or_create(id=geo.id)
+        area_info = {
+            'Association_AssociationOrganization': {
+                'value': organization,
+                'confidence': area_confidence,
+                'sources': area_sources
+            },
+            'Association_AssociationArea': {
+                'value': area,
+                'confidence': area_confidence,
+                'sources': area_sources
+            },
+        }
 
-            if created:
-                area.name = geo.name
-                area.geometry = geo.geometry
-                area.division_id = division_id
+        try:
+            assoc = Association.objects.get(associationorganization__value=organization,
+                                            associationarea__value=area)
+            assoc.update(area_info)
+        except Association.DoesNotExist:
+            assoc = Association.create(area_info)
 
-                if area.feature_type == 'point':
-                    area.feature_type = 'node'
-                else:
-                    area.feature_type = 'relation'
+        for field_name, positions in relation_positions.items():
 
-                area.save()
+            if field_name == 'StartDate':
+                self.make_relation(field_name,
+                                   positions,
+                                   org_data,
+                                   assoc,
+                                   date=True)
 
-            try:
-                area_confidence = self.get_confidence(org_data[positions['OSMName']['confidence']])
-            except (IndexError, KeyError):
-                self.log_error('OSMName for Area for {} does not have confidence'.format(organization.name))
-                return None
+            elif field_name == 'EndDate':
+                self.make_relation(field_name,
+                                   positions,
+                                   org_data,
+                                   assoc,
+                                   date=True)
 
-            try:
-                area_sources = self.get_sources(org_data[positions['OSMName']['source']])
-            except IndexError:
-                self.log_error('OSMName for Area for {} does not have source'.format(organization.name))
-                return None
+    #                elif field_name == 'RealStart':
+    #                    self.make_real_date(data=org_data,
+    #                                        position=positions['value'],
+    #                                        model=AssociationRealStart,
+    #                                        attribute='realstart',
+    #                                        object_ref=assoc)
 
-            area_info = {
-                'Association_AssociationOrganization': {
-                    'value': organization,
-                    'confidence': area_confidence,
-                    'sources': area_sources
-                },
-                'Association_AssociationArea': {
-                    'value': area,
-                    'confidence': area_confidence,
-                    'sources': area_sources
-                },
-            }
-
-            try:
-                assoc = Association.objects.get(associationorganization__value=organization,
-                                                associationarea__value=area)
-                assoc.update(area_info)
-            except Association.DoesNotExist:
-                assoc = Association.create(area_info)
-
-            for field_name, positions in relation_positions.items():
-
-                if field_name == 'StartDate':
-                    self.make_relation(field_name,
-                                       positions,
-                                       org_data,
-                                       assoc,
-                                       date=True)
-
-                elif field_name == 'EndDate':
-                    self.make_relation(field_name,
-                                       positions,
-                                       org_data,
-                                       assoc,
-                                       date=True)
-
-                elif field_name == 'RealStart':
-                    self.make_real_date(data=org_data,
-                                        position=positions['value'],
-                                        model=AssociationRealStart,
-                                        attribute='realstart',
-                                        object_ref=assoc)
-
-                else:
-                    self.make_relation(field_name,
-                                       positions,
-                                       org_data,
-                                       assoc)
+            else:
+                self.make_relation(field_name,
+                                   positions,
+                                   org_data,
+                                   assoc)
 
     def make_emplacement(self,
                          osm_id,

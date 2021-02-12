@@ -48,8 +48,8 @@ class AssociationStartDate(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = ApproximateDateField()
     field_name = _("First Cited Date")
-    shortcode = 'u_aofcd'
-    spreadsheet_field_name = 'unit:area_ops_first_cited_date'
+    shortcode = 'u_lfcd'
+    spreadsheet_field_name = 'unit:location_first_cited_date'
 
 
 @versioned
@@ -58,8 +58,8 @@ class AssociationRealStart(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.NullBooleanField(default=None)
     field_name = _("Start Date?")
-    shortcode = 'u_aofcds'
-    spreadsheet_field_name = 'unit:area_ops_first_cited_date_start'
+    # shortcode = 'u_aofcds'
+    # spreadsheet_field_name = 'unit:area_ops_first_cited_date_start'
 
 
 @versioned
@@ -68,8 +68,8 @@ class AssociationEndDate(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last Cited Date")
-    shortcode = 'u_aolcd'
-    spreadsheet_field_name = 'unit:area_ops_last_cited_date'
+    shortcode = 'u_llcd'
+    spreadsheet_field_name = 'unit:location_last_cited_date'
 
 
 @versioned
@@ -100,5 +100,5 @@ class AssociationOpenEnded(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Open-Ended?")
-    shortcode = 'u_aolcdo'
-    spreadsheet_field_name = 'unit:area_ops_last_cited_date_open'
+    shortcode = 'u_lo'
+    spreadsheet_field_name = 'unit:location_open'
