@@ -125,16 +125,20 @@ class Command(BaseCommand):
             ON a.sfm->>'location:admin_level_4' = d.sfm->>'location:humane_id:admin'
               AND a.sfm->>'location:admin_level' != '4'
             ON CONFLICT (id) DO UPDATE
-              /* TODO: Specify desired updates, if any, to existing locations */
-              SET sfm = EXCLUDED.sfm
+              SET
+                name = EXCLUDED.name,
+                feature_type = EXCLUDED.feature_type,
+                division_id = EXCLUDED.division_id,
+                tags = EXCLUDED.tags,
+                sfm = EXCLUDED.sfm,
+                adminlevel = EXCLUDED.adminlevel,
+                adminlevel1_id = EXCLUDED.adminlevel1_id,
+                adminlevel2_id = EXCLUDED.adminlevel2_id,
+                geometry = EXCLUDED.geometry
             RETURNING id
         '''.format(table_name=self.TABLE_NAME)
 
         with connection.cursor() as cursor:
-            '''
-            TODO: Should we remove locations that were not inserted or updated?
-            NO - Location files will be provided on a per-country basis.
-            '''
             cursor.execute(insert)
 
             n_inserted_or_updated = len(cursor.fetchall())

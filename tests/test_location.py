@@ -26,8 +26,9 @@ def location_fixture_data():
 
 @pytest.fixture
 def initial_location(location_fixture_data):
-    initial_id = location_fixture_data['features'][0]['properties']['id']
-    return Location.objects.create(id=initial_id)
+    initial_fixture = location_fixture_data['features'][0]
+    initial_object = Location.objects.create(id=initial_fixture['properties']['id'])
+    return (initial_fixture, initial_object)
 
 
 @pytest.fixture
@@ -57,7 +58,7 @@ def expected_entity_names(violation, emplacement):
 def test_location_import(location_data_import, location_fixture_data):
     _, initial_location = location_data_import
 
-    # test location created for each feature
+    # test location exists for each feature
     assert Location.objects.count() == len(location_fixture_data['features'])
 
     # test admin relationships created
@@ -72,8 +73,17 @@ def test_location_import(location_data_import, location_fixture_data):
     assert not l2.adminlevel2.adminlevel2
 
     # test existing location updated
-    # TODO: Update this when we decide what updates to apply to existing locations
-    assert initial_location.sfm
+    initial_fixture, initial_object = initial_location
+
+    initial_object.refresh_from_db()
+
+    assert initial_object.name == initial_fixture['properties']['sfm']['location:name']
+    assert initial_object.feature_type == 'boundary'  # Hard-coded because based on conditional logic
+    assert initial_object.division_id == 'ocd-division/country:{}'.format(initial_fixture['properties']['tags']['ISO3166-1'].lower())
+    assert initial_object.tags == initial_fixture['properties']['tags']
+    assert initial_object.sfm == initial_fixture['properties']['sfm']
+    assert initial_object.adminlevel == initial_fixture['properties']['tags']['admin_level']
+    assert initial_object.geometry == initial_fixture['geometry']
 
 
 @pytest.mark.django_db
