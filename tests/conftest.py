@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import io
 import os
 import subprocess
 from unittest import mock
@@ -7,6 +7,7 @@ from unittest import mock
 import pytest
 
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from organization.models import Organization, OrganizationAlias, OrganizationClassification
 from person.models import Person, PersonAlias
@@ -772,3 +773,14 @@ def searcher_mock(mocker):
     # assert_not_called in Python 3.5 -- see:
     # https://bugs.python.org/issue28380
     return mocker.patch('search.search.Searcher.delete')
+
+@pytest.fixture
+def location_data_import():
+    """Perform a test location data import."""
+    output = io.StringIO()
+    call_command(
+        'import_locations',
+        location_file='tests/fixtures/locations.geojson',
+        stdout=output
+    )
+    return output

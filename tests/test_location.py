@@ -1,10 +1,8 @@
-import io
 import json
 import os
 
 import pytest
 from django.core.urlresolvers import reverse_lazy
-from django.core.management import call_command
 from django.template.defaultfilters import truncatewords
 
 from location.models import Location
@@ -32,18 +30,6 @@ def initial_location(location_fixture_data):
 
 
 @pytest.fixture
-def location_data_import(initial_location):
-    """Perform a test location data import."""
-    output = io.StringIO()
-    call_command(
-        'import_locations',
-        location_file='tests/fixtures/locations.geojson',
-        stdout=output
-    )
-    return output, initial_location
-
-
-@pytest.fixture
 def expected_entity_names(violation, emplacement):
     """
     Generate a list of related entity names that we expect to see in the
@@ -55,9 +41,7 @@ def expected_entity_names(violation, emplacement):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_location_import(location_data_import, location_fixture_data):
-    _, initial_location = location_data_import
-
+def test_location_import(initial_location, location_data_import, location_fixture_data):
     # test location exists for each feature
     assert Location.objects.count() == len(location_fixture_data['features'])
 
