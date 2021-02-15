@@ -38,8 +38,7 @@ from source.models import Source, AccessPoint
 from organization.models import Organization, OrganizationAlias, \
     OrganizationClassification, OrganizationName, OrganizationRealStart
 
-from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
-                          CONFIDENCE_MAP, execute_sql)
+from sfm_pc.utils import (import_class, CONFIDENCE_MAP, execute_sql)
 
 from area.models import Area
 from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
