@@ -7,7 +7,6 @@ from uuid import uuid4
 from datetime import datetime, date
 import csv
 import string
-import random
 
 import httplib2
 
@@ -1140,8 +1139,7 @@ class Command(BaseCommand):
         }
 
         try:
-            # TODO: Transition this to get once we have the appropriate location fixture
-            area, created = Location.objects.get_or_create(**{'sfm__location:humane_id:admin': humane_id, 'id': random.randint(0, 9999)})
+            area = Location.objects.get(**{'sfm__location:humane_id:admin': humane_id})
 
         except Location.DoesNotExist:
             self.log_error('Location "{0}" for Area for {1} does not exist'.format(humane_id, organization.name))
@@ -1251,8 +1249,7 @@ class Command(BaseCommand):
         }
 
         try:
-            # TODO: Transition this to get once we have the appropriate location fixture
-            site, created = Location.objects.get_or_create(**{'sfm__location:humane_id:admin': humane_id, 'id': random.randint(0, 9999)})
+            site = Location.objects.get(**{'sfm__location:humane_id:admin': humane_id})
 
         except Location.DoesNotExist:
             self.log_error('Location "{0}" for Site for {1} does not exist'.format(humane_id, organization.name))
@@ -1969,29 +1966,6 @@ class Command(BaseCommand):
             )
         )
 
-    def get_or_create_location(self, geo):
-        location, created = Location.objects.get_or_create(id=geo.id)
-
-        if created:
-            location.name = geo.name
-            location.geometry = geo.geometry
-
-            try:
-                country_code = geo.country_code.lower()
-            except AttributeError:
-                self.log_error('Location with ID "{}" is missing a country code'.format(geo.id))
-            else:
-                location.division_id = 'ocd-division/country:{}'.format(country_code)
-
-            if location.feature_type == 'point':
-                location.feature_type = 'node'
-            else:
-                location.feature_type = 'relation'
-
-            location.save()
-
-        return location
-
     def create_event(self, event_data):
 
         positions = {
@@ -2122,7 +2096,7 @@ class Command(BaseCommand):
         humane_id = event_data[positions['Location']['value']]
 
         try:
-            exact_location, created = Location.objects.get_or_create(**{'sfm__location:humane_id:admin': humane_id, 'id': random.randint(0, 9999)})
+            exact_location = Location.objects.get(**{'sfm__location:humane_id:admin': humane_id})
         except Location.DoesNotExist:
             self.log_error('Location {} for ViolationLocation does not exist'.format(humane_id))
             self.log_error('Country code missing')
@@ -2171,7 +2145,7 @@ class Command(BaseCommand):
             if admin2:
                 event_info.update({
                     'Violation_ViolationAdminLevel2': {
-                        'value': self.get_or_create_location(admin2),
+                        'value': admin2,
                         'sources': sources.copy(),
                         'confidence': 1
                     },

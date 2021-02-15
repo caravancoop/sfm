@@ -21,7 +21,7 @@ def data_folder():
 
 
 @pytest.fixture
-def data_import(data_folder):
+def data_import(location_data_import, data_folder):
     """Perform a test data import."""
     output = io.StringIO()
     call_command('import_google_doc', folder=data_folder, stdout=output)
@@ -135,10 +135,9 @@ def test_incidents(data_import):
     assert len(semicolon_incident.perpetratorclassification.get_list()) == 2
 
     # Check geometry fields
-    # TODO: Update this
-    # expected_geo = mock_utils_geo_functions.get_osm_by_id.return_value
-    # assert semicolon_incident.adminlevel1.get_value() is None
-    # assert semicolon_incident.adminlevel2.get_value().value.id == expected_geo.id
+    incident_location = semicolon_incident.location.get_value().value
+    assert semicolon_incident.adminlevel1.get_value().value == incident_location.adminlevel1
+    assert semicolon_incident.adminlevel2.get_value().value == incident_location.adminlevel2
 
 
 @pytest.mark.django_db

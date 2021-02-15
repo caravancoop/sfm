@@ -774,8 +774,10 @@ def searcher_mock(mocker):
     # https://bugs.python.org/issue28380
     return mocker.patch('search.search.Searcher.delete')
 
+
 @pytest.fixture
-def location_data_import():
+@pytest.mark.django_db(transactional=True)
+def location_data_import(transactional_db):
     """Perform a test location data import."""
     output = io.StringIO()
     call_command(
