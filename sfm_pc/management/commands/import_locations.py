@@ -120,10 +120,10 @@ class Command(BaseCommand):
             ON a.sfm->>'location:admin_level_2' = b.sfm->>'location:humane_id:admin'
             LEFT JOIN {table_name} AS c
             ON a.sfm->>'location:admin_level_6' = c.sfm->>'location:humane_id:admin'
-              AND a.sfm->>'location:admin_level' != '6'
+              AND COALESCE(a.sfm->>'location:admin_level', '') != '6'
             LEFT JOIN {table_name} AS d
             ON a.sfm->>'location:admin_level_4' = d.sfm->>'location:humane_id:admin'
-              AND a.sfm->>'location:admin_level' != '4'
+              AND COALESCE(a.sfm->>'location:admin_level', '') != '4'
             ON CONFLICT (id) DO UPDATE
               SET
                 name = EXCLUDED.name,

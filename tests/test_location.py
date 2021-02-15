@@ -24,9 +24,12 @@ def location_fixture_data():
 
 @pytest.fixture
 def initial_location(location_fixture_data):
-    initial_fixture = location_fixture_data['features'][0]
-    initial_object = Location.objects.create(id=initial_fixture['properties']['id'])
-    return (initial_fixture, initial_object)
+    country_fixture, = [l for l in location_fixture_data['features']
+                        if l['properties']['sfm']['location:admin_level'] == 2]
+
+    initial_object = Location.objects.create(id=country_fixture['properties']['id'])
+
+    return (country_fixture, initial_object)
 
 
 @pytest.fixture
@@ -40,34 +43,42 @@ def expected_entity_names(violation, emplacement):
     ] + [truncatewords(violation.description.get_value(), 10)]
 
 
+def locations_with_admin_level(level):
+    return Location.objects.filter(
+        **{'sfm__location:admin_level_{}__isnull'.format(level): False}
+    ).exclude(
+        **{'sfm__location:admin_level': int(level)}
+    )
+
+
 @pytest.mark.django_db(transaction=True)
 def test_location_import(initial_location, location_data_import, location_fixture_data):
     # test location exists for each feature
     assert Location.objects.count() == len(location_fixture_data['features'])
 
     # test admin relationships created
-    l1 = Location.objects.get(adminlevel1__isnull=False)
-    assert l1.sfm['location:admin_level_6'].split()[0] == l1.adminlevel1.name
-    assert l1.adminlevel1.adminlevel == '6'
-    assert not l1.adminlevel1.adminlevel1
+    for loc in locations_with_admin_level('6'):
+        loc.sfm['location:admin_level_6'].split(' (')[0] == loc.adminlevel1.name
+        assert loc.adminlevel1.adminlevel == '6'
+        assert not loc.adminlevel1.adminlevel1
 
-    l2 = Location.objects.get(adminlevel2__isnull=False)
-    assert l2.sfm['location:admin_level_4'].split()[0] == l2.adminlevel2.name
-    assert l2.adminlevel2.adminlevel == '4'
-    assert not l2.adminlevel2.adminlevel2
+    for loc in locations_with_admin_level('4'):
+        loc.sfm['location:admin_level_4'].split(' (')[0] == loc.adminlevel2.name
+        assert loc.adminlevel2.adminlevel == '4'
+        assert not loc.adminlevel2.adminlevel2
 
     # test existing location updated
-    initial_fixture, initial_object = initial_location
+    country_fixture, initial_object = initial_location
 
     initial_object.refresh_from_db()
 
-    assert initial_object.name == initial_fixture['properties']['sfm']['location:name']
-    assert initial_object.feature_type == 'boundary'  # Hard-coded because based on conditional logic
-    assert initial_object.division_id == 'ocd-division/country:{}'.format(initial_fixture['properties']['tags']['ISO3166-1'].lower())
-    assert initial_object.tags == initial_fixture['properties']['tags']
-    assert initial_object.sfm == initial_fixture['properties']['sfm']
-    assert initial_object.adminlevel == initial_fixture['properties']['tags']['admin_level']
-    assert initial_object.geometry == initial_fixture['geometry']
+    assert initial_object.name == country_fixture['properties']['sfm']['location:name']
+    assert initial_object.feature_type
+    assert initial_object.division_id == 'ocd-division/country:{}'.format(country_fixture['properties']['tags']['ISO3166-1'].lower())
+    assert initial_object.tags == country_fixture['properties']['tags']
+    assert initial_object.sfm == country_fixture['properties']['sfm']
+    assert initial_object.adminlevel == country_fixture['properties']['tags']['admin_level']
+    assert initial_object.geometry
 
 
 @pytest.mark.django_db
