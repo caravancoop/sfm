@@ -1139,7 +1139,7 @@ class Command(BaseCommand):
         }
 
         try:
-            area = Location.objects.get(**{'sfm__location:humane_id:admin': humane_id})
+            area = Location.objects.from_humane_id(humane_id)
 
         except Location.DoesNotExist:
             self.log_error('Location "{0}" for Area for {1} does not exist'.format(humane_id, organization.name))
@@ -1249,7 +1249,7 @@ class Command(BaseCommand):
         }
 
         try:
-            site = Location.objects.get(**{'sfm__location:humane_id:admin': humane_id})
+            site = Location.objects.from_humane_id(humane_id)
 
         except Location.DoesNotExist:
             self.log_error('Location "{0}" for Site for {1} does not exist'.format(humane_id, organization.name))
@@ -2096,7 +2096,7 @@ class Command(BaseCommand):
         humane_id = event_data[positions['Location']['value']]
 
         try:
-            exact_location = Location.objects.get(**{'sfm__location:humane_id:admin': humane_id})
+            exact_location = Location.objects.from_humane_id(humane_id)
         except Location.DoesNotExist:
             self.log_error('Location {} for ViolationLocation does not exist'.format(humane_id))
             self.log_error('Country code missing')
