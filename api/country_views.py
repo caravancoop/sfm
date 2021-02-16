@@ -25,7 +25,7 @@ class CountryListView(JSONAPIView):
               tags,
               ST_ASGeoJSON(ST_Simplify(geometry, %s))::json AS geometry
             FROM osm_data
-            WHERE admin_level = '2'
+            WHERE admin_level = 2
               AND feature_type = 'boundary'
         '''
 
