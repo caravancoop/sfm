@@ -77,7 +77,7 @@ class EmplacementOpenEnded(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Is Open Ended?")
-    shortcode = 'u_lo'
+    shortcode = 'u_loclcd_o'
     spreadsheet_field_name = 'unit:location_open'
 
 
