@@ -1,18 +1,10 @@
 import urllib.request
-import urllib.parse
 import subprocess
 import os
-import zipfile
-from io import BytesIO
-import json
-import re
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
-from django.db.utils import ProgrammingError
 from django.conf import settings
-
-from location.models import Location
 
 
 class Command(BaseCommand):

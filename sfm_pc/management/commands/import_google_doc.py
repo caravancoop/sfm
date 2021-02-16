@@ -1,59 +1,43 @@
 import os
 import itertools
-import json
-from collections import OrderedDict
-import re
-from uuid import uuid4
-from datetime import datetime, date
+from datetime import datetime
 import csv
-import string
 
 import httplib2
 
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
 
-import datefinder
-
-from django.core.management.base import BaseCommand, CommandError
-from django.db import models, transaction, IntegrityError, connection
-from django.db.utils import DataError, ProgrammingError
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand
+from django.db import models, IntegrityError
 from django.core.management import call_command
 from django.utils.text import slugify
 from django.contrib.auth.models import User
-from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
 
-from dateparser import parse as dateparser
-
 import reversion
 
-from countries_plus.models import Country
-
 from source.models import Source, AccessPoint
-from organization.models import Organization, OrganizationAlias, \
-    OrganizationClassification, OrganizationName, OrganizationRealStart
+from organization.models import Organization, OrganizationRealStart
 
 from sfm_pc.utils import (import_class, CONFIDENCE_MAP, execute_sql)
 
-from area.models import Area
-from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
-from association.models import Association, AssociationOpenEnded, AssociationRealStart
-from composition.models import Composition, CompositionOpenEnded, CompositionRealStart
-from person.models import Person, PersonName, PersonAlias
+from emplacement.models import Emplacement, EmplacementRealStart
+from association.models import Association, AssociationRealStart
+from composition.models import Composition, CompositionRealStart
+from person.models import Person
 from personextra.models import PersonExtra
 from personbiography.models import PersonBiography
 from membershipperson.models import (MembershipPerson, Role, Rank,
                                      MembershipPersonRealStart,
                                      MembershipPersonRealEnd)
 from membershiporganization.models import (MembershipOrganization,
-                                           MembershipOrganizationRealStart,
-                                           MembershipOrganizationOpenEnded)
+                                           MembershipOrganizationRealStart)
 from violation.models import Violation, ViolationPerpetrator, \
-    ViolationPerpetratorOrganization, ViolationDescription
+    ViolationPerpetratorOrganization
 
 from location.models import Location
 
@@ -638,7 +622,6 @@ class Command(BaseCommand):
                                     attribute='realstart',
                                     object_ref=organization)
 
-
                 if org_data[location_positions['Location']['type']] == 'aoo':
                     # Create Area
 
@@ -649,9 +632,9 @@ class Command(BaseCommand):
 
                     if humane_id:
 
-                        area = self.make_area(humane_id,
-                                              org_data,
-                                              organization)
+                        self.make_area(humane_id,
+                                       org_data,
+                                       organization)
 
                 elif org_data[location_positions['Location']['type']] == 'site':
                     # Create Emplacement
@@ -663,9 +646,9 @@ class Command(BaseCommand):
 
                     if site_osm_id:
 
-                        emplacement = self.make_emplacement(site_osm_id,
-                                                            org_data,
-                                                            organization)
+                        self.make_emplacement(site_osm_id,
+                                              org_data,
+                                              organization)
 
                 if org_data['unit:relation_type'] == 'child':
                     # Create Compositions
@@ -770,7 +753,6 @@ class Command(BaseCommand):
                                                org_data,
                                                composition)
 
-
                         else:
                             self.log_error('Parent organization for {} does not have source or confidence'.format(organization.name))
 
@@ -868,8 +850,7 @@ class Command(BaseCommand):
                                                                                 membershiporganizationorganization__value=member_organization,
                                                                                 membershiporganizationfirstciteddate__value=fcd,
                                                                                 membershiporganizationlastciteddate__value=lcd)
-                                sources = set(self.sourcesList(membership, 'member') + \
-                                              self.sourcesList(membership, 'organization'))
+                                sources = set(self.sourcesList(membership, 'member') + self.sourcesList(membership, 'organization'))
                                 membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
                                 membership.update(membership_info)
 
@@ -1727,8 +1708,7 @@ class Command(BaseCommand):
                                                               membershippersonrole__value=role,
                                                               membershippersonrank__value=rank,
                                                               membershippersontitle__value=title)
-                    sources = set(self.sourcesList(membership, 'member') + \
-                                  self.sourcesList(membership, 'organization'))
+                    sources = set(self.sourcesList(membership, 'member') + self.sourcesList(membership, 'organization'))
                     membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
                     membership.update(membership_data)
 
@@ -2117,7 +2097,6 @@ class Command(BaseCommand):
                     },
                 })
 
-
             geo, admin1, admin2 = exact_location, exact_location.adminlevel1, exact_location.adminlevel2
 
             event_info.update({
@@ -2132,7 +2111,6 @@ class Command(BaseCommand):
                     'confidence': 1
                 },
             })
-
 
             if admin1:
                 event_info.update({
@@ -2200,8 +2178,8 @@ class Command(BaseCommand):
                             'confidence': 1,
                             'sources': sources.copy(),
                         },
-                        'Person_PersonDivisionId' : {
-                            'value': division_id,
+                        'Person_PersonDivisionId': {
+                            'value': geo.division_id,
                             'confidence': 1,
                             'sources': sources.copy()
                         }
@@ -2251,7 +2229,7 @@ class Command(BaseCommand):
                             'sources': sources.copy(),
                         },
                         'Organization_OrganizationDivisionId': {
-                            'value': division_id,
+                            'value': geo.division_id,
                             'confidence': 1,
                             'sources': sources.copy(),
                         }
