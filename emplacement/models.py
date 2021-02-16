@@ -47,7 +47,7 @@ class EmplacementStartDate(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("First Cited Date")
-    shortcode = 'u_lfcd'
+    shortcode = 'u_locfcd'
     spreadsheet_field_name = 'unit:location_first_cited_date'
 
 
@@ -57,7 +57,7 @@ class EmplacementRealStart(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = models.NullBooleanField(default=None, blank=True, null=True)
     field_name = _("Is Foundation Date?")
-    shortcode = 'u_lfcdf'
+    shortcode = 'u_locfcd_f'
     spreadsheet_field_name = 'unit:location_first_cited_date_founding'
 
 
@@ -67,7 +67,7 @@ class EmplacementEndDate(ComplexField):
     object_ref = models.ForeignKey('Emplacement')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last Cited Date")
-    shortcode = 'u_llcd'
+    shortcode = 'u_loclcd'
     spreadsheet_field_name = 'unit:location_last_cited_date'
 
 

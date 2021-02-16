@@ -48,7 +48,7 @@ class AssociationStartDate(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = ApproximateDateField()
     field_name = _("First Cited Date")
-    shortcode = 'u_lfcd'
+    shortcode = 'u_locfcd'
     spreadsheet_field_name = 'unit:location_first_cited_date'
 
 
@@ -58,7 +58,7 @@ class AssociationRealStart(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = models.NullBooleanField(default=None)
     field_name = _("Is Foundation Date?")
-    shortcode = 'u_lfcdf'
+    shortcode = 'u_locfcd_f'
     spreadsheet_field_name = 'unit:location_first_cited_date_founding'
 
 
@@ -68,7 +68,7 @@ class AssociationEndDate(ComplexField):
     object_ref = models.ForeignKey('Association')
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last Cited Date")
-    shortcode = 'u_llcd'
+    shortcode = 'u_loclcd'
     spreadsheet_field_name = 'unit:location_last_cited_date'
 
 
