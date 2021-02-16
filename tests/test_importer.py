@@ -68,7 +68,6 @@ def test_number_of_imported_entities(entity_name, Model, data_import, data_folde
     assert num_records == num_raw_records
 
 
-@pytest.mark.xfail
 @pytest.mark.django_db
 def test_sources(data_import, data_folder):
     """
@@ -89,14 +88,17 @@ def test_sources(data_import, data_folder):
                 'CompositionChild', 'OrganizationName',
                 'MembershipOrganizationMember', 'MembershipOrganizationOrganization',
                 'MembershipPersonOrganization', 'MembershipPersonMember',
-                'CompositionParent',
+                'CompositionParent', 'EmplacementSite', 'EmplacementStartDate',
+                'EmplacementOrganization'
             ])
             permitted_person_set = set(['PersonName'])
             permitted_incident_set = set([
                 'ViolationStartDate', 'ViolationStatus', 'ViolationType',
                 'ViolationFirstAllegation', 'ViolationDescription',
                 'ViolationEndDate', 'ViolationLastUpdate',
-                'ViolationPerpetratorClassification'
+                'ViolationPerpetratorClassification',
+                'ViolationLocationDescription',
+                'ViolationPerpetratorOrganization'
             ])
             permitted_country_set = set([
                 'OrganizationDivisionId', 'PersonDivisionId'
