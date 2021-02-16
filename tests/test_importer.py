@@ -141,7 +141,6 @@ def test_incidents(data_import):
     assert semicolon_incident.adminlevel2.get_value().value == incident_location.adminlevel2
 
 
-@pytest.mark.xfail
 @pytest.mark.django_db
 def test_relationships(data_import):
     """Make sure the correct relationships between entities get imported."""
@@ -149,8 +148,8 @@ def test_relationships(data_import):
     org_nodes = ('Alpha', 'Beta', 'Gamma', 'Delta')
     org_edges = (None, 'Alpha', 'Beta', 'Gamma')
     for node, edge in zip(org_nodes, org_edges):
+        # Orgs in the source data have trailing spaces in their names
         org = Organization.objects.get(
-            # Orgs in the source data have trailing spaces in their names
             organizationname__value='Importer Test Organization {} Name '.format(node)
         )
         if edge:
