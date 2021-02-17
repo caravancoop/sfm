@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse_lazy
 
 from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
                           command_chain, DownloadData, DumpChangeLog,
-                          download_zip, About, about_redirect)
+                          download_zip, About, about_redirect, DownloadDisabled)
 
 urlpatterns = i18n_patterns(
     url(r'^organization/', include('organization.urls')),
@@ -23,6 +23,7 @@ urlpatterns = i18n_patterns(
     url(r'^about/', About.as_view(), name="about"),
     url(r'^search/', include('search.urls')),
     url(r'^download/', DownloadData.as_view(), name="download"),
+    url(r'^download-disabled/', DownloadDisabled.as_view(), name="download_disabled"),
     url(r'^changelog/', DumpChangeLog.as_view(), name="changelog"),
 
     url(r'^osm-autocomplete/$', osm_autocomplete, name="osm-autocomplete"),
