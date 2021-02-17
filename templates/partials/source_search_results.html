@@ -4,7 +4,7 @@
 <h3>
     <strong><i class="fa fa-fw fa-paperclip"></i> {% trans "Sources" %}</strong>
     <small>{{ hit_count|intcomma }} {% trans "results" %}</small>
-    <a class="pull-right btn btn-default" href="{{ download_urls.Sources }}"><i class="fa fa-fw fa-download"></i>{% trans "Download results" %}</a>
+    <a class="pull-right btn btn-default" href="{{ download_urls.Sources }}" rel="nofollow"><i class="fa fa-fw fa-download"></i>{% trans "Download results" %}</a>
 </h3>
 
 {% with object_list=objects sortable='True' %}

@@ -49,7 +49,7 @@
                         </select>
                     </div>
                         <a href="{% url 'search' %}{% if query %}?q={{ query }}{% endif %}" class="btn btn-sm btn-default"
-                                 {% if not show_clear %}style="display:none;"{% endif %}>
+                                 {% if not show_clear %}style="display:none;"{% endif %} rel="nofollow">
                             <i class="fa fa-fw fa-times"></i>{% trans "Clear all filters" %}
                         </a>
                 </div>
@@ -287,7 +287,7 @@
     {% if suggested_terms %}
         <p><strong>Did you mean:</strong>
         {% for term in suggested_terms %}
-        <small><a class="did-you-mean" role="button">{{ term  }}</a></small>
+        <small><a class="did-you-mean" role="button" rel="nofollow">{{ term  }}</a></small>
         {% if not forloop.last %}|
         {% else %}
             <small>{% help href='generalfunctions.html#why-does-whowasincommand-make-suggestions-to-me' %}</small>
