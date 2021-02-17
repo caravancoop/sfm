@@ -1744,7 +1744,7 @@ msgstr ""
 msgid ""
 "Please contact <a href='mailto:technical@securityforcemonitor."
 "org'>technical@securityforcemonitor.org</a> with a data access request and "
-"we will do our best to fulfill it."
+"we will do our best to fulfil it."
 msgstr ""
 
 #: templates/edit.html:15 templates/organization/base-organization.html:10
