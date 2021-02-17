@@ -1431,8 +1431,9 @@ class Command(BaseCommand):
         membership_positions = {
             'Organization': {
                 'value': MembershipPerson.get_spreadsheet_field_name('organization'),
-                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('organization'),
-                'source': MembershipPerson.get_spreadsheet_source_field_name('organization'),
+                # Confidence and source fields don't follow consistent naming convention
+                'confidence': 'person:posting_unit:confidence',
+                'source': 'person:posting_unit:source',
             },
             'Role': {
                 'value': MembershipPerson.get_spreadsheet_field_name('role'),
@@ -1569,9 +1570,15 @@ class Command(BaseCommand):
 
                 # Make membership objects
                 try:
-                    organization_name = person_data[membership_positions['Organization']['value']]
+                    uuid = person_data[membership_positions['Organization']['value']]
+                    organization_name = {
+                        v: k for k, v in self.organization_entity_map.items()
+                    }[uuid]
                 except IndexError:
                     self.log_error('Row seems to be empty')
+                    return None
+                except KeyError:
+                    self.log_error('Organization "{}" not in entity map'.format(uuid))
                     return None
 
                 try:
@@ -1598,12 +1605,6 @@ class Command(BaseCommand):
                         'sources': division_sources,
                     }
                 }
-
-                try:
-                    uuid = self.organization_entity_map[organization_name]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of organization names'.format(organization_name))
-                    return None
 
                 try:
                     organization = Organization.objects.get(uuid=uuid)

@@ -145,8 +145,8 @@ class MembershipPersonOrganization(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
     value = models.ForeignKey(Organization)
     field_name = _("Unit")
-    shortcode = 'p_p'
-    spreadsheet_field_name = 'person:posting'
+    shortcode = 'p_puid_a'
+    spreadsheet_field_name = 'person:posting_unit_id:admin'
 
 
 @versioned
