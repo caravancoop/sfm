@@ -21,17 +21,19 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         self.location_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '..',
-            '..',
-            '..',
+            os.getcwd(),
             options['location_file'],
         )
 
-        self.import_raw_locations()
-        self.create_location_objects()
+        n_raw = self.import_raw_locations()
+        n_inserted_or_updated = self.create_location_objects()
+
+        try:
+            assert n_inserted_or_updated == n_raw
+        except AssertionError:
+            message = 'Number of raw locations ({0}) does not match number of created or updated Location objects ({1})'.format(n_raw, n_inserted_or_updated)
+            raise CommandError(message)
 
     def import_raw_locations(self):
         with connection.cursor() as cursor:
@@ -72,12 +74,13 @@ class Command(BaseCommand):
 
                 n_inserted, = row
 
-        if not error:
-            self.stdout.write(
-                self.style.SUCCESS(
-                    'Imported {} records from raw location file'.format(n_inserted)
-                )
+        self.stdout.write(
+            self.style.SUCCESS(
+                'Imported {} records from raw location file'.format(n_inserted)
             )
+        )
+
+        return n_inserted
 
     def create_location_objects(self):
         insert = '''
@@ -94,28 +97,28 @@ class Command(BaseCommand):
               geometry
             )
             SELECT
-              a.id,
-              a.sfm->>'location:name' AS name,
+              location.id,
+              location.sfm->>'location:name' AS name,
               CASE
-                WHEN a.tags->>'type' = 'boundary' THEN 'boundary'
-                ELSE a.type
+                WHEN location.tags->>'type' = 'boundary' THEN 'boundary'
+                ELSE location.type
               END AS feature_type,
-              'ocd-division/country:' || LOWER(b.tags->>'ISO3166-1') AS division_id,
-              a.tags,
-              a.sfm,
-              a.tags->>'admin_level' AS adminlevel,
-              c.id AS adminlevel1_id,
-              d.id AS adminlevel2_id,
-              a.wkb_geometry AS geometry
-            FROM {table_name} AS a
-            JOIN {table_name} AS b
-            ON a.sfm->>'location:admin_level_2' = b.sfm->>'location:humane_id:admin'
-            LEFT JOIN {table_name} AS c
-            ON a.sfm->>'location:admin_level_6' = c.sfm->>'location:humane_id:admin'
-              AND COALESCE(a.sfm->>'location:admin_level', '') != '6'
-            LEFT JOIN {table_name} AS d
-            ON a.sfm->>'location:admin_level_4' = d.sfm->>'location:humane_id:admin'
-              AND COALESCE(a.sfm->>'location:admin_level', '') != '4'
+              'ocd-division/country:' || LOWER(country.tags->>'ISO3166-1') AS division_id,
+              location.tags,
+              location.sfm,
+              location.tags->>'admin_level' AS adminlevel,
+              adminlevel1.id AS adminlevel1_id,
+              adminlevel2.id AS adminlevel2_id,
+              location.wkb_geometry AS geometry
+            FROM {table_name} AS location
+            JOIN {table_name} AS country
+              ON location.sfm->>'location:admin_level_2' = country.sfm->>'location:humane_id:admin'
+            LEFT JOIN {table_name} AS adminlevel1
+              ON location.sfm->>'location:admin_level_6' = adminlevel1.sfm->>'location:humane_id:admin'
+              AND COALESCE(location.sfm->>'location:admin_level', '') != '6'
+            LEFT JOIN {table_name} AS adminlevel2
+              ON location.sfm->>'location:admin_level_4' = adminlevel2.sfm->>'location:humane_id:admin'
+              AND COALESCE(location.sfm->>'location:admin_level', '') != '4'
             ON CONFLICT (id) DO UPDATE
               SET
                 name = EXCLUDED.name,
@@ -140,3 +143,5 @@ class Command(BaseCommand):
                 'Inserted or updated {} location objects'.format(n_inserted_or_updated)
             )
         )
+
+        return n_inserted_or_updated
