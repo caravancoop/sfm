@@ -10,7 +10,7 @@ from django.conf import settings
 class Command(BaseCommand):
     help = 'Import raw location data into Location objects'
 
-    TABLE_NAME = 'test_locations'
+    TABLE_NAME = 'canonical_locations'
 
     def add_arguments(self, parser):
         parser.add_argument(
