@@ -49,7 +49,7 @@
                         </select>
                     </div>
                         <a href="{% url 'search' %}{% if query %}?q={{ query }}{% endif %}" class="btn btn-sm btn-default"
-                                 {% if not show_clear %}style="display:none;"{% endif %}>
+                                 {% if not show_clear %}style="display:none;"{% endif %} rel="nofollow">
                             <i class="fa fa-fw fa-times"></i>{% trans "Clear all filters" %}
                         </a>
                 </div>
