@@ -240,10 +240,17 @@ def download_zip(request):
     return resp
 
 
+class DownloadDisabled(TemplateView):
+    template_name = 'download_disabled.html'
+
+
 class DownloadData(FormView):
     template_name = 'download.html'
     form_class = DownloadForm
     success_url = reverse_lazy('download')
+
+    def dispatch(self, request, *args, **kwargs):
+        return redirect(reverse('download_disabled'))
 
     def form_valid(self, form):
 
