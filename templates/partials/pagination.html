@@ -67,7 +67,7 @@
                 {% for result_count in results_per_page %}
                     {% if hit_count >= result_count %}
                         {% if not forloop.first %}|{% endif %}
-                        <a href="?{{ q_filters }}&amp;{{ page_type }}_rows={{ result_count }}">
+                        <a href="?{{ q_filters }}&amp;{{ page_type }}_rows={{ result_count }}" rel="nofollow">
                             {% if page.result_count == result_count %}
                                 <strong>{{ result_count }}</strong>
                             {% else %}
