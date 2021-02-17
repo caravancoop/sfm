@@ -253,18 +253,26 @@ class Command(BaseCommand):
             ).execute()
             sheet_mapping[title] = sheet_data['values']
 
-        org_sheets = {title: self.format_dict_reader(data)
-                      for title, data in sheet_mapping.items()
-                      if 'units' in title.lower()}
-        person_sheets = {title: self.format_dict_reader(data)
-                         for title, data in sheet_mapping.items()
-                         if 'persons' in title.lower() and 'persons_extra' not in title.lower()}
-        person_extra_sheets = {title: self.format_dict_reader(data)
-                               for title, data in sheet_mapping.items()
-                               if 'persons_extra' in title.lower()}
-        event_sheets = {title: self.format_dict_reader(data)
-                        for title, data in sheet_mapping.items()
-                        if 'incidents' in title.lower()}
+        org_sheets = {}
+        person_sheets = {}
+        person_extra_sheets = {}
+        event_sheets = {}
+
+        for title, data in sheet_mapping.items():
+            if 'scratch' in title.lower()
+                continue
+
+            elif 'units' in title.lower():
+                org_sheets[title] = self.format_dict_reader(data)
+
+            elif 'persons_extra' in title.lower():
+                person_extra_sheets[title] = self.format_dict_reader(data)
+
+            elif 'persons' in title.lower():
+                person_sheets[title] = self.format_dict_reader(data)
+
+            elif 'incidents' in title.lower():
+                event_sheets[title] = self.format_dict_reader(data)
 
         # Get data about sources
         source_data = service.spreadsheets().values().get(
