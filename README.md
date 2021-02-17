@@ -23,7 +23,7 @@ your own secret variables:
 
     cp sfm_pc/settings_local.example.py sfm_pc/settings_local.dev.py
 
-Replace `OSM_API_KEY` in `settings_local.py` with a Wambacher cliKey. Generate a key [here](https://wambachers-osm.website/boundaries/) by enabling OAuth, selecting a boundary, checking CLI, hitting Export, and looking at the generated URL. You'll also need to set the `GOOGLE_MAPS_KEY` in order to load maps.
+Be sure to set the `GOOGLE_MAPS_KEY` in order to load maps.
 
 Build application container images:
 
@@ -45,14 +45,17 @@ Once the dump has been restored, move on to the step `Set up the search index` b
 
 ### Option 2: Load data via management commands
 
-The standard way to load data into the app is to use the app's management commands for loading data. Start by updating the `Countries` models: 
+The standard way to load data into the app is to use the app's management commands for loading data. Start by updating the `Countries` models:
 
     docker-compose run --rm app ./manage.py update_countries_plus
 
-Next, import OSM data:
+Next, procure the locations GeoJSON file relevant to the data you want to import. This is usually provided with the entity data in Google Drive. Move the GeoJSON file to `fixtures/locations.geojson`, or specify a relative path to your file when you run the command:
 
-    docker-compose run --rm app ./manage.py import_osm
-    docker-compose run --rm app ./manage.py link_locations
+    # import fixtures/locations.geojson
+    docker-compose run --rm app ./manage.py import_locations
+
+    # import geojson file from arbitrary path
+    docker-compose run --rm app .manage.py import_locations --location_file path/to/your/file
 
 Import entity data from Google Drive:
 
@@ -62,10 +65,6 @@ Import entity data from Google Drive:
     # the follow Blackbox command before running the Makefile:
     # blackbox_cat configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
     docker-compose run --rm app make import_google_docs
-
-Clean up unused Locations:
-
-    docker-compose run --rm app ./manage.py clean_locations --batch
 
 ### Set up the search index
 
