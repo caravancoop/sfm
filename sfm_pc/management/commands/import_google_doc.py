@@ -259,7 +259,7 @@ class Command(BaseCommand):
         event_sheets = {}
 
         for title, data in sheet_mapping.items():
-            if 'scratch' in title.lower()
+            if 'scratch' in title.lower():
                 continue
 
             elif 'units' in title.lower():
