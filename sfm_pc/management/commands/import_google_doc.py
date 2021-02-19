@@ -143,6 +143,7 @@ class Command(BaseCommand):
             # Flush database
             this_dir = os.path.abspath(os.path.dirname(__file__))
             flush_sql = os.path.join(this_dir, 'flush', 'flush.sql')
+
             execute_sql(flush_sql)
 
             # Recreate country codes

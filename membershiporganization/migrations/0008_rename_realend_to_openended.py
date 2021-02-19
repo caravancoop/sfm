@@ -36,6 +36,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL(
+            'SET CONSTRAINTS ALL IMMEDIATE',
+            reverse_sql=migrations.RunSQL.noop
+        ),
         migrations.AddField(
             model_name='MembershipOrganizationRealEnd',
             name='new_value',
@@ -53,4 +57,8 @@ class Migration(migrations.Migration):
         ),
         migrations.RenameModel('MembershipOrganizationRealEnd', 'MembershipOrganizationOpenEnded'),
         migrations.AlterModelTable('MembershipOrganizationOpenEnded', 'membershiporganization_membershiporganizationopenended'),
+        migrations.RunSQL(
+            migrations.RunSQL.noop,
+            reverse_sql='SET CONSTRAINTS ALL IMMEDIATE'
+        ),
     ]
