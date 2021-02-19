@@ -61,16 +61,16 @@ class Command(BaseCommand):
             help='Import source data from specified Google Drive Document'
         )
         parser.add_argument(
+            '--location_doc_id',
+            dest='location_doc_id',
+            default=None,
+            help='Import location data from specified Google Drive file'
+        )
+        parser.add_argument(
             '--entity-types',
             dest='entity_types',
             default='organization,person,person_extra,event',
             help='Comma separated list of entity types to import'
-        )
-        parser.add_argument(
-            '--country_code',
-            dest='country_code',
-            default='mx',
-            help='Two letter ISO code for the country that the Google Sheets are about'
         )
         parser.add_argument(
             '--flush',
@@ -95,14 +95,14 @@ class Command(BaseCommand):
         sources = [s for s in getattr(obj, attribute).get_sources()]
         return list(set(s for s in sources if s))
 
-    def get_credentials(self):
+    def get_credentials(self, credentials_file='credentials.json', scopes=SCOPES):
         '''make sure relevant accounts have access to the sheets at console.developers.google.com'''
 
         this_dir = os.path.dirname(__file__)
-        secrets_path = os.path.join(this_dir, 'credentials.json')
+        secrets_path = os.path.join(this_dir, credentials_file)
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(secrets_path,
-                                                                       SCOPES)
+                                                                       scopes)
         return credentials
 
     def disconnectSignals(self):
@@ -161,15 +161,16 @@ class Command(BaseCommand):
         # Disconnect post save signals
         self.disconnectSignals()
 
-        # Set the country code for the work
-        self.country_code = options['country_code']
-
         if options.get('folder'):
             self.stdout.write('Loading data from folder {}...'.format(options['folder']))
             all_sheets = self.get_sheets_from_folder(options['folder'])
         else:
             self.stdout.write('Loading data from Google Sheets...')
             all_sheets = self.get_sheets_from_doc(options['doc_id'], options['source_doc_id'])
+
+        if options.get('location_doc_id'):
+            self.get_locations_from_drive(options['location_doc_id'])
+            self.create_locations()
 
         self.create_sources(all_sheets['source'])
 
@@ -229,6 +230,48 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(data_src)))
         # connect post save signals
         self.connectSignals()
+
+    def create_locations(self, location_file):
+        call_command('import_locations', location_file=location_file)
+
+    def get_locations_from_drive(self, location_doc_id):
+        '''
+        Traceback (most recent call last):
+          File "manage.py", line 10, in <module>
+            execute_from_command_line(sys.argv)
+          File "/usr/local/lib/python3.5/site-packages/django/core/management/__init__.py", line 364, in execute_from_command_line
+            utility.execute()
+          File "/usr/local/lib/python3.5/site-packages/django/core/management/__init__.py", line 356, in execute
+            self.fetch_command(subcommand).run_from_argv(self.argv)
+          File "/usr/local/lib/python3.5/site-packages/django/core/management/base.py", line 283, in run_from_argv
+            self.execute(*args, **cmd_options)
+          File "/usr/local/lib/python3.5/site-packages/django/core/management/base.py", line 330, in execute
+            output = self.handle(*args, **options)
+          File "/app/sfm_pc/management/commands/import_google_doc.py", line 172, in handle
+            self.get_locations_from_drive(options['location_doc_id'])
+          File "/app/sfm_pc/management/commands/import_google_doc.py", line 245, in get_locations_from_drive
+            document = service.documents().get(documentId=location_doc_id).execute()
+          File "/usr/local/lib/python3.5/site-packages/oauth2client/_helpers.py", line 133, in positional_wrapper
+            return wrapped(*args, **kwargs)
+          File "/usr/local/lib/python3.5/site-packages/googleapiclient/http.py", line 838, in execute
+            raise HttpError(resp, content, uri=self.uri)
+        googleapiclient.errors.HttpError: <HttpError 400 when requesting https://docs.googleapis.com/v1/documents/1k4dzPPSsGZUE3nClvvfEY1gevLVpdOo-?alt=json returned "Request contains an invalid argument.">
+
+        Thread: https://github.com/googleworkspace/python-samples/issues/83
+        '''
+        credentials = self.get_credentials(
+            credentials_file='google_drive_credentials.json',
+            scopes=['https://www.googleapis.com/auth/documents.readonly']
+        )
+        http = credentials.authorize(httplib2.Http())
+        service = build('docs', 'v1', http=http)
+
+        document = service.documents().get(documentId=location_doc_id).execute()
+
+        import pdb
+        pdb.set_trace()
+
+        return location_file
 
     def get_sheets_from_doc(self, doc_id, source_doc_id):
         """
