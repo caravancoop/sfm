@@ -45,3 +45,4 @@ credentials.json
 /configs/sfm.conf.sahel.supervisor
 
 fixtures/*.geojson
+/configs/google_drive_credentials.json
