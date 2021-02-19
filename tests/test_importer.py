@@ -96,7 +96,7 @@ def test_sources(data_import, data_folder):
                 'ViolationStartDate', 'ViolationStatus', 'ViolationType',
                 'ViolationFirstAllegation', 'ViolationDescription',
                 'ViolationEndDate', 'ViolationLastUpdate',
-                'ViolationPerpetratorClassification',
+                'ViolationPerpetratorClassification', 'ViolationPerpetrator',
                 'ViolationLocationDescription',
                 'ViolationPerpetratorOrganization'
             ])
