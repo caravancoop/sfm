@@ -112,8 +112,8 @@ class OrganizationDetail(BaseDetailView):
             context['events'].append(event.object_ref)
 
         context['sites'] = []
-        emplacements = tuple(context['organization'].emplacements)
-        context['emplacements'] = (em.object_ref for em in emplacements)
+        emplacements = context['organization'].emplacements
+        context['emplacements'] = list(em.object_ref for em in emplacements)
 
         site_ids = [
             emplacement.object_ref.site.get_value().value.id
@@ -126,8 +126,8 @@ class OrganizationDetail(BaseDetailView):
             geometry_field='geometry'
         )
 
-        associations = tuple(context['organization'].associations)
-        context['associations'] = (ass.object_ref for ass in associations)
+        associations = context['organization'].associations
+        context['associations'] = list(ass.object_ref for ass in associations)
 
         area_ids = [
             association.object_ref.area.get_value().value.id
