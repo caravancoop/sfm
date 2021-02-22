@@ -6,7 +6,7 @@
 {% load help %}
 {% load model_meta %}
 
-{% if sites %}
+{% if associations or emplacements %}
     {% block extra_head %}
          <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
     {% endblock %}
@@ -60,8 +60,8 @@
 
 {% block sidebar %}
 
-    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
-    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
+    {% if associations %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
+    {% if emplacements %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
     {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
@@ -76,8 +76,8 @@
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
 
-    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
-    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
+    {% if associations %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
+    {% if emplacements %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
     {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
@@ -90,7 +90,7 @@
 
 {% block details %}
 
-    {% if areas %}
+    {% if associations %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i>
@@ -143,7 +143,7 @@
     </div>
     {% endif %}
 
-    {% if sites %}
+    {% if emplacements %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="sites">
@@ -511,7 +511,7 @@
             $("#print-page").on("click", function(){ window.print(); });
         });
     </script>
-    {% if sites or areas %}
+    {% if associations or emplacements %}
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
         <script src="{% static 'js/unit_maps.js' %}"></script>
         <script type="text/javascript">
@@ -520,8 +520,8 @@
                 var areas = {{ areas|safe }};
                 var mapAttribution = '{% blocktrans %}Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>{% endblocktrans %}';
 
-                if (sites) UnitMaps.initializeMap(L, 'osm_site_map', sites, mapAttribution);
-                if (areas) UnitMaps.initializeMap(L, 'osm_area_map', areas, mapAttribution);
+                if (sites.features.length > 0) UnitMaps.initializeMap(L, 'osm_site_map', sites, mapAttribution);
+                if (areas.features.length > 0) UnitMaps.initializeMap(L, 'osm_area_map', areas, mapAttribution);
             });
         </script>
     {% endif %}
