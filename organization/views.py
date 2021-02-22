@@ -3,6 +3,7 @@ import json
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
+from django.core.serializers import serialize
 
 from emplacement.models import Emplacement
 
@@ -18,6 +19,8 @@ from organization.forms import OrganizationBasicsForm, \
     OrganizationCreateAssociationForm, OrganizationMembershipForm, \
     OrganizationCreateMembershipForm
 from organization.models import Organization
+
+from location.models import Location
 
 from membershipperson.models import MembershipPerson
 
@@ -111,19 +114,31 @@ class OrganizationDetail(BaseDetailView):
         context['sites'] = []
         emplacements = tuple(context['organization'].emplacements)
         context['emplacements'] = (em.object_ref for em in emplacements)
-        for emplacement in emplacements:
-            context['sites'].append(emplacement.object_ref.site.get_value().value)
 
-        context['areas'] = []
+        site_ids = [
+            emplacement.object_ref.site.get_value().value.id
+            for emplacement in emplacements
+        ]
+
+        context['sites'] = serialize(
+            'geojson',
+            Location.objects.filter(id__in=site_ids),
+            geometry_field='geometry'
+        )
+
         associations = tuple(context['organization'].associations)
         context['associations'] = (ass.object_ref for ass in associations)
-        for association in associations:
-            geom = association.object_ref.area.get_value().value.geometry
-            area_obj = {
-                'geom': geom,
-                'name': association.object_ref.area.get_value().value.name
-            }
-            context['areas'].append(area_obj)
+
+        area_ids = [
+            association.object_ref.area.get_value().value.id
+            for association in associations
+        ]
+
+        context['areas'] = serialize(
+            'geojson',
+            Location.objects.filter(id__in=area_ids),
+            geometry_field='geometry'
+        )
 
         context['parents'] = []
         context['parents_list'] = []
