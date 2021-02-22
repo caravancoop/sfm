@@ -1,4 +1,5 @@
 import os
+import io
 import itertools
 from datetime import datetime
 import csv
@@ -7,6 +8,7 @@ import httplib2
 
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
 
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
@@ -161,16 +163,16 @@ class Command(BaseCommand):
         # Disconnect post save signals
         self.disconnectSignals()
 
+        if options.get('location_doc_id'):
+            self.get_locations_from_drive(options['location_doc_id'])
+            self.create_locations()
+
         if options.get('folder'):
             self.stdout.write('Loading data from folder {}...'.format(options['folder']))
             all_sheets = self.get_sheets_from_folder(options['folder'])
         else:
             self.stdout.write('Loading data from Google Sheets...')
             all_sheets = self.get_sheets_from_doc(options['doc_id'], options['source_doc_id'])
-
-        if options.get('location_doc_id'):
-            self.get_locations_from_drive(options['location_doc_id'])
-            self.create_locations()
 
         self.create_sources(all_sheets['source'])
 
@@ -231,45 +233,36 @@ class Command(BaseCommand):
         # connect post save signals
         self.connectSignals()
 
-    def create_locations(self, location_file):
+    def create_locations(self):
+        this_dir = os.path.abspath(os.path.dirname(__file__))
+        location_file = os.path.join(this_dir, 'data', 'locations.geojson')
         call_command('import_locations', location_file=location_file)
 
     def get_locations_from_drive(self, location_doc_id):
-        '''
-        Traceback (most recent call last):
-          File "manage.py", line 10, in <module>
-            execute_from_command_line(sys.argv)
-          File "/usr/local/lib/python3.5/site-packages/django/core/management/__init__.py", line 364, in execute_from_command_line
-            utility.execute()
-          File "/usr/local/lib/python3.5/site-packages/django/core/management/__init__.py", line 356, in execute
-            self.fetch_command(subcommand).run_from_argv(self.argv)
-          File "/usr/local/lib/python3.5/site-packages/django/core/management/base.py", line 283, in run_from_argv
-            self.execute(*args, **cmd_options)
-          File "/usr/local/lib/python3.5/site-packages/django/core/management/base.py", line 330, in execute
-            output = self.handle(*args, **options)
-          File "/app/sfm_pc/management/commands/import_google_doc.py", line 172, in handle
-            self.get_locations_from_drive(options['location_doc_id'])
-          File "/app/sfm_pc/management/commands/import_google_doc.py", line 245, in get_locations_from_drive
-            document = service.documents().get(documentId=location_doc_id).execute()
-          File "/usr/local/lib/python3.5/site-packages/oauth2client/_helpers.py", line 133, in positional_wrapper
-            return wrapped(*args, **kwargs)
-          File "/usr/local/lib/python3.5/site-packages/googleapiclient/http.py", line 838, in execute
-            raise HttpError(resp, content, uri=self.uri)
-        googleapiclient.errors.HttpError: <HttpError 400 when requesting https://docs.googleapis.com/v1/documents/1k4dzPPSsGZUE3nClvvfEY1gevLVpdOo-?alt=json returned "Request contains an invalid argument.">
-
-        Thread: https://github.com/googleworkspace/python-samples/issues/83
-        '''
         credentials = self.get_credentials(
             credentials_file='google_drive_credentials.json',
-            scopes=['https://www.googleapis.com/auth/documents.readonly']
+            scopes=['https://www.googleapis.com/auth/drive.readonly']
         )
-        http = credentials.authorize(httplib2.Http())
-        service = build('docs', 'v1', http=http)
+        service = build('drive', 'v3', credentials=credentials)
+        request = service.files().get_media(fileId=location_doc_id)
 
-        document = service.documents().get(documentId=location_doc_id).execute()
+        '''
+        TODO: Add tqdm?
+        '''
+        location_buffer = io.BytesIO()
+        downloader = MediaIoBaseDownload(location_buffer, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            print('Download {}%.'.format(int(status.progress() * 100)))
 
-        import pdb
-        pdb.set_trace()
+        location_buffer.seek(0)
+
+        this_dir = os.path.abspath(os.path.dirname(__file__))
+        location_file = os.path.join(this_dir, 'data', 'locations.geojson')
+
+        with open(location_file, 'wb') as f:
+            f.write(location_buffer.getbuffer())
 
         return location_file
 
