@@ -45,8 +45,6 @@ from violation.models import Violation, ViolationPerpetrator, \
 
 from location.models import Location
 
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-
 
 class Command(BaseCommand):
     help = 'Import data from Google Drive Spreadsheet'
@@ -99,7 +97,7 @@ class Command(BaseCommand):
         sources = [s for s in getattr(obj, attribute).get_sources()]
         return list(set(s for s in sources if s))
 
-    def get_credentials(self, credentials_file='credentials.json', scopes=SCOPES):
+    def get_credentials(self, *, scopes, credentials_file='credentials.json'):
         '''make sure relevant accounts have access to the sheets at console.developers.google.com'''
 
         this_dir = os.path.dirname(__file__)
@@ -242,7 +240,6 @@ class Command(BaseCommand):
 
     def get_locations_from_drive(self, location_doc_id):
         credentials = self.get_credentials(
-            credentials_file='google_drive_credentials.json',
             scopes=['https://www.googleapis.com/auth/drive.readonly']
         )
         service = build('drive', 'v3', credentials=credentials)
@@ -276,7 +273,9 @@ class Command(BaseCommand):
         Load data from Google Sheets. Required params include a Google Doc ID
         for top-level entities and a Doc ID for sources.
         """
-        credentials = self.get_credentials()
+        credentials = self.get_credentials(
+            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly']
+        )
         http = credentials.authorize(httplib2.Http())
         service = build('sheets', 'v4', http=http)
 

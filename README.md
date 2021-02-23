@@ -45,11 +45,15 @@ Once the dump has been restored, move on to the step `Set up the search index` b
 
 ### Option 2: Load data via management commands
 
+#### Location data
+
 The standard way to load data into the app is to use the app's management commands for loading data. Start by updating the `Countries` models:
 
     docker-compose run --rm app ./manage.py update_countries_plus
 
-Next, procure the locations GeoJSON file relevant to the data you want to import. This is usually provided with the entity data in Google Drive. Move the GeoJSON file to `fixtures/locations.geojson`, or specify a relative path to your file when you run the command:
+OSM data is provided by the SFM team in a special GeoJSON format. You can import
+location data from a local file by running the `import_locations` command
+directly –
 
     # import fixtures/locations.geojson
     docker-compose run --rm app ./manage.py import_locations
@@ -57,14 +61,34 @@ Next, procure the locations GeoJSON file relevant to the data you want to import
     # import geojson file from arbitrary path
     docker-compose run --rm app .manage.py import_locations --location_file path/to/your/file
 
-Import entity data from Google Drive:
+– or, you can pass an optional `--location_file_id` argument to `import_google_docs`
+to retrieve the specified file from Google Drive and import it before importing
+entity data. (Read on for instructions!)
 
-    # This command will look for valid credential data for a Google Drive Service Account
-    # in sfm_pc/management/commands/credentials.json. The Service Account needs to have
-    # access to all the relevant files. If you're on the keyring for this project, run
-    # the follow Blackbox command before running the Makefile:
-    # blackbox_cat configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
+#### Entity data
+
+The `import_google_docs` expects to find credentials for the Google
+Sheets and Google Drive APIs in `sfm_pc/management/commands/credentials.json`.
+If you are on the keyring for this project, run the following Blackbox commands
+decrypt and create the expected credentials files, before you run `import_google_docs`.
+(N.b., the data import service account lives under the `SFM - Data Import` project.)
+
+    blackbox_cat configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
+
+If you are not on the keyring, enable the Google Sheets and Google Drive APIs in
+[the Google API Console](https://console.developers.google.com/apis/library), then
+create a service account to access them. [This blog post](https://www.twilio.com/blog/2017/02/an-easy-way-to-read-and-write-to-a-google-spreadsheet-in-python.html)
+provides a helpful walkthrough! Be sure to save your credentials in
+`sfm_pc_management/commands/credentials.json` and give your service account
+access to the correct files before you run `import_google_docs`.
+
+Finally, import entity data from Google Drive:
+
+    # Import entity data from default files
     docker-compose run --rm app make import_google_docs
+
+    # Import entity data from specified files
+    docker-compose run --rm app python manage.py import_google_doc --doc_id ${SOME_ID} --source_doc_id ${SOME_ID} --location_doc_id ${SOME_ID}
 
 ### Set up the search index
 
