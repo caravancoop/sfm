@@ -16,7 +16,7 @@ var UnitMaps = {
     var features = L.featureGroup();
 
     $.each(locations.features, function (_, location) {
-      if (location.properties.feature_type === 'node') {
+      if (['node', 'point'].indexOf(location.properties.feature_type) >= 0) {
         // Coordinates are (x, y) and Leaflet expects (y, x). reverse() modifies
         // an array inplace, so create a copy as not to mutate the source data,
         // then reverse the coordinates before passing to the Marker method.
@@ -26,7 +26,7 @@ var UnitMaps = {
         features.addLayer(
           L.marker(leafletCoordinates).bindPopup(location.properties.name)
         )
-      } else if (location.properties.feature_type === 'boundary' || location.properties.feature_type === 'way') {
+      } else if (['boundary', 'way', 'relation'].indexOf(location.properties.feature_type) >= 0) {
         features.addLayer(
           L.geoJson(location, {onEachFeature: UnitMaps.onEachFeature})
         ).setStyle(
