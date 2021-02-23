@@ -80,7 +80,7 @@ If you are not on the keyring, enable the Google Sheets and Google Drive APIs in
 [the Google API Console](https://console.developers.google.com/apis/library), then
 create a service account to access them. [This blog post](https://www.twilio.com/blog/2017/02/an-easy-way-to-read-and-write-to-a-google-spreadsheet-in-python.html)
 provides a helpful walkthrough! Be sure to save your credentials in
-`sfm_pc_management/commands/credentials.json` and give your service account
+`sfm_pc/management/commands/credentials.json` and give your service account
 access to the correct files before you run `import_google_docs`.
 
 Finally, import entity data from Google Drive:
