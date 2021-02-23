@@ -69,9 +69,10 @@ entity data. (Read on for instructions!)
 
 The `import_google_docs` expects to find credentials for the Google
 Sheets and Google Drive APIs in `sfm_pc/management/commands/credentials.json`.
-If you are on the keyring for this project, run the following Blackbox commands
-decrypt and create the expected credentials files, before you run `import_google_docs`.
-(N.b., the data import service account lives under the `SFM - Data Import` project.)
+If you are on the keyring for this project, run the following Blackbox command to
+decrypt and create the expected credentials file, before you run `import_google_docs`.
+(N.b., the data import service account lives under the `SFM - Data Import` project
+in the Google API Console.)
 
     blackbox_cat configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
 
