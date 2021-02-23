@@ -10,6 +10,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
+from tqdm import tqdm
+
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
 from django.db import models, IntegrityError
@@ -246,15 +248,16 @@ class Command(BaseCommand):
         service = build('drive', 'v3', credentials=credentials)
         request = service.files().get_media(fileId=location_doc_id)
 
-        '''
-        TODO: Add tqdm?
-        '''
         location_buffer = io.BytesIO()
         downloader = MediaIoBaseDownload(location_buffer, request)
         done = False
-        while done is False:
-            status, done = downloader.next_chunk()
-            print('Download {}%.'.format(int(status.progress() * 100)))
+
+        self.stdout.write('Downloading locations file...')
+
+        with tqdm(total=100) as progress_bar:
+            while done is False:
+                status, done = downloader.next_chunk()
+                progress_bar.update(int(status.progress() * 100) - progress_bar.n)
 
         location_buffer.seek(0)
 
@@ -264,7 +267,9 @@ class Command(BaseCommand):
         with open(location_file, 'wb') as f:
             f.write(location_buffer.getbuffer())
 
-        return location_file
+        self.stdout.write(
+            self.style.SUCCESS('Downloaded locations file to {}'.format(location_file))
+        )
 
     def get_sheets_from_doc(self, doc_id, source_doc_id):
         """
