@@ -26,12 +26,14 @@ var UnitMaps = {
         features.addLayer(
           L.marker(leafletCoordinates).bindPopup(location.properties.name)
         )
-      } else if (location.properties.feature_type === 'boundary') {
+      } else if (location.properties.feature_type === 'boundary' || location.properties.feature_type === 'way') {
         features.addLayer(
           L.geoJson(location, {onEachFeature: UnitMaps.onEachFeature})
+        ).setStyle(
+          {fillOpacity: location.properties.feature_type === 'way' ? 0 : 0.25}
         )
       } else {
-        console.error('Got unexpected feature type ' + location.properties.feature_type + 'for location ' + location.properties.name)
+        console.error('Got unexpected feature type ' + location.properties.feature_type + ' for location ' + location.properties.name)
       }
     });
 
