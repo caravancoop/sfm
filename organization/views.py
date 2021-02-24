@@ -113,7 +113,7 @@ class OrganizationDetail(BaseDetailView):
 
         context['sites'] = []
         emplacements = context['organization'].emplacements
-        context['emplacements'] = list(em.object_ref for em in emplacements)
+        context['emplacements'] = [em.object_ref for em in emplacements]
 
         site_ids = [
             emplacement.object_ref.site.get_value().value.id
@@ -127,7 +127,7 @@ class OrganizationDetail(BaseDetailView):
         )
 
         associations = context['organization'].associations
-        context['associations'] = list(ass.object_ref for ass in associations)
+        context['associations'] = [ass.object_ref for ass in associations]
 
         area_ids = [
             association.object_ref.area.get_value().value.id
