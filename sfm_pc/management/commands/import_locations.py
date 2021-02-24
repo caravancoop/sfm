@@ -1,9 +1,11 @@
+import json
 import urllib.request
 import subprocess
 import os
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
+from django.db.utils import ProgrammingError
 from django.conf import settings
 
 
@@ -27,6 +29,10 @@ class Command(BaseCommand):
         )
 
         n_raw = self.import_raw_locations()
+
+        if n_raw == 0:
+            return
+
         n_inserted_or_updated = self.create_location_objects()
 
         try:
@@ -61,18 +67,32 @@ class Command(BaseCommand):
 
         with connection.cursor() as cursor:
             for column in ('sfm', 'tags'):
-                cursor.execute('''
-                    ALTER TABLE {table_name}
-                    ALTER COLUMN {column_name}
-                    TYPE json USING {column_name}::json
-                '''.format(table_name=self.TABLE_NAME,
-                           column_name=column))
+                try:
+                    cursor.execute('''
+                        ALTER TABLE {table_name}
+                        ALTER COLUMN {column_name}
+                        TYPE json USING {column_name}::json
+                    '''.format(table_name=self.TABLE_NAME,
+                               column_name=column))
 
-                cursor.execute('SELECT COUNT(*) FROM {}'.format(self.TABLE_NAME))
+                except ProgrammingError:
+                    # Handle instance where there are no locations in the
+                    # provided file.
+                    with open(self.location_file, 'r') as f:
+                        location_geojson = json.load(f)
 
-                row = cursor.fetchone()
+                    assert len(location_geojson['features']) == 0
+                    self.stdout.write('No locations in given file')
+                    n_inserted = 0
 
-                n_inserted, = row
+                    break
+
+                else:
+                    cursor.execute('SELECT COUNT(*) FROM {}'.format(self.TABLE_NAME))
+
+                    row = cursor.fetchone()
+
+                    n_inserted, = row
 
         self.stdout.write(
             self.style.SUCCESS(
