@@ -103,7 +103,9 @@ class Command(BaseCommand):
                 WHEN location.tags->>'type' = 'boundary' THEN 'boundary'
                 ELSE location.type
               END AS feature_type,
-              'ocd-division/country:' || LOWER(country.tags->>'ISO3166-1') AS division_id,
+              'ocd-division/country:' || LOWER(
+                COALESCE(country.tags->>'ISO3166-1', location.tags->>'is_in:country_code')
+              ) AS division_id,
               location.tags,
               location.sfm,
               location.tags->>'admin_level' AS adminlevel,
@@ -111,7 +113,7 @@ class Command(BaseCommand):
               adminlevel2.id AS adminlevel2_id,
               location.wkb_geometry AS geometry
             FROM {table_name} AS location
-            JOIN {table_name} AS country
+            LEFT JOIN {table_name} AS country
               ON location.sfm->>'location:admin_level_2' = country.sfm->>'location:humane_id:admin'
             LEFT JOIN {table_name} AS adminlevel1
               ON location.sfm->>'location:admin_level_6' = adminlevel1.sfm->>'location:humane_id:admin'
