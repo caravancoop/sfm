@@ -89,3 +89,9 @@ class Location(models.Model):
             })
 
         return related_entities
+
+    @property
+    def osm_feature_type(self):
+        if self.feature_type == 'boundary':
+            return 'relation'
+        return self.feature_type
