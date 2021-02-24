@@ -1,4 +1,5 @@
 import os
+import io
 import itertools
 from datetime import datetime
 import csv
@@ -7,6 +8,9 @@ import httplib2
 
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
+
+from tqdm import tqdm
 
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
@@ -41,8 +45,6 @@ from violation.models import Violation, ViolationPerpetrator, \
 
 from location.models import Location
 
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-
 
 class Command(BaseCommand):
     help = 'Import data from Google Drive Spreadsheet'
@@ -61,16 +63,16 @@ class Command(BaseCommand):
             help='Import source data from specified Google Drive Document'
         )
         parser.add_argument(
+            '--location_doc_id',
+            dest='location_doc_id',
+            default=None,
+            help='Import location data from specified Google Drive file'
+        )
+        parser.add_argument(
             '--entity-types',
             dest='entity_types',
             default='organization,person,person_extra,event',
             help='Comma separated list of entity types to import'
-        )
-        parser.add_argument(
-            '--country_code',
-            dest='country_code',
-            default='mx',
-            help='Two letter ISO code for the country that the Google Sheets are about'
         )
         parser.add_argument(
             '--flush',
@@ -95,14 +97,14 @@ class Command(BaseCommand):
         sources = [s for s in getattr(obj, attribute).get_sources()]
         return list(set(s for s in sources if s))
 
-    def get_credentials(self):
+    def get_credentials(self, *, scopes, credentials_file='credentials.json'):
         '''make sure relevant accounts have access to the sheets at console.developers.google.com'''
 
         this_dir = os.path.dirname(__file__)
-        secrets_path = os.path.join(this_dir, 'credentials.json')
+        secrets_path = os.path.join(this_dir, credentials_file)
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(secrets_path,
-                                                                       SCOPES)
+                                                                       scopes)
         return credentials
 
     def disconnectSignals(self):
@@ -161,8 +163,9 @@ class Command(BaseCommand):
         # Disconnect post save signals
         self.disconnectSignals()
 
-        # Set the country code for the work
-        self.country_code = options['country_code']
+        if options.get('location_doc_id'):
+            self.get_locations_from_drive(options['location_doc_id'])
+            self.create_locations()
 
         if options.get('folder'):
             self.stdout.write('Loading data from folder {}...'.format(options['folder']))
@@ -230,12 +233,49 @@ class Command(BaseCommand):
         # connect post save signals
         self.connectSignals()
 
+    def create_locations(self):
+        this_dir = os.path.abspath(os.path.dirname(__file__))
+        location_file = os.path.join(this_dir, 'data', 'locations.geojson')
+        call_command('import_locations', location_file=location_file)
+
+    def get_locations_from_drive(self, location_doc_id):
+        credentials = self.get_credentials(
+            scopes=['https://www.googleapis.com/auth/drive.readonly']
+        )
+        service = build('drive', 'v3', credentials=credentials)
+        request = service.files().get_media(fileId=location_doc_id)
+
+        location_buffer = io.BytesIO()
+        downloader = MediaIoBaseDownload(location_buffer, request)
+        done = False
+
+        self.stdout.write('Downloading locations file...')
+
+        with tqdm(total=100) as progress_bar:
+            while done is False:
+                status, done = downloader.next_chunk()
+                progress_bar.update(int(status.progress() * 100) - progress_bar.n)
+
+        location_buffer.seek(0)
+
+        this_dir = os.path.abspath(os.path.dirname(__file__))
+        location_file = os.path.join(this_dir, 'data', 'locations.geojson')
+
+        with open(location_file, 'wb') as f:
+            f.write(location_buffer.getbuffer())
+
+        self.stdout.write(
+            self.style.SUCCESS('Downloaded locations file to {}'.format(location_file))
+        )
+
     def get_sheets_from_doc(self, doc_id, source_doc_id):
         """
         Load data from Google Sheets. Required params include a Google Doc ID
         for top-level entities and a Doc ID for sources.
         """
-        credentials = self.get_credentials()
+        credentials = self.get_credentials(
+            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly']
+        )
         http = credentials.authorize(httplib2.Http())
         service = build('sheets', 'v4', http=http)
 
