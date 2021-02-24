@@ -1,8 +1,19 @@
-# Security Force Monitor: Backend [![Build Status](https://travis-ci.org/security-force-monitor/sfm-cms.svg?branch=master)](https://travis-ci.org/security-force-monitor/sfm-cms)
+# Who Was In Command [![Build Status](https://github.com/security-force-monitor/sfm-cms/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/security-force-monitor/sfm-cms/actions?query=branch%3Amaster)
 
-## OS Level dependencies
+- [Dependencies](#dependencies)
+- [Development](#development)
+- [Translations](#translations)
+- [Tests](#tests)
+- [Using the Google Drive import script](#using-the-google-drive-import-script)
 
-* Docker and Docker Compose
+**See also:**
+
+- [Who Was In Command: Getting started with development](DEVELOPMENT.md)
+- [Security Force Monitor: Research Handbook](https://help.securityforcemonitor.org/en/latest/index.html)
+
+## Dependencies
+
+* [Docker](https://www.docker.com/get-started)
 
 ## Development
 
@@ -16,22 +27,23 @@ Clone the repo:
 Next, create a local settings file. If you're on the Blackbox keyring for the repo,
 decrypt the development settings file:
 
-    blackbox_cat configs/settings_local_dev.py.gpg > sfm_pc/settings_local.dev.py
+    blackbox_cat configs/settings_local_dev.py.gpg > sfm_pc/settings_local.py
 
 If you're not on the keyring, you can copy the example settings file and set
-your own secret variables:
+your own secret variables. Be sure to set the `GOOGLE_MAPS_KEY` in order to load
+maps!
 
-    cp sfm_pc/settings_local.example.py sfm_pc/settings_local.dev.py
+    cp sfm_pc/settings_local.example.py sfm_pc/settings_local.py
 
-Be sure to set the `GOOGLE_MAPS_KEY` in order to load maps.
-
-Build application container images:
+Finally, build the application:
 
     docker-compose build
 
-Once you have container images, there are two ways that you can load data into your database.
+### Load data
 
-### Option 1: Load a database dump
+Once you've built the app, there are two ways that you can load data into your database.
+
+#### Option 1: Load a database dump
 
 The standard data loading process for the app can take many hours to complete. If you're working with a developer who already has a database set up, you can save time by having them make a dump of their database for you:
 
@@ -43,9 +55,9 @@ Then, load this dump into your own database:
 
 Once the dump has been restored, move on to the step `Set up the search index` below.
 
-### Option 2: Load data via management commands
+#### Option 2: Load data via management commands
 
-#### Location data
+##### Location data
 
 The standard way to load data into the app is to use the app's management commands for loading data. Start by updating the `Countries` models:
 
@@ -65,7 +77,7 @@ directly –
 to retrieve the specified file from Google Drive and import it before importing
 entity data. (Read on for instructions!)
 
-#### Entity data
+##### Entity data
 
 The `import_google_docs` expects to find credentials for the Google
 Sheets and Google Drive APIs in `sfm_pc/management/commands/credentials.json`.
@@ -91,6 +103,9 @@ Finally, import entity data from Google Drive:
     # Import entity data from specified files
     docker-compose run --rm app python manage.py import_google_doc --doc_id ${SOME_ID} --source_doc_id ${SOME_ID} --location_doc_id ${SOME_ID}
 
+See [Using the Google Drive import script](#using-the-google-drive-import-script)
+for more detailed information about these management commands.
+
 ### Set up the search index
 
 Build and start the Docker image for the Solr server:
@@ -101,15 +116,13 @@ Open up another shell and create the search index:
 
     docker-compose run --rm app ./manage.py make_search_index
 
-Create an admin user:
+### Run the app
 
-    docker-compose run --rm app ./manage.py createsuperuser
+    docker-compose up
 
-Start the web server:
-
-    docker-compose run --rm app ./manage.py runserver
-
-Open http://127.0.0.1:8000/ and sign in with your email and password.
+Open http://localhost:8000/ to browse your shiny new website! New to WWIC
+development? See [Getting started with development](DEVELOPMENT.md)
+for helpful information about how the app is organized, as well as tips and tricks.
 
 ## Translations
 
@@ -160,66 +173,26 @@ Or run a single test, like so:
 docker-compose -f docker-compose.yml -f tests/docker-compose.yml run --rm app pytest tests/test_person.py::test_no_existing_sources
 ```
 
-## Using the Google Sheet import script
+## Using the Google Drive import script
 
-If you're reading this and you're asking yourself, "Why on earth would I ever
-want to import data into this system from a Google Sheet? What a nightmare!"
-well, greetings from the past where that was a regular feature of our routine.
-However, it was not as bad as you might think thanks to the brilliant work of
-the SFM team.
-
-The script to import data from a Google Sheet exists as a management command
+The script to import data from Google Drive exists as a management command
 within the `sfm_pc` directory of this project predictably called
-`import_google_doc`. Before actually running the script, you'll need to take
-a few steps.
+`import_google_doc`. As of February 2021, spreadsheets to be imported must follow
+this format: https://docs.google.com/spreadsheets/d/1-U_pVNDWFIlG8jLZLVujmV_FZ0H4IsbtfCeRiM8HeNQ/edit?usp=sharing
 
-The google sheets need to follow this format: https://docs.google.com/spreadsheets/d/12Kap4YtzWPtCdJy-iknF1aDaoIDMij4GU8E2-HlZkAo/edit#gid=597380077
+### Import data from Google Drive
 
-### Import OpenStreetMap data
+The data that powers WWIC is imported from three key documents:
 
-As the Google Sheet importer is importing, it is creating relationships between
-the various entities within the data and OSM nodes, ways and relations. In
-order to speed that process up, we bulk download the data and insert it into
-the location data table directly (rather than making API calls for every lookup
-or some such thing). To do that, update your settings file so that it includes
-the countries you'd like to import. You should see a setting called `OSM_DATA`
-that includes a list of dictionaries that look like this:
+1. A "sources" spreadsheet applicable to the entire import
+2. A "locations" GeoJSON file containing all implicated OSM data for entities
+in a particular country
+3. A "data" spreadsheet containing organization, person, and event entity data
+for a particular country
 
-```
-{
-    'country': 'Mexico',
-    'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
-    'relation_id': '114686',
-    'country_code': 'mx',
-}
-```
-
-* `country` is the nice name for the country
-* `pbf_url` is a location on the internet where you can download a PBF snapshot
-  of the OSM data for that country (we've been using Geofabrik and it's been
-  working just fine)
-* `relation_id` is the OSM id for the relation that represents the country's
-  boundary
-* `country_code` is the two letter ISO country code for the country
-
-Once you have that sorted out, you'll need to make sure you have `osm2pgsql`
-installed (this is the command line tool we use under the hood to turn the PBF
-file into a PostgreSQL table). Once that is installed, you should be able to
-run the `import_osm` management command:
-
-```
-python manage.py import_osm
-```
-
-If you're importing more than one country, this process can take a few hours,
-depending on what kind of coverage each country has in OSM.
-
-### Import data from Google Sheets
-
-The data that powers WWIC is imported from two key Google Sheets: a "sources"
-spreadsheet, and a "data" spreadsheet. Typically, a new import will involve
-running import commands against a new pair of source and data spreadsheets that
-represent either a new country, or updated data for an existing country.
+An import involves running the import command against a set of source, location,
+and data documents that represent either data for a new country, or updated data
+for an existing country.
 
 The following sections explain our process for running these imports locally
 and on live instances of WWIC.
@@ -232,34 +205,37 @@ management command.
 
 This management command relies upon a [Service
 Account](https://cloud.google.com/iam/docs/understanding-service-accounts)
-having access to the spreadsheet. Luckily, one is already setup, you just need
-to go into the permission settings for the spreadsheets and give the account read access.
-If you decrypt the `credentials.json` file within the `configs` folder of this
-project, you'll see that there is a `client_email` key. This is the email
-address that you'll use to give the service account read access to the
-spreadsheets. Navigate to the `Share` button on both the source spreadsheet
-and the data spreadsheet and give the email address read access to both sheets.
+having access to the spreadsheet. This service account is managed under the
+`SFM - Data Import` project in the Google API Console.
 
-Once that is setup, you should decrypt and copy the `credentials.json` file to
-the same folder where the file for the management command is stored:
+If you are indoctrinated into this project's keyring, decrypt the credentials
+for the service account like so:
 
 ```
 gpg -d configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
 ```
 
-One more thing to do before running the Google Sheet importer. You'll need to
-get the document ID for the sheet that you want to import plus the sheet that
-contains the sources. If you open up those sheets in a browser, you should be
-able to grab the document ID from the URL:
+Then, open `sfm_pc/management/commands/credentials.json` and make note of the
+`client_email` value. You will need to share the files to be imported with this
+email address. To grant the service account access to the documents, navigate to
+the `Share` button on each document and grant the `client_email` of the service
+account "Read" access. (You can also select multiple files, e.g., in the same
+Drive, and update the sharing settings in one go.)
+
+Finally, note the document ID for each of the documents you want to import. You
+can get the ID by opening the document in your browser and copying the ID from
+the URL in your address bar:
 
 ```
 https://docs.google.com/spreadsheets/d/<doc id (very long hash looking thing)>/edit
 ```
 
-Once you have those, you should be able to run the importer like so:
+Once you've decrypted credentials, shared access to the documents with our
+service account, and gotten the relevant document IDs, you should be able to run
+the importer like so:
 
 ```
-docker-compose run --rm app ./manage.py import_google_doc --source_doc_id <source doc id> --doc_id <doc id for the doc you want to import>
+docker-compose run --rm app ./manage.py import_google_doc --source_doc_id <source doc id> --location_doc_id <locations doc id> --doc_id <data doc id>
 ```
 
 If the importer raises warnings during the import, it will log them to logfiles
@@ -268,7 +244,6 @@ take a look at your repo to check to see if the importer generated any of these
 warning logfiles. If it did, send these logfiles to the SFM team so they can make
 necessary adjustments to the data. We typically delete logfiles between import runs,
 since the importer will append to a logfile if one exists already.
-
 
 Finally, check to confirm that the search index update command works properly:
 
@@ -291,11 +266,16 @@ tmux new -s fresh-import
 sudo su <user>
 workon sfm
 cd ~/sfm-cms
-python manage.py import_google_doc --source_doc_id <source_doc_id> --doc_id <doc_id>
+python manage.py import_google_doc --source_doc_id <source doc id> --location_doc_id <location doc id> --doc_id <data doc id>
 python manage.py make_search_index --recreate
 ```
 
 #### Importing all data without disrupting servers
+
+**The Makefile needs to be audited / updated to ensure it covers all data, as
+of February 2021. This pattern is retained for informational purposes, but
+should not be used until the Makefile can be updated to include all expected
+data.**
 
 In case you need to fully rerun the entire WWIC import for all countries without
 disrupting a live instance, this repo includes a Makefile for doing just that.
