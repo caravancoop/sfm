@@ -300,7 +300,7 @@ class Command(BaseCommand):
         event_sheets = {}
 
         for title, data in sheet_mapping.items():
-            if 'scratch' in title.lower():
+            if 'scratch' in title.lower() or 'analysis' in title.lower():
                 continue
 
             elif 'units' in title.lower():
@@ -394,7 +394,10 @@ class Command(BaseCommand):
     def get_confidence(self, confidence_key):
         key = confidence_key.strip().lower()
         if key:
-            return CONFIDENCE_MAP[key]
+            try:
+                return CONFIDENCE_MAP[key]
+            except KeyError:
+                self.log_error("Invalid confidence value '{}'".format(key))
         else:
             return 1
 

@@ -199,6 +199,8 @@ and on live instances of WWIC.
 
 #### Local import
 
+## TODO: Document use of the revised Makefile / import docket fixture.
+
 When performing an import of new data, the first step should always be to
 test the import in your development environment using the `import_google_doc`
 management command.
@@ -272,11 +274,6 @@ python manage.py make_search_index --recreate
 
 #### Importing all data without disrupting servers
 
-**The Makefile needs to be audited / updated to ensure it covers all data, as
-of February 2021. This pattern is retained for informational purposes, but
-should not be used until the Makefile can be updated to include all expected
-data.**
-
 In case you need to fully rerun the entire WWIC import for all countries without
 disrupting a live instance, this repo includes a Makefile for doing just that.
 
@@ -296,9 +293,8 @@ tmux new -s fresh-import
 sudo su <user>
 workon sfm
 cd ~/sfm-importer
-make update_db
-python manage.py make_materialized_views --recreate
-python manage.py make_search_index --recreate
+# TODO: make sure pg environment vars are set
+make recreate_db
 ```
 
 Finally, switch the `sfm` and `importer` databases:
