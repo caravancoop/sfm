@@ -199,8 +199,6 @@ and on live instances of WWIC.
 
 #### Local import
 
-## TODO: Document use of the revised Makefile / import docket fixture.
-
 When performing an import of new data, the first step should always be to
 test the import in your development environment using the `import_google_doc`
 management command.
@@ -213,7 +211,7 @@ having access to the spreadsheet. This service account is managed under the
 If you are indoctrinated into this project's keyring, decrypt the credentials
 for the service account like so:
 
-```
+```bash
 gpg -d configs/credentials.json.gpg > sfm_pc/management/commands/credentials.json
 ```
 
@@ -224,33 +222,54 @@ the `Share` button on each document and grant the `client_email` of the service
 account "Read" access. (You can also select multiple files, e.g., in the same
 Drive, and update the sharing settings in one go.)
 
-Finally, note the document ID for each of the documents you want to import. You
-can get the ID by opening the document in your browser and copying the ID from
-the URL in your address bar:
+As of February 2021, SFM has shared with us a CSV file of source, location,
+and data document IDs, as well as the country code they pertain to. This CSV
+lives at [`fixtures/import_docket.csv`](fixtures/import_docket.csv). If for
+some reason you need to retrieve document IDs yourself, you can find the ID by
+opening the document in your browser and copying the ID from the URL in your
+address bar:
 
 ```
 https://docs.google.com/spreadsheets/d/<doc id (very long hash looking thing)>/edit
 ```
 
-Once you've decrypted credentials, shared access to the documents with our
-service account, and gotten the relevant document IDs, you should be able to run
-the importer like so:
+The Makefile contains recipes to import all of the data on the docket, import
+the first country in the CSV, or import a particular country by its country code.
 
+```bash
+# Import everything on the docket
+docker-compose --env-file .env.import run --rm app make -e import_docket_import
+
+# Import the first country on the docket
+docker-compose --env-file .env.import run --rm app make -e next_import
+
+# Import a particular country or countries
+docker-compose --env-file .env.import run --rm app make -e ${COUNTRY_CODE}_cc_import [ ${COUNTRY_CODE}_cc_import ... ]
 ```
-docker-compose run --rm app ./manage.py import_google_doc --source_doc_id <source doc id> --location_doc_id <locations doc id> --doc_id <data doc id>
+
+Of course, you can also run the import commands directly:
+
+```bash
+docker-compose run --rm app python manage.py import_google-docs
+    --source_doc_id <some id>
+    --location_doc_id <some id>
+    --doc_id <some id>
 ```
 
 If the importer raises warnings during the import, it will log them to logfiles
-following the logfile pattern `${country_code}_errors`. Once the import is complete,
-take a look at your repo to check to see if the importer generated any of these
-warning logfiles. If it did, send these logfiles to the SFM team so they can make
-necessary adjustments to the data. We typically delete logfiles between import runs,
-since the importer will append to a logfile if one exists already.
+following the logfile pattern `${country_code}_${entity_type}_errors`. Once the
+import is complete, take a look at your repo to check to see if the importer
+generated any of these warning logfiles. If it did, send these logfiles to the
+SFM team so they can make necessary adjustments to the data. We typically delete
+logfiles between import runs, since the importer will append to a logfile if one
+exists already.
 
-Finally, check to confirm that the search index update command works properly:
+Once your import has completed with error, refresh the derived data views and
+confirm that nothing breaks:
 
 ```
-docker-compose run --rm app ./manage.py make_search_index --recreate
+docker-compose run --rm app python manage.py make_materialized_views --recreate
+docker-compose run --rm app python manage.py make_search_index --recreate
 ```
 
 #### Importing data to a live site
@@ -259,41 +278,43 @@ Once you've tested an import of a new dataset locally, you're ready to run the i
 on a live instance.
 
 Since all live instances should already have credentials, you should be ready to run
-a live import using the management commands:
+a live import using the Make recipes:
 
 ```
 tmux new -s fresh-import
-
-# remember to switch to the correct <user> and <doc ids>
-sudo su <user>
+sudo su - datamade
 workon sfm
 cd ~/sfm-cms
-python manage.py import_google_doc --source_doc_id <source doc id> --location_doc_id <location doc id> --doc_id <data doc id>
+
+# Import everything on the docket
+make import_docket_import
+
+# Import a particular country or countries
+make -e ${COUNTRY_CODE}_cc_import [ ${COUNTRY_CODE}_cc_import ... ]
+
+python manage.py make_materialized_views --recreate
 python manage.py make_search_index --recreate
 ```
 
 #### Importing all data without disrupting servers
 
-In case you need to fully rerun the entire WWIC import for all countries without
-disrupting a live instance, this repo includes a Makefile for doing just that.
+If need to fully rerun the entire WWIC import for all countries without
+disrupting a live instance, the Makefile includes a recipe for doing just that.
 
 On every deploy, our build scripts create a separate directory, `sfm-importer`. This
 directory is a copy of the app that uses a separate database with the name `importer`.
 We'll use this database for our imports, so that the server can keep on serving
-data normally during that process (which can take up to 8 hours!)
+data normally during that process (which can take several hours!)
 
 To perform a new import, start by creating a tmux session so your work doesn't
-get interrupted. Then, activate the virtualenv for the project and change to the
-`sfm-importer` directory:
+get interrupted. Then, activate the virtualenv for the project, `cd` into the
+appropriate directory, and fire the recipe to build a fresh database:
 
 ```
 tmux new -s fresh-import
-
-# remember to switch to the correct user instead of <user>
-sudo su <user>
+sudo su - datamade
 workon sfm
 cd ~/sfm-importer
-# TODO: make sure pg environment vars are set
 make recreate_db
 ```
 

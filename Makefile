@@ -1,6 +1,11 @@
 SHELL := /bin/bash
-DB=sfm
+LIVE_DB=sfm
 IMPORT_DB=importer
+IMPORT_DIRECTORY=sfm-importer
+PG_HOST=localhost
+PG_USER=datamade
+PG_PASSWORD=
+
 
 .PHONY : import_directory import_db flush_db recreate_db
 
@@ -10,8 +15,13 @@ import_directory :
 
 import_db : import_directory
 	# Drop and recreate the importer database from the live database
-	PGPASSWORD=$(PG_PW) dropdb -U postgres -h $(PG_HOST) $(IMPORT_DB) || echo "$(IMPORT_DB) does not exist"
-	PGPASSWORD=$(PG_PW) psql -U postgres -h $(PG_HOST) -c "CREATE DATABASE $(IMPORT_DB) WITH TEMPLATE $(DB) OWNER $(PG_USER)"
+	if [ -n "$(PG_PASSWORD)" ]; then \
+		PGPASSWORD=$(PG_PASSWORD) dropdb -U postgres -h $(PG_HOST) $(IMPORT_DB) || echo "$(IMPORT_DB) does not exist"; \
+		PGPASSWORD=$(PG_PASSWORD) psql -U postgres -h $(PG_HOST) -c "CREATE DATABASE $(IMPORT_DB) WITH TEMPLATE $(LIVE_DB) OWNER $(PG_USER)"; \
+	else \
+		dropdb -U postgres -h $(PG_HOST) $(IMPORT_DB) || echo "$(IMPORT_DB) does not exist"; \
+		psql -U postgres -h $(PG_HOST) -c "CREATE DATABASE $(IMPORT_DB) WITH TEMPLATE $(LIVE_DB) OWNER $(PG_USER)"; \
+	fi
 
 auth_models.json : import_directory import_db
 	# Dump the existing user data
@@ -31,6 +41,6 @@ recreate_db : import_directory flush_db import_docket_import
 	python manage.py make_search_index --recreate
 
 clean :
-	rm auth_models.json *.csv
+	rm auth_models.json *errors.csv
 
 include docket.mk

@@ -22,6 +22,11 @@ services:
       # Mount the development directory as a volume into the container, so
       # Docker automatically recognizes your changes.
       - .:/app
+    environment:
+      - IMPORT_DIRECTORY=${IMPORT_DIRECTORY}
+      - PG_HOST=${PG_HOST}
+      - PG_USER=${PG_USER}
+      - PG_PASSWORD=${PG_PASSWORD}
     command: python manage.py runserver 0.0.0.0:8000
 
   migration:
