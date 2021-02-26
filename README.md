@@ -250,9 +250,9 @@ docker-compose --env-file .env.import run --rm app make -e ${COUNTRY_CODE}_cc_im
 Of course, you can also run the import commands directly:
 
 ```bash
-docker-compose run --rm app python manage.py import_google-docs
-    --source_doc_id <some id>
-    --location_doc_id <some id>
+docker-compose run --rm app python manage.py import_google-docs \
+    --source_doc_id <some id> \
+    --location_doc_id <some id> \
     --doc_id <some id>
 ```
 
