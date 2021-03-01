@@ -322,7 +322,7 @@ Finally, switch the `sfm` and `importer` databases:
 
 ```
 # Renames the databases in a transaction -- the app doesn't need to stop
-psql importer < sfm_pc/management/commands/flush/rename.sql
+psql postgres < sfm_pc/management/commands/flush/rename.sql
 ```
 
 Presto! A fresh import, with no server downtime.
