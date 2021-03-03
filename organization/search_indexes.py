@@ -146,8 +146,8 @@ class OrganizationIndex(SearchEntity, indexes.Indexable):
 
             if site:
                 exactloc_name = site.value.name
-                emp_division_id = site.value.division_id
-                exactloc_names.add(exactloc_name)
+                if exactloc_name:
+                    exactloc_names.add(exactloc_name)
 
         return list(exactloc_names)
 
