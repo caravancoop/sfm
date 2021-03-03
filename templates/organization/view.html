@@ -211,6 +211,7 @@
                 <thead>
                     <tr>
                         <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"division_id" }}</th>
                         <th>{{ view.model|verbose_field_name:"aliases" }}</th>
                         <th>{{ view.model|verbose_field_name:"classification" }}</th>
                         <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
@@ -225,6 +226,10 @@
                                     {{ membership.organization.get_value.value.name.get_value }}
                                 </a>
                                 {% cite membership.organization.get_value.value.name.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ membership.organization.get_value.value.division_id|country_name }}
+                                {% cite membership.organization.get_value.value.division_id.get_value %}
                             </td>
                             <td class="cited">
                                 {% for alias in membership.organization.get_value.value.aliases.get_list %}
@@ -274,6 +279,7 @@
                 <thead>
                     <tr>
                         <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"division_id" }}</th>
                         <th>{{ view.model|verbose_field_name:"aliases" }}</th>
                         <th>{{ view.model|verbose_field_name:"classification" }}</th>
                         <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
@@ -288,6 +294,10 @@
                                     {{ membership.member.get_value.value.name.get_value }}
                                 </a>
                                 {% cite membership.member.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ membership.member.get_value.value.division_id|country_name }}
+                                {% cite membership.member.get_value.value.division_id.get_value %}
                             </td>
                             <td class="cited">
                                 {% for alias in membership.member.get_value.value.aliases.get_list %}
