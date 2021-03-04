@@ -47,13 +47,13 @@
                     <!-- Start date -->
                     <td>
                         {% if object.start_date %}
-                            {{ object.start_date }}
+                            {{ object.start_date|date:"F n, Y" }}
                         {% endif %}
                     </td>
                     <!-- End date -->
                     <td>
                         {% if object.end_date %}
-                            {{ object.end_date }}
+                            {{ object.end_date|date:"F n, Y" }}
                         {% endif %}
                     </td>
                     <!-- Description -->
