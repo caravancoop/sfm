@@ -5,6 +5,47 @@ var CommandChart = {
     container: '#org-chart-container',
     dateMissingString: '',
     edgelists: [],
+    options: {
+        nodes: {
+            shape: 'box',
+            fixed: {
+                x:true,
+                y:true,
+            },
+            shapeProperties: {
+                borderRadius: 2,
+            },
+            color: {
+                background: '#f4f4f4',
+                border: '#D6D6D6',
+                highlight: { // Change color of node on click
+                    background: '#EBEBEB',
+                    border: '#D6D6D6',
+                },
+                hover: {
+                    background:'#e0e0e0',
+                    border:'#D6D6D6',
+                },
+            },
+            font: {
+                color: '#777777',
+                face: 'Open Sans',
+            },
+        },
+        layout: {
+            hierarchical: {
+                levelSeparation: 100, // Distance between levels
+                nodeSpacing: 300, // Distance between nodes
+                direction: 'DU', // Inverts chart
+                sortMethod: 'directed',
+            }
+        },
+        interaction: {
+            zoomView: true,
+            dragView: true,
+            hover:true,
+        },
+    },
 
     initCarousel: function() {
 
@@ -38,18 +79,25 @@ var CommandChart = {
         return new_list
     },
 
+    getCommandChain: function(edgeList) {
+        var index = CommandChart.edgelists.indexOf(edgeList);
+        $("#command-chart-" + index).spin()
+        return $.getJSON(edgeList.url, {index: index});
+    },
+
     show: function() {
 
         // Build charts and add year
         var display_charts = false;
-        $.each(CommandChart.edgelists, function(index, org_data) {
 
-            $("#command-chart-" + index).spin()
+        $.when.apply(
+            $, CommandChart.edgelists.map(CommandChart.getCommandChain)
+        ).then(function () {
+            var commandChains = arguments.length === 1 ? [arguments] : arguments;
+            $.each(CommandChart.edgelists, function(index, org_data) {
+                var when = org_data['display_date'];
+                var obj = commandChains[index][0];
 
-            var command_chain_url = org_data['url'];
-            var when = org_data['display_date'];
-
-            $.when($.getJSON(command_chain_url, {index: index})).then(function(obj) {
                 var idx = obj['index'];
                 var cellID = "command-chart-" + idx;
                 var cellYearID = "command-chart-year-" + idx;
@@ -69,53 +117,7 @@ var CommandChart = {
                         edges: edges,
                     };
 
-                    var options = {
-                        nodes: {
-                            shape: 'box',
-                            fixed: {
-                                x:true,
-                                y:true,
-                            },
-                            shapeProperties: {
-                                borderRadius: 2,
-                            },
-                            color: {
-                                background: '#f4f4f4',
-                                border: '#D6D6D6',
-                                highlight: { // Change color of node on click
-                                    background: '#EBEBEB',
-                                    border: '#D6D6D6',
-                                },
-                                hover: {
-                                    background:'#e0e0e0',
-                                    border:'#D6D6D6',
-                                },
-                            },
-                            font: {
-                                color: '#777777',
-                                face: 'Open Sans',
-                            },
-                        },
-                        layout: {
-                            hierarchical: {
-                                levelSeparation: 100, // Distance between levels
-                                nodeSpacing: 300, // Distance between nodes
-                                direction: 'DU', // Inverts chart
-                                sortMethod: 'directed',
-                            }
-                        },
-                        interaction: {
-                            zoomView: true,
-                            dragView: true,
-                            hover:true,
-                        },
-                    };
-
-                    // $('#org-chart-container').css({
-                    //     'height': '600px'
-                    // })
-
-                    var network = new vis.Network(container, data, options);
+                    var network = new vis.Network(container, data, CommandChart.options);
 
                     if (typeof when != 'undefined' && when !== '') {
                         $('#' + cellYearID).append(when);
@@ -140,16 +142,19 @@ var CommandChart = {
                         network.canvas.body.container.style.cursor = 'default'
                     });
                 } else {
-                    $('#' + cellID).hide();
+                    $('#org-chart-container').flickity('remove', $('#' + cellID).parent())
                 }
 
-            });
+            })
 
-        });
+            if (!display_charts) {
+                // Hide the sidebar links and the command chain section
+                $('a[href="#chain-of-command"],#command-chain').hide();
+            } else {
+                var selectedCell = $('.carousel-cell').length - 1;
+                $('#org-chart-container').flickity('selectCell', selectedCell);
+            }
 
-        if(!display_charts){
-            // Hide the sidebar links and the command chain section
-            $('a[href="#chain-of-command"],#command-chain').hide();
-        }
+        })
     }
 }
