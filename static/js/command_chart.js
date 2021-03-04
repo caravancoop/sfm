@@ -81,7 +81,7 @@ var CommandChart = {
 
     getCommandChain: function(edgeList) {
         var index = CommandChart.edgelists.indexOf(edgeList);
-        $("#command-chart-" + index).spin()
+        $("#command-chart-" + index).spin();
         return $.getJSON(edgeList.url, {index: index});
     },
 
