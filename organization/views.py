@@ -75,7 +75,14 @@ class OrganizationDetail(BaseDetailView):
 
         if org_members:
             org_members = (mem.object_ref for mem in org_members)
-            context['org_members'] = org_members
+
+            context['org_members'] = sorted(
+                org_members,
+                key=lambda x: (
+                    country_name(x.member.get_value().value.division_id.get_value().value),
+                    x.member.get_value().value.name.get_value().value
+                )
+            )
 
         # Other units that this unit is a member of
         context['memberships'] = []
@@ -87,7 +94,13 @@ class OrganizationDetail(BaseDetailView):
 
         if memberships:
             memberships = (mem.object_ref for mem in memberships)
-            context['memberships'] = memberships
+            context['memberships'] = sorted(
+                memberships,
+                key=lambda x: (
+                    country_name(x.organization.get_value().value.division_id.get_value().value),
+                    x.organization.get_value().value.name.get_value().value
+                )
+            )
 
         # Child units
         context['subsidiaries'] = []
