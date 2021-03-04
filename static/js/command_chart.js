@@ -142,12 +142,14 @@ var CommandChart = {
                 } else {
                     $('#' + cellID).hide();
                 }
-                if(!display_charts){
-                    // Hide the sidebar links and the command chain section
-                    $('a[href="#chain-of-command"],#command-chain').hide();
-                }
+
             });
 
         });
+
+        if(!display_charts){
+            // Hide the sidebar links and the command chain section
+            $('a[href="#chain-of-command"],#command-chain').hide();
+        }
     }
 }
