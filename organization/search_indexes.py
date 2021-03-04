@@ -1,5 +1,6 @@
 from haystack import indexes
 
+from location.models import Location
 from search.base_search_indexes import SearchEntity
 from sfm_pc.templatetags.countries import country_name
 
@@ -139,17 +140,15 @@ class OrganizationIndex(SearchEntity, indexes.Indexable):
             return hq.value
 
     def prepare_exact_locations(self, object):
-        exactloc_names = set()
+        sites = object.emplacementorganization_set.values(
+            'object_ref__emplacementsite__value'
+        ).distinct()
 
-        for emp in object.emplacementorganization_set.all():
-            site = emp.object_ref.site.get_value()
+        exact_locations = Location.objects.filter(id__in=sites)\
+                                          .exclude(name__isnull=True)\
+                                          .values_list('name', flat=True)
 
-            if site:
-                exactloc_name = site.value.name
-                if exactloc_name:
-                    exactloc_names.add(exactloc_name)
-
-        return list(exactloc_names)
+        return list(exact_locations)
 
     def prepare_areas(self, object):
         areas = set()
@@ -164,12 +163,17 @@ class OrganizationIndex(SearchEntity, indexes.Indexable):
         return list(areas)
 
     def prepare_adminlevel1s(self, object):
-        admin_l1_names = set()
+        sites = object.emplacementorganization_set.values(
+            'object_ref__emplacementsite__value'
+        ).distinct()
 
-        for emp in object.emplacementorganization_set.all():
-            site = emp.object_ref.site.get_value()
+        admin_l1_ids = [
+            site.sfm['location:admin_level_4']
+            for site in Location.objects.filter(id__in=sites)
+        ]
 
-            if site and site.value.adminlevel1:
-                admin_l1_names.add(site.value.adminlevel1.name)
+        admin_l1_names = Location.objects.from_humane_id(admin_l1_ids)\
+                                         .exclude(name__isnull=True)\
+                                         .values_list('name', flat=True)
 
         return list(admin_l1_names)
