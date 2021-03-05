@@ -61,7 +61,7 @@ var CommandChart = {
         var org_count = CommandChart.edgelists.length;
 
         // Initialize carousel
-        if (org_count > 1) {
+        if (org_count > 0) {
             var orgCarousel = $('#org-chart-container').flickity({
                 initialIndex: org_count - 1,
                 wrapAround: true,
@@ -93,7 +93,10 @@ var CommandChart = {
         $.when.apply(
             $, CommandChart.edgelists.map(CommandChart.getCommandChain)
         ).then(function () {
-            var commandChains = arguments.length === 1 ? [arguments] : arguments;
+            var commandChains = CommandChart.edgelists.length === 1
+                ? [arguments]
+                : arguments;
+
             $.each(CommandChart.edgelists, function(index, org_data) {
                 var when = org_data['display_date'];
                 var obj = commandChains[index][0];
@@ -151,8 +154,13 @@ var CommandChart = {
                 // Hide the sidebar links and the command chain section
                 $('a[href="#chain-of-command"],#command-chain').hide();
             } else {
-                var selectedCell = $('.carousel-cell').length - 1;
-                $('#org-chart-container').flickity('selectCell', selectedCell);
+                var $cells = $('.carousel-cell');
+                if ($cells.length > 1) {
+                    // Select the last cell, representing the latest command chart
+                    $('#org-chart-container').flickity('selectCell', $cells.length - 1);
+                } else {
+                    console.log('Skipping cell selection...');
+                }
             }
 
         })
