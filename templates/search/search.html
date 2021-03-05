@@ -107,9 +107,9 @@
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}
-                        <!-- Admin level 1 -->
-                        {% if facets.fields.adminlevel1s %}
-                            {% with facet_name='adminlevel1s' facet_label=models.Emplacement|verbose_field_name:'site' item_list=facets.fields.adminlevel1s %}
+                        <!-- Sites -->
+                        {% if facets.fields.sites %}
+                            {% with facet_name='sites' facet_label=models.Emplacement|verbose_field_name:'site' item_list=facets.fields.sites %}
                                 {% include 'partials/search_filter.html' %}
                             {% endwith %}
                         {% endif %}

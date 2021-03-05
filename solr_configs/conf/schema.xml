@@ -125,7 +125,7 @@
     
       
         
-    <field name="adminlevel1s" type="strings" indexed="true" stored="true" multiValued="true" />
+    <field name="sites" type="strings" indexed="true" stored="true" multiValued="true" />
         
       
     
@@ -208,7 +208,7 @@
       
     
       
-    <field name="adminlevel1s_exact" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="sites_exact" type="string" indexed="true" stored="true" multiValued="true" />
       
     
       

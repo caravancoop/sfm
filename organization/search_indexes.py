@@ -27,7 +27,7 @@ class OrganizationIndex(SearchEntity, indexes.Indexable):
     headquarters = indexes.CharField()
     exact_locations = indexes.MultiValueField()
     areas = indexes.MultiValueField()
-    adminlevel1s = indexes.MultiValueField(faceted=True)
+    sites = indexes.MultiValueField(faceted=True)
 
     def get_model(self):
         # For some reason, Haystack doesn't want to discover the index if we
@@ -162,7 +162,7 @@ class OrganizationIndex(SearchEntity, indexes.Indexable):
 
         return list(areas)
 
-    def prepare_adminlevel1s(self, object):
+    def prepare_sites(self, object):
         sites = object.emplacementorganization_set.values(
             'object_ref__emplacementsite__value'
         ).distinct()

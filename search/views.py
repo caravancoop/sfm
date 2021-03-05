@@ -46,7 +46,6 @@ class HaystackSearchView(FacetedSearchView):
     context_object_name = 'results'
 
     facet_fields = [
-        'adminlevel1s',
         'classifications',
         'countries',
         'end_date_year',
@@ -57,6 +56,7 @@ class HaystackSearchView(FacetedSearchView):
         'publication',
         'ranks',
         'roles',
+        'sites',
         'start_date_year',
         'violation_types',
     ]
