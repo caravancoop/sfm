@@ -1,76 +1,46 @@
 SHELL := /bin/bash
-USER=datamade
-DB=sfm
+LIVE_DB=sfm
 IMPORT_DB=importer
+IMPORT_DIRECTORY=sfm-importer
+PG_HOST=localhost
+PG_USER=datamade
+PG_PASSWORD=
 
-.PHONY : import_directory
+
+.PHONY : import_directory import_db flush_db recreate_db
+
 import_directory :
-	[[ "$$PWD" =~ sfm-importer ]]
+	# Fail if we are not in the correct directory
+	[[ "$$PWD" =~ "$(IMPORT_DIRECTORY)" ]]
 
 import_db : import_directory
-	- dropdb $(IMPORT_DB)
-	psql -U postgres -c "CREATE DATABASE $(IMPORT_DB) WITH TEMPLATE $(DB) OWNER $(USER)"
+	# Drop and recreate the importer database from the live database
+	if [ -n "$(PG_PASSWORD)" ]; then \
+		PGPASSWORD=$(PG_PASSWORD) dropdb -U postgres -h $(PG_HOST) $(IMPORT_DB) || echo "$(IMPORT_DB) does not exist"; \
+		PGPASSWORD=$(PG_PASSWORD) psql -U postgres -h $(PG_HOST) -c "CREATE DATABASE $(IMPORT_DB) WITH TEMPLATE $(LIVE_DB) OWNER $(PG_USER)"; \
+	else \
+		dropdb -U postgres -h $(PG_HOST) $(IMPORT_DB) || echo "$(IMPORT_DB) does not exist"; \
+		psql -U postgres -h $(PG_HOST) -c "CREATE DATABASE $(IMPORT_DB) WITH TEMPLATE $(LIVE_DB) OWNER $(PG_USER)"; \
+	fi
 
-
-auth_models.json : import_directory
+auth_models.json : import_directory import_db
+	# Dump the existing user data
 	python manage.py dumpdata auth.User > $@
 
-.PHONY : flush_db
 flush_db : import_directory auth_models.json
+	# Remove all data from the database
 	python manage.py flush
-
-.PHONY : link_locations
-link_locations: import_directory flush_db
-	python manage.py link_locations
-
-.PHONY : update_db
-update_db : import_directory import_db auth_models.json flush_db link_locations import_google_docs
+	# Reload the user data
 	python manage.py loaddata auth_models.json
-	python manage.py make_materialized_views --recreate
+	# Reload country codes
 	python manage.py update_countries_plus
+
+recreate_db : import_directory flush_db import_docket_import
+	# Update data derived from entity tables
+	python manage.py make_materialized_views --recreate
 	python manage.py make_search_index --recreate
-	# psql importer < sfm_pc/management/commands/flush/rename.sql
 
-%_import :
-	python manage.py import_google_doc --source_doc_id 1IL4yJMG7KBpOdGZbFsAcGFjSPpVVSNbKLMsRdKC3-XM --doc_id $(GOOGLE_DOC_ID)
-	- mv events-errors.csv $*_events-errors.csv
-	- mv orgs-errors.csv $*-orgs-errors.csv
-	- mv people-errors.csv $*-people-errors.csv
-
-	touch $@
-
-bgd_import : GOOGLE_DOC_ID = 1I5OlOxB_wNdmdQXB6VlV10oz3DDKN2OwXNbcTvtuuXQ
-eg_import : GOOGLE_DOC_ID = 12ZYTaP55MZdMBzsH4W3uBwCT6HTKyiUg6110Q5aV4Ck
-mx_import : GOOGLE_DOC_ID = 1i5Yd1OVuEFaHDHP_dCXGFeZm0n2lV_HlkaR3fXo-8Ro
-my_import : GOOGLE_DOC_ID = 1Txk7_4W3f-c441x0ABKaYHEXGyuro3kasXCQJzlmd8A
-ng_import : GOOGLE_DOC_ID = 1HCljLKFgGwMYdDK9YcOSYmLiTXiXBuXs-qaFEU7o3BM
-ph_import : GOOGLE_DOC_ID = 1yQ37fGr4FrULKN3Iw1p4UOS00_jxCy3Dox19yOrtNto
-rwa_import : GOOGLE_DOC_ID = 150zJztdYScI1wnEcIdrhsh8TZ6tkgPZM9j3k6O_2nBU
-sa_import : GOOGLE_DOC_ID = 1jv_tsPjeovxAd6yPdQ0TuTVzPRRNFDwCu51cv66etXk
-ug_import : GOOGLE_DOC_ID = 14HykmygxEriywmgJDzzZAj-jY9z2bLoDrPOieRvpprE
-
-# Get files from https://drive.google.com/drive/u/1/folders/1WCeodk3DZ5zzNkIrJ7h_a9lBb5THUDsu
-.PHONY : import_google_docs
-import_google_docs : bgd_import mx_import	\
-	             ng_import ph_import rwa_import sa_import	\
-	             ug_import eg_import my_import
-
-
-.PHONY : clean
 clean :
-	- rm auth_models.json
-	rm bgd_import eg_import mx_import my_import ng_import	\
-           ph_import rwa_import sa_import ug_import
+	rm auth_models.json *errors.csv
 
-.PHONY : search
-search : 
-	python manage.py make_search_index --recreate
-
-
-osm :
-	python manage.py import_osm --download_only
-	python manage.py import_osm --import_only
-	python manage.py link_locations
-
-
-make_search_index : import_google_docs
+include docket.mk

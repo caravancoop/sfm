@@ -6,7 +6,7 @@
 {% load help %}
 {% load model_meta %}
 
-{% if sites %}
+{% if associations or emplacements %}
     {% block extra_head %}
          <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
     {% endblock %}
@@ -60,8 +60,8 @@
 
 {% block sidebar %}
 
-    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
-    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
+    {% if associations %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
+    {% if emplacements %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
     {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
@@ -76,8 +76,8 @@
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
 
-    {% if areas %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
-    {% if sites %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
+    {% if associations %}<li><a href="#areas-of-operation"><i class="fa fa-fw fa-globe"></i> {% trans "Areas of operation" %} </a></li>{% endif %}
+    {% if emplacements %}<li><a href="#sites"><i class="fa fa-fw fa-map-marker"></i> {% trans "Sites" %}</a></li>{% endif %}
     {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Memberships" %}</a></li>{% endif %}
     {% if org_members %}<li><a href="#org-members"><i class="fa fa-fw fa-sitemap"></i> {% trans "Member units" %}</a></li>{% endif %}
     {% if parents %}<li><a href="#parent-units"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Parent units" %}</a></li>{% endif %}
@@ -90,7 +90,7 @@
 
 {% block details %}
 
-    {% if areas %}
+    {% if associations %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="areas-of-operation"><i class="fa fa-fw fa-globe"></i>
@@ -115,11 +115,11 @@
                         {% if association.area.get_value.value %}
                             {% with osmid=association.area.get_value.value.id %}
                                 {% if request.user.is_authenticated %}
-                                    <a  href="{% url 'view-location' osmid %}">
+                                    <a href="{% url 'view-location' osmid %}">
                                         {{ association.area.get_value.value.name }}
                                     </a>
                                 {% else %}
-                                    <a  target="_blank" href="https://www.openstreetmap.org/relation/{{ osmid }}">
+                                    <a target="_blank" href="https://www.openstreetmap.org/{{ association.area.get_value.value.osm_feature_type }}/{{ osmid }}">
                                         <i class="fa fa-external-link"> </i> {{ association.area.get_value.value.name }}
                                     </a>
                                 {% endif %}
@@ -143,7 +143,7 @@
     </div>
     {% endif %}
 
-    {% if sites %}
+    {% if emplacements %}
     <div class="row">
         <div class="col-sm-12">
             <h3 id="sites">
@@ -173,7 +173,7 @@
                                         {{ emplacement.site.get_value.value.name }}
                                     </a>
                                 {% else %}
-                                    <a target="_blank" href="https://openstreetmap.org/node/{{ osmid }}">
+                                    <a target="_blank" href="https://openstreetmap.org/{{ emplacement.site.get_value.value.osm_feature_type }}/{{ osmid }}">
                                         <i class="fa fa-external-link"> </i> {{ emplacement.site.get_value.value.name }}
                                     </a>
                                 {% endif %}
@@ -211,6 +211,7 @@
                 <thead>
                     <tr>
                         <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"division_id" }}</th>
                         <th>{{ view.model|verbose_field_name:"aliases" }}</th>
                         <th>{{ view.model|verbose_field_name:"classification" }}</th>
                         <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
@@ -225,6 +226,10 @@
                                     {{ membership.organization.get_value.value.name.get_value }}
                                 </a>
                                 {% cite membership.organization.get_value.value.name.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ membership.organization.get_value.value.division_id|country_name }}
+                                {% cite membership.organization.get_value.value.division_id.get_value %}
                             </td>
                             <td class="cited">
                                 {% for alias in membership.organization.get_value.value.aliases.get_list %}
@@ -274,6 +279,7 @@
                 <thead>
                     <tr>
                         <th>{{ view.model|verbose_field_name:"name" }}</th>
+                        <th>{{ view.model|verbose_field_name:"division_id" }}</th>
                         <th>{{ view.model|verbose_field_name:"aliases" }}</th>
                         <th>{{ view.model|verbose_field_name:"classification" }}</th>
                         <th>{{ view.model|verbose_field_name:"firstciteddate" }}</th>
@@ -288,6 +294,10 @@
                                     {{ membership.member.get_value.value.name.get_value }}
                                 </a>
                                 {% cite membership.member.get_value %}
+                            </td>
+                            <td class="cited">
+                                {{ membership.member.get_value.value.division_id|country_name }}
+                                {% cite membership.member.get_value.value.division_id.get_value %}
                             </td>
                             <td class="cited">
                                 {% for alias in membership.member.get_value.value.aliases.get_list %}
@@ -511,50 +521,17 @@
             $("#print-page").on("click", function(){ window.print(); });
         });
     </script>
-    {% if sites or areas %}
+    {% if associations or emplacements %}
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
-    {% endif %}
-    {% if sites %}
+        <script src="{% static 'js/unit_maps.js' %}"></script>
         <script type="text/javascript">
             $(document).ready(function(){
-                var center_x = {{ sites.0.geometry.x|safe }};
-                var center_y = {{ sites.0.geometry.y|safe }};
-                var site_map = L.map('osm_site_map').setView([center_y, center_x], 10);
-                var attribution = '{% blocktrans %}Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>{% endblocktrans %}';
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            { attribution: attribution, detectRetina: true }).addTo(site_map);
-                var markers = L.featureGroup();
-                {% for site in sites %}
-                    var mark = L.marker([{{ site.geometry.y|safe }},{{ site.geometry.x|safe }}]);
-                    var name = "{{ site.name }}";
-                    mark.bindPopup(name);
-                    markers.addLayer(mark);
-                {% endfor %}
-                markers.addTo(site_map);
-                site_map.fitBounds(markers.getBounds(), {'maxZoom': 11, "padding": [20,20]});
-            });
-        </script>
-    {% endif %}
-    {% if areas %}
-        <script type="text/javascript">
-            function onEachFeature(feature, layer){
-                layer.bindPopup(feature.properties.name);
-            }
-            $(document).ready(function(){
-                var area_map = L.map('osm_area_map');
-                var attribution = '{% blocktrans %}Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>{% endblocktrans %}';
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            { attribution: attribution, detectRetina: true }).addTo(area_map);
-                var areas = L.featureGroup();
-                {% for area in areas %}
-                    var geom = {{ area.geom.geojson|safe}};
-                    geom['properties'] = {'name': "{{ area.name }}"};
-                    areas.addLayer(
-                        L.geoJson(geom, {onEachFeature: onEachFeature})
-                    );
-                {% endfor %}
-                areas.addTo(area_map);
-                area_map.fitBounds(areas.getBounds(), {'maxZoom': 11});
+                var sites = {{ sites|safe }};
+                var areas = {{ areas|safe }};
+                var mapAttribution = '{% blocktrans %}Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>{% endblocktrans %}';
+
+                if (sites.features.length > 0) UnitMaps.initializeMap(L, 'osm_site_map', sites, mapAttribution);
+                if (areas.features.length > 0) UnitMaps.initializeMap(L, 'osm_area_map', areas, mapAttribution);
             });
         </script>
     {% endif %}

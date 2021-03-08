@@ -46,8 +46,8 @@ class MembershipOrganizationDownload(BaseDownload):
     member_lastciteddate_confidence = models.CharField(max_length=1)
     member_realstart = models.NullBooleanField(default=None)
     member_realstart_confidence = models.CharField(max_length=1)
-    member_realend = models.NullBooleanField(default=None)
-    member_realend_confidence = models.CharField(max_length=1)
+    member_open_ended = models.CharField(max_length=1, default='N', choices=settings.OPEN_ENDED_CHOICES)
+    member_open_ended_confidence = models.CharField(max_length=1)
 
     @classmethod
     def _get_field_map(cls):
@@ -226,14 +226,14 @@ class MembershipOrganizationDownload(BaseDownload):
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),
-            ('member_realend', {
-                'sql': 'membership.real_end',
-                'label': MembershipOrganization.get_spreadsheet_field_name('realend'),
+            ('member_open_ended', {
+                'sql': 'membership.open_ended',
+                'label': MembershipOrganization.get_spreadsheet_field_name('open_ended'),
                 'serializer': cls.serializers['identity'],
             }),
-            ('member_realend_confidence', {
+            ('member_open_ended_confidence', {
                 'sql': 'membership.real_end_confidence',
-                'label': MembershipOrganization.get_spreadsheet_confidence_field_name('realend'),
+                'label': MembershipOrganization.get_spreadsheet_confidence_field_name('open_ended'),
                 'confidence': True,
                 'serializer': cls.serializers['identity'],
             }),

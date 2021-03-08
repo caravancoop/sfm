@@ -6,12 +6,19 @@ from django.template.defaultfilters import truncatewords
 from django.utils.translation import ugettext as _
 
 
+class LocationManager(models.Manager):
+
+    def from_humane_id(self, humane_id):
+        return self.get(**{'sfm__location:humane_id:admin': humane_id})
+
+
 class Location(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.TextField(blank=True, null=True)
     division_id = models.TextField(blank=True, null=True)
     feature_type = models.TextField(blank=True, null=True)
     tags = JSONField(blank=True, null=True)
+    sfm = JSONField(blank=True, null=True)
     adminlevel1 = models.ForeignKey('self',
                                     related_name='area_locations',
                                     null=True,
@@ -22,6 +29,8 @@ class Location(models.Model):
                                     blank=True)
     adminlevel = models.CharField(max_length=50, null=True, blank=True)
     geometry = GeometryField(blank=True, null=True)
+
+    objects = LocationManager()
 
     def __str__(self):
         if self.name is None:
@@ -80,3 +89,9 @@ class Location(models.Model):
             })
 
         return related_entities
+
+    @property
+    def osm_feature_type(self):
+        if self.feature_type == 'boundary':
+            return 'relation'
+        return self.feature_type

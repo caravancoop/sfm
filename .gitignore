@@ -18,13 +18,15 @@ env/
 node_modules/
 settings_local.py
 settings_local.dev.py
+fixtures/*.geojson
+*credentials.json
+
 /keyrings/live/pubring.gpg~
 /keyrings/live/pubring.kbx~
 /keyrings/live/secring.gpg
 /configs/auth.json
 /configs/client_secrets.json
 /configs/credentials.json
-credentials.json
 /configs/settings_local_production.py
 /configs/settings_local_staging.py
 /configs/sfm.conf.production.nginx

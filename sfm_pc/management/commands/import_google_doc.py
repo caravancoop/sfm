@@ -1,64 +1,49 @@
 import os
+import io
 import itertools
-import json
-from collections import OrderedDict
-import re
-from uuid import uuid4
-from datetime import datetime, date
+from datetime import datetime
 import csv
-import string
 
 import httplib2
 
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
 
-import datefinder
+from tqdm import tqdm
 
-from django.core.management.base import BaseCommand, CommandError
-from django.db import models, transaction, IntegrityError, connection
-from django.db.utils import DataError, ProgrammingError
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand
+from django.db import models, IntegrityError
 from django.core.management import call_command
 from django.utils.text import slugify
 from django.contrib.auth.models import User
-from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
 
-from dateparser import parse as dateparser
-
 import reversion
 
-from countries_plus.models import Country
-
 from source.models import Source, AccessPoint
-from organization.models import Organization, OrganizationAlias, \
-    OrganizationClassification, OrganizationName, OrganizationRealStart
+from organization.models import Organization, OrganizationRealStart
 
-from sfm_pc.utils import (import_class, get_osm_by_id, get_hierarchy_by_id,
-                          CONFIDENCE_MAP, execute_sql)
+from sfm_pc.utils import (import_class, CONFIDENCE_MAP, execute_sql)
 
-from area.models import Area
-from emplacement.models import Emplacement, EmplacementOpenEnded, EmplacementRealStart
-from association.models import Association, AssociationOpenEnded, AssociationRealStart
-from composition.models import Composition, CompositionOpenEnded, CompositionRealStart
-from person.models import Person, PersonName, PersonAlias
+from emplacement.models import Emplacement, EmplacementRealStart
+from association.models import Association, AssociationRealStart
+from composition.models import Composition, CompositionRealStart
+from person.models import Person
 from personextra.models import PersonExtra
 from personbiography.models import PersonBiography
 from membershipperson.models import (MembershipPerson, Role, Rank,
                                      MembershipPersonRealStart,
                                      MembershipPersonRealEnd)
 from membershiporganization.models import (MembershipOrganization,
-                                           MembershipOrganizationRealStart,
-                                           MembershipOrganizationRealEnd)
+                                           MembershipOrganizationRealStart)
 from violation.models import Violation, ViolationPerpetrator, \
-    ViolationPerpetratorOrganization, ViolationDescription
+    ViolationPerpetratorOrganization
 
 from location.models import Location
-
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 
 class Command(BaseCommand):
@@ -78,16 +63,16 @@ class Command(BaseCommand):
             help='Import source data from specified Google Drive Document'
         )
         parser.add_argument(
+            '--location_doc_id',
+            dest='location_doc_id',
+            default=None,
+            help='Import location data from specified Google Drive file'
+        )
+        parser.add_argument(
             '--entity-types',
             dest='entity_types',
             default='organization,person,person_extra,event',
             help='Comma separated list of entity types to import'
-        )
-        parser.add_argument(
-            '--country_code',
-            dest='country_code',
-            default='mx',
-            help='Two letter ISO code for the country that the Google Sheets are about'
         )
         parser.add_argument(
             '--flush',
@@ -112,14 +97,14 @@ class Command(BaseCommand):
         sources = [s for s in getattr(obj, attribute).get_sources()]
         return list(set(s for s in sources if s))
 
-    def get_credentials(self):
+    def get_credentials(self, *, scopes, credentials_file='credentials.json'):
         '''make sure relevant accounts have access to the sheets at console.developers.google.com'''
 
         this_dir = os.path.dirname(__file__)
-        secrets_path = os.path.join(this_dir, 'credentials.json')
+        secrets_path = os.path.join(this_dir, credentials_file)
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(secrets_path,
-                                                                       SCOPES)
+                                                                       scopes)
         return credentials
 
     def disconnectSignals(self):
@@ -160,6 +145,7 @@ class Command(BaseCommand):
             # Flush database
             this_dir = os.path.abspath(os.path.dirname(__file__))
             flush_sql = os.path.join(this_dir, 'flush', 'flush.sql')
+
             execute_sql(flush_sql)
 
             # Recreate country codes
@@ -177,8 +163,9 @@ class Command(BaseCommand):
         # Disconnect post save signals
         self.disconnectSignals()
 
-        # Set the country code for the work
-        self.country_code = options['country_code']
+        if options.get('location_doc_id'):
+            self.get_locations_from_drive(options['location_doc_id'])
+            self.create_locations()
 
         if options.get('folder'):
             self.stdout.write('Loading data from folder {}...'.format(options['folder']))
@@ -246,12 +233,49 @@ class Command(BaseCommand):
         # connect post save signals
         self.connectSignals()
 
+    def create_locations(self):
+        this_dir = os.path.abspath(os.path.dirname(__file__))
+        location_file = os.path.join(this_dir, 'data', 'locations.geojson')
+        call_command('import_locations', location_file=location_file)
+
+    def get_locations_from_drive(self, location_doc_id):
+        credentials = self.get_credentials(
+            scopes=['https://www.googleapis.com/auth/drive.readonly']
+        )
+        service = build('drive', 'v3', credentials=credentials)
+        request = service.files().get_media(fileId=location_doc_id)
+
+        location_buffer = io.BytesIO()
+        downloader = MediaIoBaseDownload(location_buffer, request)
+        done = False
+
+        self.stdout.write('Downloading locations file...')
+
+        with tqdm(total=100) as progress_bar:
+            while done is False:
+                status, done = downloader.next_chunk()
+                progress_bar.update(int(status.progress() * 100) - progress_bar.n)
+
+        location_buffer.seek(0)
+
+        this_dir = os.path.abspath(os.path.dirname(__file__))
+        location_file = os.path.join(this_dir, 'data', 'locations.geojson')
+
+        with open(location_file, 'wb') as f:
+            f.write(location_buffer.getbuffer())
+
+        self.stdout.write(
+            self.style.SUCCESS('Downloaded locations file to {}'.format(location_file))
+        )
+
     def get_sheets_from_doc(self, doc_id, source_doc_id):
         """
         Load data from Google Sheets. Required params include a Google Doc ID
         for top-level entities and a Doc ID for sources.
         """
-        credentials = self.get_credentials()
+        credentials = self.get_credentials(
+            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly']
+        )
         http = credentials.authorize(httplib2.Http())
         service = build('sheets', 'v4', http=http)
 
@@ -270,18 +294,26 @@ class Command(BaseCommand):
             ).execute()
             sheet_mapping[title] = sheet_data['values']
 
-        org_sheets = {title: self.format_dict_reader(data)
-                      for title, data in sheet_mapping.items()
-                      if 'units' in title.lower()}
-        person_sheets = {title: self.format_dict_reader(data)
-                         for title, data in sheet_mapping.items()
-                         if 'persons' in title.lower() and 'persons_extra' not in title.lower()}
-        person_extra_sheets = {title: self.format_dict_reader(data)
-                               for title, data in sheet_mapping.items()
-                               if 'persons_extra' in title.lower()}
-        event_sheets = {title: self.format_dict_reader(data)
-                        for title, data in sheet_mapping.items()
-                        if 'incidents' in title.lower()}
+        org_sheets = {}
+        person_sheets = {}
+        person_extra_sheets = {}
+        event_sheets = {}
+
+        for title, data in sheet_mapping.items():
+            if 'scratch' in title.lower() or 'analysis' in title.lower():
+                continue
+
+            elif 'units' in title.lower():
+                org_sheets[title] = self.format_dict_reader(data)
+
+            elif 'persons_extra' in title.lower():
+                person_extra_sheets[title] = self.format_dict_reader(data)
+
+            elif 'persons' in title.lower():
+                person_sheets[title] = self.format_dict_reader(data)
+
+            elif 'incidents' in title.lower():
+                event_sheets[title] = self.format_dict_reader(data)
 
         # Get data about sources
         source_data = service.spreadsheets().values().get(
@@ -362,7 +394,10 @@ class Command(BaseCommand):
     def get_confidence(self, confidence_key):
         key = confidence_key.strip().lower()
         if key:
-            return CONFIDENCE_MAP[key]
+            try:
+                return CONFIDENCE_MAP[key]
+            except KeyError:
+                self.log_error("Invalid confidence value '{}'".format(key))
         else:
             return 1
 
@@ -491,20 +526,13 @@ class Command(BaseCommand):
             },
         }
 
-        area_positions = {
-            'OSMId': {
-                'value': 'unit:area_ops_id',
-                'confidence': Area.get_spreadsheet_confidence_field_name('name'),
-                'source': Area.get_spreadsheet_source_field_name('name'),
-            },
-        }
-
-        site_positions = {
-            'OSMId': {
-                'value': 'unit:site_nearest_settlement_id',
-                'confidence': 'unit:site_nearest_settlement_name:confidence',
-                'source': 'unit:site_nearest_settlement_name:source',
-            },
+        location_positions = {
+            'Location': {
+                'value': 'unit:location',
+                'confidence': 'unit:location:confidence',
+                'source': 'unit:location:source',
+                'type': 'unit:location_type',
+            }
         }
 
         membership_positions = {
@@ -534,8 +562,8 @@ class Command(BaseCommand):
                 'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'source': MembershipOrganization.get_spreadsheet_source_field_name('lastciteddate'),
             },
-            'RealEnd': {
-                'value': MembershipOrganization.get_spreadsheet_field_name('realend'),
+            'OpenEnded': {
+                'value': MembershipOrganization.get_spreadsheet_field_name('open_ended'),
                 'confidence': MembershipOrganization.get_spreadsheet_confidence_field_name('lastciteddate'),
                 'source': None,
             },
@@ -646,268 +674,268 @@ class Command(BaseCommand):
                                     attribute='realstart',
                                     object_ref=organization)
 
-                # Create Emplacements
-                try:
-                    site_osm_id = org_data[site_positions['OSMId']['value']]
-                except IndexError:
-                    # self.log_error('No Site OSM info for {}'.format(organization.name))
-                    site_osm_id = None
-
-                if site_osm_id:
-
-                    emplacement = self.make_emplacement(site_osm_id,
-                                                        org_data,
-                                                        organization)
-
-                # Create Areas
-                try:
-                    area_osm_id = org_data[area_positions['OSMId']['value']]
-                except IndexError:
-                    # self.log_error('No Area OSM info for {}'.format(organization.name))
-                    area_osm_id = None
-
-                if area_osm_id:
-
-                    area = self.make_area(area_osm_id,
-                                          org_data,
-                                          organization)
-
-                # Create Compositions
-
-                try:
-                    parent_org_name = org_data[composition_positions['Parent']['value']]
-                except IndexError:
-                    parent_org_name = None
-
-                if parent_org_name:
+                if org_data[location_positions['Location']['type']] == 'aoo':
+                    # Create Area
 
                     try:
-                        parent_confidence = self.get_confidence(org_data[composition_positions['Parent']['confidence']])
-                    except (IndexError, KeyError):
-                        self.log_error('Parent organization for {} does not have confidence'.format(organization.name))
-                        parent_confidence = None
-
-                    try:
-                        parent_sources = self.get_sources(org_data[composition_positions['Parent']['source']])
+                        humane_id = org_data[location_positions['Location']['value']]
                     except IndexError:
-                        self.log_error('Parent organization for {} does not have a source'.format(organization.name))
-                        parent_sources = None
+                        humane_id = None
 
-                    if parent_confidence and parent_sources:
-                        parent_org_info = {
-                            'Organization_OrganizationName': {
-                                'value': parent_org_name,
-                                'confidence': parent_confidence,
-                                'sources': parent_sources
-                            },
-                            'Organization_OrganizationDivisionId': {
-                                'value': division_id,
-                                'confidence': division_confidence,
-                                'sources': division_sources,
-                            },
-                        }
+                    if humane_id:
 
-                        try:
-                            uuid = self.organization_entity_map[parent_org_name]
-                        except KeyError:
-                            self.log_error('Could not find "{}" in list of organization names'.format(parent_org_name))
-                            return None
+                        self.make_area(humane_id,
+                                       org_data,
+                                       organization)
 
-                        try:
-                            parent_organization = Organization.objects.get(uuid=uuid)
-                        except Organization.DoesNotExist:
-                            parent_organization = Organization.objects.create(uuid=uuid,
-                                                                              published=True)
-                        except ValidationError:
-                            self.log_error('Invalid parent unit UUID: "{}"'.format(uuid))
-                            return None
-                        else:
-                            existing_sources = self.sourcesList(parent_organization, 'name')
-                            parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
-
-                        parent_organization.update(parent_org_info)
-
-                        comp_info = {
-                            'Composition_CompositionParent': {
-                                'value': parent_organization,
-                                'confidence': parent_confidence,
-                                'sources': parent_sources
-                            },
-                            'Composition_CompositionChild': {
-                                'value': organization,
-                                'confidence': parent_confidence,
-                                'sources': parent_sources,
-                            },
-                        }
-
-                        try:
-                            composition = Composition.objects.get(compositionparent__value=parent_organization,
-                                                                  compositionchild__value=organization)
-                        except Composition.DoesNotExist:
-                            composition = Composition.create(comp_info)
-
-                        self.make_relation('StartDate',
-                                           composition_positions['StartDate'],
-                                           org_data,
-                                           composition,
-                                           date=True)
-
-                        self.make_relation('EndDate',
-                                           composition_positions['EndDate'],
-                                           org_data,
-                                           composition,
-                                           date=True)
-
-                        self.make_real_date(data=org_data,
-                                            position=composition_positions['RealStart']['value'],
-                                            model=CompositionRealStart,
-                                            attribute='realstart',
-                                            object_ref=composition)
-
-                        self.make_relation('OpenEnded',
-                                           composition_positions['OpenEnded'],
-                                           org_data,
-                                           composition)
-
-                        self.make_relation('Classification',
-                                           composition_positions['Classification'],
-                                           org_data,
-                                           composition)
-
-
-                    else:
-                        self.log_error('Parent organization for {} does not have source or confidence'.format(organization.name))
-
-                # Make memberships
-
-                try:
-                    member_org_name = org_data[membership_positions['OrganizationOrganization']['value']]
-                except IndexError:
-                    member_org_name = None
-
-                if member_org_name:
-                    try:
-                        confidence = self.get_confidence(org_data[membership_positions['OrganizationOrganization']['confidence']])
-                    except (IndexError, KeyError):
-                        self.log_error('Member organization for {} does not have confidence'.format(member_org_name))
-                        confidence = None
+                elif org_data[location_positions['Location']['type']] == 'site':
+                    # Create Emplacement
 
                     try:
-                        sources = self.get_sources(org_data[membership_positions['OrganizationOrganization']['source']])
+                        site_osm_id = org_data[location_positions['Location']['value']]
                     except IndexError:
-                        self.log_error('Member organization for {} does not have a source'.format(member_org_name))
-                        sources = None
+                        site_osm_id = None
 
-                    if confidence and sources:
+                    if site_osm_id:
 
-                        member_org_info = {
-                            'Organization_OrganizationName': {
-                                'value': member_org_name,
-                                'confidence': confidence,
-                                'sources': sources.copy(),
-                            },
-                            'Organization_OrganizationDivisionId': {
-                                'value': division_id,
-                                'confidence': division_confidence,
-                                'sources': division_sources,
-                            },
-                        }
+                        self.make_emplacement(site_osm_id,
+                                              org_data,
+                                              organization)
 
-                        try:
-                            uuid = self.organization_entity_map[member_org_name]
-                        except KeyError:
-                            self.log_error('Could not find "{}" in list of organization names'.format(member_org_name))
-                            return None
+                if org_data['unit:relation_type'] == 'child':
+                    # Create Compositions
+
+                    try:
+                        parent_org_name = org_data[composition_positions['Parent']['value']]
+                    except IndexError:
+                        parent_org_name = None
+
+                    if parent_org_name:
 
                         try:
-                            member_organization = Organization.objects.get(uuid=uuid)
-                        except Organization.DoesNotExist:
-                            member_organization = Organization.objects.create(uuid=uuid,
-                                                                              published=True)
-                        except ValidationError:
-                            self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
-                            return None
+                            parent_confidence = self.get_confidence(org_data[composition_positions['Parent']['confidence']])
+                        except (IndexError, KeyError):
+                            self.log_error('Parent organization for {} does not have confidence'.format(organization.name))
+                            parent_confidence = None
+
+                        try:
+                            parent_sources = self.get_sources(org_data[composition_positions['Parent']['source']])
+                        except IndexError:
+                            self.log_error('Parent organization for {} does not have a source'.format(organization.name))
+                            parent_sources = None
+
+                        if parent_confidence and parent_sources:
+                            parent_org_info = {
+                                'Organization_OrganizationName': {
+                                    'value': parent_org_name,
+                                    'confidence': parent_confidence,
+                                    'sources': parent_sources
+                                },
+                                'Organization_OrganizationDivisionId': {
+                                    'value': division_id,
+                                    'confidence': division_confidence,
+                                    'sources': division_sources,
+                                },
+                            }
+
+                            try:
+                                uuid = self.organization_entity_map[parent_org_name]
+                            except KeyError:
+                                self.log_error('Could not find "{}" in list of organization names'.format(parent_org_name))
+                                return None
+
+                            try:
+                                parent_organization = Organization.objects.get(uuid=uuid)
+                            except Organization.DoesNotExist:
+                                parent_organization = Organization.objects.create(uuid=uuid,
+                                                                                  published=True)
+                            except ValidationError:
+                                self.log_error('Invalid parent unit UUID: "{}"'.format(uuid))
+                                return None
+                            else:
+                                existing_sources = self.sourcesList(parent_organization, 'name')
+                                parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
+
+                            parent_organization.update(parent_org_info)
+
+                            comp_info = {
+                                'Composition_CompositionParent': {
+                                    'value': parent_organization,
+                                    'confidence': parent_confidence,
+                                    'sources': parent_sources
+                                },
+                                'Composition_CompositionChild': {
+                                    'value': organization,
+                                    'confidence': parent_confidence,
+                                    'sources': parent_sources,
+                                },
+                            }
+
+                            try:
+                                composition = Composition.objects.get(compositionparent__value=parent_organization,
+                                                                      compositionchild__value=organization)
+                            except Composition.DoesNotExist:
+                                composition = Composition.create(comp_info)
+
+                            self.make_relation('StartDate',
+                                               composition_positions['StartDate'],
+                                               org_data,
+                                               composition,
+                                               date=True)
+
+                            self.make_relation('EndDate',
+                                               composition_positions['EndDate'],
+                                               org_data,
+                                               composition,
+                                               date=True)
+
+                            self.make_real_date(data=org_data,
+                                                position=composition_positions['RealStart']['value'],
+                                                model=CompositionRealStart,
+                                                attribute='realstart',
+                                                object_ref=composition)
+
+                            self.make_relation('OpenEnded',
+                                               composition_positions['OpenEnded'],
+                                               org_data,
+                                               composition)
+
+                            self.make_relation('Classification',
+                                               composition_positions['Classification'],
+                                               org_data,
+                                               composition)
+
                         else:
-                            existing_sources = self.sourcesList(member_organization, 'name')
-                            member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
+                            self.log_error('Parent organization for {} does not have source or confidence'.format(organization.name))
 
-                        member_organization.update(member_org_info)
+                elif org_data['unit:relation_type'] == 'member':
+                    # Make memberships
 
-                        membership_info = {
-                            'MembershipOrganization_MembershipOrganizationMember': {
-                                'value': organization,
-                                'confidence': confidence,
-                                'sources': sources.copy()
-                            },
-                            'MembershipOrganization_MembershipOrganizationOrganization': {
-                                'value': member_organization,
-                                'confidence': confidence,
-                                'sources': sources.copy()
-                            },
-                        }
+                    try:
+                        member_org_name = org_data[membership_positions['OrganizationOrganization']['value']]
+                    except IndexError:
+                        member_org_name = None
+
+                    if member_org_name:
+                        try:
+                            confidence = self.get_confidence(org_data[membership_positions['OrganizationOrganization']['confidence']])
+                        except (IndexError, KeyError):
+                            self.log_error('Member organization for {} does not have confidence'.format(member_org_name))
+                            confidence = None
 
                         try:
-                            date_parts = [
-                                org_data[membership_positions['FirstCitedDate']['year']],
-                                org_data[membership_positions['FirstCitedDate']['month']],
-                                org_data[membership_positions['FirstCitedDate']['day']]
-                            ]
-                            fcd = self.parse_date('-'.join(filter(None, date_parts)))
+                            sources = self.get_sources(org_data[membership_positions['OrganizationOrganization']['source']])
                         except IndexError:
-                            fcd = None
+                            self.log_error('Member organization for {} does not have a source'.format(member_org_name))
+                            sources = None
 
-                        try:
-                            date_parts = [
-                                org_data[membership_positions['LastCitedDate']['year']],
-                                org_data[membership_positions['LastCitedDate']['month']],
-                                org_data[membership_positions['LastCitedDate']['day']]
-                            ]
-                            lcd = self.parse_date('-'.join(filter(None, date_parts)))
-                        except IndexError:
-                            lcd = None
+                        if confidence and sources:
 
-                        try:
-                            membership = MembershipOrganization.objects.get(membershiporganizationmember__value=organization,
-                                                                            membershiporganizationorganization__value=member_organization,
-                                                                            membershiporganizationfirstciteddate__value=fcd,
-                                                                            membershiporganizationlastciteddate__value=lcd)
-                            sources = set(self.sourcesList(membership, 'member') + \
-                                          self.sourcesList(membership, 'organization'))
-                            membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
-                            membership.update(membership_info)
+                            member_org_info = {
+                                'Organization_OrganizationName': {
+                                    'value': member_org_name,
+                                    'confidence': confidence,
+                                    'sources': sources.copy(),
+                                },
+                                'Organization_OrganizationDivisionId': {
+                                    'value': division_id,
+                                    'confidence': division_confidence,
+                                    'sources': division_sources,
+                                },
+                            }
 
-                        except MembershipOrganization.DoesNotExist:
-                            membership = MembershipOrganization.create(membership_info)
+                            try:
+                                uuid = self.organization_entity_map[member_org_name]
+                            except KeyError:
+                                self.log_error('Could not find "{}" in list of organization names'.format(member_org_name))
+                                return None
 
-                        self.make_relation('LastCitedDate',
-                                           membership_positions['LastCitedDate'],
-                                           org_data,
-                                           membership,
-                                           date=True)
+                            try:
+                                member_organization = Organization.objects.get(uuid=uuid)
+                            except Organization.DoesNotExist:
+                                member_organization = Organization.objects.create(uuid=uuid,
+                                                                                  published=True)
+                            except ValidationError:
+                                self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
+                                return None
+                            else:
+                                existing_sources = self.sourcesList(member_organization, 'name')
+                                member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
-                        self.make_real_date(data=org_data,
-                                            position=membership_positions['RealEnd']['value'],
-                                            model=MembershipOrganizationRealEnd,
-                                            attribute='realend',
-                                            object_ref=membership)
+                            member_organization.update(member_org_info)
 
-                        self.make_relation('FirstCitedDate',
-                                           membership_positions['FirstCitedDate'],
-                                           org_data,
-                                           membership,
-                                           date=True)
+                            membership_info = {
+                                'MembershipOrganization_MembershipOrganizationMember': {
+                                    'value': organization,
+                                    'confidence': confidence,
+                                    'sources': sources.copy()
+                                },
+                                'MembershipOrganization_MembershipOrganizationOrganization': {
+                                    'value': member_organization,
+                                    'confidence': confidence,
+                                    'sources': sources.copy()
+                                },
+                            }
 
-                        self.make_real_date(data=org_data,
-                                            position=membership_positions['RealStart']['value'],
-                                            model=MembershipOrganizationRealStart,
-                                            attribute='realend',
-                                            object_ref=membership)
+                            try:
+                                date_parts = [
+                                    org_data[membership_positions['FirstCitedDate']['year']],
+                                    org_data[membership_positions['FirstCitedDate']['month']],
+                                    org_data[membership_positions['FirstCitedDate']['day']]
+                                ]
+                                fcd = self.parse_date('-'.join(filter(None, date_parts)))
+                            except IndexError:
+                                fcd = None
 
-                        membership.save()
+                            try:
+                                date_parts = [
+                                    org_data[membership_positions['LastCitedDate']['year']],
+                                    org_data[membership_positions['LastCitedDate']['month']],
+                                    org_data[membership_positions['LastCitedDate']['day']]
+                                ]
+                                lcd = self.parse_date('-'.join(filter(None, date_parts)))
+                            except IndexError:
+                                lcd = None
 
-                    else:
-                        self.log_error('Member organization for {} does not have source or confidence'.format(member_org_name))
+                            try:
+                                membership = MembershipOrganization.objects.get(membershiporganizationmember__value=organization,
+                                                                                membershiporganizationorganization__value=member_organization,
+                                                                                membershiporganizationfirstciteddate__value=fcd,
+                                                                                membershiporganizationlastciteddate__value=lcd)
+                                sources = set(self.sourcesList(membership, 'member') + self.sourcesList(membership, 'organization'))
+                                membership_info['MembershipOrganization_MembershipOrganizationMember']['sources'] += sources
+                                membership.update(membership_info)
 
+                            except MembershipOrganization.DoesNotExist:
+                                membership = MembershipOrganization.create(membership_info)
+
+                            self.make_relation('OpenEnded',
+                                               membership_positions['OpenEnded'],
+                                               org_data,
+                                               membership)
+
+                            self.make_relation('LastCitedDate',
+                                               membership_positions['LastCitedDate'],
+                                               org_data,
+                                               membership,
+                                               date=True)
+
+                            self.make_relation('FirstCitedDate',
+                                               membership_positions['FirstCitedDate'],
+                                               org_data,
+                                               membership,
+                                               date=True)
+
+                            self.make_real_date(data=org_data,
+                                                position=membership_positions['RealStart']['value'],
+                                                model=MembershipOrganizationRealStart,
+                                                attribute='realend',
+                                                object_ref=membership)
+
+                            membership.save()
+
+                        else:
+                            self.log_error('Member organization for {} does not have source or confidence'.format(member_org_name))
 
                 self.stdout.write(self.style.SUCCESS('Created {}'.format(organization.get_value())))
 
@@ -1104,14 +1132,14 @@ class Command(BaseCommand):
 
             return None
 
-    def make_area(self, osm_id, org_data, organization):
+    def make_area(self, humane_id, org_data, organization):
 
         positions = {
-            'OSMName': {
-                'value': Area.get_spreadsheet_field_name('name'),
-                'confidence': Area.get_spreadsheet_confidence_field_name('name'),
-                'source': Area.get_spreadsheet_source_field_name('name'),
-            },
+            'Location': {
+                'value': 'unit:location',
+                'confidence': 'unit:location:confidence',
+                'source': 'unit:location:source',
+            }
         }
 
         relation_positions = {
@@ -1137,134 +1165,90 @@ class Command(BaseCommand):
                 'source': Association.get_spreadsheet_source_field_name('enddate'),
             },
             'OpenEnded': {
-                'value': Association.get_spreadsheet_field_name('realstart'),
+                'value': Association.get_spreadsheet_field_name('open_ended'),
                 'confidence': Association.get_spreadsheet_confidence_field_name('enddate'),
                 'source': None,
             },
         }
 
         try:
-            geo = get_osm_by_id(osm_id)
-        except DataError:
-            self.log_error('OSM ID for Area does not seem valid: {}'.format(osm_id))
-            geo = None
+            area = Location.objects.from_humane_id(humane_id)
 
+        except Location.DoesNotExist:
+            self.log_error('Location "{0}" for Area for {1} does not exist'.format(humane_id, organization.name))
+            return None
 
-        if geo:
-            country_code = geo.country_code.lower()
+        try:
+            area_confidence = self.get_confidence(org_data[positions['Location']['confidence']])
+        except (IndexError, KeyError):
+            self.log_error('Location for Area for {} does not have confidence'.format(organization.name))
+            return None
 
-            division_id = 'ocd-division/country:{}'.format(country_code)
+        try:
+            area_sources = self.get_sources(org_data[positions['Location']['source']])
+        except IndexError:
+            self.log_error('Location for Area for {} does not have source'.format(organization.name))
+            return None
 
-            area, created = Location.objects.get_or_create(id=geo.id)
+        area_info = {
+            'Association_AssociationOrganization': {
+                'value': organization,
+                'confidence': area_confidence,
+                'sources': area_sources
+            },
+            'Association_AssociationArea': {
+                'value': area,
+                'confidence': area_confidence,
+                'sources': area_sources
+            },
+        }
 
-            if created:
-                area.name = geo.name
-                area.geometry = geo.geometry
-                area.division_id = division_id
+        try:
+            assoc = Association.objects.get(associationorganization__value=organization,
+                                            associationarea__value=area)
+            assoc.update(area_info)
+        except Association.DoesNotExist:
+            assoc = Association.create(area_info)
 
-                if area.feature_type == 'point':
-                    area.feature_type = 'node'
-                else:
-                    area.feature_type = 'relation'
+        for field_name, positions in relation_positions.items():
 
-                area.save()
+            if field_name == 'StartDate':
+                self.make_relation(field_name,
+                                   positions,
+                                   org_data,
+                                   assoc,
+                                   date=True)
 
-            try:
-                area_confidence = self.get_confidence(org_data[positions['OSMName']['confidence']])
-            except (IndexError, KeyError):
-                self.log_error('OSMName for Area for {} does not have confidence'.format(organization.name))
-                return None
+            elif field_name == 'EndDate':
+                self.make_relation(field_name,
+                                   positions,
+                                   org_data,
+                                   assoc,
+                                   date=True)
 
-            try:
-                area_sources = self.get_sources(org_data[positions['OSMName']['source']])
-            except IndexError:
-                self.log_error('OSMName for Area for {} does not have source'.format(organization.name))
-                return None
+            elif field_name == 'RealStart':
+                self.make_real_date(data=org_data,
+                                    position=positions['value'],
+                                    model=AssociationRealStart,
+                                    attribute='realstart',
+                                    object_ref=assoc)
 
-            area_info = {
-                'Association_AssociationOrganization': {
-                    'value': organization,
-                    'confidence': area_confidence,
-                    'sources': area_sources
-                },
-                'Association_AssociationArea': {
-                    'value': area,
-                    'confidence': area_confidence,
-                    'sources': area_sources
-                },
-            }
-
-            try:
-                assoc = Association.objects.get(associationorganization__value=organization,
-                                                associationarea__value=area)
-                assoc.update(area_info)
-            except Association.DoesNotExist:
-                assoc = Association.create(area_info)
-
-            for field_name, positions in relation_positions.items():
-
-                if field_name == 'StartDate':
-                    self.make_relation(field_name,
-                                       positions,
-                                       org_data,
-                                       assoc,
-                                       date=True)
-
-                elif field_name == 'EndDate':
-                    self.make_relation(field_name,
-                                       positions,
-                                       org_data,
-                                       assoc,
-                                       date=True)
-
-                elif field_name == 'RealStart':
-                    self.make_real_date(data=org_data,
-                                        position=positions['value'],
-                                        model=AssociationRealStart,
-                                        attribute='realstart',
-                                        object_ref=assoc)
-
-                else:
-                    self.make_relation(field_name,
-                                       positions,
-                                       org_data,
-                                       assoc)
+            else:
+                self.make_relation(field_name,
+                                   positions,
+                                   org_data,
+                                   assoc)
 
     def make_emplacement(self,
-                         osm_id,
+                         humane_id,
                          org_data,
                          organization):
 
         positions = {
-            'AdminLevel1': {
-                'value': 'unit:site_first_admin_area_name',
-                'osmid': 'unit:site_first_admin_area_id',
-                'confidence': 'unit:site_first_admin_area_name:confidence',
-                'source': 'unit:site_first_admin_area_name:source',
-            },
-            # This doesn't correspond directly to a model attribute
-            # but we'll use it to unpack data about the highest
-            # level of resolution available to us
-            'ExactLocation': {
-                'lng_or_name': 'unit:site_exact_location_name_longitude',
-                'lat_or_id': 'unit:site_exact_location_id_latitude',
-                'confidence': 'unit:site_exact_location:confidence',
-                'source': 'unit:site_exact_location:source',
-            },
-            'Headquarters': {
-                'value': Organization.get_spreadsheet_field_name('headquarters'),
-                'confidence': Organization.get_spreadsheet_confidence_field_name('headquarters'),
-                'source': Organization.get_spreadsheet_source_field_name('headquarters'),
-            },
-            'AdminName': {
-                'value': 'unit:site_nearest_settlement_name',
-                'confidence': 'unit:site_nearest_settlement_name:confidence',
-                'source': 'unit:site_nearest_settlement_name:source',
-            },
-            'AdminId': {
-                'value': 'unit:site_nearest_settlement_id',
-                'confidence': 'unit:site_nearest_settlement_name:confidence',
-                'source': 'unit:site_nearest_settlement_name:source',
+            'Location': {
+                'value': 'unit:location',
+                'confidence': 'unit:location:confidence',
+                'source': 'unit:location:source',
             }
         }
 
@@ -1297,209 +1281,78 @@ class Command(BaseCommand):
             }
         }
 
-        exact_location = self.get_exact_location(positions, org_data)
-
-        if exact_location.get('id') and exact_location.get('name'):
-            osm_id = exact_location['id']
-            site_name = exact_location['name']
-        else:
-            osm_id = org_data[positions['AdminId']['value']]
-            site_name = org_data[positions['AdminName']['value']]
-
         try:
-            osm_geo = get_osm_by_id(osm_id)
-        except DataError:
-            osm_geo = None
-            self.log_error('OSM ID for Site {1} does not seem valid: {2}'.format(site_name, osm_id))
+            site = Location.objects.from_humane_id(humane_id)
 
-        if osm_geo:
-
-            site = self.get_or_create_site(osm_geo, exact_location, org_data, positions)
-            confidence = self.get_confidence(org_data[positions['AdminName']['confidence']])
-            sources = self.get_sources(org_data[positions['AdminName']['source']])
-
-            if sources and confidence:
-
-                emp_data = {
-                    'Emplacement_EmplacementOrganization': {
-                        'value': organization,
-                        'confidence': confidence,
-                        'sources': sources.copy()
-                    },
-                    'Emplacement_EmplacementSite': {
-                        'value': site,
-                        'confidence': confidence,
-                        'sources': sources.copy()
-                    }
-                }
-
-                try:
-                    emplacement = Emplacement.objects.get(emplacementorganization__value=organization,
-                                                        emplacementsite__value=site)
-                except Emplacement.DoesNotExist:
-                    emplacement = Emplacement.create(emp_data)
-
-                for field_name, positions in relation_positions.items():
-
-                    if field_name == 'StartDate':
-                        self.make_relation(field_name,
-                                           positions,
-                                           org_data,
-                                           emplacement,
-                                           date=True)
-
-                    elif field_name == 'EndDate':
-                        self.make_relation(field_name,
-                                           positions,
-                                           org_data,
-                                           emplacement,
-                                           date=True)
-
-                    elif field_name == 'RealStart':
-                        self.make_real_date(data=org_data,
-                                            position=positions['value'],
-                                            model=EmplacementRealStart,
-                                            attribute='realstart',
-                                            object_ref=emplacement)
-
-                    else:
-                        self.make_relation(field_name,
-                                           positions,
-                                           org_data,
-                                           emplacement)
-
-                return emplacement
-
-            else:
-                missing = []
-                if not confidence:
-                    missing.append('confidence')
-                if not sources:
-                    missing.append('sources')
-
-                self.log_error('Emplacement for org {0} did not have {1}'.format(organization.name.get_value().value,
-                                                                                 ', '.join(missing)))
-                return None
-
-        else:
-            self.log_error('Could not find OSM ID {}'.format(osm_id))
+        except Location.DoesNotExist:
+            self.log_error('Location "{0}" for Site for {1} does not exist'.format(humane_id, organization.name))
             return None
 
-    def get_or_create_site(self, osm, exact_location, data, positions):
-        '''
-        Helper method to get or create a Location based on spreadsheet data.
+        confidence = self.get_confidence(org_data[positions['Location']['confidence']])
+        sources = self.get_sources(org_data[positions['Location']['source']])
 
-        Params:
-            * osm: OSMFeature
-            * exact_location: dictionary returned from get_exact_location()
-            * data: the spreadsheet data, as an array
-            * positions: nested dictionaries documenting the index, confidence,
-              and source values for each model represented in the sheet.
+        if sources and confidence:
 
-        Returns:
-            * Location object.
-        '''
-
-        names = [
-            exact_location.get('name'),
-            data[positions['AdminName']['value']],
-            data[positions['AdminLevel1']['value']],
-        ]
-
-        name = ', '.join([n for n in names if n])
-
-        if exact_location.get('id'):
-            osm_id = exact_location['id']
-            division_id = None
-            coords = exact_location['coords']
-            tags = exact_location['tags']
-            feature_type = 'node'
-        else:
-            osm_id = data[positions['AdminId']['value']]
-            osm = get_osm_by_id(osm_id)
-            osm_id = osm.id
-
-            division_id = 'ocd-division/country:{}'.format(osm.country_code)
-
-            coords = osm.geometry
-            tags = osm.tags
-
-            if osm.feature_type == 'point':
-                feature_type = 'node'
-            else:
-                feature_type = 'relation'
-
-        site, created = Location.objects.get_or_create(id=osm_id)
-
-        if created:
-
-            site.name = name
-            site.division_id = division_id
-            site.tags = tags
-            site.geometry = coords
-            site.feature_type = feature_type
-
-            site.save()
-
-        return site
-
-    def get_exact_location(self, positions, data):
-        '''
-        Helper method for figuring out the data type of an "Exact Location" and
-        returning relevant info. SFM staff sometimes record Exact Locations as
-        OSM ID/Name pairs, and sometimes as coordinates, so we have to do some
-        parsing to get the right attributes.
-
-        Params:
-            * data: the spreadsheet data, as an array
-            * positions: nested dictionaries documenting the index, confidence,
-              and source values for each model represented in the sheet.
-        Returns:
-            * dictionary with the following values:
-                - id: OSM ID or None
-                - name: OSM Name or None
-                - coords: Coordinate pair
-        '''
-        exact_location = {}
-
-        lng_or_name = data[positions['ExactLocation']['lng_or_name']]
-        lat_or_id = data[positions['ExactLocation']['lat_or_id']]
-
-        try:
-            assert (lng_or_name and lat_or_id)
-        except AssertionError:
-            # The field is empty, so return an empty dict
-            return exact_location
-
-        # Figure out if it's OSM Name/ID pair, or coordinate pair
-        try:
-
-            # If this succeeds, it's a coordinate pair
-            int(lng_or_name)
-            int(lat_or_id)
-
-            lng, lat = lng_or_name, lat_or_id
-
-        except ValueError:
-
-            # This is a name/ID pair
-            exact_location['name'], exact_location['id'] = lng_or_name, lat_or_id
+            emp_data = {
+                'Emplacement_EmplacementOrganization': {
+                    'value': organization,
+                    'confidence': confidence,
+                    'sources': sources.copy()
+                },
+                'Emplacement_EmplacementSite': {
+                    'value': site,
+                    'confidence': confidence,
+                    'sources': sources.copy()
+                }
+            }
 
             try:
+                emplacement = Emplacement.objects.get(emplacementorganization__value=organization,
+                                                      emplacementsite__value=site)
+            except Emplacement.DoesNotExist:
+                emplacement = Emplacement.create(emp_data)
 
-                geo = get_osm_by_id(exact_location['id'])
-                lng, lat = geo.st_x, geo.st_y
+            for field_name, positions in relation_positions.items():
 
-            except (DataError, AttributeError):
-                self.log_error('OSM ID for exact location {0} does not seem valid: {1}'.format(exact_location['name'],
-                                                                                               exact_location['id']))
-                return exact_location
+                if field_name == 'StartDate':
+                    self.make_relation(field_name,
+                                       positions,
+                                       org_data,
+                                       emplacement,
+                                       date=True)
 
-        point_string = 'POINT({lng} {lat})'.format(lng=lng, lat=lat)
-        exact_location['coords'] = GEOSGeometry(point_string, srid=4326)
-        exact_location['tags'] = geo.tags
+                elif field_name == 'EndDate':
+                    self.make_relation(field_name,
+                                       positions,
+                                       org_data,
+                                       emplacement,
+                                       date=True)
 
-        return exact_location
+                elif field_name == 'RealStart':
+                    self.make_real_date(data=org_data,
+                                        position=positions['value'],
+                                        model=EmplacementRealStart,
+                                        attribute='realstart',
+                                        object_ref=emplacement)
+
+                else:
+                    self.make_relation(field_name,
+                                       positions,
+                                       org_data,
+                                       emplacement)
+
+            return emplacement
+
+        else:
+            missing = []
+            if not confidence:
+                missing.append('confidence')
+            if not sources:
+                missing.append('sources')
+
+            self.log_error('Emplacement for org {0} did not have {1}'.format(organization.name.get_value().value,
+                                                                             ', '.join(missing)))
+            return None
 
     def make_real_date(self, *, data, position, model, attribute, object_ref):
         '''
@@ -1630,8 +1483,9 @@ class Command(BaseCommand):
         membership_positions = {
             'Organization': {
                 'value': MembershipPerson.get_spreadsheet_field_name('organization'),
-                'confidence': MembershipPerson.get_spreadsheet_confidence_field_name('organization'),
-                'source': MembershipPerson.get_spreadsheet_source_field_name('organization'),
+                # Confidence and source fields don't follow consistent naming convention
+                'confidence': 'person:posting_unit:confidence',
+                'source': 'person:posting_unit:source',
             },
             'Role': {
                 'value': MembershipPerson.get_spreadsheet_field_name('role'),
@@ -1768,9 +1622,15 @@ class Command(BaseCommand):
 
                 # Make membership objects
                 try:
-                    organization_name = person_data[membership_positions['Organization']['value']]
+                    uuid = person_data[membership_positions['Organization']['value']]
+                    organization_name = {
+                        v: k for k, v in self.organization_entity_map.items()
+                    }[uuid]
                 except IndexError:
                     self.log_error('Row seems to be empty')
+                    return None
+                except KeyError:
+                    self.log_error('Organization "{}" not in entity map'.format(uuid))
                     return None
 
                 try:
@@ -1797,12 +1657,6 @@ class Command(BaseCommand):
                         'sources': division_sources,
                     }
                 }
-
-                try:
-                    uuid = self.organization_entity_map[organization_name]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of organization names'.format(organization_name))
-                    return None
 
                 try:
                     organization = Organization.objects.get(uuid=uuid)
@@ -1907,8 +1761,7 @@ class Command(BaseCommand):
                                                               membershippersonrole__value=role,
                                                               membershippersonrank__value=rank,
                                                               membershippersontitle__value=title)
-                    sources = set(self.sourcesList(membership, 'member') + \
-                                  self.sourcesList(membership, 'organization'))
+                    sources = set(self.sourcesList(membership, 'member') + self.sourcesList(membership, 'organization'))
                     membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
                     membership.update(membership_data)
 
@@ -2146,29 +1999,6 @@ class Command(BaseCommand):
             )
         )
 
-    def get_or_create_location(self, geo):
-        location, created = Location.objects.get_or_create(id=geo.id)
-
-        if created:
-            location.name = geo.name
-            location.geometry = geo.geometry
-
-            try:
-                country_code = geo.country_code.lower()
-            except AttributeError:
-                self.log_error('Location with ID "{}" is missing a country code'.format(geo.id))
-            else:
-                location.division_id = 'ocd-division/country:{}'.format(country_code)
-
-            if location.feature_type == 'point':
-                location.feature_type = 'node'
-            else:
-                location.feature_type = 'relation'
-
-            location.save()
-
-        return location
-
     def create_event(self, event_data):
 
         positions = {
@@ -2203,15 +2033,10 @@ class Command(BaseCommand):
                 'source': 'incident:all:source',
                 'model_field': 'violationlocationdescription',
             },
-            'ExactLocation': {
-                'lng_or_name': Violation.get_spreadsheet_field_name('location_name'),
-                'lat_or_id': Violation.get_spreadsheet_field_name('location_id'),
+            'Location': {
+                'value': Violation.get_spreadsheet_field_name('location_id'),
                 'source': 'incident:all:source',
                 'model_field': 'violationexactlocation',
-            },
-            'DivisionId': {
-                'value': Violation.get_spreadsheet_field_name('division_id'),
-                'source': 'incident:all:source',
             },
             'Type': {
                 'value': Violation.get_spreadsheet_field_name('types'),
@@ -2222,19 +2047,6 @@ class Command(BaseCommand):
                 'value': Violation.get_spreadsheet_field_name('description'),
                 'source': 'incident:all:source',
                 'model_field': 'violationdescription',
-            },
-            'AdminName': {
-                'value': Violation.get_spreadsheet_field_name('adminlevel1'),
-                'source': 'incident:all:source',
-            },
-            'AdminId': {
-                'value': 'incident:site_settlement_id',
-                'source': 'incident:all:source',
-            },
-            'AdminLevel2': {
-                'osmid': 'incident:site_first_admin_area_id',
-                'value': Violation.get_spreadsheet_field_name('adminlevel2'),
-                'source': 'incident:all:source',
             },
             'Perpetrator': {
                 'value': Violation.get_spreadsheet_field_name('perpetrator'),
@@ -2312,78 +2124,46 @@ class Command(BaseCommand):
             self.log_error('Row does not have required source column')
             return None
 
-        # Make OSM stuff
-        admin_id = event_data[positions['AdminId']['value']]
-        admin_name = event_data[positions['AdminName']['value']]
-
-        adminlevel2_id = event_data[positions['AdminLevel2']['osmid']]
-        adminlevel2_name = event_data[positions['AdminLevel2']['value']]
-
-        exact_location = self.get_exact_location(positions, event_data)
-
-        coords = exact_location.get('coords')
-        exactloc_id = exact_location.get('id')
-        exactloc_name = exact_location.get('name')
-
         event_info = {}
-        osm_id = None
 
-        if exactloc_name and exactloc_id:
+        humane_id = event_data[positions['Location']['value']]
+
+        try:
+            exact_location = Location.objects.from_humane_id(humane_id)
+        except Location.DoesNotExist:
+            self.log_error('Location {} for ViolationLocation does not exist'.format(humane_id))
+            self.log_error('Country code missing')
+            return None
+
+        else:
+            if exact_location.name and exact_location.id:
+                event_info.update({
+                    'Violation_ViolationLocationName': {
+                        'value': exact_location.name,
+                        'sources': sources.copy(),
+                        'confidence': 1
+                    },
+                    'Violation_ViolationLocationId': {
+                        'value': exact_location.id,
+                        'sources': sources.copy(),
+                        'confidence': 1
+                    },
+                })
+
+            geo, admin1, admin2 = exact_location, exact_location.adminlevel1, exact_location.adminlevel2
+
             event_info.update({
-                'Violation_ViolationLocationName': {
-                    'value': exactloc_name,
+                'Violation_ViolationOSMName': {
+                    'value': geo.name,
                     'sources': sources.copy(),
                     'confidence': 1
                 },
-                'Violation_ViolationLocationId': {
-                    'value': exactloc_id,
+                'Violation_ViolationOSMId': {
+                    'value': geo.id,
                     'sources': sources.copy(),
                     'confidence': 1
                 },
             })
-
-            osm_id = exactloc_id
-
-        geo, admin1, admin2 = None, None, None
-
-        # Get adminlevel2
-        if adminlevel2_id:
-            try:
-                admin2 = get_osm_by_id(adminlevel2_id)
-            except DataError:
-                self.log_error(
-                    'AdminLevel2 ID for ViolationLocation {} does not seem valid: {}'.format(
-                        adminlevel2_name, adminlevel2_id
-                    ))
-        else:
-            self.log_error('Missing OSM ID for AdminLevel2')
-
-        # Infer locations
-        if admin_id:
-            try:
-                geo = get_osm_by_id(admin_id)
-            except DataError:
-                self.log_error('OSM ID for Site {0} does not seem valid: {1}'.format(site_name, admin_id))
-        else:
-            self.log_error('Missing OSM ID')
-
-        if geo:
-
-            if not coords:
-
-                point_string = 'POINT({lng} {lat})'
-
-                point = (str(geo.st_x), str(geo.st_y))
-
-                coords = GEOSGeometry(point_string.format(lng=point[0], lat=point[1]),
-                                      srid=4326)
-
-            hierarchy = get_hierarchy_by_id(admin_id)
-
-            if hierarchy:
-                for member in hierarchy:
-                    if int(member.admin_level) == 6 and not admin1:
-                        admin1 = self.get_or_create_location(member)
 
             if admin1:
                 event_info.update({
@@ -2396,54 +2176,29 @@ class Command(BaseCommand):
             if admin2:
                 event_info.update({
                     'Violation_ViolationAdminLevel2': {
-                        'value': self.get_or_create_location(admin2),
+                        'value': admin2,
                         'sources': sources.copy(),
                         'confidence': 1
                     },
                 })
-            if geo:
-                event_info.update({
-                    'Violation_ViolationOSMName': {
-                        'value': geo.name,
-                        'sources': sources.copy(),
-                        'confidence': 1
-                    },
-                    'Violation_ViolationOSMId': {
-                        'value': geo.id,
-                        'sources': sources.copy(),
-                        'confidence': 1
-                    },
-                })
-
-            osm_id = geo.id
-
-        if osm_id:
 
             event_info.update({
                 'Violation_ViolationLocation': {
-                    'value': self.get_or_create_location(geo),
+                    'value': geo,
                     'sources': sources.copy(),
                     'confidence': 1
                 },
             })
 
-        try:
-            country_code = event_data[positions['DivisionId']['value']]
-        except IndexError:
-            self.log_error('Country code missing')
-            return None
+            event_info.update({
+                'Violation_ViolationDivisionId': {
+                    'value': geo.division_id,
+                    'sources': sources.copy(),
+                    'confidence': 1,
+                }
+            })
 
-        division_id = 'ocd-division/country:{}'.format(country_code)
-
-        event_info.update({
-            'Violation_ViolationDivisionId': {
-                'value': division_id,
-                'sources': sources.copy(),
-                'confidence': 1,
-            }
-        })
-
-        violation.update(event_info)
+            violation.update(event_info)
 
         # Record perpetrators
 
@@ -2476,8 +2231,8 @@ class Command(BaseCommand):
                             'confidence': 1,
                             'sources': sources.copy(),
                         },
-                        'Person_PersonDivisionId' : {
-                            'value': division_id,
+                        'Person_PersonDivisionId': {
+                            'value': geo.division_id,
                             'confidence': 1,
                             'sources': sources.copy()
                         }
@@ -2527,7 +2282,7 @@ class Command(BaseCommand):
                             'sources': sources.copy(),
                         },
                         'Organization_OrganizationDivisionId': {
-                            'value': division_id,
+                            'value': geo.division_id,
                             'confidence': 1,
                             'sources': sources.copy(),
                         }

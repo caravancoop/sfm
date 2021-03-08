@@ -32,7 +32,7 @@ from composition.models import Composition, CompositionParent, \
 from membershiporganization.models import MembershipOrganization, \
     MembershipOrganizationMember, MembershipOrganizationOrganization, \
     MembershipOrganizationFirstCitedDate, MembershipOrganizationRealStart, \
-    MembershipOrganizationLastCitedDate, MembershipOrganizationRealEnd
+    MembershipOrganizationLastCitedDate, MembershipOrganizationOpenEnded
 
 from association.models import Association, AssociationStartDate, \
     AssociationRealStart, AssociationEndDate, AssociationOpenEnded, \
@@ -151,7 +151,7 @@ class OrganizationMembershipForm(BaseUpdateForm):
         ('organization', MembershipOrganizationOrganization, False),
         ('realstart', MembershipOrganizationRealStart, False),
         ('firstciteddate', MembershipOrganizationFirstCitedDate, False),
-        ('realend', MembershipOrganizationRealEnd, False),
+        ('open_ended', MembershipOrganizationOpenEnded, False),
         ('lastciteddate', MembershipOrganizationLastCitedDate, False),
     ]
 
@@ -163,7 +163,7 @@ class OrganizationMembershipForm(BaseUpdateForm):
     firstciteddate = ApproximateDateFormField(label=_("Date first cited"), required=False)
     lastciteddate = ApproximateDateFormField(label=_("Date last cited"), required=False)
     organization = forms.ModelChoiceField(queryset=Organization.objects.all(), required=False)
-    realend = forms.BooleanField(label=_("End date?"))
+    open_ended = forms.BooleanField(label=_("Is open ended?"))
 
     def __init__(self, *args, **kwargs):
         organization_id = kwargs.pop('organization_id')

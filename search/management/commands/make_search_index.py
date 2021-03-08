@@ -256,7 +256,7 @@ class Command(BaseCommand):
             for attr in (parent_names, countries, exactloc_names, areas):
                 content.extend(attr)
 
-            content = '; '.join(content)
+            content = '; '.join(c for c in content if c)
 
             document = {
                 'id': org_id,

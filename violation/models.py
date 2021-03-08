@@ -230,8 +230,6 @@ class ViolationAdminLevel1(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Location, null=True)
     field_name = _("Settlement")
-    shortcode = 'i_ssn'
-    spreadsheet_field_name = 'incident:site_settlement_name'
 
 
 @versioned
@@ -239,8 +237,6 @@ class ViolationAdminLevel2(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Location, null=True)
     field_name = _("First-Level Administrative Area")
-    shortcode = 'i_sfaan'
-    spreadsheet_field_name = 'incident:site_first_admin_area_name'
 
 
 @versioned
@@ -262,8 +258,6 @@ class ViolationDivisionId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Country")
-    shortcode = 'i_c'
-    spreadsheet_field_name = 'incident:site_country'
 
 
 @versioned
@@ -278,8 +272,6 @@ class ViolationLocationName(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Exact Location Name")
-    shortcode = 'i_selnlon'
-    spreadsheet_field_name = 'incident:site_exact_location_name_longitude'
 
 
 @versioned
@@ -287,8 +279,8 @@ class ViolationLocationId(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Exact Location ID")
-    shortcode = 'i_selidlat'
-    spreadsheet_field_name = 'incident:site_exact_location_id_latitude'
+    shortcode = 'i_loc'
+    spreadsheet_field_name = 'incident:location'
 
 
 @versioned
@@ -306,8 +298,8 @@ class ViolationPerpetrator(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Person, default=None, blank=True, null=True)
     field_name = _("Perpetrator")
-    shortcode = 'i_pn'
-    spreadsheet_field_name = 'incident:perpetrator_name'
+    shortcode = 'i_ppn'
+    spreadsheet_field_name = 'incident:perpetrator_person_name'
 
 
 @versioned
@@ -315,8 +307,8 @@ class ViolationPerpetratorOrganization(ComplexField):
     object_ref = models.ForeignKey('Violation')
     value = models.ForeignKey(Organization, default=None, blank=True, null=True)
     field_name = _("Perpetrator Unit")
-    shortcode = 'i_pu'
-    spreadsheet_field_name = 'incident:perpetrator_unit'
+    shortcode = 'i_pun'
+    spreadsheet_field_name = 'incident:perpetrator_unit_name'
 
 
 @versioned

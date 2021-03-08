@@ -459,7 +459,8 @@ def execute_sql(file_path):
 
         with connection.cursor() as c:
             for statement in statements:
-                c.execute(statement.strip())
+                if statement.strip():
+                    c.execute(statement.strip())
 
 def class_for_name(class_name, module_name="person.models"):
     # Check for irregular class names (names where we cannot infer the class
