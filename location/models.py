@@ -9,7 +9,10 @@ from django.utils.translation import ugettext as _
 class LocationManager(models.Manager):
 
     def from_humane_id(self, humane_id):
-        return self.get(**{'sfm__location:humane_id:admin': humane_id})
+        if isinstance(humane_id, str):
+            return self.get(**{'sfm__location:humane_id:admin': humane_id})
+
+        return self.filter(**{'sfm__location:humane_id:admin__in': humane_id})
 
 
 class Location(models.Model):

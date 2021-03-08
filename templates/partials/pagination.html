@@ -4,51 +4,50 @@
 {% if page.has_previous or page.has_next %}
 <nav aria-label="{% trans 'Search results navigation' %}">
   <ul class="pagination">
-
     <! -- Previous button -->
     {% if page.has_previous %}
     <li>
-        <a href="?{{ q_filters }}&amp;{{ page_type  }}_page={{ page.previous_page_number }}" aria-label="Previous">
+        <a href="?{{ q_filters }}&amp;page={{ page.previous_page_number }}{% if request.GET.rows %}&amp;rows={{ request.GET.rows }}{% endif %}" aria-label="Previous">
         <span aria-hidden="true">&laquo; {% trans "Previous" %}</span>
       </a>
     </li>
     {% endif %}
 
     <!-- Page numbers -->
-    {% if page.num_pages|length >= 10 and page.current_page_number >= 9 %}
+    {% if paginator.num_pages >= 10 and page.number >= 9 %}
     <!-- First page + ellipses -->
-    <li><a href="?{{ q_filters }}&amp;{{ page_type }}_page=1">1</a></li>
+    <li><a href="?{{ q_filters }}&amp;page=1{% if request.GET.rows %}&amp;rows={{ request.GET.rows }}{% endif %}">1</a></li>
     <li class="disabled"><a href="#">&#8230;</a></li>
     {% endif %}
 
-    {% for num in page.num_pages %}
-        {% if not forloop.last and page.current_page_number|absubtract:num < 5 %}
-            <li{% if num == page.current_page_number %} class="active"{% endif %}>
-                <a href="?{{ q_filters }}&amp;{{ page_type }}_page={{ num }}">
+    {% for num in paginator.page_range %}
+        {% if not forloop.last and page.number|absubtract:num < 5 %}
+            <li{% if num == page.number %} class="active"{% endif %}>
+                <a href="?{{ q_filters }}&amp;page={{ num }}{% if request.GET.rows %}&amp;rows={{ request.GET.rows }}{% endif %}">
                     {{ num }}
                 </a>
             </li>
         {% endif %}
     {% endfor %}
 
-    {% if page.num_pages|length >= 10 %}
-        {% if page.num_pages|length|subtract:page.current_page_number >= 10 %}
+    {% if paginator.num_pages >= 10 %}
+        {% if paginator.num_pages|subtract:page.number >= 10 %}
             <! -- Ellipses before the last page -->
             <li class="disabled"><a href="#">&#8230;</a></li>
         {% endif %}
     {% endif %}
 
     <!-- Last page -->
-    <li{% if page.num_pages|length == page.current_page_number %} class="active"{% endif %}>
-        <a href="?{{ q_filters }}&amp;{{ page_type }}_page={{ page.num_pages|length }}">
-            {{ page.num_pages|length }}
+    <li{% if paginator.num_pages == page.number %} class="active"{% endif %}>
+        <a href="?{{ q_filters }}&amp;page={{ paginator.num_pages }}{% if request.GET.rows %}&amp;rows={{ request.GET.rows }}{% endif %}">
+            {{ paginator.num_pages }}
         </a>
     </li>
 
     <!-- Next button -->
     {% if page.has_next %}
     <li>
-        <a href="?{{ q_filters }}&amp;{{ page_type }}_page={{ page.next_page_number }}" aria-label="Next">
+        <a href="?{{ q_filters }}&amp;page={{ page.next_page_number }}{% if request.GET.rows %}&amp;rows={{ request.GET.rows }}{% endif %}" aria-label="Next">
         <span aria-hidden="true">{% trans "Next" %} &raquo;</span>
       </a>
     </li>
@@ -58,7 +57,7 @@
 </nav>
 
 <!-- Results per page -->
-{% if hit_count > 5 %}
+{% if paginator.count > 5 %}
 <div class="row">
     <div class="col-sm-12">
         <p>
@@ -67,8 +66,10 @@
                 {% for result_count in results_per_page %}
                     {% if hit_count >= result_count %}
                         {% if not forloop.first %}|{% endif %}
-                        <a href="?{{ q_filters }}&amp;{{ page_type }}_rows={{ result_count }}" rel="nofollow">
-                            {% if page.result_count == result_count %}
+                        <a href="?{{ q_filters }}&amp;rows={{ result_count }}" rel="nofollow">
+                            {% if result_count == request.GET.rows|add:"0" %}
+                                <strong>{{ result_count }}</strong>
+                            {% elif not request.GET.rows and result_count == 25 %}
                                 <strong>{{ result_count }}</strong>
                             {% else %}
                                 {{ result_count }}

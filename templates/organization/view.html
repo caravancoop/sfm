@@ -47,7 +47,7 @@
     <p class="cited">{% trans "Classified as:" %}
         <small>
         {% for classification in organization.classification.get_list %}
-            <strong><a href="{% url 'search' %}?entity_type=Organization&selected_facets=organization_classification_ss_fct_exact:{{classification.get_value}}">{{ classification.get_value }}</a>{% if not forloop.last %}&nbsp;{% else %}{% cite classification.get_value %}{% endif %}</a></strong>
+            <strong><a href="{% url 'search' %}?entity_type=Organization&selected_facets=classifications_exact:{{classification.get_value}}&selected_facets=countries_exact:{{ organization.division_id.get_value | country_name }}">{{ classification.get_value }}</a>{% if not forloop.last %}&nbsp;{% else %}{% cite classification.get_value %}{% endif %}</a></strong>
         {% endfor %}
         </small>
     </p>

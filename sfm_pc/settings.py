@@ -48,7 +48,8 @@ except ImportError:
 try:
     from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
         SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL, \
-        CACHES, OSM_API_KEY
+        CACHES, OSM_API_KEY, HAYSTACK_CONNECTIONS, \
+        HAYSTACK_DOCUMENT_FIELD, HAYSTACK_SIGNAL_PROCESSOR
 except ImportError as e:
     raise Exception('''DATABASE_URL,
                      GOOGLE_MAPS_KEY,
@@ -72,6 +73,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django.contrib.humanize',
+    'haystack',
     'django_date_extensions',
     'rosetta',
     'languages_plus',

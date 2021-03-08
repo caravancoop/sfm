@@ -38,7 +38,8 @@ flush_db : import_directory auth_models.json
 recreate_db : import_directory flush_db import_docket_import
 	# Update data derived from entity tables
 	python manage.py make_materialized_views --recreate
-	python manage.py make_search_index --recreate
+	python manage.py rebuild_index --noinput
+	python manage.py update_composition_index --recreate
 
 clean :
 	rm auth_models.json *errors.csv

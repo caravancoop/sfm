@@ -11,7 +11,7 @@
                 <th>
                     {{ models.Violation|verbose_field_name:"startdate" }}
                     {% if sortable == 'True' %}
-                        {% with sort_param='Violation_sort' sort_asc='start_date_dt_asc' sort_desc='start_date_dt_desc' selected_sort=sorts.Violation %}
+                        {% with sort_param='sort' sort_asc='start_date' sort_desc='-start_date' selected_sort=request.GET.sort %}
                             {% include 'partials/sortable-list.html' %}
                         {% endwith %}
                     {% endif %}
@@ -19,50 +19,25 @@
                 <th>
                     {{ models.Violation|verbose_field_name:"enddate" }}
                     {% if sortable == 'True' %}
-                        {% with sort_param='Violation_sort' sort_asc='end_date_dt_asc' sort_desc='end_date_dt_desc' selected_sort=sorts.Violation %}
+                        {% with sort_param='sort' sort_asc='end_date' sort_desc='-end_date' selected_sort=request.GET.sort %}
                             {% include 'partials/sortable-list.html' %}
                         {% endwith %}
                     {% endif %}
                 </th>
                 <th>
                     {{ models.Violation|verbose_field_name:"description" }}
-                    {% if sortable == 'True' %}
-                        {% with sort_param='Violation_sort' sort_asc='violation_description_t_asc' sort_desc='violation_description_t_desc' selected_sort=sorts.Violation %}
-                            {% include 'partials/sortable-list.html' %}
-                        {% endwith %}
-                    {% endif %}
                 </th>
                 <th>
                     {{ models.Violation|verbose_field_name:"types" }}
-                    {% if sortable == 'True' %}
-                        {% with sort_param='Violation_sort' sort_asc='violation_type_count_i_asc' sort_desc='violation_type_count_i_desc' selected_sort=sorts.Violation %}
-                            {% include 'partials/sortable-list.html' %}
-                        {% endwith %}
-                    {% endif %}
                 </th>
                 <th>
                     {{ models.Violation|verbose_field_name:"location" }}
-                    {% if sortable == 'True' %}
-                        {% with sort_param='Violation_sort' sort_asc='violation_location_name_s_asc' sort_desc='violation_location_name_s_desc' selected_sort=sorts.Violation %}
-                            {% include 'partials/sortable-list.html' %}
-                        {% endwith %}
-                    {% endif %}
                 </th>
                 <th>
                     {{ models.Violation|verbose_field_name:"perpetratororganization" }}
-                    {% if sortable == 'True' %}
-                        {% with sort_param='Violation_sort' sort_asc='perpetrator_organization_count_i_asc' sort_desc='perpetrator_organization_count_i_desc' selected_sort=sorts.Violation %}
-                            {% include 'partials/sortable-list.html' %}
-                        {% endwith %}
-                    {% endif %}
                 </th>
                 <th>
                     {{ models.Violation|verbose_field_name:"perpetratorclassification" }}
-                    {% if sortable == 'True' %}
-                        {% with sort_param='Violation_sort' sort_asc='perpetrator_classification_count_i_asc' sort_desc='perpetrator_classification_count_i_desc' selected_sort=sorts.Violation %}
-                            {% include 'partials/sortable-list.html' %}
-                        {% endwith %}
-                    {% endif %}
                 </th>
             </tr>
         </thead>
@@ -71,21 +46,21 @@
                 <tr>
                     <!-- Start date -->
                     <td>
-                        {% if object.startdate.get_value %}
-                            {{ object.startdate.get_value }}
+                        {% if object.start_date %}
+                            {{ object.start_date|date:"n F Y" }}
                         {% endif %}
                     </td>
                     <!-- End date -->
                     <td>
-                        {% if object.enddate.get_value %}
-                            {{ object.enddate.get_value }}
+                        {% if object.end_date %}
+                            {{ object.end_date|date:"n F Y" }}
                         {% endif %}
                     </td>
                     <!-- Description -->
                     <td>
-                        <a href="{% url 'view-violation' object.uuid %}">
-                        {% if object.description.get_value %}
-                            {{ object.description.get_value|truncatewords:25 }}
+                        <a href="{% url 'view-violation' object.object.uuid %}">
+                        {% if object.description %}
+                            {{ object.description|truncatewords:25 }}
                         {% else %}
                             {% trans "View Detail" %}
                         {% endif %}
@@ -93,18 +68,17 @@
                     </td>
                     <!-- Violation type -->
                     <td>
-                        {% for violation_type in object.types.get_list %}
-                            {{ violation_type.get_value|violation|title }}
-                            {% if not forloop.last %}<br />{% endif %}
+                        {% for violation_type in object.violation_types %}
+                            {{ violation_type|violation|title }}{% if not forloop.last %},<br />{% endif %}
                         {% endfor %}
                     </td>
                     <!-- Location -->
                     <td>
-                        {% render_location_string object %}
+                        {% render_location_string object.object %}
                     </td>
                     <!-- Perpetrators -->
                     <td>
-                        {% for organization in object.violationperpetratororganization_set.all %}
+                        {% for organization in object.object.violationperpetratororganization_set.all %}
                             {% if request.user.is_authenticated or organization.value.published %}
                                 <a href="{% url 'view-organization' organization.value.uuid %}">
                                     {{ organization.value.name.get_value }}
@@ -115,8 +89,8 @@
                     </td>
                     <!-- Perpetrator classification -->
                     <td>
-                        {% for classification in object.perpetratorclassification.get_list %}
-                            {{ classification.get_value.value }}
+                        {% for classification in object.perpetrator_classifications %}
+                            {{ classification }}
                             {% if not forloop.last %}<br />{% endif %}
                         {% endfor %}
                     </td>
