@@ -46,7 +46,7 @@
 
 {% block sidebar %}
     {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
-    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#postings"><i class="fa fa-fw fa-users"></i> {% trans "Postings" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
@@ -56,7 +56,7 @@
 {# Django just won't let you reuse blocks w/o 3rd party plugins :( #}
 {% block sidebar_mobile %}
     {% if memberships %}<li><a href="#last-seen-as"><i class="fa fa-fw fa-clock-o"></i> {% trans "Last seen as" %}</a></li>{% endif %}
-    {% if memberships %}<li><a href="#memberships"><i class="fa fa-fw fa-users"></i> {% trans "Memberships" %}</a></li>{% endif %}
+    {% if memberships %}<li><a href="#postings"><i class="fa fa-fw fa-users"></i> {% trans "Postings" %}</a></li>{% endif %}
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
@@ -82,7 +82,7 @@
     {% if memberships %}
     <div class="row">
         <div class="col-sm-12">
-            <h3 id="memberships">
+            <h3 id="postings">
                 <i class="fa fa-fw fa-users"></i>
                 {% trans "Postings" %}
                 <small class="pull-right">{% help href='personsrec.html#person-record-person-memberships' %}</small>
