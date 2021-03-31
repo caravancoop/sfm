@@ -1,5 +1,4 @@
 configs/auth.json
-configs/backup-credentials.txt
 configs/client_secrets.json
 configs/credentials.json
 scripts/after_install.sh
