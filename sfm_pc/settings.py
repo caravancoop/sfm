@@ -263,6 +263,22 @@ OPEN_ENDED_CHOICES = (
 # Format this string with the user's language code
 RESEARCH_HANDBOOK_URL = "https://help.securityforcemonitor.org"
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,  # Preserve default loggers
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
+
 # Disable Django Debug Toolbar unless a specific env var is set. See:
 # https://coderwall.com/p/-tikrw/disable-django-debug-toolbar-when-debug-true
 if os.getenv('DJANGO_DEBUG_TOOLBAR', False):
