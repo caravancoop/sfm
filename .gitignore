@@ -20,6 +20,7 @@ settings_local.py
 settings_local.dev.py
 fixtures/*.geojson
 *credentials.json
+.env
 
 /keyrings/live/pubring.gpg~
 /keyrings/live/pubring.kbx~

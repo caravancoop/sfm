@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
@@ -57,7 +59,7 @@ if 'rosetta' in settings.INSTALLED_APPS:
     )
 
 # Django debug toolbar (for local development only)
-if settings.DEBUG:
+if os.getenv('DJANGO_DEBUG_TOOLBAR', False):
     try:
         import debug_toolbar
         urlpatterns = i18n_patterns(
@@ -65,6 +67,7 @@ if settings.DEBUG:
             url(r'^__debug__/', include(debug_toolbar.urls)),
         ) + urlpatterns
     except ImportError:
+        print('Could not import debug_toolbar')
         pass
 
 # Custom 500 error handler

@@ -24,16 +24,15 @@ Clone the repo:
     git clone git@github.com:security-force-monitor/sfm-cms.git
     cd sfm-cms
 
-Next, create a local settings file. If you're on the Blackbox keyring for the repo,
-decrypt the development settings file:
+Next, create a local `.env` file.
 
-    blackbox_cat configs/settings_local_dev.py.gpg > sfm_pc/settings_local.py
+    cp .env.example .env
 
-If you're not on the keyring, you can copy the example settings file and set
-your own secret variables. Be sure to set the `GOOGLE_MAPS_KEY` in order to load
-maps!
-
-    cp sfm_pc/settings_local.example.py sfm_pc/settings_local.py
+The example `.env` file does not contain values for third-party integrations
+Google Maps and Sentry. If you're indoctrinated into the DataMade LastPass, you
+can find working values for these settings under `WWIC .env Secrets`. Otherwise,
+you'll need to create your own Google Maps key and/or Sentry DSN to enable these
+services in local development.
 
 Finally, build the application:
 

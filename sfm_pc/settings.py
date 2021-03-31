@@ -12,54 +12,29 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import socket
+
 import dj_database_url
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.messages import constants as messages
 
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from .settings_local import EXTRA_APPS
-except ImportError:
-    EXTRA_APPS = ()
+    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+    IMPORTER_USER_PASSWORD = os.environ['IMPORTER_USER_PASSWORD']
+except KeyError:
+    raise Exception('DJANGO_SECRET_KEY and IMPORTER_USER_PASSWORD must be declared as environment variables')
 
-try:
-    from .settings_local import EXTRA_MIDDLEWARE_CLASSES
-except ImportError:
-    EXTRA_MIDDLEWARE_CLASSES = ()
+DEBUG = False if os.getenv('DJANGO_DEBUG', 'True') == 'False' else True
+ALLOWED_HOSTS = os.environ['DJANGO_ALLOWED_HOSTS'].split(',') if os.getenv('ALLOWED_HOSTS', None) else []
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgis://postgres:postgres@postgres:5432/sfm')
+SOLR_URL = os.getenv('SOLR_URL', 'http://solr:8983/solr/sfm')
 
-try:
-    from .settings_local import INTERNAL_IPS
-except ImportError:
-    INTERNAL_IPS = []
-
-try:
-    from .settings_local import RAVEN_CONFIG
-except ImportError:
-    RAVEN_CONFIG = {}
-
-try:
-    from .settings_local import EXTRA_DEBUG_TOOLBAR_PANELS
-except ImportError:
-    EXTRA_DEBUG_TOOLBAR_PANELS = []
-
-
-try:
-    from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
-        SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL, \
-        CACHES, OSM_API_KEY, HAYSTACK_CONNECTIONS, \
-        HAYSTACK_DOCUMENT_FIELD, HAYSTACK_SIGNAL_PROCESSOR
-except ImportError as e:
-    raise Exception('''DATABASE_URL,
-                     GOOGLE_MAPS_KEY,
-                     SECRET_KEY,
-                     ALLOWED_HOSTS,
-                     IMPORTER_USER,
-                     SOLR_URL,
-                     CACHES,
-                     OSM_API_KEY,
-                     and DEBUG must be defined in settings_local.py''')
+GOOGLE_MAPS_KEY = os.getenv('GOOGLE_MAPS_KEY', '')
+SENTRY_DSN = os.getenv('SENTRY_DSN', '')
 
 # Application definition
 
@@ -97,10 +72,15 @@ INSTALLED_APPS = (
     'emplacement',
     'violation',
     'location',
-    'search'
+    'search',
+    'raven.contrib.django.raven_compat',
+    'debug_toolbar',
 )
 
-INSTALLED_APPS += EXTRA_APPS
+if SENTRY_DSN:
+    RAVEN_CONFIG = {
+        'dsn': SENTRY_DSN,
+    }
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -113,26 +93,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'reversion.middleware.RevisionMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
-
-# Debug toolbar middleware needs to be included as early as possible
-MIDDLEWARE_CLASSES = EXTRA_MIDDLEWARE_CLASSES + MIDDLEWARE_CLASSES
-
-DEBUG_TOOLBAR_PANELS = [
-    'debug_toolbar.panels.versions.VersionsPanel',
-    'debug_toolbar.panels.timer.TimerPanel',
-    'debug_toolbar.panels.settings.SettingsPanel',
-    'debug_toolbar.panels.headers.HeadersPanel',
-    'debug_toolbar.panels.request.RequestPanel',
-    'debug_toolbar.panels.sql.SQLPanel',
-    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-    'debug_toolbar.panels.templates.TemplatesPanel',
-    'debug_toolbar.panels.cache.CachePanel',
-    'debug_toolbar.panels.signals.SignalsPanel',
-    'debug_toolbar.panels.logging.LoggingPanel',
-    'debug_toolbar.panels.redirects.RedirectsPanel',
-] + EXTRA_DEBUG_TOOLBAR_PANELS
-
 
 ROOT_URLCONF = 'sfm_pc.urls'
 
@@ -228,125 +190,56 @@ AUTHENTICATION_BACKENDS = (
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
+# Caching
+
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'sfm_cache',
+        }
+    }
+
+# Search
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': SOLR_URL,
+        'SILENTLY_FAIL': False,
+        'BATCH_SIZE': 5,
+        'INCLUDE_SPELLING': True,
+    },
+}
+
+HAYSTACK_DOCUMENT_FIELD = 'content'
+
+# Update index on model change
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+# Miscellaneous
+
+IMPORTER_USER = {
+    'username': 'importer',
+    'password': IMPORTER_USER_PASSWORD,
+    'email': 'importer@importer.com',
+    'first_name': 'Imp',
+    'last_name': 'Orter',
+    'is_staff': False,
+}
+
 SITE_ID = 1
 
 ALLOWED_CLASS_FOR_NAME = [
     'Person', 'Organization', 'MembershipPerson', 'Composition', 'Association', 'Area',
     'Emplacement', 'Geosite', 'Violation', 'MembershipOrganization',
     'PersonExtra', 'PersonBiography'
-]
-
-OSM_BASE_URL = 'https://wambachers-osm.website/boundaries/exportBoundaries'
-
-OSM_DATA = [
-    {
-        'country': 'Burkina Faso',
-        'pbf_url': 'http://download.geofabrik.de/africa/burkina-faso-latest.osm.pbf',
-        'relation_id': '192783',
-        'country_code': 'bf',
-    },
-    {
-        'country': 'Niger',
-        'pbf_url': 'http://download.geofabrik.de/africa/niger-latest.osm.pbf',
-        # No relation_id yet because Wambacher is down
-        'country_code': 'ne',
-    },
-    {
-        'country': 'Mali',
-        'pbf_url': 'http://download.geofabrik.de/africa/mali-latest.osm.pbf',
-        # No relation_id yet because Wambacher is down
-        'country_code': 'ml',
-    },
-    {
-        'country': 'Mauritania',
-        'pbf_url': 'http://download.geofabrik.de/africa/mauritania-latest.osm.pbf',
-        # No relation_id yet because Wambacher is down
-        'country_code': 'mr',
-    },
-    {
-        'country': 'Chad',
-        'pbf_url': 'http://download.geofabrik.de/africa/chad-latest.osm.pbf',
-        # No relation_id yet because Wambacher is down
-        'country_code': 'td',
-    },
-    {
-        'country': 'Nigeria',
-        'pbf_url': 'http://download.geofabrik.de/africa/nigeria-latest.osm.pbf',
-        'relation_id': '192787',
-        'country_code': 'ng',
-    },
-    {
-        'country': 'Mexico',
-        'pbf_url': 'http://download.geofabrik.de/north-america/mexico-latest.osm.pbf',
-        'relation_id': '114686',
-        'country_code': 'mx',
-    },
-    {
-        'country': 'Sierra Leone',
-        'pbf_url': 'http://download.geofabrik.de/africa/sierra-leone-latest.osm.pbf',
-        'relation_id': '192777',
-        'country_code': 'sl',
-    },
-    {
-        'country': 'Democratic Republic of the Congo',
-        'pbf_url': 'http://download.geofabrik.de/africa/congo-democratic-republic-latest.osm.pbf',
-        'relation_id': '192795',
-        'country_code': 'cd',
-    },
-    {
-        'country': 'Liberia',
-        'pbf_url': 'http://download.geofabrik.de/africa/liberia-latest.osm.pbf',
-        'relation_id': '192780',
-        'country_code': 'lr',
-    },
-    {
-        'country': 'Sudan',
-        'pbf_url': 'http://download.geofabrik.de/africa/sudan-latest.osm.pbf',
-        'relation_id': '192789',
-        'country_code': 'sd',
-    },
-    {
-        'country': 'Egypt',
-        'pbf_url': 'http://download.geofabrik.de/africa/egypt-latest.osm.pbf',
-        'relation_id': '1473947',
-        'country_code': 'eg',
-    },
-    {
-        'country': 'Philippines',
-        'pbf_url': 'http://download.geofabrik.de/asia/philippines-latest.osm.pbf',
-        'relation_id': '443174',
-        'country_code': 'ph',
-    },
-    {
-        'country': 'Myanmar',
-        'pbf_url': 'http://download.geofabrik.de/asia/myanmar-latest.osm.pbf',
-        'relation_id': '50371',
-        'country_code': 'mm',
-    },
-    {
-        'country': 'Saudi Arabia',
-        'pbf_url': 'http://download.geofabrik.de/asia/gcc-states-latest.osm.pbf',
-        'relation_id': '307584',
-        'country_code': 'sa',
-    },
-    {
-        'country': 'Bangladesh',
-        'pbf_url': 'http://download.geofabrik.de/asia/bangladesh-latest.osm.pbf',
-        'relation_id': '184640',
-        'country_code': 'bd',
-    },
-    {
-        'country': 'Uganda',
-        'pbf_url': 'http://download.geofabrik.de/africa/uganda-latest.osm.pbf',
-        'relation_id': '192796',
-        'country_code': 'ug',
-    },
-    {
-        'country': 'Rwanda',
-        'pbf_url': 'http://download.geofabrik.de/africa/rwanda-latest.osm.pbf',
-        'relation_id': '171496',
-        'country_code': 'rw',
-    },
 ]
 
 # Override built-in messages tags
@@ -368,3 +261,29 @@ OPEN_ENDED_CHOICES = (
 
 # Format this string with the user's language code
 RESEARCH_HANDBOOK_URL = "https://help.securityforcemonitor.org"
+
+# Disable Django Debug Toolbar unless a specific env var is set. See:
+# https://coderwall.com/p/-tikrw/disable-django-debug-toolbar-when-debug-true
+if os.getenv('DJANGO_DEBUG_TOOLBAR', False):
+    *_, ips = socket.gethostbyname_ex(socket.gethostname())
+
+    INTERNAL_IPS = [ip[:-1] + '1' for ip in ips] + ['127.0.0.1']
+
+    DEBUG_TOOLBAR_PANELS = [
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.headers.HeadersPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.cache.CachePanel',
+        'debug_toolbar.panels.signals.SignalsPanel',
+        'debug_toolbar.panels.logging.LoggingPanel',
+        'debug_toolbar.panels.redirects.RedirectsPanel',
+    ]
+else:
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda x: False  # Disable it
+    }
