@@ -1,0 +1,34 @@
+{
+  "name": "who-was-in-command",
+  "scripts": {},
+  "env": {
+    "DJANGO_SECRET_KEY": {
+      "required": true
+    },
+    "IMPORTER_USER_PASSWORD": {
+      "required": true
+    },
+    "DJANGO_ALLOWED_HOSTS": {
+      "required": true
+    },
+    "DO_INITIAL_IMPORT": {
+      "value": "True",
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "hobby"
+    }
+  },
+  "environments": {
+    "review": {
+      "addons": [
+        "heroku-postgresql:hobby-dev",
+        "websolr:staging-20",
+      ]
+    }
+  },
+  "buildpacks": [],
+  "stack": "container"
+}
