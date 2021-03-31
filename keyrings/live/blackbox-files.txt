@@ -2,7 +2,6 @@ configs/auth.json
 configs/backup-credentials.txt
 configs/client_secrets.json
 configs/credentials.json
-configs/sfm.conf.staging.supervisor
 scripts/after_install.sh
 scripts/app_start.sh
 scripts/app_stop.sh
