@@ -6,6 +6,17 @@
 {% load help %}
 {% load model_meta %}
 
+{% block page_title %}{{ person.name.get_value }} - {% endblock %}
+{% if memberships %}
+    {% block extra_head %}
+        {% with membership=memberships|first %}
+            {% with source=membership.member.get_value.accesspoints.last.source %}
+                <meta name="description" content="Last seen as {{ membership.short_description|striptags }}. Source: {{ source.publication }} ({{  source.published_date }})">
+            {% endwith %}
+        {% endwith %}
+    {% endblock %}
+{% endif %}
+
 {% block header %}
     <h2 class="page-title cited">
         <i class="fa fa-fw fa-user"></i>
