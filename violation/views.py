@@ -1,8 +1,9 @@
 import json
 import csv
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.sitemaps import Sitemap
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import get_language
 
 from complex_fields.models import ComplexFieldContainer
@@ -214,3 +215,11 @@ def violation_csv(request):
 
     return response
 
+
+class ViolationSitemap(Sitemap):
+
+    def items(self):
+        return Violation.objects.filter(published=True).order_by('id')
+
+    def location(self, obj):
+        return reverse('view-violation', args=[obj.uuid])

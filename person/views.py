@@ -3,9 +3,10 @@ import json
 from datetime import date
 from collections import namedtuple
 
-from django.http import HttpResponse, HttpResponseRedirect
-from django.db import connection
+from django.contrib.sitemaps import Sitemap
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import connection
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext as _
 
 from person.models import Person
@@ -474,3 +475,12 @@ class PersonDeletePostingView(BaseDeleteRelationshipView):
         organization.object_ref_saved()
 
         return response
+
+
+class PersonSitemap(Sitemap):
+
+    def items(self):
+        return Person.objects.filter(published=True).order_by('id')
+
+    def location(self, obj):
+        return reverse('view-person', args=[obj.uuid])

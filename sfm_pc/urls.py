@@ -4,14 +4,43 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
+from django.contrib.sitemaps import views as sitemap_views, Sitemap
 from django.views.decorators.cache import cache_page
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy
+
+from organization.views import OrganizationSitemap
+from person.views import PersonSitemap
+from violation.views import ViolationSitemap
 
 from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
                           command_chain, DownloadData, DumpChangeLog,
                           download_zip, About, about_redirect)
 
-urlpatterns = i18n_patterns(
+
+class StaticViewSitemap(Sitemap):
+    i18n = True
+
+    def items(self):
+        return ['dashboard', 'about', 'download']
+
+    def location(self, item):
+        return reverse(item)
+
+sitemaps = {
+    'organization': OrganizationSitemap,
+    'person': PersonSitemap,
+    'violation': ViolationSitemap,
+    'static': StaticViewSitemap,
+}
+
+urlpatterns = [
+    # sitemap
+    url(r'^sitemap\.xml$', sitemap_views.index, {'sitemaps': sitemaps}),
+    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_views.sitemap, {'sitemaps': sitemaps},
+        name='django.contrib.sitemaps.views.sitemap'),
+]
+
+urlpatterns += i18n_patterns(
     url(r'^organization/', include('organization.urls')),
     url(r'^person/', include('person.urls')),
     url(r'^source/', include('source.urls')),
@@ -47,7 +76,6 @@ urlpatterns = i18n_patterns(
 
     # auth
     url('^', include('django.contrib.auth.urls')),
-
 )
 
 # Rosetta translation app

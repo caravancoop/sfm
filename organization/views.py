@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
 from django.core.serializers import serialize
+from django.contrib.sitemaps import Sitemap
 
 from emplacement.models import Emplacement
 
@@ -678,3 +679,12 @@ def organization_autocomplete(request):
             response['results'].append(result)
 
     return HttpResponse(json.dumps(response), content_type='application/json')
+
+
+class OrganizationSitemap(Sitemap):
+
+    def items(self):
+        return Organization.objects.filter(published=True).order_by('id')
+
+    def location(self, obj):
+        return reverse('view-organization', args=[obj.uuid])
