@@ -10,9 +10,7 @@
 {% if memberships %}
     {% block extra_head %}
         {% with membership=memberships|first %}
-            {% with source=membership.member.get_value.accesspoints.last.source %}
-                <meta name="description" content="Last seen as {{ membership.short_description|striptags }}. Source: {{ source.publication }} ({{  source.published_date }})">
-            {% endwith %}
+            <meta name="description" content="Last seen as {{ membership.short_description|striptags }}.">
         {% endwith %}
     {% endblock %}
 {% endif %}
