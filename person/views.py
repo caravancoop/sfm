@@ -37,7 +37,7 @@ class PersonDetail(BaseDetailView):
             chain.from_iterable(sub['commander'].sources for sub in context['superiors'])
         )
 
-        return sorted(set(sources), key=lambda x: x.get_published_date(), reverse=True)
+        return sorted(set(sources), key=lambda x: x.get_published_date() or date.min, reverse=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
