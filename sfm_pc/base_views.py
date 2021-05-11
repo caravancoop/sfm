@@ -20,7 +20,7 @@ from countries_plus.models import Country
 
 from extra_views import FormSetView
 
-from source.models import AccessPoint
+from source.models import AccessPoint, Source
 from association.models import Association
 from emplacement.models import Emplacement
 from person.models import Person
@@ -67,7 +67,9 @@ class BaseDetailView(DetailView):
             'Person': Person,
             'MembershipPerson': MembershipPerson,
             'Violation': Violation,
-            'Organization': Organization
+            'Organization': Organization,
+            'Source': Source,
+            'AccessPoint': AccessPoint,
         }
         return context
 

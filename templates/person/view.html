@@ -61,6 +61,8 @@
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
+    {% if events %}<li><a href="#incidents"> {% trans "Incidents" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fas fa-file-alt fa-fw"></i></i> {% trans "Sources" %}</a></li>{% endif %}
 {% endblock %}
 
 {# This is exactly the same as the previous sidebar #}
@@ -71,6 +73,8 @@
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
+    {% if events %}<li><a href="#incidents"> {% trans "Incidents" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fas fa-file-alt fa-fw"></i></i> {% trans "Sources" %}</a></li>{% endif %}
 {% endblock %}
 
 {% block details %}
@@ -294,7 +298,7 @@
     {% if events %}
     <div class="row">
         <div class="col-sm-12">
-            <h3>{% trans "Incidents" %}</h3>
+            <h3 id="incidents">{% trans "Incidents" %}</h3>
             <hr />
             {% for event in events %}
                 <div class="row">
@@ -307,6 +311,55 @@
                     <div class="col-sm-4"></div>
                 </div>
             {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if sources %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 id="sources">
+                <i class="fas fa-file-alt fa-fw"></i>
+                {% trans "Sources" %}
+                <small>{% help href='sources.html' %}</small>
+            </h3>
+            <hr />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{{ models.Source|verbose_field_name:"publication" }}</th>
+                        <th>{{ models.Source|verbose_field_name:"title" }}</th>
+                        <th>{{ models.Source|verbose_field_name:"published_date" }}</th>
+                        <th>{{ models.AccessPoint|verbose_field_name:"accessed_on" }}</th>
+                        <th>Permalink</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for source in sources %}
+                    <tr>
+                        <td>
+                            {{ source.publication }}
+                        </td>
+                        <td>
+                            <a href="{{ source.source_url }}" target="_blank">
+                                {{ source.title }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ source.get_published_date|date:"n F Y" }}
+                        </td>
+                        <td>
+                            {{ source.accesspoint_set.get.accessed_on|date:"n F Y" }}
+                        </td>
+                        <td>
+                            <a href="{{ source.accesspoint_set.get.archive_url }}" target="_blank">
+                                <i class="fas fa-link"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
     {% endif %}
