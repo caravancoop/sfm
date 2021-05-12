@@ -6,11 +6,16 @@
 {% load help %}
 {% load model_meta %}
 
-{% if location %}
-    {% block extra_head %}
-         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
-    {% endblock %}
-{% endif %}
+{% block page_title %}{{ page_title }} - {% endblock %}
+{% block extra_head %}
+    {% render_location_string violation as location_string %}
+    {% if violation.description or location_string %}
+        <meta name="description" content="{% if location_string %}Location: {{ location_string }}. {% endif %}{% if violation.description %}{{ violation.description }}{% endif %}" />
+    {% endif %}
+    {% if location %}
+        <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    {% endif %}
+{% endblock %}
 
 {% block header %}
     <h2 class="page-title cited">

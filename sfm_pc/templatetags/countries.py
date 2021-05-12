@@ -37,7 +37,7 @@ def country_name(division_id):
     # so that we don't mess with the template
     return ''
 
-@register.inclusion_tag('partials/location_string.html')
+@register.simple_tag
 def render_location_string(obj, countries=True):
 
     context = {}
@@ -48,9 +48,9 @@ def render_location_string(obj, countries=True):
                  obj.adminlevel1.get_value(),
                  obj.adminlevel2.get_value()]
 
-    context['locations'] = [loc for loc in locations if loc is not None]
+    locations = [loc for loc in locations if loc is not None]
 
     if countries and country_name(obj.division_id.get_value()) is not None:
-        context['locations'].append(country_name(obj.division_id.get_value()))
+        locations.append(country_name(obj.division_id.get_value()))
 
-    return context
+    return ', '.join(str(loc) for loc in locations)

@@ -4,7 +4,7 @@ import csv
 from django.contrib.sitemaps import Sitemap
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.translation import get_language
+from django.utils.translation import get_language, ugettext as _
 
 from complex_fields.models import ComplexFieldContainer
 
@@ -17,6 +17,27 @@ class ViolationDetail(BaseDetailView):
     model = Violation
     template_name = 'violation/view.html'
     slug_field = 'uuid'
+
+    def get_page_title(self):
+        title = _('Incident')
+
+        if self.object.osmname.get_value():
+            title += ' {0} {1}'.format(_('in'), self.object.osmname.get_value())
+
+        start = self.object.startdate.get_value()
+        end = self.object.enddate.get_value()
+
+        if start and end:
+            if start.value == end.value:
+                title += ' {0} {1}'.format(_('on'), start.value)
+            else:
+                title += ' {0} {1} {2} {3}'.format(_('between'), start.value, _('and'), end.value)
+        elif start:
+            title += ' {0} {1}'.format(_('starting'), start.value)
+        elif end:
+            title += ' {0} {1}'.format(_('ending'), end.value)
+
+        return title
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -44,6 +65,8 @@ class ViolationDetail(BaseDetailView):
             context['perpetrator_organizations'] = context['violation'].violationperpetratororganization_set.all()
         else:
             context['perpetrator_organizations'] = context['violation'].violationperpetratororganization_set.filter(value__published=True)
+
+        context['page_title'] = self.get_page_title()
 
         return context
 
