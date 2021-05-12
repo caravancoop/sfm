@@ -6,7 +6,7 @@
 {% load help %}
 {% load model_meta %}
 
-{% block page_title %}{{ person.name.get_value }} - {% endblock %}
+{% block page_title_prefix %}{{ person.name.get_value }} - {% endblock %}
 {% if memberships %}
     {% block extra_head %}
         {% with membership=memberships|first %}

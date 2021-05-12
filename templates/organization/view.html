@@ -6,7 +6,7 @@
 {% load help %}
 {% load model_meta %}
 
-{% block page_title %}{{ organization.name.get_value }} - {% endblock %}
+{% block page_title_prefix %}{{ organization.name.get_value }} - {% endblock %}
 
 {% block extra_head %}
     <meta name="description" content="{% trans 'Also known as:' %} {% for alias in organization.aliases.get_list %}{{ alias.get_value }}{% if not forloop.last %}, {% endif %}{% endfor %}. {% trans 'Country:' %} {{ organization.division_id.get_value | country_name }}. {% trans 'Classified as:' %} {% for classification in organization.classification.get_list %}{{ classification.get_value }}{% if not forloop.last %}, {% endif %}{% endfor %}." />

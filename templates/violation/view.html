@@ -6,7 +6,7 @@
 {% load help %}
 {% load model_meta %}
 
-{% block page_title %}{{ page_title }} - {% endblock %}
+{% block page_title_prefix %}{{ page_title }} - {% endblock %}
 {% block extra_head %}
     {% render_location_string violation as location_string %}
     {% if violation.description or location_string %}
