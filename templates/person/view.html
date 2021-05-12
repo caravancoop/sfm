@@ -10,7 +10,7 @@
 {% if memberships %}
     {% block extra_head %}
         {% with membership=memberships|first %}
-            <meta name="description" content="Last seen as {{ membership.short_description|striptags }}.">
+            <meta name="description" content="Last seen as {{ membership.short_description|striptags }}." />
         {% endwith %}
     {% endblock %}
 {% endif %}
