@@ -372,7 +372,6 @@ a.collapsed .show-less {
     line-height: 0;
     vertical-align: middle;
     text-decoration: none;
-    background-color: #d9230f;
     color: inherit;
     cursor: pointer;
 }
@@ -396,9 +395,9 @@ a.collapsed .show-less {
     display: inline;
 }
 
-.citation {
+/*.citation {
     visibility: hidden;
-}
+}*/
 
 .low-confidence,
 .medium-confidence,
@@ -406,18 +405,18 @@ a.collapsed .show-less {
     display: inline-block;
 }
 
-.low-confidence .popover-title,
-.low-confidence .source-footnote {
+.low-confidence .popover-title/*,
+.low-confidence .source-footnote*/ {
     background-color: #f5d7cd;
 }
 
-.medium-confidence .popover-title,
-.medium-confidence .source-footnote {
+.medium-confidence .popover-title/*,
+.medium-confidence .source-footnote*/ {
     background-color: #f5f3cd;
 }
 
-.high-confidence .popover-title,
-.high-confidence .source-footnote {
+.high-confidence .popover-title/*,
+.high-confidence .source-footnote*/ {
     background-color: #dcf3dc;
 }
 

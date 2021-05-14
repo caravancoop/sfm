@@ -325,9 +325,9 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
+                        <th>{{ models.Source|verbose_field_name:"published_date" }}</th>
                         <th>{{ models.Source|verbose_field_name:"publication" }}</th>
                         <th>{{ models.Source|verbose_field_name:"title" }}</th>
-                        <th>{{ models.Source|verbose_field_name:"published_date" }}</th>
                         <th>{{ models.AccessPoint|verbose_field_name:"accessed_on" }}</th>
                         <th>Permalink</th>
                     </tr>
@@ -335,6 +335,9 @@
                 <tbody>
                     {% for source in sources %}
                     <tr>
+                        <td>
+                            {{ source.get_published_date|date:"d F Y" }}
+                        </td>
                         <td>
                             {{ source.publication }}
                         </td>
@@ -344,10 +347,7 @@
                             </a>
                         </td>
                         <td>
-                            {{ source.get_published_date|date:"n F Y" }}
-                        </td>
-                        <td>
-                            {{ source.accesspoint_set.get.accessed_on|date:"n F Y" }}
+                            {{ source.accesspoint_set.get.accessed_on|date:"d F Y" }}
                         </td>
                         <td>
                             <a href="{{ source.accesspoint_set.get.archive_url }}" target="_blank">

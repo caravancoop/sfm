@@ -6,7 +6,7 @@ var Footnotes = {
 
     increment: function() {
         $('.source-footnote-counter').each(function() {
-            $(this).html(Footnotes.counter);
+            $(this).html('[+]');
             Footnotes.counter ++;
         });
     },
@@ -23,7 +23,7 @@ var Footnotes = {
          $('[data-toggle="tooltip"]').tooltip();
 
         // Show footnotes on hover
-        $('.citation-container, .cited').on('mouseover', function() {
+/*        $('.citation-container, .cited').on('mouseover', function() {
             $(this).find('.citation').css('visibility', 'visible');
         })
 
@@ -32,7 +32,7 @@ var Footnotes = {
             if ($(this).has('.popover').length === 0) {
                 $(this).find('.citation').css('visibility', 'hidden');
             }
-        })
+        })*/
 
         $(document).on('shown.bs.popover', function(e) {
 
