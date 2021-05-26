@@ -6,7 +6,7 @@ from violation import views
 urlpatterns = [
     url(r'csv/', views.violation_csv, name='violation_csv'),
     url(r'^view/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        views.ViolationDetail.as_view(),
+        cache_page(60 * 60 * 24)(views.ViolationDetail.as_view()),
         name="view-violation"),
     url(r'^edit/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         views.ViolationEditBasicsView.as_view(),
