@@ -1,3 +1,5 @@
+from datetime import date
+from itertools import chain
 import json
 
 from django.http import HttpResponse, HttpResponseRedirect
@@ -43,6 +45,29 @@ class OrganizationDetail(BaseDetailView):
     model = Organization
     template_name = 'organization/view.html'
     slug_field = 'uuid'
+
+    def get_sources(self, context):
+        sources = list(context['organization'].sources)
+
+        original_list = sources.copy()
+
+        related_entities = (
+            'person_members',
+            'org_members',
+            'memberships',
+            'subsidiaries',
+            'events',
+            'emplacements',
+            'associations',
+            'parents',
+        )
+
+        for relation in related_entities:
+            sources += list(
+                chain.from_iterable(entity.sources for entity in context[relation])
+            )
+
+        return sorted(set(sources), key=lambda x: x.get_published_date() or date.min, reverse=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -190,6 +215,8 @@ class OrganizationDetail(BaseDetailView):
             org_data['url'] = command_chain_url
 
             context['parents_list'].append(org_data)
+
+        context['sources'] = self.get_sources(context)
 
         return context
 

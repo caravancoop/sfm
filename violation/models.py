@@ -18,6 +18,7 @@ from person.models import Person
 from organization.models import Organization
 from sfm_pc.utils import VersionsMixin
 from sfm_pc.models import GetComplexFieldNameMixin
+from source.mixins import SourcesMixin
 from location.models import Location
 
 
@@ -45,7 +46,7 @@ VERSION_RELATED_FIELDS = [
 
 
 @reversion.register(follow=VERSION_RELATED_FIELDS)
-class Violation(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMixin):
+class Violation(models.Model, BaseModel, SourcesMixin, VersionsMixin, GetComplexFieldNameMixin):
     uuid = models.UUIDField(default=uuid.uuid4,
                             editable=False,
                             db_index=True)

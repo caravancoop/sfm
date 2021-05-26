@@ -71,7 +71,7 @@
     {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</a></li>{% endif %}
     {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Personnel" %}</a></li>{% endif %}
     {% if events %}<li><a href="#incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
-    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fas fa-file-alt fa-fw"></i> {% trans "Sources" %}</a></li>{% endif %}
 
 {% endblock %}
 
@@ -87,7 +87,7 @@
     {% if subsidiaries %}<li><a href="#subsidiaries"><i class="fa fa-fw fa-sitemap"></i> {% trans "Subsidiaries" %}</a></li>{% endif %}
     {% if person_members %}<li><a href="#command-personnel"><i class="fa fa-fw fa-users"></i> {% trans "Personnel" %}</a></li>{% endif %}
     {% if events %}<li><a href="#incidents"><i class="fa fa-fw fa-exclamation-triangle"></i> {% trans "Incidents" %}</a></li>{% endif %}
-    {% if sources %}<li><a href="#sources"><i class="fa fa-fw fa-files-o"></i> {% trans "Sources" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fas fa-file-alt fa-fw"></i> {% trans "Sources" %}</a></li>{% endif %}
 
 {% endblock %}
 
@@ -514,6 +514,10 @@
             {% endfor %}
         </div>
     </div>
+    {% endif %}
+
+    {% if sources %}
+        {% include 'partials/source_overview_table.html' %}
     {% endif %}
 
 {% endblock %}

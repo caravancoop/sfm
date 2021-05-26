@@ -314,52 +314,7 @@
     {% endif %}
 
     {% if sources %}
-    <div class="row">
-        <div class="col-sm-12">
-            <h3 id="sources">
-                <i class="fas fa-file-alt fa-fw"></i>
-                {% trans "Sources" %}
-                <small>{% help href='sources.html' %}</small>
-            </h3>
-            <hr />
-            <table class="table table-condensed">
-                <thead>
-                    <tr>
-                        <th>{{ models.Source|verbose_field_name:"published_date" }}</th>
-                        <th>{{ models.Source|verbose_field_name:"publication" }}</th>
-                        <th>{{ models.Source|verbose_field_name:"title" }}</th>
-                        <th>{{ models.AccessPoint|verbose_field_name:"accessed_on" }}</th>
-                        <th>Permalink</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for source in sources %}
-                    <tr>
-                        <td>
-                            {{ source.get_published_date|date:"d F Y" }}
-                        </td>
-                        <td>
-                            {{ source.publication }}
-                        </td>
-                        <td>
-                            <a href="{{ source.source_url }}" target="_blank">
-                                {{ source.title }}
-                            </a>
-                        </td>
-                        <td>
-                            {{ source.accesspoint_set.get.accessed_on|date:"d F Y" }}
-                        </td>
-                        <td>
-                            <a href="{{ source.accesspoint_set.get.archive_url }}" target="_blank">
-                                <i class="fas fa-link"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+        {% include 'partials/source_overview_table.html' %}
     {% endif %}
 
 {% endblock %}

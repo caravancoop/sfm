@@ -9,9 +9,10 @@ from complex_fields.model_decorators import versioned, sourced, sourced_optional
 from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 from sfm_pc.models import GetComplexFieldNameMixin
+from source.mixins import SourcesMixin
 
 
-class Composition(models.Model, BaseModel, GetComplexFieldNameMixin):
+class Composition(models.Model, BaseModel, SourcesMixin, GetComplexFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parent = ComplexFieldContainer(self, CompositionParent)
