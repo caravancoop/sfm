@@ -1,5 +1,7 @@
-import json
 import csv
+from datetime import date
+from itertools import chain
+import json
 
 from django.contrib.sitemaps import Sitemap
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -13,10 +15,18 @@ from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView, Ba
 from .models import Violation, ViolationType, ViolationPerpetratorClassification
 from .forms import ViolationBasicsForm, ViolationCreateBasicsForm, ViolationLocationsForm
 
+
 class ViolationDetail(BaseDetailView):
     model = Violation
     template_name = 'violation/view.html'
     slug_field = 'uuid'
+
+    def get_sources(self, context):
+        return sorted(
+            context['violation'].sources,
+            key=lambda x: x.get_published_date() or date.min,
+            reverse=True
+        )
 
     def get_page_title(self):
         title = _('Incident')
@@ -66,6 +76,7 @@ class ViolationDetail(BaseDetailView):
         else:
             context['perpetrator_organizations'] = context['violation'].violationperpetratororganization_set.filter(value__published=True)
 
+        context['sources'] = self.get_sources(context)
         context['page_title'] = self.get_page_title()
 
         return context

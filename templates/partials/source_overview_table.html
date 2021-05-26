@@ -22,11 +22,15 @@
                 {% for source in sources %}
                 <tr>
                     <td>
-                        {% if source.get_published_date.month %}
-                            {{ source.get_published_date|date:"d F Y" }}
-                        {% else %}
-                            {{ source.get_published_date }}
-                        {% endif %}
+                        {% with published_date=source.get_published_date %}
+                            {% if published_date.month and published_date.day %}
+                                {{ published_date|date:"d F Y" }}
+                            {% elif published_date.month %}
+                                {{ published_date|date:"F Y" }}
+                            {% else %}
+                                {{ published_date }}
+                            {% endif %}
+                        {% endwith %}
                     </td>
                     <td>
                         {{ source.publication }}
