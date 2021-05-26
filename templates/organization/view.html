@@ -13,6 +13,9 @@
     {% if associations or emplacements %}
         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
     {% endif %}
+    {% if sources %}
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap.min.css" />
+    {% endif %}
 {% endblock %}
 
 {% block header %}
@@ -563,6 +566,23 @@
             chart.show();
 
         });
+        </script>
+    {% endif %}
+
+    {% if sources %}
+        <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('.data-table').dataTable({
+                    "order": [[ 0, "desc" ]],
+                    "pageLength": 25,
+                    "aoColumnDefs": [
+                        { "bSortable": false, "aTargets": [ 4 ] },
+                        { "bSearchable": false, "aTargets": [ 4 ] }
+                    ]
+                })
+            });
         </script>
     {% endif %}
 {% endblock %}

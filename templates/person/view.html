@@ -7,13 +7,17 @@
 {% load model_meta %}
 
 {% block page_title_prefix %}{{ person.name.get_value }} - {% endblock %}
-{% if memberships %}
-    {% block extra_head %}
-        {% with membership=memberships|first %}
-            <meta name="description" content="Last seen as {{ membership.short_description|striptags }}." />
-        {% endwith %}
-    {% endblock %}
-{% endif %}
+
+{% block extra_head %}
+    {% if memberships %}
+    {% with membership=memberships|first %}
+        <meta name="description" content="Last seen as {{ membership.short_description|striptags }}." />
+    {% endwith %}
+    {% endif %}
+    {% if sources %}
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap.min.css" />
+    {% endif %}
+{% endblock %}
 
 {% block header %}
     <h2 class="page-title cited">
@@ -344,6 +348,23 @@
             }
         });
 
+        </script>
+    {% endif %}
+
+    {% if sources %}
+        <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('.data-table').dataTable({
+                    "order": [[ 0, "desc" ]],
+                    "pageLength": 25,
+                    "aoColumnDefs": [
+                        { "bSortable": false, "aTargets": [ 4 ] },
+                        { "bSearchable": false, "aTargets": [ 4 ] }
+                    ]
+                })
+            });
         </script>
     {% endif %}
 {% endblock %}
