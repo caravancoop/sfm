@@ -36,7 +36,11 @@
                         {{ source.publication }}
                     </td>
                     <td>
-                        <a href="{{ source.source_url }}" target="_blank">
+                        <a
+                            href="{{ source.source_url }}"
+                            target="_blank"
+                            onclick="_paq.push(['trackEvent', 'Source Table Interaction', 'Source Link Click', 'Source Link', '{{ source.source_url }}']);"
+                        >
                             {{ source.title }}
                         </a>
                     </td>
@@ -52,7 +56,11 @@
                         </td>
                     {% endwith %}
                     <td>
-                        <a href="{{ source.accesspoint_set.get.archive_url }}" target="_blank">
+                        <a
+                            href="{{ source.accesspoint_set.get.archive_url }}"
+                            target="_blank"
+                            onclick="_paq.push(['trackEvent', 'Source Table Interaction', 'Archive Link Click', '{{ source.accesspoint_set.get.archive_url }}']);"
+                        >
                             <i class="fas fa-link"></i>
                         </a>
                     </td>
