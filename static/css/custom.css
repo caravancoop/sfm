@@ -224,6 +224,10 @@ li {
     border-color: #d8731e !important; /* override bootstrap default */
 }
 
+.label {
+  white-space: normal;
+}
+
 /* ====== *
  * facets *
  * ====== */
@@ -394,10 +398,6 @@ a.collapsed .show-less {
 .citation-container {
     display: inline;
 }
-
-/*.citation {
-    visibility: hidden;
-}*/
 
 .low-confidence,
 .medium-confidence,
