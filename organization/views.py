@@ -2,6 +2,7 @@ from datetime import date
 from itertools import chain
 import json
 
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
@@ -709,6 +710,8 @@ def organization_autocomplete(request):
 
 
 class OrganizationSitemap(Sitemap):
+
+    protocol = 'http' if settings.DEBUG else 'https'
 
     def items(self):
         return Organization.objects.filter(published=True).order_by('id')

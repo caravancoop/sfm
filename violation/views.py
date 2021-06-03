@@ -3,6 +3,7 @@ from datetime import date
 from itertools import chain
 import json
 
+from django.conf import settings
 from django.contrib.sitemaps import Sitemap
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
@@ -251,6 +252,8 @@ def violation_csv(request):
 
 
 class ViolationSitemap(Sitemap):
+
+    protocol = 'http' if settings.DEBUG else 'https'
 
     def items(self):
         return Violation.objects.filter(published=True).order_by('id')

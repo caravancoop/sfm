@@ -19,6 +19,7 @@ from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
 
 class StaticViewSitemap(Sitemap):
     i18n = True
+    protocol = 'http' if settings.DEBUG else 'https'
 
     def items(self):
         return ['dashboard', 'about', 'download']

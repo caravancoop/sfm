@@ -3,6 +3,7 @@ from datetime import date
 from collections import namedtuple
 from itertools import chain
 
+from django.conf import settings
 from django.contrib.sitemaps import Sitemap
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import connection
@@ -497,6 +498,8 @@ class PersonDeletePostingView(BaseDeleteRelationshipView):
 
 
 class PersonSitemap(Sitemap):
+
+    protocol = 'http' if settings.DEBUG else 'https'
 
     def items(self):
         return Person.objects.filter(published=True).order_by('id')
