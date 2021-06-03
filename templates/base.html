@@ -138,9 +138,7 @@ $(document).ready(function() {
 
     // Init popovers
     var fn = Footnotes;
-    fn.increment();
     fn.initPopovers();
-
 
     // Get language code in url, prepend to array, and remove duplicate
     dataArray = JSON.parse('{{request.LANGUAGE_CODE|create_select2_data|safe}}');

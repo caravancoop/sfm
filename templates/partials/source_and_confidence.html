@@ -19,8 +19,9 @@
                data-trigger="focus"
                data-delay='{ "show": 0, "hide": 250 }'
                tabindex="1"
-               aria-label="{% trans 'Sources and confidence for this information' %}">
-                <span class="source-footnote-counter"></span>
+               aria-label="{% trans 'Sources and confidence for this information' %}"
+               onclick="_paq.push(['trackEvent', 'Citation Interaction', 'Citation Expand', '{{ object_value }}']);">
+                <span>[+]</span>
             </a>
         </sup>
     </span>
