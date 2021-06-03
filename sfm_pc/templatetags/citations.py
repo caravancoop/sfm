@@ -43,10 +43,16 @@ def get_citation_string(obj):
 
             for i, attr in enumerate(info):
                 key, val = attr[0], attr[1]
+                event = ''
 
                 # Wrap links in anchors
                 if key == _('Source URL') or key == _('Archive URL'):
-                    html_fmt = '<strong>{0}</strong>: <a href="{1}" target="_blank">{1}</a>'
+                    html_fmt = (
+                        '<strong>{0}</strong>: <a href="{1}" target="_blank" '
+                        'onclick="_paq.push([\'trackEvent\', \'Citation '
+                        'Interaction\', \'{2} Click\', \'{1}\']);">{1}</a>'
+                    )
+                    event = 'Source Link' if key == _('Source URL') else 'Archive Link'
                 else:
                     html_fmt = '<strong>{0}</strong>: {1}'
 
@@ -54,7 +60,7 @@ def get_citation_string(obj):
                 if i != 0:
                     html_str = '<br/>'
 
-                html_str += html_fmt.format(key, val)
+                html_str += html_fmt.format(key, val, event)
                 html += html_str
 
             source_citation += html

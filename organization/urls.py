@@ -1,10 +1,11 @@
 from django.conf.urls import url
+from django.views.decorators.cache import cache_page
 
 from organization import views
 
 urlpatterns = [
     url(r'^view/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        views.OrganizationDetail.as_view(),
+        cache_page(60 * 60 * 24)(views.OrganizationDetail.as_view()),
         name="view-organization"),
     url(r'name/autocomplete',
         views.organization_autocomplete,

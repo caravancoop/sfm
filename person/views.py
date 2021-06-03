@@ -1,11 +1,12 @@
 import json
-
 from datetime import date
 from collections import namedtuple
+from itertools import chain
 
-from django.http import HttpResponse, HttpResponseRedirect
-from django.db import connection
+from django.contrib.sitemaps import Sitemap
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import connection
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext as _
 
 from person.models import Person
@@ -20,6 +21,23 @@ class PersonDetail(BaseDetailView):
     model = Person
     template_name = 'person/view.html'
     slug_field = 'uuid'
+
+    def get_sources(self, context):
+        sources = list(context['person'].sources)
+
+        sources += list(
+            chain.from_iterable(m.sources for m in context['memberships'])
+        )
+
+        sources += list(
+            chain.from_iterable(sub['commander'].sources for sub in context['subordinates'])
+        )
+
+        sources += list(
+            chain.from_iterable(sub['commander'].sources for sub in context['superiors'])
+        )
+
+        return sorted(set(sources), key=lambda x: x.get_published_date() or date.min, reverse=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -124,6 +142,8 @@ class PersonDetail(BaseDetailView):
 
         for event in events:
             context['events'].append(event.object_ref)
+
+        context['sources'] = list(self.get_sources(context))
 
         return context
 
@@ -474,3 +494,12 @@ class PersonDeletePostingView(BaseDeleteRelationshipView):
         organization.object_ref_saved()
 
         return response
+
+
+class PersonSitemap(Sitemap):
+
+    def items(self):
+        return Person.objects.filter(published=True).order_by('id')
+
+    def location(self, obj):
+        return reverse('view-person', args=[obj.uuid])

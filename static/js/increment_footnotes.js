@@ -2,15 +2,6 @@ var Footnotes = Footnotes || {};
 
 var Footnotes = {
 
-    counter: 1,
-
-    increment: function() {
-        $('.source-footnote-counter').each(function() {
-            $(this).html(Footnotes.counter);
-            Footnotes.counter ++;
-        });
-    },
-
     initPopovers: function() {
 
         $('[data-toggle="popover"]').popover({
@@ -20,19 +11,8 @@ var Footnotes = {
 
             }
         });
-         $('[data-toggle="tooltip"]').tooltip();
 
-        // Show footnotes on hover
-        $('.citation-container, .cited').on('mouseover', function() {
-            $(this).find('.citation').css('visibility', 'visible');
-        })
-
-        $('.citation-container, .cited').on('mouseout', function() {
-            // Hide the citation if a popover is not visible
-            if ($(this).has('.popover').length === 0) {
-                $(this).find('.citation').css('visibility', 'hidden');
-            }
-        })
+        $('[data-toggle="tooltip"]').tooltip();
 
         $(document).on('shown.bs.popover', function(e) {
 

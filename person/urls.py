@@ -23,7 +23,7 @@ urlpatterns = [
         views.PersonDeletePostingView.as_view(),
         name='delete-person-posting'),
     url(r'^view/(?P<slug>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        views.PersonDetail.as_view(),
+        cache_page(60 * 60 * 24)(views.PersonDetail.as_view()),
         name="view-person"),
     url(r'autocomplete/$',
         views.person_autocomplete,

@@ -12,6 +12,7 @@ from googleapiclient.http import MediaIoBaseDownload
 
 from tqdm import tqdm
 
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
 from django.db import models, IntegrityError
@@ -228,7 +229,11 @@ class Command(BaseCommand):
 
         data_src = options['folder'] if options.get('folder') else options['doc_id']
         self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(data_src)))
-        # connect post save signals
+
+        # Clear cached detail and command chart views
+        cache.clear()
+
+        # Connect post save signals
         self.connectSignals()
 
     def create_locations(self):

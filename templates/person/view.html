@@ -6,6 +6,19 @@
 {% load help %}
 {% load model_meta %}
 
+{% block page_title_prefix %}{{ person.name.get_value }} - {% endblock %}
+
+{% block extra_head %}
+    {% if memberships %}
+    {% with membership=memberships|first %}
+        <meta name="description" content="Last seen as {{ membership.short_description|striptags }}." />
+    {% endwith %}
+    {% endif %}
+    {% if sources %}
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap.min.css" />
+    {% endif %}
+{% endblock %}
+
 {% block header %}
     <h2 class="page-title cited">
         <i class="fa fa-fw fa-user"></i>
@@ -50,6 +63,8 @@
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
+    {% if events %}<li><a href="#incidents"> {% trans "Incidents" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fas fa-file-alt fa-fw"></i></i> {% trans "Sources" %}</a></li>{% endif %}
 {% endblock %}
 
 {# This is exactly the same as the previous sidebar #}
@@ -60,6 +75,8 @@
     {% if command_chain %}<li><a href="#chain-of-command"><i class="fa fa-fw fa-sitemap fa-rotate-180"></i> {% trans "Chain of command" %}</a></li>{% endif %}
     {% if superiors %}<li><a href="#superiors"><i class="fa fa-fw fa-share-alt fa-rotate-270"></i> {% trans "Superiors" %}</a></li>{% endif %}
     {% if subordinates %}<li><a href="#subordinates"><i class="fa fa-fw fa-share-alt fa-rotate-90"></i> {% trans "Subordinates" %}</a></li>{% endif %}
+    {% if events %}<li><a href="#incidents"> {% trans "Incidents" %}</a></li>{% endif %}
+    {% if sources %}<li><a href="#sources"><i class="fas fa-file-alt fa-fw"></i></i> {% trans "Sources" %}</a></li>{% endif %}
 {% endblock %}
 
 {% block details %}
@@ -283,7 +300,7 @@
     {% if events %}
     <div class="row">
         <div class="col-sm-12">
-            <h3>{% trans "Incidents" %}</h3>
+            <h3 id="incidents">{% trans "Incidents" %}</h3>
             <hr />
             {% for event in events %}
                 <div class="row">
@@ -298,6 +315,10 @@
             {% endfor %}
         </div>
     </div>
+    {% endif %}
+
+    {% if sources %}
+        {% include 'partials/source_overview_table.html' %}
     {% endif %}
 
 {% endblock %}
@@ -327,6 +348,23 @@
             }
         });
 
+        </script>
+    {% endif %}
+
+    {% if sources %}
+        <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('.data-table').dataTable({
+                    "order": [[ 0, "desc" ]],
+                    "pageLength": 25,
+                    "aoColumnDefs": [
+                        { "bSortable": false, "aTargets": [ 4 ] },
+                        { "bSearchable": false, "aTargets": [ 4 ] }
+                    ]
+                })
+            });
         </script>
     {% endif %}
 {% endblock %}

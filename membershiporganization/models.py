@@ -11,9 +11,10 @@ from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 from organization.models import Organization
 from sfm_pc.models import GetComplexFieldNameMixin
+from source.mixins import SourcesMixin
 
 
-class MembershipOrganization(models.Model, BaseModel, GetComplexFieldNameMixin):
+class MembershipOrganization(models.Model, BaseModel, SourcesMixin, GetComplexFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.member = ComplexFieldContainer(self, MembershipOrganizationMember)
