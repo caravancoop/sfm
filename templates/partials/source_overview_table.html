@@ -15,7 +15,7 @@
                     <th>{{ models.Source|verbose_field_name:"publication" }}</th>
                     <th>{{ models.Source|verbose_field_name:"title" }}</th>
                     <th>{{ models.AccessPoint|verbose_field_name:"accessed_on" }}</th>
-                    <th>Permalink</th>
+                    <th>Archive Link</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,7 +44,7 @@
                             {{ source.title }}
                         </a>
                     </td>
-                    {% with access_date=source.accesspoint_set.get.accessed_on %}
+                    {% with access_date=source.accesspoint_set.last.accessed_on %}
                         <td data-order="{{ access_date.year|default:0 }}-{{ access_date.month|default:0 }}-{{access_date.day|default:0 }}">
                             {% if access_date.month and access_date.day %}
                                 {{ access_date|date:"d F Y" }}
@@ -57,9 +57,9 @@
                     {% endwith %}
                     <td>
                         <a
-                            href="{{ source.accesspoint_set.get.archive_url }}"
+                            href="{{ source.accesspoint_set.last.archive_url }}"
                             target="_blank"
-                            onclick="_paq.push(['trackEvent', 'Source Table Interaction', 'Archive Link Click', '{{ source.accesspoint_set.get.archive_url }}']);"
+                            onclick="_paq.push(['trackEvent', 'Source Table Interaction', 'Archive Link Click', '{{ source.accesspoint_set.last.archive_url }}']);"
                         >
                             <i class="fas fa-link"></i>
                         </a>

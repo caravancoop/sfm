@@ -1,5 +1,4 @@
 from datetime import date
-from itertools import chain
 import json
 
 from django.conf import settings
@@ -33,6 +32,7 @@ from membershiporganization.models import MembershipOrganization
 from sfm_pc.templatetags.countries import country_name
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView, \
     BaseDeleteView, BaseDeleteRelationshipView
+from source.models import Source
 
 
 class EditButtonsMixin:
@@ -48,9 +48,9 @@ class OrganizationDetail(BaseDetailView):
     slug_field = 'uuid'
 
     def get_sources(self, context):
-        sources = list(context['organization'].sources)
+        sources = set()
 
-        original_list = sources.copy()
+        sources.update(list(context['organization'].sources.values_list('uuid', flat=True)))
 
         related_entities = (
             'person_members',
@@ -64,11 +64,11 @@ class OrganizationDetail(BaseDetailView):
         )
 
         for relation in related_entities:
-            sources += list(
-                chain.from_iterable(entity.sources for entity in context[relation])
-            )
+            for entity in context[relation]:
+                sources.update(list(entity.sources.values_list('uuid', flat=True)))
 
-        return sorted(set(sources), key=lambda x: x.get_published_date() or date.min, reverse=True)
+        return Source.objects.filter(uuid__in=sources).order_by('source_url', '-accesspoint__accessed_on')\
+                                                      .distinct('source_url')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

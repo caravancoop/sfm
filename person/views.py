@@ -16,6 +16,7 @@ from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \
 from membershipperson.models import MembershipPersonMember, MembershipPerson
 from sfm_pc.base_views import BaseUpdateView, BaseCreateView, BaseDetailView, \
     BaseDeleteView, BaseDeleteRelationshipView
+from source.models import Source
 
 
 class PersonDetail(BaseDetailView):
@@ -24,21 +25,22 @@ class PersonDetail(BaseDetailView):
     slug_field = 'uuid'
 
     def get_sources(self, context):
-        sources = list(context['person'].sources)
+        sources = set()
 
-        sources += list(
-            chain.from_iterable(m.sources for m in context['memberships'])
-        )
+        sources.update(list(context['person'].sources.values_list('uuid', flat=True)))
 
-        sources += list(
-            chain.from_iterable(sub['commander'].sources for sub in context['subordinates'])
-        )
+        for membership in context['memberships']:
+            sources.update(
+                list(membership.sources.values_list('uuid', flat=True))
+            )
 
-        sources += list(
-            chain.from_iterable(sub['commander'].sources for sub in context['superiors'])
-        )
+        for entity in chain(context['subordinates'], context['superiors']):
+            sources.update(
+                list(entity['commander'].sources.values_list('uuid', flat=True))
+            )
 
-        return sorted(set(sources), key=lambda x: x.get_published_date() or date.min, reverse=True)
+        return Source.objects.filter(uuid__in=sources).order_by('source_url', '-accesspoint__accessed_on')\
+                                                      .distinct('source_url')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

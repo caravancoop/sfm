@@ -880,5 +880,3 @@ def get_source_context(field_name, access_point, uncommitted=True):
         context['accessed_on'] = access_point.accessed_on.strftime('%Y-%m-%dT%H:%M:%S')
 
     return context
-
-
