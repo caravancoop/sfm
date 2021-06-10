@@ -23,11 +23,8 @@ class ViolationDetail(BaseDetailView):
     slug_field = 'uuid'
 
     def get_sources(self, context):
-        return sorted(
-            context['violation'].sources,
-            key=lambda x: x.get_published_date() or date.min,
-            reverse=True
-        )
+        return context['violation'].sources.order_by('source_url', '-accesspoint__accessed_on')\
+                                           .distinct('source_url')
 
     def get_page_title(self):
         title = _('Incident')
