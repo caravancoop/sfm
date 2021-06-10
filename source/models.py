@@ -46,7 +46,7 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     title = source_fields.TextField(verbose_name=_("title"), spreadsheet_field_name='source:title')
     type = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:type')
     author = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:author')
-    publication = source_fields.TextField(null=True, verbose_name=_("publication"), spreadsheet_field_name='source:publication_name')
+    publication = source_fields.TextField(null=True, verbose_name=_("publisher"), spreadsheet_field_name='source:publication_name')
     publication_country = source_fields.CharField(
         max_length=1000,
         verbose_name=_("publication country"),
