@@ -125,16 +125,15 @@ def test_source_dates_and_timestamps(data_import):
         assert not getattr(timestamp_src, date_field)
         assert getattr(timestamp_src, timestamp_field)
 
+    # Test that invalid published dates are reported as expected
     error_file = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         '..',
         'sources-errors.csv'
     )
 
-    # TODO: This contains an extra source because timestamps aren't being
-    # parsed correctly.
-    # Source.objects.get(accesspoint__uuid='15717fdb-7d0f-4720-9766-dc61555588f6')
-    undated_sources = Source.objects.filter(published_date='').values_list('accesspoint__uuid', flat=True)
+    undated_sources = Source.objects.filter(published_date='', published_timestamp__isnull=True)\
+                                    .values_list('accesspoint__uuid', flat=True)
 
     undated_source_set = set(str(uuid) for uuid in undated_sources)
 
