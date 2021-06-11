@@ -5,8 +5,18 @@
         <h3 id="sources">
             <i class="fas fa-file-alt fa-fw"></i>
             {% trans "Sources" %}
-            <small>{% help href='sources.html' %}</small>
         </h3>
+        <div class="row">
+            <div class="col-xs-11">
+                <small>{% trans "List of all sources used to evidence the data in this record" %}</small>
+                <small class="help-block">
+                    {% trans 'Click the "+" symbol next to every data point in the record to see the sources used for that data point.' %}
+                </small>
+            </div>
+            <div class="col-xs-1 text-right">
+                <small>{% help href='sources.html' %}</small>
+            </div>
+        </div>
         <hr />
         <table class="table table-condensed data-table">
             <thead>
