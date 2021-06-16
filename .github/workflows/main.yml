@@ -5,10 +5,11 @@ on:
     branches:
       - master
       - deploy
+      - sahel
+      - numbersix
   pull_request:
     branches:
       - master
-      - import-refactor
 
 jobs:
   test:

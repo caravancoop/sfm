@@ -2,8 +2,8 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/datamade/sfm-cms # dir where your application will live on the server
-hooks: # these are boilerplate and may be copy/pasted as is
+    destination: /home/datamade/sfm-cms
+hooks:
   BeforeInstall:
     - location: scripts/before_install.sh
       timeout: 300
@@ -26,3 +26,7 @@ branch_config:
     deploymentGroupName: staging
   deploy:
     deploymentGroupName: production
+  sahel:
+    deploymentGroupName: sahel
+  numbersix:
+    deploymentGroupName: numbersix
