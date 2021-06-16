@@ -48,3 +48,4 @@ fixtures/*.geojson
 *.dump
 /configs/settings_local_numbersix.py
 /configs/sfm.conf.numbersix.nginx
+/configs/sfm.conf.numbersix.supervisor
