@@ -30,3 +30,5 @@ branch_config:
     deploymentGroupName: sahel
   numbersix:
     deploymentGroupName: numbersix
+  hcg/numbersix:
+    deploymentGroupName: numbersix
