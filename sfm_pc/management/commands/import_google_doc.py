@@ -1432,6 +1432,10 @@ class Command(BaseCommand):
                     else:
                         source_info['{}_timestamp'.format(prefix)] = parsed_date
 
+                    if not parsed_date and prefix == 'published':
+                        message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_val, access_point_uuid)
+                        self.log_error(message, sheet='sources', current_row=idx + 2)
+
                 new_source, created = Source.objects.get_or_create(**source_info)
 
                 AccessPoint.objects.create(

@@ -125,6 +125,34 @@ def test_source_dates_and_timestamps(data_import):
         assert not getattr(timestamp_src, date_field)
         assert getattr(timestamp_src, timestamp_field)
 
+    # Test that invalid published dates are reported as expected
+    error_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        '..',
+        'sources-errors.csv'
+    )
+
+    undated_sources = Source.objects.filter(published_date='', published_timestamp__isnull=True)\
+                                    .values_list('accesspoint__uuid', flat=True)
+
+    undated_source_set = set(str(uuid) for uuid in undated_sources)
+
+    error_source_set = set()
+
+    with open(error_file, 'r') as f:
+        reader = csv.reader(f)
+
+        next(reader)  # discard header
+
+        for record in reader:
+            _, message = record
+            assert message.startswith('Invalid published_date')
+
+            source_id = message.split()[-1]
+            assert source_id in undated_source_set
+            error_source_set.add(source_id)
+
+        assert undated_source_set == error_source_set
 
 @pytest.mark.django_db
 def test_incidents(data_import):
