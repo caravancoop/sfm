@@ -46,3 +46,4 @@ fixtures/*.geojson
 /configs/sfm.conf.sahel.nginx
 /configs/sfm.conf.sahel.supervisor
 *.dump
+/configs/settings_local_numbersix.py
