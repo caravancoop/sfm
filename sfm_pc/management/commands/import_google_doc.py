@@ -27,9 +27,6 @@ import reversion
 
 from countries_plus.models import Country
 
-from haystack import connection_router, connections
-from haystack.signals import RealtimeSignalProcessor
-
 from source.models import Source, AccessPoint
 from organization.models import Organization, OrganizationRealStart
 
@@ -121,7 +118,7 @@ class Command(BaseCommand):
         object_ref_saved.disconnect(receiver=update_membership_index, sender=MembershipPerson)
         object_ref_saved.disconnect(receiver=update_composition_index, sender=Composition)
 
-        self.haystack_signal_processor.teardown()
+        settings.HAYSTACK_SIGNAL_PROCESSOR = None
 
     def connectSignals(self):
         from django.db.models.signals import post_save
@@ -131,7 +128,7 @@ class Command(BaseCommand):
         object_ref_saved.connect(receiver=update_membership_index, sender=MembershipPerson)
         object_ref_saved.connect(receiver=update_composition_index, sender=Composition)
 
-        self.haystack_signal_processor.setup()
+        settings.HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
     def handle(self, *args, **options):
 
@@ -156,9 +153,6 @@ class Command(BaseCommand):
         except IntegrityError:
             self.user = User.objects.get(username=importer_user['username'])
 
-
-        self.haystack_signal_processor = RealtimeSignalProcessor(connections,
-                                                                 connection_router)
         # Disconnect post save signals
         self.disconnectSignals()
 
