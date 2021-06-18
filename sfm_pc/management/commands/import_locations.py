@@ -117,7 +117,7 @@ class Command(BaseCommand):
               geometry
             )
             SELECT
-              location.id,
+              COALESCE(location.id::varchar, location.sfm->>'location:id')::bigint AS id,
               location.sfm->>'location:name' AS name,
               CASE
                 WHEN location.tags->>'type' = 'boundary' THEN 'boundary'
@@ -129,8 +129,8 @@ class Command(BaseCommand):
               location.tags,
               location.sfm,
               location.tags->>'admin_level' AS adminlevel,
-              adminlevel1.id AS adminlevel1_id,
-              adminlevel2.id AS adminlevel2_id,
+              adminlevel1.id::bigint AS adminlevel1_id,
+              adminlevel2.id::bigint AS adminlevel2_id,
               location.wkb_geometry AS geometry
             FROM {table_name} AS location
             LEFT JOIN {table_name} AS country

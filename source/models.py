@@ -94,7 +94,7 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
         null=True,
         spreadsheet_field_name='source:uploaded_timestamp'
     )
-    source_url = source_fields.URLField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:url')
+    source_url = source_fields.URLField(max_length=2500, null=True, blank=True, spreadsheet_field_name='source:url')
 
     date_updated = models.DateTimeField(auto_now=True)
     date_added = models.DateTimeField(auto_now_add=True)
@@ -170,7 +170,7 @@ class AccessPoint(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     type = source_fields.CharField(max_length=1000, null=True, blank=True, spreadsheet_field_name='source:access_point_type')
     trigger = source_fields.CharField(max_length=255, null=True, blank=True, spreadsheet_field_name='source:access_point_trigger')
     accessed_on = source_fields.DateField(null=True, verbose_name=_("access date"), spreadsheet_field_name='source:accessed_timestamp')
-    archive_url = source_fields.URLField(max_length=1000, null=True, spreadsheet_field_name='source:archive_url')
+    archive_url = source_fields.URLField(max_length=2500, null=True, spreadsheet_field_name='source:archive_url')
     source = models.ForeignKey(Source, null=True, to_field='uuid')
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
