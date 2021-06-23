@@ -8,44 +8,46 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-17 16:00+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2021-06-18 13:45+0000\n"
+"PO-Revision-Date: 2021-06-23 21:22+0000\n"
+"Last-Translator: b'  <hannah.cushman@gmail.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
-"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"X-Translated-Using: django-rosetta 0.7.13\n"
 
 #: area/models.py:54 templates/area/edit.html:11
 msgid "Area of Operations"
-msgstr ""
+msgstr "منطقة العمليات"
 
 #: area/models.py:63
 msgid "Location geometry"
-msgstr ""
+msgstr "هندسة الموقع"
 
 #: area/models.py:71 composition/models.py:94 organization/forms.py:89
 #: organization/models.py:315 templates/area/search.html:28
 #: templates/area/search.html:85 templates/composition/search.html:97
-#: templates/composition/search.html:140 templates/organization/create.html:113
+#: templates/composition/search.html:140
+#: templates/organization/create.html:113
 #: templates/organization/create.html:394
 #: templates/organization/delete-composition.html:29
-#: templates/organization/search.html:30 templates/organization/search.html:164
+#: templates/organization/search.html:30
+#: templates/organization/search.html:164
 msgid "Classification"
-msgstr ""
+msgstr "التصنيف"
 
 #: area/models.py:79 geosite/models.py:65
 msgid "OSM name"
-msgstr ""
+msgstr "اسم الOSM"
 
 #: area/models.py:90 geosite/models.py:73 templates/location/create.html:110
 #: templates/location/delete.html:37 templates/location/detail.html:45
 #: templates/partials/location_list_table.html:11 violation/models.py:254
 msgid "OSM ID"
-msgstr ""
+msgstr "معرّف الOSM"
 
 #: area/models.py:113 organization/forms.py:71 organization/models.py:325
 #: person/forms.py:36 person/models.py:204 sfm_pc/forms.py:565
@@ -53,32 +55,32 @@ msgstr ""
 #: templates/search/search.html:73 templates/violation/delete.html:43
 #: violation/forms.py:41 violation/models.py:261
 msgid "Country"
-msgstr ""
+msgstr "البلد"
 
 #: association/models.py:51 composition/models.py:64 emplacement/models.py:50
 #: membershiporganization/models.py:86 membershipperson/models.py:189
 #: organization/models.py:348
 msgid "First Cited Date"
-msgstr ""
+msgstr "أول تاريخ مذكور"
 
 #: association/models.py:61 emplacement/models.py:60
 msgid "Is Foundation Date?"
-msgstr ""
+msgstr "هو تاريخ التأسيس؟"
 
 #: association/models.py:71 composition/models.py:84 emplacement/models.py:70
 #: membershiporganization/models.py:99 membershipperson/models.py:199
 #: organization/models.py:358
 msgid "Last Cited Date"
-msgstr ""
+msgstr "آخر تاريخ مذكور"
 
 #: association/models.py:81 composition/models.py:56 emplacement/models.py:90
 #: membershipperson/models.py:148
 msgid "Unit"
-msgstr ""
+msgstr "الوحدة"
 
 #: association/models.py:92
 msgid "Area of Operation"
-msgstr ""
+msgstr "منطقة العمليات"
 
 #: association/models.py:103
 msgid "Open-Ended?"
@@ -86,11 +88,11 @@ msgstr ""
 
 #: composition/models.py:46
 msgid "Related Unit"
-msgstr ""
+msgstr "الوحدة ذات الصلة"
 
 #: composition/models.py:74 violation/models.py:177
 msgid "Start Date"
-msgstr ""
+msgstr "تاريخ البدء"
 
 #: composition/models.py:104 emplacement/models.py:80
 #: membershiporganization/models.py:122 organization/models.py:378
@@ -102,7 +104,7 @@ msgstr ""
 #: templates/organization/edit-locations.html:35 templates/sidebar.html:15
 #: templates/site/edit.html:8
 msgid "Site"
-msgstr ""
+msgstr "الموقع"
 
 #: emplacement/models.py:107 templates/organization/search.html:163
 #: templates/person/search.html:129
@@ -116,23 +118,24 @@ msgstr ""
 #: templates/organization/delete.html:16
 #: templates/organization/edit-locations.html:20
 #: templates/organization/partials/personnel-list.html:13
-#: templates/organization/search.html:22 templates/organization/search.html:162
+#: templates/organization/search.html:22
+#: templates/organization/search.html:162
 #: templates/partials/location_list_table.html:19
 #: templates/person/delete.html:16 templates/person/search.html:21
 #: templates/person/search.html:128 templates/site/search.html:23
 #: templates/site/search.html:93
 msgid "Name"
-msgstr ""
+msgstr "الاسم"
 
 #: geosite/models.py:81 templates/site/search.html:27
 #: templates/site/search.html:28
 msgid "Admin level 1"
-msgstr ""
+msgstr "مشرف مستوى 1"
 
 #: geosite/models.py:89 templates/site/search.html:31
 #: templates/site/search.html:32
 msgid "Admin level 2"
-msgstr ""
+msgstr "مشرف مستوى 2"
 
 #: geosite/models.py:98
 msgid "Coordinates"
@@ -140,25 +143,27 @@ msgstr ""
 
 #: geosite/models.py:106 organization/forms.py:251 organization/forms.py:292
 msgid "Location name"
-msgstr ""
+msgstr "اسم الموقع"
 
 #: geosite/models.py:114 templates/location/create.html:38
 msgid "Location ID"
-msgstr ""
+msgstr "معرّف الموقع"
 
 #: geosite/models.py:122
 msgid "Division ID"
-msgstr ""
+msgstr "معرّف التقسيم"
 
-#: geosite/models.py:130 templates/organization/partials/personnel-list.html:17
+#: geosite/models.py:130
+#: templates/organization/partials/personnel-list.html:17
 #: templates/person/partials/person-posting-list.html:17
 msgid "First cited"
-msgstr ""
+msgstr "ذكر أولا"
 
-#: geosite/models.py:138 templates/organization/partials/personnel-list.html:18
+#: geosite/models.py:138
+#: templates/organization/partials/personnel-list.html:18
 #: templates/person/partials/person-posting-list.html:18
 msgid "Last cited"
-msgstr ""
+msgstr "ذكر آخرا"
 
 #: location/models.py:64 location/models.py:76 organization/forms.py:250
 #: organization/forms.py:291 person/forms.py:80
@@ -172,12 +177,12 @@ msgstr ""
 #: templates/person/partials/person-posting-list.html:13
 #: templates/sidebar.html:10
 msgid "Organization"
-msgstr ""
+msgstr "منظمة"
 
 #: location/models.py:87 organization/models.py:278 person/models.py:156
 #: templates/sidebar.html:16
 msgid "Violation"
-msgstr ""
+msgstr "انتهاك"
 
 #: membershiporganization/models.py:62
 msgid "Member Unit"
@@ -187,30 +192,32 @@ msgstr ""
 #: templates/organization/partials/membership-list-table.html:11
 #: templates/person/search.html:32 templates/search/search.html:100
 msgid "Membership"
-msgstr ""
+msgstr "العضوية"
 
 #: membershiporganization/models.py:112 membershipperson/models.py:209
 #: organization/models.py:368
 msgid "Start Date?"
-msgstr ""
+msgstr "تاريخ البدء؟"
 
 #: membershipperson/models.py:75 membershipperson/models.py:140
 #: templates/organization/delete-membership.html:9
 msgid "Member"
-msgstr ""
+msgstr "عضو"
 
 #. Translators: This is part of the string "{Rank} of {unit}"
 #: membershipperson/models.py:85
 msgid "of"
-msgstr ""
+msgstr " "
 
 #. Translators: This is part of the "Last seen as" string for a person,
 #. as in "last seen as {rank} of {unit} on {date}"
-#. Translators: The word "on" may appear in a sentence, as follows – "Incident in [location] on [date] starting [date]" Words in [brackets] indicate variable text.
+#. Translators: The word "on" may appear in a sentence, as follows – "Incident
+#. in [location] on [date] starting [date]" Words in [brackets] indicate
+#. variable text.
 #: membershipperson/models.py:109 templates/partials/violation_title.html:12
 #: violation/views.py:40
 msgid "on"
-msgstr ""
+msgstr "في"
 
 #: membershipperson/models.py:158 organization/forms.py:205 person/forms.py:82
 #: templates/membershipperson/search.html:17
@@ -220,7 +227,7 @@ msgstr ""
 #: templates/person/delete-posting.html:29
 #: templates/person/partials/person-posting-list.html:15
 msgid "Role"
-msgstr ""
+msgstr "الوظيفة"
 
 #: membershipperson/models.py:169 organization/forms.py:206 person/forms.py:83
 #: sfm_pc/templatetags/citations.py:15
@@ -234,7 +241,7 @@ msgstr ""
 #: templates/person/partials/person-posting-list.html:16
 #: templates/source/delete.html:15
 msgid "Title"
-msgstr ""
+msgstr "الصّفة"
 
 #: membershipperson/models.py:179 organization/forms.py:204 person/forms.py:81
 #: templates/membershipperson/search.html:26
@@ -244,35 +251,35 @@ msgstr ""
 #: templates/person/delete-posting.html:19
 #: templates/person/partials/person-posting-list.html:14
 msgid "Rank"
-msgstr ""
+msgstr "الرّتبة"
 
 #: membershipperson/models.py:219
 msgid "End Date?"
-msgstr ""
+msgstr "تاريخ الانتهاء؟"
 
 #: membershipperson/models.py:229
 msgid "Start Date Context"
-msgstr ""
+msgstr "سياق تاريخ البدء"
 
 #: membershipperson/models.py:239
 msgid "End Date Context"
-msgstr ""
+msgstr "سياق تاريخ الانتهاء"
 
-#: organization/forms.py:48 sfm_pc/settings.py:353 tests/test_settings.py:215
+#: organization/forms.py:48 sfm_pc/settings.py:358 tests/test_settings.py:215
 msgid "Yes"
-msgstr ""
+msgstr "نعم"
 
-#: organization/forms.py:49 sfm_pc/settings.py:354 tests/test_settings.py:216
+#: organization/forms.py:49 sfm_pc/settings.py:359 tests/test_settings.py:216
 msgid "No"
-msgstr ""
+msgstr "لا"
 
 #: organization/forms.py:50
 msgid "Last cited date is termination date"
-msgstr ""
+msgstr "آخر تاريخ مذكور هو تاريخ الإنهاء"
 
-#: organization/forms.py:72 organization/forms.py:118 organization/forms.py:163
-#: organization/forms.py:207 organization/forms.py:247
-#: organization/forms.py:288 person/forms.py:84
+#: organization/forms.py:72 organization/forms.py:118
+#: organization/forms.py:163 organization/forms.py:207
+#: organization/forms.py:247 organization/forms.py:288 person/forms.py:84
 #: templates/organization/delete-association.html:29
 #: templates/organization/delete-composition.html:39
 #: templates/organization/delete-emplacement.html:45
@@ -283,11 +290,11 @@ msgstr ""
 #: templates/organization/edit-membership.html:19
 #: templates/person/delete-posting.html:49
 msgid "Date first cited"
-msgstr ""
+msgstr "التاريخ المذكور أولا"
 
-#: organization/forms.py:73 organization/forms.py:119 organization/forms.py:164
-#: organization/forms.py:208 organization/forms.py:248
-#: organization/forms.py:289 person/forms.py:85
+#: organization/forms.py:73 organization/forms.py:119
+#: organization/forms.py:164 organization/forms.py:208
+#: organization/forms.py:248 organization/forms.py:289 person/forms.py:85
 #: templates/organization/delete-association.html:49
 #: templates/organization/delete-composition.html:59
 #: templates/organization/delete-emplacement.html:65
@@ -298,11 +305,11 @@ msgstr ""
 #: templates/organization/edit-membership.html:20
 #: templates/person/delete-posting.html:79
 msgid "Date last cited"
-msgstr ""
+msgstr "التاريخ المذكور آخرا"
 
-#: organization/forms.py:74 organization/forms.py:117 organization/forms.py:162
-#: organization/forms.py:209 organization/forms.py:246
-#: organization/forms.py:287 person/forms.py:86
+#: organization/forms.py:74 organization/forms.py:117
+#: organization/forms.py:162 organization/forms.py:209
+#: organization/forms.py:246 organization/forms.py:287 person/forms.py:86
 #: templates/organization/delete-association.html:39
 #: templates/organization/delete-composition.html:49
 #: templates/organization/delete-emplacement.html:55
@@ -310,10 +317,11 @@ msgstr ""
 #: templates/organization/delete-personnel.html:59
 #: templates/person/delete-posting.html:59
 msgid "Start date?"
-msgstr ""
+msgstr "تاريخ البدء؟"
 
-#: organization/forms.py:75 organization/forms.py:120 organization/forms.py:249
-#: organization/forms.py:290 templates/composition/create.html:236
+#: organization/forms.py:75 organization/forms.py:120
+#: organization/forms.py:249 organization/forms.py:290
+#: templates/composition/create.html:236
 #: templates/organization/create.html:271
 #: templates/organization/create.html:461
 msgid "Open-ended?"
@@ -321,11 +329,11 @@ msgstr ""
 
 #: organization/forms.py:82 person/forms.py:48
 msgid "Other names"
-msgstr ""
+msgstr "أسماء أخرى"
 
 #: organization/forms.py:123
 msgid "Relationship classification"
-msgstr ""
+msgstr "تصنيف العلاقة"
 
 #: organization/forms.py:166
 msgid "Is open ended?"
@@ -333,43 +341,43 @@ msgstr ""
 
 #: organization/forms.py:203
 msgid "Person name"
-msgstr ""
+msgstr "اسم الشخص"
 
 #: organization/forms.py:210 person/forms.py:87
 #: templates/organization/delete-membership.html:59
 #: templates/organization/delete-personnel.html:89
 #: templates/person/delete-posting.html:89
 msgid "End date?"
-msgstr ""
+msgstr "تاريخ الانتهاء؟"
 
 #: organization/forms.py:211 person/forms.py:88
 #: templates/organization/delete-personnel.html:69
 #: templates/person/delete-posting.html:69
 msgid "Context for start date"
-msgstr ""
+msgstr "سياق تاريخ البدء"
 
 #: organization/forms.py:212 person/forms.py:89
 #: templates/organization/delete-personnel.html:99
 #: templates/person/delete-posting.html:99
 msgid "Context for end date"
-msgstr ""
+msgstr "سياق تاريخ الانتهاء"
 
 #: organization/forms.py:256 templates/organization/delete-emplacement.html:29
 msgid "Location other names"
-msgstr ""
+msgstr "أسماء الموقع الأخرى"
 
 #: organization/models.py:146 person/models.py:138
 msgid "MembershipPerson"
-msgstr ""
+msgstr "شخص العضوية"
 
 #: organization/models.py:165 organization/models.py:184
 #: templates/composition/edit.html:9 templates/sidebar.html:11
 msgid "Composition"
-msgstr ""
+msgstr "التركيبة"
 
 #: organization/models.py:203 organization/models.py:222
 msgid "MembershipOrganization"
-msgstr ""
+msgstr "منظمة العضوية"
 
 #: organization/models.py:241 templates/association/edit.html:9
 #: templates/sidebar.html:12
@@ -379,51 +387,51 @@ msgstr ""
 #: organization/models.py:260 templates/emplacement/edit.html:9
 #: templates/sidebar.html:14
 msgid "Emplacement"
-msgstr ""
+msgstr "التمركز"
 
 #: organization/models.py:305 person/models.py:183
 msgid "Other Names"
-msgstr ""
+msgstr "أسماء أخرى"
 
 #: organization/models.py:338
 msgid "Base Name"
-msgstr ""
+msgstr "الاسم الأساسي"
 
 #: person/forms.py:37 person/models.py:194 personextra/models.py:108
 #: templates/person/delete.html:67
 msgid "Notes"
-msgstr ""
+msgstr "ملاحظات"
 
 #: person/views.py:250 person/views.py:256 person/views.py:258
 #: person/views.py:301 person/views.py:316
 msgid "Unknown"
-msgstr ""
+msgstr "مجهول"
 
 #: person/views.py:299
 msgid "days"
-msgstr ""
+msgstr "أيام"
 
-#: personbiography/models.py:49 personextra/models.py:46 templates/base.html:68
-#: templates/organization/delete-personnel.html:9
+#: personbiography/models.py:49 personextra/models.py:46
+#: templates/base.html:68 templates/organization/delete-personnel.html:9
 #: templates/person/search.html:7
 msgid "Person"
-msgstr ""
+msgstr "شخص"
 
 #: personbiography/models.py:60 templates/person/delete.html:37
 msgid "Gender"
-msgstr ""
+msgstr "الجندر"
 
 #: personbiography/models.py:70
 msgid "Date of Birth"
-msgstr ""
+msgstr "تاريخ الولادة"
 
 #: personbiography/models.py:80
 msgid "Date Deceased"
-msgstr ""
+msgstr "تاريخ الوفاة"
 
 #: personbiography/models.py:90 templates/person/delete.html:55
 msgid "Deceased"
-msgstr ""
+msgstr "متوفى"
 
 #: personextra/models.py:57
 msgid "Online Account Type"
@@ -441,20 +449,20 @@ msgstr ""
 msgid "Media Description"
 msgstr ""
 
-#: sfm_pc/base_views.py:113 sfm_pc/settings.py:347
+#: sfm_pc/base_views.py:113 sfm_pc/settings.py:352
 #: templates/modals/source.html:13 tests/test_settings.py:209
 msgid "Low"
-msgstr ""
+msgstr "منخفض"
 
-#: sfm_pc/base_views.py:114 sfm_pc/settings.py:348
+#: sfm_pc/base_views.py:114 sfm_pc/settings.py:353
 #: templates/modals/source.html:14 tests/test_settings.py:210
 msgid "Medium"
-msgstr ""
+msgstr "متوسط"
 
-#: sfm_pc/base_views.py:115 sfm_pc/settings.py:349
+#: sfm_pc/base_views.py:115 sfm_pc/settings.py:354
 #: templates/modals/source.html:15 tests/test_settings.py:211
 msgid "High"
-msgstr ""
+msgstr "عالي"
 
 #: sfm_pc/forms.py:223 sfm_pc/forms.py:452
 msgid "Empty fields should not have sources"
@@ -474,11 +482,11 @@ msgstr ""
 
 #: sfm_pc/forms.py:309
 msgid "Please add some sources to this field"
-msgstr ""
+msgstr "الرجاء إضافة بعض المصادر في هذا الحقل"
 
 #: sfm_pc/forms.py:466
 msgid "This field requires sources"
-msgstr ""
+msgstr "هذا الحقل يتطلب مصادر"
 
 #: sfm_pc/forms.py:553
 msgid "Basic"
@@ -491,17 +499,17 @@ msgstr ""
 #: sfm_pc/forms.py:555 templates/organization/view.html:71
 #: templates/organization/view.html:87 templates/organization/view.html:211
 msgid "Memberships"
-msgstr ""
+msgstr "العضويات"
 
 #: sfm_pc/forms.py:556 templates/organization/view.html:69
 #: templates/organization/view.html:85 templates/organization/view.html:103
 msgid "Areas of operation"
-msgstr ""
+msgstr "مناطق العمليات"
 
 #: sfm_pc/forms.py:557 templates/organization/view.html:70
 #: templates/organization/view.html:86 templates/organization/view.html:157
 msgid "Sites"
-msgstr ""
+msgstr "المواقع"
 
 #: sfm_pc/forms.py:558 templates/base.html:50
 #: templates/organization/base-organization.html:35
@@ -511,7 +519,7 @@ msgstr ""
 #: templates/partials/person_search_results.html:5
 #: templates/search/search.html:42 templates/sfm/dashboard.html:31
 msgid "Personnel"
-msgstr ""
+msgstr "الأفراد"
 
 #: sfm_pc/forms.py:559 templates/base.html:54 templates/modals/source.html:29
 #: templates/modals/version.html:10 templates/organization/view.html:77
@@ -522,15 +530,15 @@ msgstr ""
 #: templates/search/search.html:46 templates/sfm/dashboard.html:44
 #: templates/violation/view.html:97 templates/violation/view.html:109
 msgid "Sources"
-msgstr ""
+msgstr "المصادر"
 
 #: sfm_pc/forms.py:564
 msgid "Choose a download type"
-msgstr ""
+msgstr "اختر نوع التنزيل"
 
 #: sfm_pc/forms.py:566
 msgid "Include confidence scores"
-msgstr ""
+msgstr "إدارج درجات الثقة"
 
 #: sfm_pc/forms.py:570 templates/association/search.html:23
 #: templates/association/search.html:141 templates/composition/search.html:17
@@ -541,7 +549,7 @@ msgstr ""
 #: templates/partials/related_entities.html:11 templates/search/search.html:70
 #: templates/violation/delete.html:21 violation/forms.py:36
 msgid "Start date"
-msgstr ""
+msgstr "تاريخ البدء"
 
 #: sfm_pc/forms.py:571 templates/association/search.html:62
 #: templates/association/search.html:142 templates/composition/search.html:56
@@ -552,57 +560,58 @@ msgstr ""
 #: templates/partials/related_entities.html:12 templates/search/search.html:71
 #: templates/violation/delete.html:27 violation/forms.py:37
 msgid "End date"
-msgstr ""
+msgstr "تاريخ الانتهاء"
 
-#: sfm_pc/settings.py:168 sfm_pc/templatetags/language_url.py:17
+#: sfm_pc/settings.py:173 sfm_pc/templatetags/language_url.py:17
 #: templates/base.html:157 tests/test_settings.py:128
 msgid "French"
-msgstr ""
+msgstr "الفرنسية"
 
-#: sfm_pc/settings.py:169 sfm_pc/templatetags/language_url.py:15
+#: sfm_pc/settings.py:174 sfm_pc/templatetags/language_url.py:15
 #: templates/base.html:155 tests/test_settings.py:129
 msgid "English"
-msgstr ""
+msgstr "الإنجليزية"
 
-#: sfm_pc/settings.py:170 sfm_pc/templatetags/language_url.py:16
+#: sfm_pc/settings.py:175 sfm_pc/templatetags/language_url.py:16
 #: templates/base.html:156 tests/test_settings.py:130
 msgid "Spanish"
-msgstr ""
+msgstr "الأسبانية"
 
-#: sfm_pc/settings.py:171
+#: sfm_pc/settings.py:176 sfm_pc/templatetags/language_url.py:21
+#: templates/base.html:158
 msgid "Arabic"
-msgstr ""
+msgstr "العربية"
 
-#: sfm_pc/settings.py:355 tests/test_settings.py:217
+#: sfm_pc/settings.py:360 tests/test_settings.py:217
 msgid "Exact"
 msgstr ""
 
 #: sfm_pc/templatetags/citations.py:16 templates/source/delete.html:20
 #: templates/source/edit.html:73
 msgid "Publication"
-msgstr ""
+msgstr "النشرة"
 
 #: sfm_pc/templatetags/citations.py:17 templates/source/delete.html:32
 msgid "Published on"
-msgstr ""
+msgstr "تم النشر بتاريخ"
 
 #: sfm_pc/templatetags/citations.py:18 sfm_pc/templatetags/citations.py:49
 #: sfm_pc/templatetags/citations.py:55 templates/source/delete.html:38
 #: templates/source/edit.html:106
 msgid "Source URL"
-msgstr ""
+msgstr "رابط المصدر"
 
 #: sfm_pc/templatetags/citations.py:19
 msgid "Date added"
-msgstr ""
+msgstr "تاريخ الإضافة"
 
 #: sfm_pc/templatetags/citations.py:20
 msgid "Date updated"
-msgstr ""
+msgstr "تاريخ التحديث"
 
 #: sfm_pc/templatetags/citations.py:21
 msgid "Added by"
-msgstr ""
+msgstr "إضافة من قبل"
 
 #: sfm_pc/templatetags/citations.py:25 sfm_pc/templatetags/citations.py:49
 #: templates/source/access-points.html:25
@@ -610,7 +619,7 @@ msgstr ""
 #: templates/source/delete-access-point.html:20
 #: templates/source/partials/source_related_entities.html:9
 msgid "Archive URL"
-msgstr ""
+msgstr "رابط الأرشيف"
 
 #: sfm_pc/templatetags/citations.py:26
 msgid "Accessed"
@@ -620,38 +629,38 @@ msgstr ""
 #: templates/source/delete-access-point.html:26
 #: templates/source/partials/source_related_entities.html:10
 msgid "Page number"
-msgstr ""
+msgstr "رقم الصفحة"
 
 #: sfm_pc/templatetags/citations.py:95
 #: templates/partials/source_and_confidence.html:18
 msgid "Sources for this datapoint"
-msgstr ""
+msgstr "المصادر لنقطة البيانات هذه"
 
 #: sfm_pc/templatetags/citations.py:105
 msgid "Confidence: LOW"
-msgstr ""
+msgstr "مستوى الثقة: منخفض"
 
 #: sfm_pc/templatetags/citations.py:109
 msgid "Confidence: MEDIUM"
-msgstr ""
+msgstr "مستوى الثقة: متوسط"
 
 #: sfm_pc/templatetags/citations.py:113
 msgid "Confidence: HIGH"
-msgstr ""
+msgstr "مستوى الثقة: عالي"
 
 #: sfm_pc/templatetags/citations.py:147
 msgid "Real start date"
-msgstr ""
+msgstr "تاريخ البدء الحقيقي"
 
 #: sfm_pc/templatetags/citations.py:148
 msgid ""
-"We believe that this date represents a real start date, as well as being the "
-"first recorded citation date."
+"We believe that this date represents a real start date, as well as being the"
+" first recorded citation date."
 msgstr ""
 
 #: sfm_pc/templatetags/citations.py:167
 msgid "Real end date"
-msgstr ""
+msgstr "تاريخ الانتهاء الحقيقي"
 
 #: sfm_pc/templatetags/citations.py:168
 msgid ""
@@ -661,7 +670,7 @@ msgstr ""
 
 #: sfm_pc/utils.py:566
 msgid "Unknown commander"
-msgstr ""
+msgstr "قائد مجهول"
 
 #: source/forms.py:6
 msgid "Title is required"
@@ -677,19 +686,20 @@ msgstr ""
 
 #: source/models.py:46
 msgid "title"
-msgstr ""
+msgstr "الصّفة"
 
 #: source/models.py:49
+#, fuzzy
 msgid "publisher"
-msgstr ""
+msgstr "نشرت"
 
 #: source/models.py:52
 msgid "publication country"
-msgstr ""
+msgstr "بلد النشر"
 
 #: source/models.py:62
 msgid "publication date"
-msgstr ""
+msgstr "تاريخ النشر"
 
 #: source/models.py:68 source/models.py:80 source/models.py:92
 msgid "publication timestamp"
@@ -697,7 +707,7 @@ msgstr ""
 
 #: source/models.py:74
 msgid "creation date"
-msgstr ""
+msgstr "تاريخ الإنشاء"
 
 #: source/models.py:86
 msgid "upload date"
@@ -725,19 +735,19 @@ msgstr ""
 
 #: templates/404.html:4
 msgid "Page not found"
-msgstr ""
+msgstr "الصفحة غير موجودة"
 
 #: templates/404.html:5
 msgid "We were not able to find the page you were looking for."
-msgstr ""
+msgstr "لم نتمكن من العثور على الصفحة التي تبحث عنها."
 
 #: templates/404.html:6 templates/500.html:7
 msgid "Go back to the home page"
-msgstr ""
+msgstr "الرجوع إلى الصفحة الرئيسية"
 
 #: templates/500.html:4
 msgid "Server error"
-msgstr ""
+msgstr "خطأ في الخادم"
 
 #: templates/500.html:5
 msgid "Something went wrong and we were unable to handle your request."
@@ -745,11 +755,11 @@ msgstr ""
 
 #: templates/500.html:6
 msgid "If this issue persists,"
-msgstr ""
+msgstr "الرجاء الاتصال بفريقنا"
 
 #: templates/500.html:6
 msgid "contact our staff."
-msgstr ""
+msgstr "إذا استمرت هذه المشكلة."
 
 #: templates/account/account_inactive.html:5
 #: templates/account/account_inactive.html:8
@@ -806,7 +816,8 @@ msgstr ""
 #: templates/account/email.html:44
 msgid ""
 "You currently do not have any e-mail address set up. You should really add "
-"an e-mail address so you can receive notifications, reset your password, etc."
+"an e-mail address so you can receive notifications, reset your password, "
+"etc."
 msgstr ""
 
 #: templates/account/email.html:49
@@ -826,9 +837,7 @@ msgstr ""
 msgid ""
 "Hello from %(site_name)s!\n"
 "\n"
-"You're receiving this e-mail because user %(user_display)s at "
-"%(site_domain)s has given yours as an e-mail address to connect their "
-"account.\n"
+"You're receiving this e-mail because user %(user_display)s at %(site_domain)s has given yours as an e-mail address to connect their account.\n"
 "\n"
 "To confirm this is correct, go to %(activate_url)s\n"
 msgstr ""
@@ -849,10 +858,8 @@ msgstr ""
 msgid ""
 "Hello from %(site_name)s!\n"
 "\n"
-"You're receiving this e-mail because you or someone else has requested a "
-"password for your user account at %(site_domain)s.\n"
-"It can be safely ignored if you did not request a password reset. Click the "
-"link below to reset your password."
+"You're receiving this e-mail because you or someone else has requested a password for your user account at %(site_domain)s.\n"
+"It can be safely ignored if you did not request a password reset. Click the link below to reset your password."
 msgstr ""
 
 #: templates/account/email/password_reset_key_message.txt:8
@@ -892,15 +899,15 @@ msgstr ""
 #: templates/account/email_confirm.html:27
 #, python-format
 msgid ""
-"This e-mail confirmation link expired or is invalid. Please <a href="
-"\"%(email_url)s\">issue a new e-mail confirmation request</a>."
+"This e-mail confirmation link expired or is invalid. Please <a "
+"href=\"%(email_url)s\">issue a new e-mail confirmation request</a>."
 msgstr ""
 
 #: templates/account/email_confirmed.html:15
 #, python-format
 msgid ""
-"You have confirmed that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-"
-"mail address for user %(user_display)s."
+"You have confirmed that <a href=\"mailto:%(email)s\">%(email)s</a> is an "
+"e-mail address for user %(user_display)s."
 msgstr ""
 
 #: templates/account/login.html:6 templates/account/login.html:25
@@ -927,11 +934,11 @@ msgstr ""
 #: templates/account/logout.html:5 templates/account/logout.html:8
 #: templates/account/logout.html:17
 msgid "Sign Out"
-msgstr ""
+msgstr "تسجيل الخروج"
 
 #: templates/account/logout.html:10
 msgid "Are you sure you want to sign out?"
-msgstr ""
+msgstr "هل أنت متأكد أنك تريد تسجيل الخروج؟"
 
 #: templates/account/messages/cannot_delete_primary_email.txt:2
 #, python-format
@@ -997,8 +1004,8 @@ msgstr ""
 
 #: templates/account/password_reset.html:15
 msgid ""
-"Forgotten your password? Enter your e-mail address below, and we'll send you "
-"an e-mail allowing you to reset it."
+"Forgotten your password? Enter your e-mail address below, and we'll send you"
+" an e-mail allowing you to reset it."
 msgstr ""
 
 #: templates/account/password_reset.html:20
@@ -1015,7 +1022,8 @@ msgid ""
 "within a few minutes."
 msgstr ""
 
-#. Translators: To communicate that the user does not have a valid password reset link
+#. Translators: To communicate that the user does not have a valid password
+#. reset link
 #: templates/account/password_reset_from_key.html:8
 msgid "Bad Token"
 msgstr ""
@@ -1024,8 +1032,8 @@ msgstr ""
 #, python-format
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
-"used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</"
-"a>."
+"used.  Please request a <a href=\"%(passwd_reset_url)s\">new password "
+"reset</a>."
 msgstr ""
 
 #: templates/account/password_reset_from_key.html:18
@@ -1067,7 +1075,7 @@ msgstr ""
 
 #: templates/account/snippets/already_logged_in.html:5
 msgid "Note"
-msgstr ""
+msgstr "ملاحظة"
 
 #: templates/account/snippets/already_logged_in.html:5
 #, python-format
@@ -1105,21 +1113,21 @@ msgstr ""
 #: templates/account/verified_email_required.html:20
 #, python-format
 msgid ""
-"<strong>Note:</strong> you can still <a href=\"%(email_url)s\">change your e-"
-"mail address</a>."
+"<strong>Note:</strong> you can still <a href=\"%(email_url)s\">change your "
+"e-mail address</a>."
 msgstr ""
 
 #: templates/area/edit.html:13 templates/composition/edit.html:11
 #: templates/composition/search.html:9
 msgid "Add new"
-msgstr ""
+msgstr "إضافة جديدة"
 
 #: templates/area/edit.html:19 templates/area/search.html:17
 #: templates/association/edit.html:17 templates/association/search.html:16
 #: templates/composition/edit.html:19 templates/emplacement/edit.html:17
 #: templates/emplacement/search.html:16 templates/site/search.html:16
 msgid "Properties"
-msgstr ""
+msgstr "الخصائص"
 
 #: templates/area/edit.html:47 templates/association/edit.html:46
 #: templates/base_delete.html:23 templates/composition/create.html:291
@@ -1129,7 +1137,7 @@ msgstr ""
 #: templates/organization/create.html:343 templates/site/edit.html:53
 #: templates/source/access-points.html:134 templates/source/edit.html:133
 msgid "Cancel"
-msgstr ""
+msgstr "إلغاء"
 
 #: templates/area/edit.html:48 templates/association/edit.html:47
 #: templates/composition/edit.html:58 templates/edit.html:85
@@ -1138,7 +1146,7 @@ msgstr ""
 #: templates/partials/person_merge.html:9 templates/site/edit.html:54
 #: templates/source/access-points.html:136 templates/source/edit.html:135
 msgid "Save"
-msgstr ""
+msgstr "حفظ"
 
 #: templates/area/search.html:8
 msgid "Search Area"
@@ -1151,12 +1159,12 @@ msgstr ""
 #: templates/organization/search.html:9 templates/person/search.html:9
 #: templates/site/search.html:9
 msgid "Add New"
-msgstr ""
+msgstr "إضافة جديدة"
 
 #: templates/area/search.html:25 templates/organization/search.html:23
 #: templates/person/search.html:22 templates/site/search.html:24
 msgid "Enter Name"
-msgstr ""
+msgstr "أدخل الاسم"
 
 #: templates/area/search.html:29
 msgid "Select classification"
@@ -1166,9 +1174,9 @@ msgstr ""
 #: templates/composition/search.html:99
 #: templates/membershipperson/search.html:19
 #: templates/membershipperson/search.html:28
-#: templates/organization/search.html:32 templates/organization/search.html:124
-#: templates/person/search.html:34 templates/person/search.html:86
-#: templates/site/search.html:40
+#: templates/organization/search.html:32
+#: templates/organization/search.html:124 templates/person/search.html:34
+#: templates/person/search.html:86 templates/site/search.html:40
 msgid "Choose"
 msgstr ""
 
@@ -1180,46 +1188,46 @@ msgstr ""
 #: templates/area/search.html:43 templates/organization/search.html:125
 #: templates/person/search.html:87 templates/site/search.html:41
 msgid "1 km"
-msgstr ""
+msgstr "1 كم"
 
 #: templates/area/search.html:44 templates/organization/search.html:126
 #: templates/person/search.html:88 templates/site/search.html:42
 msgid "2 km"
-msgstr ""
+msgstr "2 كم"
 
 #: templates/area/search.html:45 templates/organization/search.html:127
 #: templates/person/search.html:89 templates/site/search.html:43
 msgid "3 km"
-msgstr ""
+msgstr "3 كم"
 
 #: templates/area/search.html:46 templates/organization/search.html:128
 #: templates/person/search.html:90 templates/site/search.html:44
 msgid "4 km"
-msgstr ""
+msgstr "4 كم"
 
 #: templates/area/search.html:47 templates/organization/search.html:129
 #: templates/person/search.html:91 templates/site/search.html:45
 msgid "5 km"
-msgstr ""
+msgstr "5 كم"
 
 #: templates/area/search.html:48 templates/organization/search.html:130
 #: templates/person/search.html:92 templates/site/search.html:46
 msgid "6 km"
-msgstr ""
+msgstr "6 كم"
 
 #: templates/area/search.html:53 templates/organization/search.html:135
 #: templates/person/search.html:97 templates/site/search.html:51
 msgid "Latitude"
-msgstr ""
+msgstr "خط العرض"
 
 #: templates/area/search.html:58 templates/organization/search.html:140
 #: templates/person/search.html:102 templates/site/search.html:56
 msgid "Longitude"
-msgstr ""
+msgstr "خط الطول"
 
 #: templates/area/search.html:64 templates/site/search.html:62
 msgid "View map"
-msgstr ""
+msgstr "عرض الخريطة"
 
 #: templates/area/search.html:71 templates/association/search.html:128
 #: templates/composition/search.html:125 templates/emplacement/search.html:125
@@ -1227,7 +1235,7 @@ msgstr ""
 #: templates/organization/search.html:149 templates/person/search.html:115
 #: templates/site/search.html:80
 msgid "Results"
-msgstr ""
+msgstr "نتيجة"
 
 #: templates/area/search.html:73 templates/association/search.html:130
 #: templates/composition/search.html:127 templates/emplacement/search.html:127
@@ -1241,7 +1249,7 @@ msgstr ""
 #: templates/composition/edit.html:47 templates/composition/search.html:114
 #: templates/emplacement/edit.html:36 templates/emplacement/search.html:114
 msgid "With"
-msgstr ""
+msgstr "مع"
 
 #: templates/association/search.html:7
 msgid "Search Area Association"
@@ -1265,7 +1273,7 @@ msgstr ""
 #: templates/organization/search.html:52 templates/organization/search.html:91
 #: templates/person/search.html:52
 msgid "Month"
-msgstr ""
+msgstr "الشهر"
 
 #. Translators: The date format for months, e.g., 11
 #: templates/association/search.html:35 templates/association/search.html:76
@@ -1274,7 +1282,7 @@ msgstr ""
 #: templates/membershipperson/search.html:54
 #: templates/membershipperson/search.html:93 templates/person/search.html:54
 msgid "mm"
-msgstr ""
+msgstr "ش ش"
 
 #: templates/association/search.html:36 templates/association/search.html:77
 #: templates/composition/search.html:30 templates/composition/search.html:69
@@ -1284,7 +1292,7 @@ msgstr ""
 #: templates/organization/search.html:55 templates/organization/search.html:94
 #: templates/person/search.html:55
 msgid "January"
-msgstr ""
+msgstr "يناير"
 
 #: templates/association/search.html:37 templates/association/search.html:78
 #: templates/composition/search.html:31 templates/composition/search.html:70
@@ -1294,7 +1302,7 @@ msgstr ""
 #: templates/organization/search.html:56 templates/organization/search.html:95
 #: templates/person/search.html:56
 msgid "February"
-msgstr ""
+msgstr "فبراير"
 
 #: templates/association/search.html:38 templates/association/search.html:79
 #: templates/composition/search.html:32 templates/composition/search.html:71
@@ -1304,7 +1312,7 @@ msgstr ""
 #: templates/organization/search.html:57 templates/organization/search.html:96
 #: templates/person/search.html:57
 msgid "March"
-msgstr ""
+msgstr "مارس"
 
 #: templates/association/search.html:39 templates/association/search.html:80
 #: templates/composition/search.html:33 templates/composition/search.html:72
@@ -1314,7 +1322,7 @@ msgstr ""
 #: templates/organization/search.html:58 templates/organization/search.html:97
 #: templates/person/search.html:58
 msgid "April"
-msgstr ""
+msgstr "أبريل"
 
 #: templates/association/search.html:40 templates/association/search.html:81
 #: templates/composition/search.html:34 templates/composition/search.html:73
@@ -1324,7 +1332,7 @@ msgstr ""
 #: templates/organization/search.html:59 templates/organization/search.html:98
 #: templates/person/search.html:59
 msgid "May"
-msgstr ""
+msgstr "مايو"
 
 #: templates/association/search.html:41 templates/association/search.html:82
 #: templates/composition/search.html:35 templates/composition/search.html:74
@@ -1334,77 +1342,77 @@ msgstr ""
 #: templates/organization/search.html:60 templates/organization/search.html:99
 #: templates/person/search.html:60
 msgid "June"
-msgstr ""
+msgstr "يونيو"
 
 #: templates/association/search.html:42 templates/association/search.html:83
 #: templates/composition/search.html:36 templates/composition/search.html:75
 #: templates/emplacement/search.html:42 templates/emplacement/search.html:81
 #: templates/membershipperson/search.html:61
 #: templates/membershipperson/search.html:100
-#: templates/organization/search.html:61 templates/organization/search.html:100
-#: templates/person/search.html:61
+#: templates/organization/search.html:61
+#: templates/organization/search.html:100 templates/person/search.html:61
 msgid "July"
-msgstr ""
+msgstr "يوليو"
 
 #: templates/association/search.html:43 templates/association/search.html:84
 #: templates/composition/search.html:37 templates/composition/search.html:76
 #: templates/emplacement/search.html:43 templates/emplacement/search.html:82
 #: templates/membershipperson/search.html:62
 #: templates/membershipperson/search.html:101
-#: templates/organization/search.html:62 templates/organization/search.html:101
-#: templates/person/search.html:62
+#: templates/organization/search.html:62
+#: templates/organization/search.html:101 templates/person/search.html:62
 msgid "August"
-msgstr ""
+msgstr "أغسطس"
 
 #: templates/association/search.html:44 templates/association/search.html:85
 #: templates/composition/search.html:38 templates/composition/search.html:77
 #: templates/emplacement/search.html:44 templates/emplacement/search.html:83
 #: templates/membershipperson/search.html:63
 #: templates/membershipperson/search.html:102
-#: templates/organization/search.html:63 templates/organization/search.html:102
-#: templates/person/search.html:63
+#: templates/organization/search.html:63
+#: templates/organization/search.html:102 templates/person/search.html:63
 msgid "September"
-msgstr ""
+msgstr "سبتمبر"
 
 #: templates/association/search.html:45 templates/association/search.html:86
 #: templates/composition/search.html:39 templates/composition/search.html:78
 #: templates/emplacement/search.html:45 templates/emplacement/search.html:84
 #: templates/membershipperson/search.html:64
 #: templates/membershipperson/search.html:103
-#: templates/organization/search.html:64 templates/organization/search.html:103
-#: templates/person/search.html:64
+#: templates/organization/search.html:64
+#: templates/organization/search.html:103 templates/person/search.html:64
 msgid "October"
-msgstr ""
+msgstr "أكتوبر"
 
 #: templates/association/search.html:46 templates/association/search.html:87
 #: templates/composition/search.html:40 templates/composition/search.html:79
 #: templates/emplacement/search.html:46 templates/emplacement/search.html:85
 #: templates/membershipperson/search.html:65
 #: templates/membershipperson/search.html:104
-#: templates/organization/search.html:65 templates/organization/search.html:104
-#: templates/person/search.html:65
+#: templates/organization/search.html:65
+#: templates/organization/search.html:104 templates/person/search.html:65
 msgid "November"
-msgstr ""
+msgstr "نوفمبر"
 
 #: templates/association/search.html:47 templates/association/search.html:88
 #: templates/composition/search.html:41 templates/composition/search.html:80
 #: templates/emplacement/search.html:47 templates/emplacement/search.html:86
 #: templates/membershipperson/search.html:66
 #: templates/membershipperson/search.html:105
-#: templates/organization/search.html:66 templates/organization/search.html:105
-#: templates/person/search.html:66
+#: templates/organization/search.html:66
+#: templates/organization/search.html:105 templates/person/search.html:66
 msgid "December"
-msgstr ""
+msgstr "ديسمبر"
 
 #: templates/association/search.html:52 templates/association/search.html:93
 #: templates/composition/search.html:46 templates/composition/search.html:85
 #: templates/emplacement/search.html:52 templates/emplacement/search.html:91
 #: templates/membershipperson/search.html:71
 #: templates/membershipperson/search.html:110
-#: templates/organization/search.html:71 templates/organization/search.html:110
-#: templates/person/search.html:71
+#: templates/organization/search.html:71
+#: templates/organization/search.html:110 templates/person/search.html:71
 msgid "Year"
-msgstr ""
+msgstr "السنة"
 
 #. Translators: The date format for year, e.g., 2017
 #: templates/association/search.html:54 templates/association/search.html:96
@@ -1413,16 +1421,16 @@ msgstr ""
 #: templates/membershipperson/search.html:73
 #: templates/membershipperson/search.html:112
 msgid "yyyy"
-msgstr ""
+msgstr "س س س س "
 
 #: templates/association/search.html:106 templates/composition/edit.html:37
 #: templates/emplacement/search.html:103
 msgid "Relations"
-msgstr ""
+msgstr "العلاقات"
 
 #: templates/association/search.html:113 templates/emplacement/search.html:110
 msgid "Enter organization name"
-msgstr ""
+msgstr "أدخل اسم المنظمة"
 
 #: templates/association/search.html:120 templates/association/search.html:144
 #: templates/sidebar.html:13
@@ -1438,7 +1446,7 @@ msgstr ""
 #: templates/partials/organization_search_results.html:5
 #: templates/search/search.html:43 templates/sfm/dashboard.html:35
 msgid "Units"
-msgstr ""
+msgstr "الوحدات"
 
 #: templates/base.html:52 templates/organization/view.html:76
 #: templates/organization/view.html:92 templates/organization/view.html:490
@@ -1448,7 +1456,7 @@ msgstr ""
 #: templates/person/view.html:303 templates/search/search.html:44
 #: templates/sfm/dashboard.html:39
 msgid "Incidents"
-msgstr ""
+msgstr "الحوادث"
 
 #: templates/base.html:55 templates/organization/base-organization.html:38
 #: templates/partials/location_search_results.html:5
@@ -1456,44 +1464,38 @@ msgstr ""
 #: templates/violation/edit-basics.html:21
 #: templates/violation/edit-locations.html:26
 msgid "Locations"
-msgstr ""
+msgstr "المواقع"
 
 #: templates/base.html:62 templates/source/delete-access-point.html:15
 msgid "Source"
-msgstr ""
+msgstr "مصدر"
 
 #: templates/base.html:65 templates/organization/delete-association.html:19
 #: templates/organization/delete-emplacement.html:19
 #: templates/violation/view.html:93 templates/violation/view.html:105
 #: templates/violation/view.html:120 violation/models.py:141
 msgid "Location"
-msgstr ""
+msgstr "موقع"
 
 #: templates/base.html:74 templates/partials/violation_title.html:4
 #: violation/views.py:30
 msgid "Incident"
-msgstr ""
+msgstr "حادثة"
 
-#: templates/base.html:79 templates/sfm/about.html:4 templates/sfm/about.html:8
+#: templates/base.html:79 templates/sfm/about.html:4
+#: templates/sfm/about.html:8
 msgid "About"
-msgstr ""
+msgstr "حول"
 
 #: templates/base.html:81
 msgid "Logout"
-msgstr ""
+msgstr "تسجيل الخروج"
 
 #. Translators: Make sure to keep the HTML tags intact in this sentence.
-#.
 #: templates/base.html:111
 msgid ""
 "\n"
-"                    <p><strong>WhoWasInCommand</strong> publishes data on "
-"the police, military and other security force units, their commanders, areas "
-"of operation and connections to allegations of human rights abuses. The site "
-"helps human rights researchers, investigative journalists and anyone seeking "
-"more accountable security forces. WhoWasInCommand is a tool from <a href="
-"\"https://securityforcemonitor.org\">Security Force Monitor</a> at the "
-"Columbia Law School Human Rights Institute.</p>\n"
+"                    <p><strong>WhoWasInCommand</strong> publishes data on the police, military and other security force units, their commanders, areas of operation and connections to allegations of human rights abuses. The site helps human rights researchers, investigative journalists and anyone seeking more accountable security forces. WhoWasInCommand is a tool from <a href=\"https://securityforcemonitor.org\">Security Force Monitor</a> at the Columbia Law School Human Rights Institute.</p>\n"
 "                    "
 msgstr ""
 
@@ -1507,7 +1509,7 @@ msgstr ""
 
 #: templates/base.html:119
 msgid "Site contents"
-msgstr ""
+msgstr "محتويات الموقع"
 
 #: templates/base.html:121
 msgid "Help - Frequently Asked Questions"
@@ -1529,14 +1531,13 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"                            Do you really want to remove this link between "
-"<strong>%(delete_obj_1)s</strong> and <strong>%(delete_obj_2)s</strong>?\n"
+"                            Do you really want to remove this link between <strong>%(delete_obj_1)s</strong> and <strong>%(delete_obj_2)s</strong>?\n"
 "                        "
 msgstr ""
 
 #: templates/base_detail.html:19 templates/base_detail.html:32
 msgid "Contents"
-msgstr ""
+msgstr "المحتويات"
 
 #: templates/base_modal.html:10 templates/modals/source.html:35
 #: templates/modals/translate.html:24 templates/modals/version.html:26
@@ -1561,26 +1562,29 @@ msgstr ""
 
 #: templates/composition/create.html:38
 msgid "Remove this relationship"
-msgstr ""
+msgstr "أزِل هذه العلاقة"
 
 #: templates/composition/create.html:44
 #: templates/membershiporganization/create.html:42
 #: templates/membershipperson/create.html:37
-#: templates/organization/create.html:31 templates/organization/create.html:360
+#: templates/organization/create.html:31
+#: templates/organization/create.html:360
 msgid "Value"
 msgstr ""
 
-#. Translators: The level of confidence that the user has in a source, when entering it into the system
+#. Translators: The level of confidence that the user has in a source, when
+#. entering it into the system
 #: templates/composition/create.html:45
 #: templates/membershiporganization/create.html:43
 #: templates/membershipperson/create.html:38 templates/modals/source.html:10
-#: templates/organization/create.html:32 templates/organization/create.html:361
+#: templates/organization/create.html:32
+#: templates/organization/create.html:361
 msgid "Confidence"
 msgstr ""
 
 #: templates/composition/create.html:52
 msgid "Parent unit"
-msgstr ""
+msgstr "الوحدة الأم"
 
 #: templates/composition/create.html:100
 msgid "Child unit"
@@ -1590,7 +1594,7 @@ msgstr ""
 #: templates/organization/create-composition.html:18
 #: templates/organization/edit-composition.html:70
 msgid "Relationship type"
-msgstr ""
+msgstr "نوع العلاقة"
 
 #: templates/composition/create.html:186
 #: templates/membershipperson/create.html:189
@@ -1599,7 +1603,8 @@ msgstr ""
 msgid "First citation date"
 msgstr ""
 
-#: templates/composition/create.html:197 templates/organization/create.html:232
+#: templates/composition/create.html:197
+#: templates/organization/create.html:232
 #: templates/organization/create.html:445
 msgid "This is the start date of the relationship"
 msgstr ""
@@ -1635,7 +1640,7 @@ msgstr ""
 
 #: templates/composition/search.html:109
 msgid "Parent organization"
-msgstr ""
+msgstr "المنظمة الأم"
 
 #: templates/composition/search.html:110
 msgid "Enter parent organization"
@@ -1671,7 +1676,7 @@ msgstr ""
 
 #: templates/download.html:77
 msgid "Download"
-msgstr ""
+msgstr "تنزيل"
 
 #: templates/edit.html:15 templates/organization/base-organization.html:10
 #: templates/person/edit-postings.html:9
@@ -1679,7 +1684,7 @@ msgstr ""
 #: templates/violation/edit-basics.html:9
 #: templates/violation/edit-locations.html:14
 msgid "ID:"
-msgstr ""
+msgstr "المعرّف:"
 
 #: templates/edit.html:16 templates/organization/base-organization.html:11
 #: templates/person/edit-postings.html:10
@@ -1687,13 +1692,13 @@ msgstr ""
 #: templates/violation/edit-basics.html:10
 #: templates/violation/edit-locations.html:15
 msgid "Last update by:"
-msgstr ""
+msgstr "آخر تحديث من قبل:"
 
 #: templates/edit.html:16 templates/organization/base-organization.html:11
 #: templates/person/edit-postings.html:10
 #: templates/violation/edit-basics.html:10
 msgid "username goes here"
-msgstr ""
+msgstr "اسم المستخدم"
 
 #: templates/edit.html:17 templates/organization/base-organization.html:12
 #: templates/person/edit-postings.html:11
@@ -1701,27 +1706,26 @@ msgstr ""
 #: templates/violation/edit-basics.html:11
 #: templates/violation/edit-locations.html:16
 msgid "View versions"
-msgstr ""
+msgstr "عرض النسخ"
 
 #: templates/edit.html:35
 msgid "Edit sources and confidence levels"
-msgstr ""
+msgstr "تعديل المصادر ومستويات الثقة"
 
 #: templates/edit.html:84
 msgid "Save & continue editing"
-msgstr ""
+msgstr "حفظ ومتابعة التعديل"
 
 #: templates/edit.html:109
 msgid "Access Point"
-msgstr ""
+msgstr "نقطة دخول"
 
 #: templates/edit.html:119
 #, python-format
 msgctxt "Leave the HTML tags intact, including field_label"
 msgid ""
 "\n"
-"                Sources already linked to <strong><%%= field_label %%></"
-"strong>\n"
+"                Sources already linked to <strong><%%= field_label %%></strong>\n"
 "            "
 msgstr ""
 
@@ -1730,8 +1734,7 @@ msgstr ""
 msgctxt "Leave the HTML tags intact, including field_label"
 msgid ""
 "\n"
-"                Sources added to <strong><%%= field_label %%></strong> but "
-"not saved\n"
+"                Sources added to <strong><%%= field_label %%></strong> but not saved\n"
 "            "
 msgstr ""
 
@@ -1740,8 +1743,7 @@ msgstr ""
 msgctxt "Leave the HTML tags intact, including field_label"
 msgid ""
 "\n"
-"                Sources removed from <strong><%%= field_label %%></strong> "
-"during this edit\n"
+"                Sources removed from <strong><%%= field_label %%></strong> during this edit\n"
 "            "
 msgstr ""
 
@@ -1750,8 +1752,7 @@ msgstr ""
 msgctxt "Leave the HTML tags intact, including field_label"
 msgid ""
 "\n"
-"                    1. Set <strong><%%= field_label %%></strong> confidence "
-"level:\n"
+"                    1. Set <strong><%%= field_label %%></strong> confidence level:\n"
 "                "
 msgstr ""
 
@@ -1766,11 +1767,11 @@ msgstr ""
 
 #: templates/emplacement/search.html:7
 msgid "Search Emplacement"
-msgstr ""
+msgstr "البحث عن تمركز"
 
 #: templates/location/create.html:17
 msgid "Add location"
-msgstr ""
+msgstr "إضافة موقع"
 
 #: templates/location/create.html:28
 msgid "Location Type"
@@ -1795,24 +1796,23 @@ msgstr ""
 #: templates/location/create.html:42 templates/organization/search.html:15
 #: templates/person/search.html:15 templates/sfm/dashboard.html:16
 msgid "Search"
-msgstr ""
+msgstr "بحث"
 
 #: templates/location/create.html:57
 msgid ""
 "\n"
-"                    <strong>Overpass API Error</strong> It looks like the "
-"Overpass API is currently working too hard. Try back in a few minutes.\n"
+"                    <strong>Overpass API Error</strong> It looks like the Overpass API is currently working too hard. Try back in a few minutes.\n"
 "                "
 msgstr ""
 
 #: templates/location/create.html:71
 msgid "No results"
-msgstr ""
+msgstr "لا توجد نتائج"
 
 #: templates/location/create.html:105 templates/location/delete.html:32
 #: templates/location/detail.html:40
 msgid "International Name"
-msgstr ""
+msgstr "الاسم الدولي"
 
 #: templates/location/create.html:115 templates/location/delete.html:51
 #: templates/location/detail.html:59
@@ -1845,8 +1845,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"        Do you really want to remove the location <strong>%(object_id)s</"
-"strong>?\n"
+"        Do you really want to remove the location <strong>%(object_id)s</strong>?\n"
 "    "
 msgstr ""
 
@@ -1865,7 +1864,7 @@ msgstr ""
 
 #: templates/location/detail.html:15 templates/location/list.html:41
 msgid "Add new location"
-msgstr ""
+msgstr "إضافة موقع جديد"
 
 #: templates/location/detail.html:19
 #, python-format
@@ -1903,7 +1902,7 @@ msgstr ""
 #: templates/source/access-points.html:130 templates/source/edit.html:127
 #: templates/violation/edit-basics.html:217
 msgid "Delete"
-msgstr ""
+msgstr "حذف"
 
 #: templates/location/list.html:19
 msgid "Feature type"
@@ -1915,12 +1914,12 @@ msgstr ""
 
 #: templates/location/list.html:50 templates/search/search.html:24
 msgid "Go!"
-msgstr ""
+msgstr "!إنطلق"
 
 #: templates/location/list.html:58 templates/partials/source_edit_js.html:50
 #: templates/partials/source_edit_js.html:60 templates/search/search.html:246
 msgid "No results found"
-msgstr ""
+msgstr "لم يتم العثور على نتائج"
 
 #: templates/location/list.html:58 templates/search/search.html:244
 #: templates/search/search.html:246
@@ -1929,19 +1928,19 @@ msgstr ""
 
 #: templates/location/list.html:67 templates/search/search.html:268
 msgid "For better results, try adjusting your search filters."
-msgstr ""
+msgstr "حاول ضبط مرشحات البحث للحصول على نتائج أفضل."
 
 #: templates/location/list.html:70 templates/search/search.html:271
 msgid "Think we're missing something?"
-msgstr ""
+msgstr "هل تعتقد أننا نفتقد شيئا؟"
 
 #: templates/location/list.html:70 templates/search/search.html:271
 msgid "Let us know!"
-msgstr ""
+msgstr "أخبرنا!"
 
 #: templates/membershiporganization/create.html:17
 msgid "Unit memberships"
-msgstr ""
+msgstr "عضويات الوحدة"
 
 #: templates/membershiporganization/create.html:19
 msgid "Describe which organizations (if any) are members of one another in"
@@ -1949,15 +1948,15 @@ msgstr ""
 
 #: templates/membershiporganization/create.html:33
 msgid "Memberships for"
-msgstr ""
+msgstr "عضويات لـ"
 
 #: templates/membershiporganization/create.html:35
 msgid "Remove this membership"
-msgstr ""
+msgstr "إزالة هذه العضوية"
 
 #: templates/membershiporganization/create.html:52
 msgid "Member of"
-msgstr ""
+msgstr "عضو في"
 
 #: templates/membershiporganization/create.html:93
 msgid "First and last citation dates"
@@ -1965,16 +1964,17 @@ msgstr ""
 
 #: templates/membershiporganization/create.html:142
 msgid "Remove membership"
-msgstr ""
+msgstr "إزالة العضوية"
 
 #: templates/membershiporganization/create.html:145
-msgid "Are you sure you want to remove this membership? All data will be lost."
+msgid ""
+"Are you sure you want to remove this membership? All data will be lost."
 msgstr ""
 
 #: templates/membershipperson/create.html:15
 #: templates/partials/nav-wizard.html:8
 msgid "Positions"
-msgstr ""
+msgstr "المناصب"
 
 #: templates/membershipperson/create.html:16
 msgid "Describe positions held by personnel in"
@@ -1983,7 +1983,7 @@ msgstr ""
 #: templates/membershipperson/create.html:76
 #: templates/membershipperson/edit.html:36
 msgid "Role and Rank"
-msgstr ""
+msgstr "الوظيفة والرّتبة"
 
 #: templates/membershipperson/create.html:79
 #: templates/membershipperson/edit.html:39
@@ -1998,20 +1998,20 @@ msgstr ""
 #: templates/membershipperson/create.html:127
 #: templates/membershipperson/edit.html:77
 msgid "Start context"
-msgstr ""
+msgstr "سياق البداية"
 
 #: templates/membershipperson/create.html:129
 msgid "Describe the circumstances surrounding the start of this membership"
-msgstr ""
+msgstr "صف الظروف المحيطة ببداية هذه العضوية"
 
 #: templates/membershipperson/create.html:158
 #: templates/membershipperson/edit.html:107
 msgid "End context"
-msgstr ""
+msgstr "سياق النهاية"
 
 #: templates/membershipperson/create.html:160
 msgid "Describe the circumstances surrounding the end of this membership"
-msgstr ""
+msgstr "صف الظروف المحيطة بنهاية هذه العضوية"
 
 #: templates/membershipperson/create.html:191
 #: templates/membershipperson/create.html:232
@@ -2024,7 +2024,7 @@ msgstr ""
 
 #: templates/membershipperson/create.html:200
 msgid "This is the start date of the membership"
-msgstr ""
+msgstr "هذا هو تاريخ بدء العضوية"
 
 #: templates/membershipperson/create.html:230
 #: templates/organization/create.html:262
@@ -2034,7 +2034,7 @@ msgstr ""
 
 #: templates/membershipperson/create.html:241
 msgid "This is the end date of the membership"
-msgstr ""
+msgstr "هذا هو تاريخ انتهاء العضوية"
 
 #: templates/membershipperson/edit.html:12
 msgid "member of"
@@ -2045,7 +2045,7 @@ msgstr ""
 #: templates/membershipperson/edit.html:119
 #: templates/membershipperson/edit.html:121
 msgid "Real context?"
-msgstr ""
+msgstr "السياق الحقيقي؟"
 
 #: templates/membershipperson/edit.html:136
 msgid "Citation dates"
@@ -2073,7 +2073,7 @@ msgstr ""
 
 #: templates/membershipperson/search.html:81
 msgid "Last cited date"
-msgstr ""
+msgstr "آخر تاريخ مذكور"
 
 #: templates/modals/source.html:4
 msgid "View/Edit Sources"
@@ -2085,15 +2085,15 @@ msgstr ""
 
 #: templates/modals/translate.html:9
 msgid "Language"
-msgstr ""
+msgstr "اللغة"
 
 #: templates/modals/translate.html:10
 msgid "Translation"
-msgstr ""
+msgstr "الترجمة"
 
 #: templates/modals/translate.html:14
 msgid "Add a Language:"
-msgstr ""
+msgstr "أضف لغة:"
 
 #: templates/modals/version.html:4
 msgid "View/Revert Versions"
@@ -2109,15 +2109,17 @@ msgstr ""
 
 #: templates/modals/version.html:15
 msgid "Choose Language"
-msgstr ""
+msgstr "اختر اللغة"
 
 #: templates/organization/base-organization.html:14
+#, fuzzy
 msgid "Published"
-msgstr ""
+msgstr "نشرت"
 
 #: templates/organization/base-organization.html:16
+#, fuzzy
 msgid "Not Published"
-msgstr ""
+msgstr "لم تنشر"
 
 #: templates/organization/base-organization.html:26
 #: templates/person/edit-basics.html:9 templates/person/edit-postings.html:19
@@ -2126,7 +2128,7 @@ msgstr ""
 #: templates/violation/edit-basics.html:19
 #: templates/violation/edit-locations.html:24
 msgid "Edit:"
-msgstr ""
+msgstr "تعديل:"
 
 #: templates/organization/base-organization.html:29
 #: templates/person/edit-basics.html:10 templates/person/edit-postings.html:20
@@ -2136,7 +2138,7 @@ msgstr ""
 #: templates/violation/edit-basics.html:20
 #: templates/violation/edit-locations.html:25
 msgid "Basics"
-msgstr ""
+msgstr "الأساسيات"
 
 #: templates/organization/base-organization.html:32
 #: templates/organization/edit-composition.html:10
@@ -2150,7 +2152,7 @@ msgstr ""
 
 #: templates/organization/create-basics.html:8
 msgid "Add a new organization"
-msgstr ""
+msgstr "إضافة منظمة جديدة"
 
 #: templates/organization/create-basics.html:12
 #: templates/organization/edit-basics.html:7
@@ -2158,7 +2160,7 @@ msgstr ""
 #: templates/violation/create-basics.html:21
 #: templates/violation/edit-basics.html:27
 msgid "Edit basics"
-msgstr ""
+msgstr "تعديل الأساسيات"
 
 #: templates/organization/create-basics.html:19
 #: templates/organization/create-basics.html:21
@@ -2172,7 +2174,7 @@ msgstr ""
 #: templates/violation/edit-basics.html:34
 #: templates/violation/edit-basics.html:36
 msgid "Published?"
-msgstr ""
+msgstr "تم النشر؟"
 
 #: templates/organization/create-composition.html:8
 #: templates/organization/create-membership.html:8
@@ -2184,70 +2186,73 @@ msgstr ""
 #: templates/organization/edit-composition.html:135
 #: templates/organization/edit-membership.html:70
 msgid "Related organization"
-msgstr ""
+msgstr "منظمة ذات صلة"
 
 #: templates/organization/create-composition.html:102
 #: templates/organization/create-membership.html:38
 #: templates/organization/edit-composition.html:160
 #: templates/organization/edit-membership.html:94
 msgid "Related organization other names"
-msgstr ""
+msgstr "أسماء المنظمات الأخرى ذات الصلة"
 
 #: templates/organization/create-composition.html:110
 #: templates/organization/create-membership.html:46
 #: templates/organization/edit-composition.html:172
 #: templates/organization/edit-membership.html:102
 msgid "Related organization country"
-msgstr ""
+msgstr "بلد المنظمة ذات الصلة"
 
 #: templates/organization/create-emplacement.html:7
 msgid "Create site"
-msgstr ""
+msgstr "إنشاء موقع"
 
 #: templates/organization/create-personnel.html:7
 #: templates/organization/partials/personnel-list.html:60
+#, fuzzy
 msgid "Add personnel"
-msgstr ""
+msgstr "إضافة أفراد"
 
 #: templates/organization/create.html:16
 msgid "Describe any units found in"
-msgstr ""
+msgstr "صف أي وحدات موجودة في"
 
-#: templates/organization/create.html:39 templates/organization/create.html:364
+#: templates/organization/create.html:39
+#: templates/organization/create.html:364
 msgid "Unit name"
-msgstr ""
+msgstr "إسم الوحدة"
 
-#: templates/organization/create.html:75 templates/organization/create.html:380
+#: templates/organization/create.html:75
+#: templates/organization/create.html:380
 msgid "Aliases"
 msgstr ""
 
 #: templates/organization/create.html:154
 #: templates/organization/create.html:411
 msgid "Division identifier"
-msgstr ""
+msgstr "معرف التقسيم"
 
 #: templates/organization/create.html:190
 #: templates/organization/create.html:426
 msgid "Headquarters"
-msgstr ""
+msgstr "المقر الرئيسي"
 
 #: templates/organization/create.html:192
 #: templates/organization/create.html:428
 msgid "Name of the unit headquarters"
-msgstr ""
+msgstr "اسم مقر الوحدة"
 
 #: templates/organization/create.html:309
 #: templates/organization/create.html:481
 msgid "Remove this unit"
-msgstr ""
+msgstr "إزالة هذه الوحدة"
 
 #: templates/organization/create.html:322
 msgid "Add another unit"
-msgstr ""
+msgstr "إضافة وحدة أخرى"
 
 #: templates/organization/create.html:337
 msgid "Remove unit"
-msgstr ""
+msgstr "إزالة الوحدة"
 
 #: templates/organization/create.html:340
 msgid "Are you sure you want to remove this unit? All data will be lost."
@@ -2272,8 +2277,9 @@ msgid "Also known as"
 msgstr ""
 
 #: templates/organization/delete.html:37
+#, fuzzy
 msgid "Classified as"
-msgstr ""
+msgstr "التصنيف"
 
 #: templates/organization/edit-association.html:7
 msgid "Edit area"
@@ -2282,42 +2288,42 @@ msgstr ""
 #: templates/organization/edit-composition.html:17
 #: templates/organization/edit-membership.html:17
 msgid "Organization name"
-msgstr ""
+msgstr "اسم المنظمة"
 
 #: templates/organization/edit-composition.html:46
 #: templates/organization/edit-membership.html:46
 msgid "Add composition"
-msgstr ""
+msgstr "إضافة تركيبة"
 
 #: templates/organization/edit-composition.html:53
 #: templates/organization/edit-membership.html:53
 msgid "Add membership"
-msgstr ""
+msgstr "إضافة عضوية"
 
 #: templates/organization/edit-composition.html:62
 #: templates/organization/edit-membership.html:62
 msgid "Edit relationships"
-msgstr ""
+msgstr "تعديل العلاقات "
 
 #: templates/organization/edit-emplacement.html:7
 msgid "Edit site"
-msgstr ""
+msgstr "تعديل الموقع"
 
 #: templates/organization/edit-locations.html:52
 msgid "Area of operations"
-msgstr ""
+msgstr "منطقة العمليات"
 
 #: templates/organization/edit-locations.html:65
 msgid "Add site"
-msgstr ""
+msgstr "إضافة موقع"
 
 #: templates/organization/edit-locations.html:72
 msgid "Add area"
-msgstr ""
+msgstr "إضافة منطقة"
 
 #: templates/organization/edit-personnel.html:13
 msgid "Edit personnel"
-msgstr ""
+msgstr "تعديل الأفراد"
 
 #: templates/organization/search.html:7
 msgid "Search an organization"
@@ -2333,7 +2339,7 @@ msgstr ""
 
 #: templates/organization/search.html:42
 msgid "Date of creation"
-msgstr ""
+msgstr "تاريخ الإنشاء"
 
 #: templates/organization/search.html:81
 msgid "Date of disbandment"
@@ -2346,47 +2352,47 @@ msgstr ""
 #: templates/organization/view.html:12 templates/organization/view.html:40
 #: templates/person/view.html:41
 msgid "Also known as:"
-msgstr ""
+msgstr "يعرف أيضا باسم:"
 
 #: templates/organization/view.html:12 templates/organization/view.html:48
 #: templates/person/view.html:49 templates/violation/view.html:57
 msgid "Country:"
-msgstr ""
+msgstr "البلد:"
 
 #: templates/organization/view.html:12 templates/organization/view.html:53
 msgid "Classified as:"
-msgstr ""
+msgstr "التصنيف:"
 
 #: templates/organization/view.html:28 templates/person/view.html:29
 #: templates/violation/view.html:29
 msgid "Download as CSV"
-msgstr ""
+msgstr "CSV تنزيل في شكل "
 
 #: templates/organization/view.html:30 templates/person/view.html:31
 #: templates/violation/view.html:31
 msgid "Print this page"
-msgstr ""
+msgstr "طباعة هذه الصفحة"
 
 #: templates/organization/view.html:34 templates/person/view.html:35
 #: templates/source/access-points.html:48 templates/source/view.html:15
 #: templates/violation/view.html:35
 msgid "Edit"
-msgstr ""
+msgstr "تعديل"
 
 #: templates/organization/view.html:72 templates/organization/view.html:88
 #: templates/organization/view.html:279
 msgid "Member units"
-msgstr ""
+msgstr "الوحدات الأعضاء"
 
 #: templates/organization/view.html:73 templates/organization/view.html:89
 #: templates/organization/view.html:349
 msgid "Parent units"
-msgstr ""
+msgstr "الوحدات الأم"
 
 #: templates/organization/view.html:74 templates/organization/view.html:90
 #: templates/organization/view.html:368
 msgid "Subsidiaries"
-msgstr ""
+msgstr "الفروع"
 
 #: templates/organization/view.html:213
 msgid "Multi-unit organizations that this unit is part of"
@@ -2394,11 +2400,11 @@ msgstr ""
 
 #: templates/organization/view.html:281
 msgid "All units that comprise this unit."
-msgstr ""
+msgstr "جميع الوحدات التي تتكون منها هذه الوحدة."
 
 #: templates/organization/view.html:351
 msgid "All units that have held a command position over this unit."
-msgstr ""
+msgstr "جميع الوحدات التي شغلت منصب قيادة على هذه الوحدة."
 
 #: templates/organization/view.html:354 templates/person/view.html:169
 msgid "Swipe to zoom, click and drag to pan"
@@ -2412,17 +2418,17 @@ msgstr ""
 
 #: templates/organization/view.html:562 templates/person/view.html:343
 msgid "No known end date"
-msgstr ""
+msgstr "لا يوجد تاريخ انتهاء معروف"
 
 #: templates/partials/back_skip_next.html:7
 #: templates/partials/location_search_results.html:61
 #: templates/partials/pagination.html:51
 msgid "Next"
-msgstr ""
+msgstr "الصفحة التالية"
 
 #: templates/partials/back_skip_next.html:7
 msgid "Submit and finish"
-msgstr ""
+msgstr "إرسال وإنهاء"
 
 #: templates/partials/back_skip_next.html:10
 msgid "Go back"
@@ -2446,7 +2452,7 @@ msgstr ""
 
 #: templates/partials/location_search_results.html:7
 msgid "result"
-msgstr ""
+msgstr "نتيجة"
 
 #: templates/partials/location_search_results.html:9
 #: templates/partials/organization_search_results.html:6
@@ -2454,21 +2460,21 @@ msgstr ""
 #: templates/partials/source_search_results.html:6
 #: templates/partials/violation_search_results.html:6
 msgid "results"
-msgstr ""
+msgstr "نتيجة"
 
 #: templates/partials/location_search_results.html:19
 #: templates/partials/pagination.html:5
 msgid "Search results navigation"
-msgstr ""
+msgstr "البحث عن نتائج الإبحار "
 
 #: templates/partials/location_search_results.html:25
 #: templates/partials/pagination.html:11
 msgid "Previous"
-msgstr ""
+msgstr "الصفحة السابقة"
 
 #: templates/partials/nav-wizard.html:5
 msgid "Create source"
-msgstr ""
+msgstr "إنشاء مصدر"
 
 #: templates/partials/nav-wizard.html:9
 msgid "Geographies"
@@ -2481,22 +2487,22 @@ msgstr ""
 
 #: templates/partials/organization_list_table.html:29
 msgid "Last site"
-msgstr ""
+msgstr "آخر موقع"
 
 #: templates/partials/organization_merge.html:3
 msgid "Organizations"
-msgstr ""
+msgstr "المنظمات"
 
 #: templates/partials/organization_search_results.html:7
 #: templates/partials/person_search_results.html:7
 #: templates/partials/source_search_results.html:7
 #: templates/partials/violation_search_results.html:7
 msgid "Download results"
-msgstr ""
+msgstr "تنزيل النتائج"
 
 #: templates/partials/pagination.html:65
 msgid "Results per page:"
-msgstr ""
+msgstr "النتائج لكل صفحة:"
 
 #: templates/partials/person_list_table.html:11
 msgid "Select"
@@ -2508,15 +2514,15 @@ msgstr ""
 
 #: templates/partials/person_list_table.html:28
 msgid "Most Recent Rank"
-msgstr ""
+msgstr "أحدث رتبة"
 
 #: templates/partials/person_list_table.html:31
 msgid "Most Recent Unit"
-msgstr ""
+msgstr "أحدث وحدة"
 
 #: templates/partials/person_merge.html:3 templates/sidebar.html:8
 msgid "People"
-msgstr ""
+msgstr "الناس"
 
 #: templates/partials/related_entities.html:4
 #: templates/source/delete-access-point.html:42
@@ -2541,7 +2547,7 @@ msgstr ""
 
 #: templates/partials/source_edit_js.html:47
 msgid "Please enter two or more characters..."
-msgstr ""
+msgstr "...يرجى إدخال حرفين أو أكثر"
 
 #: templates/partials/source_overview_table.html:11
 msgid "List of all sources used to evidence the data in this record"
@@ -2584,7 +2590,7 @@ msgstr ""
 #: templates/partials/version_list.html:46
 #: templates/source/access-points.html:120 templates/source/edit.html:117
 msgid "Comment"
-msgstr ""
+msgstr "تعليق"
 
 #: templates/partials/version_list.html:61
 msgid "Reverting to version"
@@ -2600,42 +2606,48 @@ msgstr ""
 
 #: templates/partials/violation_description.html:11
 msgid "Show more"
-msgstr ""
+msgstr "إظهار المزيد"
 
 #: templates/partials/violation_description.html:12
 msgid "Show less"
-msgstr ""
+msgstr "إظهار أقل"
 
 #: templates/partials/violation_list_table.html:65
 msgid "View Detail"
-msgstr ""
+msgstr "عرض التفاصيل"
 
 #: templates/partials/violation_title.html:7 violation/views.py:33
 msgid "in"
-msgstr ""
+msgstr "في"
 
-#. Translators: The word "between" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.
+#. Translators: The word "between" may appear in a sentence, as follows –
+#. "Incident in [location] between [date] and [date]" Words in [brackets]
+#. indicate variable text.
 #: templates/partials/violation_title.html:15 violation/views.py:42
 msgid "between"
-msgstr ""
+msgstr "بين"
 
 #: templates/partials/violation_title.html:15 violation/views.py:42
 msgid "and"
-msgstr ""
+msgstr "و"
 
-#. Translators: The word "starting" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.
+#. Translators: The word "starting" may appear in a sentence, as follows –
+#. "Incident in [location] between [date] and [date]" Words in [brackets]
+#. indicate variable text.
 #: templates/partials/violation_title.html:20 violation/views.py:44
 msgid "starting"
 msgstr ""
 
-#. Translators: The word "ending" may appear in a sentence, as follows – "Incident in [location] between [date] and [date]" Words in [brackets] indicate variable text.
+#. Translators: The word "ending" may appear in a sentence, as follows –
+#. "Incident in [location] between [date] and [date]" Words in [brackets]
+#. indicate variable text.
 #: templates/partials/violation_title.html:24 violation/views.py:46
 msgid "ending"
 msgstr ""
 
 #: templates/person/create-basics.html:7
 msgid "Add a new person"
-msgstr ""
+msgstr "إضافة شخص جديد"
 
 #: templates/person/create-posting.html:6
 #: templates/person/partials/person-posting-list.html:63
@@ -2644,11 +2656,11 @@ msgstr ""
 
 #: templates/person/delete.html:43
 msgid "Date of birth"
-msgstr ""
+msgstr "تاريخ الولادة"
 
 #: templates/person/delete.html:49
 msgid "Date of death"
-msgstr ""
+msgstr "تاريخ الوفاة"
 
 #: templates/person/delete.html:61
 msgid "Biography"
@@ -2659,15 +2671,15 @@ msgstr ""
 #: templates/person/view.html:62 templates/person/view.html:74
 #: templates/person/view.html:104
 msgid "Postings"
-msgstr ""
+msgstr "التعيينات"
 
 #: templates/person/edit-postings.html:31
 msgid "Edit postings"
-msgstr ""
+msgstr "تعديل التعيينات"
 
 #: templates/person/search.html:42 templates/person/search.html:130
 msgid "Death date"
-msgstr ""
+msgstr "تاريخ الوفاة"
 
 #: templates/person/search.html:73
 msgctxt "Instructions for formatting years"
@@ -2682,7 +2694,7 @@ msgstr ""
 #: templates/person/view.html:63 templates/person/view.html:75
 #: templates/person/view.html:164
 msgid "Chain of command"
-msgstr ""
+msgstr "سلسلة القيادة"
 
 #: templates/person/view.html:64 templates/person/view.html:76
 #: templates/person/view.html:181
@@ -2707,15 +2719,15 @@ msgstr ""
 
 #: templates/person/view.html:193 templates/person/view.html:255
 msgid "Start of overlap"
-msgstr ""
+msgstr "بداية التداخل"
 
 #: templates/person/view.html:194 templates/person/view.html:256
 msgid "End of overlap"
-msgstr ""
+msgstr "نهاية التداخل"
 
 #: templates/person/view.html:195 templates/person/view.html:257
 msgid "Duration of overlap"
-msgstr ""
+msgstr "مدة التداخل"
 
 #: templates/person/view.html:245
 msgid ""
@@ -2729,47 +2741,48 @@ msgstr ""
 
 #: templates/registration/login.html:20
 msgid "Sign in"
-msgstr ""
+msgstr "تسجيل الدخول"
 
 #: templates/search/search.html:22
 msgid "Search for"
-msgstr ""
+msgstr "البحث عن"
 
 #: templates/search/search.html:36 templates/sfm/dashboard.html:25
 msgid "I'm looking for..."
-msgstr ""
+msgstr "أبحث عن..."
 
 #: templates/search/search.html:52
 msgid "Clear all filters"
-msgstr ""
+msgstr "مسح جميع المرشحات"
 
 #: templates/search/search.html:62
 msgid "General filters"
-msgstr ""
+msgstr "مرشحات عامة"
 
 #: templates/search/search.html:69
 msgid "Date"
-msgstr ""
+msgstr "التاريخ"
 
 #: templates/search/search.html:85
 msgid "Filters for <strong><i class='fa fa-fw fa-users'></i>Units</strong>"
-msgstr ""
+msgstr "مرشحات ل <strong><i class='fa fa-fw fa-user'></i>الوحدات</strong>"
 
-#. Translators: Please preserve the "strong" and "i" tags, which display an icon. Use the single quote around 'fa fa-w fa-user'.
+#. Translators: Please preserve the "strong" and "i" tags, which display an
+#. icon. Use the single quote around 'fa fa-w fa-user'.
 #: templates/search/search.html:138
 msgid "Filters for <strong><i class='fa fa-fw fa-user'></i>Personnel</strong>"
-msgstr ""
+msgstr "مرشحات ل <strong><i class='fa fa-fw fa-user'></i>الأفراد</strong>"
 
 #: templates/search/search.html:178
 msgid ""
-"Filters for <strong><i class='fa fa-fw fa-exclamation-triangle'></"
-"i>Incidents</strong>"
-msgstr ""
+"Filters for <strong><i class='fa fa-fw fa-exclamation-"
+"triangle'></i>Incidents</strong>"
+msgstr "مرشحات ل <strong><i class='fa fa-fw fa-user'></i>الحوادث</strong>"
 
 #: templates/search/search.html:224
 msgid ""
 "Filters for <strong><i class='fa fa-fw fa-paperclip'></i>Sources</strong>"
-msgstr ""
+msgstr "مرشحات ل <strong><i class='fa fa-fw fa-user'></i>المصادر</strong>"
 
 #: templates/search/search.html:244
 msgid "result found"
@@ -2777,7 +2790,7 @@ msgstr ""
 
 #: templates/search/search.html:244
 msgid "results found"
-msgstr ""
+msgstr "تم العثور على نتيجة"
 
 #: templates/sfm/about.html:10
 msgid "What is WhoWasInCommand.com?"
@@ -2787,27 +2800,17 @@ msgstr ""
 #: templates/sfm/about.html:13
 msgid ""
 "\n"
-"            WhoWasInCommand.com is a free, public database of police, "
-"military\n"
-"            and other security and defence forces. It was created and is run "
-"by\n"
-"            <a href=\"https://securityforcemonitor.org/\" target=\"_blank"
-"\">Security Force Monitor</a> -\n"
+"            WhoWasInCommand.com is a free, public database of police, military\n"
+"            and other security and defence forces. It was created and is run by\n"
+"            <a href=\"https://securityforcemonitor.org/\" target=\"_blank\">Security Force Monitor</a> -\n"
 "            we are an investigative research project based at the\n"
-"            <a href=\"https://www.law.columbia.edu/human-rights-institute\" "
-"target=\"_blank\">Human Rights Institute</a>\n"
-"            at Columbia Law School in New York. WhoWasInCommand.com contains "
-"detailed data\n"
-"            we have created about the organizational structure, command "
-"personnel,\n"
-"            and geographic footprint of police, military and other security "
-"and defence forces.\n"
-"            We have created all this data by analyzing public sources. "
-"Additionally,\n"
-"            we structure and compile allegations made publicly by civil "
-"society groups\n"
-"            of alleged human rights violations committed by security and "
-"defence forces.\n"
+"            <a href=\"https://www.law.columbia.edu/human-rights-institute\" target=\"_blank\">Human Rights Institute</a>\n"
+"            at Columbia Law School in New York. WhoWasInCommand.com contains detailed data\n"
+"            we have created about the organizational structure, command personnel,\n"
+"            and geographic footprint of police, military and other security and defence forces.\n"
+"            We have created all this data by analyzing public sources. Additionally,\n"
+"            we structure and compile allegations made publicly by civil society groups\n"
+"            of alleged human rights violations committed by security and defence forces.\n"
 "            "
 msgstr ""
 
@@ -2815,32 +2818,22 @@ msgstr ""
 #: templates/sfm/about.html:29
 msgid ""
 "\n"
-"            We created WhoWasInCommand.com to solve a major problem we had "
-"experienced\n"
-"            in our own work: there is a huge amount of publicly available "
-"data about the\n"
-"            security and defence forces of many countries of the world, but "
-"it is\n"
-"            unstructured and scattered amongst a wide variety of sources. "
-"This makes it\n"
-"            prohibitively costly for people who do public interest work to "
-"understand\n"
-"            the security and defence forces of a particular country. You can "
-"read more\n"
+"            We created WhoWasInCommand.com to solve a major problem we had experienced\n"
+"            in our own work: there is a huge amount of publicly available data about the\n"
+"            security and defence forces of many countries of the world, but it is\n"
+"            unstructured and scattered amongst a wide variety of sources. This makes it\n"
+"            prohibitively costly for people who do public interest work to understand\n"
+"            the security and defence forces of a particular country. You can read more\n"
 "            about this problem and why we started Security Force Monitor in\n"
-"            <a href=\"https://securityforcemonitor.org/2017/04/11/why-i-"
-"started-the-security-force-monitor/\" target=\"_blank\">this blog we posted "
-"in 2017</a>.\n"
+"            <a href=\"https://securityforcemonitor.org/2017/04/11/why-i-started-the-security-force-monitor/\" target=\"_blank\">this blog we posted in 2017</a>.\n"
 "            "
 msgstr ""
 
 #: templates/sfm/about.html:41
 msgid ""
 "\n"
-"            To address the problem, we search for this information, analyze "
-"it,\n"
-"            structure it and publish it here on WhoWasInCommand.com where it "
-"can\n"
+"            To address the problem, we search for this information, analyze it,\n"
+"            structure it and publish it here on WhoWasInCommand.com where it can\n"
 "            help answer questions like:\n"
 "            "
 msgstr ""
@@ -2869,16 +2862,11 @@ msgstr ""
 #: templates/sfm/about.html:55
 msgid ""
 "\n"
-"            We have created all the data on WhoWasInCommand.com by "
-"scrutinizing\n"
-"            thousands of public, online sources including official websites "
-"of\n"
-"            security forces, reporting from domestic and international "
-"media,\n"
-"            academic research and civil society reports. You can see the "
-"sources\n"
-"            we have used for every single piece of data on WhoWasInCommand "
-"simply\n"
+"            We have created all the data on WhoWasInCommand.com by scrutinizing\n"
+"            thousands of public, online sources including official websites of\n"
+"            security forces, reporting from domestic and international media,\n"
+"            academic research and civil society reports. You can see the sources\n"
+"            we have used for every single piece of data on WhoWasInCommand simply\n"
 "            by clicking on it.\n"
 "            "
 msgstr ""
@@ -2891,35 +2879,24 @@ msgstr ""
 #: templates/sfm/about.html:67
 msgid ""
 "\n"
-"            We’re <a href=\"https://securityforcemonitor.org\" target="
-"\"_blank\">Security Force Monitor</a>,\n"
+"            We’re <a href=\"https://securityforcemonitor.org\" target=\"_blank\">Security Force Monitor</a>,\n"
 "            an investigative research project based at the\n"
-"            <a href=\"https://www.law.columbia.edu/human-rights-institute\" "
-"target=\"_blank\">Human Rights Institute at Columbia Law School</a>\n"
-"            in New York. Our work is financed through grants from funders "
-"including\n"
-"            the Open Society Foundations and the OAK Foundation. Further "
-"information\n"
-"            about our <a href=\"https://securityforcemonitor.org/about/\" "
-"target=\"_blank\">current and past funders can be found here</a>.\n"
+"            <a href=\"https://www.law.columbia.edu/human-rights-institute\" target=\"_blank\">Human Rights Institute at Columbia Law School</a>\n"
+"            in New York. Our work is financed through grants from funders including\n"
+"            the Open Society Foundations and the OAK Foundation. Further information\n"
+"            about our <a href=\"https://securityforcemonitor.org/about/\" target=\"_blank\">current and past funders can be found here</a>.\n"
 "            "
 msgstr ""
 
 #: templates/sfm/about.html:77
 msgid ""
 "\n"
-"            Our aim is to make police, military and other security forces "
-"around\n"
-"            the world more transparent and accountable. We do this by "
-"analyzing\n"
-"            and structuring public information on the security forces to "
-"show\n"
-"            their organizational structure, geographical footprint and "
-"operational\n"
-"            jurisdiction, their command personnel and their potential "
-"connections\n"
-"            to alleged human rights violations documented by organizations "
-"like\n"
+"            Our aim is to make police, military and other security forces around\n"
+"            the world more transparent and accountable. We do this by analyzing\n"
+"            and structuring public information on the security forces to show\n"
+"            their organizational structure, geographical footprint and operational\n"
+"            jurisdiction, their command personnel and their potential connections\n"
+"            to alleged human rights violations documented by organizations like\n"
 "            Amnesty International and Human Rights Watch.\n"
 "            "
 msgstr ""
@@ -2927,21 +2904,14 @@ msgstr ""
 #: templates/sfm/about.html:88
 msgid ""
 "\n"
-"            The opaque nature of most security forces means that "
-"investigators\n"
-"            face a common challenge of connecting abuses committed by "
-"security\n"
-"            forces to a specific perpetrator. Access to detailed information "
-"on\n"
+"            The opaque nature of most security forces means that investigators\n"
+"            face a common challenge of connecting abuses committed by security\n"
+"            forces to a specific perpetrator. Access to detailed information on\n"
 "            the security forces helps human rights groups to name specific\n"
-"            perpetrators when abuses occur. When civil society can make "
-"specific\n"
-"            allegations a host of accountability mechanisms can be set in "
-"motion,\n"
-"            including: seeking restrictions on security assistance from "
-"external\n"
-"            providers, naming and shaming advocacy, and international "
-"criminal cases.\n"
+"            perpetrators when abuses occur. When civil society can make specific\n"
+"            allegations a host of accountability mechanisms can be set in motion,\n"
+"            including: seeking restrictions on security assistance from external\n"
+"            providers, naming and shaming advocacy, and international criminal cases.\n"
 "            "
 msgstr ""
 
@@ -2950,16 +2920,12 @@ msgstr ""
 msgid ""
 "\n"
 "            All of the data collected we have created is published here on\n"
-"            WhoWasInCommand.com. We also work in partnership with human "
-"rights\n"
+"            WhoWasInCommand.com. We also work in partnership with human rights\n"
 "            groups providing research and analytical expertise to identify\n"
-"            connections between documented abuses and wider command "
-"structures\n"
+"            connections between documented abuses and wider command structures\n"
 "            and individual commanders. You can find some of our work with\n"
-"            partners on <a href=\"https://securityforcemonitor.org/news\" "
-"target=\"_blank\">our blog</a>\n"
-"            or <a href=\"https://twitter.com/secforcemonitor\" target="
-"\"_blank\">Twitter</a>.\n"
+"            partners on <a href=\"https://securityforcemonitor.org/news\" target=\"_blank\">our blog</a>\n"
+"            or <a href=\"https://twitter.com/secforcemonitor\" target=\"_blank\">Twitter</a>.\n"
 "            "
 msgstr ""
 
@@ -2967,8 +2933,7 @@ msgstr ""
 #: templates/sfm/about.html:113
 msgid ""
 "\n"
-"            WhoWasInCommand.com was engineered by <a href=\"https://datamade."
-"us\" target=\"_blank\">DataMade</a>,\n"
+"            WhoWasInCommand.com was engineered by <a href=\"https://datamade.us\" target=\"_blank\">DataMade</a>,\n"
 "            a data and web consultancy for civil society.\n"
 "            "
 msgstr ""
@@ -2981,12 +2946,9 @@ msgstr ""
 #: templates/sfm/about.html:121
 msgid ""
 "\n"
-"            Our website <a href=\"https://securityforcemonitor.org\" target="
-"\"_blank\">securityforcemonitor.org</a>\n"
-"            contains more information about the work we do, including our "
-"other\n"
-"            initiatives and investigative data projects, our team and "
-"advisors,\n"
+"            Our website <a href=\"https://securityforcemonitor.org\" target=\"_blank\">securityforcemonitor.org</a>\n"
+"            contains more information about the work we do, including our other\n"
+"            initiatives and investigative data projects, our team and advisors,\n"
 "            our sources of funding, and the services we offer.\n"
 "            "
 msgstr ""
@@ -2995,9 +2957,7 @@ msgstr ""
 #: templates/sfm/about.html:130
 msgid ""
 "\n"
-"            Our public Research Handbook at <a href=\"http://help."
-"securityforcemonitor.org\" target=\"_blank\">help.securityforcemonitor.org</"
-"a>\n"
+"            Our public Research Handbook at <a href=\"http://help.securityforcemonitor.org\" target=\"_blank\">help.securityforcemonitor.org</a>\n"
 "            contains information about:\n"
 "            "
 msgstr ""
@@ -3025,10 +2985,8 @@ msgstr ""
 msgid ""
 "\n"
 "            We develop the software that powers WhoWasInCommand.com\n"
-"            <a href=\"https://github.com/security-force-monitor/sfm-cms\" "
-"target=\"_blank\">in the open on Github</a>.\n"
-"            You can look at some of our design documents, use the code, and "
-"find\n"
+"            <a href=\"https://github.com/security-force-monitor/sfm-cms\" target=\"_blank\">in the open on Github</a>.\n"
+"            You can look at some of our design documents, use the code, and find\n"
 "            out what bugs and issues the software has.\n"
 "            "
 msgstr ""
@@ -3038,25 +2996,34 @@ msgid ""
 "Public database of police, military and other security and defence forces"
 msgstr ""
 
-#. Translators: Please keep the "strong" tags, which display the numbers in bold
+#. Translators: Please keep the "strong" tags, which display the numbers in
+#. bold
 #: templates/sfm/dashboard.html:10
 msgid ""
-"Investigate <strong>police</strong> and <strong>military commanders</"
-"strong>, <strong>units</strong> and <strong>areas of operation</strong>"
+"Investigate <strong>police</strong> and <strong>military "
+"commanders</strong>, <strong>units</strong> and <strong>areas of "
+"operation</strong>"
 msgstr ""
+"التقصي عن <strong>الشرطة</strong> و<strong>القادة العسكريين </strong> "
+"و<strong>الوحدات</strong> و<strong>مناطق العمليات</strong>"
 
 #: templates/sfm/dashboard.html:14
 msgid "Enter a person or unit name, location or keyword..."
-msgstr ""
+msgstr "...أدخل اسم شخص أو وحدة أو موقع أو كلمة مفتاحية"
 
-#. Translators: 'from' is followed by a selector displaying available countries in the search index
+#. Translators: 'from' is followed by a selector displaying available
+#. countries in the search index
 #: templates/sfm/dashboard.html:58
+#, fuzzy
+#| msgid "No results found"
 msgid "Show me results from..."
-msgstr ""
+msgstr "لم يتم العثور على نتائج"
 
 #: templates/sfm/dashboard.html:64
+#, fuzzy
+#| msgid "publication country"
 msgid "Select a country"
-msgstr ""
+msgstr "بلد النشر"
 
 #: templates/sfm/dashboard.html:82
 msgid "<strong>What is</strong> WhoWasInCommand?"
@@ -3070,9 +3037,9 @@ msgstr ""
 
 #: templates/sfm/dashboard.html:94
 msgid ""
-"WhoWasinCommand presents data from thousands of public sources to help human "
-"rights researchers, investigative journalists and anyone who wants security "
-"forces to be more accountable."
+"WhoWasinCommand presents data from thousands of public sources to help human"
+" rights researchers, investigative journalists and anyone who wants security"
+" forces to be more accountable."
 msgstr ""
 
 #: templates/sfm/dashboard.html:95
@@ -3113,16 +3080,16 @@ msgstr ""
 #: templates/source/access-points.html:14 templates/source/edit.html:19
 #: templates/source/edit.html:21
 msgid "Access Points"
-msgstr ""
+msgstr "نقاط الوصول"
 
 #: templates/source/access-points.html:26
 msgid "Page(s)"
-msgstr ""
+msgstr "الصفحة (الصفحات)"
 
 #: templates/source/access-points.html:27
 #: templates/source/access-points.html:109
 msgid "Access Date"
-msgstr ""
+msgstr "تاريخ الوصول"
 
 #: templates/source/access-points.html:61
 msgid "Add Access Point"
@@ -3130,15 +3097,15 @@ msgstr ""
 
 #: templates/source/access-points.html:94
 msgid "Page Number(s)"
-msgstr ""
+msgstr "أرقام الصفحات"
 
 #: templates/source/access-points.html:122 templates/source/edit.html:119
 msgid "Describe your changes"
-msgstr ""
+msgstr "صف التغييرات التي أجريتها"
 
 #: templates/source/base_source.html:18
 msgid "Editing"
-msgstr ""
+msgstr "تعديل"
 
 #: templates/source/base_source.html:20
 #, python-format
@@ -3148,7 +3115,7 @@ msgstr ""
 #: templates/source/base_source.html:21
 #, python-format
 msgid "Last update <strong>%(date)s</strong> by <strong>%(name)s</strong>"
-msgstr ""
+msgstr "آخر تحديث <strong>%(date)s</strong> من قبل <strong>%(name)s</strong>"
 
 #: templates/source/base_source.html:24
 msgid "Add source"
@@ -3158,8 +3125,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"        Do you really want to remove the access point <strong>%(object)s</"
-"strong>?\n"
+"        Do you really want to remove the access point <strong>%(object)s</strong>?\n"
 "    "
 msgstr ""
 
@@ -3177,32 +3143,32 @@ msgstr ""
 
 #: templates/source/delete.html:26 templates/source/edit.html:90
 msgid "Publication country"
-msgstr ""
+msgstr "بلد النشر"
 
 #: templates/source/edit.html:43
 msgid "Source title"
-msgstr ""
+msgstr "عنوان المصدر"
 
 #: templates/source/edit.html:58
 msgid "Date published"
-msgstr ""
+msgstr "تاريخ النشر"
 
 #: templates/source/partials/access_point_related_entities.html:8
 msgid "Record Name"
-msgstr ""
+msgstr "اسم السجل"
 
 #: templates/source/partials/access_point_related_entities.html:9
 msgid "Record Type"
-msgstr ""
+msgstr "نوع السجل"
 
 #: templates/source/partials/access_point_related_entities.html:10
 msgid "Fieldname"
-msgstr ""
+msgstr "اسم الحقل"
 
 #: templates/source/partials/access_point_related_entities.html:11
 msgctxt "of a database record"
 msgid "Value"
-msgstr ""
+msgstr "قيمة"
 
 #: templates/source/partials/source_related_entities.html:8
 msgid "Access point"
@@ -3210,7 +3176,7 @@ msgstr ""
 
 #: templates/source/view.html:33
 msgid "Last edited by:"
-msgstr ""
+msgstr ":آخر تعديل من طرف"
 
 #: templates/source/view.html:49
 msgid "Select an access point to view entities evidenced by this source:"
@@ -3239,12 +3205,12 @@ msgstr ""
 
 #: templates/violation/create-basics.html:7
 msgid "Add new incident"
-msgstr ""
+msgstr "إضافة حادثة جديدة"
 
 #: templates/violation/create-locations.html:40
 #: templates/violation/edit-locations.html:43
 msgid "Edit locations"
-msgstr ""
+msgstr "تعديل المواقع"
 
 #: templates/violation/delete.html:7
 msgid ""
@@ -3252,64 +3218,66 @@ msgid ""
 "        Do you really want to delete this incident?\n"
 "    "
 msgstr ""
+"\n"
+"هل تريد حقا حذف هذا الحادث؟"
 
 #: templates/violation/delete.html:16 templates/violation/view.html:94
 #: templates/violation/view.html:106 templates/violation/view.html:146
 #: violation/forms.py:38 violation/models.py:292
 msgid "Description"
-msgstr ""
+msgstr "الوصف"
 
 #: templates/violation/delete.html:33 violation/forms.py:57
 msgid "Violation type"
-msgstr ""
+msgstr "نوع الانتهاك"
 
 #: templates/violation/edit-locations.html:140
 #: templates/violation/edit-locations.html:154
 #: templates/violation/edit-locations.html:168
 msgid "Search for a location"
-msgstr ""
+msgstr "البحث عن موقع"
 
 #: templates/violation/view.html:42
 msgid "Location:"
-msgstr ""
+msgstr "الموقع:"
 
 #: templates/violation/view.html:64
 msgid "Violation types:"
-msgstr ""
+msgstr "أنواع الانتهاك:"
 
 #: templates/violation/view.html:75
 msgid "Perpetrator classifications:"
-msgstr ""
+msgstr "تصنيفات الجناة:"
 
 #: templates/violation/view.html:95 templates/violation/view.html:107
 #: templates/violation/view.html:160
 msgid "Perpetrators"
-msgstr ""
+msgstr "الجناة"
 
 #: templates/violation/view.html:96 templates/violation/view.html:108
 #: templates/violation/view.html:199
 msgid "Perpetrator units"
-msgstr ""
+msgstr "وحدات الجناة"
 
 #: templates/violation/view.html:126
 msgid "This incident took place in"
-msgstr ""
+msgstr "هذه الحادثة وقعت في"
 
 #: violation/forms.py:39 violation/models.py:153 violation/models.py:301
 msgid "Perpetrator"
-msgstr ""
+msgstr "الجاني"
 
 #: violation/forms.py:40
 msgid "Perpetrator unit"
-msgstr ""
+msgstr "وحدة الجناة"
 
 #: violation/forms.py:49
 msgid "Perpetrator classification"
-msgstr ""
+msgstr "تصنيف الجاني"
 
 #: violation/forms.py:81 violation/models.py:224
 msgid "Location Description"
-msgstr ""
+msgstr "وصف الموقع"
 
 #: violation/forms.py:82
 msgid "Settlement administrative area"
@@ -3337,19 +3305,19 @@ msgstr ""
 
 #: violation/models.py:186
 msgid "Date of Publication"
-msgstr ""
+msgstr "تاريخ النشر"
 
 #: violation/models.py:195
 msgid "End Date"
-msgstr ""
+msgstr "تاريخ الانتهاء"
 
 #: violation/models.py:204
 msgid "Date of Last Update"
-msgstr ""
+msgstr "تاريخ آخر تحديث"
 
 #: violation/models.py:214
 msgid "Status of Last Update"
-msgstr ""
+msgstr "وضع آخر تحديث"
 
 #: violation/models.py:240
 msgid "First-Level Administrative Area"
@@ -3361,24 +3329,33 @@ msgstr ""
 
 #: violation/models.py:268
 msgid "Exact Location"
-msgstr ""
+msgstr "الموقع المحدد"
 
 #: violation/models.py:275
 msgid "Exact Location Name"
-msgstr ""
+msgstr "إسم الموقع المحدد"
 
 #: violation/models.py:282
 msgid "Exact Location ID"
-msgstr ""
+msgstr "معرف الموقع المحدد"
 
 #: violation/models.py:310
 msgid "Perpetrator Unit"
-msgstr ""
+msgstr "وحدة الجناة"
 
 #: violation/models.py:320
 msgid "Violation Types"
-msgstr ""
+msgstr "أنواع الانتهاكات"
 
 #: violation/models.py:330
 msgid "Perpetrator Classification"
-msgstr ""
+msgstr "تصنيف الجناة"
+
+#~ msgid "Include sources"
+#~ msgstr "إدارج مصادر"
+
+#~ msgid "publication"
+#~ msgstr "النشرة"
+
+#~ msgid "Everything"
+#~ msgstr "كل شيء"

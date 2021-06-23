@@ -4,31 +4,44 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>{% block page_title_prefix %}{% endblock %}WhoWasInCommand{% block page_title_suffix %}{% endblock %}</title>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="{% static 'css/bootstrap.simplex.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/bootstrap-nav-wizard.css' %}">
-
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/all.css">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/v4-shims.css">
-  <link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/vis.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/flickity.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
-  <script src="{% static 'js/jquery-1.10.2.js' %}"></script>
-  <script src="{% static 'js/piwik_tracker.js' %}"></script>
-  {% block extra_head %}{% endblock %}
-</head>
 {% get_current_language_bidi as LANGUAGE_BIDI %}
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>{% block page_title_prefix %}{% endblock %}WhoWasInCommand{% block page_title_suffix %}{% endblock %}</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
+
+    {% if LANGUAGE_BIDI %}
+        <link rel="stylesheet" href="{% static 'css/bootstrap.simplex.min.rtl.css' %}">
+        <link rel="stylesheet" href="{% static 'css/bootstrap-nav-wizard.rtl.css' %}">
+        <link rel="stylesheet" href="{% static 'css/fontawesome.all.rtl.css' %}">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/v4-shims.css">
+        <link rel="stylesheet" href="{% static 'css/select2.min.rtl.css' %}">
+        <link rel="stylesheet" href="{% static 'css/vis.min.rtl.css' %}">
+        <link rel="stylesheet" href="{% static 'css/flickity.min.rtl.css' %}">
+        <link rel="stylesheet" href="{% static 'css/custom.rtl.css' %}">
+    {% else %}
+        <link rel="stylesheet" href="{% static 'css/bootstrap.simplex.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/bootstrap-nav-wizard.css' %}">
+        <link rel="stylesheet" href="{% static 'css/fontawesome.all.css' %}">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/v4-shims.css">
+        <link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/vis.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/flickity.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    {% endif %}
+
+    <script src="{% static 'js/jquery-1.10.2.js' %}"></script>
+    <script src="{% static 'js/piwik_tracker.js' %}"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
 <body class="{% if LANGUAGE_BIDI %}rtl{% endif %}">
   <script type="text/javascript">
     window.CSRF_TOKEN = "{{ csrf_token }}";
     window.LANG = "{{ LANGUAGE_CODE }}";
   </script>
-
 <div class="pre-navbar">
   <p>{% trans "A tool from" %} <a href="https://securityforcemonitor.org">Security Force Monitor</a></p>
 </div>
