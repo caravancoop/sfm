@@ -48,7 +48,7 @@ jobs:
         pytest -sv
 
   build:
-    # if: github.event_name != 'pull_request'
+    needs: test
     name: Compile RTL CSS
     runs-on: ubuntu-latest
     steps:
