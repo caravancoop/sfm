@@ -564,6 +564,10 @@ body.rtl .input-group .form-control:last-child {
   border-top-right-radius: 0;
 }
 
+.popover {
+  width: 276px;
+}
+
 @font-face {
   font-family: 'Glyphicons Halflings';
 

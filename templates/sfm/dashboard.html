@@ -2,7 +2,6 @@
 {% load i18n %}
 {% block page_title_suffix %}: {% trans "Public database of police, military and other security and defence forces" %}{% endblock %}
 {% block content %}
-{% get_current_language_bidi as LANGUAGE_BIDI %}
 <div class="row">
     <div class="col-sm-12">
         <div class="jumbotron">
@@ -12,17 +11,10 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="input-group input-group-lg">
-                            {% if LANGUAGE_BIDI %}
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> {% trans "Search" %}</button>
-                                </span>
-                            {% endif %}
                             <input type="text" class="form-control" placeholder="{% trans 'Enter a person or unit name, location or keyword...' %}" name="q" id="q" autofocus>
-                            {% if not LANGUAGE_BIDI %}
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> {% trans "Search" %}</button>
-                                </span>
-                            {% endif %}
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="submit"><i class='fa fa-search'></i> {% trans "Search" %}</button>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -100,7 +92,7 @@
                 </ul>
 
                 <p>{% trans "WhoWasinCommand presents data from thousands of public sources to help human rights researchers, investigative journalists and anyone who wants security forces to be more accountable." %}</p>
-                <p><a href="{% url 'about' %}">{% trans "Learn more" %} <i class="fa fa-fw fa-arrow-right"></i></a>
+                <p><a href="{% url 'about' %}">{% trans "Learn more" %} <i class="fa fa-fw fa-arrow-right{% if LANGUAGE_BIDI %} fa-flip-horizontal{% endif %}"></i></a>
             </div>
         </div>
     </div>

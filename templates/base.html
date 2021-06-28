@@ -3,9 +3,6 @@
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
-
-{% get_current_language_bidi as LANGUAGE_BIDI %}
-
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
@@ -37,7 +34,7 @@
 
     {% block extra_head %}{% endblock %}
 </head>
-<body class="{% if LANGUAGE_BIDI %}rtl{% endif %} text-left">
+<body {% if LANGUAGE_BIDI %}dir="rtl" {% endif %}class="{% if LANGUAGE_BIDI %}rtl{% endif %} text-left">
   <script type="text/javascript">
     window.CSRF_TOKEN = "{{ csrf_token }}";
     window.LANG = "{{ LANGUAGE_CODE }}";
@@ -91,7 +88,7 @@
                 {% endif %}
                 <li class="{{ about_tab }}"><a href="{% url 'about' %}">{% trans "About" %}</a></li>
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right"></i> {% trans "Logout" %}</a></li>
+                    <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-arrow-right{% if LANGUAGE_BIDI %} fa-flip-horizontal{% endif%}"></i> {% trans "Logout" %}</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -183,22 +180,6 @@ $(document).ready(function() {
         });
         window.location = newUrl;
     });
-
-    {% if LANGUAGE_BIDI %}
-        // Reference: https://stackoverflow.com/a/16701801/7142170
-        function invert(rowSelector, cellSelector) {
-            $(rowSelector).each(function(_, elem) {
-                var arr = $.makeArray($(cellSelector, this).detach());
-                arr.reverse();
-                $(this).append(arr);
-            });
-        }
-
-        console.log('Inverting tables');
-
-        invert('thead', 'th');
-        invert('tr', 'td');
-    {% endif %}
 });
 </script>
 {% block extra_js %}{% endblock %}

@@ -21,17 +21,10 @@
                     {% endfor %}
                 {% endfor %}
 
-                {% if LANGUAGE_BIDI %}
-                    <span class="input-group-btn">
-                        <button class="btn btn-default btn-lg" type="submit">{% trans "Go!" %}</button>
-                    </span>
-                {% endif %}
                 <input type="text" class="form-control input-lg" placeholder="{% trans 'Search for' %} {{ search_term }}..." name="q" {% if query %}value="{{ query }}{% endif %}" id="q" autofocus>
-                {% if not LANGUAGE_BIDI %}
-                    <span class="input-group-btn">
-                        <button class="btn btn-default btn-lg" type="submit">{% trans "Go!" %}</button>
-                    </span>
-                {% endif %}
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-lg" type="submit">{% trans "Go!" %}</button>
+                </span>
             </div>
         </div>
 
