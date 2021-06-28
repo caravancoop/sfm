@@ -15,5 +15,8 @@
     "gulp-sass": "^2.0.4",
     "gulp-uglify": "^1.2.0",
     "nodemon": "^1.4.1"
+  },
+  "scripts": {
+    "rtl": "(rm static/css/*.rtl.* || :) && rtlcss -d static/css static/css"
   }
 }

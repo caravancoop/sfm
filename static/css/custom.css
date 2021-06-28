@@ -544,6 +544,26 @@ a.collapsed .show-less {
     }
 }
 
+/* RTL Overrides */
+
+body.rtl .btn-group {
+  display: initial;
+}
+
+body.rtl .input-group-btn:first-child>.btn {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+body.rtl .input-group .form-control:last-child {
+  border-bottom-left-radius: 6px;
+  border-top-left-radius: 6px;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
 @font-face {
   font-family: 'Glyphicons Halflings';
 

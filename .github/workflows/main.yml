@@ -48,7 +48,7 @@ jobs:
         pytest -sv
 
   build:
-    if: github.event_name != 'pull_request'
+    # if: github.event_name != 'pull_request'
     name: Compile RTL CSS
     runs-on: ubuntu-latest
     steps:
@@ -56,7 +56,7 @@ jobs:
     - name: Install dependencies and generate CSS
       run: |
         npm install -g rtlcss
-        rtlcss -d static/css static/css/
+        npm run rtl
     - name: Commit generated CSS
       uses: EndBug/add-and-commit@v7
       with:

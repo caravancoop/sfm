@@ -17,9 +17,9 @@
         <link rel="stylesheet" href="{% static 'css/bootstrap-nav-wizard.rtl.css' %}">
         <link rel="stylesheet" href="{% static 'css/fontawesome.all.rtl.css' %}">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/v4-shims.css">
-        <link rel="stylesheet" href="{% static 'css/select2.min.rtl.css' %}">
+        <link rel="stylesheet" href="{% static 'css/select2.min.css' %}"> <!-- select2 provides native RTL support -->
         <link rel="stylesheet" href="{% static 'css/vis.min.rtl.css' %}">
-        <link rel="stylesheet" href="{% static 'css/flickity.min.rtl.css' %}">
+        <link rel="stylesheet" href="{% static 'css/flickity.min.css' %}"> <!-- Flickity renders fine without RTL inversion -->
         <link rel="stylesheet" href="{% static 'css/custom.rtl.css' %}">
     {% else %}
         <link rel="stylesheet" href="{% static 'css/bootstrap.simplex.min.css' %}">
@@ -37,7 +37,7 @@
 
     {% block extra_head %}{% endblock %}
 </head>
-<body class="{% if LANGUAGE_BIDI %}rtl{% endif %}">
+<body class="{% if LANGUAGE_BIDI %}rtl{% endif %} text-left">
   <script type="text/javascript">
     window.CSRF_TOKEN = "{{ csrf_token }}";
     window.LANG = "{{ LANGUAGE_CODE }}";
@@ -161,6 +161,7 @@ $(document).ready(function() {
         data: dataArray,
         width: '100px',
         minimumResultsForSearch: Infinity,
+        dir: {% if LANGUAGE_BIDI %}'rtl'{% else %}'ltr'{% endif %}
     });
 
     // Attach click event to dropdown, which reloads page with new language code
@@ -183,6 +184,21 @@ $(document).ready(function() {
         window.location = newUrl;
     });
 
+    {% if LANGUAGE_BIDI %}
+        // Reference: https://stackoverflow.com/a/16701801/7142170
+        function invert(rowSelector, cellSelector) {
+            $(rowSelector).each(function(_, elem) {
+                var arr = $.makeArray($(cellSelector, this).detach());
+                arr.reverse();
+                $(this).append(arr);
+            });
+        }
+
+        console.log('Inverting tables');
+
+        invert('thead', 'th');
+        invert('tr', 'td');
+    {% endif %}
 });
 </script>
 {% block extra_js %}{% endblock %}
