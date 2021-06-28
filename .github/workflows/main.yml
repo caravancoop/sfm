@@ -55,7 +55,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install dependencies and generate CSS
       run: |
-        npm install -g rtlcss
+        npm install rtlcss
         npm run rtl
     - name: Commit generated CSS
       uses: EndBug/add-and-commit@v7
