@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-08 18:20+0000\n"
+"POT-Creation-Date: 2021-07-08 18:37+0000\n"
 "PO-Revision-Date: 2021-06-23 21:22+0000\n"
 "Last-Translator: b'  <hannah.cushman@gmail.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -164,7 +164,7 @@ msgstr "ذكر آخرا"
 #: location/models.py:64 location/models.py:76 organization/forms.py:250
 #: organization/forms.py:291 person/forms.py:80
 #: templates/association/search.html:112 templates/association/search.html:143
-#: templates/base.html:81 templates/emplacement/search.html:109
+#: templates/base.html:86 templates/emplacement/search.html:109
 #: templates/emplacement/search.html:140
 #: templates/organization/delete-association.html:9
 #: templates/organization/delete-emplacement.html:9
@@ -259,11 +259,11 @@ msgstr "سياق تاريخ البدء"
 msgid "End Date Context"
 msgstr "سياق تاريخ الانتهاء"
 
-#: organization/forms.py:48 sfm_pc/settings.py:358 tests/test_settings.py:216
+#: organization/forms.py:48 sfm_pc/settings.py:358 tests/test_settings.py:215
 msgid "Yes"
 msgstr "نعم"
 
-#: organization/forms.py:49 sfm_pc/settings.py:359 tests/test_settings.py:217
+#: organization/forms.py:49 sfm_pc/settings.py:359 tests/test_settings.py:216
 msgid "No"
 msgstr "لا"
 
@@ -404,7 +404,7 @@ msgstr "مجهول"
 msgid "days"
 msgstr "أيام"
 
-#: personbiography/models.py:49 personextra/models.py:46 templates/base.html:78
+#: personbiography/models.py:49 personextra/models.py:46 templates/base.html:83
 #: templates/organization/delete-personnel.html:9
 #: templates/person/search.html:7
 msgid "Person"
@@ -443,17 +443,17 @@ msgid "Media Description"
 msgstr ""
 
 #: sfm_pc/base_views.py:113 sfm_pc/settings.py:352
-#: templates/modals/source.html:13 tests/test_settings.py:210
+#: templates/modals/source.html:13 tests/test_settings.py:209
 msgid "Low"
 msgstr "منخفض"
 
 #: sfm_pc/base_views.py:114 sfm_pc/settings.py:353
-#: templates/modals/source.html:14 tests/test_settings.py:211
+#: templates/modals/source.html:14 tests/test_settings.py:210
 msgid "Medium"
 msgstr "متوسط"
 
 #: sfm_pc/base_views.py:115 sfm_pc/settings.py:354
-#: templates/modals/source.html:15 tests/test_settings.py:212
+#: templates/modals/source.html:15 tests/test_settings.py:211
 msgid "High"
 msgstr "عالي"
 
@@ -504,7 +504,7 @@ msgstr "مناطق العمليات"
 msgid "Sites"
 msgstr "المواقع"
 
-#: sfm_pc/forms.py:558 templates/base.html:60
+#: sfm_pc/forms.py:558 templates/base.html:65
 #: templates/organization/base-organization.html:35
 #: templates/organization/partials/personnel-list.html:6
 #: templates/organization/view.html:75 templates/organization/view.html:91
@@ -514,7 +514,7 @@ msgstr "المواقع"
 msgid "Personnel"
 msgstr "الأفراد"
 
-#: sfm_pc/forms.py:559 templates/base.html:64 templates/modals/source.html:29
+#: sfm_pc/forms.py:559 templates/base.html:69 templates/modals/source.html:29
 #: templates/modals/version.html:10 templates/organization/view.html:77
 #: templates/organization/view.html:93
 #: templates/partials/source_overview_table.html:7
@@ -556,26 +556,26 @@ msgid "End date"
 msgstr "تاريخ الانتهاء"
 
 #: sfm_pc/settings.py:173 sfm_pc/templatetags/language_url.py:17
-#: templates/base.html:168 tests/test_settings.py:129
+#: templates/base.html:173 tests/test_settings.py:128
 msgid "French"
 msgstr "الفرنسية"
 
 #: sfm_pc/settings.py:174 sfm_pc/templatetags/language_url.py:15
-#: templates/base.html:166 tests/test_settings.py:130
+#: templates/base.html:171 tests/test_settings.py:129
 msgid "English"
 msgstr "الإنجليزية"
 
 #: sfm_pc/settings.py:175 sfm_pc/templatetags/language_url.py:16
-#: templates/base.html:167 tests/test_settings.py:131
+#: templates/base.html:172 tests/test_settings.py:130
 msgid "Spanish"
 msgstr "الأسبانية"
 
 #: sfm_pc/settings.py:176 sfm_pc/templatetags/language_url.py:21
-#: templates/base.html:169
+#: templates/base.html:174
 msgid "Arabic"
 msgstr "العربية"
 
-#: sfm_pc/settings.py:360 tests/test_settings.py:218
+#: sfm_pc/settings.py:360 tests/test_settings.py:217
 msgid "Exact"
 msgstr ""
 
@@ -1148,7 +1148,7 @@ msgid "Search Area"
 msgstr ""
 
 #: templates/area/search.html:10 templates/association/edit.html:11
-#: templates/association/search.html:9 templates/base.html:68
+#: templates/association/search.html:9 templates/base.html:73
 #: templates/emplacement/edit.html:11 templates/emplacement/search.html:9
 #: templates/membershipperson/search.html:9
 #: templates/organization/search.html:9 templates/person/search.html:9
@@ -1432,18 +1432,28 @@ msgstr "أدخل اسم المنظمة"
 msgid "Area"
 msgstr ""
 
+#: templates/base.html:9
+msgid "WhoWasInCommand"
+msgstr ""
+
 #: templates/base.html:43
 msgid "A tool from"
 msgstr ""
 
-#: templates/base.html:61 templates/organization/create.html:15
+#. Translators: This translation is for the site title as it appears in the header. Please retain emphasis on the translation of "Who".
+#.
+#: templates/base.html:59
+msgid "<strong>Who</strong>WasInCommand"
+msgstr ""
+
+#: templates/base.html:66 templates/organization/create.html:15
 #: templates/partials/nav-wizard.html:6
 #: templates/partials/organization_search_results.html:5
 #: templates/search/search.html:45 templates/sfm/dashboard.html:35
 msgid "Units"
 msgstr "الوحدات"
 
-#: templates/base.html:62 templates/organization/view.html:76
+#: templates/base.html:67 templates/organization/view.html:76
 #: templates/organization/view.html:92 templates/organization/view.html:490
 #: templates/partials/nav-wizard.html:10
 #: templates/partials/violation_search_results.html:5
@@ -1453,7 +1463,7 @@ msgstr "الوحدات"
 msgid "Incidents"
 msgstr "الحوادث"
 
-#: templates/base.html:65 templates/organization/base-organization.html:38
+#: templates/base.html:70 templates/organization/base-organization.html:38
 #: templates/partials/location_search_results.html:5
 #: templates/violation/create-locations.html:26
 #: templates/violation/edit-basics.html:21
@@ -1461,33 +1471,33 @@ msgstr "الحوادث"
 msgid "Locations"
 msgstr "المواقع"
 
-#: templates/base.html:72 templates/source/delete-access-point.html:15
+#: templates/base.html:77 templates/source/delete-access-point.html:15
 msgid "Source"
 msgstr "مصدر"
 
-#: templates/base.html:75 templates/organization/delete-association.html:19
+#: templates/base.html:80 templates/organization/delete-association.html:19
 #: templates/organization/delete-emplacement.html:19
 #: templates/violation/view.html:93 templates/violation/view.html:105
 #: templates/violation/view.html:120 violation/models.py:141
 msgid "Location"
 msgstr "موقع"
 
-#: templates/base.html:84 templates/partials/violation_title.html:4
+#: templates/base.html:89 templates/partials/violation_title.html:4
 #: violation/views.py:30
 msgid "Incident"
 msgstr "حادثة"
 
-#: templates/base.html:89 templates/sfm/about.html:4 templates/sfm/about.html:8
+#: templates/base.html:94 templates/sfm/about.html:4 templates/sfm/about.html:8
 msgid "About"
 msgstr "حول"
 
-#: templates/base.html:91
+#: templates/base.html:96
 msgid "Logout"
 msgstr "تسجيل الخروج"
 
 #. Translators: Make sure to keep the HTML tags intact in this sentence.
 #.
-#: templates/base.html:121
+#: templates/base.html:126
 msgid ""
 "\n"
 "                    <p><strong>WhoWasInCommand</strong> publishes data on "
@@ -1500,31 +1510,31 @@ msgid ""
 "                    "
 msgstr ""
 
-#: templates/base.html:125
+#: templates/base.html:130
 msgid "The content of WhoWasInCommand is licensed under"
 msgstr ""
 
-#: templates/base.html:125
+#: templates/base.html:130
 msgid "Creative Commons Attribution License 4.0"
 msgstr ""
 
-#: templates/base.html:129
+#: templates/base.html:134
 msgid "Site contents"
 msgstr "محتويات الموقع"
 
-#: templates/base.html:131
+#: templates/base.html:136
 msgid "Help - Frequently Asked Questions"
 msgstr ""
 
-#: templates/base.html:132
+#: templates/base.html:137
 msgid "About WhoWasInCommand"
 msgstr ""
 
-#: templates/base.html:133
+#: templates/base.html:138
 msgid "Contact"
 msgstr ""
 
-#: templates/base.html:134
+#: templates/base.html:139
 msgid "Source code"
 msgstr ""
 
@@ -2559,6 +2569,12 @@ msgid ""
 "Click the \"+\" symbol next to every data point in the record to see the "
 "sources used for that data point."
 msgstr ""
+
+#: templates/partials/source_overview_table.html:28
+#, fuzzy
+#| msgid "Archive URL"
+msgid "Archive Link"
+msgstr "رابط الأرشيف"
 
 #: templates/partials/version_list.html:5
 msgid "Version History"
