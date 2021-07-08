@@ -11,8 +11,8 @@ from complex_fields.base_models import BaseModel
 
 from person.models import Person
 from organization.models import Organization
-from sfm_pc.models import GetComplexFieldNameMixin
 from sfm_pc.fields import I10nApproximateDateField
+from sfm_pc.models import GetComplexFieldNameMixin
 from source.mixins import SourcesMixin
 
 
