@@ -3076,14 +3076,12 @@ msgstr "...أدخل اسم شخص أو وحدة أو موقع أو كلمة مف
 
 #. Translators: 'from' is followed by a selector displaying available countries in the search index
 #: templates/sfm/dashboard.html:58
-#, fuzzy
-#| msgid "No results found"
+#| msgid ""
 msgid "Show me results from..."
 msgstr "لم يتم العثور على نتائج"
 
 #: templates/sfm/dashboard.html:64
-#, fuzzy
-#| msgid "publication country"
+#| msgid ""
 msgid "Select a country"
 msgstr "بلد النشر"
 
