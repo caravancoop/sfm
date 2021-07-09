@@ -11,7 +11,6 @@ from complex_fields.base_models import BaseModel
 
 from person.models import Person
 from organization.models import Organization
-from sfm_pc.fields import I10nApproximateDateField
 from sfm_pc.models import GetComplexFieldNameMixin
 from source.mixins import SourcesMixin
 
@@ -186,7 +185,7 @@ class MembershipPersonRank(ComplexField):
 @sourced
 class MembershipPersonFirstCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
-    value = I10nApproximateDateField()
+    value = ApproximateDateField()
     field_name = _("First Cited Date")
     shortcode = 'p_pfcd'
     spreadsheet_field_name = 'person:posting_first_cited_date'
@@ -196,7 +195,7 @@ class MembershipPersonFirstCitedDate(ComplexField):
 @sourced
 class MembershipPersonLastCitedDate(ComplexField):
     object_ref = models.ForeignKey('MembershipPerson')
-    value = I10nApproximateDateField()
+    value = ApproximateDateField()
     field_name = _("Last Cited Date")
     shortcode = 'p_plcd'
     spreadsheet_field_name = 'person:posting_last_cited_date'
