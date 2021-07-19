@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 19:36+0000\n"
+"POT-Creation-Date: 2021-07-19 19:44+0000\n"
 "PO-Revision-Date: 2020-05-28 15:53+0000\n"
 "Last-Translator: b'Michel  <michel@securityforcemonitor.org>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2587,17 +2587,12 @@ msgstr "Crear fuente"
 msgid "Geographies"
 msgstr "Geografías"
 
-#: templates/partials/organization_list_table.html:9
-#: templates/partials/organization_list_table.html:14
-msgid "Battalion 345"
-msgstr ""
-
-#: templates/partials/organization_list_table.html:33
+#: templates/partials/organization_list_table.html:24
 #: templates/search/search.html:108
 msgid "Parents"
 msgstr "Superior"
 
-#: templates/partials/organization_list_table.html:39
+#: templates/partials/organization_list_table.html:30
 msgid "Last site"
 msgstr "Último lugar"
 

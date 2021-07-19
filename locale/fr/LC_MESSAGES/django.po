@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 19:36+0000\n"
-"PO-Revision-Date: 2020-05-19 18:54+0000\n"
-"Last-Translator: b'Jean Cochrane <jean.cochrane@datamade.us>'\n"
+"POT-Creation-Date: 2021-07-19 19:44+0000\n"
+"PO-Revision-Date: 2021-07-19 19:43+0000\n"
+"Last-Translator: b'  <hannah@hannah.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -2598,17 +2598,12 @@ msgstr "Créer une source"
 msgid "Geographies"
 msgstr "Géographies"
 
-#: templates/partials/organization_list_table.html:9
-#: templates/partials/organization_list_table.html:14
-msgid "Battalion 345"
-msgstr ""
-
-#: templates/partials/organization_list_table.html:33
+#: templates/partials/organization_list_table.html:24
 #: templates/search/search.html:108
 msgid "Parents"
 msgstr "Parents"
 
-#: templates/partials/organization_list_table.html:39
+#: templates/partials/organization_list_table.html:30
 msgid "Last site"
 msgstr "Dernier site"
 
@@ -2925,6 +2920,8 @@ msgid ""
 "                %(result_count)s result found for &ldquo;%(query)s&rdquo;\n"
 "                "
 msgstr ""
+"\n"
+"%(result_count)s résultat trouvé pour &ldquo;%(query)s&rdquo;"
 
 #. Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted in your translation.
 #.
@@ -2935,6 +2932,8 @@ msgid ""
 "                %(result_count)s results found for &ldquo;%(query)s&rdquo;\n"
 "                "
 msgstr ""
+"\n"
+"%(result_count)s résultats trouvés pour &ldquo;%(query)s&rdquo;"
 
 #: templates/sfm/about.html:10
 msgid "What is WhoWasInCommand.com?"

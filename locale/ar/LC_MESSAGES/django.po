@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 19:36+0000\n"
+"POT-Creation-Date: 2021-07-19 19:44+0000\n"
 "PO-Revision-Date: 2021-06-23 21:22+0000\n"
 "Last-Translator: b'  <hannah.cushman@gmail.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2490,17 +2490,12 @@ msgstr "إنشاء مصدر"
 msgid "Geographies"
 msgstr ""
 
-#: templates/partials/organization_list_table.html:9
-#: templates/partials/organization_list_table.html:14
-msgid "Battalion 345"
-msgstr "345 كتيبة"
-
-#: templates/partials/organization_list_table.html:33
+#: templates/partials/organization_list_table.html:24
 #: templates/search/search.html:108
 msgid "Parents"
 msgstr ""
 
-#: templates/partials/organization_list_table.html:39
+#: templates/partials/organization_list_table.html:30
 msgid "Last site"
 msgstr "آخر موقع"
 
@@ -3425,6 +3420,9 @@ msgstr "أنواع الانتهاكات"
 #: violation/models.py:330
 msgid "Perpetrator Classification"
 msgstr "تصنيف الجناة"
+
+#~ msgid "Battalion 345"
+#~ msgstr "345 كتيبة"
 
 #~ msgid "results found"
 #~ msgstr "تم العثور على نتيجة"
