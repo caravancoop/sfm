@@ -2917,8 +2917,8 @@ msgstr ""
 #, python-format
 msgid "%(display_count)s result found for &ldquo;%(query)s&rdquo;"
 msgid_plural "%(display_count)s results found for &ldquo;%(query)s&rdquo;"
-msgstr[0] "%(result_count)s résultat trouvé pour &ldquo;%(query)s&rdquo;"
-msgstr[1] "%(result_count)s résultats trouvés pour &ldquo;%(query)s&rdquo;"
+msgstr[0] "%(display_count)s résultat trouvé pour &ldquo;%(query)s&rdquo;"
+msgstr[1] "%(display_count)s résultats trouvés pour &ldquo;%(query)s&rdquo;"
 
 #. Translators: This translation appears on the search result page, where result_count is the number of results. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
 #.
@@ -2926,7 +2926,7 @@ msgstr[1] "%(result_count)s résultats trouvés pour &ldquo;%(query)s&rdquo;"
 #, python-format
 msgid "%(display_count)s result found"
 msgid_plural "%(display_count)s results found"
-msgstr[0] "%(result_count)s résultat trouvé"
+msgstr[0] "%(display_count)s résultat trouvé"
 msgstr[1] "%(display_count)s résultats trouvés"
 
 #: templates/sfm/about.html:10

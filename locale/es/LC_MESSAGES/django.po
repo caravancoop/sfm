@@ -2913,7 +2913,7 @@ msgstr[1] "%(display_count)s resultados encontrados para &ldquo;%(query)s&rdquo;
 #: templates/search/search.html:260
 #, python-format
 msgid "%(display_count)s result found"
-msgid_plural "%(result_count)s resultado encontrado"
+msgid_plural "%(display_count)s resultado encontrado"
 msgstr[0] "%(display_count)s resultado encontrado"
 msgstr[1] "%(display_count)s resultados encontrados"
 
