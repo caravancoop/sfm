@@ -244,19 +244,23 @@
     <div class="col-xs-12 col-sm-8 pull-right">
     {% if results %}
         <h1>
-            {% if paginator.count == 1 %}
+            {% if query %}
                 {% comment %}
-                    Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted in your translation.
+                    Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
                 {% endcomment %}
-                {% blocktrans with result_count=paginator.count|intcomma %}
-                {{ result_count }} result found for &ldquo;{{ query }}&rdquo;
+                {% blocktrans with display_count=paginator.count|intcomma count result_count=paginator.count trimmed %}
+                    {{ display_count }} result found for &ldquo;{{ query }}&rdquo;
+                    {% plural %}
+                    {{ display_count }} results found for &ldquo;{{ query }}&rdquo;
                 {% endblocktrans %}
             {% else %}
                 {% comment %}
-                    Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted in your translation.
+                    Translators: This translation appears on the search result page, where result_count is the number of results. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
                 {% endcomment %}
-                {% blocktrans with result_count=paginator.count|intcomma %}
-                {{ result_count }} results found for &ldquo;{{ query }}&rdquo;
+                {% blocktrans with display_count=paginator.count|intcomma count result_count=paginator.count trimmed %}
+                    {{ display_count }} result found
+                    {% plural %}
+                    {{ display_count }} results found
                 {% endblocktrans %}
             {% endif %}
         </h1>

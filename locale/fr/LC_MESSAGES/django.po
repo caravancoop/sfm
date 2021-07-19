@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 19:44+0000\n"
+"POT-Creation-Date: 2021-07-19 20:02+0000\n"
 "PO-Revision-Date: 2021-07-19 19:43+0000\n"
 "Last-Translator: b'  <hannah@hannah.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2027,24 +2027,24 @@ msgid "Go!"
 msgstr "Aller!"
 
 #: templates/location/list.html:58 templates/partials/source_edit_js.html:50
-#: templates/partials/source_edit_js.html:60 templates/search/search.html:264
+#: templates/partials/source_edit_js.html:60 templates/search/search.html:268
 msgid "No results found"
 msgstr "Aucun résultat trouvé"
 
-#: templates/location/list.html:58 templates/search/search.html:264
+#: templates/location/list.html:58 templates/search/search.html:268
 msgid "for"
 msgstr "Pour"
 
-#: templates/location/list.html:67 templates/search/search.html:286
+#: templates/location/list.html:67 templates/search/search.html:290
 msgid "For better results, try adjusting your search filters."
 msgstr ""
 "Pour de meilleurs résultats, essayez d'ajuster vos filtres de recherche."
 
-#: templates/location/list.html:70 templates/search/search.html:289
+#: templates/location/list.html:70 templates/search/search.html:293
 msgid "Think we're missing something?"
 msgstr "Il nous manque quelque chose?"
 
-#: templates/location/list.html:70 templates/search/search.html:289
+#: templates/location/list.html:70 templates/search/search.html:293
 msgid "Let us know!"
 msgstr "Faites-le-nous savoir!"
 
@@ -2911,29 +2911,23 @@ msgid ""
 msgstr ""
 "Filtres pour <strong><i class='fa fa-fw fa-paperclip'></i>Sources</strong>"
 
-#. Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted in your translation.
+#. Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
 #.
 #: templates/search/search.html:251
 #, python-format
-msgid ""
-"\n"
-"                %(result_count)s result found for &ldquo;%(query)s&rdquo;\n"
-"                "
-msgstr ""
-"\n"
-"%(result_count)s résultat trouvé pour &ldquo;%(query)s&rdquo;"
+msgid "%(display_count)s result found for &ldquo;%(query)s&rdquo;"
+msgid_plural "%(display_count)s results found for &ldquo;%(query)s&rdquo;"
+msgstr[0] "%(result_count)s résultat trouvé pour &ldquo;%(query)s&rdquo;"
+msgstr[1] "%(result_count)s résultats trouvés pour &ldquo;%(query)s&rdquo;"
 
-#. Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted in your translation.
+#. Translators: This translation appears on the search result page, where result_count is the number of results. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
 #.
-#: templates/search/search.html:258
+#: templates/search/search.html:260
 #, python-format
-msgid ""
-"\n"
-"                %(result_count)s results found for &ldquo;%(query)s&rdquo;\n"
-"                "
-msgstr ""
-"\n"
-"%(result_count)s résultats trouvés pour &ldquo;%(query)s&rdquo;"
+msgid "%(display_count)s result found"
+msgid_plural "%(display_count)s results found"
+msgstr[0] "%(result_count)s résultat trouvé"
+msgstr[1] "%(display_count)s résultats trouvés"
 
 #: templates/sfm/about.html:10
 msgid "What is WhoWasInCommand.com?"
