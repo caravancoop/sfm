@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 20:02+0000\n"
+"POT-Creation-Date: 2021-07-19 20:46+0000\n"
 "PO-Revision-Date: 2021-06-23 21:22+0000\n"
 "Last-Translator: b'  <hannah.cushman@gmail.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -223,19 +223,9 @@ msgstr "في"
 msgid "Role"
 msgstr "الوظيفة"
 
-#: membershipperson/models.py:169 organization/forms.py:206 person/forms.py:83
-#: sfm_pc/templatetags/citations.py:15
-#: templates/membershipperson/create.html:45
-#: templates/membershipperson/edit.html:21
-#: templates/membershipperson/search.html:35
-#: templates/membershipperson/search.html:137
-#: templates/organization/delete-personnel.html:39
-#: templates/organization/partials/personnel-list.html:16
-#: templates/person/delete-posting.html:39
-#: templates/person/partials/person-posting-list.html:16
-#: templates/source/delete.html:15
-msgid "Title"
-msgstr "الصّفة"
+#: membershipperson/models.py:169
+msgid "Official Title"
+msgstr ""
 
 #: membershipperson/models.py:179 organization/forms.py:204 person/forms.py:81
 #: templates/membershipperson/search.html:26
@@ -335,6 +325,19 @@ msgstr ""
 #: organization/forms.py:203
 msgid "Person name"
 msgstr "اسم الشخص"
+
+#: organization/forms.py:206 person/forms.py:83
+#: templates/membershipperson/create.html:45
+#: templates/membershipperson/edit.html:21
+#: templates/membershipperson/search.html:35
+#: templates/membershipperson/search.html:137
+#: templates/organization/delete-personnel.html:39
+#: templates/organization/partials/personnel-list.html:16
+#: templates/person/delete-posting.html:39
+#: templates/person/partials/person-posting-list.html:16
+#: templates/source/delete.html:15
+msgid "Title"
+msgstr "الصّفة"
 
 #: organization/forms.py:210 person/forms.py:87
 #: templates/organization/delete-membership.html:59
@@ -579,6 +582,12 @@ msgstr "العربية"
 msgid "Exact"
 msgstr ""
 
+#: sfm_pc/templatetags/citations.py:15
+#, fuzzy
+#| msgid "publication date"
+msgid "Publication Title"
+msgstr "تاريخ النشر"
+
 #: sfm_pc/templatetags/citations.py:16 templates/source/delete.html:20
 #: templates/source/edit.html:73
 msgid "Publication"
@@ -678,8 +687,10 @@ msgid "Date published is required"
 msgstr ""
 
 #: source/models.py:46
-msgid "title"
-msgstr "الصّفة"
+#, fuzzy
+#| msgid "publication date"
+msgid "publication title"
+msgstr "تاريخ النشر"
 
 #: source/models.py:49
 #, fuzzy
@@ -3426,6 +3437,9 @@ msgstr "أنواع الانتهاكات"
 #: violation/models.py:330
 msgid "Perpetrator Classification"
 msgstr "تصنيف الجناة"
+
+#~ msgid "title"
+#~ msgstr "الصّفة"
 
 #~ msgid "Battalion 345"
 #~ msgstr "345 كتيبة"

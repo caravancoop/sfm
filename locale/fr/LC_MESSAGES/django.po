@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 20:02+0000\n"
+"POT-Creation-Date: 2021-07-19 20:46+0000\n"
 "PO-Revision-Date: 2021-07-19 19:43+0000\n"
 "Last-Translator: b'  <hannah@hannah.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -222,18 +222,8 @@ msgstr "le"
 msgid "Role"
 msgstr "Rôle"
 
-#: membershipperson/models.py:169 organization/forms.py:206 person/forms.py:83
-#: sfm_pc/templatetags/citations.py:15
-#: templates/membershipperson/create.html:45
-#: templates/membershipperson/edit.html:21
-#: templates/membershipperson/search.html:35
-#: templates/membershipperson/search.html:137
-#: templates/organization/delete-personnel.html:39
-#: templates/organization/partials/personnel-list.html:16
-#: templates/person/delete-posting.html:39
-#: templates/person/partials/person-posting-list.html:16
-#: templates/source/delete.html:15
-msgid "Title"
+#: membershipperson/models.py:169
+msgid "Official Title"
 msgstr "Titre"
 
 #: membershipperson/models.py:179 organization/forms.py:204 person/forms.py:81
@@ -336,6 +326,19 @@ msgstr "Est valable pour toujours?"
 #: organization/forms.py:203
 msgid "Person name"
 msgstr "Nom de la personne "
+
+#: organization/forms.py:206 person/forms.py:83
+#: templates/membershipperson/create.html:45
+#: templates/membershipperson/edit.html:21
+#: templates/membershipperson/search.html:35
+#: templates/membershipperson/search.html:137
+#: templates/organization/delete-personnel.html:39
+#: templates/organization/partials/personnel-list.html:16
+#: templates/person/delete-posting.html:39
+#: templates/person/partials/person-posting-list.html:16
+#: templates/source/delete.html:15
+msgid "Title"
+msgstr "Titre"
 
 #: organization/forms.py:210 person/forms.py:87
 #: templates/organization/delete-membership.html:59
@@ -580,6 +583,10 @@ msgstr "Arabe"
 msgid "Exact"
 msgstr "Exacte"
 
+#: sfm_pc/templatetags/citations.py:15
+msgid "Publication Title"
+msgstr "Titre de Publication"
+
 #: sfm_pc/templatetags/citations.py:16 templates/source/delete.html:20
 #: templates/source/edit.html:73
 msgid "Publication"
@@ -683,8 +690,8 @@ msgid "Date published is required"
 msgstr "La date de publication est obligatoire"
 
 #: source/models.py:46
-msgid "title"
-msgstr "Titre"
+msgid "publication title"
+msgstr "Titre de publication"
 
 #: source/models.py:49
 #, fuzzy
@@ -3672,6 +3679,9 @@ msgstr "Types de violation"
 msgid "Perpetrator Classification"
 msgstr "Classification des auteurs"
 
+#~ msgid "title"
+#~ msgstr "Titre"
+
 #~ msgid "publication"
 #~ msgstr "Publication"
 
@@ -3782,10 +3792,6 @@ msgstr "Classification des auteurs"
 
 #, fuzzy
 #~ msgid "Perpetrator type"
-#~ msgstr "Classification"
-
-#, fuzzy
-#~ msgid "Publication name"
 #~ msgstr "Classification"
 
 #, fuzzy

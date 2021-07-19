@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 20:02+0000\n"
+"POT-Creation-Date: 2021-07-19 20:46+0000\n"
 "PO-Revision-Date: 2021-07-19 19:50+0000\n"
 "Last-Translator: b'  <hannah@hannah.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -222,18 +222,8 @@ msgstr "el"
 msgid "Role"
 msgstr "Rol"
 
-#: membershipperson/models.py:169 organization/forms.py:206 person/forms.py:83
-#: sfm_pc/templatetags/citations.py:15
-#: templates/membershipperson/create.html:45
-#: templates/membershipperson/edit.html:21
-#: templates/membershipperson/search.html:35
-#: templates/membershipperson/search.html:137
-#: templates/organization/delete-personnel.html:39
-#: templates/organization/partials/personnel-list.html:16
-#: templates/person/delete-posting.html:39
-#: templates/person/partials/person-posting-list.html:16
-#: templates/source/delete.html:15
-msgid "Title"
+#: membershipperson/models.py:169
+msgid "Official Title"
 msgstr "Título"
 
 #: membershipperson/models.py:179 organization/forms.py:204 person/forms.py:81
@@ -336,6 +326,19 @@ msgstr "¿Se mantiene o tiene fecha de fin?"
 #: organization/forms.py:203
 msgid "Person name"
 msgstr "Nombre de la persona"
+
+#: organization/forms.py:206 person/forms.py:83
+#: templates/membershipperson/create.html:45
+#: templates/membershipperson/edit.html:21
+#: templates/membershipperson/search.html:35
+#: templates/membershipperson/search.html:137
+#: templates/organization/delete-personnel.html:39
+#: templates/organization/partials/personnel-list.html:16
+#: templates/person/delete-posting.html:39
+#: templates/person/partials/person-posting-list.html:16
+#: templates/source/delete.html:15
+msgid "Title"
+msgstr "Título"
 
 #: organization/forms.py:210 person/forms.py:87
 #: templates/organization/delete-membership.html:59
@@ -580,6 +583,10 @@ msgstr "Árabe"
 msgid "Exact"
 msgstr "Exacto"
 
+#: sfm_pc/templatetags/citations.py:15
+msgid "Publication Title"
+msgstr "Título de publicación"
+
 #: sfm_pc/templatetags/citations.py:16 templates/source/delete.html:20
 #: templates/source/edit.html:73
 msgid "Publication"
@@ -683,8 +690,8 @@ msgid "Date published is required"
 msgstr "Se requiere fecha de publicación"
 
 #: source/models.py:46
-msgid "title"
-msgstr "título"
+msgid "publication title"
+msgstr "título de publicación"
 
 #: source/models.py:49
 #, fuzzy
@@ -2902,18 +2909,19 @@ msgstr "Filtros para <strong><i class='fa fa-fw fa-users'></i>Fuentes</strong>"
 #. Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
 #.
 #: templates/search/search.html:251
-#, python-format             "
+#, python-format
 msgid "%(display_count)s result found for &ldquo;%(query)s&rdquo;"
 msgid_plural "%(display_count)s results found for &ldquo;%(query)s&rdquo;"
 msgstr[0] "%(display_count)s resultado encontrado para &ldquo;%(query)s&rdquo;"
-msgstr[1] "%(display_count)s resultados encontrados para &ldquo;%(query)s&rdquo;"
+msgstr[1] ""
+"%(display_count)s resultados encontrados para &ldquo;%(query)s&rdquo;"
 
 #. Translators: This translation appears on the search result page, where result_count is the number of results. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
 #.
 #: templates/search/search.html:260
 #, python-format
 msgid "%(display_count)s result found"
-msgid_plural "%(display_count)s resultado encontrado"
+msgid_plural "%(display_count)s results found"
 msgstr[0] "%(display_count)s resultado encontrado"
 msgstr[1] "%(display_count)s resultados encontrados"
 
@@ -3653,6 +3661,9 @@ msgstr "Típos de violaciones"
 #: violation/models.py:330
 msgid "Perpetrator Classification"
 msgstr "Clasificación del Perpetrador "
+
+#~ msgid "title"
+#~ msgstr "título"
 
 #~ msgid "publication"
 #~ msgstr "publicación"
@@ -4790,10 +4801,6 @@ msgstr "Clasificación del Perpetrador "
 
 #~ msgid "Location description"
 #~ msgstr "Ubicación"
-
-#, fuzzy
-#~ msgid "Publication name"
-#~ msgstr "Fecha de publicación"
 
 #~ msgid "Perpetrator organizations"
 #~ msgstr "Organización del perpetrador"
