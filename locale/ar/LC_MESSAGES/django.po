@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-14 19:41+0000\n"
+"POT-Creation-Date: 2021-07-19 19:36+0000\n"
 "PO-Revision-Date: 2021-06-23 21:22+0000\n"
 "Last-Translator: b'  <hannah.cushman@gmail.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1931,24 +1931,23 @@ msgid "Go!"
 msgstr "!إنطلق"
 
 #: templates/location/list.html:58 templates/partials/source_edit_js.html:50
-#: templates/partials/source_edit_js.html:60 templates/search/search.html:248
+#: templates/partials/source_edit_js.html:60 templates/search/search.html:264
 msgid "No results found"
 msgstr "لم يتم العثور على نتائج"
 
-#: templates/location/list.html:58 templates/search/search.html:246
-#: templates/search/search.html:248
+#: templates/location/list.html:58 templates/search/search.html:264
 msgid "for"
 msgstr ""
 
-#: templates/location/list.html:67 templates/search/search.html:270
+#: templates/location/list.html:67 templates/search/search.html:286
 msgid "For better results, try adjusting your search filters."
 msgstr "حاول ضبط مرشحات البحث للحصول على نتائج أفضل."
 
-#: templates/location/list.html:70 templates/search/search.html:273
+#: templates/location/list.html:70 templates/search/search.html:289
 msgid "Think we're missing something?"
 msgstr "هل تعتقد أننا نفتقد شيئا؟"
 
-#: templates/location/list.html:70 templates/search/search.html:273
+#: templates/location/list.html:70 templates/search/search.html:289
 msgid "Let us know!"
 msgstr "أخبرنا!"
 
@@ -2491,17 +2490,17 @@ msgstr "إنشاء مصدر"
 msgid "Geographies"
 msgstr ""
 
-#: templates/partials/organization_list_table.html:7
-#: templates/partials/organization_list_table.html:10
+#: templates/partials/organization_list_table.html:9
+#: templates/partials/organization_list_table.html:14
 msgid "Battalion 345"
 msgstr "345 كتيبة"
 
-#: templates/partials/organization_list_table.html:29
+#: templates/partials/organization_list_table.html:33
 #: templates/search/search.html:108
 msgid "Parents"
 msgstr ""
 
-#: templates/partials/organization_list_table.html:35
+#: templates/partials/organization_list_table.html:39
 msgid "Last site"
 msgstr "آخر موقع"
 
@@ -2799,13 +2798,25 @@ msgid ""
 "Filters for <strong><i class='fa fa-fw fa-paperclip'></i>Sources</strong>"
 msgstr "مرشحات ل <strong><i class='fa fa-fw fa-user'></i>المصادر</strong>"
 
-#: templates/search/search.html:246
-msgid "result found"
+#. Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted in your translation.
+#.
+#: templates/search/search.html:251
+#, python-format
+msgid ""
+"\n"
+"                %(result_count)s result found for &ldquo;%(query)s&rdquo;\n"
+"                "
 msgstr ""
 
-#: templates/search/search.html:246
-msgid "results found"
-msgstr "تم العثور على نتيجة"
+#. Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted in your translation.
+#.
+#: templates/search/search.html:258
+#, python-format
+msgid ""
+"\n"
+"                %(result_count)s results found for &ldquo;%(query)s&rdquo;\n"
+"                "
+msgstr ""
 
 #: templates/sfm/about.html:10
 msgid "What is WhoWasInCommand.com?"
@@ -3414,6 +3425,9 @@ msgstr "أنواع الانتهاكات"
 #: violation/models.py:330
 msgid "Perpetrator Classification"
 msgstr "تصنيف الجناة"
+
+#~ msgid "results found"
+#~ msgstr "تم العثور على نتيجة"
 
 #~ msgid "Include sources"
 #~ msgstr "إدارج مصادر"

@@ -243,7 +243,23 @@
     </form>
     <div class="col-xs-12 col-sm-8 pull-right">
     {% if results %}
-    <h1>{{ paginator.count|intcomma }} {% if paginator.count == 1 %}{% trans "result found" %}{% else %}{% trans "results found" %}{% endif %} {% if query %}{% trans "for" %} &ldquo;{{ query }}&rdquo;{% endif %}</h1>
+        <h1>
+            {% if paginator.count == 1 %}
+                {% comment %}
+                    Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted in your translation.
+                {% endcomment %}
+                {% blocktrans with result_count=paginator.count|intcomma %}
+                {{ result_count }} result found for &ldquo;{{ query }}&rdquo;
+                {% endblocktrans %}
+            {% else %}
+                {% comment %}
+                    Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted in your translation.
+                {% endcomment %}
+                {% blocktrans with result_count=paginator.count|intcomma %}
+                {{ result_count }} results found for &ldquo;{{ query }}&rdquo;
+                {% endblocktrans %}
+            {% endif %}
+        </h1>
     {% else %}
         <h1>{% trans "No results found" %} {% if query %}{% trans "for" %} &ldquo;{{ query  }}&rdquo;{% endif %}</h1>
     {% endif %}
