@@ -206,7 +206,7 @@ def command_chain(request, org_id='', when=None, parents=True):
                 # If the string can be encoded, it is a Latin string. Prefix the
                 # string with the left-to-right override (LRO) character so it
                 # is displayed left to right. More:
-                # http://www.unicode-symbol.com/u/202D.html
+                # https://www.unicode.org/reports/tr9/#Explicit_Directional_Overrides
                 entity_name = '\u202D{}\u202C'.format(entity_name)
 
             label = '<b>{}</b>\n'.format(entity_name)
