@@ -169,7 +169,7 @@ mv -v locale local-bk  # Optionally back up your local translations
 scp -r ${USER}@${INSTANCE_DOMAIN}:/path/to/app/locale locale/
 ```
 
-Then, update the message file to include your changes.
+Then, update the message files to include your changes.
 
 ```bash
 python manage.py makemessages
