@@ -187,13 +187,13 @@ place, and restart the app for the translations to appear onsite.
 
 ```bash
 # On your machine
-scp locale/ ${USER}@${INSTANCE_DOMAIN}:/tmp
+scp -r locale/ ${USER}@${INSTANCE_DOMAIN}:/tmp
 ssh ${USER}@{INSTANCE_DOMAIN}
 
 # On the server
 sudo mv -v /path/to/app/locale /path/to/app/locale-bk  # Optionally back up deployed translations
 sudo mv /tmp/locale /path/to/app/locale
-sudo chown ${USER}.${GROUP} /path/to/app/locale
+sudo chown -R ${USER}.${GROUP} /path/to/app/locale
 sudo supervisorctl restart sfm:sfm-cms
 ```
 
