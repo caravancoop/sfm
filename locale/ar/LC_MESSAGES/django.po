@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 20:46+0000\n"
-"PO-Revision-Date: 2021-06-23 21:22+0000\n"
-"Last-Translator: b'  <hannah.cushman@gmail.com>'\n"
+"POT-Creation-Date: 2021-07-20 13:38+0000\n"
+"PO-Revision-Date: 2021-07-19 15:26+0000\n"
+"Last-Translator: b'Tom Longley <tom@securityforcemonitor.org>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -60,7 +60,7 @@ msgstr "البلد"
 #: membershiporganization/models.py:86 membershipperson/models.py:189
 #: organization/models.py:348
 msgid "First Cited Date"
-msgstr "أول تاريخ مذكور"
+msgstr "أول تاريخ ذُكر فيه"
 
 #: association/models.py:61 emplacement/models.py:60
 msgid "Is Foundation Date?"
@@ -70,7 +70,7 @@ msgstr "هو تاريخ التأسيس؟"
 #: membershiporganization/models.py:99 membershipperson/models.py:199
 #: organization/models.py:358
 msgid "Last Cited Date"
-msgstr "آخر تاريخ مذكور"
+msgstr "آخر تاريخ ذُكر فيه"
 
 #: association/models.py:81 composition/models.py:56 emplacement/models.py:90
 #: membershipperson/models.py:148
@@ -221,7 +221,7 @@ msgstr "في"
 #: templates/person/delete-posting.html:29
 #: templates/person/partials/person-posting-list.html:15
 msgid "Role"
-msgstr "الوظيفة"
+msgstr "الدور"
 
 #: membershipperson/models.py:169
 msgid "Official Title"
@@ -259,7 +259,7 @@ msgstr "لا"
 
 #: organization/forms.py:50
 msgid "Last cited date is termination date"
-msgstr "آخر تاريخ مذكور هو تاريخ الإنهاء"
+msgstr "آخر تاريخ ذُكر فيه هو تاريخ الإنهاء"
 
 #: organization/forms.py:72 organization/forms.py:118 organization/forms.py:163
 #: organization/forms.py:207 organization/forms.py:247
@@ -274,7 +274,7 @@ msgstr "آخر تاريخ مذكور هو تاريخ الإنهاء"
 #: templates/organization/edit-membership.html:19
 #: templates/person/delete-posting.html:49
 msgid "Date first cited"
-msgstr "التاريخ المذكور أولا"
+msgstr "تاريخ أول ذِكر للمنظمة"
 
 #: organization/forms.py:73 organization/forms.py:119 organization/forms.py:164
 #: organization/forms.py:208 organization/forms.py:248
@@ -289,7 +289,7 @@ msgstr "التاريخ المذكور أولا"
 #: templates/organization/edit-membership.html:20
 #: templates/person/delete-posting.html:79
 msgid "Date last cited"
-msgstr "التاريخ المذكور آخرا"
+msgstr "آخر تاريخ ذُكرت فيه المنظمة"
 
 #: organization/forms.py:74 organization/forms.py:117 organization/forms.py:162
 #: organization/forms.py:209 organization/forms.py:246
@@ -337,7 +337,7 @@ msgstr "اسم الشخص"
 #: templates/person/partials/person-posting-list.html:16
 #: templates/source/delete.html:15
 msgid "Title"
-msgstr "الصّفة"
+msgstr "العنوان"
 
 #: organization/forms.py:210 person/forms.py:87
 #: templates/organization/delete-membership.html:59
@@ -530,7 +530,7 @@ msgstr "المصادر"
 
 #: sfm_pc/forms.py:564
 msgid "Choose a download type"
-msgstr "اختر نوع التنزيل"
+msgstr "اختر صيغة التنزيل"
 
 #: sfm_pc/forms.py:566
 msgid "Include confidence scores"
@@ -583,15 +583,13 @@ msgid "Exact"
 msgstr ""
 
 #: sfm_pc/templatetags/citations.py:15
-#, fuzzy
-#| msgid "publication date"
 msgid "Publication Title"
 msgstr "تاريخ النشر"
 
 #: sfm_pc/templatetags/citations.py:16 templates/source/delete.html:20
 #: templates/source/edit.html:73
 msgid "Publication"
-msgstr "النشرة"
+msgstr "الناشر"
 
 #: sfm_pc/templatetags/citations.py:17 templates/source/delete.html:32
 msgid "Published on"
@@ -687,15 +685,12 @@ msgid "Date published is required"
 msgstr ""
 
 #: source/models.py:46
-#, fuzzy
-#| msgid "publication date"
 msgid "publication title"
-msgstr "تاريخ النشر"
+msgstr ""
 
 #: source/models.py:49
-#, fuzzy
 msgid "publisher"
-msgstr "نشرت"
+msgstr "الناشر"
 
 #: source/models.py:52
 msgid "publication country"
@@ -719,7 +714,7 @@ msgstr ""
 
 #: source/models.py:172
 msgid "access date"
-msgstr ""
+msgstr "تاريخ الوصول للمصدر"
 
 #: source/models.py:188
 #, python-format
@@ -1778,6 +1773,8 @@ msgid ""
 "level:\n"
 "                "
 msgstr ""
+"\n"
+" 1. حدد مستوى الثقة لـ <strong><%%= field_label %%></strong> :"
 
 #: templates/edit.html:158
 #, python-format
@@ -1787,6 +1784,8 @@ msgid ""
 "            2. Add sources to <strong><%%= field_label %%></strong>\n"
 "        "
 msgstr ""
+"\n"
+" 2. أضف مصادر لـ <strong><%%= field_label %%></strong>"
 
 #: templates/emplacement/search.html:7
 msgid "Search Emplacement"
@@ -1798,7 +1797,7 @@ msgstr "إضافة موقع"
 
 #: templates/location/create.html:28
 msgid "Location Type"
-msgstr ""
+msgstr "نوع الموقع"
 
 #: templates/location/create.html:30 templates/location/list.html:25
 msgid "Node"
@@ -1880,7 +1879,7 @@ msgstr ""
 #: templates/organization/edit-membership.html:18
 #: templates/partials/location_list_table.html:27
 msgid "Type"
-msgstr ""
+msgstr "النوع"
 
 #: templates/location/delete.html:46
 msgctxt "Geographically -- as in, a city is _in_ a country"
@@ -1894,12 +1893,12 @@ msgstr "إضافة موقع جديد"
 #: templates/location/detail.html:19
 #, python-format
 msgid "<b>OSM ID:</b> %(location_id)s"
-msgstr ""
+msgstr "<b>معرّف الOSM:</b> %(location_id)s"
 
 #: templates/location/detail.html:20
 #, python-format
 msgid "<b>Type:</b> %(feature_type)s"
-msgstr ""
+msgstr "<b>النوع:</b> %(feature_type)s"
 
 #: templates/location/detail.html:54
 msgid "In"
@@ -1939,7 +1938,7 @@ msgstr ""
 
 #: templates/location/list.html:50 templates/search/search.html:26
 msgid "Go!"
-msgstr "!إنطلق"
+msgstr "ابحث!"
 
 #: templates/location/list.html:58 templates/partials/source_edit_js.html:50
 #: templates/partials/source_edit_js.html:60 templates/search/search.html:268
@@ -2092,11 +2091,11 @@ msgstr ""
 
 #: templates/membershipperson/search.html:42
 msgid "First cited date"
-msgstr ""
+msgstr "أول تاريخ ذُكر فيه"
 
 #: templates/membershipperson/search.html:81
 msgid "Last cited date"
-msgstr "آخر تاريخ مذكور"
+msgstr "آخر تاريخ ذُكر فيه"
 
 #: templates/modals/source.html:4
 msgid "View/Edit Sources"
@@ -2387,7 +2386,7 @@ msgstr "التصنيف:"
 #: templates/organization/view.html:28 templates/person/view.html:29
 #: templates/violation/view.html:29
 msgid "Download as CSV"
-msgstr "CSV تنزيل في شكل "
+msgstr "تنزيل بصيغة CSV"
 
 #: templates/organization/view.html:30 templates/person/view.html:31
 #: templates/violation/view.html:31
@@ -2429,23 +2428,24 @@ msgstr "جميع الوحدات التي شغلت منصب قيادة على ه�
 
 #: templates/organization/view.html:354 templates/person/view.html:169
 msgid "Swipe to zoom, click and drag to pan"
-msgstr ""
+msgstr "مرّر عجلة الفأرة للتكبير، انقر واسحب للتحريك"
 
 #: templates/organization/view.html:434
 msgid ""
 "Table showing personnel linked to this unit in command, administrative and "
 "other roles"
 msgstr ""
+"يعرض الجدول الأفراد المرتبطين بهذه الوحدة بوظائف قيادية وإدارية وغيرها."
 
 #: templates/organization/view.html:562 templates/person/view.html:343
 msgid "No known end date"
-msgstr "لا يوجد تاريخ انتهاء معروف"
+msgstr "تاريخ انتهاء العلاقات بين هذه الوحدات غير معروف"
 
 #: templates/partials/back_skip_next.html:7
 #: templates/partials/location_search_results.html:61
 #: templates/partials/pagination.html:51
 msgid "Next"
-msgstr "الصفحة التالية"
+msgstr "التالي"
 
 #: templates/partials/back_skip_next.html:7
 msgid "Submit and finish"
@@ -2504,7 +2504,7 @@ msgstr ""
 #: templates/partials/organization_list_table.html:24
 #: templates/search/search.html:108
 msgid "Parents"
-msgstr ""
+msgstr "الوحدات الأم"
 
 #: templates/partials/organization_list_table.html:30
 msgid "Last site"
@@ -2523,7 +2523,7 @@ msgstr "تنزيل النتائج"
 
 #: templates/partials/pagination.html:65
 msgid "Results per page:"
-msgstr "النتائج لكل صفحة:"
+msgstr "عدد النتائج في الصفحة الواحدة:"
 
 #: templates/partials/person_list_table.html:11
 msgid "Select"
@@ -2548,7 +2548,7 @@ msgstr "الناس"
 #: templates/partials/related_entities.html:4
 #: templates/source/delete-access-point.html:42
 msgid "Related entities"
-msgstr ""
+msgstr "مُدخلات ذات صلة"
 
 #: templates/partials/related_entities.html:9
 msgid "Entity"
@@ -2556,7 +2556,7 @@ msgstr ""
 
 #: templates/partials/related_entities.html:10
 msgid "Entity type"
-msgstr ""
+msgstr "نوع المدخلة"
 
 #: templates/partials/related_entities.html:13
 msgid "Open ended"
@@ -2572,17 +2572,17 @@ msgstr "...يرجى إدخال حرفين أو أكثر"
 
 #: templates/partials/source_overview_table.html:11
 msgid "List of all sources used to evidence the data in this record"
-msgstr ""
+msgstr "قائمة بجميع المصادر المستخدمة للتحقق من البيانات في هذا السجل"
 
 #: templates/partials/source_overview_table.html:13
 msgid ""
 "Click the \"+\" symbol next to every data point in the record to see the "
 "sources used for that data point."
 msgstr ""
+"انقر على إشارة \"+\" المجاورة لكل نقطة بيانات في السجل للاطلاع على المصادر "
+"المستخدمة فيها."
 
 #: templates/partials/source_overview_table.html:28
-#, fuzzy
-#| msgid "Archive URL"
 msgid "Archive Link"
 msgstr "رابط الأرشيف"
 
@@ -2710,7 +2710,7 @@ msgstr ""
 #: templates/person/view.html:61 templates/person/view.html:73
 #: templates/person/view.html:89
 msgid "Last seen as"
-msgstr ""
+msgstr "آخر ذكرٍ له كان بصفته"
 
 #: templates/person/view.html:63 templates/person/view.html:75
 #: templates/person/view.html:164
@@ -2720,7 +2720,7 @@ msgstr "سلسلة القيادة"
 #: templates/person/view.html:64 templates/person/view.html:76
 #: templates/person/view.html:181
 msgid "Superiors"
-msgstr ""
+msgstr "الرؤساء"
 
 #: templates/person/view.html:65 templates/person/view.html:77
 #: templates/person/view.html:243
@@ -2732,11 +2732,14 @@ msgid ""
 "Command relationships from a person's posting to the highest-level unit "
 "(calculated at the end of the posting)"
 msgstr ""
+"الوحدات التي تم تعيين الشخص فيها والوحدات اﻷم لها (حتى تاريخ نهاية تعيينه)"
 
 #: templates/person/view.html:183
 msgid ""
 "Commanders of units that were superior to any units commanded by this person"
 msgstr ""
+"أسماء القادة الذين ترأسوا وحدات على مستوى أعلى من الوحدة التي قادها هذا "
+"الشخص."
 
 #: templates/person/view.html:193 templates/person/view.html:255
 msgid "Start of overlap"
@@ -3105,7 +3108,7 @@ msgstr "...أدخل اسم شخص أو وحدة أو موقع أو كلمة مف
 #. Translators: 'from' is followed by a selector displaying available countries in the search index
 #: templates/sfm/dashboard.html:58
 msgid "Show me results from..."
-msgstr "لم يتم العثور على نتائج"
+msgstr "اعرض نتائج من..."
 
 #: templates/sfm/dashboard.html:64
 msgid "Select a country"
@@ -3130,7 +3133,7 @@ msgstr ""
 
 #: templates/sfm/dashboard.html:95
 msgid "Learn more"
-msgstr ""
+msgstr "للمزيد"
 
 #: templates/sidebar.html:9
 msgid "Person Membership"
@@ -3175,7 +3178,7 @@ msgstr "الصفحة (الصفحات)"
 #: templates/source/access-points.html:27
 #: templates/source/access-points.html:109
 msgid "Access Date"
-msgstr "تاريخ الوصول"
+msgstr "تاريخ الوصول للمصدر"
 
 #: templates/source/access-points.html:61
 msgid "Add Access Point"
@@ -3187,7 +3190,7 @@ msgstr "أرقام الصفحات"
 
 #: templates/source/access-points.html:122 templates/source/edit.html:119
 msgid "Describe your changes"
-msgstr "صف التغييرات التي أجريتها"
+msgstr "صف التغييرات التي أدخلتها"
 
 #: templates/source/base_source.html:18
 msgid "Editing"
@@ -3255,7 +3258,7 @@ msgstr "اسم الحقل"
 #: templates/source/partials/access_point_related_entities.html:11
 msgctxt "of a database record"
 msgid "Value"
-msgstr "قيمة"
+msgstr "القيمة"
 
 #: templates/source/partials/source_related_entities.html:8
 msgid "Access point"
@@ -3263,7 +3266,7 @@ msgstr ""
 
 #: templates/source/view.html:33
 msgid "Last edited by:"
-msgstr ":آخر تعديل من طرف"
+msgstr "آخر تعديل من طرف:"
 
 #: templates/source/view.html:49
 msgid "Select an access point to view entities evidenced by this source:"
@@ -3439,10 +3442,7 @@ msgid "Perpetrator Classification"
 msgstr "تصنيف الجناة"
 
 #~ msgid "title"
-#~ msgstr "الصّفة"
-
-#~ msgid "Battalion 345"
-#~ msgstr "345 كتيبة"
+#~ msgstr "العنوان"
 
 #~ msgid "results found"
 #~ msgstr "تم العثور على نتيجة"
