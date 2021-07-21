@@ -572,9 +572,8 @@
             chart.dateMissingString = "{% trans 'No known end date' %}"
             chart.edgelists = edgelists;
 
-            chart.initCarousel();
+            chart.initCarousel('{{ LANGUAGE_BIDI }}' == 'True' ? true : false);
             chart.show();
-
         });
         </script>
     {% endif %}

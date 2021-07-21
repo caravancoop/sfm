@@ -47,8 +47,7 @@ var CommandChart = {
         },
     },
 
-    initCarousel: function() {
-
+    initCarousel: function(enableRightToLeft) {
         // Add divs to carousel
         $.each(CommandChart.edgelists, function(index, value) {
 
@@ -66,6 +65,7 @@ var CommandChart = {
                 initialIndex: org_count - 1,
                 wrapAround: true,
                 draggable: true,
+                rightToLeft: enableRightToLeft
             });
         };
     },
