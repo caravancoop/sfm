@@ -1,5 +1,5 @@
 {% extends "base_detail.html" %}
-{% load i18n %}
+{% load i18n language_url %}
 {% load static %}
 {% load countries %}
 {% load citations %}
@@ -584,13 +584,16 @@
         <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $('.data-table').dataTable({
+                $('.data-table').DataTable({
                     "order": [[ 0, "desc" ]],
                     "pageLength": 25,
                     "aoColumnDefs": [
                         { "bSortable": false, "aTargets": [ 4 ] },
                         { "bSearchable": false, "aTargets": [ 4 ] }
-                    ]
+                    ],
+                    "language": {
+                        "url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/{{ LANGUAGE_CODE|get_language }}.json"
+                    }
                 })
             });
         </script>

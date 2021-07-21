@@ -1,5 +1,5 @@
 {% extends "base_detail.html" %}
-{% load i18n %}
+{% load i18n language_url %}
 {% load static %}
 {% load countries %}
 {% load citations %}
@@ -362,7 +362,10 @@
                     "aoColumnDefs": [
                         { "bSortable": false, "aTargets": [ 4 ] },
                         { "bSearchable": false, "aTargets": [ 4 ] }
-                    ]
+                    ],
+                    "language": {
+                        "url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/{{ LANGUAGE_CODE|get_language }}.json"
+                    }
                 })
             });
         </script>

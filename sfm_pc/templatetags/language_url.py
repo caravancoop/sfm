@@ -8,6 +8,15 @@ from django.utils.translation import ugettext as _
 register = template.Library()
 
 @register.filter
+def get_language(lang_abbr):
+    return {
+        'ar': 'Arabic',
+        'en': 'English',
+        'es': 'Spanish',
+        'fr': 'French',
+    }.get(lang_abbr, 'en')
+
+@register.filter
 def create_select2_data(select_lang_abbr):
     # Returns an array of languages – with the current language as the first element.
     # To configure the select2 dropdown in the correct order.
