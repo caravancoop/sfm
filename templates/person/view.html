@@ -122,9 +122,11 @@
 
                             <tr>
                                 <td class="cited">
-                                    <a href="{% url 'view-organization' organization.uuid %}">
-                                        {{ organization.name.get_value }}
-                                    </a>
+                                    <bdi>
+                                        <a href="{% url 'view-organization' organization.uuid %}">
+                                            {{ organization.name.get_value }}
+                                        </a>
+                                    </bdi>
                                     {% cite member.organization.get_value %}
                                 </td>
                                 <td class="cited">
@@ -213,10 +215,12 @@
                             {% cite superior.commander.role.get_value %}
                         </td>
                         <td class="cited">
-                            <a href="{% url 'view-organization' superior.organization.value.uuid %}">
-                                {{ superior.organization }}
-                            </a>
-                                {% cite superior.organization %}
+                            <bdi>
+                                <a href="{% url 'view-organization' superior.organization.value.uuid %}">
+                                    {{ superior.organization }}
+                                </a>
+                            </bdi>
+                            {% cite superior.organization %}
                         </td>
                         <td class="cited">
                             {{ superior.overlap_start }}
