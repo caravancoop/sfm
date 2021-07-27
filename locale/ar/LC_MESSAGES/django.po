@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-20 13:38+0000\n"
-"PO-Revision-Date: 2021-07-19 15:26+0000\n"
+"POT-Creation-Date: 2021-07-27 15:31+0000\n"
+"PO-Revision-Date: 2021-07-22 12:01+0000\n"
 "Last-Translator: b'Tom Longley <tom@securityforcemonitor.org>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -225,7 +225,7 @@ msgstr "الدور"
 
 #: membershipperson/models.py:169
 msgid "Official Title"
-msgstr ""
+msgstr "المسمّى الوظيفي"
 
 #: membershipperson/models.py:179 organization/forms.py:204 person/forms.py:81
 #: templates/membershipperson/search.html:26
@@ -486,40 +486,40 @@ msgstr "هذا الحقل يتطلب مصادر"
 
 #: sfm_pc/forms.py:553
 msgid "Basic"
-msgstr ""
+msgstr "أساسية"
 
 #: sfm_pc/forms.py:554
 msgid "Parentage"
-msgstr ""
+msgstr "الوحدات الأم"
 
-#: sfm_pc/forms.py:555 templates/organization/view.html:71
-#: templates/organization/view.html:87 templates/organization/view.html:211
+#: sfm_pc/forms.py:555 templates/organization/view.html:73
+#: templates/organization/view.html:89 templates/organization/view.html:213
 msgid "Memberships"
 msgstr "العضويات"
 
-#: sfm_pc/forms.py:556 templates/organization/view.html:69
-#: templates/organization/view.html:85 templates/organization/view.html:103
+#: sfm_pc/forms.py:556 templates/organization/view.html:71
+#: templates/organization/view.html:87 templates/organization/view.html:105
 msgid "Areas of operation"
 msgstr "مناطق العمليات"
 
-#: sfm_pc/forms.py:557 templates/organization/view.html:70
-#: templates/organization/view.html:86 templates/organization/view.html:157
+#: sfm_pc/forms.py:557 templates/organization/view.html:72
+#: templates/organization/view.html:88 templates/organization/view.html:159
 msgid "Sites"
 msgstr "المواقع"
 
 #: sfm_pc/forms.py:558 templates/base.html:65
 #: templates/organization/base-organization.html:35
 #: templates/organization/partials/personnel-list.html:6
-#: templates/organization/view.html:75 templates/organization/view.html:91
-#: templates/organization/view.html:432 templates/partials/nav-wizard.html:7
+#: templates/organization/view.html:77 templates/organization/view.html:93
+#: templates/organization/view.html:442 templates/partials/nav-wizard.html:7
 #: templates/partials/person_search_results.html:5
 #: templates/search/search.html:44 templates/sfm/dashboard.html:31
 msgid "Personnel"
 msgstr "الأفراد"
 
 #: sfm_pc/forms.py:559 templates/base.html:69 templates/modals/source.html:29
-#: templates/modals/version.html:10 templates/organization/view.html:77
-#: templates/organization/view.html:93
+#: templates/modals/version.html:10 templates/organization/view.html:79
+#: templates/organization/view.html:95
 #: templates/partials/source_overview_table.html:7
 #: templates/partials/source_search_results.html:5
 #: templates/person/view.html:67 templates/person/view.html:79
@@ -558,22 +558,22 @@ msgstr "تاريخ البدء"
 msgid "End date"
 msgstr "تاريخ الانتهاء"
 
-#: sfm_pc/settings.py:173 sfm_pc/templatetags/language_url.py:17
+#: sfm_pc/settings.py:173 sfm_pc/templatetags/language_url.py:26
 #: templates/base.html:173 tests/test_settings.py:128
 msgid "French"
 msgstr "الفرنسية"
 
-#: sfm_pc/settings.py:174 sfm_pc/templatetags/language_url.py:15
+#: sfm_pc/settings.py:174 sfm_pc/templatetags/language_url.py:24
 #: templates/base.html:171 tests/test_settings.py:129
 msgid "English"
 msgstr "الإنجليزية"
 
-#: sfm_pc/settings.py:175 sfm_pc/templatetags/language_url.py:16
+#: sfm_pc/settings.py:175 sfm_pc/templatetags/language_url.py:25
 #: templates/base.html:172 tests/test_settings.py:130
 msgid "Spanish"
 msgstr "الأسبانية"
 
-#: sfm_pc/settings.py:176 sfm_pc/templatetags/language_url.py:21
+#: sfm_pc/settings.py:176 sfm_pc/templatetags/language_url.py:30
 #: templates/base.html:174
 msgid "Arabic"
 msgstr "العربية"
@@ -584,7 +584,7 @@ msgstr ""
 
 #: sfm_pc/templatetags/citations.py:15
 msgid "Publication Title"
-msgstr "تاريخ النشر"
+msgstr "عنوان النشر"
 
 #: sfm_pc/templatetags/citations.py:16 templates/source/delete.html:20
 #: templates/source/edit.html:73
@@ -686,7 +686,7 @@ msgstr ""
 
 #: source/models.py:46
 msgid "publication title"
-msgstr ""
+msgstr "عنوان النشر"
 
 #: source/models.py:49
 msgid "publisher"
@@ -1444,7 +1444,7 @@ msgstr ""
 
 #: templates/base.html:43
 msgid "A tool from"
-msgstr ""
+msgstr "أداة من"
 
 #. Translators: This translation is for the site title as it appears in the header. Please retain emphasis on the translation of "Who".
 #.
@@ -1459,12 +1459,12 @@ msgstr ""
 msgid "Units"
 msgstr "الوحدات"
 
-#: templates/base.html:67 templates/organization/view.html:76
-#: templates/organization/view.html:92 templates/organization/view.html:490
+#: templates/base.html:67 templates/organization/view.html:78
+#: templates/organization/view.html:94 templates/organization/view.html:500
 #: templates/partials/nav-wizard.html:10
 #: templates/partials/violation_search_results.html:5
 #: templates/person/view.html:66 templates/person/view.html:78
-#: templates/person/view.html:303 templates/search/search.html:46
+#: templates/person/view.html:307 templates/search/search.html:46
 #: templates/sfm/dashboard.html:39
 msgid "Incidents"
 msgstr "الحوادث"
@@ -1515,14 +1515,20 @@ msgid ""
 "Columbia Law School Human Rights Institute.</p>\n"
 "                    "
 msgstr ""
+"\n"
+"<p>ينشر مشروع WhoWasInCommand بيانات عن أجهزة الشرطة والجيش وقوات الأمن "
+"الأخرى وقادَتها ومناطق العمليات وعلاقاتها بادّعاءات انتهاكات حقوق الإنسان. "
+"يساعد الموقع الباحثين في مجال حقوق الإنسان والصحفيين الاستقصائيين وأي شخص "
+"يسعى لمزيد من المساءلة لقوات الأمن. WhoWasInCommand هي أداة من Security "
+"Force Monitor في معهد حقوق الإنسان في كلية الحقوق بجامعة كولومبيا.</p>"
 
 #: templates/base.html:130
 msgid "The content of WhoWasInCommand is licensed under"
-msgstr ""
+msgstr "محتوى WhoWasInCommand مرخص بموجب"
 
 #: templates/base.html:130
 msgid "Creative Commons Attribution License 4.0"
-msgstr ""
+msgstr " رخصة المشاع الإبداعي 4.0 (نسب المصنّف)."
 
 #: templates/base.html:134
 msgid "Site contents"
@@ -1530,19 +1536,19 @@ msgstr "محتويات الموقع"
 
 #: templates/base.html:136
 msgid "Help - Frequently Asked Questions"
-msgstr ""
+msgstr "المساعدة - الأسئلة الأكثر شيوعًا"
 
 #: templates/base.html:137
 msgid "About WhoWasInCommand"
-msgstr ""
+msgstr "حول WhoWasInCommand"
 
 #: templates/base.html:138
 msgid "Contact"
-msgstr ""
+msgstr "معلومات التواصل"
 
 #: templates/base.html:139
 msgid "Source code"
-msgstr ""
+msgstr "الكود المصدري"
 
 #: templates/base_delete.html:9
 #, python-format
@@ -1686,7 +1692,7 @@ msgstr ""
 
 #: templates/download.html:4
 msgid "Download information about units"
-msgstr ""
+msgstr "نزّل بيانات حول الوحدات"
 
 #: templates/download.html:77
 msgid "Download"
@@ -1854,10 +1860,10 @@ msgstr ""
 #: templates/location/create.html:154 templates/location/delete.html:64
 #: templates/location/detail.html:104
 #: templates/organization/edit-locations.html:109
-#: templates/organization/view.html:541
+#: templates/organization/view.html:551
 #: templates/violation/create-locations.html:177
 #: templates/violation/edit-locations.html:185
-#: templates/violation/view.html:263
+#: templates/violation/view.html:265
 msgid ""
 "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> "
 "contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-"
@@ -2374,12 +2380,12 @@ msgstr ""
 msgid "Also known as:"
 msgstr "يعرف أيضا باسم:"
 
-#: templates/organization/view.html:12 templates/organization/view.html:48
+#: templates/organization/view.html:12 templates/organization/view.html:50
 #: templates/person/view.html:49 templates/violation/view.html:57
 msgid "Country:"
 msgstr "البلد:"
 
-#: templates/organization/view.html:12 templates/organization/view.html:53
+#: templates/organization/view.html:12 templates/organization/view.html:55
 msgid "Classified as:"
 msgstr "التصنيف:"
 
@@ -2399,45 +2405,45 @@ msgstr "طباعة هذه الصفحة"
 msgid "Edit"
 msgstr "تعديل"
 
-#: templates/organization/view.html:72 templates/organization/view.html:88
-#: templates/organization/view.html:279
+#: templates/organization/view.html:74 templates/organization/view.html:90
+#: templates/organization/view.html:283
 msgid "Member units"
 msgstr "الوحدات الأعضاء"
 
-#: templates/organization/view.html:73 templates/organization/view.html:89
-#: templates/organization/view.html:349
+#: templates/organization/view.html:75 templates/organization/view.html:91
+#: templates/organization/view.html:355
 msgid "Parent units"
 msgstr "الوحدات الأم"
 
-#: templates/organization/view.html:74 templates/organization/view.html:90
-#: templates/organization/view.html:368
+#: templates/organization/view.html:76 templates/organization/view.html:92
+#: templates/organization/view.html:376
 msgid "Subsidiaries"
 msgstr "الفروع"
 
-#: templates/organization/view.html:213
+#: templates/organization/view.html:215
 msgid "Multi-unit organizations that this unit is part of"
 msgstr ""
 
-#: templates/organization/view.html:281
+#: templates/organization/view.html:285
 msgid "All units that comprise this unit."
 msgstr "جميع الوحدات التي تتكون منها هذه الوحدة."
 
-#: templates/organization/view.html:351
+#: templates/organization/view.html:357
 msgid "All units that have held a command position over this unit."
 msgstr "جميع الوحدات التي شغلت منصب قيادة على هذه الوحدة."
 
-#: templates/organization/view.html:354 templates/person/view.html:169
+#: templates/organization/view.html:360 templates/person/view.html:171
 msgid "Swipe to zoom, click and drag to pan"
 msgstr "مرّر عجلة الفأرة للتكبير، انقر واسحب للتحريك"
 
-#: templates/organization/view.html:434
+#: templates/organization/view.html:444
 msgid ""
 "Table showing personnel linked to this unit in command, administrative and "
 "other roles"
 msgstr ""
 "يعرض الجدول الأفراد المرتبطين بهذه الوحدة بوظائف قيادية وإدارية وغيرها."
 
-#: templates/organization/view.html:562 templates/person/view.html:343
+#: templates/organization/view.html:572 templates/person/view.html:347
 msgid "No known end date"
 msgstr "تاريخ انتهاء العلاقات بين هذه الوحدات غير معروف"
 
@@ -2562,6 +2568,18 @@ msgstr "نوع المدخلة"
 msgid "Open ended"
 msgstr ""
 
+#: templates/partials/search_filter.html:34
+#: templates/partials/violation_description.html:12
+#: templates/search/search.html:366
+msgid "Show less"
+msgstr "إظهار أقل"
+
+#: templates/partials/search_filter.html:37
+#: templates/partials/violation_description.html:11
+#: templates/search/search.html:368
+msgid "Show more"
+msgstr "إظهار المزيد"
+
 #: templates/partials/source_and_confidence.html:22
 msgid "Sources and confidence for this information"
 msgstr ""
@@ -2630,14 +2648,6 @@ msgstr ""
 #: templates/partials/version_list.html:63
 msgid "Revert!"
 msgstr ""
-
-#: templates/partials/violation_description.html:11
-msgid "Show more"
-msgstr "إظهار المزيد"
-
-#: templates/partials/violation_description.html:12
-msgid "Show less"
-msgstr "إظهار أقل"
 
 #: templates/partials/violation_list_table.html:65
 msgid "View Detail"
@@ -2713,47 +2723,47 @@ msgid "Last seen as"
 msgstr "آخر ذكرٍ له كان بصفته"
 
 #: templates/person/view.html:63 templates/person/view.html:75
-#: templates/person/view.html:164
+#: templates/person/view.html:166
 msgid "Chain of command"
 msgstr "سلسلة القيادة"
 
 #: templates/person/view.html:64 templates/person/view.html:76
-#: templates/person/view.html:181
+#: templates/person/view.html:183
 msgid "Superiors"
 msgstr "الرؤساء"
 
 #: templates/person/view.html:65 templates/person/view.html:77
-#: templates/person/view.html:243
+#: templates/person/view.html:247
 msgid "Subordinates"
 msgstr ""
 
-#: templates/person/view.html:166
+#: templates/person/view.html:168
 msgid ""
 "Command relationships from a person's posting to the highest-level unit "
 "(calculated at the end of the posting)"
 msgstr ""
 "الوحدات التي تم تعيين الشخص فيها والوحدات اﻷم لها (حتى تاريخ نهاية تعيينه)"
 
-#: templates/person/view.html:183
+#: templates/person/view.html:185
 msgid ""
 "Commanders of units that were superior to any units commanded by this person"
 msgstr ""
 "أسماء القادة الذين ترأسوا وحدات على مستوى أعلى من الوحدة التي قادها هذا "
 "الشخص."
 
-#: templates/person/view.html:193 templates/person/view.html:255
+#: templates/person/view.html:195 templates/person/view.html:259
 msgid "Start of overlap"
 msgstr "بداية التداخل"
 
-#: templates/person/view.html:194 templates/person/view.html:256
+#: templates/person/view.html:196 templates/person/view.html:260
 msgid "End of overlap"
 msgstr "نهاية التداخل"
 
-#: templates/person/view.html:195 templates/person/view.html:257
+#: templates/person/view.html:197 templates/person/view.html:261
 msgid "Duration of overlap"
 msgstr "مدة التداخل"
 
-#: templates/person/view.html:245
+#: templates/person/view.html:249
 msgid ""
 "Commanders of units that were subordinate to any units commanded by this "
 "person"
@@ -2835,7 +2845,7 @@ msgstr[5] ""
 
 #: templates/sfm/about.html:10
 msgid "What is WhoWasInCommand.com?"
-msgstr ""
+msgstr "ما هو موقع WhoWasInCommand؟"
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:13
@@ -2864,6 +2874,17 @@ msgid ""
 "defence forces.\n"
 "            "
 msgstr ""
+"\n"
+"WhoWasInCommand.com هي قاعدة بيانات عامة حرّة ومجانية تجمع معلومات عن أجهزة "
+"الشرطة والجيش وقوى الأمن وقوات الدفاع الأخرى. أُنشئت قاعدة البيانات هذه "
+"وأُديرت من قبل فريق Security Force Monitor -وهو مشروع بحث استقصائي مقره معهد "
+"حقوق الإنسان في كلية الحقوق بجامعة كولومبيا في نيويورك. يحتوي موقع "
+"WhoWasInCommand.com على بيانات مفصلة قمنا بإنشائها حول الهيكل التنظيمي "
+"وأفراد القيادة والحيّز الجغرافي لأجهزة الشرطة والجيش وقوات الأمن وقوات الدفاع "
+"الأخرى. لقد أنشأنا جميع هذه البيانات من خلال تحليل مصادر عامة. إضافة إلى "
+"ذلك، نقوم بتركيب وتجميع الادعاءات المنشورة للعموم من قبل مجموعات المجتمع "
+"المدني والمرتبطة انتهاكات حقوق الإنسان المزعومة التي ارتكبتها قوات الأمن "
+"والدفاع."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:29
@@ -2887,6 +2908,13 @@ msgid ""
 "in 2017</a>.\n"
 "            "
 msgstr ""
+"\n"
+"لقد أنشأنا موقع WhoWasInCommand.com لحل مشكلة كبيرة واجهناها في عملنا: حيث "
+"يتوافر قدر هائل من البيانات المتاحة للجمهور حول قوات الأمن والدفاع في العديد "
+"من دول العالم؛ لكنها غير منظّمة ومبعثرة بين مجموعة مصادر متنوعة وواسعة. وهو "
+"ما يجعل فهم أجهزة الأمن والدفاع في بلد معين على الأشخاص الذين يقومون بأعمال "
+"المصلحة العامة أمرًا مكلفًا. يمكنك قراءة المزيد حول هذه المشكلة ولماذا بدأنا "
+"مشروع Security Force Monitor في هذه التدوينة التي نشرناها عام 2017."
 
 #: templates/sfm/about.html:41
 msgid ""
@@ -2898,27 +2926,30 @@ msgid ""
 "            help answer questions like:\n"
 "            "
 msgstr ""
+"\n"
+"لمعالجة تلك المشكلة؛ نبحث عن هذه المعلومات ونحللها وننظمها وننشرها هنا على "
+"موقع WhoWasInCommand.com، وهو ما يساعد في الإجابة على أسئلة من قبيل:"
 
 #: templates/sfm/about.html:48 templates/sfm/dashboard.html:87
 msgid "Who is in charge of the specialized anti-riot police unit?"
-msgstr ""
+msgstr "من المسؤول عن وحدة شرطة مكافحة الشغب؟"
 
 #: templates/sfm/about.html:49 templates/sfm/dashboard.html:88
 msgid "What army unit has jurisdiction over what areas and for how long?"
-msgstr ""
+msgstr "ما هي وحدة الجيش ذات السلطة على منطقة معينة ومتى كان ذلك؟"
 
 #: templates/sfm/about.html:50 templates/sfm/dashboard.html:89
 msgid "Where did this commander previously serve, and where did they go next?"
-msgstr ""
+msgstr "أين خدم هذا القائد سابقًا وإلى أين انتقل بعد ذلك؟"
 
 #: templates/sfm/about.html:51 templates/sfm/dashboard.html:90
 msgid "When was a particular police unit based in a specific city?"
-msgstr ""
+msgstr "أين كان مقر وحدة شرطة ما في مدينة معينة ومتى كان ذلك؟"
 
 #: templates/sfm/about.html:52 templates/sfm/dashboard.html:91
 msgid ""
 "What allegations have civil society groups made against a unit or commander?"
-msgstr ""
+msgstr "ما الادعاءات التي وجّهتها منظمات المجتمع المدني ضد وحدة أو قائد معيّنَين؟"
 
 #: templates/sfm/about.html:55
 msgid ""
@@ -2936,10 +2967,16 @@ msgid ""
 "            by clicking on it.\n"
 "            "
 msgstr ""
+"\n"
+"لقد أنشأنا جميع البيانات على WhoWasInCommand.com من خلال فحص آلاف المصادر "
+"العامة عبر الإنترنت بما في ذلك المواقع الرسمية لقوات الأمن، وتقارير وسائل "
+"الإعلام المحلية والدولية، والأبحاث الأكاديمية وتقارير المجتمع المدني. يمكنك "
+"الاطلاع على المصادر المُستخدمة لكل جزء من البيانات على WhoWasInCommand ببساطة "
+"عن طريق النقر عليها."
 
 #: templates/sfm/about.html:64
 msgid "Who is behind this and why are you doing it?"
-msgstr ""
+msgstr "من الذي قام بذلك ولماذا؟"
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:67
@@ -2958,6 +2995,11 @@ msgid ""
 "target=\"_blank\">current and past funders can be found here</a>.\n"
 "            "
 msgstr ""
+"\n"
+"نحن فريق Security Force Monitor ، وهو مشروع بحث استقصائي مقره معهد حقوق "
+"الإنسان في كلية الحقوق بجامعة كولومبيا في نيويورك. يتم تمويل عملنا من خلال "
+"المنح المقدمة من الممولين بما في ذلك مؤسسات المجتمع المفتوح ومؤسسة OAK. يمكن "
+"العثور على مزيد من المعلومات حول ممولينا الحاليين والسابقين من خلال الرابط."
 
 #: templates/sfm/about.html:77
 msgid ""
@@ -2977,6 +3019,12 @@ msgid ""
 "            Amnesty International and Human Rights Watch.\n"
 "            "
 msgstr ""
+"\n"
+"هدفنا هو جعل أجهزة الشرطة والجيش وقوى الأمن الأخرى حول العالم أكثر شفافية "
+"وخضوعاً للمساءلة. نقوم بذلك من خلال تحليل وتنظيم المعلومات العامة عن قوات "
+"الأمن لإظهار هيكلها التنظيمي، وحيّزها الجغرافي وولايتها التنفيذية، وقياداتها "
+"وعلاقاتهم المحتملة بانتهاكات حقوق الإنسان المزعومة التي وثقتها منظمات مثل "
+"منظمة العفو الدولية وهيومن رايتس ووتش."
 
 #: templates/sfm/about.html:88
 msgid ""
@@ -2998,6 +3046,14 @@ msgid ""
 "criminal cases.\n"
 "            "
 msgstr ""
+"\n"
+"إن الطبيعة المبهمة لمعظم قوى الأمن تعني أن المحققين يواجهون تحديًا مشتركًا "
+"يتمثل في ربط الانتهاكات التي ترتكبها قوات الأمن بجانِ معين. إن الوصول إلى "
+"معلومات تفصيلية عن قوى الأمن يساعد مجموعات حقوق الإنسان على تحديد مرتكبي "
+"الانتهاكات عند حدوثها. عندما يستطيع المجتمع المدني تقديم ادعاءات محددة؛ يمكن "
+"بدء مجموعة من آليات المساءلة، بما في ذلك: السعي إلى فرض قيود على المساعدة "
+"الأمنية من مقدمي الخدمات الخارجيين، وحملات مناصرة \"الإشهار والفضح\"، "
+"والقضايا الجنائية الدولية."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:101
@@ -3016,6 +3072,11 @@ msgid ""
 "\"_blank\">Twitter</a>.\n"
 "            "
 msgstr ""
+"\n"
+"تُنشر جميع البيانات التي تم جمعها هنا على WhoWasInCommand.com. نعمل أيضًا في "
+"شراكات مع مجموعات حقوق الإنسان التي توفر الخبرة البحثية والتحليلية لتحديد "
+"الروابط بين الانتهاكات الموثقة وهياكل القيادة الأوسع والقادة الأفراد. يمكن "
+"الاطلاع على بعض أعمالنا مع شركائنا على مدونتنا أو حسابنا على تويتر."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:113
@@ -3026,10 +3087,13 @@ msgid ""
 "            a data and web consultancy for civil society.\n"
 "            "
 msgstr ""
+"\n"
+"تم تصميم موقع  WhoWasInCommand.com بواسطة DataMade ، وهي شركة استشارات "
+"للبيانات والويب للمجتمع المدني."
 
 #: templates/sfm/about.html:118
 msgid "Where can I get help or find out more?"
-msgstr ""
+msgstr "كيف يمكن الحصول على المساعدة أو معرفة المزيد؟"
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:121
@@ -3044,6 +3108,10 @@ msgid ""
 "            our sources of funding, and the services we offer.\n"
 "            "
 msgstr ""
+"\n"
+"يحتوي موقع الويب الخاص بنا securityforcemonitor.org على مزيد من المعلومات "
+"حول العمل الذي نقوم به، بما في ذلك مبادراتنا الأخرى ومشاريع البيانات "
+"الاستقصائية وفريقنا ومستشارينا ومصادر تمويلنا والخدمات التي نقدمها."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:130
@@ -3055,24 +3123,28 @@ msgid ""
 "            contains information about:\n"
 "            "
 msgstr ""
+"\n"
+"يتضمن دليل البحث العام الخاص بنا على موقع help.securityforcemonitor.org "
+"معلومات حول:"
 
 #: templates/sfm/about.html:136
 msgid "The countries covered on WhoWasInCommand.com."
-msgstr ""
+msgstr "البلدان المشمولة في موقع WhoWasInCommand.com."
 
 #: templates/sfm/about.html:137
 msgid "How we find, select and assess information."
-msgstr ""
+msgstr "كيف نعثر على المعلومات و نختارها ونقيّمها."
 
 #: templates/sfm/about.html:138
 msgid ""
 "The fields, formats and data model we use to store and analyse our data."
-msgstr ""
+msgstr "الحقول والصيغ ونموذج البيانات الذي نستخدمه لتخزين بياناتنا وتحليلها."
 
 #: templates/sfm/about.html:139
 msgid ""
 "The data you will find on WhoWasInCommand.com, and how to use the platform."
 msgstr ""
+"البيانات التي ستجدها على موقع WhoWasInCommand.com وكيفية استخدام المنصة."
 
 #. Translators: Please preserve the HTML tags in this text block.
 #: templates/sfm/about.html:143
@@ -3086,6 +3158,10 @@ msgid ""
 "            out what bugs and issues the software has.\n"
 "            "
 msgstr ""
+"\n"
+"نطوّر البرنامج الذي يشغّل WhoWasInCommand.com بشكل مفتوح على Github. يمكن "
+"الاطلاع على بعض مستندات التصميم الخاصة بنا، واستخدام الكود، ومعرفة الأخطاء "
+"والمشكلات الحالية في البرنامج."
 
 #: templates/sfm/dashboard.html:3
 msgid ""
@@ -3123,6 +3199,8 @@ msgid ""
 "WhoWasInCommand answers key questions about the structure, behaviour and "
 "people in charge of security forces like the police and army:"
 msgstr ""
+"يجيب موقع WhoWasInCommand على الأسئلة الرئيسية حول الممارسات والهيكلية "
+"والأشخاص المسؤولين عن قوى الأمن مثل أجهزة الشرطة والجيش:"
 
 #: templates/sfm/dashboard.html:94
 msgid ""
@@ -3130,6 +3208,9 @@ msgid ""
 "rights researchers, investigative journalists and anyone who wants security "
 "forces to be more accountable."
 msgstr ""
+"يقدم WhoWasinCommand بيانات من آلاف المصادر العامة عبر الإنترنت لمساعدة "
+"الباحثين في مجال حقوق الإنسان والصحفيين الاستقصائيين وأي شخص يسعى لمزيد من "
+"المساءلة لقوات الأمن."
 
 #: templates/sfm/dashboard.html:95
 msgid "Learn more"

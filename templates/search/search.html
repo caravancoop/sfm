@@ -363,9 +363,9 @@
         $('.facet-toggle').on('click', function(e) {
             var toggleIcon = $(this).find('i');
             if (toggleIcon.hasClass('fa-plus')) {
-                $(this).text('See less').append(toggleIcon.removeClass('fa-plus').addClass('fa-minus'));
+                $(this).text('{% trans "Show less" %}').append(toggleIcon.removeClass('fa-plus').addClass('fa-minus'));
             } else {
-                $(this).text('See more...').append(toggleIcon.removeClass('fa-minus').addClass('fa-plus'));
+                $(this).text('{% trans "Show more" %}').append(toggleIcon.removeClass('fa-minus').addClass('fa-plus'));
             };
         });
 

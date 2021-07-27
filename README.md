@@ -165,7 +165,7 @@ First, retrieve the deployed translations from the server.
 
 ```bash
 # Assuming you are in the sfm-cms directory
-mv -v locale local-bk  # Optionally back up your local translations
+mv -v locale locale-bk  # Optionally back up your local translations
 scp -r ${USER}@${INSTANCE_DOMAIN}:/path/to/app/locale locale/
 ```
 

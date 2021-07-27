@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 20:46+0000\n"
+"POT-Creation-Date: 2021-07-27 15:31+0000\n"
 "PO-Revision-Date: 2021-07-19 19:43+0000\n"
 "Last-Translator: b'  <hannah@hannah.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -493,34 +493,34 @@ msgstr "De base"
 msgid "Parentage"
 msgstr "Parenté"
 
-#: sfm_pc/forms.py:555 templates/organization/view.html:71
-#: templates/organization/view.html:87 templates/organization/view.html:211
+#: sfm_pc/forms.py:555 templates/organization/view.html:73
+#: templates/organization/view.html:89 templates/organization/view.html:213
 msgid "Memberships"
 msgstr "Affiliations "
 
-#: sfm_pc/forms.py:556 templates/organization/view.html:69
-#: templates/organization/view.html:85 templates/organization/view.html:103
+#: sfm_pc/forms.py:556 templates/organization/view.html:71
+#: templates/organization/view.html:87 templates/organization/view.html:105
 msgid "Areas of operation"
 msgstr "Zones d'opération"
 
-#: sfm_pc/forms.py:557 templates/organization/view.html:70
-#: templates/organization/view.html:86 templates/organization/view.html:157
+#: sfm_pc/forms.py:557 templates/organization/view.html:72
+#: templates/organization/view.html:88 templates/organization/view.html:159
 msgid "Sites"
 msgstr "Sites"
 
 #: sfm_pc/forms.py:558 templates/base.html:65
 #: templates/organization/base-organization.html:35
 #: templates/organization/partials/personnel-list.html:6
-#: templates/organization/view.html:75 templates/organization/view.html:91
-#: templates/organization/view.html:432 templates/partials/nav-wizard.html:7
+#: templates/organization/view.html:77 templates/organization/view.html:93
+#: templates/organization/view.html:442 templates/partials/nav-wizard.html:7
 #: templates/partials/person_search_results.html:5
 #: templates/search/search.html:44 templates/sfm/dashboard.html:31
 msgid "Personnel"
 msgstr "Personnel"
 
 #: sfm_pc/forms.py:559 templates/base.html:69 templates/modals/source.html:29
-#: templates/modals/version.html:10 templates/organization/view.html:77
-#: templates/organization/view.html:93
+#: templates/modals/version.html:10 templates/organization/view.html:79
+#: templates/organization/view.html:95
 #: templates/partials/source_overview_table.html:7
 #: templates/partials/source_search_results.html:5
 #: templates/person/view.html:67 templates/person/view.html:79
@@ -559,22 +559,22 @@ msgstr "Date de début "
 msgid "End date"
 msgstr "Date de fin"
 
-#: sfm_pc/settings.py:173 sfm_pc/templatetags/language_url.py:17
+#: sfm_pc/settings.py:173 sfm_pc/templatetags/language_url.py:26
 #: templates/base.html:173 tests/test_settings.py:128
 msgid "French"
 msgstr "Français"
 
-#: sfm_pc/settings.py:174 sfm_pc/templatetags/language_url.py:15
+#: sfm_pc/settings.py:174 sfm_pc/templatetags/language_url.py:24
 #: templates/base.html:171 tests/test_settings.py:129
 msgid "English"
 msgstr "Anglais"
 
-#: sfm_pc/settings.py:175 sfm_pc/templatetags/language_url.py:16
+#: sfm_pc/settings.py:175 sfm_pc/templatetags/language_url.py:25
 #: templates/base.html:172 tests/test_settings.py:130
 msgid "Spanish"
 msgstr "Espagnol "
 
-#: sfm_pc/settings.py:176 sfm_pc/templatetags/language_url.py:21
+#: sfm_pc/settings.py:176 sfm_pc/templatetags/language_url.py:30
 #: templates/base.html:174
 msgid "Arabic"
 msgstr "Arabe"
@@ -1519,12 +1519,12 @@ msgstr "<strong>Qu'est-ce qu'est</strong> WhoWasInCommand?"
 msgid "Units"
 msgstr "Unités"
 
-#: templates/base.html:67 templates/organization/view.html:76
-#: templates/organization/view.html:92 templates/organization/view.html:490
+#: templates/base.html:67 templates/organization/view.html:78
+#: templates/organization/view.html:94 templates/organization/view.html:500
 #: templates/partials/nav-wizard.html:10
 #: templates/partials/violation_search_results.html:5
 #: templates/person/view.html:66 templates/person/view.html:78
-#: templates/person/view.html:303 templates/search/search.html:46
+#: templates/person/view.html:307 templates/search/search.html:46
 #: templates/sfm/dashboard.html:39
 msgid "Incidents"
 msgstr "Incidents "
@@ -1941,10 +1941,10 @@ msgstr "Ajouter"
 #: templates/location/create.html:154 templates/location/delete.html:64
 #: templates/location/detail.html:104
 #: templates/organization/edit-locations.html:109
-#: templates/organization/view.html:541
+#: templates/organization/view.html:551
 #: templates/violation/create-locations.html:177
 #: templates/violation/edit-locations.html:185
-#: templates/violation/view.html:263
+#: templates/violation/view.html:265
 msgid ""
 "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> "
 "contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-"
@@ -2472,12 +2472,12 @@ msgstr "Unité supérieure"
 msgid "Also known as:"
 msgstr "Aussi connu sous le nom:"
 
-#: templates/organization/view.html:12 templates/organization/view.html:48
+#: templates/organization/view.html:12 templates/organization/view.html:50
 #: templates/person/view.html:49 templates/violation/view.html:57
 msgid "Country:"
 msgstr "Pays:"
 
-#: templates/organization/view.html:12 templates/organization/view.html:53
+#: templates/organization/view.html:12 templates/organization/view.html:55
 msgid "Classified as:"
 msgstr "Classé comme:"
 
@@ -2497,42 +2497,42 @@ msgstr "Imprimer cette page"
 msgid "Edit"
 msgstr "Modifier"
 
-#: templates/organization/view.html:72 templates/organization/view.html:88
-#: templates/organization/view.html:279
+#: templates/organization/view.html:74 templates/organization/view.html:90
+#: templates/organization/view.html:283
 msgid "Member units"
 msgstr "Unités affiliées"
 
-#: templates/organization/view.html:73 templates/organization/view.html:89
-#: templates/organization/view.html:349
+#: templates/organization/view.html:75 templates/organization/view.html:91
+#: templates/organization/view.html:355
 msgid "Parent units"
 msgstr "Unités parentes"
 
-#: templates/organization/view.html:74 templates/organization/view.html:90
-#: templates/organization/view.html:368
+#: templates/organization/view.html:76 templates/organization/view.html:92
+#: templates/organization/view.html:376
 msgid "Subsidiaries"
 msgstr "Filiales"
 
-#: templates/organization/view.html:213
+#: templates/organization/view.html:215
 msgid "Multi-unit organizations that this unit is part of"
 msgstr "Organisations à plusieurs unités dont cette unité fait partie"
 
-#: templates/organization/view.html:281
+#: templates/organization/view.html:285
 msgid "All units that comprise this unit."
 msgstr "Toutes les unités qui composent cette unité."
 
-#: templates/organization/view.html:351
+#: templates/organization/view.html:357
 msgid "All units that have held a command position over this unit."
 msgstr ""
 "Toutes les unités qui avaient occupé un poste de commandement sur cette "
 "unité."
 
-#: templates/organization/view.html:354 templates/person/view.html:169
+#: templates/organization/view.html:360 templates/person/view.html:171
 msgid "Swipe to zoom, click and drag to pan"
 msgstr ""
 "Faites glisser pour zoomer, cliquez et faites glisser pour faire un "
 "panoramique"
 
-#: templates/organization/view.html:434
+#: templates/organization/view.html:444
 msgid ""
 "Table showing personnel linked to this unit in command, administrative and "
 "other roles"
@@ -2540,7 +2540,7 @@ msgstr ""
 "Tableau montrant le personnel lié à cette unité dans les rôles de "
 "commandement, d'administration et autres"
 
-#: templates/organization/view.html:562 templates/person/view.html:343
+#: templates/organization/view.html:572 templates/person/view.html:347
 msgid "No known end date"
 msgstr "Aucune date de fin connue"
 
@@ -2666,6 +2666,18 @@ msgstr "Type d'entité"
 msgid "Open ended"
 msgstr "Valable pour toujours"
 
+#: templates/partials/search_filter.html:34
+#: templates/partials/violation_description.html:12
+#: templates/search/search.html:366
+msgid "Show less"
+msgstr "Afficher moins"
+
+#: templates/partials/search_filter.html:37
+#: templates/partials/violation_description.html:11
+#: templates/search/search.html:368
+msgid "Show more"
+msgstr "Afficher plus"
+
 #: templates/partials/source_and_confidence.html:22
 msgid "Sources and confidence for this information"
 msgstr "Sources et fiabilité de ces informations"
@@ -2734,14 +2746,6 @@ msgstr "parce que ..."
 #: templates/partials/version_list.html:63
 msgid "Revert!"
 msgstr "Revenir!"
-
-#: templates/partials/violation_description.html:11
-msgid "Show more"
-msgstr "Afficher plus"
-
-#: templates/partials/violation_description.html:12
-msgid "Show less"
-msgstr "Afficher moins"
 
 #: templates/partials/violation_list_table.html:65
 msgid "View Detail"
@@ -2817,21 +2821,21 @@ msgid "Last seen as"
 msgstr "Vu la dernière fois en tant que"
 
 #: templates/person/view.html:63 templates/person/view.html:75
-#: templates/person/view.html:164
+#: templates/person/view.html:166
 msgid "Chain of command"
 msgstr "Chaîne de commandement"
 
 #: templates/person/view.html:64 templates/person/view.html:76
-#: templates/person/view.html:181
+#: templates/person/view.html:183
 msgid "Superiors"
 msgstr "Supérieurs"
 
 #: templates/person/view.html:65 templates/person/view.html:77
-#: templates/person/view.html:243
+#: templates/person/view.html:247
 msgid "Subordinates"
 msgstr "Subordonnés"
 
-#: templates/person/view.html:166
+#: templates/person/view.html:168
 msgid ""
 "Command relationships from a person's posting to the highest-level unit "
 "(calculated at the end of the posting)"
@@ -2839,26 +2843,26 @@ msgstr ""
 "Les relations de commandement entre une personne affectée et l'unité "
 "militaire du plus haut niveau (mesurées à la fin de l'affectation)"
 
-#: templates/person/view.html:183
+#: templates/person/view.html:185
 msgid ""
 "Commanders of units that were superior to any units commanded by this person"
 msgstr ""
 "Les commandants des unités qui étaient supérieures à toutes les unités "
 "commandées par cette personne"
 
-#: templates/person/view.html:193 templates/person/view.html:255
+#: templates/person/view.html:195 templates/person/view.html:259
 msgid "Start of overlap"
 msgstr "Début du chevauchement"
 
-#: templates/person/view.html:194 templates/person/view.html:256
+#: templates/person/view.html:196 templates/person/view.html:260
 msgid "End of overlap"
 msgstr "Fin du chevauchement"
 
-#: templates/person/view.html:195 templates/person/view.html:257
+#: templates/person/view.html:197 templates/person/view.html:261
 msgid "Duration of overlap"
 msgstr "Durée du chevauchement"
 
-#: templates/person/view.html:245
+#: templates/person/view.html:249
 msgid ""
 "Commanders of units that were subordinate to any units commanded by this "
 "person"
