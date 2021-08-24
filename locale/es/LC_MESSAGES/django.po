@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-27 15:31+0000\n"
+"POT-Creation-Date: 2021-08-24 19:43+0000\n"
 "PO-Revision-Date: 2021-07-19 19:50+0000\n"
 "Last-Translator: b'  <hannah@hannah.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2026,23 +2026,23 @@ msgid "Go!"
 msgstr "Ir!"
 
 #: templates/location/list.html:58 templates/partials/source_edit_js.html:50
-#: templates/partials/source_edit_js.html:60 templates/search/search.html:268
+#: templates/partials/source_edit_js.html:60
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: templates/location/list.html:58 templates/search/search.html:268
+#: templates/location/list.html:58
 msgid "for"
 msgstr "para"
 
-#: templates/location/list.html:67 templates/search/search.html:290
+#: templates/location/list.html:67 templates/search/search.html:264
 msgid "For better results, try adjusting your search filters."
 msgstr "Para mejores resultados, intente ajustar sus filtros de búsqueda,"
 
-#: templates/location/list.html:70 templates/search/search.html:293
+#: templates/location/list.html:70 templates/search/search.html:267
 msgid "Think we're missing something?"
 msgstr "¿Tal vez nos está faltando algo?"
 
-#: templates/location/list.html:70 templates/search/search.html:293
+#: templates/location/list.html:70 templates/search/search.html:267
 msgid "Let us know!"
 msgstr "¡Háganoslo saber!"
 
@@ -2655,15 +2655,15 @@ msgstr "Tipo de Entidad"
 msgid "Open ended"
 msgstr "¿Se mantiene o tiene fecha de fin?"
 
-#: templates/partials/search_filter.html:34
+#: templates/partials/search_filter.html:36
 #: templates/partials/violation_description.html:12
-#: templates/search/search.html:366
+#: templates/search/search.html:340
 msgid "Show less"
 msgstr "Mostrar menos"
 
-#: templates/partials/search_filter.html:37
+#: templates/partials/search_filter.html:39
 #: templates/partials/violation_description.html:11
-#: templates/search/search.html:368
+#: templates/search/search.html:342
 msgid "Show more"
 msgstr "Mostrar más"
 
@@ -2909,25 +2909,6 @@ msgstr ""
 msgid ""
 "Filters for <strong><i class='fa fa-fw fa-paperclip'></i>Sources</strong>"
 msgstr "Filtros para <strong><i class='fa fa-fw fa-users'></i>Fuentes</strong>"
-
-#. Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
-#.
-#: templates/search/search.html:251
-#, python-format
-msgid "%(display_count)s result found for &ldquo;%(query)s&rdquo;"
-msgid_plural "%(display_count)s results found for &ldquo;%(query)s&rdquo;"
-msgstr[0] "%(display_count)s resultado encontrado para &ldquo;%(query)s&rdquo;"
-msgstr[1] ""
-"%(display_count)s resultados encontrados para &ldquo;%(query)s&rdquo;"
-
-#. Translators: This translation appears on the search result page, where result_count is the number of results. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
-#.
-#: templates/search/search.html:260
-#, python-format
-msgid "%(display_count)s result found"
-msgid_plural "%(display_count)s results found"
-msgstr[0] "%(display_count)s resultado encontrado"
-msgstr[1] "%(display_count)s resultados encontrados"
 
 #: templates/sfm/about.html:10
 msgid "What is WhoWasInCommand.com?"
@@ -3665,6 +3646,18 @@ msgstr "Típos de violaciones"
 #: violation/models.py:330
 msgid "Perpetrator Classification"
 msgstr "Clasificación del Perpetrador "
+
+#~ msgid "%(display_count)s result found for &ldquo;%(query)s&rdquo;"
+#~ msgid_plural "%(display_count)s results found for &ldquo;%(query)s&rdquo;"
+#~ msgstr[0] ""
+#~ "%(display_count)s resultado encontrado para &ldquo;%(query)s&rdquo;"
+#~ msgstr[1] ""
+#~ "%(display_count)s resultados encontrados para &ldquo;%(query)s&rdquo;"
+
+#~ msgid "%(display_count)s result found"
+#~ msgid_plural "%(display_count)s results found"
+#~ msgstr[0] "%(display_count)s resultado encontrado"
+#~ msgstr[1] "%(display_count)s resultados encontrados"
 
 #~ msgid "title"
 #~ msgstr "título"

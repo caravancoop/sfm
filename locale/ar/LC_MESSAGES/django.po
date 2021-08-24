@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-27 15:31+0000\n"
-"PO-Revision-Date: 2021-07-22 12:01+0000\n"
+"POT-Creation-Date: 2021-08-24 19:43+0000\n"
+"PO-Revision-Date: 2021-07-30 13:13+0000\n"
 "Last-Translator: b'Tom Longley <tom@securityforcemonitor.org>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -1947,23 +1947,23 @@ msgid "Go!"
 msgstr "ابحث!"
 
 #: templates/location/list.html:58 templates/partials/source_edit_js.html:50
-#: templates/partials/source_edit_js.html:60 templates/search/search.html:268
+#: templates/partials/source_edit_js.html:60
 msgid "No results found"
 msgstr "لم يتم العثور على نتائج"
 
-#: templates/location/list.html:58 templates/search/search.html:268
+#: templates/location/list.html:58
 msgid "for"
 msgstr ""
 
-#: templates/location/list.html:67 templates/search/search.html:290
+#: templates/location/list.html:67 templates/search/search.html:264
 msgid "For better results, try adjusting your search filters."
 msgstr "حاول ضبط مرشحات البحث للحصول على نتائج أفضل."
 
-#: templates/location/list.html:70 templates/search/search.html:293
+#: templates/location/list.html:70 templates/search/search.html:267
 msgid "Think we're missing something?"
 msgstr "هل تعتقد أننا نفتقد شيئا؟"
 
-#: templates/location/list.html:70 templates/search/search.html:293
+#: templates/location/list.html:70 templates/search/search.html:267
 msgid "Let us know!"
 msgstr "أخبرنا!"
 
@@ -2568,17 +2568,17 @@ msgstr "نوع المدخلة"
 msgid "Open ended"
 msgstr ""
 
-#: templates/partials/search_filter.html:34
+#: templates/partials/search_filter.html:36
 #: templates/partials/violation_description.html:12
-#: templates/search/search.html:366
+#: templates/search/search.html:340
 msgid "Show less"
-msgstr "إظهار أقل"
+msgstr "أقل"
 
-#: templates/partials/search_filter.html:37
+#: templates/partials/search_filter.html:39
 #: templates/partials/violation_description.html:11
-#: templates/search/search.html:368
+#: templates/search/search.html:342
 msgid "Show more"
-msgstr "إظهار المزيد"
+msgstr "المزيد"
 
 #: templates/partials/source_and_confidence.html:22
 msgid "Sources and confidence for this information"
@@ -2816,32 +2816,6 @@ msgstr "مرشحات ل <strong><i class='fa fa-fw fa-user'></i>الحوادث</
 msgid ""
 "Filters for <strong><i class='fa fa-fw fa-paperclip'></i>Sources</strong>"
 msgstr "مرشحات ل <strong><i class='fa fa-fw fa-user'></i>المصادر</strong>"
-
-#. Translators: This translation appears on the search result page, where result_count is the number of results and query is the search term. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
-#.
-#: templates/search/search.html:251
-#, python-format
-msgid "%(display_count)s result found for &ldquo;%(query)s&rdquo;"
-msgid_plural "%(display_count)s results found for &ldquo;%(query)s&rdquo;"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
-
-#. Translators: This translation appears on the search result page, where result_count is the number of results. Be sure to include the variables exactly as they are highlighted, %(variable)s, in your translation.
-#.
-#: templates/search/search.html:260
-#, python-format
-msgid "%(display_count)s result found"
-msgid_plural "%(display_count)s results found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
 
 #: templates/sfm/about.html:10
 msgid "What is WhoWasInCommand.com?"
@@ -3192,7 +3166,7 @@ msgstr "بلد النشر"
 
 #: templates/sfm/dashboard.html:82
 msgid "<strong>What is</strong> WhoWasInCommand?"
-msgstr ""
+msgstr "<strong>ما هو موقع</strong> WhoWasInCommand?"
 
 #: templates/sfm/dashboard.html:85
 msgid ""
@@ -3521,6 +3495,27 @@ msgstr "أنواع الانتهاكات"
 #: violation/models.py:330
 msgid "Perpetrator Classification"
 msgstr "تصنيف الجناة"
+
+#~ msgid "%(display_count)s result found for &ldquo;%(query)s&rdquo;"
+#~ msgid_plural "%(display_count)s results found for &ldquo;%(query)s&rdquo;"
+#~ msgstr[0] "لا نتائج لعبارة البحث &ldquo;%(query)s&rdquo;"
+#~ msgstr[1] "عُثر على نتيجة واحدة لعبارة البحث &ldquo;%(query)s&rdquo;"
+#~ msgstr[2] "عُثر على نتيجتين لعبارة البحث &ldquo;%(query)s&rdquo;"
+#~ msgstr[3] ""
+#~ "عُثر على %(display_count) نتائج لعبارة البحث &ldquo;%(query)s&rdquo;"
+#~ msgstr[4] ""
+#~ "عُثر على %(display_count) نتيجة لعبارة البحث &ldquo;%(query)s&rdquo;"
+#~ msgstr[5] ""
+#~ "عُثر على %(display_count) نتيجة لعبارة البحث &ldquo;%(query)s&rdquo;"
+
+#~ msgid "%(display_count)s result found"
+#~ msgid_plural "%(display_count)s results found"
+#~ msgstr[0] "لا نتائج"
+#~ msgstr[1] "عُثر على نتيجة واحدة"
+#~ msgstr[2] "عُثر على نتيجتين"
+#~ msgstr[3] "عُثر على %(display_count) نتائج"
+#~ msgstr[4] "عُثر على %(display_count) نتيجة"
+#~ msgstr[5] "عُثر على %(display_count) نتيجة"
 
 #~ msgid "title"
 #~ msgstr "العنوان"
