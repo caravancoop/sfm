@@ -192,7 +192,7 @@ ssh ${USER}@{INSTANCE_DOMAIN}
 
 # On the server
 sudo mv -v /path/to/app/locale /path/to/app/locale-bk  # Optionally back up deployed translations
-sudo mv -v /tmp/locale /path/to/app/
+sudo mv -v /tmp/locale /path/to/app/locale
 sudo chown -R ${USER}.${GROUP} /path/to/app/locale
 sudo supervisorctl restart sfm:sfm-cms
 ```

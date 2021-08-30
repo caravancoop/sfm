@@ -20,7 +20,7 @@ LABEL maintainer "DataMade <info@datamade.us>"
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gettext binutils libproj-dev gdal-bin postgresql-client osm2pgsql
+        gettext binutils libproj-dev gdal-bin postgresql-client osm2pgsql make
 
 # Inside the container, create an app directory and switch into it
 RUN mkdir /app
