@@ -1394,55 +1394,64 @@ class Command(BaseCommand):
 
         for idx, source_data in enumerate(source_sheet['values']):
             access_point_uuid = source_data['source:access_point_id:admin'].strip()
+
             try:
-                AccessPoint.objects.get(uuid=access_point_uuid)
-            except ValidationError:
+                access_point, _ = AccessPoint.objects.get_or_create(uuid=access_point_uuid)
+
+            except (ValidationError, ValueError):
                 self.log_error(
                     'Invalid source UUID: "{}"'.format(access_point_uuid),
                     sheet='sources',
                     current_row=idx + 2  # Handle 0-index and header row
                 )
-            except AccessPoint.DoesNotExist:
-                source_info = {
-                    'title': source_data[Source.get_spreadsheet_field_name('title')],
-                    'type': source_data[Source.get_spreadsheet_field_name('type')],
-                    'author': source_data[Source.get_spreadsheet_field_name('author')],
-                    'publication': source_data[Source.get_spreadsheet_field_name('publication')],
-                    'publication_country': source_data[Source.get_spreadsheet_field_name('publication_country')],
-                    'source_url': source_data[Source.get_spreadsheet_field_name('source_url')],
-                    'user': self.user
-                }
-                # Figure out if created/uploaded/published dates are timestamps
-                for prefix in ('published', 'created', 'uploaded'):
-                    date_val = source_data[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
-                    try:
-                        # Try to parse the value as a timestamp (remove timezone
-                        # marker for Pyton <3.7)
-                        parsed_date = datetime.strptime(date_val.replace('Z', ''), '%Y-%m-%dT%H:%M:%S')
-                    except ValueError:
-                        # Value is a date, or empty
-                        parsed_date = self.parse_date(date_val)
-                        source_info['{}_date'.format(prefix)] = parsed_date
-                    else:
-                        source_info['{}_timestamp'.format(prefix)] = parsed_date
+                continue
 
-                    if not parsed_date and prefix == 'published':
-                        message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_val, access_point_uuid)
-                        self.log_error(message, sheet='sources', current_row=idx + 2)
+            source_info = {
+                'title': source_data[Source.get_spreadsheet_field_name('title')],
+                'type': source_data[Source.get_spreadsheet_field_name('type')],
+                'author': source_data[Source.get_spreadsheet_field_name('author')],
+                'publication': source_data[Source.get_spreadsheet_field_name('publication')],
+                'publication_country': source_data[Source.get_spreadsheet_field_name('publication_country')],
+                'source_url': source_data[Source.get_spreadsheet_field_name('source_url')],
+                'user': self.user,
+            }
 
-                new_source, created = Source.objects.get_or_create(**source_info)
+            for prefix in ('published', 'created', 'uploaded'):
+                date_val = source_data[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
+                parsed_date = None
 
-                AccessPoint.objects.create(
-                    uuid=access_point_uuid,
-                    type=source_data[AccessPoint.get_spreadsheet_field_name('type')],
-                    trigger=source_data[AccessPoint.get_spreadsheet_field_name('trigger')],
-                    accessed_on=self.parse_date(source_data[AccessPoint.get_spreadsheet_field_name('accessed_on')]),
-                    archive_url=source_data[AccessPoint.get_spreadsheet_field_name('archive_url')],
-                    source=new_source,
-                    user=self.user
-                )
-            except ValueError:
-                self.log_error("Invalid access point at: " + access_point_uuid)
+                try:
+                    # Try to parse the value as a timestamp (remove timezone
+                    # marker for Pyton <3.7)
+                    parsed_date = datetime.strptime(date_val.replace('Z', ''), '%Y-%m-%dT%H:%M:%S')
+
+                except ValueError:
+                    # Value is a date, or empty
+                    parsed_date = self.parse_date(date_val)
+                    source_info['{}_date'.format(prefix)] = parsed_date
+
+                else:
+                    source_info['{}_timestamp'.format(prefix)] = parsed_date
+
+                if not parsed_date and prefix == 'published':
+                    message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_val, access_point_uuid)
+                    self.log_error(message, sheet='sources', current_row=idx + 2)
+
+            source, _ = Source.objects.get_or_create(**source_info)
+
+            access_point_info = {
+                'type': source_data[AccessPoint.get_spreadsheet_field_name('type')],
+                'trigger': source_data[AccessPoint.get_spreadsheet_field_name('trigger')],
+                'accessed_on': self.parse_date(source_data[AccessPoint.get_spreadsheet_field_name('accessed_on')]),
+                'archive_url': source_data[AccessPoint.get_spreadsheet_field_name('archive_url')],
+                'source': source,
+                'user': self.user,
+            }
+
+            for attr, val in access_point_info.items():
+                setattr(access_point, 'attr', val)
+
+            access_point.save()
 
     def get_sources(self, source_id_string):
 
