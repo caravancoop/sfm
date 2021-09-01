@@ -167,12 +167,9 @@ class OrganizationDetail(BaseDetailView):
         )
 
         associations = context['organization'].associations
-        context['associations'] = [ass.object_ref for ass in associations]
+        context['associations'] = [a.object_ref for a in associations]
 
-        area_ids = [
-            association.object_ref.area.get_value().value.id
-            for association in associations
-        ]
+        area_ids = associations.values_list('object_ref__associationarea__value')
 
         context['areas'] = serialize(
             'geojson',

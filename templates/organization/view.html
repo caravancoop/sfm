@@ -136,12 +136,12 @@
                         {% endif %}
                         </td>
                         <td class="cited">
-                            {% datetype association.startdate.get_value 'start' %}
-                            {% cite association.startdate.get_value %}
+                            {% datetype association.first_startdate 'start' %}
+                            {% cite association.first_startdate %}
                         </td>
                         <td class="cited">
-                            {% datetype association.enddate.get_value 'end' %}
-                            {% cite association.enddate.get_value %}
+                            {% datetype association.last_enddate 'end' %}
+                            {% cite association.last_enddate %}
                         </td>
                     </td>
                 {% endfor %}
@@ -190,12 +190,12 @@
                             {% cite emplacement.site.get_value %}
                         </td>
                         <td class="cited">
-                            {% datetype emplacement.startdate.get_value 'start' %}
-                            {% cite emplacement.startdate.get_value %}
+                            {% datetype emplacement.first_startdate 'start' %}
+                            {% cite emplacement.first_startdate %}
                         </td>
                         <td class="cited">
-                            {% datetype emplacement.enddate.get_value 'end' %}
-                            {% cite emplacement.enddate.get_value %}
+                            {% datetype emplacement.last_enddate 'end' %}
+                            {% cite emplacement.last_enddate %}
                         </td>
                     </td>
                 {% endfor %}

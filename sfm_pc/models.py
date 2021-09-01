@@ -76,3 +76,16 @@ class GetComplexFieldNameMixin:
             # If no source field name is specified, the default is usually
             # the spreadsheet field name with ":source" appended on
             return cls.get_spreadsheet_field_name(field_name) + ':source'
+
+
+class SuperlativeDateMixin:
+
+    @property
+    def first_startdate(self):
+        return self.startdate.field_model.objects.filter(object_ref=self)\
+                                                 .order_by('value').first()
+
+    @property
+    def last_enddate(self):
+        return self.enddate.field_model.objects.filter(object_ref=self)\
+                                               .order_by('-value').first()
