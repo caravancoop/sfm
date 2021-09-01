@@ -1733,7 +1733,7 @@ class Command(BaseCommand):
                     role = None
                 else:
                     if role_name:
-                        role, _ = Role.objects.get_or_create(value=role_name)
+                        role, _ = Role.objects.get_or_create(value=role_name.strip())
                         role = role.id
                     else:
                         role = None
@@ -1744,24 +1744,45 @@ class Command(BaseCommand):
                     rank = None
                 else:
                     if rank_name:
-                        rank, _ = Rank.objects.get_or_create(value=rank_name)
+                        rank, _ = Rank.objects.get_or_create(value=rank_name.strip())
                         rank = rank.id
                     else:
                         rank = None
 
                 try:
-                    title = person_data[membership_positions['Title']['value']] or None
+                    title = person_data[membership_positions['Title']['value']].strip() or None
                 except IndexError:
                     title = None
 
+                membership_kwargs = {
+                    'membershippersonmember__value': person,
+                    'membershippersonorganization__value': organization,
+                    'membershippersonfirstciteddate__value': fcd,
+                    'membershippersonlastciteddate__value': lcd,
+                    'membershippersonrole__value': role,
+                    'membershippersonrank__value': rank,
+                    'membershippersontitle__value': title,
+                }
+
                 try:
-                    membership = MembershipPerson.objects.get(membershippersonmember__value=person,
-                                                              membershippersonorganization__value=organization,
-                                                              membershippersonfirstciteddate__value=fcd,
-                                                              membershippersonlastciteddate__value=lcd,
-                                                              membershippersonrole__value=role,
-                                                              membershippersonrank__value=rank,
-                                                              membershippersontitle__value=title)
+                    membership = MembershipPerson.objects.get(**membership_kwargs)
+
+                    sources = set(self.sourcesList(membership, 'member') + self.sourcesList(membership, 'organization'))
+                    membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
+                    membership.update(membership_data)
+
+                except MembershipPerson.MultipleObjectsReturned:
+                    memberships = MembershipPerson.objects.filter(**membership_kwargs)
+                    membership = memberships.order_by('id').first()
+                    duplicates = memberships.exclude(id=membership.id)
+
+                    self.stdout.write('Found {0} duplicate memberships for {1}'.format(duplicates.count(), person))
+                    remove_duplicates = input('Remove duplicates? [y/n] ')
+
+                    if remove_duplicates.lower().strip() == 'y':
+                        delete_summary = duplicates.delete()
+                        self.stdout.write('Removed duplicate memberships for {0}. Summary: {1}'.format(person, delete_summary))
+
                     sources = set(self.sourcesList(membership, 'member') + self.sourcesList(membership, 'organization'))
                     membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
                     membership.update(membership_data)
