@@ -142,7 +142,7 @@ def test_source_dates_and_timestamps(data_import, data_folder):
 
             # Re-run the import
             data_import = io.StringIO()
-            call_command('import_google_doc', folder=data_folder, stdout=output)
+            call_command('import_google_doc', folder=data_folder, stdout=data_import)
 
         undated_sources = Source.objects.filter(published_date='', published_timestamp__isnull=True)\
                                         .values_list('accesspoint__uuid', flat=True)

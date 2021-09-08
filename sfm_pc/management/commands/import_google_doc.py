@@ -1396,7 +1396,10 @@ class Command(BaseCommand):
             access_point_uuid = source_data['source:access_point_id:admin'].strip()
 
             try:
-                access_point, _ = AccessPoint.objects.get_or_create(uuid=access_point_uuid)
+                access_point, _ = AccessPoint.objects.get_or_create(
+                    uuid=access_point_uuid,
+                    user=self.user,
+                )
 
             except (ValidationError, ValueError):
                 self.log_error(
@@ -1426,8 +1429,11 @@ class Command(BaseCommand):
                     parsed_date = datetime.strptime(date_val.replace('Z', ''), '%Y-%m-%dT%H:%M:%S')
 
                 except ValueError:
-                    # Value is a date, or empty
-                    parsed_date = self.parse_date(date_val)
+                    # Fall back to an empty string because we want to use
+                    # source_info to retrieve and update existing Sources, and
+                    # date fields default to an empty string if no data is
+                    # provided
+                    parsed_date = self.parse_date(date_val) or ''
                     source_info['{}_date'.format(prefix)] = parsed_date
 
                 else:
@@ -1437,7 +1443,13 @@ class Command(BaseCommand):
                     message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_val, access_point_uuid)
                     self.log_error(message, sheet='sources', current_row=idx + 2)
 
-            source, _ = Source.objects.get_or_create(**source_info)
+            source, created = Source.objects.get_or_create(**source_info)
+
+            self.stdout.write(
+                '{0} Source "{1}" from row {2}'.format('Created' if created else 'Updated',
+                                                       source,
+                                                       idx + 2)
+            )
 
             access_point_info = {
                 'type': source_data[AccessPoint.get_spreadsheet_field_name('type')],
@@ -1449,7 +1461,7 @@ class Command(BaseCommand):
             }
 
             for attr, val in access_point_info.items():
-                setattr(access_point, 'attr', val)
+                setattr(access_point, attr, val)
 
             access_point.save()
 
