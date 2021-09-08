@@ -95,11 +95,6 @@ class Command(BaseCommand):
             dest='folder',
             help='Path to a folder containing data (for testing)'
         )
-        parser.add_argument(
-            '--cleanup',
-            action='store_true',
-            default=False
-        )
 
     def sourcesList(self, obj, attribute):
         sources = [s for s in getattr(obj, attribute).get_sources()]
@@ -157,8 +152,6 @@ class Command(BaseCommand):
                                                  password=importer_user['password'])
         except IntegrityError:
             self.user = User.objects.get(username=importer_user['username'])
-
-        self.cleanup = options['cleanup']
 
         # Disconnect post save signals
         self.disconnectSignals()
@@ -1455,20 +1448,20 @@ class Command(BaseCommand):
 
             except Source.MultipleObjectsReturned:
                 sources = Source.objects.filter(**source_info)
-                source = sources.order_by('date_added').first()
 
-                if self.cleanup:
-                    cleanup_summary = sources.exclude(uuid=source.uuid).delete()
-                    self.stdout.write('Cleaned up duplicate sources: {}'.format(cleanup_summary))
-
-                else:
-                    self.log_error(
-                        'Found multiple instances of Source "{}". Recommend cleanup.'.format(source),
-                        sheet='sources',
-                        current_row=idx + 2
-                    )
+                # Get the most recently created source matching the given
+                # signature and having associated access points.
+                source = sources.order_by('-date_added')\
+                                .filter(accesspoint__isnull=False)\
+                                .first()
 
                 created = False
+
+                self.log_error(
+                    'Found multiple instances of Source with signature "{}"'.format(source_info),
+                    sheet='sources',
+                    current_row=idx + 2
+                )
 
             self.stdout.write(
                 '{0} Source "{1}" from row {2}'.format('Created' if created else 'Updated',
