@@ -95,6 +95,11 @@ class Command(BaseCommand):
             dest='folder',
             help='Path to a folder containing data (for testing)'
         )
+        parser.add_argument(
+            '--cleanup',
+            action='store_true',
+            default=False
+        )
 
     def sourcesList(self, obj, attribute):
         sources = [s for s in getattr(obj, attribute).get_sources()]
@@ -152,6 +157,8 @@ class Command(BaseCommand):
                                                  password=importer_user['password'])
         except IntegrityError:
             self.user = User.objects.get(username=importer_user['username'])
+
+        self.cleanup = options['cleanup']
 
         # Disconnect post save signals
         self.disconnectSignals()
@@ -1443,7 +1450,25 @@ class Command(BaseCommand):
                     message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_val, access_point_uuid)
                     self.log_error(message, sheet='sources', current_row=idx + 2)
 
-            source, created = Source.objects.get_or_create(**source_info)
+            try:
+                source, created = Source.objects.get_or_create(**source_info)
+
+            except Source.MultipleObjectsReturned:
+                sources = Source.objects.filter(**source_info)
+                source = sources.order_by('date_added').first()
+
+                if self.cleanup:
+                    cleanup_summary = sources.exclude(uuid=source.uuid).delete()
+                    self.stdout.write('Cleaned up duplicate sources: {}'.format(cleanup_summary))
+
+                else:
+                    self.log_error(
+                        'Found multiple instances of Source "{}". Recommend cleanup.'.format(source),
+                        sheet='sources',
+                        current_row=idx + 2
+                    )
+
+                created = False
 
             self.stdout.write(
                 '{0} Source "{1}" from row {2}'.format('Created' if created else 'Updated',
