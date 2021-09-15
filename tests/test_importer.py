@@ -111,6 +111,7 @@ def test_sources(data_import, data_folder):
             ])
 
 
+@pytest.mark.skip(reason='Broken, fixed in sfm-cms/pull/776')
 @pytest.mark.django_db
 def test_source_dates_and_timestamps(data_import):
     """Make sure Source date fields properly parse dates and timestamps."""

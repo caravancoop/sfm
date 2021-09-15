@@ -173,39 +173,6 @@ class Command(BaseCommand):
         one_index_start = int(options['start'])
         zero_index_start = one_index_start - 1
 
-        # These are used for the mapping that we need to make below
-        entity_mapping_entities = [
-            ('organization', 'unit:id:admin', 'unit:name'),
-            ('person', 'person:id:admin', 'person:name'),
-        ]
-
-        # Create entity maps for persons and units
-        for entity_type, id_key, name_key in entity_mapping_entities:
-
-            sheets = all_sheets[entity_type]
-
-            for sheet in sheets.values():
-
-                entity_map = {}
-
-                for idx, row in enumerate(sheet[zero_index_start:]):
-                    if row:
-                        entity_uuid = row[id_key]
-                        try:
-                            entity_name = row[name_key]
-                        except KeyError:
-                            self.log_error(
-                                'Entity with ID "{}" is missing a name'.format(
-                                    entity_uuid
-                                ),
-                                sheet=entity_type,
-                                current_row=one_index_start + (idx + 1)
-                            )
-                        if entity_uuid:
-                            entity_map[entity_name] = entity_uuid
-
-                setattr(self, '{}_entity_map'.format(entity_type), entity_map)
-
         for entity_type in options['entity_types'].split(','):
 
             sheets = all_sheets[entity_type]
@@ -624,11 +591,7 @@ class Command(BaseCommand):
                     }
                 }
 
-                try:
-                    uuid = self.organization_entity_map[name_value]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of organization names'.format(name_value))
-                    return None
+                uuid = org_data['unit:id:admin']
 
                 try:
                     organization = Organization.objects.get(uuid=uuid)
@@ -735,11 +698,7 @@ class Command(BaseCommand):
                                 },
                             }
 
-                            try:
-                                uuid = self.organization_entity_map[parent_org_name]
-                            except KeyError:
-                                self.log_error('Could not find "{}" in list of organization names'.format(parent_org_name))
-                                return None
+                            uuid = org_data['unit:related_unit_id:admin']
 
                             try:
                                 parent_organization = Organization.objects.get(uuid=uuid)
@@ -841,11 +800,7 @@ class Command(BaseCommand):
                                 },
                             }
 
-                            try:
-                                uuid = self.organization_entity_map[member_org_name]
-                            except KeyError:
-                                self.log_error('Could not find "{}" in list of organization names'.format(member_org_name))
-                                return None
+                            uuid = org_data['unit:related_unit_id:admin']
 
                             try:
                                 member_organization = Organization.objects.get(uuid=uuid)
@@ -1597,11 +1552,7 @@ class Command(BaseCommand):
                     }
                 }
 
-                try:
-                    uuid = self.person_entity_map[name_value]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of person names'.format(name_value))
-                    return None
+                uuid = person_data['person:id:admin']
 
                 try:
                     person = Person.objects.get(uuid=uuid)
@@ -1624,15 +1575,22 @@ class Command(BaseCommand):
                 # Make membership objects
                 try:
                     uuid = person_data[membership_positions['Organization']['value']]
-                    organization_name = {
-                        v: k for k, v in self.organization_entity_map.items()
-                    }[uuid]
                 except IndexError:
                     self.log_error('Row seems to be empty')
                     return None
-                except KeyError:
-                    self.log_error('Organization "{}" not in entity map'.format(uuid))
+
+                try:
+                    organization = Organization.objects.get(uuid=uuid)
+
+                except Organization.DoesNotExist:
+                    organization = Organization.objects.create(uuid=uuid,
+                                                               published=True)
+
+                except ValidationError:
+                    self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
                     return None
+
+                organization_name = person_data['person:posting_unit_name']
 
                 try:
                     confidence = self.get_confidence(person_data[membership_positions['Organization']['confidence']])
@@ -1659,40 +1617,27 @@ class Command(BaseCommand):
                     }
                 }
 
-                try:
-                    organization = Organization.objects.get(uuid=uuid)
+                name_sources = self.sourcesList(organization, 'name')
+                div_sources = self.sourcesList(organization, 'division_id')
 
-                except Organization.DoesNotExist:
-                    organization = Organization.objects.create(uuid=uuid,
-                                                               published=True)
-                    organization.update(org_info)
+                org_info["Organization_OrganizationName"]['sources'] += name_sources
+                org_info["Organization_OrganizationDivisionId"]['sources'] += div_sources
 
-                except ValidationError:
-                    self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
-                    return None
+                if organization.name.get_value():
+                    name_confidence = organization.name.get_value().confidence
 
-                else:
-                    name_sources = self.sourcesList(organization, 'name')
-                    div_sources = self.sourcesList(organization, 'division_id')
+                    if name_confidence:
+                        name_confidence = int(name_confidence)
+                        org_info["Organization_OrganizationName"]['confidence'] = name_confidence
 
-                    org_info["Organization_OrganizationName"]['sources'] += name_sources
-                    org_info["Organization_OrganizationDivisionId"]['sources'] += div_sources
+                if organization.division_id.get_value():
+                    div_confidence = organization.division_id.get_value().confidence
 
-                    if organization.name.get_value():
-                        name_confidence = organization.name.get_value().confidence
+                    if div_confidence:
+                        div_confidence = int(div_confidence)
+                        org_info["Organization_OrganizationDivisionId"]['confidence'] = div_confidence
 
-                        if name_confidence:
-                            name_confidence = int(name_confidence)
-                            org_info["Organization_OrganizationName"]['confidence'] = name_confidence
-
-                    if organization.division_id.get_value():
-                        div_confidence = organization.division_id.get_value().confidence
-
-                        if div_confidence:
-                            div_confidence = int(div_confidence)
-                            org_info["Organization_OrganizationDivisionId"]['confidence'] = div_confidence
-
-                    organization.update(org_info)
+                organization.update(org_info)
 
                 membership_data = {
                     'MembershipPerson_MembershipPersonMember': {
@@ -2214,11 +2159,7 @@ class Command(BaseCommand):
 
             for perp in perps:
 
-                try:
-                    uuid = self.person_entity_map[perp]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of person names'.format(perp))
-                    continue
+                uuid = event_data['incident:perpetrator_person_id:admin']
 
                 try:
                     person = Person.objects.get(uuid=uuid)
@@ -2263,11 +2204,7 @@ class Command(BaseCommand):
 
             for org in orgs:
 
-                try:
-                    uuid = self.organization_entity_map[org]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of organization names'.format(org))
-                    continue
+                uuid = event_data['incident:perpetrator_unit_id:admin']
 
                 try:
                     organization = Organization.objects.get(uuid=uuid)
