@@ -247,14 +247,21 @@ def test_shared_name_creates_distinct_entities(data_import):
     receive data with same-named entities having different UUIDs, we create
     an object for each distinct instance.
     '''
-    ...
+    organizations_sharing_name = Organization.objects.filter(
+        organizationname__value='Unit has same name but duplicate UUID'
+    )
+    assert organizations_sharing_name.count() == 2
+
+    people_sharing_name = Person.objects.filter(
+        personname__value='Importer Test Different UUIDs for Same Name'
+    )
+    assert people_sharing_name.count() == 2
 
 
 @pytest.mark.django_db
 def test_disharmonic_name_logs_error(data_import):
     '''
-    Sometimes, two UUIDs are minted for the same entity, creating more than
-    one object in our data. If there is internal disagreement between records
-    we know are the same based on UUID, test that an error is logged.
+    Test that an error is logged if name is inconsistent between two records
+    sharing the same UUID.
     '''
     ...
