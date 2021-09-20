@@ -1,12 +1,14 @@
 import os
 import csv
-import io
 import collections
+import io
 
 import pytest
 from django.core.management import call_command
+from django.db.models import Q
 
-from organization.models import Organization
+from organization.models import Organization, OrganizationRealStart, \
+    OrganizationOpenEnded
 from person.models import Person
 from personextra.models import PersonExtra
 from personbiography.models import PersonBiography
@@ -30,7 +32,10 @@ def data_import(location_data_import, data_folder):
 
 @pytest.mark.django_db
 def test_no_sources_missing(data_import):
+    assert 'does not have sources' not in data_import.getvalue()
+    assert 'does not have confidence' not in data_import.getvalue()
     assert 'did not have sources' not in data_import.getvalue()
+    assert 'did not have a confidence or source' not in data_import.getvalue()
     assert 'has no confidence' not in data_import.getvalue()
 
 
@@ -69,31 +74,83 @@ def test_number_of_imported_entities(entity_name, Model, data_import, data_folde
 
 
 @pytest.mark.django_db
-def test_sources(data_import, data_folder):
-    """
-    All records in the source data should have their own sources. Check all
-    attributes of all entities and confirm that each has its own source.
-    """
-    src_related_attrs = [attr for attr in dir(AccessPoint.objects.first())
-                         if attr.endswith('_related')]
-    for access_point in AccessPoint.objects.all():
-        '''
-        TODO: Remove once we sort out sources for the fixture updates
+def test_all_data_points_have_sources(data_import):
+    def check_for_sources(complex_field):
+        unsourced_models = (OrganizationRealStart, OrganizationOpenEnded)
+        value = entity_attr.get_value()
 
-        Possible approach for rollback: https://github.com/security-force-monitor/sfm-cms/blame/d2bd48b2f0b7f9a580128e7d16a6279ecd7f4f9e/tests/test_importer.py
-        '''
-        if str(access_point.uuid) in ('c714382f-e45e-4a02-8191-f11656e21c31',
-                                      '19c0f7cc-b242-40c5-aa16-0f3916c3b0ba',
-                                      '134e8598-6fb3-4d61-a7f7-504b3f6221c4'):
-            continue
+        if value:
+            if any(isinstance(value, Model) for Model in unsourced_models):
+                assert not entity_attr.get_sources()
+            else:
+                try:
+                    assert entity_attr.get_sources()
+                except AssertionError:
+                    return value
 
+    errors = []
+
+    for Model in [Person, Organization, Violation]:
+        for entity in Model.objects.all():
+            for entity_attr in getattr(entity, 'complex_fields', []):
+                error = check_for_sources(entity_attr)
+                if error:
+                    errors.append(error)
+
+            for entity_attrs in getattr(entity, 'complex_lists', []):
+                for entity_attr in entity_attrs.get_list():
+                    error = check_for_sources(entity_attr)
+                    if error:
+                        errors.append(error)
+
+    if errors:
+        raise Exception('The following data points are unsourced:\n{}'.format(errors))
+
+
+@pytest.mark.django_db
+def test_sources_only_created_for_data_points_they_evidence(data_import, data_folder):
+    '''
+    In https://github.com/security-force-monitor/sfm-cms/issues/637, we
+    discovered a bug in which sources were multiplied when derived from the
+    original, mutable source list, rather than a shallow copy. Test data was
+    created such that we could test sources weren't inadvertantly assigned
+    to unrelated attributes. This test asserts that extraneous sources are not
+    created, based on that data.
+
+    N.b., there are not constraints on what data points can share sources
+    outside of this test.
+    '''
+    sourced_attributes = [
+        attr for attr in dir(AccessPoint.objects.first())
+        if attr.endswith('_related')
+    ]
+
+    access_points_for_test = Q()
+
+    for substring in ('alpha', 'beta', 'gamma', 'delta', 'is-member', 'has-member'):
+        access_points_for_test |= Q(source__title__icontains=substring)
+
+    for access_point in AccessPoint.objects.filter(access_points_for_test):
         related_objects = []
-        for attr in src_related_attrs:
-            related_objects += [obj for obj in getattr(access_point, attr).all()
-                                if obj]
+
+        for attr in sourced_attributes:
+            related_objects += [
+                obj for obj in getattr(access_point, attr).all() if obj
+            ]
+
         related_obj_types = set(obj._meta.object_name for obj in related_objects)
+
         if len(related_obj_types) > 1:
-            # Object types that we expect may share sources
+            # Data points can be evidenced directly through an accompanying
+            # source field and indirectly through a related field, e.g., if
+            # Unit A is the parent of Unit B, the source for that relationship
+            # is also added as evidence of both units' names.
+            #
+            # These sets are groupings of attributes that we expect could share
+            # sources based on on our practice of direct and indirect sourcing.
+            # The success of this test depends on the particular assignment of
+            # sources in the test data. If the test data or data model changes,
+            # these sets may need to be adjusted.
             permitted_org_set = set([
                'CompositionChild',
                'CompositionParent',
@@ -104,25 +161,31 @@ def test_sources(data_import, data_folder):
                'MembershipOrganizationOrganization',
                'MembershipPersonMember',
                'MembershipPersonOrganization',
-               'OrganizationName'
+               'OrganizationName',
             ])
-            permitted_person_set = set(['PersonName'])
+            permitted_person_set = set([
+                'PersonName',
+            ])
             permitted_incident_set = set([
+                'ViolationAdminLevel1',
+                'ViolationAdminLevel2',
                 'ViolationDescription',
+                'ViolationDivisionId',
                 'ViolationEndDate',
                 'ViolationFirstAllegation',
                 'ViolationLastUpdate',
+                'ViolationLocation',
                 'ViolationLocationDescription',
                 'ViolationPerpetrator',
                 'ViolationPerpetratorClassification',
                 'ViolationPerpetratorOrganization',
                 'ViolationStartDate',
                 'ViolationStatus',
-                'ViolationType'
+                'ViolationType',
             ])
             permitted_country_set = set([
                 'OrganizationDivisionId',
-                'PersonDivisionId'
+                'PersonDivisionId',
             ])
             assert any([
                 related_obj_types.issubset(permitted_org_set),
