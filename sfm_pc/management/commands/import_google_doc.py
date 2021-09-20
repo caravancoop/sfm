@@ -173,6 +173,14 @@ class Command(BaseCommand):
         one_index_start = int(options['start'])
         zero_index_start = one_index_start - 1
 
+        self.organization_entity_map = {}
+        self.person_entity_map = {}
+
+        name_error_format = (
+            'Got multiple name values for {entity_type} UUID "{uuid}". Current '
+            'row contains value "{name}" in column "{column}"'
+        )
+
         for entity_type in options['entity_types'].split(','):
 
             sheets = all_sheets[entity_type]
@@ -188,6 +196,26 @@ class Command(BaseCommand):
                             self.current_row = one_index_start + (index + 1)
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
+        for entity_type in ('organization', 'person'):
+            entity_map = getattr(self, '{}_entity_map'.format(entity_type), None)
+
+            # If an entity's name differs between records sharing the same
+            # UUID, log an error for each row containing the UUID.
+            if entity_map:
+                for uuid, name_values in entity_map.items():
+                    distinct_names = set([value[0] for value in name_values])
+
+                    if len(distinct_names) > 1:
+                        for value in sorted(name_values, key=lambda row: row[1]):
+                            name, row, sheet, column = value
+                            msg = name_error_format.format(**{
+                                'entity_type': entity_type,
+                                'uuid': uuid,
+                                'name': name,
+                                'column': column,
+                            })
+                            self.log_error(msg, sheet=sheet, current_row=row)
+
         data_src = options['folder'] if options.get('folder') else options['doc_id']
         self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(data_src)))
 
@@ -196,6 +224,17 @@ class Command(BaseCommand):
 
         # Connect post save signals
         self.connectSignals()
+
+    def update_entity_map(self, entity_type, uuid, name, column, sheet=None):
+        entity_map = getattr(self, '{}_entity_map'.format(entity_type), None)
+
+        if entity_map is not None:
+            if uuid not in entity_map:
+                entity_map[uuid] = set()
+
+            entity_map[uuid].add(
+                (name, self.current_row, sheet if sheet else entity_type, column)
+            )
 
     def create_locations(self):
         this_dir = os.path.abspath(os.path.dirname(__file__))
@@ -607,6 +646,13 @@ class Command(BaseCommand):
 
                 organization.update(org_info)
 
+                self.update_entity_map(
+                    'organization',
+                    uuid,
+                    name_value,
+                    org_positions['Name']['value']
+                )
+
                 org_attributes = ['Alias', 'Classification', 'OpenEnded', 'Headquarters']
 
                 for attr in org_attributes:
@@ -714,6 +760,13 @@ class Command(BaseCommand):
 
                             parent_organization.update(parent_org_info)
 
+                            self.update_entity_map(
+                                'organization',
+                                uuid,
+                                parent_org_name,
+                                composition_positions['Parent']['value']
+                            )
+
                             comp_info = {
                                 'Composition_CompositionParent': {
                                     'value': parent_organization,
@@ -815,6 +868,13 @@ class Command(BaseCommand):
                                 member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
                             member_organization.update(member_org_info)
+
+                            self.update_entity_map(
+                                'organization',
+                                uuid,
+                                member_org_name,
+                                membership_positions['OrganizationOrganization']['value']
+                            )
 
                             membership_info = {
                                 'MembershipOrganization_MembershipOrganizationMember': {
@@ -1567,6 +1627,13 @@ class Command(BaseCommand):
 
                 person.update(person_info)
 
+                self.update_entity_map(
+                    'person',
+                    uuid,
+                    name_value,
+                    person_positions['Name']['value']
+                )
+
                 self.make_relation('Alias',
                                    person_positions['Alias'],
                                    person_data,
@@ -1638,6 +1705,14 @@ class Command(BaseCommand):
                         org_info["Organization_OrganizationDivisionId"]['confidence'] = div_confidence
 
                 organization.update(org_info)
+
+                self.update_entity_map(
+                    'organization',
+                    uuid,
+                    organization_name,
+                    person_data['person:posting_unit_name'],
+                    sheet='person'
+                )
 
                 membership_data = {
                     'MembershipPerson_MembershipPersonMember': {
@@ -2182,6 +2257,14 @@ class Command(BaseCommand):
                     person = Person.objects.create(uuid=uuid, published=True)
                     person.update(person_info)
 
+                self.update_entity_map(
+                    'person',
+                    uuid,
+                    perp,
+                    positions['Perpetrator']['value'],
+                    sheet='event'
+                )
+
                 vp, created = ViolationPerpetrator.objects.get_or_create(value=person,
                                                                          object_ref=violation)
                 if created:
@@ -2228,6 +2311,14 @@ class Command(BaseCommand):
                     organization = Organization.objects.create(uuid=uuid,
                                                                published=True)
                     organization.update(info)
+
+                self.update_entity_map(
+                    'organization',
+                    uuid,
+                    org,
+                    positions['PerpetratorOrganization']['value'],
+                    sheet='event'
+                )
 
                 vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
                                                                                           object_ref=violation)

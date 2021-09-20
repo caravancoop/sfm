@@ -143,8 +143,8 @@ def test_sources_only_created_for_data_points_they_evidence(data_import, data_fo
         if len(related_obj_types) > 1:
             # Data points can be evidenced directly through an accompanying
             # source field and indirectly through a related field, e.g., if
-            # Unit A is the parent of Unit B, the source for that relationship
-            # is also added as evidence of both units' names.
+            # Unit A is the parent of Unit B, the source for Unit A's name is
+            # also added to that composition.
             #
             # These sets are groupings of attributes that we expect could share
             # sources based on on our practice of direct and indirect sourcing.
@@ -322,9 +322,14 @@ def test_shared_name_creates_distinct_entities(data_import):
 
 
 @pytest.mark.django_db
-def test_disharmonic_name_logs_error(data_import):
+def test_ambiguous_name_logs_error(data_import):
     '''
-    Test that an error is logged if name is inconsistent between two records
-    sharing the same UUID.
+    If name is inconsistent between records sharing a UUID, test that an error
+    is logged for each record.
     '''
-    ...
+    name = 'Unit has different names for same UUID'
+    org = Organization.objects.get(organizationname__value__startswith=name)
+    output = data_import.getvalue()
+
+    assert output.count('Got multiple name values for organization UUID "{}'.format(org.uuid)) == 2
+    assert output.count('Current row contains value "{}'.format(name)) == 2
