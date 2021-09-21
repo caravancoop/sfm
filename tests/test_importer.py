@@ -104,7 +104,7 @@ def test_all_data_points_have_sources(data_import):
                         errors.append(error)
 
     if errors:
-        raise Exception('The following data points are unsourced:\n{}'.format(errors))
+        raise AssertionError('The following data points are unsourced:\n{}'.format(errors))
 
 
 @pytest.mark.django_db

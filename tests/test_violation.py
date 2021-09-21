@@ -50,7 +50,12 @@ def test_view_violation(client, violation):
     assert response.status_code == 200
 
 
-@pytest.mark.skip(reason='All Violation data points must be sourced')
+@pytest.mark.skip(reason='''
+    As of sfm-cms/pull/777, all violation data points must be sourced. This
+    breaks the violation creation and editing interface, however the interface
+    is no longer in use. Skip this test for now, to be cleaned up in a future
+    round of work.
+''')
 @pytest.mark.django_db
 def test_create_violation(setUp,
                           new_access_points,
@@ -99,7 +104,12 @@ def test_create_violation(setUp,
     fake_signal.assert_called_with(object_id=str(violation.uuid), sender=Violation)
 
 
-@pytest.mark.skip(reason='All Violation data points must be sourced')
+@pytest.mark.skip(reason='''
+    As of sfm-cms/pull/777, all violation data points must be sourced. This
+    breaks the violation creation and editing interface, however the interface
+    is no longer in use. Skip this test for now, to be cleaned up in a future
+    round of work.
+''')
 @pytest.mark.django_db
 def test_edit_violation(setUp,
                         violation,
@@ -185,7 +195,12 @@ def test_delete_violation_view_no_related_entities(setUp, violation, mocker):
     assert 'disabled' not in response.content.decode('utf-8')
 
 
-@pytest.mark.skip(reason='All Violation data points must be sourced')
+@pytest.mark.skip(reason='''
+    As of sfm-cms/pull/777, all violation data points must be sourced. This
+    breaks the violation creation and editing interface, however the interface
+    is no longer in use. Skip this test for now, to be cleaned up in a future
+    round of work.
+''')
 @pytest.mark.django_db
 def test_edit_violation_locations(setUp,
                                   violation,

@@ -173,13 +173,9 @@ class Command(BaseCommand):
         one_index_start = int(options['start'])
         zero_index_start = one_index_start - 1
 
+        # Create entity maps to be populated by the "create_*" methods.
         self.organization_entity_map = {}
         self.person_entity_map = {}
-
-        name_error_format = (
-            'Got multiple name values for {entity_type} UUID "{uuid}". Current '
-            'row contains value "{name}" in column "{column}"'
-        )
 
         for entity_type in options['entity_types'].split(','):
 
@@ -196,18 +192,26 @@ class Command(BaseCommand):
                             self.current_row = one_index_start + (index + 1)
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
+        # Check the entity map after bringing in all data, because there are
+        # references to organizations and people in multiple sheets.
+        name_error_format = (
+            'Got multiple name values for {entity_type} UUID "{uuid}". Current '
+            'row contains value "{name}" in column "{column}"'
+        )
+
         for entity_type in ('organization', 'person'):
             entity_map = getattr(self, '{}_entity_map'.format(entity_type), None)
 
-            # If an entity's name differs between records sharing the same
-            # UUID, log an error for each row containing the UUID.
             if entity_map:
                 for uuid, name_values in entity_map.items():
                     distinct_names = set([value[0] for value in name_values])
 
+                    # If there is more than one distinct name value for a given
+                    # UUID, log an error for each record referencing that UUID,
+                    # in ascending row order.
                     if len(distinct_names) > 1:
-                        for value in sorted(name_values, key=lambda row: row[1]):
-                            name, row, sheet, column = value
+                        for value in sorted(name_values, key=lambda value: value[2]):
+                            name, column, row, sheet = value
                             msg = name_error_format.format(**{
                                 'entity_type': entity_type,
                                 'uuid': uuid,
@@ -225,16 +229,33 @@ class Command(BaseCommand):
         # Connect post save signals
         self.connectSignals()
 
-    def update_entity_map(self, entity_type, uuid, name, column, sheet=None):
+    def update_entity_map(self, entity_type, uuid, name, column, row=None, sheet=None):
+        '''
+        Add to mapping for the given entity with the following structure:
+
+            {
+                'uuid': [
+                    (name_value, column, row, sheet),
+                    ...
+                ]
+            }
+        '''
         entity_map = getattr(self, '{}_entity_map'.format(entity_type), None)
 
         if entity_map is not None:
             if uuid not in entity_map:
-                entity_map[uuid] = set()
+                entity_map[uuid] = []
 
-            entity_map[uuid].add(
-                (name, self.current_row, sheet if sheet else entity_type, column)
+            name_value = (
+                name,
+                column,
+                row if row else self.current_row,
+                sheet if sheet else entity_type
             )
+
+            entity_map[uuid].append(name_value)
+
+            return uuid, name_value
 
     def create_locations(self):
         this_dir = os.path.abspath(os.path.dirname(__file__))
