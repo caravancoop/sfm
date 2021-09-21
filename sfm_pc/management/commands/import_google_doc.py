@@ -1443,31 +1443,12 @@ class Command(BaseCommand):
                     message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_val, access_point_uuid)
                     self.log_error(message, sheet='sources', current_row=idx + 2)
 
-            try:
-                source, created = Source.objects.get_or_create(**source_info)
-
-            except Source.MultipleObjectsReturned:
-                # Find sources matching the given signature and having
-                # associated access points.
-                sources = Source.objects.filter(**source_info)\
-                                        .filter(accesspoint__isnull=False)\
-                                        .order_by('-date_added')\
-                                        .distinct()
-
-                if sources.count() > 1:
-                    self.stdout.write(self.style.WARNING(
-                        'L{0}: Found multiple instances of Source with signature "{1}"'.format(idx + 2, source_info)
-                    ))
-
-                # Get the most recently created source.
-                source = sources.first()
-
-                created = False
+            source, created = Source.objects.get_or_create(**source_info)
 
             self.stdout.write(
-                '{0} Source "{1}" from row {2}'.format('Created' if created else 'Updated',
-                                                       source,
-                                                       idx + 2)
+                '{0} Source "{1}" from row {2}'.format(
+                    'Created' if created else 'Updated', source, idx + 2
+                )
             )
 
             access_point_info = {
