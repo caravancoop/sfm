@@ -1771,22 +1771,6 @@ class Command(BaseCommand):
                     membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
                     membership.update(membership_data)
 
-                except MembershipPerson.MultipleObjectsReturned:
-                    memberships = MembershipPerson.objects.filter(**membership_kwargs)
-                    membership = memberships.order_by('id').first()
-                    duplicates = memberships.exclude(id=membership.id)
-
-                    self.stdout.write('Found {0} duplicate memberships for {1}'.format(duplicates.count(), person))
-                    remove_duplicates = input('Remove duplicates? [y/n] ')
-
-                    if remove_duplicates.lower().strip() == 'y':
-                        delete_summary = duplicates.delete()
-                        self.stdout.write('Removed duplicate memberships for {0}. Summary: {1}'.format(person, delete_summary))
-
-                    sources = set(self.sourcesList(membership, 'member') + self.sourcesList(membership, 'organization'))
-                    membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
-                    membership.update(membership_data)
-
                 except MembershipPerson.DoesNotExist:
                     membership = MembershipPerson.create(membership_data)
 
