@@ -357,7 +357,7 @@ def test_entity_map_conflict_logs_errors(data_import, Model, name, value_type):
         base_message = 'Got multiple UUID values for {0} name "{1}"'.format(entity_type, name)
         assert output.count(base_message) == 2
 
-        # A Model instance will have been created for both UUIDs. Test that both
+        # A Model instance will have been created for all UUIDs. Test that all
         # UUIDs appear in the logs.
         for instance in Model.objects.filter(**{'{}name__value'.format(entity_type): name}):
             assert output.count('Current row contains value "{}"'.format(instance.uuid)) == 1

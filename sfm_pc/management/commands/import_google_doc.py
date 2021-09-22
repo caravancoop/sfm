@@ -278,14 +278,14 @@ class Command(BaseCommand):
                 value, column, row, sheet = value
                 key_type, value_type = entity_map.get_key_value_types(transpose=transpose)
 
-                msg = error_format.format(**{
-                    'entity_type': entity_type,
-                    'key_type': key_type,
-                    'key_value': key,
-                    'value_type': value_type,
-                    'value': value,
-                    'column': column,
-                })
+                msg = error_format.format(
+                    entity_type=entity_type,
+                    key_type=key_type,
+                    key_value=key,
+                    value_type=value_type,
+                    value=value,
+                    column=column
+                )
 
                 self.log_error(msg, sheet=sheet, current_row=row)
 
