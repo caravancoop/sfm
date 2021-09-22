@@ -112,11 +112,12 @@ def test_sources(data_import, data_folder):
 
 
 @pytest.mark.django_db
-def test_source_dates_and_timestamps(data_import):
+def test_source_dates_and_timestamps(data_import, data_folder):
     """Make sure Source date fields properly parse dates and timestamps."""
     timestamp_src = Source.objects.get(title='Source Timestamps')
     date_src = Source.objects.get(title='Source Dates')
     date_and_timestamp_prefixes = ('created', 'published', 'uploaded')
+
     for prefix in date_and_timestamp_prefixes:
         date_field = '{}_date'.format(prefix)
         timestamp_field = '{}_timestamp'.format(prefix)
@@ -132,27 +133,39 @@ def test_source_dates_and_timestamps(data_import):
         'sources-errors.csv'
     )
 
-    undated_sources = Source.objects.filter(published_date='', published_timestamp__isnull=True)\
-                                    .values_list('accesspoint__uuid', flat=True)
+    # Test that source errors are reported whether it's the first or 101st time
+    # we're seeing them.
+    for run_number in range(1, 3):
+        if run_number == 2:
+            # Remove the error file from the first run
+            os.remove(error_file)
 
-    undated_source_set = set(str(uuid) for uuid in undated_sources)
+            # Re-run the import
+            data_import = io.StringIO()
+            call_command('import_google_doc', folder=data_folder, stdout=data_import)
 
-    error_source_set = set()
+        undated_sources = Source.objects.filter(published_date='', published_timestamp__isnull=True)\
+                                        .values_list('accesspoint__uuid', flat=True)
 
-    with open(error_file, 'r') as f:
-        reader = csv.reader(f)
+        undated_source_set = set(str(uuid) for uuid in undated_sources)
 
-        next(reader)  # discard header
+        error_source_set = set()
 
-        for record in reader:
-            _, message = record
-            assert message.startswith('Invalid published_date')
+        with open(error_file, 'r') as f:
+            reader = csv.reader(f)
 
-            source_id = message.split()[-1]
-            assert source_id in undated_source_set
-            error_source_set.add(source_id)
+            next(reader)
 
-        assert undated_source_set == error_source_set
+            for record in reader:
+                _, message = record
+                assert message.startswith('Invalid published_date')
+
+                source_id = message.split()[-1]
+                assert source_id in undated_source_set
+                error_source_set.add(source_id)
+
+            assert undated_source_set == error_source_set
+
 
 @pytest.mark.django_db
 def test_incidents(data_import):
