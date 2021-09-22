@@ -9,11 +9,11 @@ from complex_fields.models import ComplexField, ComplexFieldContainer
 from complex_fields.base_models import BaseModel
 from organization.models import Organization
 from location.models import Location
-from sfm_pc.models import GetComplexFieldNameMixin
+from sfm_pc.models import GetComplexFieldNameMixin, SuperlativeDateMixin
 from source.mixins import SourcesMixin
 
 
-class Association(models.Model, BaseModel, SourcesMixin, GetComplexFieldNameMixin):
+class Association(models.Model, BaseModel, SourcesMixin, SuperlativeDateMixin, GetComplexFieldNameMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.startdate = ComplexFieldContainer(self, AssociationStartDate)

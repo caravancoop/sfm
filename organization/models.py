@@ -3,6 +3,7 @@ import uuid
 import reversion
 
 from django.db import models
+from django.db.models import Min, Max
 from django.db.models.functions import Coalesce
 from django.utils.translation import ugettext as _
 from django.conf import settings
@@ -85,10 +86,9 @@ class Organization(models.Model, BaseModel, SourcesMixin, VersionsMixin, GetComp
         with nulls last.
         '''
         assocs = self.associationorganization_set\
-                     .annotate(lcd=Coalesce('object_ref__associationstartdate__value',
-                                            'object_ref__associationenddate__value',
-                                            models.Value('1000-0-0')))\
-                     .order_by('-lcd')
+                     .annotate(min_start_date=Min('object_ref__associationstartdate__value'),
+                               max_end_date=Max('object_ref__associationenddate__value'))\
+                     .order_by(Coalesce('min_start_date', 'max_end_date').desc(nulls_last=True))
 
         return assocs
 
@@ -101,10 +101,9 @@ class Organization(models.Model, BaseModel, SourcesMixin, VersionsMixin, GetComp
         with nulls last.
         '''
         empls = self.emplacementorganization_set\
-                    .annotate(lcd=Coalesce('object_ref__emplacementstartdate__value',
-                                           'object_ref__emplacementenddate__value',
-                                           models.Value('1000-0-0')))\
-                    .order_by('-lcd')
+                    .annotate(min_start_date=Min('object_ref__emplacementstartdate__value'),
+                              max_end_date=Max('object_ref__emplacementenddate__value'))\
+                    .order_by(Coalesce('min_start_date', 'max_end_date').desc(nulls_last=True))
 
         return empls
 

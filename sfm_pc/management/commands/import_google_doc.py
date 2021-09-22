@@ -1728,7 +1728,7 @@ class Command(BaseCommand):
                     lcd = None
 
                 try:
-                    role_name = person_data[membership_positions['Role']['value']]
+                    role_name = person_data[membership_positions['Role']['value']].strip()
                 except IndexError:
                     role = None
                 else:
@@ -1739,7 +1739,7 @@ class Command(BaseCommand):
                         role = None
 
                 try:
-                    rank_name = person_data[membership_positions['Rank']['value']]
+                    rank_name = person_data[membership_positions['Rank']['value']].strip()
                 except IndexError:
                     rank = None
                 else:
@@ -1750,18 +1750,23 @@ class Command(BaseCommand):
                         rank = None
 
                 try:
-                    title = person_data[membership_positions['Title']['value']] or None
+                    title = person_data[membership_positions['Title']['value']].strip() or None
                 except IndexError:
                     title = None
 
+                membership_kwargs = {
+                    'membershippersonmember__value': person,
+                    'membershippersonorganization__value': organization,
+                    'membershippersonfirstciteddate__value': fcd,
+                    'membershippersonlastciteddate__value': lcd,
+                    'membershippersonrole__value': role,
+                    'membershippersonrank__value': rank,
+                    'membershippersontitle__value': title,
+                }
+
                 try:
-                    membership = MembershipPerson.objects.get(membershippersonmember__value=person,
-                                                              membershippersonorganization__value=organization,
-                                                              membershippersonfirstciteddate__value=fcd,
-                                                              membershippersonlastciteddate__value=lcd,
-                                                              membershippersonrole__value=role,
-                                                              membershippersonrank__value=rank,
-                                                              membershippersontitle__value=title)
+                    membership = MembershipPerson.objects.get(**membership_kwargs)
+
                     sources = set(self.sourcesList(membership, 'member') + self.sourcesList(membership, 'organization'))
                     membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
                     membership.update(membership_data)
