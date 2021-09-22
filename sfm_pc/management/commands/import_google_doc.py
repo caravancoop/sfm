@@ -49,34 +49,29 @@ from violation.models import Violation, ViolationPerpetrator, \
 from location.models import Location
 
 
-class EntityMap(object):
+class EntityMap(dict):
 
-    def __init__(self):
-        self.map = {}
-
-    def update(self, key, value, column, row, sheet, entity_map=None):
-        entity_map = entity_map if entity_map is not None else self.map
-
-        if key not in entity_map:
-            entity_map[key] = []
+    def add(self, key, value, column, row, sheet):
+        if key not in self:
+            self[key] = []
 
         value_tuple = (value, column, row, sheet)
-        entity_map[key].append(value_tuple)
+        self[key].append(value_tuple)
 
-        return entity_map
+        return self
 
     def get_transposed_map(self):
-        transposed = {}
+        transposed = EntityMap()
 
-        for key, values in self.map.items():
+        for key, values in self.items():
             for value_tuple in values:
                 value, *vargs = value_tuple
-                transposed = self.update(value, key, *vargs, entity_map=transposed)
+                transposed = transposed.add(value, key, *vargs)
 
         return transposed
 
     def get_conflicts(self, transpose=False):
-        entity_map = self.map if not transpose else self.get_transposed_map()
+        entity_map = self if not transpose else self.get_transposed_map()
 
         for key, values in entity_map.items():
             if len(set(val for val, *_ in values)) > 1:
@@ -673,7 +668,7 @@ class Command(BaseCommand):
 
                 organization.update(org_info)
 
-                self.organization_entity_map.update(
+                self.organization_entity_map.add(
                     uuid,
                     name_value,
                     org_positions['Name']['value'],
@@ -788,7 +783,7 @@ class Command(BaseCommand):
 
                             parent_organization.update(parent_org_info)
 
-                            self.organization_entity_map.update(
+                            self.organization_entity_map.add(
                                 uuid,
                                 parent_org_name,
                                 composition_positions['Parent']['value'],
@@ -898,7 +893,7 @@ class Command(BaseCommand):
 
                             member_organization.update(member_org_info)
 
-                            self.organization_entity_map.update(
+                            self.organization_entity_map.add(
                                 uuid,
                                 member_org_name,
                                 membership_positions['OrganizationOrganization']['value'],
@@ -1657,7 +1652,7 @@ class Command(BaseCommand):
 
                 person.update(person_info)
 
-                self.person_entity_map.update(
+                self.person_entity_map.add(
                     uuid,
                     name_value,
                     person_positions['Name']['value'],
@@ -1737,7 +1732,7 @@ class Command(BaseCommand):
 
                 organization.update(org_info)
 
-                self.organization_entity_map.update(
+                self.organization_entity_map.add(
                     uuid,
                     organization_name,
                     person_data['person:posting_unit_name'],
@@ -2288,7 +2283,7 @@ class Command(BaseCommand):
                     person = Person.objects.create(uuid=uuid, published=True)
                     person.update(person_info)
 
-                self.person_entity_map.update(
+                self.person_entity_map.add(
                     uuid,
                     perp,
                     positions['Perpetrator']['value'],
@@ -2343,7 +2338,7 @@ class Command(BaseCommand):
                                                                published=True)
                     organization.update(info)
 
-                self.organization_entity_map.update(
+                self.organization_entity_map.add(
                     uuid,
                     org,
                     positions['PerpetratorOrganization']['value'],
