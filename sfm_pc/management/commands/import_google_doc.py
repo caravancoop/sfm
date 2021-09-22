@@ -49,6 +49,40 @@ from violation.models import Violation, ViolationPerpetrator, \
 from location.models import Location
 
 
+class EntityMap(object):
+
+    def __init__(self):
+        self.map = {}
+
+    def update(self, key, value, column, row, sheet, entity_map=None):
+        entity_map = entity_map if entity_map is not None else self.map
+
+        if key not in entity_map:
+            entity_map[key] = []
+
+        value_tuple = (value, column, row, sheet)
+        entity_map[key].append(value_tuple)
+
+        return entity_map
+
+    def get_transposed_map(self):
+        transposed = {}
+
+        for key, values in self.map.items():
+            for value_tuple in values:
+                value, *vargs = value_tuple
+                transposed = self.update(value, key, *vargs, entity_map=transposed)
+
+        return transposed
+
+    def get_conflicts(self, transpose=False):
+        entity_map = self.map if not transpose else self.get_transposed_map()
+
+        for key, values in entity_map.items():
+            if len(set(val for val, *_ in values)) > 1:
+                yield key, values
+
+
 class Command(BaseCommand):
     help = 'Import data from Google Drive Spreadsheet'
 
@@ -174,8 +208,8 @@ class Command(BaseCommand):
         zero_index_start = one_index_start - 1
 
         # Create entity maps to be populated by the "create_*" methods.
-        self.organization_entity_map = {}
-        self.person_entity_map = {}
+        self.organization_entity_map = EntityMap()
+        self.person_entity_map = EntityMap()
 
         for entity_type in options['entity_types'].split(','):
 
@@ -200,25 +234,25 @@ class Command(BaseCommand):
         )
 
         for entity_type in ('organization', 'person'):
-            entity_map = getattr(self, '{}_entity_map'.format(entity_type), None)
+            entity_map = getattr(self, '{}_entity_map'.format(entity_type))
+            conflicting_names = entity_map.get_conflicts()
 
-            if entity_map:
-                for uuid, name_values in entity_map.items():
-                    distinct_names = set([value[0] for value in name_values])
-
+            if conflicting_names:
+                for uuid, name_values in conflicting_names:
                     # If there is more than one distinct name value for a given
                     # UUID, log an error for each record referencing that UUID,
                     # in ascending row order.
-                    if len(distinct_names) > 1:
-                        for value in sorted(name_values, key=lambda value: value[2]):
-                            name, column, row, sheet = value
-                            msg = name_error_format.format(**{
-                                'entity_type': entity_type,
-                                'uuid': uuid,
-                                'name': name,
-                                'column': column,
-                            })
-                            self.log_error(msg, sheet=sheet, current_row=row)
+                    for value in sorted(name_values, key=lambda value: value[2]):
+                        name, column, row, sheet = value
+                        msg = name_error_format.format(**{
+                            'entity_type': entity_type,
+                            'uuid': uuid,
+                            'name': name,
+                            'column': column,
+                        })
+                        self.log_error(msg, sheet=sheet, current_row=row)
+
+            # TODO: Add logging for conflicting UUIDs for the same name
 
         data_src = options['folder'] if options.get('folder') else options['doc_id']
         self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(data_src)))
@@ -228,34 +262,6 @@ class Command(BaseCommand):
 
         # Connect post save signals
         self.connectSignals()
-
-    def update_entity_map(self, entity_type, uuid, name, column, row=None, sheet=None):
-        '''
-        Add to mapping for the given entity with the following structure:
-
-            {
-                'uuid': [
-                    (name_value, column, row, sheet),
-                    ...
-                ]
-            }
-        '''
-        entity_map = getattr(self, '{}_entity_map'.format(entity_type), None)
-
-        if entity_map is not None:
-            if uuid not in entity_map:
-                entity_map[uuid] = []
-
-            name_value = (
-                name,
-                column,
-                row if row else self.current_row,
-                sheet if sheet else entity_type
-            )
-
-            entity_map[uuid].append(name_value)
-
-            return uuid, name_value
 
     def create_locations(self):
         this_dir = os.path.abspath(os.path.dirname(__file__))
@@ -667,11 +673,12 @@ class Command(BaseCommand):
 
                 organization.update(org_info)
 
-                self.update_entity_map(
-                    'organization',
+                self.organization_entity_map.update(
                     uuid,
                     name_value,
-                    org_positions['Name']['value']
+                    org_positions['Name']['value'],
+                    self.current_row,
+                    self.current_sheet
                 )
 
                 org_attributes = ['Alias', 'Classification', 'OpenEnded', 'Headquarters']
@@ -781,11 +788,12 @@ class Command(BaseCommand):
 
                             parent_organization.update(parent_org_info)
 
-                            self.update_entity_map(
-                                'organization',
+                            self.organization_entity_map.update(
                                 uuid,
                                 parent_org_name,
-                                composition_positions['Parent']['value']
+                                composition_positions['Parent']['value'],
+                                self.current_row,
+                                self.current_sheet
                             )
 
                             comp_info = {
@@ -890,11 +898,12 @@ class Command(BaseCommand):
 
                             member_organization.update(member_org_info)
 
-                            self.update_entity_map(
-                                'organization',
+                            self.organization_entity_map.update(
                                 uuid,
                                 member_org_name,
-                                membership_positions['OrganizationOrganization']['value']
+                                membership_positions['OrganizationOrganization']['value'],
+                                self.current_row,
+                                self.current_sheet
                             )
 
                             membership_info = {
@@ -1648,11 +1657,12 @@ class Command(BaseCommand):
 
                 person.update(person_info)
 
-                self.update_entity_map(
-                    'person',
+                self.person_entity_map.update(
                     uuid,
                     name_value,
-                    person_positions['Name']['value']
+                    person_positions['Name']['value'],
+                    self.current_row,
+                    self.current_sheet
                 )
 
                 self.make_relation('Alias',
@@ -1727,12 +1737,12 @@ class Command(BaseCommand):
 
                 organization.update(org_info)
 
-                self.update_entity_map(
-                    'organization',
+                self.organization_entity_map.update(
                     uuid,
                     organization_name,
                     person_data['person:posting_unit_name'],
-                    sheet='person'
+                    self.current_row,
+                    self.current_sheet
                 )
 
                 membership_data = {
@@ -2278,12 +2288,12 @@ class Command(BaseCommand):
                     person = Person.objects.create(uuid=uuid, published=True)
                     person.update(person_info)
 
-                self.update_entity_map(
-                    'person',
+                self.person_entity_map.update(
                     uuid,
                     perp,
                     positions['Perpetrator']['value'],
-                    sheet='event'
+                    self.current_row,
+                    self.current_sheet
                 )
 
                 vp, created = ViolationPerpetrator.objects.get_or_create(value=person,
@@ -2333,12 +2343,12 @@ class Command(BaseCommand):
                                                                published=True)
                     organization.update(info)
 
-                self.update_entity_map(
-                    'organization',
+                self.organization_entity_map.update(
                     uuid,
                     org,
                     positions['PerpetratorOrganization']['value'],
-                    sheet='event'
+                    self.current_row,
+                    self.current_sheet
                 )
 
                 vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
