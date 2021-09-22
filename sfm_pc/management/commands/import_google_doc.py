@@ -50,6 +50,11 @@ from location.models import Location
 
 
 class EntityMap(dict):
+    '''
+    Container for mapping of UUID to array of (name, column, row, sheet) tuples.
+    '''
+    KEY_TYPE = 'UUID'
+    VALUE_TYPE = 'name'
 
     def add(self, key, value, column, row, sheet):
         if key not in self:
@@ -60,7 +65,14 @@ class EntityMap(dict):
 
         return self
 
-    def get_transposed_map(self):
+    def get_transposed(self):
+        '''
+        It is always a data integrity error if a UUID has more than one distinct
+        name. Names are not uniquely identifying, but it sometimes happens that
+        more than one UUID is created for the same entity. This helper method
+        creates a mapping of name to array of (UUID, column, row, sheet) tuples
+        to facilitate validation and logging in that instance.
+        '''
         transposed = EntityMap()
 
         for key, values in self.items():
@@ -71,11 +83,21 @@ class EntityMap(dict):
         return transposed
 
     def get_conflicts(self, transpose=False):
-        entity_map = self if not transpose else self.get_transposed_map()
+        '''
+        A given key should have at most one distinct value. Return keys and
+        their values if this is not the case.
+        '''
+        entity_map = self if not transpose else self.get_transposed()
 
         for key, values in entity_map.items():
             if len(set(val for val, *_ in values)) > 1:
                 yield key, values
+
+    def get_key_value_types(self, transpose=False):
+        if transpose:
+            return self.VALUE_TYPE, self.KEY_TYPE
+
+        return self.KEY_TYPE, self.VALUE_TYPE
 
 
 class Command(BaseCommand):
@@ -221,33 +243,16 @@ class Command(BaseCommand):
                             self.current_row = one_index_start + (index + 1)
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
-        # Check the entity map after bringing in all data, because there are
+        # Check the entity maps after bringing in all data, because there are
         # references to organizations and people in multiple sheets.
-        name_error_format = (
-            'Got multiple name values for {entity_type} UUID "{uuid}". Current '
-            'row contains value "{name}" in column "{column}"'
-        )
-
         for entity_type in ('organization', 'person'):
             entity_map = getattr(self, '{}_entity_map'.format(entity_type))
-            conflicting_names = entity_map.get_conflicts()
 
-            if conflicting_names:
-                for uuid, name_values in conflicting_names:
-                    # If there is more than one distinct name value for a given
-                    # UUID, log an error for each record referencing that UUID,
-                    # in ascending row order.
-                    for value in sorted(name_values, key=lambda value: value[2]):
-                        name, column, row, sheet = value
-                        msg = name_error_format.format(**{
-                            'entity_type': entity_type,
-                            'uuid': uuid,
-                            'name': name,
-                            'column': column,
-                        })
-                        self.log_error(msg, sheet=sheet, current_row=row)
+            # Log multiple names for the same UUID
+            self.log_conflicts(entity_type, entity_map)
 
-            # TODO: Add logging for conflicting UUIDs for the same name
+            # Log multiple UUIDs for the same name
+            self.log_conflicts(entity_type, entity_map, transpose=True)
 
         data_src = options['folder'] if options.get('folder') else options['doc_id']
         self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(data_src)))
@@ -257,6 +262,32 @@ class Command(BaseCommand):
 
         # Connect post save signals
         self.connectSignals()
+
+    def log_conflicts(self, entity_type, entity_map, transpose=False):
+        '''
+        Log a message for each conflicting record in a given entity map.
+        '''
+        error_format = (
+            'Got multiple {value_type} values for {entity_type} {key_type} '
+            '"{key_value}". Current row contains value "{value}" in column '
+            '"{column}".'
+        )
+
+        for key, values in entity_map.get_conflicts(transpose=transpose):
+            for value in sorted(values, key=lambda value: value[2]):
+                value, column, row, sheet = value
+                key_type, value_type = entity_map.get_key_value_types(transpose=transpose)
+
+                msg = error_format.format(**{
+                    'entity_type': entity_type,
+                    'key_type': key_type,
+                    'key_value': key,
+                    'value_type': value_type,
+                    'value': value,
+                    'column': column,
+                })
+
+                self.log_error(msg, sheet=sheet, current_row=row)
 
     def create_locations(self):
         this_dir = os.path.abspath(os.path.dirname(__file__))
