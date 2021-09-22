@@ -199,7 +199,7 @@ class AccessPoint(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     @property
     def archive_timestamp(self):
         """Given an access point archive_url, parse the timestamp."""
-        match = re.search(r"web\.archive\.org/web/(\d{14})/", self.archive_url)
+        match = re.search(r"web\.archive\.org/web/(\d{14})/", self.archive_url or '')
         if match:
             return match.group(1)
         else:

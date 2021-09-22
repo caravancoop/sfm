@@ -59,12 +59,19 @@ class PersonDetail(BaseDetailView):
 
         memberships = tuple(mem.object_ref for mem in affiliations)
 
+        # A person can have more than one membership in a particular
+        # organization. Generate a unique list of organizations to which this
+        # person belongs, in order to determine superiors and subordinates.
+        member_organizations = MembershipPerson.objects.filter(
+            id__in=context['person'].memberships.values_list('object_ref')
+        ).distinct('membershippersonorganization__value')
+
         context['memberships'] = memberships
         context['subordinates'] = []
         context['superiors'] = []
         context['command_chain'] = []
 
-        for membership in memberships:
+        for membership in member_organizations:
 
             # Grab the org object
             org = membership.organization.get_value().value
@@ -132,8 +139,8 @@ class PersonDetail(BaseDetailView):
                 if parent_commanders:
                     context['superiors'] += parent_commanders
 
-        context['subordinates'] = sort_commanders(context['subordinates'])
-        context['superiors'] = sort_commanders(context['superiors'])
+        context['subordinates'] = list(sort_commanders(context['subordinates']))
+        context['superiors'] = list(sort_commanders(context['superiors']))
 
         context['command_chain'].reverse()
         context['events'] = []
