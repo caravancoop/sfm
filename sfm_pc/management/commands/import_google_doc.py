@@ -1728,23 +1728,23 @@ class Command(BaseCommand):
                     lcd = None
 
                 try:
-                    role_name = person_data[membership_positions['Role']['value']]
+                    role_name = person_data[membership_positions['Role']['value']].strip()
                 except IndexError:
                     role = None
                 else:
                     if role_name:
-                        role, _ = Role.objects.get_or_create(value=role_name.strip())
+                        role, _ = Role.objects.get_or_create(value=role_name)
                         role = role.id
                     else:
                         role = None
 
                 try:
-                    rank_name = person_data[membership_positions['Rank']['value']]
+                    rank_name = person_data[membership_positions['Rank']['value']].strip()
                 except IndexError:
                     rank = None
                 else:
                     if rank_name:
-                        rank, _ = Rank.objects.get_or_create(value=rank_name.strip())
+                        rank, _ = Rank.objects.get_or_create(value=rank_name)
                         rank = rank.id
                     else:
                         rank = None
