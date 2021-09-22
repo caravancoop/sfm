@@ -195,7 +195,6 @@ def test_sources_only_created_for_data_points_they_evidence(data_import, data_fo
             ])
 
 
-@pytest.mark.skip(reason='Broken, fixed in sfm-cms/pull/776')
 @pytest.mark.django_db
 def test_source_dates_and_timestamps(data_import):
     """Make sure Source date fields properly parse dates and timestamps."""
@@ -321,15 +320,32 @@ def test_shared_name_creates_distinct_entities(data_import):
     assert people_sharing_name.count() == 2
 
 
+@pytest.mark.parametrize('Model,name,value_type', [
+    (Organization, 'Unit has different names for same UUID ', 'name'),
+    (Organization, 'Unit has same name but duplicate UUID', 'UUID'),
+    (Person, 'Importer Test Different UUIDs for Same Name', 'UUID'),
+])
 @pytest.mark.django_db
-def test_ambiguous_name_logs_error(data_import):
-    '''
-    If name is inconsistent between records sharing a UUID, test that an error
-    is logged for each record.
-    '''
-    name = 'Unit has different names for same UUID'
-    org = Organization.objects.get(organizationname__value__startswith=name)
+def test_entity_map_conflict_logs_errors(data_import, Model, name, value_type):
     output = data_import.getvalue()
+    entity_type = Model.__name__.lower()
 
-    assert output.count('Got multiple name values for organization UUID "{}'.format(org.uuid)) == 2
-    assert output.count('Current row contains value "{}'.format(name)) == 2
+    if value_type == 'name':
+        instance = Model.objects.get(**{'{}name__value'.format(entity_type): name})
+        base_message = 'Got multiple name values for {0} UUID "{1}"'.format(entity_type, instance.uuid)
+        assert output.count(base_message) == 2
+
+        # The test data contains two versions of the test name, one with a
+        # trailing whitespace and one without. Test that both appear in the logs.
+        for value in (name, name.strip()):
+            assert output.count('Current row contains value "{}"'.format(value)) == 1
+
+    elif value_type == 'UUID':
+        base_message = 'Got multiple UUID values for {0} name "{1}"'.format(entity_type, name)
+        assert output.count(base_message) == 2
+
+        # A Model instance will have been created for both UUIDs. Test that both
+        # UUIDs appear in the logs.
+        for instance in Model.objects.filter(**{'{}name__value'.format(entity_type): name}):
+            assert output.count('Current row contains value "{}"'.format(instance.uuid)) == 1
+
