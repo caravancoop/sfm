@@ -1420,27 +1420,16 @@ class Command(BaseCommand):
             }
 
             for prefix in ('published', 'created', 'uploaded'):
-                date_val = source_data[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
-                parsed_date = None
+                date_value = source_data[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
+                parsed_date = self.get_source_date(date_value)
 
-                try:
-                    # Try to parse the value as a timestamp (remove timezone
-                    # marker for Pyton <3.7)
-                    parsed_date = datetime.strptime(date_val.replace('Z', ''), '%Y-%m-%dT%H:%M:%S')
-
-                except ValueError:
-                    # Fall back to an empty string because we want to use
-                    # source_info to retrieve and update existing Sources, and
-                    # date fields default to an empty string if no data is
-                    # provided
-                    parsed_date = self.parse_date(date_val) or ''
+                if isinstance(parsed_date, datetime):
+                    source_info['{}_timestamp'.format(prefix)] = parsed_date
+                else:
                     source_info['{}_date'.format(prefix)] = parsed_date
 
-                else:
-                    source_info['{}_timestamp'.format(prefix)] = parsed_date
-
                 if not parsed_date and prefix == 'published':
-                    message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_val, access_point_uuid)
+                    message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_value, access_point_uuid)
                     self.log_error(message, sheet='sources', current_row=idx + 2)
 
             source, created = Source.objects.get_or_create(**source_info)
@@ -1464,6 +1453,23 @@ class Command(BaseCommand):
                 setattr(access_point, attr, val)
 
             access_point.save()
+
+    def get_source_date(self, date_value):
+        '''
+        Source dates can come to us as full timestamps or dates. Given a string
+        representing one of these values, return a parsed datetime or date
+        object, or an empty string, if neither can be parsed.
+        '''
+        try:
+            # Try to parse the value as a timestamp (remove timezone marker for
+            # Python <3.7)
+            return datetime.strptime(date_value.replace('Z', ''), '%Y-%m-%dT%H:%M:%S')
+
+        except ValueError:
+            # Fall back to an empty string because we want to use this value to
+            # retrieve and update existing Sources, and date fields default to
+            # an empty string if no data is provided
+            return self.parse_date(date_value) or ''
 
     def get_sources(self, source_id_string):
 
