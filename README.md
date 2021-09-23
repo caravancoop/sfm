@@ -294,7 +294,13 @@ docker-compose --env-file .env.import run --rm app make -e ${COUNTRY_CODE}_cc_im
 Of course, you can also run the import commands directly:
 
 ```bash
-docker-compose run --rm app python manage.py import_google_docs \
+# Be sure to pass the DJANGO_HAYSTACK_SIGNAL_PROCESSOR environment variable to disable
+# automatic updates to the search index, as the import saves partial information while
+# creating entities and _will_ cause these updates to fail. Update the index with the
+# usual "rebuild_index" command from Haystack after the import has completed.
+docker-compose run \
+    -e DJANGO_HAYSTACK_SIGNAL_PROCESSOR="haystack.signals.BaseSignalProcessor" \
+    --rm app python manage.py import_google_docs \
     --source_doc_id <some id> \
     --location_doc_id <some id> \
     --doc_id <some id>

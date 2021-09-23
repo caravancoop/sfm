@@ -111,24 +111,18 @@ class Command(BaseCommand):
         return credentials
 
     def disconnectSignals(self):
-        from django.db.models.signals import post_save
         from complex_fields.base_models import object_ref_saved
         from sfm_pc.signals import update_membership_index, update_composition_index
 
         object_ref_saved.disconnect(receiver=update_membership_index, sender=MembershipPerson)
         object_ref_saved.disconnect(receiver=update_composition_index, sender=Composition)
 
-        settings.HAYSTACK_SIGNAL_PROCESSOR = None
-
     def connectSignals(self):
-        from django.db.models.signals import post_save
         from complex_fields.base_models import object_ref_saved
         from sfm_pc.signals import update_membership_index, update_composition_index
 
         object_ref_saved.connect(receiver=update_membership_index, sender=MembershipPerson)
         object_ref_saved.connect(receiver=update_composition_index, sender=Composition)
-
-        settings.HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
     def handle(self, *args, **options):
 
