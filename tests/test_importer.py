@@ -21,9 +21,8 @@ def data_folder():
 
 
 @pytest.fixture
-def data_import(location_data_import, data_folder, settings):
+def data_import(location_data_import, data_folder):
     """Perform a test data import."""
-    settings.DJANGO_HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
     output = io.StringIO()
     call_command('import_google_doc', folder=data_folder, stdout=output)
     return output

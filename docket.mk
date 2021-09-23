@@ -2,7 +2,6 @@
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
 		echo "Importing data for country code $$3" && (\
-			DJANGO_HAYSTACK_SIGNAL_PROCESSOR="haystack.signals.BaseSignalProcessor" \
 			python -u manage.py import_google_doc \
 				--source_doc_id $$0 \
 				--location_doc_id $$1 \
