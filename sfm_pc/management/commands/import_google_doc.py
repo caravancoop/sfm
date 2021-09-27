@@ -51,17 +51,31 @@ from location.models import Location
 
 class EntityMap(dict):
     '''
-    Container for mapping of UUID to array of (name, column, row, sheet) tuples.
+    Container for mapping of UUID to value and locations:
+
+    {
+        'uuid': {
+            'value': [
+                (column, row, sheet),
+                ...
+            ]
+        }
+    }
     '''
+
     KEY_TYPE = 'UUID'
     VALUE_TYPE = 'name'
 
     def add(self, key, value, column, row, sheet):
         if key not in self:
-            self[key] = []
+            self[key] = {}
 
-        value_tuple = (value, column, row, sheet)
-        self[key].append(value_tuple)
+        if value not in self[key]:
+            self[key][value] = []
+
+        location = (column, row, sheet)
+
+        self[key][value].append(location)
 
         return self
 
@@ -76,9 +90,9 @@ class EntityMap(dict):
         transposed = EntityMap()
 
         for key, values in self.items():
-            for value_tuple in values:
-                value, *vargs = value_tuple
-                transposed = transposed.add(value, key, *vargs)
+            for value, locations in values.items():
+                for location in locations:
+                    transposed = transposed.add(value, key, *location)
 
         return transposed
 
@@ -90,7 +104,7 @@ class EntityMap(dict):
         entity_map = self if not transpose else self.get_transposed()
 
         for key, values in entity_map.items():
-            if len(set(val for val, *_ in values)) > 1:
+            if len(set(val for val in values.keys())) > 1:
                 yield key, values
 
     def get_key_value_types(self, transpose=False):
@@ -273,21 +287,23 @@ class Command(BaseCommand):
             '"{column}".'
         )
 
+        key_type, value_type = entity_map.get_key_value_types(transpose=transpose)
+
         for key, values in entity_map.get_conflicts(transpose=transpose):
-            for value in sorted(values, key=lambda value: value[2]):
-                value, column, row, sheet = value
-                key_type, value_type = entity_map.get_key_value_types(transpose=transpose)
+            for value, locations in values.items():
+                for column, row, sheet in sorted(locations,
+                                                 key=lambda location: location[1]):
 
-                msg = error_format.format(
-                    entity_type=entity_type,
-                    key_type=key_type,
-                    key_value=key,
-                    value_type=value_type,
-                    value=value,
-                    column=column
-                )
+                    msg = error_format.format(
+                        entity_type=entity_type,
+                        key_type=key_type,
+                        key_value=key,
+                        value_type=value_type,
+                        value=value,
+                        column=column
+                    )
 
-                self.log_error(msg, sheet=sheet, current_row=row)
+                    self.log_error(msg, sheet=sheet, current_row=row)
 
     def create_locations(self):
         this_dir = os.path.abspath(os.path.dirname(__file__))
