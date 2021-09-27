@@ -51,7 +51,7 @@ from location.models import Location
 
 class EntityMap(dict):
     '''
-    Container for mapping of UUID to value and locations:
+    Container for mapping of UUIDs to value and locations:
 
     {
         'uuid': {
@@ -59,7 +59,8 @@ class EntityMap(dict):
                 (column, row, sheet),
                 ...
             ]
-        }
+        },
+        ...
     }
     '''
 
