@@ -105,7 +105,7 @@ class EntityMap(dict):
         entity_map = self if not transpose else self.get_transposed()
 
         for key, values in entity_map.items():
-            if len(set(val for val in values.keys())) > 1:
+            if len(values) > 1:
                 yield key, values
 
     def get_key_value_types(self, transpose=False):
