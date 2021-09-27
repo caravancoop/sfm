@@ -23,7 +23,7 @@ class WWICSearchForm(FacetedSearchForm):
         clean_q = self.cleaned_data['q'].strip()
 
         for char in illegal_chars:
-            clean_q.replace(char, '')
+            clean_q = clean_q.replace(char, '')
 
         return ' '.join(term + '~' for term in clean_q.split())
 
