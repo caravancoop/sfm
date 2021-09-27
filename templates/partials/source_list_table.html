@@ -1,8 +1,4 @@
-{% load tablesort %}
-{% load countries %}
-{% load facets %}
-{% load i18n %}
-{% load model_meta %}
+{% load countries facets i18n model_meta tablesort %}
 
 <div class="responsive-table">
     <table class="table table-striped table-condensed search-results-table">
@@ -46,7 +42,9 @@
                         </a>
                     </td>
                     <td>
-                        {{ object.start_date|default_if_none:"" }}
+                        {% with date=object.start_date %}
+                            {% include 'partials/approximate_date.html' %}
+                        {% endwith %}
                     </td>
                     <td>
                         {{ object.publication|default_if_none:"" }}
