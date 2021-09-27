@@ -12,6 +12,7 @@ from googleapiclient.http import MediaIoBaseDownload
 
 from tqdm import tqdm
 
+from django.apps import apps
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
@@ -111,24 +112,22 @@ class Command(BaseCommand):
         return credentials
 
     def disconnectSignals(self):
-        from django.db.models.signals import post_save
         from complex_fields.base_models import object_ref_saved
         from sfm_pc.signals import update_membership_index, update_composition_index
 
         object_ref_saved.disconnect(receiver=update_membership_index, sender=MembershipPerson)
         object_ref_saved.disconnect(receiver=update_composition_index, sender=Composition)
 
-        settings.HAYSTACK_SIGNAL_PROCESSOR = None
+        apps.get_app_config('haystack').signal_processor.teardown()
 
     def connectSignals(self):
-        from django.db.models.signals import post_save
         from complex_fields.base_models import object_ref_saved
         from sfm_pc.signals import update_membership_index, update_composition_index
 
         object_ref_saved.connect(receiver=update_membership_index, sender=MembershipPerson)
         object_ref_saved.connect(receiver=update_composition_index, sender=Composition)
 
-        settings.HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+        apps.get_app_config('haystack').signal_processor.setup()
 
     def handle(self, *args, **options):
 
