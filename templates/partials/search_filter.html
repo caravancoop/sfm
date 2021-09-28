@@ -1,3 +1,5 @@
+{% load i18n %}
+
 <div class="panel panel-filter">
     <div class="panel-heading">
         <a role="button" class="filter-heading">
@@ -31,10 +33,10 @@
         <strong>
             <a data-toggle="collapse" class="facet-toggle" href="#additional-facet-values-{{ facet_name }}" style="padding-top: 25px; padding-bottom: 25px;">
                 {% if facet_name|add:'_exact' in selected_facets %}
-                    See less
+                    {% trans "Show less" %}
                     <i class="fa fa-fw fa-minus pull-right"></i>
                 {% else %}
-                    See more...
+                    {% trans "Show more" %}
                     <i class="fa fa-fw fa-plus pull-right"></i>
                 {% endif %}
             </a>

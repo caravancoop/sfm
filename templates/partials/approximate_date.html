@@ -1,0 +1,7 @@
+{% if date.month and date.day %}
+    {{ date|date:"d F Y" }}
+{% elif date.month %}
+    {{ date|date:"F Y" }}
+{% else %}
+    {{ date|default_if_none:"" }}
+{% endif %}

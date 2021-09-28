@@ -1,5 +1,5 @@
 {% extends "base_detail.html" %}
-{% load i18n %}
+{% load i18n language_url %}
 {% load static %}
 {% load countries %}
 {% load citations %}
@@ -21,7 +21,7 @@
 {% block header %}
     <h2 class="page-title cited">
         <i class="fa fa-fw fa-users"></i>
-        {{ organization.name.get_value }}
+        <bdi>{{ organization.name.get_value }}</bdi>
         <small>{% help href='unitrec.html#unit-record-title-area' %}</small>
         {% cite organization.name.get_value %}
         <small class="pull-right">
@@ -39,7 +39,9 @@
     {% if organization.aliases.get_list %}
         <p class="cited">{% trans "Also known as:" %}
             {% for alias in organization.aliases.get_list %}
-                <strong>{{ alias.get_value }}{% if not forloop.last %}|{% else %}{% cite alias.get_value %}{% endif %} </strong>
+                <strong>
+                    <bdi>{{ alias.get_value }}</bdi>{% if not forloop.last %}|{% else %}{% cite alias.get_value %}{% endif %}
+                </strong>
             {% endfor %}
         </p>
     {% endif %}
@@ -228,9 +230,11 @@
                     {% for membership in memberships %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-organization' membership.organization.get_value.value.uuid %}">
-                                    {{ membership.organization.get_value.value.name.get_value }}
-                                </a>
+                                <bdi>
+                                    <a href="{% url 'view-organization' membership.organization.get_value.value.uuid %}">
+                                        {{ membership.organization.get_value.value.name.get_value }}
+                                    </a>
+                                </bdi>
                                 {% cite membership.organization.get_value.value.name.get_value %}
                             </td>
                             <td class="cited">
@@ -239,7 +243,7 @@
                             </td>
                             <td class="cited">
                                 {% for alias in membership.organization.get_value.value.aliases.get_list %}
-                                    {{ alias.get_value }}
+                                    <bdi>{{ alias.get_value }}</bdi>
                                     {% cite alias.get_value %}
                                     {% if not forloop.last %}
                                         <br/>
@@ -296,9 +300,11 @@
                     {% for membership in org_members %}
                         <tr>
                             <td class="cited">
-                                <a href="{% url 'view-organization' membership.member.get_value.value.uuid %}">
-                                    {{ membership.member.get_value.value.name.get_value }}
-                                </a>
+                                <bdi>
+                                    <a href="{% url 'view-organization' membership.member.get_value.value.uuid %}">
+                                        {{ membership.member.get_value.value.name.get_value }}
+                                    </a>
+                                </bdi>
                                 {% cite membership.member.get_value %}
                             </td>
                             <td class="cited">
@@ -307,7 +313,7 @@
                             </td>
                             <td class="cited">
                                 {% for alias in membership.member.get_value.value.aliases.get_list %}
-                                    {{ alias.get_value }}
+                                    <bdi>{{ alias.get_value }}</bdi>
                                     {% cite alias.get_value %}
                                     {% if not forloop.last %}
                                         <br/>
@@ -352,7 +358,9 @@
                     <small class="pull-right">{% help href='unitrec.html#unit-record-parent-units' %}</small>
                     <hr />
                     <small><em>{% trans "Swipe to zoom, click and drag to pan" %}</em></small>
-                    <div id="org-chart-container" class="command-charts-carousel"></div>
+                    <bdi>
+                        <div id="org-chart-container" class="command-charts-carousel"></div>
+                    </bdi>
                     <br>
                 </div>
             </div>
@@ -384,14 +392,16 @@
                         {% with child=subsidiary.child.get_value.value %}
                             <tr>
                                 <td class="cited">
-                                    <a href="{% url 'view-organization' child.uuid %}">
-                                        {{ child.name.get_value }}
-                                    </a>
+                                    <bdi>
+                                        <a href="{% url 'view-organization' child.uuid %}">
+                                            {{ child.name.get_value }}
+                                        </a>
+                                    </bdi>
                                     {% cite subsidiary.child.get_value %}
                                 </td>
                                 <td class="cited">
                                     {% for alias in child.aliases.get_list %}
-                                        {{ alias.get_value }}
+                                        <bdi>{{ alias.get_value }}</bdi>
                                         {% cite alias.get_value %}
                                         {% if not forloop.last %}
                                             <br/>
@@ -562,9 +572,8 @@
             chart.dateMissingString = "{% trans 'No known end date' %}"
             chart.edgelists = edgelists;
 
-            chart.initCarousel();
+            chart.initCarousel('{{ LANGUAGE_BIDI }}' == 'True' ? true : false);
             chart.show();
-
         });
         </script>
     {% endif %}
@@ -574,13 +583,16 @@
         <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $('.data-table').dataTable({
+                $('.data-table').DataTable({
                     "order": [[ 0, "desc" ]],
                     "pageLength": 25,
                     "aoColumnDefs": [
                         { "bSortable": false, "aTargets": [ 4 ] },
                         { "bSearchable": false, "aTargets": [ 4 ] }
-                    ]
+                    ],
+                    "language": {
+                        "url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/{{ LANGUAGE_CODE|get_language }}.json"
+                    }
                 })
             });
         </script>

@@ -168,8 +168,9 @@ class OrganizationIndex(SearchEntity, indexes.Indexable):
         ).distinct()
 
         admin_l1_ids = [
-            site.sfm['location:admin_level_4']
+            site.sfm.get('location:admin_level_4')
             for site in Location.objects.filter(id__in=sites)
+            if site.sfm.get('location:admin_level_4')
         ]
 
         admin_l1_names = Location.objects.from_humane_id(admin_l1_ids)\
