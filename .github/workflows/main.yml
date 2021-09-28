@@ -10,8 +10,6 @@ on:
   pull_request:
     branches:
       - master
-      - hcg/translation
-      - hcg/import-patches
 
 jobs:
   test:
