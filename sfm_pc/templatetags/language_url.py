@@ -24,10 +24,8 @@ def create_select2_data(select_lang_abbr):
         "en": _("English"),
         "es": _("Spanish"),
         "fr": _("French"),
+        "ar": _("Arabic"),
     }
-
-    if getattr(settings, 'INCLUDE_ARABIC', False):
-        trans_obj['ar'] = _("Arabic")
 
     data_array = list(trans_obj.values())
     full_text = trans_obj.get(select_lang_abbr)

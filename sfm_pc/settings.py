@@ -44,11 +44,6 @@ try:
 except ImportError:
     EXTRA_DEBUG_TOOLBAR_PANELS = []
 
-try:
-    from .settings_local import INCLUDE_ARABIC
-except ImportError:
-    INCLUDE_ARABIC = False
-
 from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
     SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL, \
     CACHES, OSM_API_KEY, HAYSTACK_CONNECTIONS, \
