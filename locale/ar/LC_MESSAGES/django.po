@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-24 19:43+0000\n"
-"PO-Revision-Date: 2021-07-30 13:13+0000\n"
+"POT-Creation-Date: 2021-09-30 18:52+0000\n"
+"PO-Revision-Date: 2021-09-30 17:44+0000\n"
 "Last-Translator: b'Tom Longley <tom@securityforcemonitor.org>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -249,11 +249,11 @@ msgstr "سياق تاريخ البدء"
 msgid "End Date Context"
 msgstr "سياق تاريخ الانتهاء"
 
-#: organization/forms.py:48 sfm_pc/settings.py:358 tests/test_settings.py:215
+#: organization/forms.py:48 sfm_pc/settings.py:353 tests/test_settings.py:215
 msgid "Yes"
 msgstr "نعم"
 
-#: organization/forms.py:49 sfm_pc/settings.py:359 tests/test_settings.py:216
+#: organization/forms.py:49 sfm_pc/settings.py:354 tests/test_settings.py:216
 msgid "No"
 msgstr "لا"
 
@@ -445,17 +445,17 @@ msgstr ""
 msgid "Media Description"
 msgstr ""
 
-#: sfm_pc/base_views.py:113 sfm_pc/settings.py:352
+#: sfm_pc/base_views.py:113 sfm_pc/settings.py:347
 #: templates/modals/source.html:13 tests/test_settings.py:209
 msgid "Low"
 msgstr "منخفض"
 
-#: sfm_pc/base_views.py:114 sfm_pc/settings.py:353
+#: sfm_pc/base_views.py:114 sfm_pc/settings.py:348
 #: templates/modals/source.html:14 tests/test_settings.py:210
 msgid "Medium"
 msgstr "متوسط"
 
-#: sfm_pc/base_views.py:115 sfm_pc/settings.py:354
+#: sfm_pc/base_views.py:115 sfm_pc/settings.py:349
 #: templates/modals/source.html:15 tests/test_settings.py:211
 msgid "High"
 msgstr "عالي"
@@ -558,27 +558,27 @@ msgstr "تاريخ البدء"
 msgid "End date"
 msgstr "تاريخ الانتهاء"
 
-#: sfm_pc/settings.py:173 sfm_pc/templatetags/language_url.py:26
+#: sfm_pc/settings.py:168 sfm_pc/templatetags/language_url.py:26
 #: templates/base.html:173 tests/test_settings.py:128
 msgid "French"
 msgstr "الفرنسية"
 
-#: sfm_pc/settings.py:174 sfm_pc/templatetags/language_url.py:24
+#: sfm_pc/settings.py:169 sfm_pc/templatetags/language_url.py:24
 #: templates/base.html:171 tests/test_settings.py:129
 msgid "English"
 msgstr "الإنجليزية"
 
-#: sfm_pc/settings.py:175 sfm_pc/templatetags/language_url.py:25
+#: sfm_pc/settings.py:170 sfm_pc/templatetags/language_url.py:25
 #: templates/base.html:172 tests/test_settings.py:130
 msgid "Spanish"
 msgstr "الأسبانية"
 
-#: sfm_pc/settings.py:176 sfm_pc/templatetags/language_url.py:30
+#: sfm_pc/settings.py:171 sfm_pc/templatetags/language_url.py:27
 #: templates/base.html:174
 msgid "Arabic"
 msgstr "العربية"
 
-#: sfm_pc/settings.py:360 tests/test_settings.py:217
+#: sfm_pc/settings.py:355 tests/test_settings.py:217
 msgid "Exact"
 msgstr ""
 
@@ -2422,7 +2422,7 @@ msgstr "الفروع"
 
 #: templates/organization/view.html:215
 msgid "Multi-unit organizations that this unit is part of"
-msgstr ""
+msgstr "التنظيمات متعددة الوحدة، تنتمي لها هذه الوحدة"
 
 #: templates/organization/view.html:285
 msgid "All units that comprise this unit."
