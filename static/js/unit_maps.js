@@ -2,9 +2,8 @@ var UnitMaps = {
   onEachFeature: function(feature, layer){
     layer.bindPopup(feature.properties.name);
   },
-  initializeMap: function(L, element, locations) {
+  initializeMap: function(L, element, locations, attribution) {
     var map = L.map(element);
-    var attribution = '';
 
     L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
