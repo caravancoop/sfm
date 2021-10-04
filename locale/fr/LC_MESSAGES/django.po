@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-30 18:52+0000\n"
-"PO-Revision-Date: 2021-07-19 19:43+0000\n"
-"Last-Translator: b'  <hannah@hannah.com>'\n"
+"POT-Creation-Date: 2021-10-04 13:16+0000\n"
+"PO-Revision-Date: 2021-10-01 17:42+0000\n"
+"Last-Translator: b'Tom Longley <tom@securityforcemonitor.org>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -694,9 +694,8 @@ msgid "publication title"
 msgstr "Titre de publication"
 
 #: source/models.py:49
-#, fuzzy
 msgid "publisher"
-msgstr "Classification"
+msgstr "Publication"
 
 #: source/models.py:52
 msgid "publication country"
@@ -2688,13 +2687,15 @@ msgstr "Veuillez saisir deux ou plusieurs caractères..."
 
 #: templates/partials/source_overview_table.html:11
 msgid "List of all sources used to evidence the data in this record"
-msgstr ""
+msgstr "La liste de toutes les sources qui prouvent cette entrée"
 
 #: templates/partials/source_overview_table.html:13
 msgid ""
 "Click the \"+\" symbol next to every data point in the record to see the "
 "sources used for that data point."
 msgstr ""
+"Cliquez sur le symbole \"+\" sur chaque donnée pour voir les sources "
+"utilisées"
 
 #: templates/partials/source_overview_table.html:28
 #, fuzzy
@@ -3316,10 +3317,8 @@ msgid "Show me results from..."
 msgstr "Aucun résultat trouvé"
 
 #: templates/sfm/dashboard.html:64
-#, fuzzy
-#| msgid "Select a Role"
 msgid "Select a country"
-msgstr "Sélectionner un rôle"
+msgstr "Sélectionnez un pays"
 
 #: templates/sfm/dashboard.html:82
 msgid "<strong>What is</strong> WhoWasInCommand?"
