@@ -25,7 +25,7 @@ import_db : import_directory
 
 auth_models.json : import_directory import_db
 	# Dump the existing user data
-	python manage.py dumpdata auth.User > $@
+	python manage.py dumpdata auth.User auth.Group > $@
 
 flush_db : import_directory auth_models.json
 	# Remove all data from the database
