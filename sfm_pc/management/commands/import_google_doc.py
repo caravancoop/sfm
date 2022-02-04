@@ -372,19 +372,19 @@ class Command(BaseCommand):
         event_sheets = {}
 
         for title, data in sheet_mapping.items():
-            if 'scratch' in title.lower() or 'analysis' in title.lower():
+            if 'scratch' in title.lower() or 'analysis' in title.lower() or title.lower().startswith('qa'):
                 continue
 
-            elif 'units' in title.lower():
+            elif title.lower().endswith('units'):
                 org_sheets[title] = self.format_dict_reader(data)
 
-            elif 'persons_extra' in title.lower():
+            elif title.lower().endswith('persons_extra'):
                 person_extra_sheets[title] = self.format_dict_reader(data)
 
-            elif 'persons' in title.lower():
+            elif title.lower().endswith('persons'):
                 person_sheets[title] = self.format_dict_reader(data)
 
-            elif 'incidents' in title.lower():
+            elif title.lower().endswith('incidents'):
                 event_sheets[title] = self.format_dict_reader(data)
 
         # Get data about sources
@@ -481,7 +481,9 @@ class Command(BaseCommand):
         formats = {
             '%Y-%m-%d': '%Y-%m-%d',
             '%Y': '%Y-0-0',
+            '%Y-': '%Y-0-0',
             '%Y-%m': '%Y-%m-0',
+            '%Y-%m-': '%Y-%m-0',
             '%B %Y': '%Y-%m-0',
             '%m/%Y': '%Y-%m-0',
             '%m/%d/%Y': '%Y-%m-%d',
@@ -2065,7 +2067,7 @@ class Command(BaseCommand):
 
         is_extra = False
         for extra_field in extra_positions.values():
-            if data[extra_field['value']]:
+            if data.get(extra_field['value']):
                 is_extra = True
                 break
 
