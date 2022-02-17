@@ -47,7 +47,7 @@ except ImportError:
 from .settings_local import DATABASE_URL, GOOGLE_MAPS_KEY, \
     SECRET_KEY, DEBUG, ALLOWED_HOSTS, IMPORTER_USER, SOLR_URL, \
     CACHES, OSM_API_KEY, HAYSTACK_CONNECTIONS, \
-    HAYSTACK_DOCUMENT_FIELD, HAYSTACK_SIGNAL_PROCESSOR
+    HAYSTACK_DOCUMENT_FIELD
 
 # Application definition
 
@@ -357,3 +357,8 @@ OPEN_ENDED_CHOICES = (
 
 # Format this string with the user's language code
 RESEARCH_HANDBOOK_URL = "https://help.securityforcemonitor.org"
+
+HAYSTACK_SIGNAL_PROCESSOR = os.getenv(
+    'DJANGO_HAYSTACK_SIGNAL_PROCESSOR',
+    'haystack.signals.RealtimeSignalProcessor'
+)

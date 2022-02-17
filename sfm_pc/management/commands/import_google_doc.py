@@ -12,6 +12,7 @@ from googleapiclient.http import MediaIoBaseDownload
 
 from tqdm import tqdm
 
+from django.apps import apps
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
@@ -47,6 +48,72 @@ from violation.models import Violation, ViolationPerpetrator, \
     ViolationPerpetratorOrganization
 
 from location.models import Location
+
+
+class EntityMap(dict):
+    '''
+    Container for mapping of UUIDs to value and locations:
+
+    {
+        'uuid': {
+            'value': [
+                (column, row, sheet),
+                ...
+            ]
+        },
+        ...
+    }
+    '''
+
+    KEY_TYPE = 'UUID'
+    VALUE_TYPE = 'name'
+
+    def add(self, key, value, column, row, sheet):
+        if key not in self:
+            self[key] = {}
+
+        if value not in self[key]:
+            self[key][value] = []
+
+        location = (column, row, sheet)
+
+        self[key][value].append(location)
+
+        return self
+
+    def get_transposed(self):
+        '''
+        It is always a data integrity error if a UUID has more than one distinct
+        name. Names are not uniquely identifying, but it sometimes happens that
+        more than one UUID is created for the same entity. This helper method
+        creates a mapping of name to array of (UUID, column, row, sheet) tuples
+        to facilitate validation and logging in that instance.
+        '''
+        transposed = EntityMap()
+
+        for key, values in self.items():
+            for value, locations in values.items():
+                for location in locations:
+                    transposed = transposed.add(value, key, *location)
+
+        return transposed
+
+    def get_conflicts(self, transpose=False):
+        '''
+        A given key should have at most one distinct value. Return keys and
+        their values if this is not the case.
+        '''
+        entity_map = self if not transpose else self.get_transposed()
+
+        for key, values in entity_map.items():
+            if len(values) > 1:
+                yield key, values
+
+    def get_key_value_types(self, transpose=False):
+        if transpose:
+            return self.VALUE_TYPE, self.KEY_TYPE
+
+        return self.KEY_TYPE, self.VALUE_TYPE
 
 
 class Command(BaseCommand):
@@ -111,24 +178,22 @@ class Command(BaseCommand):
         return credentials
 
     def disconnectSignals(self):
-        from django.db.models.signals import post_save
         from complex_fields.base_models import object_ref_saved
         from sfm_pc.signals import update_membership_index, update_composition_index
 
         object_ref_saved.disconnect(receiver=update_membership_index, sender=MembershipPerson)
         object_ref_saved.disconnect(receiver=update_composition_index, sender=Composition)
 
-        settings.HAYSTACK_SIGNAL_PROCESSOR = None
+        apps.get_app_config('haystack').signal_processor.teardown()
 
     def connectSignals(self):
-        from django.db.models.signals import post_save
         from complex_fields.base_models import object_ref_saved
         from sfm_pc.signals import update_membership_index, update_composition_index
 
         object_ref_saved.connect(receiver=update_membership_index, sender=MembershipPerson)
         object_ref_saved.connect(receiver=update_composition_index, sender=Composition)
 
-        settings.HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+        apps.get_app_config('haystack').signal_processor.setup()
 
     def handle(self, *args, **options):
 
@@ -173,38 +238,9 @@ class Command(BaseCommand):
         one_index_start = int(options['start'])
         zero_index_start = one_index_start - 1
 
-        # These are used for the mapping that we need to make below
-        entity_mapping_entities = [
-            ('organization', 'unit:id:admin', 'unit:name'),
-            ('person', 'person:id:admin', 'person:name'),
-        ]
-
-        # Create entity maps for persons and units
-        for entity_type, id_key, name_key in entity_mapping_entities:
-
-            sheets = all_sheets[entity_type]
-
-            for sheet in sheets.values():
-
-                entity_map = {}
-
-                for idx, row in enumerate(sheet[zero_index_start:]):
-                    if row:
-                        entity_uuid = row[id_key]
-                        try:
-                            entity_name = row[name_key]
-                        except KeyError:
-                            self.log_error(
-                                'Entity with ID "{}" is missing a name'.format(
-                                    entity_uuid
-                                ),
-                                sheet=entity_type,
-                                current_row=one_index_start + (idx + 1)
-                            )
-                        if entity_uuid:
-                            entity_map[entity_name] = entity_uuid
-
-                setattr(self, '{}_entity_map'.format(entity_type), entity_map)
+        # Create entity maps to be populated by the "create_*" methods.
+        self.organization_entity_map = EntityMap()
+        self.person_entity_map = EntityMap()
 
         for entity_type in options['entity_types'].split(','):
 
@@ -221,6 +257,17 @@ class Command(BaseCommand):
                             self.current_row = one_index_start + (index + 1)
                             getattr(self, 'create_{}'.format(entity_type))(row)
 
+        # Check the entity maps after bringing in all data, because there are
+        # references to organizations and people in multiple sheets.
+        for entity_type in ('organization', 'person'):
+            entity_map = getattr(self, '{}_entity_map'.format(entity_type))
+
+            # Log multiple names for the same UUID
+            self.log_conflicts(entity_type, entity_map)
+
+            # Log multiple UUIDs for the same name
+            self.log_conflicts(entity_type, entity_map, transpose=True)
+
         data_src = options['folder'] if options.get('folder') else options['doc_id']
         self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(data_src)))
 
@@ -229,6 +276,34 @@ class Command(BaseCommand):
 
         # Connect post save signals
         self.connectSignals()
+
+    def log_conflicts(self, entity_type, entity_map, transpose=False):
+        '''
+        Log a message for each conflicting record in a given entity map.
+        '''
+        error_format = (
+            'Got multiple {value_type} values for {entity_type} {key_type} '
+            '"{key_value}". Current row contains value "{value}" in column '
+            '"{column}".'
+        )
+
+        key_type, value_type = entity_map.get_key_value_types(transpose=transpose)
+
+        for key, values in entity_map.get_conflicts(transpose=transpose):
+            for value, locations in values.items():
+                for column, row, sheet in sorted(locations,
+                                                 key=lambda location: location[1]):
+
+                    msg = error_format.format(
+                        entity_type=entity_type,
+                        key_type=key_type,
+                        key_value=key,
+                        value_type=value_type,
+                        value=value,
+                        column=column
+                    )
+
+                    self.log_error(msg, sheet=sheet, current_row=row)
 
     def create_locations(self):
         this_dir = os.path.abspath(os.path.dirname(__file__))
@@ -297,19 +372,19 @@ class Command(BaseCommand):
         event_sheets = {}
 
         for title, data in sheet_mapping.items():
-            if 'scratch' in title.lower() or 'analysis' in title.lower():
+            if 'scratch' in title.lower() or 'analysis' in title.lower() or title.lower().startswith('qa'):
                 continue
 
-            elif 'units' in title.lower():
+            elif title.lower().endswith('units'):
                 org_sheets[title] = self.format_dict_reader(data)
 
-            elif 'persons_extra' in title.lower():
+            elif title.lower().endswith('persons_extra'):
                 person_extra_sheets[title] = self.format_dict_reader(data)
 
-            elif 'persons' in title.lower():
+            elif title.lower().endswith('persons'):
                 person_sheets[title] = self.format_dict_reader(data)
 
-            elif 'incidents' in title.lower():
+            elif title.lower().endswith('incidents'):
                 event_sheets[title] = self.format_dict_reader(data)
 
         # Get data about sources
@@ -406,7 +481,9 @@ class Command(BaseCommand):
         formats = {
             '%Y-%m-%d': '%Y-%m-%d',
             '%Y': '%Y-0-0',
+            '%Y-': '%Y-0-0',
             '%Y-%m': '%Y-%m-0',
+            '%Y-%m-': '%Y-%m-0',
             '%B %Y': '%Y-%m-0',
             '%m/%Y': '%Y-%m-0',
             '%m/%d/%Y': '%Y-%m-%d',
@@ -624,11 +701,7 @@ class Command(BaseCommand):
                     }
                 }
 
-                try:
-                    uuid = self.organization_entity_map[name_value]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of organization names'.format(name_value))
-                    return None
+                uuid = org_data['unit:id:admin']
 
                 try:
                     organization = Organization.objects.get(uuid=uuid)
@@ -643,6 +716,14 @@ class Command(BaseCommand):
                     org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
                 organization.update(org_info)
+
+                self.organization_entity_map.add(
+                    uuid,
+                    name_value,
+                    org_positions['Name']['value'],
+                    self.current_row,
+                    self.current_sheet
+                )
 
                 org_attributes = ['Alias', 'Classification', 'OpenEnded', 'Headquarters']
 
@@ -735,11 +816,7 @@ class Command(BaseCommand):
                                 },
                             }
 
-                            try:
-                                uuid = self.organization_entity_map[parent_org_name]
-                            except KeyError:
-                                self.log_error('Could not find "{}" in list of organization names'.format(parent_org_name))
-                                return None
+                            uuid = org_data['unit:related_unit_id:admin']
 
                             try:
                                 parent_organization = Organization.objects.get(uuid=uuid)
@@ -754,6 +831,14 @@ class Command(BaseCommand):
                                 parent_org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
                             parent_organization.update(parent_org_info)
+
+                            self.organization_entity_map.add(
+                                uuid,
+                                parent_org_name,
+                                composition_positions['Parent']['value'],
+                                self.current_row,
+                                self.current_sheet
+                            )
 
                             comp_info = {
                                 'Composition_CompositionParent': {
@@ -841,11 +926,7 @@ class Command(BaseCommand):
                                 },
                             }
 
-                            try:
-                                uuid = self.organization_entity_map[member_org_name]
-                            except KeyError:
-                                self.log_error('Could not find "{}" in list of organization names'.format(member_org_name))
-                                return None
+                            uuid = org_data['unit:related_unit_id:admin']
 
                             try:
                                 member_organization = Organization.objects.get(uuid=uuid)
@@ -860,6 +941,14 @@ class Command(BaseCommand):
                                 member_org_info["Organization_OrganizationName"]['sources'] += existing_sources
 
                             member_organization.update(member_org_info)
+
+                            self.organization_entity_map.add(
+                                uuid,
+                                member_org_name,
+                                membership_positions['OrganizationOrganization']['value'],
+                                self.current_row,
+                                self.current_sheet
+                            )
 
                             membership_info = {
                                 'MembershipOrganization_MembershipOrganizationMember': {
@@ -1394,55 +1483,82 @@ class Command(BaseCommand):
 
         for idx, source_data in enumerate(source_sheet['values']):
             access_point_uuid = source_data['source:access_point_id:admin'].strip()
+
             try:
-                AccessPoint.objects.get(uuid=access_point_uuid)
-            except ValidationError:
+                access_point, _ = AccessPoint.objects.get_or_create(
+                    uuid=access_point_uuid,
+                    user=self.user,
+                )
+
+            except (ValidationError, ValueError):
                 self.log_error(
                     'Invalid source UUID: "{}"'.format(access_point_uuid),
                     sheet='sources',
                     current_row=idx + 2  # Handle 0-index and header row
                 )
-            except AccessPoint.DoesNotExist:
-                source_info = {
-                    'title': source_data[Source.get_spreadsheet_field_name('title')],
-                    'type': source_data[Source.get_spreadsheet_field_name('type')],
-                    'author': source_data[Source.get_spreadsheet_field_name('author')],
-                    'publication': source_data[Source.get_spreadsheet_field_name('publication')],
-                    'publication_country': source_data[Source.get_spreadsheet_field_name('publication_country')],
-                    'source_url': source_data[Source.get_spreadsheet_field_name('source_url')],
-                    'user': self.user
-                }
-                # Figure out if created/uploaded/published dates are timestamps
-                for prefix in ('published', 'created', 'uploaded'):
-                    date_val = source_data[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
-                    try:
-                        # Try to parse the value as a timestamp (remove timezone
-                        # marker for Pyton <3.7)
-                        parsed_date = datetime.strptime(date_val.replace('Z', ''), '%Y-%m-%dT%H:%M:%S')
-                    except ValueError:
-                        # Value is a date, or empty
-                        parsed_date = self.parse_date(date_val)
-                        source_info['{}_date'.format(prefix)] = parsed_date
-                    else:
-                        source_info['{}_timestamp'.format(prefix)] = parsed_date
+                continue
 
-                    if not parsed_date and prefix == 'published':
-                        message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_val, access_point_uuid)
-                        self.log_error(message, sheet='sources', current_row=idx + 2)
+            source_info = {
+                'title': source_data[Source.get_spreadsheet_field_name('title')],
+                'type': source_data[Source.get_spreadsheet_field_name('type')],
+                'author': source_data[Source.get_spreadsheet_field_name('author')],
+                'publication': source_data[Source.get_spreadsheet_field_name('publication')],
+                'publication_country': source_data[Source.get_spreadsheet_field_name('publication_country')],
+                'source_url': source_data[Source.get_spreadsheet_field_name('source_url')],
+                'user': self.user,
+            }
 
-                new_source, created = Source.objects.get_or_create(**source_info)
+            for prefix in ('published', 'created', 'uploaded'):
+                date_value = source_data[Source.get_spreadsheet_field_name('{}_date'.format(prefix))]
+                parsed_date = self.get_source_date(date_value)
 
-                AccessPoint.objects.create(
-                    uuid=access_point_uuid,
-                    type=source_data[AccessPoint.get_spreadsheet_field_name('type')],
-                    trigger=source_data[AccessPoint.get_spreadsheet_field_name('trigger')],
-                    accessed_on=self.parse_date(source_data[AccessPoint.get_spreadsheet_field_name('accessed_on')]),
-                    archive_url=source_data[AccessPoint.get_spreadsheet_field_name('archive_url')],
-                    source=new_source,
-                    user=self.user
+                if isinstance(parsed_date, datetime):
+                    source_info['{}_timestamp'.format(prefix)] = parsed_date
+                else:
+                    source_info['{}_date'.format(prefix)] = parsed_date
+
+                if not parsed_date and prefix == 'published':
+                    message = 'Invalid published_date "{1}" at {2}'.format(prefix, date_value, access_point_uuid)
+                    self.log_error(message, sheet='sources', current_row=idx + 2)
+
+            source, created = Source.objects.get_or_create(**source_info)
+
+            self.stdout.write(
+                '{0} Source "{1}" from row {2}'.format(
+                    'Created' if created else 'Updated', source, idx + 2
                 )
-            except ValueError:
-                self.log_error("Invalid access point at: " + access_point_uuid)
+            )
+
+            access_point_info = {
+                'type': source_data[AccessPoint.get_spreadsheet_field_name('type')],
+                'trigger': source_data[AccessPoint.get_spreadsheet_field_name('trigger')],
+                'accessed_on': self.parse_date(source_data[AccessPoint.get_spreadsheet_field_name('accessed_on')]),
+                'archive_url': source_data[AccessPoint.get_spreadsheet_field_name('archive_url')],
+                'source': source,
+                'user': self.user,
+            }
+
+            for attr, val in access_point_info.items():
+                setattr(access_point, attr, val)
+
+            access_point.save()
+
+    def get_source_date(self, date_value):
+        '''
+        Source dates can come to us as full timestamps or dates. Given a string
+        representing one of these values, return a parsed datetime or date
+        object, or an empty string, if neither can be parsed.
+        '''
+        try:
+            # Try to parse the value as a timestamp (remove timezone marker for
+            # Python <3.7)
+            return datetime.strptime(date_value.replace('Z', ''), '%Y-%m-%dT%H:%M:%S')
+
+        except ValueError:
+            # Fall back to an empty string because we want to use this value to
+            # retrieve and update existing Sources, and date fields default to
+            # an empty string if no data is provided
+            return self.parse_date(date_value) or ''
 
     def get_sources(self, source_id_string):
 
@@ -1597,11 +1713,7 @@ class Command(BaseCommand):
                     }
                 }
 
-                try:
-                    uuid = self.person_entity_map[name_value]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of person names'.format(name_value))
-                    return None
+                uuid = person_data['person:id:admin']
 
                 try:
                     person = Person.objects.get(uuid=uuid)
@@ -1616,6 +1728,14 @@ class Command(BaseCommand):
 
                 person.update(person_info)
 
+                self.person_entity_map.add(
+                    uuid,
+                    name_value,
+                    person_positions['Name']['value'],
+                    self.current_row,
+                    self.current_sheet
+                )
+
                 self.make_relation('Alias',
                                    person_positions['Alias'],
                                    person_data,
@@ -1624,15 +1744,22 @@ class Command(BaseCommand):
                 # Make membership objects
                 try:
                     uuid = person_data[membership_positions['Organization']['value']]
-                    organization_name = {
-                        v: k for k, v in self.organization_entity_map.items()
-                    }[uuid]
                 except IndexError:
                     self.log_error('Row seems to be empty')
                     return None
-                except KeyError:
-                    self.log_error('Organization "{}" not in entity map'.format(uuid))
+
+                try:
+                    organization = Organization.objects.get(uuid=uuid)
+
+                except Organization.DoesNotExist:
+                    organization = Organization.objects.create(uuid=uuid,
+                                                               published=True)
+
+                except ValidationError:
+                    self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
                     return None
+
+                organization_name = person_data['person:posting_unit_name']
 
                 try:
                     confidence = self.get_confidence(person_data[membership_positions['Organization']['confidence']])
@@ -1659,40 +1786,35 @@ class Command(BaseCommand):
                     }
                 }
 
-                try:
-                    organization = Organization.objects.get(uuid=uuid)
+                name_sources = self.sourcesList(organization, 'name')
+                div_sources = self.sourcesList(organization, 'division_id')
 
-                except Organization.DoesNotExist:
-                    organization = Organization.objects.create(uuid=uuid,
-                                                               published=True)
-                    organization.update(org_info)
+                org_info["Organization_OrganizationName"]['sources'] += name_sources
+                org_info["Organization_OrganizationDivisionId"]['sources'] += div_sources
 
-                except ValidationError:
-                    self.log_error('Invalid member unit UUID: "{}"'.format(uuid))
-                    return None
+                if organization.name.get_value():
+                    name_confidence = organization.name.get_value().confidence
 
-                else:
-                    name_sources = self.sourcesList(organization, 'name')
-                    div_sources = self.sourcesList(organization, 'division_id')
+                    if name_confidence:
+                        name_confidence = int(name_confidence)
+                        org_info["Organization_OrganizationName"]['confidence'] = name_confidence
 
-                    org_info["Organization_OrganizationName"]['sources'] += name_sources
-                    org_info["Organization_OrganizationDivisionId"]['sources'] += div_sources
+                if organization.division_id.get_value():
+                    div_confidence = organization.division_id.get_value().confidence
 
-                    if organization.name.get_value():
-                        name_confidence = organization.name.get_value().confidence
+                    if div_confidence:
+                        div_confidence = int(div_confidence)
+                        org_info["Organization_OrganizationDivisionId"]['confidence'] = div_confidence
 
-                        if name_confidence:
-                            name_confidence = int(name_confidence)
-                            org_info["Organization_OrganizationName"]['confidence'] = name_confidence
+                organization.update(org_info)
 
-                    if organization.division_id.get_value():
-                        div_confidence = organization.division_id.get_value().confidence
-
-                        if div_confidence:
-                            div_confidence = int(div_confidence)
-                            org_info["Organization_OrganizationDivisionId"]['confidence'] = div_confidence
-
-                    organization.update(org_info)
+                self.organization_entity_map.add(
+                    uuid,
+                    organization_name,
+                    person_data['person:posting_unit_name'],
+                    self.current_row,
+                    self.current_sheet
+                )
 
                 membership_data = {
                     'MembershipPerson_MembershipPersonMember': {
@@ -1728,7 +1850,7 @@ class Command(BaseCommand):
                     lcd = None
 
                 try:
-                    role_name = person_data[membership_positions['Role']['value']]
+                    role_name = person_data[membership_positions['Role']['value']].strip()
                 except IndexError:
                     role = None
                 else:
@@ -1739,7 +1861,7 @@ class Command(BaseCommand):
                         role = None
 
                 try:
-                    rank_name = person_data[membership_positions['Rank']['value']]
+                    rank_name = person_data[membership_positions['Rank']['value']].strip()
                 except IndexError:
                     rank = None
                 else:
@@ -1750,18 +1872,23 @@ class Command(BaseCommand):
                         rank = None
 
                 try:
-                    title = person_data[membership_positions['Title']['value']] or None
+                    title = person_data[membership_positions['Title']['value']].strip() or None
                 except IndexError:
                     title = None
 
+                membership_kwargs = {
+                    'membershippersonmember__value': person,
+                    'membershippersonorganization__value': organization,
+                    'membershippersonfirstciteddate__value': fcd,
+                    'membershippersonlastciteddate__value': lcd,
+                    'membershippersonrole__value': role,
+                    'membershippersonrank__value': rank,
+                    'membershippersontitle__value': title,
+                }
+
                 try:
-                    membership = MembershipPerson.objects.get(membershippersonmember__value=person,
-                                                              membershippersonorganization__value=organization,
-                                                              membershippersonfirstciteddate__value=fcd,
-                                                              membershippersonlastciteddate__value=lcd,
-                                                              membershippersonrole__value=role,
-                                                              membershippersonrank__value=rank,
-                                                              membershippersontitle__value=title)
+                    membership = MembershipPerson.objects.get(**membership_kwargs)
+
                     sources = set(self.sourcesList(membership, 'member') + self.sourcesList(membership, 'organization'))
                     membership_data['MembershipPerson_MembershipPersonMember']['sources'] += sources
                     membership.update(membership_data)
@@ -1940,7 +2067,7 @@ class Command(BaseCommand):
 
         is_extra = False
         for extra_field in extra_positions.values():
-            if data[extra_field['value']]:
+            if data.get(extra_field['value']):
                 is_extra = True
                 break
 
@@ -2214,11 +2341,7 @@ class Command(BaseCommand):
 
             for perp in perps:
 
-                try:
-                    uuid = self.person_entity_map[perp]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of person names'.format(perp))
-                    continue
+                uuid = event_data['incident:perpetrator_person_id:admin']
 
                 try:
                     person = Person.objects.get(uuid=uuid)
@@ -2240,6 +2363,14 @@ class Command(BaseCommand):
                     }
                     person = Person.objects.create(uuid=uuid, published=True)
                     person.update(person_info)
+
+                self.person_entity_map.add(
+                    uuid,
+                    perp,
+                    positions['Perpetrator']['value'],
+                    self.current_row,
+                    self.current_sheet
+                )
 
                 vp, created = ViolationPerpetrator.objects.get_or_create(value=person,
                                                                          object_ref=violation)
@@ -2263,11 +2394,7 @@ class Command(BaseCommand):
 
             for org in orgs:
 
-                try:
-                    uuid = self.organization_entity_map[org]
-                except KeyError:
-                    self.log_error('Could not find "{}" in list of organization names'.format(org))
-                    continue
+                uuid = event_data['incident:perpetrator_unit_id:admin']
 
                 try:
                     organization = Organization.objects.get(uuid=uuid)
@@ -2291,6 +2418,14 @@ class Command(BaseCommand):
                     organization = Organization.objects.create(uuid=uuid,
                                                                published=True)
                     organization.update(info)
+
+                self.organization_entity_map.add(
+                    uuid,
+                    org,
+                    positions['PerpetratorOrganization']['value'],
+                    self.current_row,
+                    self.current_sheet
+                )
 
                 vpo_obj, created = ViolationPerpetratorOrganization.objects.get_or_create(value=organization,
                                                                                           object_ref=violation)

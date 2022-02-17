@@ -160,7 +160,7 @@ class OrganizationIndex(SearchEntity, indexes.Indexable):
                 area_name = area.value.name
                 areas.add(area_name)
 
-        return list(areas)
+        return [a for a in areas if a is not None]
 
     def prepare_sites(self, object):
         sites = object.emplacementorganization_set.values(

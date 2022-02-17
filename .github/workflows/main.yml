@@ -32,11 +32,11 @@ jobs:
       DATABASE_URL: postgis://postgres:postgres@localhost:5432/sfm
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.6
+    - name: Set up Python 3.5
       uses: actions/setup-python@v2
       with:
         # Semantic version range syntax or exact version of a Python version
-        python-version: '3.6'
+        python-version: '3.5'
     - name: Install dependencies
       run: |
         sudo apt update
