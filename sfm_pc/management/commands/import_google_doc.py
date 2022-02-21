@@ -33,7 +33,7 @@ from organization.models import Organization, OrganizationRealStart
 
 from sfm_pc.utils import (import_class, CONFIDENCE_MAP, execute_sql)
 
-from emplacement.models import Emplacement, EmplacementRealStart
+from emplacement.models import Emplacement, EmplacementRealStart, EmplacementTenure
 from association.models import Association, AssociationRealStart, AssociationTenure
 from composition.models import Composition, CompositionRealStart
 from person.models import Person
@@ -1411,14 +1411,14 @@ class Command(BaseCommand):
             for field_name, positions in relation_positions.items():
 
                 if field_name == 'StartDate':
-                    self.make_relation(field_name,
+                    startdate = self.make_relation(field_name,
                                        positions,
                                        org_data,
                                        emplacement,
                                        date=True)
 
                 elif field_name == 'EndDate':
-                    self.make_relation(field_name,
+                    enddate = self.make_relation(field_name,
                                        positions,
                                        org_data,
                                        emplacement,
@@ -1436,6 +1436,12 @@ class Command(BaseCommand):
                                        positions,
                                        org_data,
                                        emplacement)
+
+            EmplacementTenure.objects.create(
+                emplacement=emplacement,
+                startdate=startdate,
+                enddate=enddate
+            )
 
             return emplacement
 

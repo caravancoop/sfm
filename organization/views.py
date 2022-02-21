@@ -4,11 +4,11 @@ import json
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db.models import F, Q
+from django.db.models import Q
 from django.core.serializers import serialize
 from django.contrib.sitemaps import Sitemap
 
-from emplacement.models import Emplacement
+from emplacement.models import Emplacement, EmplacementTenure
 
 from association.models import Association, AssociationTenure
 
@@ -58,7 +58,6 @@ class OrganizationDetail(BaseDetailView):
             'memberships',
             'subsidiaries',
             'events',
-            'emplacements',
             'parents',
         )
 
@@ -66,8 +65,22 @@ class OrganizationDetail(BaseDetailView):
             for entity in context[relation]:
                 sources.update(list(entity.sources.values_list('uuid', flat=True)))
 
-        for assoc in Association.objects.filter(associationorganization__value=context['organization']):
-            sources.update(list(assoc.sources.values_list('uuid', flat=True)))
+        tenured_relations = (
+            'associations',
+            'emplacements',
+        )
+
+        seen_relationships = set()
+
+        for relation in tenured_relations:
+            for tenure in context[relation]:
+                relationship = getattr(tenure, relation.rstrip('s'))
+
+                if relationship.id in seen_relationships:
+                    continue
+
+                sources.update(list(relationship.sources.values_list('uuid', flat=True)))
+                seen_relationships.add(relationship.id)
 
         return Source.objects.filter(uuid__in=sources).order_by('source_url', '-accesspoint__accessed_on')\
                                                       .distinct('source_url')
@@ -153,14 +166,9 @@ class OrganizationDetail(BaseDetailView):
         for event in events:
             context['events'].append(event.object_ref)
 
-        context['sites'] = []
-        emplacements = context['organization'].emplacements
-        context['emplacements'] = [em.object_ref for em in emplacements]
+        context['emplacements'] = context['organization'].emplacements
 
-        site_ids = [
-            emplacement.object_ref.site.get_value().value.id
-            for emplacement in emplacements
-        ]
+        site_ids = context['emplacements'].values_list('emplacement__emplacementsite__value')
 
         context['sites'] = serialize(
             'geojson',
@@ -168,14 +176,7 @@ class OrganizationDetail(BaseDetailView):
             geometry_field='geometry'
         )
 
-        context['associations'] = AssociationTenure.objects\
-            .filter(association__associationorganization__value=context['organization'])\
-            .select_related('association', 'startdate', 'enddate')\
-            .order_by(
-                F('startdate__value').desc(nulls_last=True),
-                F('enddate__value').desc(nulls_last=True),
-                'association__associationarea__value',
-            )
+        context['associations'] = context['organization'].associations
 
         area_ids = context['associations'].values_list('association__associationarea__value')
 

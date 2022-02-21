@@ -171,31 +171,31 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for emplacement in emplacements %}
+                {% for emplacementtenure in emplacements %}
                     <tr>
                         <td class="cited">
-                            {% if emplacement.site.get_value.value %}
-                                {% with osmid=emplacement.site.get_value.value.id %}
+                            {% if emplacementtenure.emplacement.site.get_value.value %}
+                                {% with osmid=emplacementtenure.emplacement.site.get_value.value.id %}
                                 {% if request.user.is_authenticated %}
                                     <a href="{% url 'view-location' osmid %}">
-                                        {{ emplacement.site.get_value.value.name }}
+                                        {{ emplacementtenure.emplacement.site.get_value.value.name }}
                                     </a>
                                 {% else %}
-                                    <a target="_blank" href="https://openstreetmap.org/{{ emplacement.site.get_value.value.osm_feature_type }}/{{ osmid }}">
-                                        <i class="fa fa-external-link"> </i> {{ emplacement.site.get_value.value.name }}
+                                    <a target="_blank" href="https://openstreetmap.org/{{ emplacementtenure.emplacement.site.get_value.value.osm_feature_type }}/{{ osmid }}">
+                                        <i class="fa fa-external-link"> </i> {{ emplacementtenure.emplacement.site.get_value.value.name }}
                                     </a>
                                 {% endif %}
                                 {% endwith %}
                             {% endif %}
-                            {% cite emplacement.site.get_value %}
+                            {% cite emplacementtenure.emplacement.site.get_value %}
                         </td>
                         <td class="cited">
-                            {% datetype emplacement.first_startdate 'start' %}
-                            {% cite emplacement.first_startdate %}
+                            {% datetype emplacementtenure.startdate 'start' %}
+                            {% cite emplacementtenure.startdate %}
                         </td>
                         <td class="cited">
-                            {% datetype emplacement.last_enddate 'end' %}
-                            {% cite emplacement.last_enddate %}
+                            {% datetype emplacementtenure.enddate 'end' %}
+                            {% cite emplacementtenure.enddate %}
                         </td>
                     </td>
                 {% endfor %}

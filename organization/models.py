@@ -3,7 +3,7 @@ import uuid
 import reversion
 
 from django.db import models
-from django.db.models import Min, Max
+from django.db.models import Min, Max, F
 from django.db.models.functions import Coalesce
 from django.utils.translation import ugettext as _
 from django.conf import settings
@@ -85,25 +85,16 @@ class Organization(models.Model, BaseModel, SourcesMixin, VersionsMixin, GetComp
         Order by first cited date descending, then last cited date descending,
         with nulls last.
         '''
-        assocs = self.associationorganization_set\
-                     .annotate(
-                        display_start_date=models.F('object_ref__associationstartdate__value'),
-                        display_end_date=models.F('object_ref__associationenddate__value'))\
-                     .order_by('-object_ref__associationstartdate__value',
-                               '-object_ref__associationenddate__value')
+        from association.models import AssociationTenure
 
-
-#                     .annotate(lcd=Coalesce('object_ref__associationstartdate__value',
-#                                            'object_ref__associationenddate__value',
-#                                            models.Value('1000-0-0')))\
-                     
-#        assocs = self.associationorganization_set\
-#                     .annotate(min_start_date=Min('object_ref__associationstartdate__value'),
-#                               max_end_date=Max('object_ref__associationenddate__value'))\
-#                     .order_by(Coalesce('min_start_date', 'max_end_date').desc(nulls_last=True))
-
-
-        return assocs
+        return AssociationTenure.objects\
+            .filter(association__associationorganization__value=self)\
+            .select_related('association', 'startdate', 'enddate')\
+            .order_by(
+                F('startdate__value').desc(nulls_last=True),
+                F('enddate__value').desc(nulls_last=True),
+                'association__associationarea__value',
+            )
 
     @property
     def emplacements(self):
@@ -113,12 +104,16 @@ class Organization(models.Model, BaseModel, SourcesMixin, VersionsMixin, GetComp
         Order by first cited date descending, then last cited date descending,
         with nulls last.
         '''
-        empls = self.emplacementorganization_set\
-                    .annotate(min_start_date=Min('object_ref__emplacementstartdate__value'),
-                              max_end_date=Max('object_ref__emplacementenddate__value'))\
-                    .order_by(Coalesce('min_start_date', 'max_end_date').desc(nulls_last=True))
+        from emplacement.models import EmplacementTenure
 
-        return empls
+        return EmplacementTenure.objects\
+            .filter(emplacement__emplacementorganization__value=self)\
+            .select_related('emplacement', 'startdate', 'enddate')\
+            .order_by(
+                F('startdate__value').desc(nulls_last=True),
+                F('enddate__value').desc(nulls_last=True),
+                'emplacement__emplacementsite__value',
+            )
 
     @property
     def personnel(self):
