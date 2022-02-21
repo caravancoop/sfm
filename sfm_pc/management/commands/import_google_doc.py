@@ -1408,6 +1408,8 @@ class Command(BaseCommand):
             except Emplacement.DoesNotExist:
                 emplacement = Emplacement.create(emp_data)
 
+            startdate, enddate = None, None
+
             for field_name, positions in relation_positions.items():
 
                 if field_name == 'StartDate':
