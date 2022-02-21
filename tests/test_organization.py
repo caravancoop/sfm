@@ -493,7 +493,7 @@ def test_create_emplacement(save_and_continue,
 
     assert post_response.status_code == 302
 
-    emplacement = organization.emplacements.first().object_ref
+    emplacement = organization.emplacements.first().emplacement
 
     if save_and_continue:
         assert post_response.url == reverse_lazy(
@@ -595,7 +595,7 @@ def test_create_association(save_and_continue,
 
     assert post_response.status_code == 302
 
-    assoc = organization.associations.first().object_ref
+    assoc = organization.associations.first().association
 
     if save_and_continue:
         assert post_response.url == reverse_lazy(
@@ -676,8 +676,8 @@ def test_organization_edit_buttons(setUp,
     org = full_organizations[0]
     composition = Composition.objects.first()
     person = org.personnel[0]
-    association = org.associations[0].object_ref
-    emplacement = org.emplacements[0].object_ref
+    association = org.associations[0].association
+    emplacement = org.emplacements[0].emplacement
 
     assert is_tab_active(setUp.get(reverse_lazy('edit-organization', args=[org.uuid])),
                         'Basics')
