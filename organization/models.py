@@ -86,9 +86,22 @@ class Organization(models.Model, BaseModel, SourcesMixin, VersionsMixin, GetComp
         with nulls last.
         '''
         assocs = self.associationorganization_set\
-                     .annotate(min_start_date=Min('object_ref__associationstartdate__value'),
-                               max_end_date=Max('object_ref__associationenddate__value'))\
-                     .order_by(Coalesce('min_start_date', 'max_end_date').desc(nulls_last=True))
+                     .annotate(
+                        display_start_date=models.F('object_ref__associationstartdate__value'),
+                        display_end_date=models.F('object_ref__associationenddate__value'))\
+                     .order_by('-object_ref__associationstartdate__value',
+                               '-object_ref__associationenddate__value')
+
+
+#                     .annotate(lcd=Coalesce('object_ref__associationstartdate__value',
+#                                            'object_ref__associationenddate__value',
+#                                            models.Value('1000-0-0')))\
+                     
+#        assocs = self.associationorganization_set\
+#                     .annotate(min_start_date=Min('object_ref__associationstartdate__value'),
+#                               max_end_date=Max('object_ref__associationenddate__value'))\
+#                     .order_by(Coalesce('min_start_date', 'max_end_date').desc(nulls_last=True))
+
 
         return assocs
 

@@ -117,31 +117,31 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for association in associations %}
+                {% for associationtenure in associations %}
                     <tr>
                         <td class="cited">
-                        {% if association.area.get_value.value %}
-                            {% with osmid=association.area.get_value.value.id %}
+                        {% if associationtenure.association.area.get_value.value %}
+                            {% with osmid=associationtenure.association.area.get_value.value.id %}
                                 {% if request.user.is_authenticated %}
                                     <a href="{% url 'view-location' osmid %}">
-                                        {{ association.area.get_value.value.name }}
+                                        {{ associationtenure.association.area.get_value.value.name }}
                                     </a>
                                 {% else %}
-                                    <a target="_blank" href="https://www.openstreetmap.org/{{ association.area.get_value.value.osm_feature_type }}/{{ osmid }}">
-                                        <i class="fa fa-external-link"> </i> {{ association.area.get_value.value.name }}
+                                    <a target="_blank" href="https://www.openstreetmap.org/{{ associationtenure.association.area.get_value.value.osm_feature_type }}/{{ osmid }}">
+                                        <i class="fa fa-external-link"> </i> {{ associationtenure.association.area.get_value.value.name }}
                                     </a>
                                 {% endif %}
-                                {% cite association.area.get_value %}
+                                {% cite associationtenure.association.area.get_value %}
                             {% endwith %}
                         {% endif %}
                         </td>
                         <td class="cited">
-                            {% datetype association.first_startdate 'start' %}
-                            {% cite association.first_startdate %}
+                            {% datetype associationtenure.startdate 'start' %}
+                            {% cite associationtenure.startdate %}
                         </td>
                         <td class="cited">
-                            {% datetype association.last_enddate 'end' %}
-                            {% cite association.last_enddate %}
+                            {% datetype associationtenure.enddate 'end' %}
+                            {% cite associationtenure.enddate %}
                         </td>
                     </td>
                 {% endfor %}
