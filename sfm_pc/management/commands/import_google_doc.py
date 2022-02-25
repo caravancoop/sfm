@@ -162,6 +162,11 @@ class Command(BaseCommand):
             dest='folder',
             help='Path to a folder containing data (for testing)'
         )
+        parser.add_argument(
+            '--country_code',
+            dest='country_code',
+            help='Country code for the import.'
+        )
 
     def sourcesList(self, obj, attribute):
         sources = [s for s in getattr(obj, attribute).get_sources()]
@@ -231,6 +236,8 @@ class Command(BaseCommand):
         else:
             self.stdout.write('Loading data from Google Sheets...')
             all_sheets = self.get_sheets_from_doc(options['doc_id'], options['source_doc_id'])
+
+        self.country_code = options.get('country_code', 'unnamed').rstrip()
 
         self.create_sources(all_sheets['source'])
 
@@ -452,13 +459,16 @@ class Command(BaseCommand):
         log_message = message + ' (context: Sheet {0}, Row {1})'.format(current_sheet, current_row)
         self.stdout.write(self.style.ERROR(log_message))
         file_name = '{}-errors.csv'.format(slugify(current_sheet))
-        if not os.path.isfile(file_name):
-            with open(file_name, 'w') as f:
+        file_name_with_country_code = file_name if self.country_code in file_name \
+            else '{}-{}'.format(self.country_code, file_name)
+
+        if not os.path.isfile(file_name_with_country_code):
+            with open(file_name_with_country_code, 'w') as f:
                 header = ['row', 'message']
                 writer = csv.writer(f)
                 writer.writerow(header)
 
-        with open(file_name, 'a') as f:
+        with open(file_name_with_country_code, 'a') as f:
             writer = csv.writer(f)
             writer.writerow([current_row,
                              message])

@@ -26,7 +26,7 @@ def data_folder():
 def data_import(location_data_import, data_folder):
     """Perform a test data import."""
     output = io.StringIO()
-    call_command('import_google_doc', folder=data_folder, stdout=output)
+    call_command('import_google_doc', country_code='test', folder=data_folder, stdout=output)
     return output
 
 
@@ -214,7 +214,7 @@ def test_source_dates_and_timestamps(data_import, data_folder):
     error_file = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         '..',
-        'sources-errors.csv'
+        'test-sources-errors.csv'
     )
 
     # Test that source errors are reported whether it's the first or 101st time
@@ -226,7 +226,7 @@ def test_source_dates_and_timestamps(data_import, data_folder):
 
             # Re-run the import
             data_import = io.StringIO()
-            call_command('import_google_doc', folder=data_folder, stdout=data_import)
+            call_command('import_google_doc', country_code='test', folder=data_folder, stdout=data_import)
 
         undated_sources = Source.objects.filter(published_date='', published_timestamp__isnull=True)\
                                         .values_list('accesspoint__uuid', flat=True)
