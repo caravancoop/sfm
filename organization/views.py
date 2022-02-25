@@ -8,9 +8,9 @@ from django.db.models import Q
 from django.core.serializers import serialize
 from django.contrib.sitemaps import Sitemap
 
-from emplacement.models import Emplacement
+from emplacement.models import Emplacement, EmplacementTenure
 
-from association.models import Association
+from association.models import Association, AssociationTenure
 
 from composition.models import Composition
 
@@ -58,14 +58,29 @@ class OrganizationDetail(BaseDetailView):
             'memberships',
             'subsidiaries',
             'events',
-            'emplacements',
-            'associations',
             'parents',
         )
 
         for relation in related_entities:
             for entity in context[relation]:
                 sources.update(list(entity.sources.values_list('uuid', flat=True)))
+
+        tenured_relations = (
+            'associations',
+            'emplacements',
+        )
+
+        seen_relationships = set()
+
+        for relation in tenured_relations:
+            for tenure in context[relation]:
+                relationship = getattr(tenure, relation.rstrip('s'))
+
+                if relationship.id in seen_relationships:
+                    continue
+
+                sources.update(list(relationship.sources.values_list('uuid', flat=True)))
+                seen_relationships.add(relationship.id)
 
         return Source.objects.filter(uuid__in=sources).order_by('source_url', '-accesspoint__accessed_on')\
                                                       .distinct('source_url')
@@ -151,14 +166,9 @@ class OrganizationDetail(BaseDetailView):
         for event in events:
             context['events'].append(event.object_ref)
 
-        context['sites'] = []
-        emplacements = context['organization'].emplacements
-        context['emplacements'] = [em.object_ref for em in emplacements]
+        context['emplacements'] = context['organization'].emplacements
 
-        site_ids = [
-            emplacement.object_ref.site.get_value().value.id
-            for emplacement in emplacements
-        ]
+        site_ids = context['emplacements'].values_list('emplacement__emplacementsite__value')
 
         context['sites'] = serialize(
             'geojson',
@@ -166,10 +176,9 @@ class OrganizationDetail(BaseDetailView):
             geometry_field='geometry'
         )
 
-        associations = context['organization'].associations
-        context['associations'] = [a.object_ref for a in associations]
+        context['associations'] = context['organization'].associations
 
-        area_ids = associations.values_list('object_ref__associationarea__value')
+        area_ids = context['associations'].values_list('association__associationarea__value')
 
         context['areas'] = serialize(
             'geojson',
@@ -573,8 +582,8 @@ class OrganizationEditEmplacementView(OrganizationEditView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
-        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        context['emplacements'] = [e.emplacement for e in context['organization'].emplacements]
+        context['associations'] = [e.association for e in context['organization'].associations]
 
         return context
 
@@ -595,8 +604,8 @@ class OrganizationCreateEmplacementView(EditButtonsMixin, OrganizationCreateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
-        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
-        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        context['emplacements'] = [e.emplacement for e in context['organization'].emplacements]
+        context['associations'] = [e.association for e in context['organization'].associations]
 
         return context
 
@@ -637,8 +646,8 @@ class OrganizationEditAssociationView(OrganizationEditView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
-        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        context['emplacements'] = [e.emplacement for e in context['organization'].emplacements]
+        context['associations'] = [e.association for e in context['organization'].associations]
 
         return context
 
@@ -654,8 +663,8 @@ class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
-        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
-        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        context['emplacements'] = [e.emplacement for e in context['organization'].emplacements]
+        context['associations'] = [e.association for e in context['organization'].associations]
 
         return context
 

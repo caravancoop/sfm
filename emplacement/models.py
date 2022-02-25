@@ -42,6 +42,13 @@ class Emplacement(models.Model, BaseModel, SourcesMixin, SuperlativeDateMixin, G
         return '{0} ({1})'.format(self.organization.get_value(),
                                   self.site.get_value())
 
+
+class EmplacementTenure(models.Model):
+    emplacement = models.ForeignKey('Emplacement')
+    startdate = models.ForeignKey('EmplacementStartDate', blank=True, null=True)
+    enddate = models.ForeignKey('EmplacementEndDate', blank=True, null=True)
+
+
 @versioned
 @sourced
 class EmplacementStartDate(ComplexField):

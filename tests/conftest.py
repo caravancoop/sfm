@@ -14,8 +14,8 @@ from person.models import Person, PersonAlias
 from violation.models import Violation, ViolationPerpetrator, \
     ViolationPerpetratorOrganization, ViolationType, ViolationPerpetratorClassification
 from composition.models import Composition
-from emplacement.models import Emplacement
-from association.models import Association
+from emplacement.models import Emplacement, EmplacementTenure
+from association.models import Association, AssociationTenure
 from membershiporganization.models import MembershipOrganization
 from membershipperson.models import MembershipPerson, Rank, Role
 from source.models import Source, AccessPoint
@@ -342,7 +342,13 @@ def emplacement(organizations, location_node, access_points):
             },
         }
 
-        emplacements.append(Emplacement.create(emp_info))
+        emplacement = Emplacement.create(emp_info)
+
+        EmplacementTenure.objects.create(emplacement=emplacement,
+                                         startdate=emplacement.startdate.get_value(),
+                                         enddate=emplacement.enddate.get_value())
+
+        emplacements.append(emplacement)
 
     return emplacements
 
@@ -382,7 +388,13 @@ def association(organizations, location_relation, access_points):
             }
         }
 
-        associations.append(Association.create(ass_info))
+        association = Association.create(ass_info)
+
+        AssociationTenure.objects.create(association=association,
+                                         startdate=association.startdate.get_value(),
+                                         enddate=association.enddate.get_value())
+
+        associations.append(association)
 
     return associations
 

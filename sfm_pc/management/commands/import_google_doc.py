@@ -33,8 +33,8 @@ from organization.models import Organization, OrganizationRealStart
 
 from sfm_pc.utils import (import_class, CONFIDENCE_MAP, execute_sql)
 
-from emplacement.models import Emplacement, EmplacementRealStart
-from association.models import Association, AssociationRealStart
+from emplacement.models import Emplacement, EmplacementRealStart, EmplacementTenure
+from association.models import Association, AssociationRealStart, AssociationTenure
 from composition.models import Composition, CompositionRealStart
 from person.models import Person
 from personextra.models import PersonExtra
@@ -1203,6 +1203,8 @@ class Command(BaseCommand):
                                 relation_instance.save()
                                 reversion.set_user(self.user)
 
+                return relation_instance
+
             else:
                 missing = []
                 if not confidence and instance.confidence_required:
@@ -1296,21 +1298,23 @@ class Command(BaseCommand):
         except Association.DoesNotExist:
             assoc = Association.create(area_info)
 
+        startdate, enddate = None, None
+
         for field_name, positions in relation_positions.items():
 
             if field_name == 'StartDate':
-                self.make_relation(field_name,
-                                   positions,
-                                   org_data,
-                                   assoc,
-                                   date=True)
+                startdate = self.make_relation(field_name,
+                                               positions,
+                                               org_data,
+                                               assoc,
+                                               date=True)
 
             elif field_name == 'EndDate':
-                self.make_relation(field_name,
-                                   positions,
-                                   org_data,
-                                   assoc,
-                                   date=True)
+                enddate = self.make_relation(field_name,
+                                             positions,
+                                             org_data,
+                                             assoc,
+                                             date=True)
 
             elif field_name == 'RealStart':
                 self.make_real_date(data=org_data,
@@ -1324,6 +1328,12 @@ class Command(BaseCommand):
                                    positions,
                                    org_data,
                                    assoc)
+
+        AssociationTenure.objects.create(
+            association=assoc,
+            startdate=startdate,
+            enddate=enddate
+        )
 
     def make_emplacement(self,
                          humane_id,
@@ -1398,17 +1408,19 @@ class Command(BaseCommand):
             except Emplacement.DoesNotExist:
                 emplacement = Emplacement.create(emp_data)
 
+            startdate, enddate = None, None
+
             for field_name, positions in relation_positions.items():
 
                 if field_name == 'StartDate':
-                    self.make_relation(field_name,
+                    startdate = self.make_relation(field_name,
                                        positions,
                                        org_data,
                                        emplacement,
                                        date=True)
 
                 elif field_name == 'EndDate':
-                    self.make_relation(field_name,
+                    enddate = self.make_relation(field_name,
                                        positions,
                                        org_data,
                                        emplacement,
@@ -1426,6 +1438,12 @@ class Command(BaseCommand):
                                        positions,
                                        org_data,
                                        emplacement)
+
+            EmplacementTenure.objects.create(
+                emplacement=emplacement,
+                startdate=startdate,
+                enddate=enddate
+            )
 
             return emplacement
 

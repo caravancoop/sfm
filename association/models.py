@@ -43,6 +43,12 @@ class Association(models.Model, BaseModel, SourcesMixin, SuperlativeDateMixin, G
         return self.get_value()
 
 
+class AssociationTenure(models.Model):
+    association = models.ForeignKey('Association')
+    startdate = models.ForeignKey('AssociationStartDate', blank=True, null=True)
+    enddate = models.ForeignKey('AssociationEndDate', blank=True, null=True)
+
+
 @versioned
 @sourced
 class AssociationStartDate(ComplexField):
