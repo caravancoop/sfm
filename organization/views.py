@@ -582,8 +582,8 @@ class OrganizationEditEmplacementView(OrganizationEditView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
-        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        context['emplacements'] = [e.emplacement for e in context['organization'].emplacements]
+        context['associations'] = [e.association for e in context['organization'].associations]
 
         return context
 
@@ -604,8 +604,8 @@ class OrganizationCreateEmplacementView(EditButtonsMixin, OrganizationCreateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
-        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
-        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        context['emplacements'] = [e.emplacement for e in context['organization'].emplacements]
+        context['associations'] = [e.association for e in context['organization'].associations]
 
         return context
 
@@ -646,8 +646,8 @@ class OrganizationEditAssociationView(OrganizationEditView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
-        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        context['emplacements'] = [e.emplacement for e in context['organization'].emplacements]
+        context['associations'] = [e.association for e in context['organization'].associations]
 
         return context
 
@@ -663,8 +663,8 @@ class OrganizationCreateAssociationView(EditButtonsMixin, OrganizationCreateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['organization'] = Organization.objects.get(uuid=self.kwargs['organization_id'])
-        context['emplacements'] = [e.object_ref for e in context['organization'].emplacements]
-        context['associations'] = [e.object_ref for e in context['organization'].associations]
+        context['emplacements'] = [e.emplacement for e in context['organization'].emplacements]
+        context['associations'] = [e.association for e in context['organization'].associations]
 
         return context
 
