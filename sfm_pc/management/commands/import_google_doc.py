@@ -201,7 +201,6 @@ class Command(BaseCommand):
         apps.get_app_config('haystack').signal_processor.setup()
 
     def handle(self, *args, **options):
-
         if options['flush']:
             self.stdout.write(self.style.SUCCESS('Dropping current database...'))
 
