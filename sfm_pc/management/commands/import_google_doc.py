@@ -1339,7 +1339,7 @@ class Command(BaseCommand):
                                    org_data,
                                    assoc)
 
-        AssociationTenure.objects.create(
+        association_tenure, _ = AssociationTenure.objects.get_or_create(
             association=assoc,
             startdate=startdate,
             enddate=enddate
@@ -1449,7 +1449,7 @@ class Command(BaseCommand):
                                        org_data,
                                        emplacement)
 
-            EmplacementTenure.objects.create(
+            emplacement_tenure, _ = EmplacementTenure.objects.get_or_create(
                 emplacement=emplacement,
                 startdate=startdate,
                 enddate=enddate

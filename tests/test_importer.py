@@ -362,3 +362,10 @@ def test_entity_map_conflict_logs_errors(data_import, Model, name, value_type):
         for instance in Model.objects.filter(**{'{}name__value'.format(entity_type): name}):
             assert output.count('Current row contains value "{}"'.format(instance.uuid)) == 1
 
+
+@pytest.mark.django_db
+def test_no_duplicate_tenures(data_import):
+    organization = Organization.objects.get(uuid='494a58d2-93e5-4454-9c08-74ac97c184da')
+
+    assert len(organization.emplacements) == len(set(organization.emplacements))
+    assert len(organization.associations) == len(set(organization.associations))
