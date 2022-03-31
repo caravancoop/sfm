@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.gis.db.models.fields import GeometryField
 from django.contrib.postgres.fields import JSONField
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.defaultfilters import truncatewords
 from django.utils.translation import ugettext as _
 
@@ -24,10 +24,12 @@ class Location(models.Model):
     sfm = JSONField(blank=True, null=True)
     adminlevel1 = models.ForeignKey('self',
                                     related_name='area_locations',
+                                    on_delete=models.CASCADE,
                                     null=True,
                                     blank=True)
     adminlevel2 = models.ForeignKey('self',
                                     related_name='place_locations',
+                                    on_delete=models.CASCADE,
                                     null=True,
                                     blank=True)
     adminlevel = models.CharField(max_length=50, null=True, blank=True)

@@ -15,7 +15,7 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 CONFIDENCE_MAP = {

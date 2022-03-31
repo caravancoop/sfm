@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from django.contrib import messages
 from django.utils.translation import ugettext as _
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django.views.generic.edit import FormView
 from django.views.generic.edit import ModelFormMixin
@@ -17,8 +17,6 @@ from django.db import transaction
 from reversion.views import RevisionMixin
 
 from countries_plus.models import Country
-
-from extra_views import FormSetView
 
 from source.models import AccessPoint, Source
 from association.models import Association

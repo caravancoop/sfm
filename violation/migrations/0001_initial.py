@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', django_date_extensions.fields.ApproximateDateField(max_length=10, blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', django.contrib.gis.db.models.fields.PointField(srid=4326, blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -103,15 +103,15 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
             name='ViolationSource',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('source', models.ForeignKey(to='source.Source', db_column='uuid')),
-                ('violation', models.ForeignKey(to='violation.Violation')),
+                ('source', models.ForeignKey(to='source.Source', db_column='uuid', on_delete=django.db.models.deletion.CASCADE)),
+                ('violation', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -119,15 +119,15 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', django_date_extensions.fields.ApproximateDateField(max_length=10, blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
             name='ViolationType',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('object_ref', models.ForeignKey(to='violation.Violation')),
-                ('value', models.ForeignKey(blank=True, null=True, to='violation.Type', default=None)),
+                ('object_ref', models.ForeignKey(to='violation.Violation', on_delete=django.db.models.deletion.CASCADE)),
+                ('value', models.ForeignKey(blank=True, null=True, to='violation.Type', default=None, on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
     ]

@@ -44,8 +44,8 @@ class PersonBiography(models.Model, BaseModel, VersionsMixin, GetComplexFieldNam
 
 @versioned
 class PersonBiographyPerson(ComplexField):
-    object_ref = models.ForeignKey('PersonBiography')
-    value = models.ForeignKey('person.Person')
+    object_ref = models.ForeignKey('PersonBiography', on_delete=models.CASCADE)
+    value = models.ForeignKey('person.Person', on_delete=models.CASCADE)
     field_name = _('Person')
     shortcode = 'pe_n'
     spreadsheet_field_name = 'person_extra:name'
@@ -55,7 +55,7 @@ class PersonBiographyPerson(ComplexField):
 @versioned
 @sourced
 class PersonBiographyGender(ComplexField):
-    object_ref = models.ForeignKey('PersonBiography')
+    object_ref = models.ForeignKey('PersonBiography', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Gender")
     shortcode = 'pe_g'
@@ -65,7 +65,7 @@ class PersonBiographyGender(ComplexField):
 @versioned
 @sourced
 class PersonBiographyDateOfBirth(ComplexField):
-    object_ref = models.ForeignKey('PersonBiography')
+    object_ref = models.ForeignKey('PersonBiography', on_delete=models.CASCADE)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Date of Birth")
     shortcode = 'pe_dob'
@@ -75,7 +75,7 @@ class PersonBiographyDateOfBirth(ComplexField):
 @versioned
 @sourced
 class PersonBiographyDateOfDeath(ComplexField):
-    object_ref = models.ForeignKey('PersonBiography')
+    object_ref = models.ForeignKey('PersonBiography', on_delete=models.CASCADE)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Date Deceased")
     shortcode = 'pe_dd'
@@ -85,7 +85,7 @@ class PersonBiographyDateOfDeath(ComplexField):
 @versioned
 @sourced
 class PersonBiographyDeceased(ComplexField):
-    object_ref = models.ForeignKey('PersonBiography')
+    object_ref = models.ForeignKey('PersonBiography', on_delete=models.CASCADE)
     value = models.BooleanField(default=False)
     field_name = _("Deceased")
     shortcode = 'pe_d'

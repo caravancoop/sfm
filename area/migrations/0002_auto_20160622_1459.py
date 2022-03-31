@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -19,7 +20,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', models.IntegerField(null=True, default=None, blank=True)),
-                ('object_ref', models.ForeignKey(to='area.Area')),
+                ('object_ref', models.ForeignKey(to='area.Area', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='area_areageonameid_related')),
             ],
             options={

@@ -41,8 +41,8 @@ class PersonExtra(models.Model, BaseModel, VersionsMixin, GetComplexFieldNameMix
 
 @versioned
 class PersonExtraPerson(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
-    value = models.ForeignKey('person.Person')
+    object_ref = models.ForeignKey('PersonExtra', on_delete=models.CASCADE)
+    value = models.ForeignKey('person.Person', on_delete=models.CASCADE)
     field_name = _('Person')
     shortcode = 'pe_n'
     spreadsheet_field_name = 'person_extra:name'
@@ -52,7 +52,7 @@ class PersonExtraPerson(ComplexField):
 @versioned
 @sourced
 class PersonExtraAccountType(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
+    object_ref = models.ForeignKey('PersonExtra', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Online Account Type")
     shortcode = 'pe_at'
@@ -64,7 +64,7 @@ class PersonExtraAccountType(ComplexField):
 @versioned
 @sourced
 class PersonExtraAccount(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
+    object_ref = models.ForeignKey('PersonExtra', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Online Account Identifier")
     shortcode = 'pe_aid'
@@ -77,7 +77,7 @@ class PersonExtraAccount(ComplexField):
 @versioned
 @sourced
 class PersonExtraExternalLinkDescription(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
+    object_ref = models.ForeignKey('PersonExtra', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("External Link Description")
     shortcode = 'pe_eld'
@@ -90,7 +90,7 @@ class PersonExtraExternalLinkDescription(ComplexField):
 @versioned
 @sourced
 class PersonExtraMediaDescription(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
+    object_ref = models.ForeignKey('PersonExtra', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Media Description")
     shortcode = 'pe_md'
@@ -103,7 +103,7 @@ class PersonExtraMediaDescription(ComplexField):
 @versioned
 @sourced
 class PersonExtraNotes(ComplexField):
-    object_ref = models.ForeignKey('PersonExtra')
+    object_ref = models.ForeignKey('PersonExtra', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Notes")
     shortcode = 'pe_n_a'

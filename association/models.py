@@ -44,15 +44,15 @@ class Association(models.Model, BaseModel, SourcesMixin, SuperlativeDateMixin, G
 
 
 class AssociationTenure(models.Model):
-    association = models.ForeignKey('Association')
-    startdate = models.ForeignKey('AssociationStartDate', blank=True, null=True)
-    enddate = models.ForeignKey('AssociationEndDate', blank=True, null=True)
+    association = models.ForeignKey('Association', on_delete=models.CASCADE)
+    startdate = models.ForeignKey('AssociationStartDate', blank=True, null=True, on_delete=models.CASCADE)
+    enddate = models.ForeignKey('AssociationEndDate', blank=True, null=True, on_delete=models.CASCADE)
 
 
 @versioned
 @sourced
 class AssociationStartDate(ComplexField):
-    object_ref = models.ForeignKey('Association')
+    object_ref = models.ForeignKey('Association', on_delete=models.CASCADE)
     value = ApproximateDateField()
     field_name = _("First Cited Date")
     shortcode = 'u_locfcd'
@@ -62,7 +62,7 @@ class AssociationStartDate(ComplexField):
 @versioned
 @sourced_optional
 class AssociationRealStart(ComplexField):
-    object_ref = models.ForeignKey('Association')
+    object_ref = models.ForeignKey('Association', on_delete=models.CASCADE)
     value = models.NullBooleanField(default=None)
     field_name = _("Is Foundation Date?")
     shortcode = 'u_locfcd_f'
@@ -72,7 +72,7 @@ class AssociationRealStart(ComplexField):
 @versioned
 @sourced
 class AssociationEndDate(ComplexField):
-    object_ref = models.ForeignKey('Association')
+    object_ref = models.ForeignKey('Association', on_delete=models.CASCADE)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last Cited Date")
     shortcode = 'u_loclcd'
@@ -82,8 +82,8 @@ class AssociationEndDate(ComplexField):
 @versioned
 @sourced
 class AssociationOrganization(ComplexField):
-    object_ref = models.ForeignKey('Association')
-    value = models.ForeignKey(Organization)
+    object_ref = models.ForeignKey('Association', on_delete=models.CASCADE)
+    value = models.ForeignKey(Organization, on_delete=models.CASCADE)
     field_name = _("Unit")
 
     def __str__(self):
@@ -93,8 +93,8 @@ class AssociationOrganization(ComplexField):
 @versioned
 @sourced
 class AssociationArea(ComplexField):
-    object_ref = models.ForeignKey('Association')
-    value = models.ForeignKey(Location)
+    object_ref = models.ForeignKey('Association', on_delete=models.CASCADE)
+    value = models.ForeignKey(Location, on_delete=models.CASCADE)
     field_name = _("Area of Operation")
 
     def __str__(self):
@@ -104,7 +104,7 @@ class AssociationArea(ComplexField):
 @versioned
 @sourced_optional
 class AssociationOpenEnded(ComplexField):
-    object_ref = models.ForeignKey('Association')
+    object_ref = models.ForeignKey('Association', on_delete=models.CASCADE)
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Open-Ended?")
     shortcode = 'u_loclcd_o'

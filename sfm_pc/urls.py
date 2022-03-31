@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.views import logout_then_login
 from django.contrib.sitemaps import views as sitemap_views, Sitemap
 from django.views.decorators.cache import cache_page
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 from organization.views import OrganizationSitemap
 from person.views import PersonSitemap
@@ -64,7 +64,7 @@ urlpatterns += i18n_patterns(
     url(r'^$', cache_page(60 * 60 * 24)(Dashboard.as_view()), name='dashboard'),
 
     # Admin panel
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 
     # Downloads
     url(r'^download/', cache_page(60 * 60 * 24)(download_zip), name='download'),

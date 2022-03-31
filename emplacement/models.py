@@ -44,15 +44,15 @@ class Emplacement(models.Model, BaseModel, SourcesMixin, SuperlativeDateMixin, G
 
 
 class EmplacementTenure(models.Model):
-    emplacement = models.ForeignKey('Emplacement')
-    startdate = models.ForeignKey('EmplacementStartDate', blank=True, null=True)
-    enddate = models.ForeignKey('EmplacementEndDate', blank=True, null=True)
+    emplacement = models.ForeignKey('Emplacement', on_delete=models.CASCADE)
+    startdate = models.ForeignKey('EmplacementStartDate', blank=True, null=True, on_delete=models.CASCADE)
+    enddate = models.ForeignKey('EmplacementEndDate', blank=True, null=True, on_delete=models.CASCADE)
 
 
 @versioned
 @sourced
 class EmplacementStartDate(ComplexField):
-    object_ref = models.ForeignKey('Emplacement')
+    object_ref = models.ForeignKey('Emplacement', on_delete=models.CASCADE)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("First Cited Date")
     shortcode = 'u_locfcd'
@@ -62,7 +62,7 @@ class EmplacementStartDate(ComplexField):
 @versioned
 @sourced_optional
 class EmplacementRealStart(ComplexField):
-    object_ref = models.ForeignKey('Emplacement')
+    object_ref = models.ForeignKey('Emplacement', on_delete=models.CASCADE)
     value = models.NullBooleanField(default=None, blank=True, null=True)
     field_name = _("Is Foundation Date?")
     shortcode = 'u_locfcd_f'
@@ -72,7 +72,7 @@ class EmplacementRealStart(ComplexField):
 @versioned
 @sourced
 class EmplacementEndDate(ComplexField):
-    object_ref = models.ForeignKey('Emplacement')
+    object_ref = models.ForeignKey('Emplacement', on_delete=models.CASCADE)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last Cited Date")
     shortcode = 'u_loclcd'
@@ -82,7 +82,7 @@ class EmplacementEndDate(ComplexField):
 @versioned
 @sourced_optional
 class EmplacementOpenEnded(ComplexField):
-    object_ref = models.ForeignKey('Emplacement')
+    object_ref = models.ForeignKey('Emplacement', on_delete=models.CASCADE)
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Is Open Ended?")
     shortcode = 'u_loclcd_o'
@@ -92,16 +92,16 @@ class EmplacementOpenEnded(ComplexField):
 @versioned
 @sourced
 class EmplacementOrganization(ComplexField):
-    object_ref = models.ForeignKey('Emplacement')
-    value = models.ForeignKey(Organization)
+    object_ref = models.ForeignKey('Emplacement', on_delete=models.CASCADE)
+    value = models.ForeignKey(Organization, on_delete=models.CASCADE)
     field_name = _("Unit")
 
 
 @versioned
 @sourced
 class EmplacementSite(ComplexField):
-    object_ref = models.ForeignKey('Emplacement')
-    value = models.ForeignKey(Location)
+    object_ref = models.ForeignKey('Emplacement', on_delete=models.CASCADE)
+    value = models.ForeignKey(Location, on_delete=models.CASCADE)
     field_name = _("Site")
 
 
@@ -109,6 +109,6 @@ class EmplacementSite(ComplexField):
 @versioned
 @sourced
 class EmplacementAlias(ComplexField):
-    object_ref = models.ForeignKey('Emplacement')
+    object_ref = models.ForeignKey('Emplacement', on_delete=models.CASCADE)
     value = models.TextField(blank=True, null=True)
     field_name = _("Alias")

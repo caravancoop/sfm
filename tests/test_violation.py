@@ -1,7 +1,7 @@
 import pytest
 
 from django.test import TestCase, Client
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db import connection
 from django.core.management import call_command
 from django.contrib.auth.models import User

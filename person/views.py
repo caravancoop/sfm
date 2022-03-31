@@ -5,7 +5,7 @@ from itertools import chain
 
 from django.conf import settings
 from django.contrib.sitemaps import Sitemap
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.db import connection
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext as _

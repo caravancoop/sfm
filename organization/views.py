@@ -3,7 +3,7 @@ import json
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from django.core.serializers import serialize
 from django.contrib.sitemaps import Sitemap
@@ -89,7 +89,7 @@ class OrganizationDetail(BaseDetailView):
         context = super().get_context_data(**kwargs)
 
         # Determine if the user is logged in
-        authenticated = self.request.user.is_authenticated()
+        authenticated = self.request.user.is_authenticated
 
         # Generate link to download a CSV of this record
         params = '?download_etype=Organization&entity_id={0}'.format(str(context['organization'].uuid))

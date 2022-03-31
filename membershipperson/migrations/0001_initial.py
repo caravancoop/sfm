@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
 import django_date_extensions.fields
 import complex_fields.base_models
 
@@ -34,9 +35,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonendcontext_related', to='source.Source')),
-                ('value', models.ForeignKey(to='membershipperson.Context')),
+                ('value', models.ForeignKey(to='membershipperson.Context', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -49,7 +50,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
                 ('value', django_date_extensions.fields.ApproximateDateField(max_length=10)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonfirstciteddate_related', to='source.Source')),
             ],
             options={
@@ -63,7 +64,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
                 ('value', django_date_extensions.fields.ApproximateDateField(max_length=10)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonlastciteddate_related', to='source.Source')),
             ],
             options={
@@ -76,9 +77,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonmember_related', to='source.Source')),
-                ('value', models.ForeignKey(blank=True, default=None, to='person.Person', null=True)),
+                ('value', models.ForeignKey(blank=True, default=None, to='person.Person', null=True, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -90,9 +91,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonorganization_related', to='source.Source')),
-                ('value', models.ForeignKey(to='organization.Organization')),
+                ('value', models.ForeignKey(to='organization.Organization', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -104,7 +105,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonrank_related', to='source.Source')),
             ],
             options={
@@ -118,7 +119,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
                 ('value', models.BooleanField(default=None)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonrealend_related', to='source.Source')),
             ],
             options={
@@ -132,7 +133,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
                 ('value', models.BooleanField(default=None)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonrealstart_related', to='source.Source')),
             ],
             options={
@@ -145,7 +146,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonrole_related', to='source.Source')),
             ],
             options={
@@ -158,9 +159,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersonstartcontext_related', to='source.Source')),
-                ('value', models.ForeignKey(to='membershipperson.Context')),
+                ('value', models.ForeignKey(to='membershipperson.Context', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -173,7 +174,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(null=True, max_length=5)),
                 ('confidence', models.CharField(choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')], max_length=1, default=1)),
                 ('value', models.TextField(null=True, blank=True, default=None)),
-                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson')),
+                ('object_ref', models.ForeignKey(to='membershipperson.MembershipPerson', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(related_name='membershipperson_membershippersontitle_related', to='source.Source')),
             ],
             options={
@@ -197,11 +198,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='membershippersonrole',
             name='value',
-            field=models.ForeignKey(blank=True, default=None, to='membershipperson.Role', null=True),
+            field=models.ForeignKey(blank=True, default=None, to='membershipperson.Role', null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='membershippersonrank',
             name='value',
-            field=models.ForeignKey(blank=True, default=None, to='membershipperson.Rank', null=True),
+            field=models.ForeignKey(blank=True, default=None, to='membershipperson.Rank', null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

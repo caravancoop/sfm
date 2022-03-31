@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from haystack.forms import FacetedSearchForm
 from haystack.generic_views import SearchMixin, FacetedSearchView

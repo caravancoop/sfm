@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='geosite.Geosite')),
+                ('object_ref', models.ForeignKey(to='geosite.Geosite', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='geosite_geositeadminlevel1_related')),
             ],
             options={
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='geosite.Geosite')),
+                ('object_ref', models.ForeignKey(to='geosite.Geosite', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='geosite_geositeadminlevel2_related')),
             ],
             options={
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', django.contrib.gis.db.models.fields.PointField(srid=4326, blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='geosite.Geosite')),
+                ('object_ref', models.ForeignKey(to='geosite.Geosite', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='geosite_geositecoordinates_related')),
             ],
             options={
@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='geosite.Geosite')),
+                ('object_ref', models.ForeignKey(to='geosite.Geosite', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='geosite_geositegeoname_related')),
             ],
             options={
@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='geosite.Geosite')),
+                ('object_ref', models.ForeignKey(to='geosite.Geosite', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='geosite_geositegeonameid_related')),
             ],
             options={
@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='geosite.Geosite')),
+                ('object_ref', models.ForeignKey(to='geosite.Geosite', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='geosite_geositename_related')),
             ],
             options={
