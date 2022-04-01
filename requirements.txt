@@ -1,15 +1,15 @@
 dj-database-url==0.5.0
-Django==2.1
-django-haystack==2.8.1
+Django==3.0
+django-haystack==3.1.1
 django-jsonview==2.0.0
 django-localeurl==2.0.2
 django-reversion==4.0.0
 django-countries-plus==1.3.2
 django-bootstrap-pagination==1.6.4
 django-date-extensions==3.1.1
-django-leaflet==0.25.0
-psycopg2==2.7.3.1
-django-rosetta==0.9.1
+django-leaflet==0.28.2
+psycopg2==2.8.6
+django-rosetta==0.9.8
 django-queryset-csv==1.1.0
 
 git+https://github.com/security-force-monitor/complex_fields.git@1fd7fe085aad88aa1512553175ec60a7fe6161aa
@@ -21,7 +21,7 @@ google-api-python-client==1.5.4
 sqlalchemy==1.1.3
 datefinder==0.6.0
 raven
-django-debug-toolbar<2.0
+django-debug-toolbar==3.2.4
 pysolr==3.6.0
 pytest-django==3.5.1
 pytest-mock==1.10

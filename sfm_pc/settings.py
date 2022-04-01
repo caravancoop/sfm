@@ -91,7 +91,9 @@ INSTALLED_APPS = (
 
 INSTALLED_APPS += EXTRA_APPS
 
-MIDDLEWARE_CLASSES = (
+
+# Debug toolbar middleware needs to be included as early as possible
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -101,10 +103,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'reversion.middleware.RevisionMiddleware',
-)
-
-# Debug toolbar middleware needs to be included as early as possible
-MIDDLEWARE = EXTRA_MIDDLEWARE_CLASSES + MIDDLEWARE_CLASSES
+) + EXTRA_MIDDLEWARE_CLASSES
 
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.versions.VersionsPanel',
