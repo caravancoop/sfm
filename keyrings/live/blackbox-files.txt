@@ -2,7 +2,6 @@ configs/auth.json
 configs/backup-credentials.txt
 configs/client_secrets.json
 configs/credentials.json
-configs/local_settings_upgrade.py
 configs/settings_local_dev.py
 configs/settings_local_importer.py
 configs/settings_local_numbersix.py
