@@ -42,7 +42,6 @@ fixtures/*.geojson
 /static/js/piwik_tracker_production.js
 /configs/settings_local_importer.py
 /configs/settings_local_dev.py
-/configs/sfm.conf.sahel.nginx
 /configs/sfm.conf.sahel.supervisor
 *.dump
 /configs/settings_local_numbersix.py
