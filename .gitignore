@@ -50,5 +50,4 @@ fixtures/*.geojson
 static/css/*.rtl.css
 fixtures/import_docket.ns.csv
 /configs/settings_local_upgrade.py
-/configs/sfm.conf.upgrade.ngix
 /configs/sfm.conf.upgrade.supervisor
