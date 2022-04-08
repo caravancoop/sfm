@@ -15,6 +15,7 @@ configs/sfm.conf.production.supervisor
 configs/sfm.conf.staging.nginx
 configs/sfm.conf.staging.supervisor
 configs/sfm.conf.upgrade.ngix
+configs/sfm.conf.upgrade.supervisor
 scripts/after_install.sh
 scripts/app_start.sh
 scripts/app_stop.sh
