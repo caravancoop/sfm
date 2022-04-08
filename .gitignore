@@ -52,3 +52,4 @@ fixtures/*.geojson
 
 static/css/*.rtl.css
 fixtures/import_docket.ns.csv
+/configs/local_settings_upgrade.py
