@@ -12,7 +12,6 @@ configs/sfm.conf.numbersix.nginx
 configs/sfm.conf.numbersix.supervisor
 configs/sfm.conf.production.nginx
 configs/sfm.conf.production.supervisor
-configs/sfm.conf.sahel.supervisor
 configs/sfm.conf.staging.nginx
 configs/sfm.conf.staging.supervisor
 scripts/after_install.sh
