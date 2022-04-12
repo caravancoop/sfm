@@ -1,5 +1,5 @@
 dj-database-url==0.5.0
-Django==3.0
+Django==3.2
 django-haystack==3.1.1
 django-jsonview==2.0.0
 django-localeurl==2.0.2

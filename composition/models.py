@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
@@ -70,7 +70,7 @@ class CompositionStartDate(ComplexField):
 @sourced_optional
 class CompositionRealStart(ComplexField):
     object_ref = models.ForeignKey('Composition', on_delete=models.CASCADE)
-    value = models.NullBooleanField(default=None, blank=True, null=True)
+    value = models.BooleanField(default=None, blank=True, null=True)
     field_name = _("Start Date")
     shortcode = 'u_rufcds'
     spreadsheet_field_name = 'unit:related_unit_first_cited_date_start'

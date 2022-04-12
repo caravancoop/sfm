@@ -1,7 +1,7 @@
 from django import template
 from django.conf import settings
 from django.utils.translation import get_language
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from sfm_pc.utils import get_source_context
 

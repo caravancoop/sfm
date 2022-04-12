@@ -4,7 +4,7 @@ import reversion
 
 from django.db import models
 from django.db.models.functions import Coalesce
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.template.defaultfilters import truncatewords

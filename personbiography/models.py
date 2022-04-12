@@ -2,7 +2,7 @@ import uuid
 
 import reversion
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django_date_extensions.fields import ApproximateDateField
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.base_models import BaseModel

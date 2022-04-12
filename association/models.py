@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
@@ -63,7 +63,7 @@ class AssociationStartDate(ComplexField):
 @sourced_optional
 class AssociationRealStart(ComplexField):
     object_ref = models.ForeignKey('Association', on_delete=models.CASCADE)
-    value = models.NullBooleanField(default=None)
+    value = models.BooleanField(default=None, null=True)
     field_name = _("Is Foundation Date?")
     shortcode = 'u_locfcd_f'
     spreadsheet_field_name = 'unit:location_first_cited_date_founding'

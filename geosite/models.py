@@ -3,7 +3,7 @@ from django.db.models import Manager as GeoManager
 
 from django_date_extensions.fields import ApproximateDateField
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer

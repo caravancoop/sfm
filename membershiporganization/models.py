@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.translation import get_language
 from django.conf import settings
 
@@ -108,7 +108,7 @@ class MembershipOrganizationLastCitedDate(ComplexField):
 @sourced_optional
 class MembershipOrganizationRealStart(ComplexField):
     object_ref = models.ForeignKey('MembershipOrganization', on_delete=models.CASCADE)
-    value = models.NullBooleanField(default=None)
+    value = models.BooleanField(default=None, null=True)
     field_name = _("Start Date?")
     shortcode = 'u_rufcds'
     spreadsheet_field_name = 'unit:related_unit_first_cited_date_start'

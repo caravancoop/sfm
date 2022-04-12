@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.translation import get_language
 from django.db.models import Max
 from django.conf import settings
@@ -63,7 +63,7 @@ class EmplacementStartDate(ComplexField):
 @sourced_optional
 class EmplacementRealStart(ComplexField):
     object_ref = models.ForeignKey('Emplacement', on_delete=models.CASCADE)
-    value = models.NullBooleanField(default=None, blank=True, null=True)
+    value = models.BooleanField(default=None, blank=True, null=True)
     field_name = _("Is Foundation Date?")
     shortcode = 'u_locfcd_f'
     spreadsheet_field_name = 'unit:location_first_cited_date_founding'

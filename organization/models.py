@@ -5,7 +5,7 @@ import reversion
 from django.db import models
 from django.db.models import Min, Max, F
 from django.db.models.functions import Coalesce
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.conf import settings
 from django.urls import reverse
 from django.template.defaultfilters import truncatewords
@@ -371,7 +371,7 @@ class OrganizationLastCitedDate(ComplexField):
 @sourced_optional
 class OrganizationRealStart(ComplexField):
     object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
-    value = models.NullBooleanField(default=None)
+    value = models.BooleanField(default=None, null=True)
     field_name = _("Start Date?")
     shortcode = 'u_fcds'
     spreadsheet_field_name = 'unit:first_cited_date_start'

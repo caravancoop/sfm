@@ -2,7 +2,7 @@
 import uuid
 
 from django import forms
-from django.utils.translation import ugettext as _, get_language, gettext_lazy
+from django.utils.translation import gettext as _, get_language, gettext_lazy
 from django.core.exceptions import ObjectDoesNotExist
 
 from complex_fields.models import ComplexFieldContainer, ComplexFieldListContainer
