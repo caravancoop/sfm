@@ -5,8 +5,8 @@ on:
     branches:
       - master
       - deploy
-      - sahel
       - numbersix
+      - upgrade-dependencies
   pull_request:
     branches:
       - master
@@ -14,10 +14,10 @@ on:
 jobs:
   test:
     name: Run tests
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     services:
       postgres:
-        image: postgis/postgis:9.6-2.5
+        image: postgis/postgis:12-3.2
         env:
           POSTGRES_DB: sfm
           POSTGRES_PASSWORD: postgres
@@ -32,11 +32,11 @@ jobs:
       DATABASE_URL: postgis://postgres:postgres@localhost:5432/sfm
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.5
+    - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
         # Semantic version range syntax or exact version of a Python version
-        python-version: '3.5'
+        python-version: '3.8'
     - name: Install dependencies
       run: |
         sudo apt update
