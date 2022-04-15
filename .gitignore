@@ -52,3 +52,4 @@ fixtures/import_docket.ns.csv
 /configs/settings_local_upgrade.py
 /configs/sfm.conf.upgrade.supervisor
 /configs/sfm.conf.upgrade.nginx
+/scripts/staging-server-restart-cron
