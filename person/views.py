@@ -5,10 +5,10 @@ from itertools import chain
 
 from django.conf import settings
 from django.contrib.sitemaps import Sitemap
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.db import connection
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from person.models import Person
 from person.forms import PersonBasicsForm, PersonCreateBasicsForm, \

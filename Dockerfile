@@ -4,7 +4,7 @@
 # version number in the pilot. YMMV. See this post for a discussion of
 # some options and their pros and cons:
 # https://pythonspeed.com/articles/base-image-python-docker-images/
-FROM python:3.5
+FROM python:3.8
 
 # Give ourselves some credit
 LABEL maintainer "DataMade <info@datamade.us>"
@@ -20,7 +20,7 @@ LABEL maintainer "DataMade <info@datamade.us>"
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gettext binutils libproj-dev gdal-bin postgresql-client osm2pgsql make
+        gettext binutils libproj-dev gdal-bin postgresql-client make
 
 # Inside the container, create an app directory and switch into it
 RUN mkdir /app

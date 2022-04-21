@@ -6,14 +6,11 @@ configs/settings_local_dev.py
 configs/settings_local_importer.py
 configs/settings_local_numbersix.py
 configs/settings_local_production.py
-configs/settings_local_sahel.py
 configs/settings_local_staging.py
 configs/sfm.conf.numbersix.nginx
 configs/sfm.conf.numbersix.supervisor
 configs/sfm.conf.production.nginx
 configs/sfm.conf.production.supervisor
-configs/sfm.conf.sahel.nginx
-configs/sfm.conf.sahel.supervisor
 configs/sfm.conf.staging.nginx
 configs/sfm.conf.staging.supervisor
 scripts/after_install.sh
@@ -21,4 +18,5 @@ scripts/app_start.sh
 scripts/app_stop.sh
 scripts/backup.sh
 scripts/sfm-cron
+scripts/staging-server-restart-cron
 static/js/piwik_tracker_production.js

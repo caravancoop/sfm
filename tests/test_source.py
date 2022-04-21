@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 
 from django.test import TestCase, Client
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.db import connection

@@ -8,7 +8,7 @@ import reversion
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -108,7 +108,7 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
         return self.title
 
     def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('view-source', args=[self.uuid])
 
     def _get_date_or_timestamp(self, date_type):
@@ -160,7 +160,7 @@ class Source(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
 
     @property
     def revert_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('revert-source', args=[self.uuid])
 
 
@@ -171,7 +171,7 @@ class AccessPoint(models.Model, GetSpreadsheetFieldNameMixin, VersionsMixin):
     trigger = source_fields.CharField(max_length=255, null=True, blank=True, spreadsheet_field_name='source:access_point_trigger')
     accessed_on = source_fields.DateField(null=True, verbose_name=_("access date"), spreadsheet_field_name='source:accessed_timestamp')
     archive_url = source_fields.URLField(max_length=2500, null=True, spreadsheet_field_name='source:archive_url')
-    source = models.ForeignKey(Source, null=True, to_field='uuid')
+    source = models.ForeignKey(Source, null=True, to_field='uuid', on_delete=models.CASCADE)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.SET(get_deleted_user))

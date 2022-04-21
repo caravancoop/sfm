@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.conf import settings
 
 from django_date_extensions.fields import ApproximateDateField
@@ -41,8 +41,8 @@ class Composition(models.Model, BaseModel, SourcesMixin, GetComplexFieldNameMixi
 @versioned
 @sourced
 class CompositionParent(ComplexField):
-    object_ref = models.ForeignKey(Composition)
-    value = models.ForeignKey(Organization, related_name='child_organization')
+    object_ref = models.ForeignKey(Composition, on_delete=models.CASCADE)
+    value = models.ForeignKey(Organization, related_name='child_organization', on_delete=models.CASCADE)
     field_name = _("Related Unit")
     shortcode = 'u_ru'
     spreadsheet_field_name = 'unit:related_unit'
@@ -51,15 +51,15 @@ class CompositionParent(ComplexField):
 @versioned
 @sourced
 class CompositionChild(ComplexField):
-    object_ref = models.ForeignKey(Composition)
-    value = models.ForeignKey(Organization, related_name='parent_organization')
+    object_ref = models.ForeignKey(Composition, on_delete=models.CASCADE)
+    value = models.ForeignKey(Organization, related_name='parent_organization', on_delete=models.CASCADE)
     field_name = _("Unit")
 
 
 @versioned
 @sourced
 class CompositionStartDate(ComplexField):
-    object_ref = models.ForeignKey(Composition)
+    object_ref = models.ForeignKey(Composition, on_delete=models.CASCADE)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("First Cited Date")
     shortcode = 'u_rufcd'
@@ -69,8 +69,8 @@ class CompositionStartDate(ComplexField):
 @versioned
 @sourced_optional
 class CompositionRealStart(ComplexField):
-    object_ref = models.ForeignKey('Composition')
-    value = models.NullBooleanField(default=None, blank=True, null=True)
+    object_ref = models.ForeignKey('Composition', on_delete=models.CASCADE)
+    value = models.BooleanField(default=None, blank=True, null=True)
     field_name = _("Start Date")
     shortcode = 'u_rufcds'
     spreadsheet_field_name = 'unit:related_unit_first_cited_date_start'
@@ -79,7 +79,7 @@ class CompositionRealStart(ComplexField):
 @versioned
 @sourced
 class CompositionEndDate(ComplexField):
-    object_ref = models.ForeignKey(Composition)
+    object_ref = models.ForeignKey(Composition, on_delete=models.CASCADE)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last Cited Date")
     shortcode = 'u_rulcd'
@@ -89,7 +89,7 @@ class CompositionEndDate(ComplexField):
 @versioned
 @sourced
 class CompositionClassification(ComplexField):
-    object_ref = models.ForeignKey(Composition)
+    object_ref = models.ForeignKey(Composition, on_delete=models.CASCADE)
     value = models.TextField(blank=True, null=True)
     field_name = _("Classification")
     shortcode = 'u_ruc'
@@ -99,7 +99,7 @@ class CompositionClassification(ComplexField):
 @versioned
 @sourced_optional
 class CompositionOpenEnded(ComplexField):
-    object_ref = models.ForeignKey(Composition)
+    object_ref = models.ForeignKey(Composition, on_delete=models.CASCADE)
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Is Open Ended?")
     shortcode = 'u_ruo'

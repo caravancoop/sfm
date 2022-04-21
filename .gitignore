@@ -42,9 +42,6 @@ fixtures/*.geojson
 /static/js/piwik_tracker_production.js
 /configs/settings_local_importer.py
 /configs/settings_local_dev.py
-/configs/settings_local_sahel.py
-/configs/sfm.conf.sahel.nginx
-/configs/sfm.conf.sahel.supervisor
 *.dump
 /configs/settings_local_numbersix.py
 /configs/sfm.conf.numbersix.nginx
@@ -52,3 +49,4 @@ fixtures/*.geojson
 
 static/css/*.rtl.css
 fixtures/import_docket.ns.csv
+/scripts/staging-server-restart-cron

@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
 import complex_fields.base_models
 import django_date_extensions.fields
 
@@ -40,8 +41,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
-                ('value', models.ForeignKey(blank=True, null=True, to='organization.Alias', default=None)),
-                ('object_ref', models.ForeignKey(to='organization.Organization')),
+                ('value', models.ForeignKey(blank=True, null=True, to='organization.Alias', default=None, on_delete=django.db.models.deletion.CASCADE)),
+                ('object_ref', models.ForeignKey(to='organization.Organization', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='organization_organizationalias_related')),
             ],
             options={
@@ -54,9 +55,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
-                ('object_ref', models.ForeignKey(to='organization.Organization')),
+                ('object_ref', models.ForeignKey(to='organization.Organization', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='organization_organizationclassification_related')),
-                ('value', models.ForeignKey(blank=True, null=True, to='organization.Classification', default=None)),
+                ('value', models.ForeignKey(blank=True, null=True, to='organization.Classification', default=None, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -69,7 +70,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', django_date_extensions.fields.ApproximateDateField(max_length=10, blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='organization.Organization')),
+                ('object_ref', models.ForeignKey(to='organization.Organization', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='organization_organizationdissolutiondate_related')),
             ],
             options={
@@ -83,7 +84,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', django_date_extensions.fields.ApproximateDateField(max_length=10, blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='organization.Organization')),
+                ('object_ref', models.ForeignKey(to='organization.Organization', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='organization_organizationfoundingdate_related')),
             ],
             options={
@@ -97,7 +98,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', models.TextField(blank=True, null=True, default=None)),
-                ('object_ref', models.ForeignKey(to='organization.Organization')),
+                ('object_ref', models.ForeignKey(to='organization.Organization', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='organization_organizationname_related')),
             ],
             options={
@@ -111,7 +112,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', models.BooleanField(default=False)),
-                ('object_ref', models.ForeignKey(to='organization.Organization')),
+                ('object_ref', models.ForeignKey(to='organization.Organization', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='organization_organizationrealdissolution_related')),
             ],
             options={
@@ -125,7 +126,7 @@ class Migration(migrations.Migration):
                 ('lang', models.CharField(max_length=5, null=True)),
                 ('confidence', models.CharField(default=1, max_length=1, choices=[('1', 'Low'), ('2', 'Medium'), ('3', 'High')])),
                 ('value', models.BooleanField(default=False)),
-                ('object_ref', models.ForeignKey(to='organization.Organization')),
+                ('object_ref', models.ForeignKey(to='organization.Organization', on_delete=django.db.models.deletion.CASCADE)),
                 ('sources', models.ManyToManyField(to='source.Source', related_name='organization_organizationrealfounding_related')),
             ],
             options={

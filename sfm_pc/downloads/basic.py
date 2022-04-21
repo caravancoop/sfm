@@ -27,7 +27,7 @@ class BasicDownload(BaseDownload):
     firstciteddate_confidence = models.CharField(max_length=1)
     lastciteddate = ApproximateDateField()
     lastciteddate_confidence = models.CharField(max_length=1)
-    realstart = models.NullBooleanField(default=None)
+    realstart = models.BooleanField(default=None, null=True)
     realstart_confidence = models.CharField(max_length=1)
     open_ended = models.CharField(max_length=1, default='N', choices=settings.OPEN_ENDED_CHOICES)
     open_ended_confidence = models.CharField(max_length=1)

@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic import ListView, DeleteView, TemplateView
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage

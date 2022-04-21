@@ -2,7 +2,7 @@ from uuid import uuid4
 
 import pytest
 
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.template.defaultfilters import truncatewords

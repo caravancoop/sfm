@@ -2,7 +2,7 @@ import json
 import os
 
 import pytest
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.template.defaultfilters import truncatewords
 
 from location.models import Location

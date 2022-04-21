@@ -5,9 +5,9 @@ import reversion
 from django.db import models
 from django.db.models import Min, Max, F
 from django.db.models.functions import Coalesce
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.defaultfilters import truncatewords
 
 from complex_fields.model_decorators import (versioned, translated, sourced,
@@ -296,7 +296,7 @@ class Organization(models.Model, BaseModel, SourcesMixin, VersionsMixin, GetComp
 @versioned
 @sourced
 class OrganizationName(ComplexField):
-    object_ref = models.ForeignKey('Organization')
+    object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
     shortcode = 'u_n'
@@ -307,7 +307,7 @@ class OrganizationName(ComplexField):
 @versioned
 @sourced
 class OrganizationAlias(ComplexField):
-    object_ref = models.ForeignKey('Organization')
+    object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
     value = models.TextField(blank=True, null=True)
     field_name = _("Other Names")
     shortcode = 'u_on'
@@ -317,7 +317,7 @@ class OrganizationAlias(ComplexField):
 @versioned
 @sourced
 class OrganizationClassification(ComplexField):
-    object_ref = models.ForeignKey('Organization')
+    object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
     value = models.TextField(blank=True, null=True)
     field_name = _("Classification")
     shortcode = 'u_cl'
@@ -327,7 +327,7 @@ class OrganizationClassification(ComplexField):
 @versioned
 @sourced
 class OrganizationDivisionId(ComplexField):
-    object_ref = models.ForeignKey('Organization')
+    object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Country")
     shortcode = 'u_c'
@@ -340,7 +340,7 @@ class OrganizationDivisionId(ComplexField):
 @versioned
 @sourced
 class OrganizationHeadquarters(ComplexField):
-    object_ref = models.ForeignKey('Organization')
+    object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Base Name")
     shortcode = 'u_bn'
@@ -350,7 +350,7 @@ class OrganizationHeadquarters(ComplexField):
 @versioned
 @sourced
 class OrganizationFirstCitedDate(ComplexField):
-    object_ref = models.ForeignKey('Organization')
+    object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
     value = ApproximateDateField()
     field_name = _("First Cited Date")
     shortcode = 'u_fcd'
@@ -360,7 +360,7 @@ class OrganizationFirstCitedDate(ComplexField):
 @versioned
 @sourced
 class OrganizationLastCitedDate(ComplexField):
-    object_ref = models.ForeignKey('Organization')
+    object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
     value = ApproximateDateField()
     field_name = _("Last Cited Date")
     shortcode = 'u_lcd'
@@ -370,8 +370,8 @@ class OrganizationLastCitedDate(ComplexField):
 @versioned
 @sourced_optional
 class OrganizationRealStart(ComplexField):
-    object_ref = models.ForeignKey('Organization')
-    value = models.NullBooleanField(default=None)
+    object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
+    value = models.BooleanField(default=None, null=True)
     field_name = _("Start Date?")
     shortcode = 'u_fcds'
     spreadsheet_field_name = 'unit:first_cited_date_start'
@@ -380,7 +380,7 @@ class OrganizationRealStart(ComplexField):
 @versioned
 @sourced_optional
 class OrganizationOpenEnded(ComplexField):
-    object_ref = models.ForeignKey('Organization')
+    object_ref = models.ForeignKey('Organization', on_delete=models.CASCADE)
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Is Open Ended?")
     shortcode = 'u_lcdo'

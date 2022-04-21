@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models
-from django.utils.translation import ugettext as _
+from django.db.models import Manager as GeoManager
+from django.utils.translation import gettext as _
 
 from django_date_extensions.fields import ApproximateDateField
 
@@ -49,7 +50,7 @@ class Area(models.Model, BaseModel, GetComplexFieldNameMixin):
 @versioned
 @sourced
 class AreaName(ComplexField):
-    object_ref = models.ForeignKey('Area')
+    object_ref = models.ForeignKey('Area', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Area of Operations")
 
@@ -57,24 +58,24 @@ class AreaName(ComplexField):
 @versioned
 @sourced_optional
 class AreaGeometry(ComplexField):
-    object_ref = models.ForeignKey('Area')
+    object_ref = models.ForeignKey('Area', on_delete=models.CASCADE)
     value = models.MultiPolygonField(default=None, blank=True, null=True)
-    objects = models.GeoManager()
+    objects = GeoManager()
     field_name = _("Location geometry")
 
 
 @versioned
 @sourced
 class AreaCode(ComplexField):
-    object_ref = models.ForeignKey('Area')
-    value = models.ForeignKey('Code', default=None, blank=True, null=True)
+    object_ref = models.ForeignKey('Area', on_delete=models.CASCADE)
+    value = models.ForeignKey('Code', default=None, blank=True, null=True, on_delete=models.CASCADE)
     field_name = _("Classification")
 
 
 @versioned
 @sourced
 class AreaOSMName(ComplexField):
-    object_ref = models.ForeignKey('Area')
+    object_ref = models.ForeignKey('Area', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("OSM name")
 
@@ -85,7 +86,7 @@ class AreaOSMName(ComplexField):
 @versioned
 @sourced
 class AreaOSMId(ComplexField):
-    object_ref = models.ForeignKey('Area')
+    object_ref = models.ForeignKey('Area', on_delete=models.CASCADE)
     value = models.BigIntegerField(default=None, blank=True, null=True)
     field_name = _("OSM ID")
 
@@ -108,6 +109,6 @@ class Code(models.Model):
 @versioned
 @sourced
 class AreaDivisionId(ComplexField):
-    object_ref = models.ForeignKey('Area')
+    object_ref = models.ForeignKey('Area', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Country")

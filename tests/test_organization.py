@@ -1,6 +1,6 @@
 import pytest
 
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.models import User
 from django.template.defaultfilters import truncatewords
 

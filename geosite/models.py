@@ -1,8 +1,9 @@
 from django.contrib.gis.db import models
+from django.db.models import Manager as GeoManager
 
 from django_date_extensions.fields import ApproximateDateField
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from complex_fields.model_decorators import versioned, translated, sourced
 from complex_fields.models import ComplexField, ComplexFieldContainer
@@ -49,7 +50,7 @@ class Geosite(models.Model, BaseModel):
 @versioned
 @sourced
 class GeositeName(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
 
@@ -60,7 +61,7 @@ class GeositeName(ComplexField):
 @versioned
 @sourced
 class GeositeAdminName(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("OSM name")
 
@@ -68,7 +69,7 @@ class GeositeAdminName(ComplexField):
 @versioned
 @sourced
 class GeositeAdminId(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = models.BigIntegerField(default=None, blank=True, null=True)
     field_name = _("OSM ID")
 
@@ -76,7 +77,7 @@ class GeositeAdminId(ComplexField):
 @versioned
 @sourced
 class GeositeAdminLevel1(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 1")
 
@@ -84,7 +85,7 @@ class GeositeAdminLevel1(ComplexField):
 @versioned
 @sourced
 class GeositeAdminLevel2(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Admin level 2")
 
@@ -92,16 +93,16 @@ class GeositeAdminLevel2(ComplexField):
 @versioned
 @sourced
 class GeositeCoordinates(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = models.PointField(default=None, blank=True, null=True)
-    objects = models.GeoManager()
+    objects = GeoManager()
     field_name = _("Coordinates")
 
 
 @versioned
 @sourced
 class GeositeLocationName(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Location name")
 
@@ -109,7 +110,7 @@ class GeositeLocationName(ComplexField):
 @versioned
 @sourced
 class GeositeLocationId(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = models.BigIntegerField(default=None, blank=True, null=True)
     field_name = _("Location ID")
 
@@ -117,7 +118,7 @@ class GeositeLocationId(ComplexField):
 @versioned
 @sourced
 class GeositeDivisionId(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Division ID")
 
@@ -125,7 +126,7 @@ class GeositeDivisionId(ComplexField):
 @versioned
 @sourced
 class GeositeFirstCited(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("First cited")
 
@@ -133,6 +134,6 @@ class GeositeFirstCited(ComplexField):
 @versioned
 @sourced
 class GeositeLastCited(ComplexField):
-    object_ref = models.ForeignKey('Geosite')
+    object_ref = models.ForeignKey('Geosite', on_delete=models.CASCADE)
     value = ApproximateDateField(default=None, blank=True, null=True)
     field_name = _("Last cited")

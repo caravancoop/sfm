@@ -26,7 +26,5 @@ branch_config:
     deploymentGroupName: staging
   deploy:
     deploymentGroupName: production
-  sahel:
-    deploymentGroupName: sahel
   numbersix:
     deploymentGroupName: numbersix

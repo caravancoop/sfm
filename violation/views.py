@@ -5,9 +5,9 @@ import json
 
 from django.conf import settings
 from django.contrib.sitemaps import Sitemap
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.translation import get_language, ugettext as _
+from django.utils.translation import get_language, gettext as _
 
 from complex_fields.models import ComplexFieldContainer
 

@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.translation import get_language
 from django.conf import settings
 
@@ -57,8 +57,8 @@ class MembershipOrganization(models.Model, BaseModel, SourcesMixin, GetComplexFi
 @versioned
 @sourced
 class MembershipOrganizationMember(ComplexField):
-    object_ref = models.ForeignKey('MembershipOrganization')
-    value = models.ForeignKey(Organization, default=None, blank=True, null=True)
+    object_ref = models.ForeignKey('MembershipOrganization', on_delete=models.CASCADE)
+    value = models.ForeignKey(Organization, default=None, blank=True, null=True, on_delete=models.CASCADE)
     field_name = _("Member Unit")
 
     class Meta:
@@ -68,8 +68,8 @@ class MembershipOrganizationMember(ComplexField):
 @versioned
 @sourced
 class MembershipOrganizationOrganization(ComplexField):
-    object_ref = models.ForeignKey('MembershipOrganization')
-    value = models.ForeignKey(Organization)
+    object_ref = models.ForeignKey('MembershipOrganization', on_delete=models.CASCADE)
+    value = models.ForeignKey(Organization, on_delete=models.CASCADE)
     field_name = _("Membership")
     shortcode = 'u_ru'
     spreadsheet_field_name = 'unit:related_unit'
@@ -81,7 +81,7 @@ class MembershipOrganizationOrganization(ComplexField):
 @versioned
 @sourced
 class MembershipOrganizationFirstCitedDate(ComplexField):
-    object_ref = models.ForeignKey('MembershipOrganization')
+    object_ref = models.ForeignKey('MembershipOrganization', on_delete=models.CASCADE)
     value = ApproximateDateField()
     field_name = _("First Cited Date")
     shortcode = 'u_rufcd'
@@ -94,7 +94,7 @@ class MembershipOrganizationFirstCitedDate(ComplexField):
 @versioned
 @sourced
 class MembershipOrganizationLastCitedDate(ComplexField):
-    object_ref = models.ForeignKey('MembershipOrganization')
+    object_ref = models.ForeignKey('MembershipOrganization', on_delete=models.CASCADE)
     value = ApproximateDateField()
     field_name = _("Last Cited Date")
     shortcode = 'u_rulcd'
@@ -107,8 +107,8 @@ class MembershipOrganizationLastCitedDate(ComplexField):
 @versioned
 @sourced_optional
 class MembershipOrganizationRealStart(ComplexField):
-    object_ref = models.ForeignKey('MembershipOrganization')
-    value = models.NullBooleanField(default=None)
+    object_ref = models.ForeignKey('MembershipOrganization', on_delete=models.CASCADE)
+    value = models.BooleanField(default=None, null=True)
     field_name = _("Start Date?")
     shortcode = 'u_rufcds'
     spreadsheet_field_name = 'unit:related_unit_first_cited_date_start'
@@ -117,7 +117,7 @@ class MembershipOrganizationRealStart(ComplexField):
 @versioned
 @sourced_optional
 class MembershipOrganizationOpenEnded(ComplexField):
-    object_ref = models.ForeignKey('MembershipOrganization')
+    object_ref = models.ForeignKey('MembershipOrganization', on_delete=models.CASCADE)
     value = models.CharField(default='N', max_length=1, choices=settings.OPEN_ENDED_CHOICES)
     field_name = _("Is Open Ended?")
     shortcode = 'u_ruo'

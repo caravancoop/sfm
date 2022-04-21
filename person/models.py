@@ -4,8 +4,8 @@ import reversion
 
 from django.db import models
 from django.db.models.functions import Coalesce
-from django.utils.translation import ugettext as _
-from django.core.urlresolvers import reverse
+from django.utils.translation import gettext as _
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.template.defaultfilters import truncatewords
 
@@ -167,7 +167,7 @@ class Person(models.Model, BaseModel, SourcesMixin, VersionsMixin, GetComplexFie
 @versioned
 @sourced
 class PersonName(ComplexField):
-    object_ref = models.ForeignKey('Person')
+    object_ref = models.ForeignKey('Person', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Name")
     shortcode = 'p_n'
@@ -178,7 +178,7 @@ class PersonName(ComplexField):
 @versioned
 @sourced
 class PersonAlias(ComplexField):
-    object_ref = models.ForeignKey('Person')
+    object_ref = models.ForeignKey('Person', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Other Names")
     shortcode = 'p_on'
@@ -189,7 +189,7 @@ class PersonAlias(ComplexField):
 @versioned
 @sourced
 class PersonNotes(ComplexField):
-    object_ref = models.ForeignKey('Person')
+    object_ref = models.ForeignKey('Person', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Notes")
     shortcode = 'p_n_a'
@@ -199,7 +199,7 @@ class PersonNotes(ComplexField):
 @sourced
 @versioned
 class PersonDivisionId(ComplexField):
-    object_ref = models.ForeignKey('Person')
+    object_ref = models.ForeignKey('Person', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _('Country')
     shortcode = 'p_c'

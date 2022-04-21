@@ -1,9 +1,8 @@
 from django.db import models
 from django.contrib.gis.db.models.fields import GeometryField
-from django.contrib.postgres.fields import JSONField
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.defaultfilters import truncatewords
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 class LocationManager(models.Manager):
@@ -20,14 +19,16 @@ class Location(models.Model):
     name = models.TextField(blank=True, null=True)
     division_id = models.TextField(blank=True, null=True)
     feature_type = models.TextField(blank=True, null=True)
-    tags = JSONField(blank=True, null=True)
-    sfm = JSONField(blank=True, null=True)
+    tags = models.JSONField(blank=True, null=True)
+    sfm = models.JSONField(blank=True, null=True)
     adminlevel1 = models.ForeignKey('self',
                                     related_name='area_locations',
+                                    on_delete=models.CASCADE,
                                     null=True,
                                     blank=True)
     adminlevel2 = models.ForeignKey('self',
                                     related_name='place_locations',
+                                    on_delete=models.CASCADE,
                                     null=True,
                                     blank=True)
     adminlevel = models.CharField(max_length=50, null=True, blank=True)

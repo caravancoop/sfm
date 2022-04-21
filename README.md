@@ -138,7 +138,7 @@ Template translations appear inside `trans` tags, like so:
 Model field and form error translations appear inside `_()` hooks, as such:
 
 ```python
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 ...
 

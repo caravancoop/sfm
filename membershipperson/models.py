@@ -1,7 +1,7 @@
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.translation import get_language
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django_date_extensions.fields import ApproximateDateField
 
 from complex_fields.model_decorators import (versioned, translated, sourced,
@@ -135,16 +135,16 @@ class MembershipPerson(models.Model, BaseModel, SourcesMixin, GetComplexFieldNam
 @sourced
 class MembershipPersonMember(ComplexField):
 
-    object_ref = models.ForeignKey('MembershipPerson')
-    value = models.ForeignKey(Person, default=None, blank=True, null=True)
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
+    value = models.ForeignKey(Person, default=None, blank=True, null=True, on_delete=models.CASCADE)
     field_name = _("Member")
 
 
 @versioned
 @sourced
 class MembershipPersonOrganization(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
-    value = models.ForeignKey(Organization)
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
+    value = models.ForeignKey(Organization, on_delete=models.CASCADE)
     field_name = _("Unit")
     shortcode = 'p_puid_a'
     spreadsheet_field_name = 'person:posting_unit_id:admin'
@@ -153,8 +153,8 @@ class MembershipPersonOrganization(ComplexField):
 @versioned
 @sourced
 class MembershipPersonRole(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
-    value = models.ForeignKey('Role', default=None, blank=True, null=True)
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
+    value = models.ForeignKey('Role', default=None, blank=True, null=True, on_delete=models.CASCADE)
     field_name = _("Role")
     shortcode = 'p_pro'
     spreadsheet_field_name = 'person:posting_role'
@@ -164,7 +164,7 @@ class MembershipPersonRole(ComplexField):
 @versioned
 @sourced
 class MembershipPersonTitle(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
     value = models.TextField(default=None, blank=True, null=True)
     field_name = _("Official Title")
     shortcode = 'p_pt'
@@ -174,8 +174,8 @@ class MembershipPersonTitle(ComplexField):
 @versioned
 @sourced
 class MembershipPersonRank(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
-    value = models.ForeignKey('Rank', default=None, blank=True, null=True)
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
+    value = models.ForeignKey('Rank', default=None, blank=True, null=True, on_delete=models.CASCADE)
     field_name = _("Rank")
     shortcode = 'p_pra'
     spreadsheet_field_name = 'person:posting_rank'
@@ -184,7 +184,7 @@ class MembershipPersonRank(ComplexField):
 @versioned
 @sourced
 class MembershipPersonFirstCitedDate(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
     value = ApproximateDateField()
     field_name = _("First Cited Date")
     shortcode = 'p_pfcd'
@@ -194,7 +194,7 @@ class MembershipPersonFirstCitedDate(ComplexField):
 @versioned
 @sourced
 class MembershipPersonLastCitedDate(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
     value = ApproximateDateField()
     field_name = _("Last Cited Date")
     shortcode = 'p_plcd'
@@ -204,7 +204,7 @@ class MembershipPersonLastCitedDate(ComplexField):
 @versioned
 @sourced_optional
 class MembershipPersonRealStart(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
     value = models.BooleanField(default=None)
     field_name = _("Start Date?")
     shortcode = 'p_pfcds'
@@ -214,7 +214,7 @@ class MembershipPersonRealStart(ComplexField):
 @versioned
 @sourced_optional
 class MembershipPersonRealEnd(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
     value = models.BooleanField(default=None)
     field_name = _("End Date?")
     shortcode = 'p_plcde'
@@ -224,7 +224,7 @@ class MembershipPersonRealEnd(ComplexField):
 @versioned
 @sourced
 class MembershipPersonStartContext(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
     value = models.TextField()
     field_name = _("Start Date Context")
     shortcode = 'p_pfcdsc'
@@ -234,7 +234,7 @@ class MembershipPersonStartContext(ComplexField):
 @versioned
 @sourced
 class MembershipPersonEndContext(ComplexField):
-    object_ref = models.ForeignKey('MembershipPerson')
+    object_ref = models.ForeignKey('MembershipPerson', on_delete=models.CASCADE)
     value = models.TextField()
     field_name = _("End Date Context")
     shortcode = 'p_plcdec'

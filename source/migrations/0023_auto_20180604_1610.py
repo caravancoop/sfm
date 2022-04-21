@@ -68,5 +68,4 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(update_source_tables, reverse_code=migrations.RunPython.noop),
-        migrations.RunSQL('ALTER TABLE source_source ADD PRIMARY KEY (uuid)'),
     ]

@@ -12,7 +12,7 @@ from django.views.generic.edit import FormView
 from django.views.decorators.cache import never_cache
 from django.shortcuts import redirect
 from django.db import connection
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.http import StreamingHttpResponse
 from django.template import loader
@@ -165,7 +165,7 @@ def command_chain(request, org_id='', when=None, parents=True):
 
     nodes, edges = [], []
 
-    authenticated = request.user.is_authenticated()
+    authenticated = request.user.is_authenticated
 
     # Add hierarchy to nodelist and edgelist
     if parents:
