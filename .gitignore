@@ -49,5 +49,4 @@ fixtures/*.geojson
 
 static/css/*.rtl.css
 fixtures/import_docket.ns.csv
-/configs/sfm.conf.upgrade.supervisor
 /scripts/staging-server-restart-cron
