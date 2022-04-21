@@ -28,5 +28,3 @@ branch_config:
     deploymentGroupName: production
   numbersix:
     deploymentGroupName: numbersix
-  upgrade-dependencies:
-    deploymentGroupName: upgrade
