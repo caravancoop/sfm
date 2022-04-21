@@ -6,7 +6,6 @@ on:
       - master
       - deploy
       - numbersix
-      - upgrade-dependencies
   pull_request:
     branches:
       - master
