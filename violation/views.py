@@ -8,6 +8,7 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import get_language, gettext as _
+from django.core.serializers import serialize
 
 from complex_fields.models import ComplexFieldContainer
 
@@ -62,7 +63,12 @@ class ViolationDetail(BaseDetailView):
         if context['violation'].location.get_value():
             location = context['violation'].location.get_value()
             if location.value:
-                context['location'] = location.value
+                location_geojson = serialize(
+                    'geojson',
+                    [location.value],
+                    geometry_field='geometry'
+                )
+                context['location'] = location_geojson
 
         if authenticated:
             context['perpetrators'] = context['violation'].violationperpetrator_set.all()

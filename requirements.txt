@@ -1,5 +1,5 @@
 dj-database-url==0.5.0
-Django==3.2
+Django==3.2.13
 django-haystack==3.1.1
 django-jsonview==2.0.0
 django-localeurl==2.0.2
@@ -12,7 +12,7 @@ psycopg2==2.8.6
 django-rosetta==0.9.8
 django-queryset-csv==1.1.0
 
-git+https://github.com/security-force-monitor/complex_fields.git@1fd7fe085aad88aa1512553175ec60a7fe6161aa
+git+https://github.com/security-force-monitor/complex_fields.git
 
 gunicorn==19.0.0
 tqdm==4.36.1
