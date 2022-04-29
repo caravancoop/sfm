@@ -2,6 +2,13 @@ var UnitMaps = {
   onEachFeature: function(feature, layer){
     layer.bindPopup(feature.properties.name);
   },
+  getFeatureType: function(location) {
+    if (location.properties.feature_type) {
+      return location.properties.feature_type
+    } else {
+      return location.properties.sfm['location:geo_type']
+    }
+  },
   initializeMap: function(L, element, locations, attribution) {
     var map = L.map(element);
 
@@ -15,7 +22,9 @@ var UnitMaps = {
     var features = L.featureGroup();
 
     $.each(locations.features, function (_, location) {
-      if (['node', 'point'].indexOf(location.properties.feature_type) >= 0) {
+      const featureType = UnitMaps.getFeatureType(location)
+
+      if (['node', 'point'].indexOf(featureType) >= 0) {
         // Coordinates are (x, y) and Leaflet expects (y, x). reverse() modifies
         // an array inplace, so create a copy as not to mutate the source data,
         // then reverse the coordinates before passing to the Marker method.
@@ -25,7 +34,7 @@ var UnitMaps = {
         features.addLayer(
           L.marker(leafletCoordinates).bindPopup(location.properties.name)
         )
-      } else if (['boundary', 'way', 'relation'].indexOf(location.properties.feature_type) >= 0) {
+      } else if (['boundary', 'way', 'relation', 'poly', 'line'].indexOf(featureType) >= 0) {
         features.addLayer(
           L.geoJson(location, {onEachFeature: UnitMaps.onEachFeature})
         ).setStyle(
