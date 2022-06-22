@@ -10,6 +10,8 @@
 *_import
 *-errors.csv
 sfm_pc/management/commands/data/
+data/
+sfm_download.zip
 
 /staticfiles
 bin/
