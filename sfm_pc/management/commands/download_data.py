@@ -121,6 +121,37 @@ class Command(BaseCommand):
             output_directory=country_directory
         )
 
+    def _create_sources_file(self, sheets_service, document_id, output_directory):
+        target = f'{output_directory}/sources.csv'
+        
+        # No need to keep downloading the same data
+        if os.path.exists(target):
+            return
+        
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+    
+        workbook_metadata = self._get_workbook_metadata(
+            sheets_service,
+            document_id
+        )
+        
+        local_workbook = self._download_workbook(
+            sheets_service,
+            workbook_metadata,
+            document_id
+        )
+        
+        for key, sheet in local_workbook.items():
+            if key == 'sources':
+                with open(target, 'w') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerows(sheet)
+                    
+                    self.stdout.write(
+                        self.style.SUCCESS(f'Saved sheets file to {target}')
+                    )
+
     def _create_entity_files(self, sheets_service, document_id, output_directory):
         workbook_metadata = self._get_workbook_metadata(
             sheets_service,
@@ -189,34 +220,3 @@ class Command(BaseCommand):
         )
 
         return credentials
-
-    def _create_sources_file(self, sheets_service, document_id, output_directory):
-        target = f'{output_directory}/sources.csv'
-        
-        # No need to keep downloading the same data
-        if os.path.exists(target):
-            return
-        
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-    
-        workbook_metadata = self._get_workbook_metadata(
-            sheets_service,
-            document_id
-        )
-        
-        local_workbook = self._download_workbook(
-            sheets_service,
-            workbook_metadata,
-            document_id
-        )
-        
-        for key, sheet in local_workbook.items():
-            if key == 'sources':
-                with open(target, 'w') as csvfile:
-                    writer = csv.writer(csvfile)
-                    writer.writerows(sheet)
-                    
-                    self.stdout.write(
-                        self.style.SUCCESS(f'Saved sheets file to {target}')
-                    )
