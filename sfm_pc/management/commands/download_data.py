@@ -13,7 +13,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
-    help = 'Download entity spreadsheet by Google sheet ID'
+    help = 'Download entity, source, and location data from Google'
 
     def add_arguments(self, parser):
         parser.add_argument(
