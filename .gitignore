@@ -10,7 +10,7 @@
 *_import
 *-errors.csv
 sfm_pc/management/commands/data/
-data/
+country_data/
 sfm_download.zip
 
 /staticfiles
