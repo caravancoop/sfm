@@ -19,7 +19,6 @@ class Command(BaseCommand):
         parser.add_argument(
             '--sources_doc_id',
             dest='sources_doc_id',
-            default='1o-K13Od1pGc7FOQ-JS8LJW9Angk3_UPZHTmOU7hD3wU',
             help='Import data from specified Google Sheets Document'
         )
         
@@ -32,7 +31,6 @@ class Command(BaseCommand):
         parser.add_argument(
             '--entity_doc_id',
             dest='entity_doc_id',
-            default='1o-K13Od1pGc7FOQ-JS8LJW9Angk3_UPZHTmOU7hD3wU',
             help='Import data from specified Google Sheets Document'
         )
         
@@ -49,16 +47,68 @@ class Command(BaseCommand):
         country_code = kwargs['country_code'].rstrip()
         
         parent_directory = f'data'
-        country_directory = f'{parent_directory}/countries/{country_code}'
+        country_subdirectory = f'{parent_directory}/countries/{country_code}'
 
+        # Create entity files
         self._create_csv_files(
-            entity_doc_id=entity_doc_id,
-            sources_doc_id=sources_doc_id,
-            country_directory=country_directory,
-            sources_directory=parent_directory
+            doc_id=entity_doc_id,
+            output_directory=country_subdirectory,
+            key_func=lambda key: key == True
+        )
+        
+        # Create sources file
+        self._create_csv_files(
+            doc_id=sources_doc_id,
+            output_directory=parent_directory,
+            key_func=lambda key: key == 'sources'
         )
 
-        self._create_location_file(location_doc_id, country_directory)
+        self._create_location_file(
+            location_doc_id=location_doc_id,
+            output_directory=country_subdirectory
+        )
+    
+    def _create_csv_files(
+            self,
+            doc_id,
+            output_directory,
+            key_func
+        ):
+        
+        sheets_service = self._build_google_service(
+            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly'],
+            service='sheets',
+            version='v4'
+        )
+    
+        workbook_metadata = self._get_workbook_metadata(
+            sheets_service,
+            doc_id
+        )
+        
+        local_workbook = self._download_workbook(
+            sheets_service,
+            workbook_metadata,
+            doc_id
+        )
+
+        self._create_directory(output_directory)
+
+        for key, sheet in local_workbook.items():
+            if key_func(key):
+                target = f'{output_directory}/{key}.csv'
+
+                # No need to keep downloading the same data
+                if os.path.exists(target):
+                    return
+
+                with open(target, 'w') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerows(sheet)
+                    
+                    self.stdout.write(
+                        self.style.SUCCESS(f'Saved sheets file to {target}')
+                    )
     
     def _create_location_file(self, location_doc_id, output_directory):
         downloader, buffer = self._build_location_downloader(location_doc_id)
@@ -74,6 +124,8 @@ class Command(BaseCommand):
 
         buffer.seek(0)
         
+        self._create_directory(output_directory)
+
         target = f'{output_directory}/locations.geojson'
 
         with open(target, 'wb') as f:
@@ -94,89 +146,6 @@ class Command(BaseCommand):
         
         location_buffer = io.BytesIO()
         return MediaIoBaseDownload(location_buffer, request), location_buffer
-    
-    def _create_csv_files(
-            self,
-            entity_doc_id,
-            sources_doc_id,
-            country_directory,
-            sources_directory
-        ):
-        
-        sheets_service = self._build_google_service(
-            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly'],
-            service='sheets',
-            version='v4'
-        )
-        
-        self._create_sources_file(
-            sheets_service=sheets_service,
-            document_id=sources_doc_id,
-            output_directory=sources_directory
-        )
-        
-        self._create_entity_files(
-            sheets_service=sheets_service,
-            document_id=entity_doc_id,
-            output_directory=country_directory
-        )
-
-    def _create_sources_file(self, sheets_service, document_id, output_directory):
-        target = f'{output_directory}/sources.csv'
-        
-        # No need to keep downloading the same data
-        if os.path.exists(target):
-            return
-        
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-    
-        workbook_metadata = self._get_workbook_metadata(
-            sheets_service,
-            document_id
-        )
-        
-        local_workbook = self._download_workbook(
-            sheets_service,
-            workbook_metadata,
-            document_id
-        )
-        
-        for key, sheet in local_workbook.items():
-            if key == 'sources':
-                with open(target, 'w') as csvfile:
-                    writer = csv.writer(csvfile)
-                    writer.writerows(sheet)
-                    
-                    self.stdout.write(
-                        self.style.SUCCESS(f'Saved sheets file to {target}')
-                    )
-
-    def _create_entity_files(self, sheets_service, document_id, output_directory):
-        workbook_metadata = self._get_workbook_metadata(
-            sheets_service,
-            document_id
-        )
-        
-        local_workbook = self._download_workbook(
-            sheets_service,
-            workbook_metadata,
-            document_id
-        )
-
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-
-        for key, sheet in local_workbook.items():
-            target = f'{output_directory}/{key}.csv'
-
-            with open(target, 'w') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerows(sheet)
-                
-                self.stdout.write(
-                    self.style.SUCCESS(f'Saved sheets file to {target}')
-                )
 
     def _download_workbook(self, sheets_service, workbook_metadata, document_id):
         self.stdout.write(f'Downloading {document_id} sheets workbook...')
@@ -220,3 +189,7 @@ class Command(BaseCommand):
         )
 
         return credentials
+    
+    def _create_directory(self, directory):
+        if not os.path.exists(directory):
+            os.makedirs(directory)
