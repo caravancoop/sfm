@@ -13,7 +13,7 @@
 sfm_download.zip : data
 	zip -r $@ $<
 
-data : import_docket.csv
+country_data : import_docket.csv
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
 		echo "Importing data for country code $$3" && (\
@@ -21,7 +21,8 @@ data : import_docket.csv
 				--sources_doc_id $$0 \
 				--location_doc_id $$1 \
 				--entity_doc_id $$2 \
-				--country_code $$3 || \
+				--country_code $$3 \
+				--parent_directory $@ || \
 			exit 255 \
 		)'
 
