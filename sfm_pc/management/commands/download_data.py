@@ -149,8 +149,9 @@ class Command(BaseCommand):
 
         request = drive_service.files().get_media(fileId=location_doc_id)
         
-        location_buffer = io.BytesIO()
-        return MediaIoBaseDownload(location_buffer, request), location_buffer
+        buffer = io.BytesIO()
+
+        return MediaIoBaseDownload(buffer, request), buffer
 
     def _download_workbook(self, sheets_service, workbook_metadata, document_id):
         self.stdout.write(f'Downloading {document_id} sheets workbook...')
