@@ -39,23 +39,21 @@ class Command(BaseCommand):
             dest='country_code',
             help='Country code for the import'
         )
+        
+        parser.add_argument(
+            '--parent_directory',
+            dest='parent_directory'
+        )
 
     def handle(self, *args, **kwargs):
         entity_doc_id = kwargs['entity_doc_id']
         location_doc_id = kwargs['location_doc_id']
         sources_doc_id = kwargs['sources_doc_id']
         country_code = kwargs['country_code'].rstrip()
-        
-        parent_directory = f'data'
+        parent_directory = kwargs['parent_directory']
+
         country_subdirectory = f'{parent_directory}/countries/{country_code}'
 
-        # Create entity files
-        self._create_csv_files(
-            doc_id=entity_doc_id,
-            output_directory=country_subdirectory,
-            key_func=lambda key: key == True
-        )
-        
         # Create sources file
         self._create_csv_files(
             doc_id=sources_doc_id,
@@ -63,11 +61,18 @@ class Command(BaseCommand):
             key_func=lambda key: key == 'sources'
         )
 
+        # Create entity files
+        self._create_csv_files(
+            doc_id=entity_doc_id,
+            output_directory=country_subdirectory,
+            key_func=lambda key: key
+        )
+
         self._create_location_file(
             location_doc_id=location_doc_id,
             output_directory=country_subdirectory
         )
-    
+
     def _create_csv_files(
             self,
             doc_id,
