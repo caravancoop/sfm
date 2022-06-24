@@ -73,12 +73,7 @@ class Command(BaseCommand):
             output_directory=country_subdirectory
         )
 
-    def _create_csv_files(
-            self,
-            doc_id,
-            output_directory,
-            key_func
-        ):
+    def _create_csv_files(self, doc_id, output_directory, key_func):
         
         sheets_service = self._build_google_service(
             scopes=['https://www.googleapis.com/auth/spreadsheets.readonly'],
