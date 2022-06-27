@@ -275,7 +275,6 @@ class Command(BaseCommand):
                     self.log_error(msg, sheet=sheet, current_row=row)
 
     def create_locations(self, country_directory):
-        # this_dir = os.path.abspath(os.path.dirname(__file__))
         location_file = os.path.join(country_directory, 'locations.geojson')
         call_command('import_locations', location_file=location_file)
 
@@ -289,8 +288,8 @@ class Command(BaseCommand):
         entities = (
             ('organization', 'units', 'orgs'),
             ('person', 'persons', 'persons'),
-            ('event', 'incidents', 'events'),
-            ('person_extra', 'persons_extra', 'persons_extra')
+            ('person_extra', 'persons_extra', 'persons_extra'),
+            ('event', 'incidents', 'events')
         )
         for entity_type, filename, title in entities:
             path = os.path.join(folder, filename + '.csv')
