@@ -12,7 +12,7 @@ from location.models import Location
 def location_fixture_data():
     fixture_file = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
-        'fixtures',
+        'fixtures/importer',
         'locations.geojson',
     )
 

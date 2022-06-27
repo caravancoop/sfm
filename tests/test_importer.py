@@ -26,7 +26,13 @@ def data_folder():
 def data_import(location_data_import, data_folder):
     """Perform a test data import."""
     output = io.StringIO()
-    call_command('import_google_doc', country_code='test', folder=data_folder, stdout=output)
+    call_command(
+        'load_country_data',
+        country_code='test',
+        country_directory=data_folder,
+        sources_path=f'{data_folder}/sources.csv',
+        stdout=output
+    )
     return output
 
 
@@ -226,7 +232,13 @@ def test_source_dates_and_timestamps(data_import, data_folder):
 
             # Re-run the import
             data_import = io.StringIO()
-            call_command('import_google_doc', country_code='test', folder=data_folder, stdout=data_import)
+            call_command(
+                'load_country_data',
+                country_code='test',
+                country_directory=data_folder,
+                sources_path=f'{data_folder}/sources.csv',
+                stdout=data_import
+            )
 
         undated_sources = Source.objects.filter(published_date='', published_timestamp__isnull=True)\
                                         .values_list('accesspoint__uuid', flat=True)

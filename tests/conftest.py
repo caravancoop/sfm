@@ -794,7 +794,7 @@ def location_data_import(transactional_db):
     output = io.StringIO()
     call_command(
         'import_locations',
-        location_file='tests/fixtures/locations.geojson',
+        location_file='tests/fixtures/importer/locations.geojson',
         stdout=output
     )
     return output
