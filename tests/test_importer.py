@@ -27,7 +27,7 @@ def data_import(location_data_import, data_folder):
     """Perform a test data import."""
     output = io.StringIO()
     call_command(
-        'load_country_data',
+        'import_google_doc',
         country_code='test',
         country_directory=data_folder,
         sources_path=f'{data_folder}/sources.csv',
@@ -233,7 +233,7 @@ def test_source_dates_and_timestamps(data_import, data_folder):
             # Re-run the import
             data_import = io.StringIO()
             call_command(
-                'load_country_data',
+                'import_google_doc',
                 country_code='test',
                 country_directory=data_folder,
                 sources_path=f'{data_folder}/sources.csv',

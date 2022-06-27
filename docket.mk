@@ -2,7 +2,7 @@
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
 		echo "Loading data for country code $$3" && (\
-			python -u manage.py load_country_data \
+			python -u manage.py import_google_doc \
 				--country_code $$3 \
 				--country_directory country_data/countries/$$3 \
 				--sources_path country_data/sources.csv || \
@@ -16,7 +16,7 @@ sfm_pc/management/commands/country_data : import_docket.csv
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
 		echo "Importing data for country code $$3" && (\
-			python -u manage.py import_google_doc \
+			python -u manage.py download_country_data \
 				--sources_doc_id $$0 \
 				--location_doc_id $$1 \
 				--entity_doc_id $$2 \
