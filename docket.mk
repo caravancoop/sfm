@@ -12,7 +12,6 @@
 sfm_download.zip : sfm_pc/management/commands/country_data
 	zip -r $@ $<
 
-.INTERMEDIATE :
 sfm_pc/management/commands/country_data : import_docket.csv
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
