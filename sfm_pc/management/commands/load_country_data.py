@@ -130,7 +130,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--entity-types',
             dest='entity_types',
-            default='organization,person,event',
+            default='organization,person,person_extra,event',
             help='Comma separated list of entity types to import'
         )
         parser.add_argument(
@@ -275,8 +275,8 @@ class Command(BaseCommand):
                     self.log_error(msg, sheet=sheet, current_row=row)
 
     def create_locations(self, country_directory):
-        this_dir = os.path.abspath(os.path.dirname(__file__))
-        location_file = os.path.join(this_dir, country_directory, 'locations.geojson')
+        # this_dir = os.path.abspath(os.path.dirname(__file__))
+        location_file = os.path.join(country_directory, 'locations.geojson')
         call_command('import_locations', location_file=location_file)
 
     def get_sheets_from_folder(self, folder, sources_path):
@@ -290,6 +290,7 @@ class Command(BaseCommand):
             ('organization', 'units', 'orgs'),
             ('person', 'persons', 'persons'),
             ('event', 'incidents', 'events'),
+            ('person_extra', 'persons_extra', 'persons_extra')
         )
         for entity_type, filename, title in entities:
             path = os.path.join(folder, filename + '.csv')
@@ -307,8 +308,9 @@ class Command(BaseCommand):
 
     def get_records_from_csv(self, path):
         if not os.path.isfile(path):
+            if 'persons_extra' in path:
+                return []
             raise OSError('Required file {path} not found.'.format(path=path))
-
         with open(path) as fobj:
             reader = csv.reader(fobj)
             # We could use csv.DictReader directly here, but instead use
