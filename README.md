@@ -73,16 +73,16 @@ directly –
     # import geojson file from arbitrary path
     docker-compose run --rm app .manage.py import_locations --location_file path/to/your/file
 
-– or, you can pass an optional `--location_file_id` argument to `import_google_docs`
+– or, you can pass an optional `--location_file_id` argument to `download_country_data`
 to retrieve the specified file from Google Drive and import it before importing
 entity data. (Read on for instructions!)
 
 ##### Entity data
 
-The `import_google_docs` expects to find credentials for the Google
+The `download_country_data` expects to find credentials for the Google
 Sheets and Google Drive APIs in `sfm_pc/management/commands/credentials.json`.
 If you are on the keyring for this project, run the following Blackbox command to
-decrypt and create the expected credentials file, before you run `import_google_docs`.
+decrypt and create the expected credentials file, before you run `download_country_data`.
 (N.b., the data import service account lives under the `SFM - Data Import` project
 in the Google API Console.)
 
@@ -93,15 +93,15 @@ If you are not on the keyring, enable the Google Sheets and Google Drive APIs in
 create a service account to access them. [This blog post](https://www.twilio.com/blog/2017/02/an-easy-way-to-read-and-write-to-a-google-spreadsheet-in-python.html)
 provides a helpful walkthrough! Be sure to save your credentials in
 `sfm_pc/management/commands/credentials.json` and give your service account
-access to the correct files before you run `import_google_docs`.
+access to the correct files before you run `download_country_data`.
 
 Finally, import entity data from Google Drive:
 
     # Import entity data from default files
-    docker-compose run --rm app make import_google_docs
+    docker-compose run --rm app make import_country_data
 
     # Import entity data from specified files
-    docker-compose run --rm app python manage.py import_google_doc --doc_id ${SOME_ID} --source_doc_id ${SOME_ID} --location_doc_id ${SOME_ID}
+    docker-compose run --rm app python manage.py download_country_data --entity_doc_id ${SOME_ID} --sources_doc_id ${SOME_ID} --location_doc_id ${SOME_ID} --country_code ${SOME_CODE} --parent_directory ${DIRECTORY}
 
 See [Using the Google Drive import script](#using-the-google-drive-import-script)
 for more detailed information about these management commands.
@@ -217,16 +217,8 @@ Or run a single test, like so:
 docker-compose -f docker-compose.yml -f tests/docker-compose.yml run --rm app pytest tests/test_person.py::test_no_existing_sources
 ```
 
-## Using the Google Drive import script
-
-The script to import data from Google Drive exists as a management command
-within the `sfm_pc` directory of this project predictably called
-`import_google_doc`. As of February 2021, spreadsheets to be imported must follow
-this format: https://docs.google.com/spreadsheets/d/1-U_pVNDWFIlG8jLZLVujmV_FZ0H4IsbtfCeRiM8HeNQ/edit?usp=sharing
-
-### Import data from Google Drive
-
-The data that powers WWIC is imported from three key documents:
+## Importing the data
+The data that powers WWIC is imported from three key Google Drive documents:
 
 1. A "sources" spreadsheet applicable to the entire import
 2. A "locations" GeoJSON file containing all implicated OSM data for entities
@@ -238,16 +230,54 @@ An import involves running the import command against a set of source, location,
 and data documents that represent either data for a new country, or updated data
 for an existing country.
 
+The import has two pieces:
+1. The script to download data from Google Drive exists as a management command
+within the `sfm_pc` directory of this project called
+`download_country_data`. This command downloads the data from Google and saves it locally. As of February 2021, spreadsheets to be imported must follow
+this format: https://docs.google.com/spreadsheets/d/1-U_pVNDWFIlG8jLZLVujmV_FZ0H4IsbtfCeRiM8HeNQ/edit?usp=sharing
+2. The `import_country_data` management command uses the local files to import the data to the database.
+
 The following sections explain our process for running these imports locally
 and on live instances of WWIC.
 
-#### Local import
+### Local download and import
 
 When performing an import of new data, the first step should always be to
-test the import in your development environment using the `import_google_doc`
-management command.
+test the download in your development environment using the `download_country_data`
+management command:
 
-This management command relies upon a [Service
+```bash
+docker-compose run --rm app python manage.py download_country_data \
+    --sources_doc_id <some id> \
+    --location_doc_id <some id> \
+    --entity_doc_id <some id> \
+    --country_code <some code> \
+    --parent_directory <target directory>
+```
+
+Once you have the data downloaded, you can import the data by running the `import_country_data` management command:
+```bash
+docker-compose run --rm app python manage.py import_country_data \
+    --country_code <some id> \
+    --country_path <directory where the country files are stored> \
+    --sources_path <directory with sources file> \
+```
+
+Alternatively, you can run the Make recipes. The Makefile contains recipes to import all of the data on the docket, import the first country in the CSV, or import a particular country by its country code.
+
+```bash
+# Import everything on the docket
+docker-compose --env-file .env.import run --rm app make -e import_docket_import
+
+# Import the first country on the docket
+docker-compose --env-file .env.import run --rm app make -e next_import
+
+# Import a particular country or countries
+docker-compose --env-file .env.import run --rm app make -e ${COUNTRY_CODE}_cc_import [ ${COUNTRY_CODE}_cc_import ... ]
+```
+
+#### Import credentials
+The `download_country_data` management commands rely upon a [Service
 Account](https://cloud.google.com/iam/docs/understanding-service-accounts)
 having access to the spreadsheet. This service account is managed under the
 `SFM - Data Import` project in the Google API Console.
@@ -277,29 +307,7 @@ address bar:
 https://docs.google.com/spreadsheets/d/<doc id (very long hash looking thing)>/edit
 ```
 
-The Makefile contains recipes to import all of the data on the docket, import
-the first country in the CSV, or import a particular country by its country code.
-
-```bash
-# Import everything on the docket
-docker-compose --env-file .env.import run --rm app make -e import_docket_import
-
-# Import the first country on the docket
-docker-compose --env-file .env.import run --rm app make -e next_import
-
-# Import a particular country or countries
-docker-compose --env-file .env.import run --rm app make -e ${COUNTRY_CODE}_cc_import [ ${COUNTRY_CODE}_cc_import ... ]
-```
-
-Of course, you can also run the import commands directly:
-
-```bash
-docker-compose run --rm app python manage.py import_google_docs \
-    --source_doc_id <some id> \
-    --location_doc_id <some id> \
-    --doc_id <some id>
-```
-
+#### Import errors
 If the importer raises warnings during the import, it will log them to logfiles
 following the logfile pattern `${country_code}_${entity_type}_errors`. Once the
 import is complete, take a look at your repo to check to see if the importer
@@ -317,7 +325,7 @@ docker-compose run --rm app ./manage.py rebuild_index --noinput
 docker-compose run --rm app ./manage.py update_composition_index --recreate
 ```
 
-#### Importing data to a live site
+### Importing data to a live site
 
 Once you've tested an import of a new dataset locally, you're ready to run the import
 on a live instance.
@@ -342,7 +350,7 @@ python manage.py rebuild_index --noinput
 python manage.py update_composition_index --recreate
 ```
 
-#### Importing all data without disrupting servers
+### Importing all data without disrupting servers
 
 If need to fully rerun the entire WWIC import for all countries without
 disrupting a live instance, the Makefile includes a recipe for doing just that.
