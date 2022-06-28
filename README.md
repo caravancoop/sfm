@@ -231,9 +231,7 @@ and data documents that represent either data for a new country, or updated data
 for an existing country.
 
 The import has two pieces:
-1. The script to download data from Google Drive exists as a management command
-within the `sfm_pc` directory of this project called
-`download_country_data`. This command downloads the data from Google and saves it locally. As of February 2021, spreadsheets to be imported must follow
+1. The `download_country_data` management command downloads data from Google Drive. It exists within the `sfm_pc` directory of this project. The command downloads the data from Google and saves it locally. As of February 2021, spreadsheets to be imported must follow
 this format: https://docs.google.com/spreadsheets/d/1-U_pVNDWFIlG8jLZLVujmV_FZ0H4IsbtfCeRiM8HeNQ/edit?usp=sharing
 2. The `import_country_data` management command uses the local files to import the data to the database.
 
