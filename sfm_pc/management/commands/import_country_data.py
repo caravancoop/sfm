@@ -4,14 +4,6 @@ import itertools
 from datetime import datetime
 import csv
 
-import httplib2
-
-from oauth2client.service_account import ServiceAccountCredentials
-from apiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload
-
-from tqdm import tqdm
-
 from django.apps import apps
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -121,22 +113,19 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--doc_id',
-            dest='doc_id',
-            default='1o-K13Od1pGc7FOQ-JS8LJW9Angk3_UPZHTmOU7hD3wU',
-            help='Import data from specified Google Drive Document'
+            '--country_code',
+            dest='country_code',
+            help='Country code for the import'
         )
         parser.add_argument(
-            '--source_doc_id',
-            dest='source_doc_id',
-            default='15lChqP4cKsjk8uUbUTaUA5gOUM09-t9YMIODORHw--8',
-            help='Import source data from specified Google Drive Document'
+            '--country_path',
+            dest='country_path',
+            help='Path to a folder containing data'
         )
         parser.add_argument(
-            '--location_doc_id',
-            dest='location_doc_id',
-            default=None,
-            help='Import location data from specified Google Drive file'
+            '--sources_path',
+            dest='sources_path',
+            help='Path to the sources.csv file'
         )
         parser.add_argument(
             '--entity-types',
@@ -157,30 +146,10 @@ class Command(BaseCommand):
             default=1,
             help='First row to begin parsing (for debugging)'
         )
-        parser.add_argument(
-            '--folder',
-            dest='folder',
-            help='Path to a folder containing data (for testing)'
-        )
-        parser.add_argument(
-            '--country_code',
-            dest='country_code',
-            help='Country code for the import.'
-        )
 
     def sourcesList(self, obj, attribute):
         sources = [s for s in getattr(obj, attribute).get_sources()]
         return list(set(s for s in sources if s))
-
-    def get_credentials(self, *, scopes, credentials_file='credentials.json'):
-        '''make sure relevant accounts have access to the sheets at console.developers.google.com'''
-
-        this_dir = os.path.dirname(__file__)
-        secrets_path = os.path.join(this_dir, credentials_file)
-
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(secrets_path,
-                                                                       scopes)
-        return credentials
 
     def disconnectSignals(self):
         from complex_fields.base_models import object_ref_saved
@@ -226,16 +195,12 @@ class Command(BaseCommand):
         # Disconnect post save signals
         self.disconnectSignals()
 
-        if options.get('location_doc_id'):
-            self.get_locations_from_drive(options['location_doc_id'])
-            self.create_locations()
+        country_path = options['country_path'].strip()
 
-        if options.get('folder'):
-            self.stdout.write('Loading data from folder {}...'.format(options['folder']))
-            all_sheets = self.get_sheets_from_folder(options['folder'])
-        else:
-            self.stdout.write('Loading data from Google Sheets...')
-            all_sheets = self.get_sheets_from_doc(options['doc_id'], options['source_doc_id'])
+        self.create_locations(country_path)
+        self.stdout.write('Loading data from folder {}...'.format(country_path))
+
+        all_sheets = self.get_sheets_from_folder(country_path, options['sources_path'])
 
         self.country_code = options.get('country_code', 'unnamed').rstrip()
 
@@ -275,8 +240,7 @@ class Command(BaseCommand):
             # Log multiple UUIDs for the same name
             self.log_conflicts(entity_type, entity_map, transpose=True)
 
-        data_src = options['folder'] if options.get('folder') else options['doc_id']
-        self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(data_src)))
+        self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(options['country_path'])))
 
         # Clear cached detail and command chart views
         cache.clear()
@@ -312,105 +276,11 @@ class Command(BaseCommand):
 
                     self.log_error(msg, sheet=sheet, current_row=row)
 
-    def create_locations(self):
-        this_dir = os.path.abspath(os.path.dirname(__file__))
-        location_file = os.path.join(this_dir, 'data', 'locations.geojson')
+    def create_locations(self, country_path):
+        location_file = os.path.join(country_path, 'locations.geojson')
         call_command('import_locations', location_file=location_file)
 
-    def get_locations_from_drive(self, location_doc_id):
-        credentials = self.get_credentials(
-            scopes=['https://www.googleapis.com/auth/drive.readonly']
-        )
-        service = build('drive', 'v3', credentials=credentials)
-        request = service.files().get_media(fileId=location_doc_id)
-
-        location_buffer = io.BytesIO()
-        downloader = MediaIoBaseDownload(location_buffer, request)
-        done = False
-
-        self.stdout.write('Downloading locations file...')
-
-        with tqdm(total=100) as progress_bar:
-            while done is False:
-                status, done = downloader.next_chunk()
-                progress_bar.update(int(status.progress() * 100) - progress_bar.n)
-
-        location_buffer.seek(0)
-
-        this_dir = os.path.abspath(os.path.dirname(__file__))
-        location_file = os.path.join(this_dir, 'data', 'locations.geojson')
-
-        with open(location_file, 'wb') as f:
-            f.write(location_buffer.getbuffer())
-
-        self.stdout.write(
-            self.style.SUCCESS('Downloaded locations file to {}'.format(location_file))
-        )
-
-    def get_sheets_from_doc(self, doc_id, source_doc_id):
-        """
-        Load data from Google Sheets. Required params include a Google Doc ID
-        for top-level entities and a Doc ID for sources.
-        """
-        credentials = self.get_credentials(
-            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly']
-        )
-        http = credentials.authorize(httplib2.Http())
-        service = build('sheets', 'v4', http=http)
-
-        result = service.spreadsheets().get(
-            spreadsheetId=doc_id,
-            includeGridData=False
-        ).execute()
-        sheets = result['sheets']
-        sheet_mapping = {}
-
-        for sheet in sheets:
-            title = sheet['properties']['title']
-            sheet_data = service.spreadsheets().values().get(
-                spreadsheetId=doc_id,
-                range=title
-            ).execute()
-            sheet_mapping[title] = sheet_data['values']
-
-        org_sheets = {}
-        person_sheets = {}
-        person_extra_sheets = {}
-        event_sheets = {}
-
-        for title, data in sheet_mapping.items():
-            if 'scratch' in title.lower() or 'analysis' in title.lower() or title.lower().startswith('qa'):
-                continue
-
-            elif title.lower().endswith('units'):
-                org_sheets[title] = self.format_dict_reader(data)
-
-            elif title.lower().endswith('persons_extra'):
-                person_extra_sheets[title] = self.format_dict_reader(data)
-
-            elif title.lower().endswith('persons'):
-                person_sheets[title] = self.format_dict_reader(data)
-
-            elif title.lower().endswith('incidents'):
-                event_sheets[title] = self.format_dict_reader(data)
-
-        # Get data about sources
-        source_data = service.spreadsheets().values().get(
-            spreadsheetId=source_doc_id,
-            range='sources'
-        ).execute()
-        # Convert the raw response to a DictReader
-        source_sheet = {'values': self.format_dict_reader(source_data['values'])}
-
-        return {
-            'organization': org_sheets,
-            'person': person_sheets,
-            'person_extra': person_extra_sheets,
-            'event': event_sheets,
-            'source': source_sheet,
-        }
-
-    def get_sheets_from_folder(self, folder):
+    def get_sheets_from_folder(self, folder, sources_path):
         """
         Load data from a folder on disk. Data must be stored as CSV files with the
         name of the entities represented therein (e.g. 'person.csv') and must be
@@ -421,24 +291,35 @@ class Command(BaseCommand):
             ('organization', 'units', 'orgs'),
             ('person', 'persons', 'persons'),
             ('person_extra', 'persons_extra', 'persons_extra'),
-            ('event', 'incidents', 'events'),
-            ('source', 'sources', 'values')
+            ('event', 'incidents', 'events')
         )
         for entity_type, filename, title in entities:
             path = os.path.join(folder, filename + '.csv')
-            if not os.path.isfile(path):
-                raise OSError('Required file {path} not found.'.format(path=path))
 
-            with open(path) as fobj:
-                reader = csv.reader(fobj)
-                # We could use csv.DictReader directly here, but instead use
-                # the format_dict_reader convenience method to test it
-                records = self.format_dict_reader(list(reader))
+            records = self.get_records_from_csv(path)
 
             # Match the Google Sheets API response format
             all_sheets[entity_type] = {title: records}
+        
+        sources = self.get_records_from_csv(sources_path)
+
+        all_sheets['source'] = {'values': sources}
 
         return all_sheets
+
+    def get_records_from_csv(self, path):
+        if not os.path.isfile(path):
+            # Don't require a persons_extra file if it doesn't exist.
+            if 'persons_extra' in path:
+                return []
+            raise OSError('Required file {path} not found.'.format(path=path))
+        with open(path) as fobj:
+            reader = csv.reader(fobj)
+            # We could use csv.DictReader directly here, but instead use
+            # the format_dict_reader convenience method to test it
+            records = self.format_dict_reader(list(reader))
+        
+        return records
 
     def format_dict_reader(self, lst):
         """
