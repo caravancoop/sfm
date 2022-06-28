@@ -2,9 +2,9 @@
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
 		echo "Loading data for country code $$3" && (\
-			python -u manage.py import_google_doc \
+			python -u manage.py import_country_data \
 				--country_code $$3 \
-				--country_directory country_data/countries/$$3 \
+				--country_path country_data/countries/$$3 \
 				--sources_path country_data/sources.csv || \
 			exit 255 \
 		)'
