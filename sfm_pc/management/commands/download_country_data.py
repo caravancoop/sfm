@@ -53,9 +53,16 @@ class Command(BaseCommand):
         parent_directory = kwargs['parent_directory']
 
         country_subdirectory = f'{parent_directory}/countries/{country_code}'
+        
+        sheets_service = self._build_google_service(
+            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly'],
+            service='sheets',
+            version='v4'
+        )
 
         # Create sources file
         self._create_csv_files(
+            sheets_service=sheets_service,
             doc_id=sources_doc_id,
             output_directory=parent_directory,
             key_func=lambda key: key == 'sources'
@@ -63,6 +70,7 @@ class Command(BaseCommand):
 
         # Create entity files
         self._create_csv_files(
+            sheets_service=sheets_service,
             doc_id=entity_doc_id,
             output_directory=country_subdirectory,
             key_func=lambda key: key
@@ -73,14 +81,7 @@ class Command(BaseCommand):
             output_directory=country_subdirectory
         )
 
-    def _create_csv_files(self, doc_id, output_directory, key_func):
-        
-        sheets_service = self._build_google_service(
-            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly'],
-            service='sheets',
-            version='v4'
-        )
-    
+    def _create_csv_files(self, sheets_service, doc_id, output_directory, key_func):
         workbook_metadata = self._get_workbook_metadata(
             sheets_service,
             doc_id

@@ -118,9 +118,9 @@ class Command(BaseCommand):
             help='Country code for the import'
         )
         parser.add_argument(
-            '--country_directory',
-            dest='country_directory',
-            help='Path to a folder containing data (for testing)'
+            '--country_path',
+            dest='country_path',
+            help='Path to a folder containing data'
         )
         parser.add_argument(
             '--sources_path',
@@ -195,10 +195,12 @@ class Command(BaseCommand):
         # Disconnect post save signals
         self.disconnectSignals()
 
-        if (country_directory := options.get('country_directory').strip()):
-            self.create_locations(country_directory)
-            self.stdout.write('Loading data from folder {}...'.format(country_directory))
-            all_sheets = self.get_sheets_from_folder(country_directory, options['sources_path'])
+        country_path = options['country_path'].strip()
+
+        self.create_locations(country_path)
+        self.stdout.write('Loading data from folder {}...'.format(country_path))
+
+        all_sheets = self.get_sheets_from_folder(country_path, options['sources_path'])
 
         self.country_code = options.get('country_code', 'unnamed').rstrip()
 
@@ -238,7 +240,7 @@ class Command(BaseCommand):
             # Log multiple UUIDs for the same name
             self.log_conflicts(entity_type, entity_map, transpose=True)
 
-        self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(options['country_directory'])))
+        self.stdout.write(self.style.SUCCESS('Successfully imported data from {}'.format(options['country_path'])))
 
         # Clear cached detail and command chart views
         cache.clear()
@@ -274,8 +276,8 @@ class Command(BaseCommand):
 
                     self.log_error(msg, sheet=sheet, current_row=row)
 
-    def create_locations(self, country_directory):
-        location_file = os.path.join(country_directory, 'locations.geojson')
+    def create_locations(self, country_path):
+        location_file = os.path.join(country_path, 'locations.geojson')
         call_command('import_locations', location_file=location_file)
 
     def get_sheets_from_folder(self, folder, sources_path):
@@ -307,6 +309,7 @@ class Command(BaseCommand):
 
     def get_records_from_csv(self, path):
         if not os.path.isfile(path):
+            # Don't require a persons_extra file if it doesn't exist.
             if 'persons_extra' in path:
                 return []
             raise OSError('Required file {path} not found.'.format(path=path))
