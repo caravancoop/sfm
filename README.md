@@ -4,7 +4,7 @@
 - [Development](#development)
 - [Translations](#translations)
 - [Tests](#tests)
-- [Using the Google Drive import script](#using-the-google-drive-import-script)
+- [Importing the data](#importing-the-data)
 
 **See also:**
 
@@ -97,14 +97,13 @@ access to the correct files before you run `download_country_data`.
 
 Finally, import entity data from Google Drive:
 
-    # Import entity data from default files
-    docker-compose run --rm app make import_docket_import
-
-    # Import entity data from specified files
+    # Download country data listed in fixtures/import_docket.csv
     docker-compose run --rm app python manage.py download_country_data --entity_doc_id ${SOME_ID} --sources_doc_id ${SOME_ID} --location_doc_id ${SOME_ID} --country_code ${SOME_CODE} --parent_directory ${DIRECTORY}
 
-See [Using the Google Drive import script](#using-the-google-drive-import-script)
-for more detailed information about these management commands.
+    # Import entity data from specified files
+    docker-compose run --rm app python -u manage.py import_country_data --country_code ${SOME_CODE} --country_path ${COUNTRY_PATH} --sources_path ${SOURCES_PATH}
+
+See [Importing the data](#importing-the-data) for more detailed information about these management commands.
 
 ### Set up the search index
 
