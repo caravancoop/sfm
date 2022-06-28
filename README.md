@@ -226,7 +226,7 @@ in a particular country
 3. A "data" spreadsheet containing organization, person, and event entity data
 for a particular country
 
-An import involves running the import command against a set of source, location,
+An import involves running a management command against a set of source, location,
 and data documents that represent either data for a new country, or updated data
 for an existing country.
 
