@@ -1,4 +1,4 @@
-%_import : %.csv sfm_pc/management/commands/country_data sfm_download.zip
+%_import : %.csv sfm_pc/management/commands/country_data
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
 		echo "Loading data for country code $$3" && (\
