@@ -98,7 +98,7 @@ access to the correct files before you run `download_country_data`.
 Finally, import entity data from Google Drive:
 
     # Import entity data from default files
-    docker-compose run --rm app make import_country_data
+    docker-compose run --rm app make import_docket_import
 
     # Import entity data from specified files
     docker-compose run --rm app python manage.py download_country_data --entity_doc_id ${SOME_ID} --sources_doc_id ${SOME_ID} --location_doc_id ${SOME_ID} --country_code ${SOME_CODE} --parent_directory ${DIRECTORY}
