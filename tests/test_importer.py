@@ -29,7 +29,7 @@ def data_import(location_data_import, data_folder):
     call_command(
         'import_google_doc',
         country_code='test',
-        country_directory=data_folder,
+        country_path=data_folder,
         sources_path=f'{data_folder}/sources.csv',
         stdout=output
     )
@@ -235,7 +235,7 @@ def test_source_dates_and_timestamps(data_import, data_folder):
             call_command(
                 'import_google_doc',
                 country_code='test',
-                country_directory=data_folder,
+                country_path=data_folder,
                 sources_path=f'{data_folder}/sources.csv',
                 stdout=data_import
             )
