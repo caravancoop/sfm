@@ -1,11 +1,13 @@
+PHONY: sfm_pc/management/commands/country_data
+
 %_import : %.csv sfm_pc/management/commands/country_data
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
 		echo "Loading data for country code $$3" && (\
 			python -u manage.py import_country_data \
 				--country_code $$3 \
-				--country_path country_data/countries/$$3 \
-				--sources_path country_data/sources.csv || \
+				--country_path $(word 2, $^)/countries/$$3 \
+				--sources_path $(word 2, $^)/sources.csv || \
 			exit 255 \
 		)'
 
