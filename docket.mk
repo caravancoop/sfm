@@ -1,3 +1,5 @@
+.PHONY : sfm_pc/management/commands/country_data
+
 %_import : %.csv sfm_pc/management/commands/country_data
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \

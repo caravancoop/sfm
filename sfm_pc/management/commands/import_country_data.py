@@ -277,7 +277,8 @@ class Command(BaseCommand):
                     self.log_error(msg, sheet=sheet, current_row=row)
 
     def create_locations(self, country_path):
-        location_file = os.path.join(country_path, 'locations.geojson')
+        this_dir = os.path.abspath(os.path.dirname(__file__))
+        location_file = os.path.join(this_dir, country_path, 'locations.geojson')
         call_command('import_locations', location_file=location_file)
 
     def get_sheets_from_folder(self, folder, sources_path):
