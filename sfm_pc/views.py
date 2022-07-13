@@ -4,6 +4,8 @@ import json
 from collections import namedtuple
 from datetime import datetime
 import csv
+import logging
+import os
 
 from django.conf import settings
 from django.views.generic.base import TemplateView
@@ -19,12 +21,14 @@ from django.template import loader
 from reversion.models import Revision
 from countries_plus.models import Country
 import pysolr
+import boto3
+from botocore.exceptions import ClientError
 
 from organization.models import Organization
 from source.models import Source, AccessPoint
-from sfm_pc.utils import get_org_hierarchy_by_id, Downloader, VersionsMixin, format_facets
-from sfm_pc.forms import DownloadForm, ChangeLogForm
-from sfm_pc.downloads import download_classes
+from sfm_pc.utils import get_org_hierarchy_by_id, VersionsMixin, format_facets
+from sfm_pc.forms import ChangeLogForm
+from .settings import DATA_ARCHIVE_BUCKET
 
 
 solr = pysolr.Solr(settings.SOLR_URL)
@@ -237,64 +241,37 @@ def command_chain(request, org_id='', when=None, parents=True):
 
     return HttpResponse(json.dumps(edgelist), content_type='application/json')
 
-@never_cache
-def download_zip(request):
-    '''
-    Pass the user a ZIP archive of CSVs for a search or record view.
-    '''
-    entity_type = request.GET.get('download_etype')
 
-    downloader = Downloader(entity_type)
-
-    if request.GET.get('entity_id'):
-        entity_ids = [request.GET.get('entity_id')]
-    else:
-        entities = solr.search('entity_type:{}'.format(entity_type))
-        entity_ids = list(str(entity['entity_id']) for entity in entities)
-
-    zipout = downloader.get_zip(entity_ids)
-
-    resp = HttpResponse(zipout.getvalue(), content_type='application/zip')
-
-    filedate = datetime.now().strftime('%Y-%m-%d')
-    filename = 'attachment; filename=wwic_download_{0}.zip'.format(filedate)
-
-    resp['Content-Disposition'] = filename
-
-    return resp
-
-
-class DownloadData(FormView):
+class DownloadData(TemplateView):
     template_name = 'download.html'
-    form_class = DownloadForm
-    success_url = reverse_lazy('download')
 
-    def form_valid(self, form):
+    def get_context_data(self):
+        context = super().get_context_data()
 
-        download_type = form.cleaned_data['download_type']
-        division_id = form.cleaned_data['division_id']
-        confidences = form.cleaned_data['confidences']
+        download_url = self.get_presigned_url()
 
-        download_class = download_classes[download_type]
-        iso = division_id[-2:]
-        filename = '{}_{}_{}.csv'.format(
-            download_type,
-            iso.upper(),
-            timezone.now().date().isoformat()
-        )
+        if download_url:
+            context['download_url'] = download_url
 
-        # Don't filter sources by division_id
-        if download_type == 'sources':
-            return download_class.render_to_csv_response(
-                filename,
-                confidences=confidences
+        return context
+
+    def get_presigned_url(self):
+        s3_client = boto3.client('s3')
+
+        try:
+            response = s3_client.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': DATA_ARCHIVE_BUCKET,
+                    'Key': 'wwic_download.zip'
+                },
+                ExpiresIn=3600
             )
-        else:
-            return download_class.render_to_csv_response(
-                filename,
-                division_id=division_id,
-                confidences=confidences
-            )
+
+            return response
+        except ClientError as e:
+            logging.error(e)
+            return None
 
 
 class Echo:

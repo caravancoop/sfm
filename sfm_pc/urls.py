@@ -14,7 +14,7 @@ from violation.views import ViolationSitemap
 
 from sfm_pc.views import (Dashboard, osm_autocomplete, division_autocomplete,
                           command_chain, DownloadData, DumpChangeLog,
-                          download_zip, About, about_redirect)
+                          About, about_redirect)
 
 
 class StaticViewSitemap(Sitemap):
@@ -65,9 +65,6 @@ urlpatterns += i18n_patterns(
 
     # Admin panel
     re_path(r'^admin/', admin.site.urls),
-
-    # Downloads
-    re_path(r'^download/', cache_page(60 * 60 * 24)(download_zip), name='download'),
 
     # Authentication
     re_path(r'^logout/$', logout_then_login, {'login_url': reverse_lazy('login')}, name="logout"),

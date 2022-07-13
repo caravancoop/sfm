@@ -7,9 +7,6 @@ from django.db import migrations
 import source.fields
 
 
-def make_or_refresh_materialized_views(apps, schema_editor):
-    call_command('make_materialized_views', views=['sources'])
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -34,9 +31,5 @@ class Migration(migrations.Migration):
             model_name='source',
             name='source_url',
             field=source.fields.URLField(blank=True, max_length=2500, null=True),
-        ),
-        migrations.RunPython(
-            make_or_refresh_materialized_views,
-            reverse_code=migrations.RunPython.noop
-        ),
+        )
     ]

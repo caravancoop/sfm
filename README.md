@@ -317,10 +317,14 @@ Once your import has completed with error, refresh the derived data views and
 confirm that nothing breaks:
 
 ```
-docker-compose run --rm app python manage.py make_materialized_views --recreate
 docker-compose run --rm app ./manage.py rebuild_index --noinput
 docker-compose run --rm app ./manage.py update_composition_index --recreate
 ```
+
+#### data_archive config
+If you need to work with the `data_archive` make recipe, `cp .env.example .env` and add your AWS access tokens. These tokens must have the correct IAM policy for accessing the `wwic-data-archive-staging` S3 bucket. This bucket is configured to work in local development and on the staging server. 
+
+To create an archive locally, run `docker-compose --env-file .env.s3 run --rm app make data_archive` so you can upload the zip archive to S3. Once this is done, the "download" link at the `localhost:8000/en/download/` should work.
 
 ### Importing data to a live site
 
@@ -342,7 +346,6 @@ make import_docket_import
 # Import a particular country or countries
 make -e ${COUNTRY_CODE}_cc_import [ ${COUNTRY_CODE}_cc_import ... ]
 
-python manage.py make_materialized_views --recreate
 python manage.py rebuild_index --noinput
 python manage.py update_composition_index --recreate
 ```

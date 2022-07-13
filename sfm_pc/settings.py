@@ -16,6 +16,7 @@ import dj_database_url
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.contrib.messages import constants as messages
+import json
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -360,3 +361,6 @@ HAYSTACK_SIGNAL_PROCESSOR = os.getenv(
     'DJANGO_HAYSTACK_SIGNAL_PROCESSOR',
     'haystack.signals.RealtimeSignalProcessor'
 )
+
+with open('configs/s3_config.json') as f:
+    DATA_ARCHIVE_BUCKET = json.loads(f.read())['data_archive_bucket']

@@ -11,7 +11,7 @@
 *-errors.csv
 sfm_pc/management/commands/data/
 country_data/
-sfm_download.zip
+wwic_download.zip
 
 /staticfiles
 bin/
@@ -22,6 +22,7 @@ settings_local.py
 settings_local.dev.py
 fixtures/*.geojson
 *credentials.json
+.env.s3
 
 /keyrings/live/pubring.gpg~
 /keyrings/live/pubring.kbx~

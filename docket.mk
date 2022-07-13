@@ -11,8 +11,14 @@ PHONY: sfm_pc/management/commands/country_data
 			exit 255 \
 		)'
 
-sfm_download.zip : sfm_pc/management/commands/country_data
-	zip -r $@ $<
+DATA_ARCHIVE_BUCKET := $(shell cat configs/s3_config.json | jq -r '.data_archive_bucket')
+
+data_archive : wwic_download.zip
+	aws s3 cp $< s3://$(DATA_ARCHIVE_BUCKET)/
+
+wwic_download.zip : sfm_pc/management/commands/country_data
+	# move into the target directory, zip to the root dir
+	cd $< && zip -r ../../../../$@ .
 
 sfm_pc/management/commands/country_data : import_docket.csv
 	perl -pe "s/,/ /g" $< | \

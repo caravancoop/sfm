@@ -42,6 +42,9 @@ jobs:
         sudo apt install -y gdal-bin
         python -m pip install --upgrade pip setuptools
         pip install -r requirements.txt
+    - name: Copy settings_local.py
+      run: |
+        cp sfm_pc/settings_local.example.py sfm_pc/settings_local.py
     - name: Test with pytest
       run: |
         pytest -sv
