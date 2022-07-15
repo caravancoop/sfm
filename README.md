@@ -322,7 +322,7 @@ docker-compose run --rm app ./manage.py update_composition_index --recreate
 ```
 
 #### data_archive config
-If you need to work with the `data_archive` make recipe, `cp .env.example .env` and add your AWS access tokens. These tokens must have the correct IAM policy for accessing the `wwic-data-archive-staging` S3 bucket. This bucket is configured to work in local development and on the staging server. 
+If you need to work with the `data_archive` make recipe, `cp .env. s3.example .env` and add your AWS access tokens. These tokens must be for an IAM user attached to the correct policy for accessing the `wwic-data-archive-staging` S3 bucket. This bucket is configured to work in local development and on the staging server.
 
 To create an archive locally, run `docker-compose --env-file .env.s3 run --rm app make data_archive` so you can upload the zip archive to S3. Once this is done, the "download" link at the `localhost:8000/en/download/` should work.
 
