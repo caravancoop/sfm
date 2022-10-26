@@ -19,20 +19,12 @@ data_archive : wwic_download.zip
 wwic_download.zip : filtered_data data/wwic_download/sources.csv
 	cd data && zip -r ../$@ .
 
-# COUNTRY_CODES=$(shell perl -pe "s/,/ /g" import_docket.csv | cut -d' ' -f4)
 COUNTRY_NAMES=$(shell perl -pe "s/,/ /g" import_docket.csv | cut -d' ' -f5)
 ENTITIES=units.csv persons.csv incidents.csv locations.csv locations.geojson
 
-# .PHONY : filtered_data
-# filtered_data: $(foreach country,$(COUNTRY_CODES),$(patsubst %,data/wwic_download/$(country)_%,$(ENTITIES))) data/countries
-# 	echo "filtered csvs for entities"
-
-# .PHONY : filtered_data
-# filtered_data: $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/$(country)/%,$(ENTITIES)))
-# 	echo "filtered csvs for entities"
-
-test_% : $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/$(country)_%,$(ENTITIES)))
-	echo $<
+.PHONY : filtered_data
+filtered_data: $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/$(country)_%,$(ENTITIES)))
+	echo "filtered csvs for entities"
 
 data/wwic_download/%_units.csv : sfm_pc/management/commands/country_data/countries/%/units.csv
 	$(call filter_entity_data,unit)
