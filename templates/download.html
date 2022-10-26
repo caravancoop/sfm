@@ -2,17 +2,15 @@
 {% load i18n %}
 {% block content %}
     <section class="container text-center download-container mt-5 mb-5">
-      <h1><strong>{% trans "Use Our Data." %}</strong></h1>
-      <h1><strong>{% trans "Hold Perpetrators Accountable." %}</strong></h1>
+      <h1><strong>{% trans "Download data from WhoWasInCommand.com" %}</strong></h1>
       <div class="row download-lead-container mt-2 mb-2">
-          <p class="lead download-lead-text">{% trans "Download the data that powers WhoWasInCommand to answer your own questions about the structure, behaviour and people in charge of security forces like the police and army." %}</p>
+          <p class="lead download-lead-text">{% trans "WhoWasInCommand.com is a free, public database of police, military and other security and defence forces. Click the "Download" button below to get a copy of all the data in the WhoWasInCommand.com database." %}</p>
       </div>
       <div class="row">
           <div class="col">
               {% if download_url %}
                 <div class="row download-lead mb-3">
-                    <a class="btn btn-info" href="{{ download_url }}">{% trans "Download our data (ZIP)" %}</a>
-                    <a class="btn btn-info" href="https://help.securityforcemonitor.org/en/latest/">{% trans "Read our documentation" %}</a>
+                    <a class="btn btn-info" href="{{ download_url }}">{% trans "Download (.zip  {{ file_size }} MB)" %}</a>
                 </div>
               {% else %}
                 <p>{% trans "An error occurred fetching the data. This shouldn't happen. Please reload the page or contact us if it keeps happening..." %}</p>

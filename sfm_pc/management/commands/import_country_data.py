@@ -202,7 +202,8 @@ class Command(BaseCommand):
 
         all_sheets = self.get_sheets_from_folder(country_path, options['sources_path'])
 
-        self.country_code = options.get('country_code', 'unnamed').rstrip()
+        self.country_code = options.get('country_code', 'unnamed')
+        self.country_name = options.get('country_name', 'unnamed').rstrip()
 
         self.create_sources(all_sheets['source'])
 
