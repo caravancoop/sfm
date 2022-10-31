@@ -250,36 +250,20 @@ class DownloadData(TemplateView):
         context = super().get_context_data()
         
         download_url, head_object = self._get_s3_object_metadata()
+        print('download_url', download_url)
+        print('head_object', head_object)
         
         if download_url and head_object:
             # (bytes / 1024) = kilobytes && (kilobytes / 1024) = megabytes
             file_size_mb = (head_object['ContentLength'] / 1024) / 1024
             context.update({
                 'download_url': download_url,
-                'file_size': file_size_mb
+                'file_size': int(file_size_mb)
             })
+            
+            print('context', context)
         
         return context
-        # 
-        # s3_client = boto3.client('s3')
-        # 
-        # params = {
-        #     'Bucket': DATA_ARCHIVE_BUCKET,
-        #     'Key': 'wwic_download.zip'
-        # }
-        # 
-        # download_url = self.get_presigned_url(s3_client, params)
-        # 
-        # if download_url:
-        #     context['download_url'] = download_url
-        # 
-        #     object_head = self
-        # 
-        #     response = requests.head(download_url)
-        #     from pprint import pprint
-        #     pprint(response.__dict__)
-        # 
-        # return context
     
     def _get_s3_object_metadata(self):
         s3_client = boto3.client('s3')
