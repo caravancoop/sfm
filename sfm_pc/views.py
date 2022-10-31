@@ -252,7 +252,7 @@ class DownloadData(TemplateView):
         download_url, head_object = self._get_s3_object_metadata()
         
         if download_url and head_object:
-            # (bytes / 1024) = kilobytes && (kilobytes / 1024) = megabytes
+            # megabytes = (bytes / 1024) / 1024
             file_size_mb = (head_object['ContentLength'] / 1024) / 1024
             context.update({
                 'download_url': download_url,
