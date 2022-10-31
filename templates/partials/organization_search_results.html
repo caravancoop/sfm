@@ -4,7 +4,6 @@
 <h3>
     <strong><i class="fa fa-fw fa-users"></i> {% trans "Units" %}</strong>
     <small>{{ hit_count|intcomma }} {% trans "results" %}</small>
-    <a class="pull-right btn btn-default" href="{{ download_urls.Organization }}" rel="nofollow"><i class="fa fa-fw fa-download"></i>{% trans "Download results" %}</a>
 </h3>
 
 {% with merge='False' object_list=objects sortable='True' %}

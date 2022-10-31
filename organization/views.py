@@ -91,11 +91,6 @@ class OrganizationDetail(BaseDetailView):
         # Determine if the user is logged in
         authenticated = self.request.user.is_authenticated
 
-        # Generate link to download a CSV of this record
-        params = '?download_etype=Organization&entity_id={0}'.format(str(context['organization'].uuid))
-
-        context['download_url'] = reverse('download') + params
-
         # Commanders of this unit
         context['person_members'] = []
 

@@ -26,7 +26,6 @@
         {# All violation info uses the same source, so we can cite at the end #}
         {% cite violation.description.get_value %}
         <small class="pull-right">
-            <a class="btn btn-default" type="button" role="button" href="{{ download_url }}"><i class="fa fa-fw fa-download"></i>{% trans "Download as CSV" %}</a>
             <a class="btn btn-default" type="button" role="button" href="#" id="print-page">
                 <i class="fa fa-fw fa-file-text"></i>{% trans "Print this page" %}
             </a>

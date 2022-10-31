@@ -548,24 +548,6 @@ def division_choices():
     return [(r.value, country_name(r.value)) for r in division_ids]
 
 
-def download_types():
-    return [
-        ('basic', _("Basic")),
-        ('parentage', _("Parentage")),
-        ('memberships', _("Memberships")),
-        ('areas', _("Areas of operation")),
-        ('sites', _("Sites")),
-        ('personnel', _("Personnel")),
-        ('sources', _("Sources")),
-    ]
-
-
-class DownloadForm(forms.Form):
-    download_type = forms.ChoiceField(label=gettext_lazy("Choose a download type"), choices=download_types)
-    division_id = forms.ChoiceField(label=gettext_lazy("Country"), choices=division_choices)
-    confidences = forms.BooleanField(label=gettext_lazy("Include confidence scores"), required=False)
-
-
 class ChangeLogForm(forms.Form):
     from_date = forms.DateTimeField(label=_("Start date"), required=False)
     to_date = forms.DateTimeField(label=_("End date"), required=False)
