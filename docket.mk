@@ -1,12 +1,13 @@
-.PHONY: sfm_pc/management/commands/country_data/countries
+.PHONY: sfm_pc/management/commands/country_data
 
 DATA_ARCHIVE_BUCKET := $(shell cat configs/s3_config.json | jq -r '.data_archive_bucket')
 
 data_archive : wwic_download.zip
 	aws s3 cp $< s3://$(DATA_ARCHIVE_BUCKET)/
 
+.PHONY: wwic_download.zip
 wwic_download.zip : filtered_data data/wwic_download/sources.csv data/wwic_download/sfm_research_handbook.pdf
-	cd data && zip -r ../$@ .
+	cd data/wwic_download && zip -r ../../$@ .
 
 COUNTRY_NAMES=$(shell perl -pe "s/,/ /g" import_docket.csv | cut -d' ' -f5)
 ENTITIES=units.csv persons.csv incidents.csv locations.csv locations.geojson
