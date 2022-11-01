@@ -34,12 +34,12 @@ data/wwic_download/sources.csv : sfm_pc/management/commands/country_data/countri
 	$(call filter_entity_data,source)
 
 data/wwic_download/%_locations.csv : sfm_pc/management/commands/country_data/countries/%/locations.csv
-	python data/processors/blank_columns.py --entity location > $@
+	cp $< $@
 
 data/wwic_download/%_locations.geojson : sfm_pc/management/commands/country_data/countries/%/locations.geojson
 	cp $< $@
 
-data/wwic_download/sfm_research_handbook.pdf : 
+data/wwic_download/metadata/sfm_research_handbook.pdf : 
 	curl -o $@ https://help.securityforcemonitor.org/_/downloads/en/latest/pdf/
 
 %_import : %.csv sfm_pc/management/commands/country_data/countries
