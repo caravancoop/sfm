@@ -1,4 +1,4 @@
-.PHONY: sfm_pc/management/commands/country_data
+.PHONY: sfm_pc/management/commands/country_data data/wwic_download/countries
 
 DATA_ARCHIVE_BUCKET := $(shell cat configs/s3_config.json | jq -r '.data_archive_bucket')
 
@@ -6,14 +6,14 @@ data_archive : wwic_download.zip
 	aws s3 cp $< s3://$(DATA_ARCHIVE_BUCKET)/
 
 .PHONY: wwic_download.zip
-wwic_download.zip : filtered_data data/wwic_download/sources.csv data/wwic_download/sfm_research_handbook.pdf
+wwic_download.zip : filtered_data data/wwic_download/metadata/sfm_research_handbook.pdf
 	cd data/wwic_download && zip -r ../../$@ .
 
 COUNTRY_NAMES=$(shell perl -pe "s/,/ /g" import_docket.csv | cut -d' ' -f5)
-ENTITIES=units.csv persons.csv incidents.csv locations.csv locations.geojson
+ENTITIES=units.csv persons.csv incidents.csv locations.csv locations.geojson sources.csv
 
 .PHONY : filtered_data
-filtered_data: $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/$(country)_%,$(ENTITIES)))
+filtered_data: $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/countries/$(country)_%,$(ENTITIES)))
 	echo "filtered csvs for entities"
 
 define filter_entity_data
@@ -21,24 +21,25 @@ define filter_entity_data
 					python data/processors/blank_columns.py --entity $(1) > $@)
 endef
 
-data/wwic_download/%_units.csv : sfm_pc/management/commands/country_data/countries/%/units.csv
+data/wwic_download/countries/%_units.csv : sfm_pc/management/commands/country_data/countries/%/units.csv
 	$(call filter_entity_data,unit)
 
-data/wwic_download/%_persons.csv : sfm_pc/management/commands/country_data/countries/%/persons.csv
+data/wwic_download/countries/%_persons.csv : sfm_pc/management/commands/country_data/countries/%/persons.csv
 	$(call filter_entity_data,person)
 
-data/wwic_download/%_incidents.csv : sfm_pc/management/commands/country_data/countries/%/incidents.csv
+data/wwic_download/countries/%_incidents.csv : sfm_pc/management/commands/country_data/countries/%/incidents.csv
 	$(call filter_entity_data,incident)
 
-data/wwic_download/sources.csv : sfm_pc/management/commands/country_data/countries/sources.csv
+data/wwic_download/countries/%_sources.csv : sfm_pc/management/commands/country_data/countries/%/sources.csv
 	$(call filter_entity_data,source)
 
-data/wwic_download/%_locations.csv : sfm_pc/management/commands/country_data/countries/%/locations.csv
+data/wwic_download/countries/%_locations.csv : sfm_pc/management/commands/country_data/countries/%/locations.csv
 	cp $< $@
 
-data/wwic_download/%_locations.geojson : sfm_pc/management/commands/country_data/countries/%/locations.geojson
+data/wwic_download/countries/%_locations.geojson : sfm_pc/management/commands/country_data/countries/%/locations.geojson
 	cp $< $@
 
+.PHONY : data/wwic_download/metadata/sfm_research_handbook.pdf
 data/wwic_download/metadata/sfm_research_handbook.pdf : 
 	curl -o $@ https://help.securityforcemonitor.org/_/downloads/en/latest/pdf/
 

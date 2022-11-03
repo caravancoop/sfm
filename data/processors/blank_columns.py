@@ -15,8 +15,20 @@ stdout_csv = csv.DictWriter(sys.stdout, fieldnames=reader.fieldnames)
 stdout_csv.writeheader()
 
 for row in reader:
-    row.update({
-        f'{args.entity}:comments:admin': '',
-        f'{args.entity}:owner:admin': ''
-    })
+    comment_key = f'{args.entity}:comments:admin'
+    comments = row.get(comment_key)
+
+    if comments:
+        row.update({
+            comment_key: ''
+        })
+
+    owner_key = f'{args.entity}:owner:admin'
+    owner = row.get(owner_key)
+
+    if owner:
+        row.update({
+            owner_key: ''
+        })
+        
     stdout_csv.writerow(row)
