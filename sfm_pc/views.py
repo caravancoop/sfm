@@ -6,6 +6,7 @@ from datetime import datetime
 import csv
 import logging
 import os
+import requests
 
 from django.conf import settings
 from django.views.generic.base import TemplateView
@@ -247,17 +248,39 @@ class DownloadData(TemplateView):
 
     def get_context_data(self):
         context = super().get_context_data()
-
-        download_url = self.get_presigned_url()
-
-        if download_url:
-            context['download_url'] = download_url
-
+        
+        download_url, head_object = self._get_s3_object_metadata()
+        
+        if download_url and head_object:
+            # megabytes = (bytes / 1024) / 1024
+            file_size_mb = (head_object['ContentLength'] / 1024) / 1024
+            context.update({
+                'download_url': download_url,
+                'file_size': int(file_size_mb)
+            })
+        
         return context
-
-    def get_presigned_url(self):
+    
+    def _get_s3_object_metadata(self):
         s3_client = boto3.client('s3')
 
+        params = {
+            'Bucket': DATA_ARCHIVE_BUCKET,
+            'Key': 'wwic_download.zip'
+        }
+
+        download_url = self._get_presigned_url(s3_client, params)
+
+        if download_url:
+            # Need to do a HEAD request to get the object size
+            head_object = s3_client.head_object(**params)
+            
+            return download_url, head_object
+        
+        return None, None
+            
+
+    def _get_presigned_url(self, s3_client, params):
         try:
             response = s3_client.generate_presigned_url(
                 'get_object',
@@ -272,6 +295,10 @@ class DownloadData(TemplateView):
         except ClientError as e:
             logging.error(e)
             return None
+    
+    def _get_object_head(self, s3_client, params):
+        response = s3_client.head_object(**params)
+        return response
 
 
 class Echo:

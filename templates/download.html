@@ -1,18 +1,16 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-    <section class="container text-center download-container mt-5 mb-5">
-      <h1><strong>{% trans "Use Our Data." %}</strong></h1>
-      <h1><strong>{% trans "Hold Perpetrators Accountable." %}</strong></h1>
-      <div class="row download-lead-container mt-2 mb-2">
-          <p class="lead download-lead-text">{% trans "Download the data that powers WhoWasInCommand to answer your own questions about the structure, behaviour and people in charge of security forces like the police and army." %}</p>
+    <section class="container download-container mt-5 mb-5">
+      <h1 class="text-center"><strong>{% trans "Download data from WhoWasInCommand.com" %}</strong></h1>
+      <div class="row text-center download-lead-container mt-2 mb-2">
+          <p class="lead download-lead-text">{% trans 'WhoWasInCommand.com is a free, public database of police, military and other security and defence forces. Click the "Download" button below to get a copy of all the data in the WhoWasInCommand.com database.' %}</p>
       </div>
-      <div class="row">
+      <div class="row text-center">
           <div class="col">
               {% if download_url %}
                 <div class="row download-lead mb-3">
-                    <a class="btn btn-info" href="{{ download_url }}">{% trans "Download our data (ZIP)" %}</a>
-                    <a class="btn btn-info" href="https://help.securityforcemonitor.org/en/latest/">{% trans "Read our documentation" %}</a>
+                    <a class="btn btn-info" href="{{ download_url }}">{% trans "Download" %} (.zip  {{ file_size }} MB)</a>
                 </div>
               {% else %}
                 <p>{% trans "An error occurred fetching the data. This shouldn't happen. Please reload the page or contact us if it keeps happening..." %}</p>
@@ -21,6 +19,26 @@
                 <p>{% trans "Need help? " %}<a href="mailto:technical@securityforcemonitor.org">{% trans "Contact us." %}</a></p>
               </div>
           </div>
+      </div>
+      
+      <div class="row">
+        <h3>What's in the download file?</h3>
+        <p>The download file includes spreadsheets containing data for each country in the WhoWasInCommand.com database. Each spreadsheet includes:</p>
+        <ul>
+          <li>the organizational structure and command chain of each branch of the security forces we have researched.</li>
+          <li>details on command personnel and their postings to different units over time.</li>
+          <li>the geographical footprint of different forces, including infrastructure and areas of operation.</li>
+          <li>a file of geospatial information used to represent this data as a map.</li>
+          <li>all the sources used to evidence each piece of data.</li>
+        </ul>
+        
+        <p>The download file also contains:</p>
+        <ul>
+          <li>the Security Force Monitor Research Handbook, which explains what each piece of data means and how it was created. You can also read <a href="https://help.securityforcemonitor.org/en/latest/" target="_blank">the Research Handbook online</a>.</li>
+          <li>copyright and licensing information explaining what you can do with this data, and what your obligations are should you use the data.</li>
+        </ul>
+        
+        <p>The data on published WhoWasInCommand are created by Security Force Monitor, an investigative team based at the Human Rights Institute of Columbia Law School. We provide this data to assist journalists, human rights workers, litigators and others seeking accountability for human rights abuses perpetrated by security and defense forces.</p>
       </div>
     </section>
 {% endblock %}

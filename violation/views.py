@@ -53,11 +53,6 @@ class ViolationDetail(BaseDetailView):
 
         authenticated = self.request.user.is_authenticated
 
-        # Generate link to download a CSV of this record
-        params = '?download_etype=Violation&entity_id={0}'.format(str(context['violation'].uuid))
-
-        context['download_url'] = reverse('download') + params
-
         context['location'] = None
 
         if context['violation'].location.get_value():

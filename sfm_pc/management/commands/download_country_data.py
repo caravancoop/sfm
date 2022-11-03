@@ -35,24 +35,24 @@ class Command(BaseCommand):
         )
         
         parser.add_argument(
-            '--country_code',
-            dest='country_code',
-            help='Country code for the import'
+            '--country_name',
+            dest='country_name',
+            help='Slugified country name'
         )
         
         parser.add_argument(
-            '--parent_directory',
-            dest='parent_directory'
+            '--target_directory',
+            dest='target_directory'
         )
 
     def handle(self, *args, **kwargs):
         entity_doc_id = kwargs['entity_doc_id']
         location_doc_id = kwargs['location_doc_id']
         sources_doc_id = kwargs['sources_doc_id']
-        country_code = kwargs['country_code'].rstrip()
-        parent_directory = kwargs['parent_directory']
+        country_name = kwargs['country_name'].rstrip()
+        target_directory = kwargs['target_directory']
 
-        country_subdirectory = f'{parent_directory}/countries/{country_code}'
+        country_subdirectory = f'{target_directory}/{country_name}'
         
         sheets_service = self._build_google_service(
             scopes=['https://www.googleapis.com/auth/spreadsheets.readonly'],
@@ -64,7 +64,7 @@ class Command(BaseCommand):
         self._create_csv_files(
             sheets_service=sheets_service,
             doc_id=sources_doc_id,
-            output_directory=parent_directory,
+            output_directory=target_directory,
             key_func=lambda key: key == 'sources'
         )
 
