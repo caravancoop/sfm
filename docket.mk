@@ -2,6 +2,7 @@
 
 DATA_ARCHIVE_BUCKET := $(shell cat configs/s3_config.json | jq -r '.data_archive_bucket')
 
+.PHONY : data_archive
 data_archive : wwic_download.zip
 	aws s3 cp $< s3://$(DATA_ARCHIVE_BUCKET)/
 	rm $<
