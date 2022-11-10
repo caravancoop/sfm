@@ -4,6 +4,7 @@ DATA_ARCHIVE_BUCKET := $(shell cat configs/s3_config.json | jq -r '.data_archive
 
 data_archive : wwic_download.zip
 	aws s3 cp $< s3://$(DATA_ARCHIVE_BUCKET)/
+	rm $<
 
 .PHONY: wwic_download.zip
 wwic_download.zip : filtered_data data/wwic_download/metadata/sfm_research_handbook.pdf
