@@ -15,7 +15,7 @@ COUNTRY_NAMES=$(shell perl -pe "s/,/ /g" import_docket.csv | cut -d' ' -f5)
 ENTITIES=units.csv persons.csv incidents.csv locations.csv locations.geojson sources.csv
 
 .PHONY : filtered_data
-filtered_data: $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/countries/$(country)_%,$(ENTITIES)))
+filtered_data: $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/countries/$(country)/%,$(ENTITIES)))
 	echo "filtered csvs for entities"
 
 define filter_entity_data
@@ -23,22 +23,23 @@ define filter_entity_data
 					python data/processors/blank_columns.py --entity $(1) > $@)
 endef
 
-data/wwic_download/countries/%_units.csv : sfm_pc/management/commands/country_data/countries/%/units.csv
+data/wwic_download/countries/%/units.csv : sfm_pc/management/commands/country_data/countries/%/units.csv
+	mkdir -p $(@D)
 	$(call filter_entity_data,unit)
 
-data/wwic_download/countries/%_persons.csv : sfm_pc/management/commands/country_data/countries/%/persons.csv
+data/wwic_download/countries/%/persons.csv : sfm_pc/management/commands/country_data/countries/%/persons.csv
 	$(call filter_entity_data,person)
 
-data/wwic_download/countries/%_incidents.csv : sfm_pc/management/commands/country_data/countries/%/incidents.csv
+data/wwic_download/countries/%/incidents.csv : sfm_pc/management/commands/country_data/countries/%/incidents.csv
 	$(call filter_entity_data,incident)
 
-data/wwic_download/countries/%_sources.csv : sfm_pc/management/commands/country_data/countries/%/sources.csv
+data/wwic_download/countries/%/sources.csv : sfm_pc/management/commands/country_data/countries/%/sources.csv
 	$(call filter_entity_data,source)
 
-data/wwic_download/countries/%_locations.csv : sfm_pc/management/commands/country_data/countries/%/locations.csv
+data/wwic_download/countries/%/locations.csv : sfm_pc/management/commands/country_data/countries/%/locations.csv
 	cp $< $@
 
-data/wwic_download/countries/%_locations.geojson : sfm_pc/management/commands/country_data/countries/%/locations.geojson
+data/wwic_download/countries/%/locations.geojson : sfm_pc/management/commands/country_data/countries/%/locations.geojson
 	cp $< $@
 
 .PHONY : data/wwic_download/metadata/sfm_research_handbook.pdf

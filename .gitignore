@@ -13,8 +13,8 @@
 sfm_pc/management/commands/data/
 country_data/
 wwic_download.zip
-data/wwic_download/countries/*.csv
-data/wwic_download/countries/*.geojson
+data/wwic_download/countries/*
+data/wwic_download/countries/*
 data/wwic_download/metadata/*.pdf
 
 /staticfiles
