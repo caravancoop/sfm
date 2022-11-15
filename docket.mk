@@ -1,3 +1,4 @@
+SHELL=/bin/bash -o pipefail
 .PHONY: sfm_pc/management/commands/country_data/countries data/wwic_download/countries
 
 DATA_ARCHIVE_BUCKET := $(shell cat configs/s3_config.json | jq -r '.data_archive_bucket')
@@ -15,8 +16,12 @@ COUNTRY_NAMES=$(shell perl -pe "s/,/ /g" import_docket.csv | cut -d' ' -f5)
 ENTITIES=units.csv persons.csv incidents.csv locations.csv locations.geojson sources.csv
 
 .PHONY : filtered_data
-filtered_data: $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/countries/$(country)/%,$(ENTITIES)))
+filtered_data: directories $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/countries/$(country)/%,$(ENTITIES)))
 	echo "filtered csvs for entities"
+
+.PHONY : directories
+directories : 
+	mkdir -p $(foreach country,$(COUNTRY_NAMES),data/wwic_download/countries/$(country))
 
 define filter_entity_data
 	$(shell csvgrep --columns $(1):status:admin --match 3 $< | \
@@ -24,7 +29,6 @@ define filter_entity_data
 endef
 
 data/wwic_download/countries/%/units.csv : sfm_pc/management/commands/country_data/countries/%/units.csv
-	mkdir -p $(@D)
 	$(call filter_entity_data,unit)
 
 data/wwic_download/countries/%/persons.csv : sfm_pc/management/commands/country_data/countries/%/persons.csv
