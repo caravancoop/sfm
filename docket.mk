@@ -1,4 +1,3 @@
-SHELL=/bin/bash -o pipefail
 .PHONY: sfm_pc/management/commands/country_data/countries data/wwic_download/countries
 
 DATA_ARCHIVE_BUCKET := $(shell cat configs/s3_config.json | jq -r '.data_archive_bucket')
