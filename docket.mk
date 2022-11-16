@@ -1,8 +1,8 @@
-# Variables for the data paths
-DATA_ARCHIVE_TARGET_PATH=data/wwic_download/countries
+# Path variable for the source data
 SOURCE_DATA_TARGET_PATH=sfm_pc/management/commands/country_data/countries
 
 # Variables for the archive data
+DATA_ARCHIVE_TARGET_PATH=data/wwic_download/countries
 COUNTRY_NAMES=$(shell perl -pe "s/,/ /g" import_docket.csv | cut -d' ' -f5)
 ENTITIES=units.csv persons.csv incidents.csv locations.csv locations.geojson sources.csv
 
