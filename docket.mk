@@ -1,55 +1,57 @@
-.PHONY: sfm_pc/management/commands/country_data/countries data/wwic_download/countries
+# Variables for the data paths
+DATA_ARCHIVE_TARGET_PATH=data/wwic_download/countries
+SOURCE_DATA_TARGET_PATH=sfm_pc/management/commands/country_data/countries
 
-DATA_ARCHIVE_BUCKET := $(shell cat configs/s3_config.json | jq -r '.data_archive_bucket')
-
-.PHONY : data_archive
-data_archive : wwic_download.zip
-	aws s3 cp $< s3://$(DATA_ARCHIVE_BUCKET)/
-	rm $<
-
-.PHONY: wwic_download.zip
-wwic_download.zip : filtered_data data/wwic_download/metadata/sfm_research_handbook.pdf
-	cd data/wwic_download && zip -r ../../$@ .
-
+# Variables for the archive data
 COUNTRY_NAMES=$(shell perl -pe "s/,/ /g" import_docket.csv | cut -d' ' -f5)
 ENTITIES=units.csv persons.csv incidents.csv locations.csv locations.geojson sources.csv
 
-.PHONY : filtered_data
-filtered_data: directories $(foreach country,$(COUNTRY_NAMES),$(patsubst %,data/wwic_download/countries/$(country)/%,$(ENTITIES)))
+.PHONY: $(SOURCE_DATA_TARGET_PATH) data/wwic_download/countries data_archive wwic_download.zip directories data/wwic_download/metadata/sfm_research_handbook.pdf
+
+
+# Create the data archive and upload it to S3
+data_archive : wwic_download.zip
+	aws s3 cp $< s3://$(shell cat configs/s3_config.json | jq -r '.data_archive_bucket')/
+	rm $<
+
+wwic_download.zip : filtered_data data/wwic_download/metadata/sfm_research_handbook.pdf
+	cd data/wwic_download && zip -r ../../$@ .
+
+filtered_data: directories $(SOURCE_DATA_TARGET_PATH) $(foreach country,$(COUNTRY_NAMES),$(patsubst %,$(country)_%,$(ENTITIES)))
 	echo "filtered csvs for entities"
 
-.PHONY : directories
 directories : 
-	mkdir -p $(foreach country,$(COUNTRY_NAMES),data/wwic_download/countries/$(country))
+	mkdir -p $(foreach country,$(COUNTRY_NAMES),$(DATA_ARCHIVE_TARGET_PATH)/$(country))
 
 define filter_entity_data
 	$(shell csvgrep --columns $(1):status:admin --match 3 $< | \
-					python data/processors/blank_columns.py --entity $(1) > $@)
+					python data/processors/blank_columns.py --entity $(1) > $(DATA_ARCHIVE_TARGET_PATH)/$*/$@)
 endef
 
-data/wwic_download/countries/%/units.csv : sfm_pc/management/commands/country_data/countries/%/units.csv
+%_units.csv : $(SOURCE_DATA_TARGET_PATH)/%/units.csv
 	$(call filter_entity_data,unit)
 
-data/wwic_download/countries/%/persons.csv : sfm_pc/management/commands/country_data/countries/%/persons.csv
+%_persons.csv : $(SOURCE_DATA_TARGET_PATH)/%/persons.csv
 	$(call filter_entity_data,person)
 
-data/wwic_download/countries/%/incidents.csv : sfm_pc/management/commands/country_data/countries/%/incidents.csv
+%_incidents.csv : $(SOURCE_DATA_TARGET_PATH)/%/incidents.csv
 	$(call filter_entity_data,incident)
 
-data/wwic_download/countries/%/sources.csv : sfm_pc/management/commands/country_data/countries/%/sources.csv
-	$(call filter_entity_data,source)
+%_sources.csv : $(SOURCE_DATA_TARGET_PATH)/%/sources.csv
+	cp $< $(DATA_ARCHIVE_TARGET_PATH)/$*/$@
 
-data/wwic_download/countries/%/locations.csv : sfm_pc/management/commands/country_data/countries/%/locations.csv
-	cp $< $@
+%_locations.csv : $(SOURCE_DATA_TARGET_PATH)/%/locations.csv
+	cp $< $(DATA_ARCHIVE_TARGET_PATH)/$*/$@
 
-data/wwic_download/countries/%/locations.geojson : sfm_pc/management/commands/country_data/countries/%/locations.geojson
-	cp $< $@
+%_locations.geojson : $(SOURCE_DATA_TARGET_PATH)/%/locations.geojson
+	cp $< $(DATA_ARCHIVE_TARGET_PATH)/$*/$@
 
-.PHONY : data/wwic_download/metadata/sfm_research_handbook.pdf
 data/wwic_download/metadata/sfm_research_handbook.pdf : 
 	curl -o $@ https://help.securityforcemonitor.org/_/downloads/en/latest/pdf/
 
-%_import : %.csv sfm_pc/management/commands/country_data/countries
+
+# Download the source data and load it into the database
+%_import : %.csv $(SOURCE_DATA_TARGET_PATH)
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
 		echo "Loading data for country code $$3" && (\
@@ -60,10 +62,10 @@ data/wwic_download/metadata/sfm_research_handbook.pdf :
 			exit 255 \
 		)'
 
-sfm_pc/management/commands/country_data/countries : import_docket.csv
+$(SOURCE_DATA_TARGET_PATH) : import_docket.csv
 	perl -pe "s/,/ /g" $< | \
 	xargs -L1 bash -c ' \
-		echo "Importing data for country $$4" && (\
+		echo "Downloading data for country $$4" && (\
 			python -u manage.py download_country_data \
 				--sources_doc_id $$0 \
 				--location_doc_id $$1 \
