@@ -19,19 +19,19 @@ class Command(BaseCommand):
         parser.add_argument(
             '--sources_doc_id',
             dest='sources_doc_id',
-            help='Import data from specified Google Sheets Document'
+            help='Download data from specified Google Sheets Document'
         )
         
         parser.add_argument(
             '--location_doc_id',
             dest='location_doc_id',
-            help='Import location data from specified Google Drive file'
+            help='Download location data from specified Google Drive file'
         )
 
         parser.add_argument(
             '--entity_doc_id',
             dest='entity_doc_id',
-            help='Import data from specified Google Sheets Document'
+            help='Download data from specified Google Sheets Document'
         )
         
         parser.add_argument(
