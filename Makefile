@@ -6,6 +6,8 @@ PG_HOST=localhost
 PG_USER=datamade
 PG_PASSWORD=
 
+SOURCE_DATA_PATH=sfm_pc/management/commands/country_data/countries
+DATA_ARCHIVE_PATH=data/wwic_download/countries
 
 .PHONY : import_directory import_db flush_db recreate_db
 
@@ -43,4 +45,4 @@ recreate_db : import_directory flush_db import_docket_import data_archive
 clean :
 	rm auth_models.json *errors.csv
 
-include docket.mk
+include docket.mk download.mk

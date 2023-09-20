@@ -24,9 +24,9 @@ services:
       - .:/app
     environment:
       - IMPORT_DIRECTORY=${IMPORT_DIRECTORY}
-      - PG_HOST=${PG_HOST}
-      - PG_USER=${PG_USER}
-      - PG_PASSWORD=${PG_PASSWORD}
+      - PG_HOST=postgres
+      - PG_USER=sfm
+      - PG_PASSWORD=postgres
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     command: python manage.py runserver 0.0.0.0:8000
